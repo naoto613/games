@@ -1,0 +1,42 @@
+// ================= airport =================
+SCN.airport={bg:'#e8f4ff',song:'hero',
+  BC:['#ff5f6f','#5aa8ff','#ffd23a'],
+  enter(){this.ph='bag';this.t=0;this.fin=0;this.miss=0;this.bags=[...Array(6)].map((_,i)=>({col:this.BC[i%3],x:-60-i*150,done:false,cart:-1}));this.dr=null;this.pass=[{k:'bear'},{k:'rabbit'},{k:'panda'}].map(p=>({...p,st:false}));this.stamp=null;
+    this.py=H*.45;this.ty=H*.45;this.dist=0;this.items=[];this.spawn=0;this.stars=0;this.hurt=0;this.gear=false;this.land=0;this.dest=pick([['みなみの しま','island'],['ゆきの くに','snow country'],['おかしの くに','candy land']]);
+    say('くうこう！ まずは にもつを おなじ いろの カートに のせよう');},
+  update(dt){this.t+=dt;if(this.hurt>0)this.hurt-=dt;
+    if(this.ph==='bag'){for(const b of this.bags)if(!b.done&&b!==(this.dr&&this.dr.b)){b.x+=70*dt;if(b.x>W+60)b.x=-60;}}
+    if(this.ph==='fly'){this.py+=(this.ty-this.py)*Math.min(1,dt*5);this.dist+=dt;this.spawn-=dt;if(this.spawn<=0&&this.dist<16){this.spawn=.55;const cl=Math.random()<.3;this.items.push({x:W+60,y:rand(H*.18,H*.72),cloud:cl});}
+      for(let i=this.items.length-1;i>=0;i--){const it=this.items[i];it.x-=320*dt;if(Math.hypot(it.x-160,it.y-this.py)<(it.cloud?70:55)){this.items.splice(i,1);if(it.cloud){if(this.hurt<=0){this.hurt=.8;sfx('boom');say('ゴロゴロ！ くもに ぶつかった');}}else{this.stars++;sfx('ding');burst(160,this.py,8,'star');}continue;}if(it.x<-80)this.items.splice(i,1);}
+      if(this.dist>18){this.ph='land';this.t=0;this.py=H*.3;say(`${this.dest[0]}が みえてきた！ タイヤを だして、ゆっくり おりよう`);}}
+    if(this.ph==='land'){if(this.gear){this.land+=dt*.3;this.py=lerp(H*.3,H*.64,Math.min(1,this.land));if(this.land>=1&&!this.landed){this.landed=1;sfx('boom');say('ブレーキ！ あかい ボタンを タッチ');}}}
+    if(this.ph==='arrive'&&this.t>1.5&&!this.fin){this.fin=.01;sfx('fanfare');confetti(90);say(`${this.dest[0]}に とうちゃく！ ほし ${this.stars}こ あつめたね！`);}
+    if(this.fin>0){this.fin+=dt;if(this.fin>3&&this.fin<9){this.fin=9;celebrate('airport',this.stars>=15);}}},
+  cartP(i){return{x:120+i*180,y:H*.78};},
+  draw(c){const ph=this.ph;
+    if(ph==='bag'||ph==='stamp'){c.fillStyle='#e8f4ff';c.fillRect(-400,0,W+800,H);c.fillStyle='#bfe0f8';rr(c,20,112,W-40,H*.2,20);c.fill();c.fillStyle='#fff';c.font=`36px ${POP}`;c.textAlign='center';c.textBaseline='middle';c.fillText('くうこう',W/2,112+H*.1);drawPlane(c,W/2+160,112+H*.12,.5,T,0);
+      c.fillStyle=vfill(c,H*.5,H,'#d8d8e8',.05,-.06);c.fillRect(-400,H*.5,W+800,H);}
+    if(ph==='bag'){c.fillStyle='#6a6a7a';c.fillRect(-400,H*.44,W+800,40);c.fillStyle='#8a8aa0';for(let x=-((T*70)%40);x<W;x+=40)c.fillRect(x,H*.44,20,40);
+      for(const b of this.bags){if(b.done)continue;const bx=this.dr&&this.dr.b===b?this.dr.x:b.x,by=this.dr&&this.dr.b===b?this.dr.y:H*.44-10;c.save();c.translate(bx,by);c.scale(1.6,1.6);c.fillStyle=b.col;rr(c,-24,-18,48,40,6);c.fill();c.strokeStyle=shade(b.col,-.3);c.lineWidth=2;c.stroke();c.beginPath();c.moveTo(-10,-18);c.lineTo(-10,-26);c.lineTo(10,-26);c.lineTo(10,-18);c.stroke();c.restore();}
+      for(let i=0;i<3;i++){const p=this.cartP(i);c.fillStyle='#8a8aa0';rr(c,p.x-70,p.y-10,140,20,6);c.fill();c.fillStyle='#3a3a4a';circ(c,p.x-50,p.y+16,10);circ(c,p.x+50,p.y+16,10);c.fillStyle=this.BC[i];rr(c,p.x-66,p.y-50,132,14,6);c.fill();const n=this.bags.filter(b=>b.cart===i).length;for(let j=0;j<n;j++){c.fillStyle=this.BC[i];rr(c,p.x-50+j*50,p.y-40,40,30,5);c.fill();}}}
+    if(ph==='stamp'){this.pass.forEach((p,i)=>{const x=110+i*190,y=H*.66;drawAnimal(c,p.k,x,y-40,.55,{t:T+i,happy:p.st});c.fillStyle='#2a4a9a';rr(c,x-50,y,100,120,8);c.fill();c.fillStyle='#fff';rr(c,x-40,y+10,80,100,4);c.fill();drawAnimal(c,p.k,x-12,y+62,.2,{t:0});if(p.st){c.save();c.translate(x+18,y+70);c.rotate(-.2);c.strokeStyle='#ff3a5a';c.lineWidth=4;c.beginPath();c.arc(0,0,20,0,TAU);c.stroke();c.fillStyle='#ff3a5a';c.font=`800 12px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText('OK',0,1);c.restore();}});
+      c.fillStyle='#fff';c.font=`800 22px ${FONT}`;c.textAlign='center';c.fillText('パスポートに スタンプを ポン！',W/2,H*.56);}
+    if(ph==='fly'||ph==='land'||ph==='arrive'){const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#6fc8ff');g.addColorStop(1,'#e6f8ff');c.fillStyle=g;c.fillRect(-400,0,W+800,H);const sc=(this.dist*200)%700;for(let i=0;i<5;i++)cloud(c,((i*180-sc)%900+900)%900-150,120+(i%3)*H*.25,.6,false);
+      if(ph!=='fly'){const k=ph==='arrive'?1:Math.min(1,this.land);c.fillStyle=this.dest[1]==='island'?'#f8e4b0':this.dest[1]==='snow country'?'#f4faff':'#ffd0e6';c.fillRect(-400,H*.7,W+800,H);c.fillStyle='#8a8aa0';c.fillRect(-400,H*.7,W+800,30);c.fillStyle='#fff';for(let x=0;x<W;x+=80)c.fillRect(x,H*.71,40,6);
+        if(this.dest[1]==='island'){c.save();c.translate(80,H*.66);drawDecor(c,'palm',1);c.restore();c.save();c.translate(520,H*.66);drawDecor(c,'palm',1);c.restore();}else if(this.dest[1]==='snow country'){SPECIAL_THING.snowman(c,90,H*.64,2.2);SPECIAL_THING.snowman(c,510,H*.64,1.8);}else{drawItem(c,'cake',90,H*.64,2);drawItem(c,'icecream',510,H*.62,2);}}
+      for(const it of this.items){if(it.cloud){c.fillStyle='#8a8aa0';for(const [a,b,r] of [[-30,0,30],[10,-14,34],[40,4,26]])circ(c,it.x+a,it.y+b,r);c.fillStyle='#ffd23a';c.beginPath();c.moveTo(it.x,it.y+20);c.lineTo(it.x-10,it.y+44);c.lineTo(it.x+4,it.y+40);c.lineTo(it.x-6,it.y+62);c.lineTo(it.x+14,it.y+34);c.lineTo(it.x+2,it.y+36);c.closePath();c.fill();}else{c.fillStyle='#ffd23a';star(c,it.x,it.y,22,10,5,T*2);c.fill();}}
+      const px=ph==='arrive'?160+this.t*60:160;drawPlane(c,px,this.py+(this.hurt>0?Math.sin(this.hurt*40)*6:0),.8,T,ph==='fly'?(this.ty-this.py)*.003:0);if(this.gear||ph==='arrive'){c.fillStyle='#3a3a4a';circ(c,px-20,this.py+40,10);circ(c,px+60,this.py+40,10);}
+      c.fillStyle='rgba(255,255,255,.9)';rr(c,20,112,170,46,23);c.fill();c.fillStyle='#e8a000';c.font=`800 22px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText('★ '+this.stars,105,135);
+      if(ph==='fly'){c.fillStyle='rgba(255,255,255,.8)';rr(c,W/2-150,H-80,300,50,25);c.fill();c.fillStyle='#3a88d8';c.font=`800 20px ${FONT}`;c.fillText('ゆびで うえ・したに うごかそう',W/2,H-55);}
+      if(ph==='land'){if(!this.gear){drawBtn(c,W/2,H-110,56,'#5aa8ff','check',true);c.fillStyle='#3a5a8a';c.font=`800 20px ${FONT}`;c.fillText('タイヤを だす',W/2,H-30);}else if(this.landed){drawBtn(c,W/2,H-110,56,'#ff5f6f','check',true);c.fillStyle='#8a2a3a';c.font=`800 20px ${FONT}`;c.fillText('ブレーキ',W/2,H-30);}}
+      if(ph==='arrive'){['bear','rabbit','panda'].forEach((k,i)=>drawAnimal(c,k,300+i*80,H*.7,.5,{t:T+i,happy:1,dance:1}));}}
+    if(ph==='bag'||ph==='stamp'){drawFuka(c,540,H*.95,{outfit:outfit(),t:T,sc:1.7,point:1});}stepDots(c,4,{bag:0,stamp:1,fly:2,land:3,arrive:3}[ph],128);},
+  down(x,y){const ph=this.ph;
+    if(ph==='bag'){for(const b of this.bags)if(!b.done&&hitC(x,y,b.x,H*.44-10,50)){this.dr={b,x,y};sfx('tap');return;}return;}
+    if(ph==='stamp'){this.pass.forEach((p,i)=>{const bx=110+i*190;if(!p.st&&Math.abs(x-bx)<60&&y>H*.66&&y<H*.66+120){p.st=true;sfx('snap');burst(bx,H*.66+60,10,'star');rkCheer();hush();speak('ポン！');if(this.pass.every(q=>q.st)){setTimeout(()=>{if(scene===this){this.ph='fly';this.t=0;sfx('launch');say('しゅっぱつ！ ゆびで ひこうきを うごかして、ほしを あつめよう。 かみなりぐもに きをつけて！');}},1200);}}});return;}
+    if(ph==='fly'){this.ty=clamp(y,H*.15,H*.75);return;}
+    if(ph==='land'){if(!this.gear&&hitC(x,y,W/2,H-110,70)){this.gear=true;sfx('tick');say('タイヤ オン！ ゆっくり おりるよ');return;}if(this.landed&&hitC(x,y,W/2,H-110,70)){this.ph='arrive';this.t=0;sfx('whoosh');}}},
+  move(x,y){if(this.dr){this.dr.x=x;this.dr.y=y;}if(this.ph==='fly')this.ty=clamp(y,H*.15,H*.75);},
+  up(x,y){const d=this.dr;if(!d)return;this.dr=null;for(let i=0;i<3;i++){const p=this.cartP(i);if(Math.abs(x-p.x)<90&&Math.abs(y-p.y)<90){if(this.BC[i]===d.b.col){d.b.done=true;d.b.cart=i;sfx('ding');burst(p.x,p.y-30,10,'star');if(this.bags.every(b=>b.done)){this.ph='stamp';sfx('fanfare');say('にもつ OK！ つぎは パスポートに スタンプを おそう');}}else{this.miss++;sfx('no');say('おなじ いろの カートに のせてね');}return;}}},
+  hint(){const ph=this.ph;if(ph==='bag'){const b=this.bags.find(b=>!b.done&&b.x>40&&b.x<W-40);if(!b)return null;const i=this.BC.indexOf(b.col),p=this.cartP(i);return{x:b.x,y:H*.44-10,x2:p.x,y2:p.y-20};}if(ph==='stamp'){const i=this.pass.findIndex(p=>!p.st);return i<0?null:{x:110+i*190,y:H*.66+60};}if(ph==='fly'){const it=this.items.find(i=>!i.cloud&&i.x>200);return it?{x:W/2,y:it.y}:null;}if(ph==='land')return(!this.gear||this.landed)?{x:W/2,y:H-110}:null;return null;},
+  hintText(){return{bag:'おなじ いろの カートへ',stamp:'パスポートを タッチ',fly:'ひこうきを うごかそう',land:'ボタンを タッチ'}[this.ph]||'';}};

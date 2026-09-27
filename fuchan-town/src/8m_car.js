@@ -1,0 +1,43 @@
+// ================= car wash & repair =================
+SCN.carwash={bg:'#e8f4ff',song:'play',
+  PCOL:['#ff5f6f','#5aa8ff','#ffd23a','#6cd08a','#b48cff','#ff8cc0'],
+  enter(){this.ph='wash';this.step=0;this.t=0;this.fin=0;this.col='#8ab0d0';this.mud=[...Array(10)].map(()=>({x:rand(-140,140),y:rand(-120,-30),r:rand(16,28),st:0}));this.tool=null;this.bolts=[0,0,0,0];this.tire='flat';this.air=0;this.paint=mkCells(230,70,24);this.pcol=null;this.stk=[];this.dx=0;
+    say('くるまの しゅうりやさん！ どろんこの くるまを あらおう。 まずは あわの スプレー！');},
+  C(){return{x:300,y:H*.56};},
+  TOOLS:[['foam','あわ'],['brush','ブラシ'],['water','みず'],['towel','タオル']],
+  update(dt){this.t+=dt;if(this.ph==='drive'){this.dx+=Math.min(900,this.t*500)*dt;if(this.t>2.4&&!this.fin){this.fin=.01;}}if(this.fin>0){this.fin+=dt;if(this.fin>1&&this.fin<9){this.fin=9;celebrate('carwash',!!this.pcol&&this.stk.length>=2);}}},
+  draw(c){c.fillStyle='#e8f4ff';c.fillRect(-400,0,W+800,H);c.fillStyle='#d0e4f4';for(let x=-400;x<W+400;x+=80)c.fillRect(x,0,4,H*.7);c.fillStyle=vfill(c,H*.7,H,'#a8b0c0',.05,-.08);c.fillRect(-400,H*.7,W+800,H);c.fillStyle='#ffd23a';for(let x=0;x<W;x+=80)c.fillRect(x,H*.7+30,40,8);
+    const C=this.C(),ph=this.ph;c.save();c.translate(this.dx,0);if(ph==='fix'&&this.tire==='off')c.translate(0,0);
+    drawCarS(c,C.x,C.y,1.6,this.pcol||this.col,ph==='drive'?this.t:0);
+    if(this.pcol===null&&ph==='paint'){c.fillStyle=this.cur||'#fff';c.globalAlpha=.85;for(const q of this.paint)if(q.v)circ(c,C.x+q.x,C.y-115+q.y,22);c.globalAlpha=1;}
+    for(const s of this.stk){c.save();c.translate(C.x+s.x,C.y+s.y);if(s.k==='star'){c.fillStyle='#ffd23a';star(c,0,0,20,9);c.fill();}else{c.fillStyle='#ff5fa2';heartP(c,0,0,16);c.fill();}c.restore();}
+    for(const m of this.mud){if(m.st>=3)continue;const x=C.x+m.x*1.6,y=C.y+m.y*1.6;if(m.st===0){c.fillStyle='#8a6a4a';for(let i=0;i<4;i++)circ(c,x+Math.cos(i*1.7)*m.r*.4,y+Math.sin(i*1.7)*m.r*.4,m.r*.7);}else if(m.st===1){c.fillStyle='#fff';for(let i=0;i<5;i++)circ(c,x+Math.cos(i*1.3)*m.r*.5,y+Math.sin(i*1.3)*m.r*.5,m.r*.6);}else{c.fillStyle='rgba(140,200,255,.6)';circ(c,x,y,m.r*.6);}}
+    if(ph==='fix'){const wx=C.x+90*1.6,wy=C.y-14*1.6;if(this.tire==='flat'){c.fillStyle='#2a2a3a';c.beginPath();c.ellipse(wx,wy+14,50,34,0,0,TAU);c.fill();c.fillStyle='#c8c8d8';circ(c,wx,wy+8,20);}else if(this.tire==='new'||this.tire==='on'){c.save();c.translate(this.tire==='new'?this.tx:wx,this.tire==='new'?this.ty:wy);c.fillStyle='#2a2a3a';circ(c,0,0,48*(this.tire==='on'?.4+.6*Math.min(1,this.air):1));c.fillStyle='#c8c8d8';circ(c,0,0,20);c.restore();}
+      if(this.tire!=='new')for(let i=0;i<4;i++){const a=i/4*TAU+.8;const bx=wx+Math.cos(a)*12,by=wy+(this.tire==='flat'?8:0)+Math.sin(a)*12;if((this.tire==='flat'&&!this.bolts[i])||(this.tire==='on'&&this.bolts[i])){c.fillStyle='#ffd23a';circ(c,bx,by,7);}}
+      if(this.tire==='off'||this.tire==='new'){c.fillStyle='#2a2a3a';c.beginPath();c.ellipse(90,H*.82,50,34,0,0,TAU);c.fill();c.save();c.translate(510,H*.82);if(this.tire==='off'){c.fillStyle='#2a2a3a';circ(c,0,0,48);c.fillStyle='#c8c8d8';circ(c,0,0,20);}c.restore();}
+      if(this.tire==='on'&&this.bolts.every(b=>b)&&this.air<1){c.fillStyle='#5aa8ff';rr(c,W/2-50,H*.82,100,60,14);c.fill();c.fillStyle='#fff';c.font=`800 18px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText('ポンプ',W/2,H*.82+30);c.fillStyle='#fff';rr(c,W/2-100,H*.82+70,200,16,8);c.fill();c.fillStyle='#5aa8ff';rr(c,W/2-100,H*.82+70,200*this.air,16,8);c.fill();}}
+    c.restore();
+    if(ph==='wash'){tray(c,H-80,120);this.TOOLS.forEach(([k,n],i)=>{const x=90+i*140;c.globalAlpha=i===this.step?1:.3;if(k==='foam'){c.fillStyle='#ff9ac8';rr(c,x-20,H-110,40,60,8);c.fill();c.fillStyle='#fff';circ(c,x,H-118,14);}else if(k==='brush')drawItem(c,'sponge',x,H-80,1.4);else if(k==='water')drawItem(c,'shower',x,H-80,1.4);else drawItem(c,'towel',x,H-80,1.4);c.globalAlpha=1;});if(this.tool){c.save();c.translate(this.tool.x,this.tool.y);c.fillStyle='#fff';circ(c,0,0,24);c.restore();}}
+    if(ph==='paint'){tray(c,H-80,120);this.PCOL.forEach((col,i)=>{c.fillStyle=col;circ(c,70+i*92,H-100,28);c.strokeStyle=this.cur===col?'#3a3a5a':'#fff';c.lineWidth=4;c.beginPath();c.arc(70+i*92,H-100,28,0,TAU);c.stroke();});c.fillStyle='#8a8aa0';c.font=`800 16px ${FONT}`;c.textAlign='center';c.fillText('いろを えらんで ぬりぬり → ほし・ハートを タッチで はる',W/2,H-44);if(this.pcol)drawBtn(c,W-60,H*.3,44,'#4cd08a','check',this.stk.length>=2);}
+    if(ph!=='drive'){drawFuka(c,70,H*.93,{outfit:outfit({acc:'cap'}),t:T,sc:1.9,point:1});}drawRikki(c,540,H*.93,{sc:1.5,t:T,clap:RK.clap});this.rkPos={x:540,y:H*.93,sc:1.5};stepDots(c,4,{wash:0,fix:1,paint:2,drive:3}[ph],128);},
+  down(x,y){const C=this.C(),ph=this.ph;
+    if(ph==='wash'){const i=this.step,tx=90+i*140;if(hitC(x,y,tx,H-80,56)){this.tool={k:this.TOOLS[i][0],x,y,lx:x,ly:y};sfx('tap');}else{for(let j=0;j<4;j++)if(j!==i&&hitC(x,y,90+j*140,H-80,56)){sfx('no');say(['さきに あわを かけよう','さきに ブラシで ごしごし','つぎは おみずで ながそう','さいごは タオルで ふこう'][i]);}}return;}
+    if(ph==='fix'){const wx=C.x+90*1.6,wy=C.y-14*1.6;
+      if(this.tire==='flat'){for(let i=0;i<4;i++){const a=i/4*TAU+.8;if(!this.bolts[i]&&hitC(x,y,wx+Math.cos(a)*12,wy+8+Math.sin(a)*12,26)){this.bolts[i]=1;sfx('tick');burst(x,y,4,'star');if(this.bolts.every(b=>b)){this.tire='off';sfx('boing');say('ぺちゃんこ タイヤを はずした！ あたらしい タイヤを ひっぱって つけよう');}return;}}
+        if(hitC(x,y,wx,wy,50)){const i=this.bolts.findIndex(b=>!b);if(i>=0){this.bolts[i]=1;sfx('tick');if(this.bolts.every(b=>b)){this.tire='off';sfx('boing');say('ぺちゃんこ タイヤを はずした！ あたらしい タイヤを ひっぱって つけよう');}}}return;}
+      if(this.tire==='off'&&hitC(x,y,510,H*.82,60)){this.tire='new';this.tx=x;this.ty=y;sfx('tap');return;}
+      if(this.tire==='on'){if(!this.bolts.every(b=>b)){if(hitC(x,y,wx,wy,60)){const i=this.bolts.findIndex(b=>!b);this.bolts[i]=1;sfx('tick');if(this.bolts.every(b=>b))say('ボルト よし！ ポンプで くうきを いれよう');}return;}
+        if(Math.abs(x-W/2)<60&&Math.abs(y-(H*.82+30))<40){this.air=Math.min(1,this.air+.17);sfx('whoosh');if(this.air>=1){sfx('fanfare');this.ph='paint';say('なおった！ すきな いろに ぬって かざりを つけよう');}}}return;}
+    if(ph==='paint'){this.PCOL.forEach((col,i)=>{if(hitC(x,y,70+i*92,H-100,32)){this.cur=col;sfx('tap');}});if(this.pcol&&this.stk.length>=0&&hitC(x,y,W-60,H*.3,50)&&this.stk.length>=2){this.ph='drive';this.t=0;sfx('honk');say('ピカピカ！ ブッブー！ いってきまーす！');return;}
+      if(this.pcol&&Math.abs(x-C.x)<240&&y<C.y&&y>C.y-220){this.stk.push({k:this.stk.length%2?'heart':'star',x:x-C.x,y:y-C.y});sfx('pop');if(this.stk.length===2)say('できたら みどりの ボタン！');}return;}},
+  move(x,y){const C=this.C(),t=this.tool;if(t){const d=Math.hypot(x-t.lx,y-t.ly);t.x=x;t.y=y;t.lx=x;t.ly=y;const k=t.k;for(const m of this.mud){const mx=C.x+m.x*1.6,my=C.y+m.y*1.6;if(Math.hypot(x-mx,y-my)<m.r*1.6+20){if(k==='foam'&&m.st===0){m.st=1;sfx('squish');}else if(k==='brush'&&m.st===1&&d>2){m.w=(m.w||0)+d;if(m.w>80){m.st=2;sfx('squish');}}else if(k==='water'&&m.st===2){m.st=3;sfx('water');drops(mx,my,6);}}}
+      if(k==='water'&&Math.random()<.5)parts.push({x,y,vx:rand(-30,30),vy:220,life:.5,t:0,kind:'drop',col:'#8ad0ff'});
+      const need=[0,1,2][this.step];if(this.step<3&&this.mud.every(m=>m.st>need)){this.step++;this.tool=null;sfx('ding');say(['ブラシで ごしごし！','おみずで ながそう！','タオルで ふきふき！'][this.step-1]);}
+      if(this.step===3&&k==='towel'){this.dry=(this.dry||0)+d;if(Math.random()<.1)sfx('squish');if(this.dry>1400){this.ph='fix';this.tool=null;sfx('fanfare');say('ピカピカ！ あれ、タイヤが ぺちゃんこ。 ボルトを タッチして はずそう');}}}
+    if(this.tire==='new'){this.tx=x;this.ty=y;}
+    if(this.ph==='paint'&&this.cur&&!this.pcol){const ch=paintCells(this.paint,C.x,C.y-115,x,y,50);if(ch&&Math.random()<.2)sfx('squish');if(cov(this.paint)>.7){this.pcol=this.cur;sfx('spark');say('ぬれた！ くるまを タッチして ほしや ハートを はろう');}}},
+  up(x,y){this.tool=null;const C=this.C();if(this.tire==='new'){const wx=C.x+90*1.6,wy=C.y-14*1.6;if(hitC(x,y,wx,wy,80)){this.tire='on';this.bolts=[0,0,0,0];sfx('snap');say('はまった！ ボルトを タッチして しめよう');}else{this.tire='off';}}},
+  hint(){const C=this.C(),ph=this.ph;if(ph==='wash'){const m=this.mud.find(m=>m.st<this.step+1&&m.st<3);return m?{x:90+this.step*140,y:H-80,x2:C.x+m.x*1.6,y2:C.y+m.y*1.6}:{x:90+this.step*140,y:H-80,x2:C.x,y2:C.y-80};}
+    if(ph==='fix'){const wx=C.x+90*1.6,wy=C.y-14*1.6;if(this.tire==='flat'||this.tire==='on'&&!this.bolts.every(b=>b))return{x:wx,y:wy};if(this.tire==='off')return{x:510,y:H*.82,x2:wx,y2:wy};if(this.tire==='on')return{x:W/2,y:H*.82+30};return null;}
+    if(ph==='paint'){if(!this.cur)return{x:70,y:H-100};if(!this.pcol)return{x:C.x-150,y:C.y-100,x2:C.x+150,y2:C.y-100};return this.stk.length>=2?{x:W-60,y:H*.3}:{x:C.x,y:C.y-120};}return null;},
+  hintText(){return{wash:'どうぐで くるまを あらおう',fix:'タイヤを こうかんしよう',paint:'いろを ぬって かざろう'}[this.ph]||'';}};

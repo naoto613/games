@@ -26,11 +26,13 @@ SCN.title={bg:'#bfe9ff',song:'town',enter(){},
 // ================= map =================
 const CATS=[
   {id:'c_special',name:'とくべつ',roof:'#ff5f9a',wall:'#fff0f6',icon:'nyan',ja:'とくべつ アトラクション',places:['detective','fuwa']},
-  {id:'c_shop',name:'おみせやさん',roof:'#ff8cc0',wall:'#fff4f8',icon:'cake',ja:'おみせの まち',places:['cake','shop','dress','doctor','bath','brush']},
+  {id:'c_shop',name:'おみせやさん',roof:'#ff8cc0',wall:'#fff4f8',icon:'cake',ja:'おみせの まち',places:['cake','pizza','icecream','sushi','shop','dress','salon']},
+  {id:'c_care',name:'おせわの いえ',roof:'#ff9a5a',wall:'#fff6ee',icon:'puppy',ja:'おせわの いえ',places:['doctor','brush','bath','pet','tidy']},
   {id:'c_learn',name:'まなびの もり',roof:'#4cae6a',wall:'#f0fff0',icon:'letterA',ja:'まなびの もり',places:['school','shiri','puzzle','nurie','music','blocks']},
   {id:'c_fun',name:'あそびの ひろば',roof:'#ffa030',wall:'#fff8e8',icon:'ferris',ja:'あそびの ひろば',places:['yuen','crane','dance','festival','zoo','hide','daruma']},
   {id:'c_sports',name:'うんどうかい',roof:'#3a8ad8',wall:'#f0f6ff',icon:'medal',ja:'うんどうかい',places:['race','obst','tama']},
-  {id:'c_adv',name:'ぼうけん',roof:'#7a5ad8',wall:'#f4f0ff',icon:'rocket',ja:'ぼうけんの みなと',places:['space','sea','train','snow','fire']}];
+  {id:'c_work',name:'はたらく くるま',roof:'#e8a000',wall:'#fffae8',icon:'excavator',ja:'はたらく くるまの まち',places:['fire','kouji','carwash','airport','farm']},
+  {id:'c_adv',name:'ぼうけん',roof:'#7a5ad8',wall:'#f4f0ff',icon:'rocket',ja:'ぼうけんの みなと',places:['space','sea','train','snow']}];
 CATS.forEach(q=>q.isCatG=true);
 function catOf(id){const q=CATS.find(q=>q.places.includes(id));return q?q.id:null;}
 SCN.map={bg:'#a8e488',song:'town',cat:null,
@@ -103,6 +105,16 @@ SCN.map={bg:'#a8e488',song:'town',cat:null,
     if(p.id==='train'){drawEngine(c,x,Tp-8,.5,'#ff5f6f',T);}
     if(p.id==='sea'){c.fillStyle='#7ac8ff';for(let i=0;i<5;i++){c.beginPath();c.arc(x-120+i*60,Tp-10,30,Math.PI,TAU);c.fill();}drawSea(c,'whale',x+30,Tp-60,.4,T);}
     if(p.id==='snow'){c.fillStyle='#fff';for(let i=0;i<7;i++)circ(c,x-150+i*50,Tp-22,24);SPECIAL_THING.snowman(c,x+70,Tp-70,1.9);}
+    if(p.id==='pizza'){SPECIAL_THING.pizza(c,x,Tp-50,2);SPECIAL_THING.chefhat(c,x+100,Tp-40,1.4);}
+    if(p.id==='icecream'){SPECIAL_THING.icecone(c,x-70,Tp-50,2);SPECIAL_THING.sundae(c,x+70,Tp-40,1.6);}
+    if(p.id==='sushi'){c.fillStyle='#3a2a4a';rr(c,x-150,Tp-24,300,30,6);c.fill();SPECIAL_THING.nigiri(c,x-50,Tp-60,1.6);SPECIAL_THING.maki(c,x+60,Tp-54,1.4);}
+    if(p.id==='salon'){SPECIAL_THING.lionface(c,x,Tp-70,1.6);SPECIAL_THING.scissors(c,x+110,Tp-40,1.4);}
+    if(p.id==='carwash'){drawCarS(c,x,Tp-4,.42,'#ff5f6f',T);for(let i=0;i<4;i++){c.fillStyle='rgba(255,255,255,.8)';circ(c,x-80+i*50,Tp-100-((T*40+i*20)%40),8);}}
+    if(p.id==='farm'){drawTractor(c,x-40,Tp-4,.5,T);SPECIAL_THING.pumpkin(c,x+100,Tp-30,1.4);}
+    if(p.id==='kouji'){drawExcavator(c,x-20,Tp-4,.4,0,T);SPECIAL_THING.tcone(c,x+110,Tp-30,1.3);}
+    if(p.id==='tidy'){SPECIAL_THING.toybox(c,x-70,Tp-40,1.6);SPECIAL_THING.recyclebin(c,x+80,Tp-40,1.5);}
+    if(p.id==='pet'){drawAnimal(c,'dog',x-50,Tp+4,.5,{t:T,happy:1});drawAnimal(c,'cat',x+60,Tp+4,.45,{t:T+1,happy:1});}
+    if(p.id==='airport'){drawPlane(c,x,Tp-70+Math.sin(T*2)*6,.5,T,-.1);}
     if(p.id==='crane'){c.fillStyle='#ff6fae';rr(c,x-50,Tp-120,100,120,10);c.fill();c.fillStyle='#e8f6ff';rr(c,x-40,Tp-110,80,70,6);c.fill();drawClaw(c,x+Math.sin(T)*20,Tp-96,.8,.3);drawAnimal(c,'bear',x-14,Tp-42,.18,{t:0});}
     if(p.id==='blocks'){SPECIAL_THING.blocktower(c,x-70,Tp-60,1.6);SPECIAL_THING.blockhouse(c,x+70,Tp-40,1.6);}
     if(p.id==='dance'){SPECIAL_THING.discoball(c,x,Tp-80,1.8);drawItem(c,'note',x-90,Tp-60-Math.abs(Math.sin(T*4))*10,1.2);drawItem(c,'note',x+90,Tp-60-Math.abs(Math.cos(T*4))*10,1.2);}

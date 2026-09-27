@@ -1,0 +1,38 @@
+// ================= pet care =================
+SCN.pet={bg:'#fff4e8',song:'fuwa',
+  enter(){this.ph='pick';this.t=0;this.fin=0;this.k=null;this.dirt=[...Array(6)].map(()=>({x:rand(-60,60),y:rand(-140,-40),st:0}));this.tool=null;this.dry=0;this.fed=0;this.ball=null;this.fetch=0;this.acc=null;this.happy=0;this.photo=0;
+    say('ペットの おせわ！ どの こを おせわする？');},
+  P(){return{x:300,y:H*.62};},
+  update(dt){this.t+=dt;const bw=this.bowl;if(bw&&this.ph==='feed'&&Math.hypot(bw.x-this.P().x,bw.y-(this.P().y-40))<110){this.fed=Math.min(1,this.fed+dt*.55);if(Math.random()<dt*4)sfx('munch');if(this.fed>=1){this.bowl=null;this.ph='play';this.happy=1;sfx('fanfare');say('おなか いっぱい！ ボールあそびを しよう。 ボールを うえに シュッと はじいてね');}}if(this.happy>0)this.happy-=dt;const b=this.ball;if(b){b.t+=dt;if(b.st==='fly'){b.vy+=1200*dt;b.x+=b.vx*dt;b.y+=b.vy*dt;if(b.x<60||b.x>W-60){b.vx=-b.vx;b.x=clamp(b.x,60,W-60);}if(b.vy>0&&b.y>H*.62){b.y=H*.62;b.st='run';sfx('boing');}}else if(b.st==='run'){const P=this.P();b.px=(b.px??P.x);b.px+=(b.x-b.px)*Math.min(1,dt*3);if(Math.abs(b.px-b.x)<20){b.st='back';}}else if(b.st==='back'){b.px+=(this.P().x-b.px)*Math.min(1,dt*3);b.x=b.px;if(Math.abs(b.px-this.P().x)<10){this.ball=null;this.fetch++;this.happy=1;sfx('boing');hush();speak(this.k==='cat'?'にゃ〜ん！':this.k==='rabbit'?'ぴょん！':'わんわん！');if(this.fetch>=3){this.ph='dress';sfx('fanfare');say('たくさん あそんだね！ おしゃれを して しゃしんを とろう');}}}}
+    if(this.photo>0){this.photo+=dt;if(this.photo>2.2&&!this.fin)this.fin=.01;}if(this.fin>0){this.fin+=dt;if(this.fin>1&&this.fin<9){this.fin=9;celebrate('pet',true);}}},
+  draw(c){c.fillStyle='#fff4e8';c.fillRect(-400,0,W+800,H);c.fillStyle='#ffe8d0';for(let x=0;x<W;x+=50)c.fillRect(x,0,25,H*.56);c.fillStyle=vfill(c,H*.56,H,ph2col(this.ph),.05,-.08);c.fillRect(-400,H*.56,W+800,H);
+    const ph=this.ph,P=this.P();
+    if(ph==='pick'){['dog','cat','rabbit'].forEach((k,i)=>{const x=110+i*190;c.fillStyle='#fff';rr(c,x-80,H*.3,160,220,24);c.fill();c.strokeStyle='#ffb3d6';c.lineWidth=4;c.stroke();drawAnimal(c,k,x,H*.3+190,.8,{t:T+i,happy:1});c.fillStyle='#8a5a8a';c.font=`800 22px ${FONT}`;c.textAlign='center';c.fillText(WORDS[k][0],x,H*.3+30);});}
+    else{const bx=ph==='play'&&this.ball&&this.ball.st!=='fly'?this.ball.px:P.x;if(ph==='wash'){c.fillStyle='#bfe8ff';rr(c,P.x-190,P.y-60,380,80,[10,10,40,40]);c.fill();}
+      drawAnimal(c,this.k,bx,P.y,1.5,{t:T,happy:this.happy>0||ph==='dress'||ph==='play',eat:ph==='feed'&&this.fed>0&&this.fed<1,hop:this.happy>0?this.happy*.6:0});
+      if(this.acc){if(this.acc==='bow')bow(c,bx+30,P.y-210,16,'#ff5fa2');else if(this.acc==='hat')drawHelmet(c,bx,P.y-230,3);else if(this.acc==='crown')drawItem(c,'crown',bx,P.y-240,1.6);}
+      for(const d of this.dirt){if(d.st>=2)continue;const x=bx+d.x,y=P.y+d.y;if(d.st===0){c.fillStyle='#9a7a5a';for(let i=0;i<3;i++)circ(c,x+i*6-6,y+(i%2)*4,10);}else{c.fillStyle='#fff';for(let i=0;i<4;i++)circ(c,x+Math.cos(i*1.6)*10,y+Math.sin(i*1.6)*8,12);}}
+      if(ph==='dry'&&this.dry<1){c.fillStyle='rgba(120,190,255,.7)';for(let i=0;i<6;i++){const a=i*1.1;c.beginPath();c.ellipse(P.x+Math.cos(a)*70,P.y-100+Math.sin(a)*50,5,8,0,0,TAU);c.fill();}}
+      if(ph==='wash'||ph==='dry'){tray(c,H-80,120);const ts=ph==='wash'?[['sponge','スポンジ'],['shower','シャワー']]:[['towel','タオル']];ts.forEach(([k],i)=>{const x=W/2-(ts.length-1)*90+i*180;c.globalAlpha=this.tool&&this.tool.k===k?.3:1;drawItem(c,k,x,H-80,1.5);c.globalAlpha=1;});if(this.tool)drawItem(c,this.tool.k,this.tool.x,this.tool.y,1.8);}
+      if(ph==='feed'){SPECIAL_THING.dogbowl(c,this.bowl?this.bowl.x:W/2,this.bowl?this.bowl.y:H-90,2);c.fillStyle='#fff';rr(c,W/2-100,H*.2,200,20,10);c.fill();c.fillStyle='#ffb03a';rr(c,W/2-100,H*.2,200*this.fed,20,10);c.fill();}
+      if(ph==='play'){const b=this.ball;if(b)SPECIAL_THING.tennisball(c,b.st==='back'?b.px+40:b.x,b.st==='fly'?b.y:P.y-60,1);else{SPECIAL_THING.tennisball(c,W/2,H-100,1.4);c.fillStyle='#8a5a3a';c.font=`800 20px ${FONT}`;c.textAlign='center';c.fillText('ボールを うえに シュッ！ '+this.fetch+'/3',W/2,H-40);}}
+      if(ph==='dress'){[['bow','リボン'],['hat','ぼうし'],['crown','かんむり']].forEach(([k,n],i)=>{const x=110+i*150;c.fillStyle=this.acc===k?'#fff0f7':'#fff';rr(c,x-56,H-110,112,60,20);c.fill();c.strokeStyle='#ff8cc0';c.lineWidth=3;c.stroke();c.fillStyle='#ff5fa2';c.font=`800 20px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(n,x,H-80);});drawBtn(c,W-60,H-80,40,'#5aa8ff','camera',!!this.acc);}}
+    if(this.photo>0){c.fillStyle=`rgba(255,255,255,${Math.max(0,1-this.photo*2)})`;c.fillRect(-400,0,W+800,H);}
+    if(ph!=='pick'){drawFuka(c,80,H*.9,{outfit:outfit(),t:T,sc:1.8,point:1,cheer:this.happy>0});}stepDots(c,5,{pick:0,wash:0,dry:1,feed:2,play:3,dress:4}[ph],128);},
+  down(x,y){const ph=this.ph,P=this.P();
+    if(ph==='pick'){['dog','cat','rabbit'].forEach((k,i)=>{const bx=110+i*190;if(Math.abs(x-bx)<80&&y>H*.3&&y<H*.3+220){this.k=k;this.ph='wash';sfx('pop');say(`${WORDS[k][0]}ちゃん どろんこ！ スポンジで あわあわ しよう`);}});return;}
+    if(ph==='wash'||ph==='dry'){const ts=ph==='wash'?['sponge','shower']:['towel'];ts.forEach((k,i)=>{const tx=W/2-(ts.length-1)*90+i*180;if(hitC(x,y,tx,H-80,56))this.tool={k,x,y,lx:x,ly:y};});if(hitC(x,y,P.x,P.y-80,100)){this.happy=.6;sfx('boing');}return;}
+    if(ph==='feed'){if(hitC(x,y,W/2,H-90,70))this.bowl={x,y};return;}
+    if(ph==='play'&&!this.ball){this.fl={sx:x,sy:y};return;}
+    if(ph==='dress'){[['bow'],['hat'],['crown']].forEach(([k],i)=>{if(Math.abs(x-(110+i*150))<56&&Math.abs(y-(H-80))<30){this.acc=k;sfx('spark');this.happy=1;}});if(this.acc&&hitC(x,y,W-60,H-80,50)&&!this.photo){this.photo=.01;sfx('shutter');confetti(60);say('はい チーズ！ かわいい〜！');}if(hitC(x,y,P.x,P.y-80,100)){this.happy=1;sfx('heart');burst(P.x,P.y-150,8,'heart');}}},
+  move(x,y){const P=this.P(),t=this.tool;if(t){const d=Math.hypot(x-t.lx,y-t.ly);t.x=x;t.y=y;t.lx=x;t.ly=y;
+      for(const q of this.dirt){if(Math.hypot(P.x+q.x-x,P.y+q.y-y)<60){if(t.k==='sponge'&&q.st===0&&d>2){q.w=(q.w||0)+d;if(q.w>60){q.st=1;sfx('squish');bubbles(x,y,3);}}if(t.k==='shower'&&q.st===1){q.st=2;sfx('water');drops(x,y,5);}}}
+      if(t.k==='shower'&&Math.random()<.5)parts.push({x,y,vx:rand(-30,30),vy:220,life:.5,t:0,kind:'drop',col:'#8ad0ff'});
+      if(this.ph==='wash'&&this.dirt.every(q=>q.st>=2)){this.ph='dry';this.tool=null;sfx('fanfare');say('きれいに なった！ タオルで ふきふき');}
+      if(this.ph==='dry'&&t.k==='towel'&&Math.hypot(x-P.x,y-(P.y-100))<160){this.dry=Math.min(1,this.dry+d/1500);if(Math.random()<.1)sfx('squish');if(this.dry>=1){this.ph='feed';this.tool=null;this.happy=1;sfx('fanfare');say('ふわふわ！ おなかが すいたって。 ごはんを もっていこう');}}}
+    if(this.bowl){this.bowl.x=x;this.bowl.y=y;}},
+  up(x,y){if(this.tool&&this.tool.k==='sponge'&&this.dirt.every(q=>q.st>=1))say('つぎは シャワーで ながそう');this.tool=null;if(this.bowl)this.bowl=null;
+    if(this.fl&&this.ph==='play'){const f=this.fl;this.fl=null;const dx=x-f.sx,dy=y-f.sy;if(dy<-40||Math.hypot(dx,dy)<20){this.ball={x:W/2,y:H-100,vx:clamp(dx*2,-220,220)||rand(-200,200),vy:-1500,t:0,st:'fly'};sfx('whoosh');}}},
+  hint(){const ph=this.ph,P=this.P();if(ph==='pick')return{x:110,y:H*.4};if(ph==='wash'){const q=this.dirt.find(q=>q.st<2);if(!q)return null;return{x:W/2+(q.st===0?-90:90),y:H-80,x2:P.x+q.x,y2:P.y+q.y};}if(ph==='dry')return{x:W/2,y:H-80,x2:P.x,y2:P.y-100};if(ph==='feed')return{x:W/2,y:H-90,x2:P.x,y2:P.y-40};if(ph==='play')return this.ball?null:{x:W/2,y:H-100,x2:W/2,y2:H*.4};return this.acc?{x:W-60,y:H-80}:{x:110,y:H-80};},
+  hintText(){return{pick:'おせわする こを えらんでね',wash:'スポンジと シャワーで あらおう',dry:'タオルで ふこう',feed:'ごはんを もっていこう',play:'ボールを うえに はじこう',dress:'おしゃれして しゃしん'}[this.ph]||'';}};
+function ph2col(ph){return ph==='wash'||ph==='dry'?'#d8ecf8':'#e8d0b0';}
