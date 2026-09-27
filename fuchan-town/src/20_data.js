@@ -18,8 +18,8 @@ const DRESSES=[
 ];
 const HATS=[['none','なし',''],['cap','ぼうし','cap'],['mbow','リボン','ribbon'],['hana','おはな','flowers'],['tiara','ティアラ','tiara'],['beret','ベレーぼう','beret'],['crown','かんむり','crown'],['star','ほし','star'],['dhat','たんていぼうし','detective hat']];
 const SHOES=[['#ff5f9a','ピンク','pink'],['#ffffff','しろ','white'],['#ffd23a','きいろ','yellow'],['#5aa8ff','あお','blue'],['#b48cff','むらさき','purple'],['#ff4d6d','あか','red'],['#6cd08a','みどり','green'],['#3a3050','くろ','black']];
-const ITEMS_ACC=[['none','なし',''],['uchiwa','うちわ','fan'],['kakigori','かきごおり','shaved ice'],['flower','おはな','flower'],['bag','バッグ','bag'],['wand','ステッキ','magic wand'],['balloon','ふうせん','balloon'],['none2','','']].slice(0,7);
-const GIFTS=[[3,'hat','tiara','ティアラ'],[6,'dress','yukata2','みずいろの ゆかた'],[10,'item','wand','ステッキ'],[15,'hat','crown','かんむり'],[20,'dress','lav','むらさきの ドレス'],[25,'item','balloon','ふうせん'],[30,'hat','star','ほしの かざり'],[36,'dress','red','あかい ドレス'],[39,'hat','dhat','たんていぼうし'],[42,'dress','magic','まじかるドレス']];
+const ITEMS_ACC=[['none','なし',''],['uchiwa','うちわ','fan'],['kakigori','かきごおり','shaved ice'],['flower','おはな','flower'],['bag','バッグ','bag'],['wand','ステッキ','magic wand'],['balloon','ふうせん','balloon'],['balloon2','にじいろ ふうせん','rainbow balloons']];
+const GIFTS=[[3,'hat','tiara','ティアラ'],[6,'dress','yukata2','みずいろの ゆかた'],[10,'item','wand','ステッキ'],[15,'hat','crown','かんむり'],[20,'dress','lav','むらさきの ドレス'],[25,'item','balloon','ふうせん'],[30,'hat','star','ほしの かざり'],[36,'dress','red','あかい ドレス'],[39,'hat','dhat','たんていぼうし'],[42,'dress','magic','まじかるドレス'],[50,'item','balloon2','にじいろ ふうせん']];
 function lockedN(cat,id){const g=GIFTS.find(g=>g[1]===cat&&g[2]===id);return g&&SAVE.stickers.length<g[0]?g[0]:0;}
 const OUTFIT0=Object.assign({},DRESSES[0],{acc:'none',boots:'#ff5f9a'});
 function outfit(extra){const o=SAVE.outfit;const d=DRESSES.find(x=>x.id===o.dress)||DRESSES[0];return Object.assign({},d,{acc:o.hat,boots:o.shoes,item:o.item==='none'?null:o.item},extra||{});}

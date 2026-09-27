@@ -173,6 +173,11 @@ const PLACES=[
   {id:'puzzle',name:'ぱずるやさん',wall:'#e0f4ff',roof:'#3a9ae8',icon:'puzzle',ja:'パズルやさん'},
   {id:'music',name:'おんがくしつ',wall:'#fce4ff',roof:'#d86ae8',icon:'note',ja:'おんがくしつ'},
   {id:'brush',name:'はいしゃさん',wall:'#e8fff4',roof:'#3ac8a0',icon:'toothbrush',ja:'はいしゃさん'},
+  {id:'yuen',name:'ゆうえんち',wall:'#fff0f6',roof:'#ff6f91',icon:'ferris',ja:'ゆうえんち',nw:1},
+  {id:'space',name:'うちゅう',wall:'#e8e4ff',roof:'#5a4ab8',icon:'rocket',ja:'うちゅう',nw:1},
+  {id:'train',name:'でんしゃ',wall:'#fff6e0',roof:'#3aa060',icon:'train',ja:'でんしゃ',nw:1},
+  {id:'sea',name:'うみ',wall:'#e0f6ff',roof:'#2a8ad8',icon:'octopus',ja:'うみの たんけん',nw:1},
+  {id:'snow',name:'ゆきあそび',wall:'#f4faff',roof:'#8ab8e8',icon:'snowman',ja:'ゆきあそび',nw:1},
 ];
 PLACES.forEach((p,i)=>p.x=280+i*400);
 const WORLD=280+(PLACES.length-1)*400+280;
@@ -180,7 +185,8 @@ const STK=[['cake','cake'],['cake','strawberry'],['cake','candle'],['doctor','be
   ['shop','apple'],['shop','cart'],['shop','coin'],['dress','dress'],['dress','crown'],['dress','wand'],['zoo','rabbit'],['zoo','panda'],['zoo','pig'],['school','letterA'],['school','letterABC'],['school','pencil'],
   ['festival','goldfish'],['festival','hanabi'],['festival','kakigori'],['nurie','palette'],['nurie','crayon'],['nurie','icecream'],['puzzle','puzzle'],['puzzle','chick'],['puzzle','starcandy'],
   ['music','note'],['music','xylophone'],['music','mic'],['brush','toothbrush'],['brush','tooth'],['brush','hippo'],
-  ['detective','nyan'],['detective','lens'],['detective','heartgem'],['fuwa','miru'],['fuwa','purin'],['fuwa','penpen']].map(([place,k])=>({id:place+'_'+k,place,k}));
+  ['detective','nyan'],['detective','lens'],['detective','heartgem'],['fuwa','miru'],['fuwa','purin'],['fuwa','penpen'],
+  ['yuen','ferris'],['yuen','horse'],['yuen','cotton'],['space','rocket'],['space','saturn'],['space','alien'],['train','train'],['train','ticket'],['train','crossing'],['sea','octopus'],['sea','whale'],['sea','turtle'],['snow','snowman'],['snow','mitten'],['snow','snowflake']].map(([place,k])=>({id:place+'_'+k,place,k}));
 function drawSticker(c,k,x,y,s,owned,shiny){c.save();c.translate(x,y);c.scale(s,s);
   if(owned){c.fillStyle='rgba(90,40,110,.2)';circ(c,3,6,44);
     if(shiny){const g=c.createLinearGradient(-44,-44,44,44);['#ff8cc0','#ffd23a','#8ef0b0','#7ad8ff','#b8a0ff','#ff8cc0'].forEach((cc,i)=>g.addColorStop(i/5,cc));c.fillStyle=g;circ(c,0,0,46);}
