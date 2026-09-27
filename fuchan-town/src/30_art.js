@@ -181,6 +181,10 @@ const PLACES=[
   {id:'shiri',name:'しりとり',wall:'#fff8e0',roof:'#ff9a3a',icon:'wordchain',ja:'しりとり',nw:1},
   {id:'hide',name:'かくれんぼ',wall:'#effbe8',roof:'#4cae6a',icon:'bushpeek',ja:'かくれんぼ',nw:1},
   {id:'daruma',name:'だるまさん',wall:'#fff0ec',roof:'#e84a4a',icon:'daruma',ja:'だるまさんが ころんだ',nw:1},
+  {id:'fire',name:'しょうぼうしょ',wall:'#fff0ec',roof:'#d8282e',icon:'firetruck',ja:'しょうぼうしょ',nw:1},
+  {id:'race',name:'かけっこ',wall:'#f4f8ff',roof:'#3a8ad8',icon:'medal',ja:'こうていの かけっこ',nw:1},
+  {id:'obst',name:'しょうがいぶつ',wall:'#f0fff4',roof:'#3aa060',icon:'hurdle',ja:'しょうがいぶつ きょうそう',nw:1},
+  {id:'tama',name:'たまいれ',wall:'#fff4f4',roof:'#ff5f6f',icon:'tamabasket',ja:'たまいれ',nw:1},
 ];
 PLACES.forEach((p,i)=>p.x=280+i*400);
 const WORLD=280+(PLACES.length-1)*400+280;
@@ -190,7 +194,8 @@ const STK=[['cake','cake'],['cake','strawberry'],['cake','candle'],['doctor','be
   ['music','note'],['music','xylophone'],['music','mic'],['brush','toothbrush'],['brush','tooth'],['brush','hippo'],
   ['detective','nyan'],['detective','lens'],['detective','heartgem'],['fuwa','miru'],['fuwa','purin'],['fuwa','penpen'],
   ['yuen','ferris'],['yuen','horse'],['yuen','cotton'],['space','rocket'],['space','saturn'],['space','alien'],['train','train'],['train','ticket'],['train','crossing'],['sea','octopus'],['sea','whale'],['sea','turtle'],['snow','snowman'],['snow','mitten'],['snow','snowflake'],
-  ['shiri','wordchain'],['shiri','ablock'],['shiri','speech'],['hide','bushpeek'],['hide','boxpeek'],['hide','gemstone'],['daruma','daruma'],['daruma','stopsign'],['daruma','kendama']].map(([place,k])=>({id:place+'_'+k,place,k}));
+  ['shiri','wordchain'],['shiri','ablock'],['shiri','speech'],['hide','bushpeek'],['hide','boxpeek'],['hide','gemstone'],['daruma','daruma'],['daruma','stopsign'],['daruma','kendama'],
+  ['fire','firetruck'],['fire','helmet'],['fire','hydrant'],['race','medal'],['race','baton'],['race','flagcheck'],['obst','hurdle'],['obst','tire'],['obst','anpan'],['tama','redball'],['tama','tamabasket'],['tama','whistle']].map(([place,k])=>({id:place+'_'+k,place,k}));
 const STKC={};
 function scal(c,cx,cy,R,n,amp){c.beginPath();for(let i=0;i<=120;i++){const a=i/120*TAU,r=R+amp*Math.cos(n*a);c.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);}c.closePath();}
 function stkCol(k){const st=STK.find(q=>q.k===k);const p=st&&PLACES.find(q=>q.id===st.place);return p?p.roof:'#ff8cc0';}

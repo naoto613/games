@@ -80,6 +80,10 @@ SCN.map={bg:'#a8e488',song:'town',
     if(p.id==='train'){drawEngine(c,x,Tp-8,.5,'#ff5f6f',T);}
     if(p.id==='sea'){c.fillStyle='#7ac8ff';for(let i=0;i<5;i++){c.beginPath();c.arc(x-120+i*60,Tp-10,30,Math.PI,TAU);c.fill();}drawSea(c,'whale',x+30,Tp-60,.4,T);}
     if(p.id==='snow'){c.fillStyle='#fff';for(let i=0;i<7;i++)circ(c,x-150+i*50,Tp-22,24);SPECIAL_THING.snowman(c,x+70,Tp-70,1.9);}
+    if(p.id==='fire'){drawFireTruck(c,x,Tp-6,.5,T,0,1);}
+    if(p.id==='race'){drawMedal(c,x-70,Tp-60,1.6,'#ffd23a');SPECIAL_THING.flagcheck(c,x+70,Tp-60,1.8);}
+    if(p.id==='obst'){SPECIAL_THING.hurdle(c,x-60,Tp-30,1.8);SPECIAL_THING.anpan(c,x+70,Tp-70+Math.sin(T*3)*5,1.4);}
+    if(p.id==='tama'){drawBasket(c,x-40,Tp-90,.6,'#ff5f6f',1);drawBasket(c,x+80,Tp-70,.45,'#f4f4f8',1);}
     if(p.id==='shiri'){SPECIAL_THING.wordchain(c,x,Tp-66,2.2);}
     if(p.id==='hide'){SPECIAL_THING.bushpeek(c,x-90,Tp-30,2);SPECIAL_THING.boxpeek(c,x+90,Tp-30,1.8);}
     if(p.id==='daruma'){SPECIAL_THING.daruma(c,x,Tp-70+Math.abs(Math.sin(T*3))*-8,2.2);SPECIAL_THING.stopsign(c,x+110,Tp-50,1.4);}
