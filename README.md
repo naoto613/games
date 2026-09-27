@@ -6,6 +6,7 @@
 - こっそりトレジャー: https://naoto613.github.io/games/kossori-treasure/
 - ふーちゃんのまち: https://naoto613.github.io/games/fuchan-town/
 - キュアふーたん サバイバー: https://naoto613.github.io/games/futan-survivor/
+- ふーたんの こっそりミッション: https://naoto613.github.io/games/futan-stealth/
 
 ## 構成
 
@@ -18,6 +19,8 @@
 │   └── index.html          # こっそりトレジャー（単一 HTML で完結）
 ├── futan-survivor/
 │   └── index.html          # キュアふーたん サバイバー（5歳向けサバイバー系アクション。単一 HTML で完結）
+├── futan-stealth/
+│   └── index.html          # ふーたんの こっそりミッション（5歳向けステルスゲーム。単一 HTML で完結）
 └── fuchan-town/
     ├── index.html          # ふーちゃんのまち（4歳向け・スマホ縦持ち想定。ビルド済み成果物）
     ├── build.py            # src/*.js を連結して index.html を生成
