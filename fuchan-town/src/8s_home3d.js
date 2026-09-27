@@ -4,7 +4,7 @@ function need3D(cb){if(window.THREE){cb();return;}if(!T3wait){T3wait=[];const s=
     s.onload=()=>{const q=T3wait;T3wait=null;q.forEach(f=>{try{f();}catch(e){console.error(e);}});};s.onerror=()=>{T3wait=null;say('よみこみに しっぱいしたよ。 もういちど ためしてね');};document.head.appendChild(s);}
   T3wait.push(cb);}
 function r3main(){if(!R3){R3=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});R3.shadowMap.enabled=true;R3.shadowMap.type=THREE.PCFSoftShadowMap;R3.setClearColor(0,0);}
-  const pw=Math.round(W*SC*DPR),ph=Math.round(H*SC*DPR);if(R3.domElement.width!==pw||R3.domElement.height!==ph)R3.setSize(pw,ph,false);return R3;}
+  const dp=Math.min(DPR,1.6),pw=Math.round(W*SC*dp),ph=Math.round(H*SC*dp);if(R3.domElement.width!==pw||R3.domElement.height!==ph)R3.setSize(pw,ph,false);return R3;}
 function r3prev(){if(!R3p){R3p=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});R3p.setClearColor(0,0);R3p.setSize(320,320,false);}return R3p;}
 function m3(col,o){const k=col+(o?JSON.stringify(o):'');return G3.m[k]||(G3.m[k]=new THREE.MeshStandardMaterial(Object.assign({color:new THREE.Color(col),roughness:.66,metalness:0},o||{})));}
 function geo3(k,f){return G3.g[k]||(G3.g[k]=f());}
