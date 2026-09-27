@@ -4,6 +4,7 @@
 
 - 一覧ページ: https://naoto613.github.io/games/
 - こっそりトレジャー: https://naoto613.github.io/games/kossori-treasure/
+- ふーちゃんのまち: https://naoto613.github.io/games/fuchan-town/
 
 ## 構成
 
@@ -12,8 +13,10 @@
 ├── index.html              # ゲーム一覧ページ
 ├── .nojekyll               # Jekyll 処理を無効化（ファイルをそのまま配信）
 ├── README.md
-└── kossori-treasure/
-    └── index.html          # こっそりトレジャー（単一 HTML で完結）
+├── kossori-treasure/
+│   └── index.html          # こっそりトレジャー（単一 HTML で完結）
+└── fuchan-town/
+    └── index.html          # ふーちゃんのまち（4歳向け・スマホ縦持ち想定）
 ```
 
 各ゲームは `<ゲーム名>/index.html` の 1 フォルダ 1 ゲーム構成です。ビルド手順はなく、置いた HTML がそのまま配信されます。
