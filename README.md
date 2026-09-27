@@ -16,10 +16,13 @@
 ├── kossori-treasure/
 │   └── index.html          # こっそりトレジャー（単一 HTML で完結）
 └── fuchan-town/
-    └── index.html          # ふーちゃんのまち（4歳向け・スマホ縦持ち想定）
+    ├── index.html          # ふーちゃんのまち（4歳向け・スマホ縦持ち想定。ビルド済み成果物）
+    ├── build.py            # src/*.js を連結して index.html を生成
+    └── src/                # ソース（キャラ・データ・絵・各シーン・たんてい/ふわふわタウン）
 ```
 
-各ゲームは `<ゲーム名>/index.html` の 1 フォルダ 1 ゲーム構成です。ビルド手順はなく、置いた HTML がそのまま配信されます。
+各ゲームは `<ゲーム名>/index.html` の 1 フォルダ 1 ゲーム構成で、置いた HTML がそのまま配信されます。
+`fuchan-town` だけはソースを `src/` に分割しているので、編集後に `cd fuchan-town && python3 build.py` で `index.html` を再生成してからコミットしてください。
 
 ## ゲームの追加方法
 
