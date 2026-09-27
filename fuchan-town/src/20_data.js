@@ -24,7 +24,7 @@ function lockedN(cat,id){const g=GIFTS.find(g=>g[1]===cat&&g[2]===id);return g&&
 const OUTFIT0=Object.assign({},DRESSES[0],{acc:'none',boots:'#ff5f9a'});
 function outfit(extra){const o=SAVE.outfit;const d=DRESSES.find(x=>x.id===o.dress)||DRESSES[0];return Object.assign({},d,{acc:o.hat,boots:o.shoes,item:o.item==='none'?null:o.item},extra||{});}
 // ================= words =================
-const WORDS={strawberry:['いちご','strawberry'],cherry:['さくらんぼ','cherry'],blueberry:['ブルーベリー','blueberry'],choco:['チョコレート','chocolate'],starcandy:['ほし','star'],heartcookie:['クッキー','cookie'],candle:['ろうそく','candle'],
+const WORDS={balloon:['ふうせん','balloon'],flower:['おはな','flower'],strawberry:['いちご','strawberry'],cherry:['さくらんぼ','cherry'],blueberry:['ブルーベリー','blueberry'],choco:['チョコレート','chocolate'],starcandy:['ほし','star'],heartcookie:['クッキー','cookie'],candle:['ろうそく','candle'],
   apple:['りんご','apple'],banana:['バナナ','banana'],carrot:['にんじん','carrot'],milk:['ぎゅうにゅう','milk'],bread:['パン','bread'],fish:['おさかな','fish'],egg:['たまご','egg'],cheese:['チーズ','cheese'],tomato:['トマト','tomato'],grapes:['ぶどう','grapes'],corn:['とうもろこし','corn'],
   bone:['ほね','bone'],bamboo:['たけ','bamboo'],duck:['あひる','duck'],bear:['くま','bear'],rabbit:['うさぎ','rabbit'],cat:['ねこ','cat'],dog:['いぬ','dog'],panda:['パンダ','panda'],pig:['ぶた','pig'],chick:['ひよこ','chick'],hippo:['かば','hippo'],
   icepack:['こおり','ice'],bandage:['ばんそうこう','bandage'],sponge:['スポンジ','sponge'],shower:['シャワー','shower'],cake:['ケーキ','cake'],bubble:['あわ','bubble'],dress:['ドレス','dress'],crown:['かんむり','crown'],ribbon:['リボン','ribbon'],

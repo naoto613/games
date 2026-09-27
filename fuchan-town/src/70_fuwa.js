@@ -83,10 +83,10 @@ function drawDrink(c,d,x,y,s){c.save();c.translate(x,y);c.scale(s,s);c.lineJoin=
   if(d.top==='cherry')drawItem(c,'cherry',-6,d.top==='cream'?-104:-86,.8);
   c.restore();if(d.side&&d.side!=='none')drawItem(c,d.side==='cookie'?'heartcookie':'cake',x+60*s,y-16*s,.9*s);}
 SCN.fuwa={bg:'#ffeef8',song:'fuwa',
-  enter(){this.st=FWS.get();this.ph='town';this.lay();this.initTown();if(!this.st.wishes.length)this.newDay(true);say('ふわふわタウンへ ようこそ！ おともだちと いっしょに あそぼう！');},
+  enter(){this.st=FWS.get();if(!this.st.garden)this.st.garden=[...Array(6)].map(()=>({st:0,col:'#ff8cc0',w:-1}));this.ph='town';this.lay();this.initTown();if(!this.st.wishes.length)this.newDay(true);this.rare=Math.random()<.2?{x:-60,y:H*.2,t:0}:null;say(this.rare?'ふわふわタウンへ ようこそ！ あれ？ にじいろの ことりが とんでいるよ！':'ふわふわタウンへ ようこそ！ おともだちと いっしょに あそぼう！');},
   lay(){},
-  bld(){return[{id:'cafe',name:'カフェ',x:150,y:H*.3,col:'#ffb3d6',icon:'cake'},{id:'boutique',name:'ブティック',x:450,y:H*.3,col:'#c8b0ff',icon:'dress'},{id:'room',name:'おうち',x:300,y:H*.49,col:'#ffe08a',icon:'heart'},{id:'park',name:'こうえん',x:150,y:H*.68,col:'#9ee07a',icon:'balloon'},{id:'shop',name:'ざっかや',x:450,y:H*.68,col:'#8ad8ff',icon:'coin'}];},
-  spot(i){const S=[[300,.32],[150,.43],[450,.43],[300,.64],[300,.8],[150,.79],[450,.79]];const q=S[i??Math.floor(Math.random()*S.length)];return{x:q[0]+rand(-20,20),y:H*q[1]+rand(-10,10)};},
+  bld(){return[{id:'cafe',name:'カフェ',x:150,y:H*.3,col:'#ffb3d6',icon:'cake'},{id:'boutique',name:'ブティック',x:450,y:H*.3,col:'#c8b0ff',icon:'dress'},{id:'room',name:'おうち',x:300,y:H*.49,col:'#ffe08a',icon:'heart'},{id:'park',name:'こうえん',x:150,y:H*.68,col:'#9ee07a',icon:'balloon'},{id:'shop',name:'ざっかや',x:450,y:H*.68,col:'#8ad8ff',icon:'coin'},{id:'garden',name:'はなばたけ',x:470,y:H*.88,col:'#ffb0d8',icon:'flower'}];},
+  spot(i){const S=[[300,.32],[150,.43],[450,.43],[300,.64],[300,.8],[150,.78],[450,.77]];const q=S[i??Math.floor(Math.random()*S.length)];return{x:q[0]+rand(-20,20),y:H*q[1]+rand(-10,10)};},
   initTown(){this.walkers=FRIENDS.map((f,i)=>({f,x:this.spot(i).x,y:this.spot(i).y,tx:0,ty:0,wait:rand(0,2),hop:0}));this.walkers.forEach(w=>{w.tx=w.x;w.ty=w.y;});},
   newDay(first){const s=this.st;if(!first){s.day++;s.time=0;}s.greet={};const types=['drink','dress','play','visit'];s.wishes=shuffle(FRIENDS).slice(0,3).map((f,i)=>{const ty=types[(i+s.day)%4];const w={id:f.id,type:ty,done:false};if(ty==='drink')w.order=this.randOrder();if(ty==='dress')w.item=pick(['bow','flower','beret','party','crown']);return w;});save();},
   randOrder(){return{base:pick(CAFE_BASE)[0],top:pick(CAFE_TOP)[0],side:pick(CAFE_SIDE)[0]};},
@@ -101,8 +101,29 @@ SCN.fuwa={bg:'#ffeef8',song:'fuwa',
     else if(k==='scarf'){c.fillStyle=hc;rr(c,-18,-5,36,10,5);c.fill();c.stroke();}else if(k==='bell'){c.fillStyle='#ffd23a';circ(c,0,0,9);c.stroke();}else if(k==='ribbon')bow(c,0,0,8,'#5aa8ff');else{c.strokeStyle='#ccc';c.lineWidth=4;c.beginPath();c.moveTo(-10,-10);c.lineTo(10,10);c.moveTo(10,-10);c.lineTo(-10,10);c.stroke();}c.restore();},
   hud(c){const s=this.st;c.fillStyle='rgba(255,255,255,.9)';rr(c,W-236,100,220,44,22);c.fill();c.strokeStyle='#ffd23a';c.lineWidth=3;c.stroke();drawItem(c,'coin',W-212,122,.8);c.fillStyle='#8a5a2a';c.font=`800 22px ${FONT}`;c.textAlign='left';c.textBaseline='middle';c.fillText(s.coins,W-190,123);
     const ic=['☀','🌤','🌙'][s.time]||'☀';c.fillText(`${s.day}にちめ ${ic}`,W-128,123);},
+  slot(){return this.st.day*10+this.st.time;},
+  gP(i){return{x:120+(i%3)*180,y:H*.42+Math.floor(i/3)*H*.2};},
+  drawFlower(c,g,x,y){const sw=Math.sin(T*2+x)*.08;c.save();c.translate(x,y);c.rotate(sw);
+    if(g.st===1){c.fillStyle='#6a4a2a';circ(c,-8,-4,4);circ(c,6,-6,4);circ(c,0,2,4);}
+    else if(g.st>=2){const h=g.st===2?30:g.st===3?60:80;c.strokeStyle='#4cae4a';c.lineWidth=6;c.beginPath();c.moveTo(0,0);c.lineTo(0,-h);c.stroke();c.fillStyle='#6cd08a';for(const sd of[-1,1]){c.beginPath();c.ellipse(sd*14,-h*.4,14,7,sd*.5,0,TAU);c.fill();}
+      if(g.st===3){c.fillStyle=g.col;c.beginPath();c.ellipse(0,-h-8,12,18,0,0,TAU);c.fill();}
+      if(g.st===4){const p=1+Math.sin(T*3+x)*.05;c.translate(0,-h-10);c.scale(p,p);c.fillStyle=g.col;for(let i=0;i<6;i++){const a=i/6*TAU+T*.3;c.beginPath();c.ellipse(Math.cos(a)*18,Math.sin(a)*18,15,11,a,0,TAU);c.fill();}c.fillStyle='#ffd23a';circ(c,0,0,12);c.fillStyle='#fff';circ(c,-4,-4,3);}}
+    c.restore();},
+  drawGarden(c){const s=this.st;skyBg(c,'#bfe9ff','#fff0f8',H*.3);c.fillStyle=vfill(c,H*.26,H,'#b8ec9a',.05,-.05);c.fillRect(-400,H*.26,W+800,H);c.fillStyle='#fff';for(let x=0;x<W;x+=40){rr(c,x+4,H*.26,14,70,6);c.fill();}c.fillRect(-10,H*.26+20,W+20,10);
+    s.garden.forEach((g,i)=>{const p=this.gP(i);c.fillStyle='#8a5a3a';ell(c,p.x,p.y+10,74,26);c.fillStyle='#a8703a';ell(c,p.x,p.y+4,68,22);if(g.w===this.slot()&&g.st>0&&g.st<4){c.fillStyle='rgba(90,160,255,.35)';ell(c,p.x,p.y+6,60,18);}this.drawFlower(c,g,p.x,p.y);
+      if(g.st===4&&Math.sin(T*4+i)>.6){c.fillStyle='#fff';star(c,p.x+30,p.y-100,7,3,4);c.fill();}
+      const lab=g.st===0?'たね':g.st===4?'つむ':g.w===this.slot()?'あとでね':'おみず';c.fillStyle=g.st===4?'#ff5fa2':g.st===0?'#8a5a3a':g.w===this.slot()?'#aaa':'#3a8ad8';c.font=`800 16px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(lab,p.x,p.y+50);});
+    if(this.can){const k=this.can.t;const p=this.gP(this.can.i);c.save();c.translate(p.x+50,p.y-80);c.rotate(-.5*Math.min(1,k*3));c.fillStyle='#5aa8ff';rr(c,-26,-18,52,36,10);c.fill();c.strokeStyle='#3a88d8';c.lineWidth=5;c.beginPath();c.moveTo(-26,-6);c.lineTo(-52,-24);c.stroke();c.beginPath();c.arc(8,-24,12,Math.PI,TAU);c.stroke();c.restore();for(let i=0;i<4;i++){c.fillStyle='rgba(90,170,255,.8)';circ(c,p.x+rand(-14,14),p.y-50+((k*300+i*20)%60),3);}}
+    c.fillStyle='#fff';rr(c,W-200,H*.3,180,50,25);c.fill();c.strokeStyle='#ffb0d8';c.lineWidth=3;c.stroke();c.fillStyle='#ff5fa2';c.font=`800 18px ${FONT}`;c.textAlign='center';c.fillText('はなたば '+(s.bq||0),W-110,H*.3+26);
+    drawFuka(c,120,H-30,{outfit:outfit(),t:T,sc:2.4,happy:1,hold:this.picked>0});drawRikki(c,230,H-30,{sc:1.9,t:T});this.rkPos={x:230,y:H-30,sc:1.9};},
+  gardenTap(x,y){const s=this.st;for(let i=0;i<6;i++){const p=this.gP(i),g=s.garden[i];if(Math.abs(x-p.x)<80&&y>p.y-130&&y<p.y+60){
+      if(g.st===0){g.st=1;g.col=pick(['#ff8cc0','#ffd23a','#b48cff','#ff6f5f','#7ad8ff','#ffffff']);g.w=-1;sfx('pop');burst(p.x,p.y,8,'star');say('たねを うえたよ！ おみずを あげてね');}
+      else if(g.st===4){g.st=0;s.bq=(s.bq||0)+1;s.coins+=10;this.picked++;sfx('fanfare');burst(p.x,p.y-90,20,'heart');rkCheer();say(pick(['きれいな おはな！ コイン 10まい！','はなたばに しよう！']));if(this.picked===2){setTimeout(()=>{if(scene===this&&this.ph==='garden'){this.advance();celebrate('fuwa');}},1500);}}
+      else if(g.w===this.slot()){sfx('no');say('もう おみずを あげたよ。 また あとで あげようね');}
+      else{g.w=this.slot();this.can={i,t:0};sfx('pour');setTimeout(()=>{if(scene===this){g.st=Math.min(4,g.st+1);sfx('spark');burst(p.x,p.y-40,10,'star');this.can=null;say(g.st===4?'わあ！ おはなが さいたよ！ タッチして つもう':g.st===3?'つぼみに なった！':'めが でたよ！');}},900);}
+      save();return true;}}return false;},
   backBtn(c){drawBtn(c,56,170,36,'#b48cff','prev');},
-  update(dt){const s=this.st;
+  update(dt){const s=this.st;if(this.can)this.can.t+=dt;const R=this.rare;if(R&&!R.got){R.t+=dt;R.x=(R.t*90)%(W+120)-60;R.y=H*.18+Math.sin(R.t*2)*60;}
     if(this.ph==='town'){for(const w of this.walkers){if(w.hop>0)w.hop-=dt*2;if(w.wait>0){w.wait-=dt;continue;}const d=Math.hypot(w.tx-w.x,w.ty-w.y);if(d<4){w.wait=rand(1.5,4);{const sp=this.spot();w.tx=sp.x;w.ty=sp.y;}}else{w.x+=(w.tx-w.x)/d*50*dt;w.y+=(w.ty-w.y)/d*50*dt;w.flip=w.tx<w.x;}}}
     if(this.ph==='cafe'&&this.pour){this.pour.t+=dt;this.cup.fill=Math.min(1,this.pour.t/.8);if(this.pour.t>.8)this.pour=null;}
     if(this.ph==='cafe'&&this.react>0){this.react-=dt;if(this.react<=0)this.nextCustomer();}
@@ -118,8 +139,11 @@ SCN.fuwa={bg:'#ffeef8',song:'fuwa',
         c.fillStyle=shade(b.col,-.15);rr(c,-20,20,40,50,[20,20,0,0]);c.fill();c.fillStyle='#bfe8ff';rr(c,-66,-24,36,30,8);c.fill();rr(c,30,-24,36,30,8);c.fill();c.fillStyle='#fff';rr(c,-60,44,120,0,0);c.font=`800 20px ${FONT}`;c.textAlign='center';c.textBaseline='middle';const tw=c.measureText(b.name).width+24;rr(c,-tw/2,-128,tw,30,15);c.fill();c.strokeStyle=b.col;c.lineWidth=3;c.stroke();c.fillStyle=shade(b.col,-.4);c.fillText(b.name,0,-113);c.restore();}
       const list=this.walkers.slice().sort((a,b)=>a.y-b.y);for(const w of list){drawFriend(c,w.f,w.x,w.y,.8,{t:T+w.x,walk:w.wait<=0,flip:w.flip,hop:w.hop,wear:s.wear[w.f.id],happy:w.hop>0});const wi=this.wishOf(w.f.id);if(wi)this.wishIcon(c,wi,w.x+36,w.y-110);
         c.fillStyle='#ff5fa2';c.font=`800 14px ${FONT}`;c.textAlign='center';c.fillText('♥'+s.hearts[w.f.id],w.x,w.y+18);}
-      drawFuka(c,250,H*.95,{outfit:outfit(),t:T,sc:2.6,wave:1});drawRikki(c,340,H*.95,{sc:2,t:T});this.rkPos={x:340,y:H*.95,sc:2};this.hud(c);return;}
+      drawFuka(c,200,H*.95,{outfit:outfit(),t:T,sc:2.6,wave:1});drawRikki(c,300,H*.95,{sc:2,t:T});this.rkPos={x:300,y:H*.95,sc:2};
+      const R=this.rare;if(R&&!R.got){c.save();c.translate(R.x,R.y);c.fillStyle='rgba(255,255,255,.5)';circ(c,0,0,40);const cols=['#ff6f91','#ffb03a','#ffe36a','#8ee07a','#5ac8ff','#b88aff'];cols.forEach((q,i)=>{c.fillStyle=q;c.beginPath();c.ellipse(-24-i*5,6+i*2,16,5,.4+i*.1,0,TAU);c.fill();});c.fillStyle=gfill(c,-4,-4,22,'#ff9ac8');ell(c,0,0,22,18);const fl=Math.sin(T*18)*.8;c.fillStyle='#ffe36a';c.beginPath();c.ellipse(-2,-10,16,8,-.6+fl,0,TAU);c.fill();c.fillStyle='#fff';circ(c,10,-4,5);c.fillStyle='#222';circ(c,11,-4,2.5);c.fillStyle='#ffb03a';c.beginPath();c.moveTo(20,0);c.lineTo(30,3);c.lineTo(20,6);c.fill();c.restore();if(Math.random()<.2)parts.push({x:R.x-20,y:R.y+rand(-6,6),vx:-40,vy:0,life:.6,t:0,kind:'star',col:pick(cols),r:5});}
+      this.hud(c);return;}
     const back=()=>{this.hud(c);this.backBtn(c);};
+    if(this.ph==='garden'){this.drawGarden(c);back();return;}
     if(this.ph==='cafe'){c.fillStyle='#ffe6f0';c.fillRect(-400,0,W+800,H);c.fillStyle='#ffd0e4';for(let x=0;x<W;x+=50)c.fillRect(x,0,25,H*.45);c.fillStyle=vfill(c,H*.45,H,'#e8b890',.05,-.1);c.fillRect(-400,H*.45,W+800,H);
       const cu=this.cust;if(cu){drawFriend(c,cu.f,300,H*.4,1.2,{t:T,happy:this.react>0&&this.good,wave:!this.react,wear:s.wear[cu.f.id]});c.fillStyle='#fff';c.strokeStyle='#ffb3d6';c.lineWidth=4;rr(c,360,H*.12,200,150,24);c.fill();c.stroke();drawDrink(c,cu.order,430,H*.12+130,.8);}
       c.fillStyle='#c8905a';rr(c,-20,H*.46,W+40,40,8);c.fill();drawDrink(c,this.cup,300,H*.62,1.3);
@@ -164,6 +188,8 @@ SCN.fuwa={bg:'#ffeef8',song:'fuwa',
     const b=CAFE_BASE.find(q=>q[0]===order.base);const tp=CAFE_TOP.find(q=>q[0]===order.top),sd=CAFE_SIDE.find(q=>q[0]===order.side);say(`${f.name}「${b[1]}${order.top!=='none'?'に '+tp[1]:''}${order.side!=='none'?'と '+sd[1]:''}を ください！」`);},
   down(x,y){const s=this.st;
     if(this.ph!=='town'&&hitC(x,y,56,170,44)){sfx('tap');this.ph='town';this.initTown();return;}
+    if(this.ph==='garden'){this.gardenTap(x,y);return;}
+    if(this.ph==='town'&&this.rare&&!this.rare.got&&Math.hypot(x-this.rare.x,y-this.rare.y)<60){this.rare.got=1;s.coins+=50;sfx('fanfare');confetti(80);say('にじいろの ことりを つかまえた！ コイン 50まい！ ラッキー！');setTimeout(()=>{if(scene===this)celebrate('fuwa',true);},1800);return;}
     if(this.ph==='town'){for(const w of this.walkers){if(Math.hypot(x-w.x,y-(w.y-50))<50){w.hop=1;sfx('boing');const wi=this.wishOf(w.f.id);if(!s.greet[w.f.id]){s.greet[w.f.id]=1;s.hearts[w.f.id]++;save();burst(w.x,w.y-80,8,'heart');}
           if(wi){const txt={drink:'カフェで のみものが ほしいな',dress:'ブティックで おしゃれ したいな',play:'こうえんで いっしょに あそぼう！',visit:'ふーちゃんの おうちに いきたいな'}[wi.type];say(`${w.f.name}「${txt}」`);}else say(`${w.f.name}「${w.f.line}」`);return;}}
       for(const b of this.bld())if(Math.abs(x-b.x)<90&&y>b.y-110&&y<b.y+70){sfx('pop');this.enterSub(b.id);return;}return;}
@@ -185,6 +211,7 @@ SCN.fuwa={bg:'#ffeef8',song:'fuwa',
   up(x,y){this.blowing=false;if(this.ph==='room'&&this.drag){const d=this.drag;this.drag=null;const s=this.st;if(d.it){if(y>H-140){s.room.splice(s.room.indexOf(d.it),1);sfx('whoosh');}else{d.it.x=d.x;d.it.y=clamp(d.y,H*.45,H-150);sfx('pop');}}
       else if(y<H-140){if(s.room.length>=24)s.room.shift();s.room.push({k:d.k,x:d.x,y:clamp(d.y,H*.45,H-150)});sfx('pop');burst(d.x,d.y,8,'star');const n=FURN.find(f=>f[0]===d.k);if(n)say(n[1]);}save();}},
   enterSub(id){const s=this.st;this.ph=id;this.photo=0;this.pose=0;
+    if(id==='garden'){this.picked=0;this.can=null;say('はなばたけ！ たねを うえて おみずを あげると おはなが さくよ');}
     if(id==='cafe'){this.served=0;this.cq=[];this.nextCustomer();}
     if(id==='boutique'){const wi=s.wishes.find(w=>w.type==='dress'&&!w.done);this.bf=wi?wi.id:FRIENDS[0].id;say(wi?`${FR[wi.id].name}が おしゃれ したいって！ ほしいものを つけてあげよう`:'おともだちを えらんで おしゃれ しよう！');}
     if(id==='room'){this.visitors=s.wishes.filter(w=>w.type==='visit').map(w=>w.id).slice(0,2);if(!this.visitors.length)this.visitors=[pick(FRIENDS).id];this.party=0;say('おへやを かざろう！ したの かぐを ひっぱってね');}
@@ -192,4 +219,4 @@ SCN.fuwa={bg:'#ffeef8',song:'fuwa',
     if(id==='shop')say('ざっかやさん！ コインで かぐや こものが かえるよ');},
   hint(){if(this.ph==='town'){const w=this.walkers.find(w=>this.wishOf(w.f.id));return w?{x:w.x,y:w.y-50}:null;}if(this.ph==='cafe'){if(!this.cup.base){const i=CAFE_BASE.findIndex(b=>b[0]===this.cust.order.base);const p=this.cafeP(0,i);return{x:p.x,y:p.y};}return{x:520,y:H*.62};}
     if(this.ph==='room')return this.st.room.length<3?{x:70,y:H-60,x2:300,y2:H*.7}:{x:530,y:H*.3};if(this.ph==='park')return{x:200,y:H*.5};if(this.ph==='boutique')return{x:530,y:H*.3};return null;},
-  hintText(){return{town:'おともだちや たてものを タッチしてね',cafe:'ちゅうもんの とおりに つくって みどりの ボタン',room:'かぐを ひっぱって おへやに おいてね',park:'ブランコを タッチして おしてね',boutique:'かざりを えらんで カメラを タッチ',shop:'ほしい ものを タッチしてね'}[this.ph]||'';}};
+  hintText(){return{garden:'たねを うえて おみずを あげよう',town:'おともだちや たてものを タッチしてね',cafe:'ちゅうもんの とおりに つくって みどりの ボタン',room:'かぐを ひっぱって おへやに おいてね',park:'ブランコを タッチして おしてね',boutique:'かざりを えらんで カメラを タッチ',shop:'ほしい ものを タッチしてね'}[this.ph]||'';}};
