@@ -35,5 +35,5 @@ function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last
 resize();scene=SCN.title;scene.enter();
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{for(const k in SPR)delete SPR[k];for(const k in STKC)delete STKC[k];if(scene===SCN.school)SCN.school.build();});
 requestAnimationFrame(frame);
-window.__town={SCN,get scene(){return scene},go,SAVE,celebrate,get cel(){return cel},get H(){return H},celDown,parts};
+window.__town={SCN,get scene(){return scene},go,SAVE,celebrate,invList,get cel(){return cel},get H(){return H},celDown,parts};
 })();
