@@ -69,7 +69,7 @@ SCN.map=scene3({bg:'#8fd8ff',song:'town',noHome:true,
     o.disc=iconDisc(g,p.icon,1.15,0,h+.95,d/2+.5,'#ffffff');o.sign=o.disc;
     for(let k=0;k<2;k++)flower3(g,(k?1:-1)*(w/2+.3),0,d/2,PAST[(i+k)%8],1.3);},
   openDist(C,focus,inst){const D=this.distScene(C);this.dc=C;this.mode='dist';this.D0=D;const i=Math.max(0,C.places.indexOf(focus));this.dv=D.bs[i]?D.bs[i].a:0;this.dvT=this.dv;this.walkIn=null;
-    D.fu.x=Math.sin(this.dv)*3;D.fu.z=-Math.cos(this.dv)*3;D.rk.x=D.fu.x+Math.cos(this.dv)*1.4;D.rk.z=D.fu.z+Math.sin(this.dv)*1.4;if(!inst){this.flash=1;sfx('whoosh');setTimeout(()=>{if(scene===this&&this.mode==='dist')say(C.ja+'！ ゆびで まわして えらんでね');},500);}},
+    D.fu.x=Math.sin(this.dv)*3;D.fu.z=-Math.cos(this.dv)*3;D.rk.x=D.fu.x+Math.cos(this.dv)*1.4;D.rk.z=D.fu.z+Math.sin(this.dv)*1.4;if(!inst){this.flash=1;sfx('whoosh');setTimeout(()=>{if(scene===this&&this.mode==='dist')say(C.ja+'！ どれで あそぶ？ カードを タッチしてね');},500);}},
   cur(){const D=this.D0;let bi=0,bd=9;D.bs.forEach((b,i)=>{const d=Math.abs(Math.atan2(Math.sin(b.a-this.dv),Math.cos(b.a-this.dv)));if(d<bd){bd=d;bi=i;}});return D.bs[bi];},
   // ---------------- update ----------------
   update(dt){if(this.flash>0)this.flash=Math.max(0,this.flash-dt*2.5);for(const w of this.waves)w.scale.setScalar(1+((T*.4+w.position.z*.1)%1));
