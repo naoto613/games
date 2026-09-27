@@ -11,6 +11,7 @@
   --disp:"Mochiy Pop One","M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif;
 }
 [hidden]{display:none!important;}
+.henshin .hud,.henshin #ctrl{visibility:hidden;}
 html,body{height:100%;}
 body{background:#8fd46a;color:var(--ink);font-family:var(--ui);overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;}
 #app{position:fixed;inset:0;}
@@ -22,6 +23,8 @@ body{background:#8fd46a;color:var(--ink);font-family:var(--ui);overflow:hidden;t
 #goal{font-size:11px;color:var(--ink2);display:flex;gap:6px;align-items:center;margin-top:2px;}
 #goal .bar{min-width:80px;height:10px;}
 #goal .bar i{background:linear-gradient(90deg,#ffc93c,#ff5fa2);width:0;}
+#hearts{font-size:17px;line-height:1.1;margin-top:3px;letter-spacing:1px;color:#ff5fa2;}
+#hearts .off{color:#ecd4e4;}
 #hudR{right:12px;top:calc(12px + env(safe-area-inset-top,0px));}
 #hudB{left:0;right:0;bottom:calc(84px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;padding:0 12px;}
 #prompt{background:linear-gradient(#ff8cc0,#ff5fa2);color:#fff;border-radius:999px;padding:8px 18px;font-size:15px;font-weight:800;box-shadow:0 3px 0 #c83a7a;border:2px solid #fff;text-align:center;}
@@ -96,6 +99,7 @@ body{background:#8fd46a;color:var(--ink);font-family:var(--ui);overflow:hidden;t
     <div class="box">
       <div id="money">0円</div>
       <div id="goal"><span>1億円まで</span><div class="bar"><i id="goalFill"></i></div><span id="goalPct">0%</span></div>
+      <div id="hearts" aria-label="キラキラハート"></div>
     </div>
   </div>
   <div id="hudR" class="hud"><div id="bag" class="box"></div></div>
@@ -114,7 +118,7 @@ body{background:#8fd46a;color:var(--ink);font-family:var(--ui);overflow:hidden;t
       <canvas id="portrait" width="340" height="340"></canvas>
       <h1>こっそりトレジャー</h1>
       <div class="sub"><span class="spark">✦</span> 見つからずに宝物を集めて、億万長者をめざそう！ <span class="spark">✦</span></div>
-      <p>主人公は<b style="color:var(--pink)">ふーちゃん</b>。お気に入りのぼうしをかぶって、キャンプ場・町・海辺・美術館を冒険！ 持ち主が出かけたすきにテントやおうちへ忍びこんで宝物を集め、骨董屋「ふくろう堂」で売ってお金にしよう。道具やかわいい服も、ふくろう堂で買えるよ。目標は 1億円！</p>
+      <p>主人公は<b style="color:var(--pink)">ふーちゃん</b>。お気に入りのぼうしをかぶって、キャンプ場・町・海辺・美術館を冒険！ 持ち主が出かけたすきにテントやおうちへ忍びこんで宝物を集め、骨董屋「ふくろう堂」で売ってお金にしよう。道具やかわいい服も、ふくろう堂で買えるよ。目標は 1億円！ ようせいの<b style="color:var(--pink)">ポムン</b>が、いっしょに宝物さがしを手伝ってくれるよ。ドレスを買うと「へんしん」できる！</p>
       <div class="keys">
         <div><b>タップ</b>その場所まで歩く</div>
         <div><b>長押し</b>指の方へ進む</div>
@@ -123,6 +127,7 @@ body{background:#8fd46a;color:var(--ink);font-family:var(--ui);overflow:hidden;t
         <div><b>テントや宝箱をタップ</b>近づいてしらべる</div>
         <div><b>草むら</b>に入るとかくれられる</div>
         <div><b>黄色い光</b>は人が見ている所</div>
+        <div><b>♥ハート</b>を集めると守ってくれる</div>
       </div>
       <div class="btns" style="justify-content:center">
         <button class="btn sub" id="btnContinue" hidden>つづきから</button>
@@ -199,6 +204,9 @@ const SHOP=[
 ];
 const COSTUMES=[
   {id:'normal',n:'いつものTシャツ',d:'お気に入りのぼうしとワッペンTシャツ',p:0,tee:true,hat:'#c98aa4',skirt:'#7a9ad8',dress:'#fff',sleeve:'#fff',ribbon:'#ff8cc0',boots:'#fff',acc:'cap'},
+  {id:'heart',n:'ハートプリンセス',d:'へんしん！ ♥ハートが4こまで持てる',p:1500,dress:'#ff8cc0',skirt:'#ffc8e6',sleeve:'#fff',ribbon:'#ff4d8d',boots:'#ff8cc0',acc:'mbow'},
+  {id:'starp',n:'スタープリンセス',d:'へんしん！ 気づかれにくい（-20%）',p:8000,dress:'#ffd84a',skirt:'#fff2a8',sleeve:'#fff',ribbon:'#5aa8ff',boots:'#fff',acc:'mbow'},
+  {id:'moonp',n:'ムーンプリンセス',d:'へんしん！ 走るのが速い（+15%）',p:30000,dress:'#b48cff',skirt:'#e0d0ff',sleeve:'#fff',ribbon:'#ffd23a',boots:'#8a6ae8',acc:'mbow'},
   {id:'forest',n:'フォレストドレス',d:'キャンプ場で気づかれにくい（-30%）',p:2500,dress:'#6cc47a',skirt:'#9ee0a0',sleeve:'#f4fff0',ribbon:'#ffd24a',boots:'#3f9a5a',acc:'leaf'},
   {id:'night',n:'夜空のマント',d:'どこでも少し気づかれにくい（-15%）',p:15000,dress:'#5a4ab8',skirt:'#7a6ae0',sleeve:'#d8d0ff',ribbon:'#ffe36a',boots:'#3a2a8a',acc:'hood'},
   {id:'sailor',n:'マリンセーラー',d:'海辺で気づかれにくい（-30%）',p:40000,dress:'#ffffff',skirt:'#3a78e8',sleeve:'#ffffff',ribbon:'#ff4d6d',boots:'#2a5ac8',acc:'sailor'},
@@ -211,7 +219,8 @@ const COS=Object.fromEntries(COSTUMES.map(c=>[c.id,c]));
 const HERO={hair:'#2a2230',hairH:'#6a5a80',iris:'#7a4a2a',skin:'#fff0e4',line:'#4a2a40'};
 
 // ================= state =================
-const S={money:0,owned:new Set(),costumes:new Set(['normal']),costume:'normal',bag:[],won:false,muted:false,stats:{caught:0,sold:0}};
+const S={money:0,owned:new Set(),costumes:new Set(['normal']),costume:'normal',bag:[],hearts:3,won:false,muted:false,stats:{caught:0,sold:0}};
+function maxHearts(){return S.costume==='heart'?4:3;}
 const player={x:220,y:340,dir:0,t:0,moving:false,sneak:false,dash:false,inBush:null,inShelter:null,trail:[],caught:0};
 
 // ================= stages =================
@@ -220,7 +229,7 @@ let ST=null;
 let solids,props,bushes,containers,guards,lights,waters,shelters,keepClear,corridors,exits,tables,G;
 const gates=[];
 function beginStage(id,name,w,h,o){
-  const st=Object.assign({id,name,W:w,H:h,solids:[],props:[],bushes:[],containers:[],guards:[],lights:[],waters:[],shelters:[],keepClear:[],corridors:[],exits:[],tables:[],ground:{base:'#9ad86e',baseGrass:true,rects:[],paths:[],woods:[]},decor:new Map(),safe:false,objs:[]},o||{});
+  const st=Object.assign({id,name,W:w,H:h,solids:[],props:[],bushes:[],containers:[],guards:[],lights:[],waters:[],shelters:[],keepClear:[],corridors:[],exits:[],tables:[],ground:{base:'#9ad86e',baseGrass:true,rects:[],paths:[],woods:[]},decor:new Map(),safe:false,objs:[],hearts:[]},o||{});
   STAGES[id]=st;bindStage(st);return st;
 }
 function bindStage(st){ST=st;W=st.W;H=st.H;solids=st.solids;props=st.props;bushes=st.bushes;containers=st.containers;guards=st.guards;lights=st.lights;waters=st.waters;shelters=st.shelters;keepClear=st.keepClear;corridors=st.corridors;exits=st.exits;tables=st.tables;G=st.ground;}
@@ -524,7 +533,7 @@ function tryCostume(id){const cs=COS[id];
   S.money-=cs.p;S.costumes.add(id);S.costume=id;sfx('buy');toast(`${cs.n}を買って着がえた！`);save();}
 // ---- owner returning
 function roomOwner(){return ST.roomOf?ST.roomOf.occ:null;}
-function calcETA(){return baseETA()+5;}
+function calcETA(){return baseETA()+10;}
 function baseETA(){const sh=ST.roomOf;const g=sh.occ;if(!g||g.hidden)return 30;if(g.state!=='patrol')return R(14,22);
   const d=Math.hypot(g.x-sh.door.x,g.y-sh.door.y)/g.walk;
   switch(g.sched){case'toDoor':case'toDoorThenSpot':return Math.max(4,d);case'idle':return Math.max(4,Math.max(0,g.timer)+(g.act?g.actT:0)+d+R(1,3));case'toSpot':return Math.max(6,d*2+R(8,14));default:return 14;}}
@@ -671,6 +680,9 @@ function sfx(k){switch(k){
   case'beat':tone(90,.12,'sine',.5);break;
   case'step':tone(140,.05,'sine',.12);break;
   case'win':[523,659,784,1046,1318,1568].forEach((f,i)=>tone(f,.25,'triangle',.22,i*.12));break;
+  case'heart':tone(1318,.08,'triangle',.22);tone(1760,.16,'triangle',.2,.07);tone(2637,.12,'sine',.12,.15);break;
+  case'barrier':tone(523,.12,'triangle',.22,0,500);tone(1046,.3,'sine',.2,.1,800);[1568,2093,2637].forEach((f,i)=>tone(f,.12,'triangle',.14,.25+i*.06));break;
+  case'henshin':[523,659,784,988,1046,1318,1568,2093].forEach((f,i)=>tone(f,.18,'triangle',.18,i*.1));break;
 }}
 
 // ================= BGM =================
@@ -726,6 +738,8 @@ function renderMenu(){const t=lastSave?new Date(lastSave):null;const ts=t?`${t.g
   <p><b>長押し</b>：指（カーソル）の方へ進む。ふーちゃんの<b>すぐ近く</b>を押すと<b>そっと歩き</b>、<b>遠く</b>を押すと<b>ダッシュ</b>。</p>
   <p>人の前の<b>黄色い光</b>は見ている所。光に入らないように進もう。見つかったら、はなれてダッシュでにげよう！</p>
   <p>からっぽの宝箱も、しばらくするとまた宝物が入るよ。ひみつ基地のベッドで休むと、すぐに入る。</p>
+  <p><b style="color:var(--pink)">♥キラキラハート</b>：道に落ちているハートを集めよう。つかまりそうになると「ハートバリア」で守ってくれるよ。</p>
+  <p>ようせいの<b>ポムン</b>がヒントを教えてくれる。ピンクの矢印の所に行ってみよう！</p>
   <p style="font-size:12px">進行状況は自動で保存されています（最後に保存：${ts}）</p>`;}
 $('menuCard').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const m=b.dataset.m;
   if(m==='resume'){closeModal('menu');return;}
@@ -840,7 +854,7 @@ function drawFuka(c,x,y,o){
   const aw=o.moving?sw*2:0;
   const arm=(sx,ay,hx,hy2)=>{c.strokeStyle=L;c.lineWidth=4.4;c.beginPath();c.moveTo(sx,ay);c.lineTo(hx,hy2);c.stroke();c.strokeStyle=HERO.skin;c.lineWidth=2.6;c.stroke();c.strokeStyle=L;c.lineWidth=1.1;c.fillStyle=HERO.skin;c.beginPath();c.arc(hx,hy2,2.1,0,TAU);c.fill();c.stroke();};
   const sy0=C.tee?-24:-23;
-  if(o.cheer){arm(-8,sy0,-17,hy+2);arm(8,sy0,17,hy+2);leaf(c,-21,hy-2,5,-.9);leaf(c,21,hy-2,5,.9);}
+  if(o.cheer){arm(-8,sy0,-17,hy+2);arm(8,sy0,17,hy+2);c.fillStyle='#ffe36a';star(c,-20,hy-3,6,2.6);c.fill();c.stroke();star(c,20,hy-3,6,2.6);c.fill();c.stroke();c.fillStyle='#ff8cc0';heartP(c,-20,hy-3,1.6);c.fill();heartP(c,20,hy-3,1.6);c.fill();}
   else if(o.eat){arm(-7,sy0,-2.5,hy+9);arm(7,sy0,2.5,hy+9);}
   else if(side){if(o.sneak)arm(1,sy0,6,-20);else arm(0,sy0,aw*2.5+1,-15);}
   else if(o.sneak){arm(-7,sy0,-3.5,-20);arm(7,sy0,3.5,-20);}
@@ -895,6 +909,7 @@ function drawFuka(c,x,y,o){
     case'beret':c.fillStyle='#ff6f91';c.beginPath();c.ellipse(side?-1:2,hy-12,12,4.5,-.15,0,TAU);c.fill();c.stroke();circ(c,side?-1:2,hy-16.5,1.3);break;
     case'star':c.fillStyle='#ffd23a';star(c,side?2:7,ay,3.4,1.5);c.fill();c.stroke();break;
     case'tiara':c.fillStyle='#ffe36a';c.beginPath();c.moveTo(-7,hy-11);c.lineTo(-5,hy-16);c.lineTo(-2,hy-12.5);c.lineTo(0,hy-18);c.lineTo(2,hy-12.5);c.lineTo(5,hy-16);c.lineTo(7,hy-11);c.closePath();c.fill();c.stroke();c.fillStyle='#ff4d8d';heartP(c,0,hy-14,1.4);c.fill();break;
+    case'mbow':bow(c,side?-2:0,hy-14,4.6,C.ribbon);c.fillStyle='#ffe36a';heartP(c,side?-2:0,hy-14.6,2);c.fill();c.stroke();if(!back){c.fillStyle='#fff';star(c,side?7:-9,hy-9,2.6,1.1);c.fill();}break;
     case'crown':c.fillStyle='#ffd23a';c.beginPath();c.moveTo(-6,hy-11);c.lineTo(-7,hy-19);c.lineTo(-3,hy-15);c.lineTo(0,hy-20);c.lineTo(3,hy-15);c.lineTo(7,hy-19);c.lineTo(6,hy-11);c.closePath();c.fill();c.stroke();break;
   }
   c.restore();
@@ -1452,8 +1467,10 @@ function renderBag(){const el=$('bag');el.innerHTML='';const tot=S.bag.reduce((a
   const show=S.bag.slice(-3);for(const it of show){const s=document.createElement('div');s.className='slot';const cv=document.createElement('canvas');cv.width=cv.height=56;cv.getContext('2d').drawImage(iconCv(it.k),0,0);s.appendChild(cv);s.title=`${ITEMS[it.k].n} ${yenJ(it.v)}`;el.appendChild(s);}
   const l=document.createElement('span');l.className='lbl';l.innerHTML=`宝物 ${S.bag.length}こ<small>${yenJ(tot)}</small>`;el.appendChild(l);}
 let hudAcc=0;
+let heartsShown='';
 function updateHUD(){
   $('money').textContent=yenJ(S.money);
+  const mh=maxHearts();if(S.hearts>mh)S.hearts=mh;const hk=S.hearts+'/'+mh;if(hk!==heartsShown){heartsShown=hk;let h='';for(let i=0;i<mh;i++)h+=i<S.hearts?'♥':'<span class="off">♥</span>';$('hearts').innerHTML=h;}
   const pct=Math.min(100,S.money/1e8*100);$('goalFill').style.width=pct+'%';$('goalPct').textContent=(pct<1?pct.toFixed(2):pct.toFixed(1))+'%';
 }
 
@@ -1469,6 +1486,78 @@ function findInteract(){
   return best;
 }
 
+// ================= fairy ポムン =================
+const fairy={x:220,y:260,t:0,say:null,cd:4,scan:0,target:null,last:{}};
+function fairySay(text,pri=0){const f=fairy;const now=T;
+  if(f.say&&f.say.t<f.say.life&&f.say.pri>pri)return;if(f.say&&f.say.text===text&&f.say.t<f.say.life)return;
+  if(f.last[text]&&now-f.last[text]<(pri?6:14))return;if(!pri&&f.cd>0)return;
+  f.say={text,t:0,life:3.6,pri};f.last[text]=now;f.cd=pri?4:9;}
+const GREET={home:'ひみつ基地の森だポム。ふくろう堂でお買いものできるポム！',camp:'テントの人がおでかけしたら、こっそり入るポム！',town:'おうちの人がおでかけするのを待つポム',beach:'海の家に宝物があるポム！',museum:'美術館のケースに すごい宝物があるポム！',base:'ベッドで休むと 宝箱に宝物がまた入るポム',shop:'ふくろう店長に話しかけるポム！'};
+function fairyGreet(){fairy.x=player.x-30;fairy.y=player.y-80;const t=ST.roomOf?'いまのうちに宝箱をあけるポム！':GREET[ST.id];if(t){fairy.cd=0;fairySay(t,1);}}
+function findChance(){if(ST.safe||ST.roomOf)return null;let best=null,bd=1e9;
+  for(const sh of shelters){const g=sh.occ;if(!g||g.hidden||g.state!=='patrol'||g.sched==='toDoor'||g.sched==='toDoorThenSpot')continue;
+    if(Math.hypot(g.x-sh.door.x,g.y-sh.door.y)<170)continue;if(!STAGES[sh.room].containers.some(c=>c.items.some(i=>i)))continue;
+    const d=Math.hypot(sh.door.x-player.x,sh.door.y-player.y);if(d<bd){bd=d;best={x:sh.door.x,y:sh.door.y-96,sh};}}
+  if(best)return best;
+  for(const c of containers){if(c.inside||!c.items.some(i=>i))continue;const d=Math.hypot(c.x-player.x,c.y-player.y);if(d<bd&&d<600){bd=d;best={x:c.x,y:c.y-c.h-50};}}
+  return best;}
+function updateFairy(dt){const f=fairy,p=player;f.t+=dt;f.cd-=dt;if(f.say){f.say.t+=dt;if(f.say.t>f.say.life)f.say=null;}
+  const tx=p.x+(p.dir===1?34:-34),ty=p.y-82;const k=1-Math.exp(-dt*5);f.x+=(tx-f.x)*k;f.y+=(ty-f.y)*k;
+  if(Math.random()<dt*6)parts.push({x:f.x+R(-8,8),y:f.y+R(-4,8),vx:R(-10,10),vy:-15,life:.6,t:0,col:pick(['#fff6a0','#ffb3d6','#c8f0ff'])});
+  f.scan-=dt;if(f.scan<=0){f.scan=.5;f.target=findChance();}
+  if(p.caught>0||fading)return;
+  if(chaseCount>0)fairySay('にげて〜！ はなれるポム！',2);
+  else if(ST.roomOf&&!ST.ownerIn&&ST.eta<8)fairySay('足音ポム！ はやく外に出るポム！',2);
+  else if(guards.some(g=>!g.hidden&&g.state!=='chase'&&g.meter>.25))fairySay('見られてるポム！ 黄色い光からはなれて〜',1);
+  else if(ST.id==='home'&&S.bag.length)fairySay('ふくろう堂で 宝物を売るポム！');
+  else if(S.bag.length>=8&&!ST.safe)fairySay('宝物いっぱい！ ふくろう堂で売るポム');
+  else if(f.target&&f.target.sh)fairySay(f.target.sh.kind==='tent'?'いまがチャンス！ あのテントに入るポム！':f.target.sh.kind==='hut'?'いまがチャンス！ あの海の家に入るポム！':'いまがチャンス！ あのおうちに入るポム！');
+  else if(f.target)fairySay('あそこに宝箱があるポム！');
+}
+function drawFairyAt(c,x,y,s,t){c.save();c.translate(x,y);c.scale(s,s);c.lineWidth=1.8;c.strokeStyle=HERO.line;c.lineJoin='round';
+  const fl=Math.sin(t*18)*.35;c.fillStyle='rgba(225,245,255,.9)';
+  for(const sd of[-1,1]){c.save();c.translate(sd*9,-3);c.rotate(sd*(.5+fl));c.beginPath();c.ellipse(sd*9,0,11,6.5,0,0,TAU);c.fill();c.stroke();c.restore();}
+  c.fillStyle='#ffb3d6';for(const sd of[-1,1]){c.beginPath();c.moveTo(sd*11,-6);c.lineTo(sd*9,-19);c.lineTo(sd*3,-11);c.closePath();c.fill();c.stroke();}
+  c.beginPath();c.arc(0,0,13,0,TAU);c.fill();c.stroke();
+  c.fillStyle='#fff0f7';ell(c,0,5.5,7,4.8);
+  c.fillStyle=HERO.line;ell(c,-4.6,-1,2.3,3.1);ell(c,4.6,-1,2.3,3.1);c.fillStyle='#fff';circ(c,-5.3,-2.3,1);circ(c,3.9,-2.3,1);
+  c.fillStyle='rgba(255,90,150,.45)';ell(c,-8.5,3,2.6,1.5);ell(c,8.5,3,2.6,1.5);
+  c.beginPath();c.arc(0,2,2,.2,Math.PI-.2);c.stroke();
+  c.beginPath();c.moveTo(0,-13);c.lineTo(0,-17);c.stroke();c.fillStyle='#ffd23a';star(c,0,-20,5,2.2);c.fill();c.stroke();
+  c.restore();}
+function wrapJ(text,n){const out=[];let cur='';for(const ch of text){if(ch===' '&&cur.length>=n*.6){out.push(cur);cur='';continue;}cur+=ch;if(cur.length>=n){out.push(cur);cur='';}}if(cur)out.push(cur);return out;}
+function drawFairy(c){if(player.inShelter||player.caught>0)return;const f=fairy;const x=f.x,y=f.y+Math.sin(f.t*3)*3;
+  drawFairyAt(c,x,y,1,f.t);
+  if(f.target&&!ST.safe&&Math.hypot(f.target.x-player.x,f.target.y+96-player.y)>70){const ax=f.target.x,ay=f.target.y-Math.abs(Math.sin(T*4))*12;c.fillStyle='#ff5fa2';c.strokeStyle='#fff';c.lineWidth=3;
+    c.beginPath();c.moveTo(ax-9,ay-22);c.lineTo(ax+9,ay-22);c.lineTo(ax+9,ay-8);c.lineTo(ax+17,ay-8);c.lineTo(ax,ay+8);c.lineTo(ax-17,ay-8);c.lineTo(ax-9,ay-8);c.closePath();c.stroke();c.fill();}
+  if(f.say){const s=f.say;const a=Math.min(1,s.t*4,(s.life-s.t)*3);if(a>0){c.globalAlpha=a;c.font='800 13px "M PLUS Rounded 1c",sans-serif';const lines=wrapJ(s.text,13);
+    const w=Math.max(...lines.map(l=>c.measureText(l).width))+20,h=lines.length*17+10;const bx=clamp(x-w/2,camX+4,camX+VW/zoom-w-4),by=y-26-h;
+    c.fillStyle='#fff';c.strokeStyle='#ff8cc0';c.lineWidth=2.5;rr(c,bx,by,w,h,12);c.fill();c.stroke();c.beginPath();c.moveTo(x-5,by+h-1);c.lineTo(x,by+h+7);c.lineTo(x+5,by+h-1);c.fill();
+    c.fillStyle=HERO.line;c.textAlign='center';c.textBaseline='middle';lines.forEach((l,i)=>c.fillText(l,bx+w/2,by+14+i*17));c.globalAlpha=1;}}
+}
+// ================= heart pickups =================
+function addHearts(st,n){bindStage(st);const r=mulberry(st.W*3+st.H+n);
+  for(let i=0,k=0;i<600&&k<n;i++){const x=70+r()*(W-140),y=90+r()*(H-170);if(inWater(x,y,40))continue;
+    let bad=false;for(const q of solids)if(x>q.x-26&&x<q.x+q.w+26&&y>q.y-30&&y<q.y+q.h+26){bad=true;break;}if(bad)continue;
+    if(st.hearts.some(h=>Math.hypot(h.x-x,h.y-y)<220))continue;st.hearts.push({x,y,on:true,t:0});k++;}}
+function drawHeartPick(c,h){const b=Math.sin(T*3+h.x)*4,y=h.y-24+b;c.fillStyle='rgba(90,40,110,.18)';ell(c,h.x,h.y,10,4);
+  const g=c.createRadialGradient(h.x,y,2,h.x,y,26);g.addColorStop(0,'rgba(255,210,235,.85)');g.addColorStop(1,'rgba(255,210,235,0)');c.fillStyle=g;circ(c,h.x,y,26);
+  c.fillStyle='#ff5fa2';c.strokeStyle='#fff';c.lineWidth=2.5;heartP(c,h.x,y,11);c.fill();c.stroke();c.fillStyle='rgba(255,255,255,.75)';ell(c,h.x-4,y-4,3,2);sparkle(c,h.x+11,y-11,h.x);}
+// ================= へんしん =================
+let henshin=null;
+function startHenshin(from,to){henshin={t:0,from,cos:to,burst:false};paused=true;sfx('henshin');}
+function drawHenshin(){const c=ctx;c.setTransform(DPR,0,0,DPR,0,0);const t=henshin.t,cx=VW/2,cy=VH*.52;const a=Math.max(0,Math.min(1,t*4,(2.9-t)*3));
+  c.globalAlpha=a;const g=c.createRadialGradient(cx,cy,10,cx,cy,Math.max(VW,VH)*.7);g.addColorStop(0,'#fff6fb');g.addColorStop(.5,'#ffb3d6');g.addColorStop(1,'#b86af0');c.fillStyle=g;c.fillRect(0,0,VW,VH);
+  c.save();c.translate(cx,cy);c.rotate(t*1.2);const cols=['#ff8cc0','#ffd23a','#7ad8ff','#b8a0ff','#9ef0b8'];for(let i=0;i<16;i++){c.fillStyle=cols[i%5];c.globalAlpha=a*.35;c.beginPath();c.moveTo(0,0);c.arc(0,0,Math.max(VW,VH),i/16*TAU,(i+.5)/16*TAU);c.closePath();c.fill();}c.restore();c.globalAlpha=a;
+  const before=t<1.1,sc=Math.min(VW,VH)/95;
+  for(let i=0;i<10;i++){const an=t*3+i/10*TAU,r=Math.min(VW,VH)*.33;const x=cx+Math.cos(an)*r,y=cy-sc*25+Math.sin(an)*r*.45;c.fillStyle=i%2?'#fff':'#ffd23a';if(i%2){heartP(c,x,y,10);c.fill();}else{star(c,x,y,11,4.5);c.fill();}}
+  drawFuka(c,cx,cy+sc*28,{dir:before?[0,2,3,1][Math.floor(t*10)%4]:0,t:T,cos:before?henshin.from:henshin.cos,sc,cheer:!before});
+  if(before&&t>.6){c.fillStyle=`rgba(255,255,255,${Math.min(1,(t-.6)*2)})`;c.fillRect(0,0,VW,VH);}
+  if(!before&&t<1.5){c.fillStyle=`rgba(255,255,255,${(1.5-t)/.4})`;c.fillRect(0,0,VW,VH);}
+  if(!before){c.textAlign='center';c.textBaseline='middle';c.lineJoin='round';c.font=`${Math.min(40,VW/12.5)}px "Mochiy Pop One",sans-serif`;c.lineWidth=7;c.strokeStyle='#ff5fa2';c.fillStyle='#fff';c.strokeText('キラキラ☆へんしん！',cx,VH*.14);c.fillText('キラキラ☆へんしん！',cx,VH*.14);
+    c.font=`${Math.min(24,VW/16)}px "Mochiy Pop One",sans-serif`;c.lineWidth=5;c.strokeStyle='#b86af0';c.strokeText(COS[henshin.cos].n,cx,VH*.14+44);c.fillText(COS[henshin.cos].n,cx,VH*.14+44);}
+  drawParts(c,true);c.globalAlpha=1;}
+
 // ================= stage transition =================
 let fading=false;
 function goStage(ex){
@@ -1480,13 +1569,13 @@ function goStage(ex){
     bindStage(STAGES[ex.to]);player.x=ex.spawn.x;player.y=ex.spawn.y;player.trail=[];player.inBush=null;player.doorCD=.9;moveTarget=null;for(const o of ST.objs)o.inz=false;
     if(ST.roomOf){ST.eta=calcETA();ST.warned=false;}
     if(chased)setTimeout(()=>toast('うまくにげきった！'),300);
-    const bn=$('banner');bn.textContent=ST.name;bn.hidden=false;clearTimeout(bn.t);bn.t=setTimeout(()=>bn.hidden=true,1600);
+    const bn=$('banner');bn.textContent=ST.name;bn.hidden=false;clearTimeout(bn.t);bn.t=setTimeout(()=>bn.hidden=true,1600);fairyGreet();
     fe.classList.remove('on');setTimeout(()=>fading=false,250);save();
   },380);
 }
 
 // ================= update =================
-function stealthMult(){let m=1;switch(S.costume){case'forest':if(ST.id==='camp')m=.7;break;case'night':m=.85;break;case'sailor':if(ST.id==='beach')m=.7;break;case'city':if(ST.id==='town')m=.7;break;case'shadow':m=.7;break;case'royal':m=1.1;break;case'gold':m=1.2;break;}return m;}
+function stealthMult(){let m=1;switch(S.costume){case'forest':if(ST.id==='camp')m=.7;break;case'night':m=.85;break;case'sailor':if(ST.id==='beach')m=.7;break;case'city':if(ST.id==='town')m=.7;break;case'shadow':m=.7;break;case'starp':m=.8;break;case'royal':m=1.1;break;case'gold':m=1.2;break;}return m;}
 let stepT=0;
 function updatePlayer(dt){
   const p=player;
@@ -1499,14 +1588,16 @@ function updatePlayer(dt){
   const wantDash=(keys.has(' ')||mode==='dash')&&!p.sneak;
   p.dash=wantDash&&iv.l>.1;
   let sp=p.sneak?70:p.dash?232:132;
-  if(S.owned.has('shoes'))sp*=1.15;
+  if(S.owned.has('shoes'))sp*=1.15;if(S.costume==='moonp')sp*=1.15;
   p.moving=iv.l>.05;
   if(p.moving){const f=p.sneak?1:Math.max(.5,iv.l);const ox=p.x,oy=p.y;moveEnt(p,iv.x*sp*dt*f,iv.y*sp*dt*f,12);
     if(moveTarget){if(Math.hypot(p.x-ox,p.y-oy)<sp*dt*f*.2){moveTarget.stuck+=dt;if(moveTarget.stuck>.6){const mt=moveTarget;const np=mt.re?null:findPath(p.x,p.y,mt.tx,mt.ty);if(np){mt.path=np;mt.i=0;mt.stuck=0;mt.re=1;}else moveTarget=null;}}else moveTarget.stuck=0;}
     if(Math.abs(iv.x)>Math.abs(iv.y)*1.1)p.dir=iv.x<0?1:2;else p.dir=iv.y<0?3:0;
     const last=p.trail[p.trail.length-1];if(!last||Math.hypot(last.x-p.x,last.y-p.y)>22){p.trail.push({x:p.x,y:p.y});if(p.trail.length>160)p.trail.shift();}
     if(p.dash){stepT-=dt;if(stepT<=0){stepT=.18;sfx('step');}}}
-  p.t+=dt;
+  p.t+=dt;if(p.inv>0)p.inv-=dt;
+  for(const h of ST.hearts){if(!h.on||Math.hypot(h.x-p.x,h.y-p.y)>30)continue;h.on=false;h.t=45;sfx('heart');burst(h.x,h.y-22,14);
+    if(S.hearts<maxHearts()){S.hearts++;toast('キラキラハートをゲット！');fairySay('ハートゲットポム！ ピンチのときに守ってくれるポム',1);}else{gain(200);toast('ハートがいっぱい！ 200円もらった');}save();}
   p.inBush=null;for(const b of bushes){if(Math.hypot(b.x-p.x,(b.y-2)-p.y)<b.r*.85){p.inBush=b;if(p.moving)b.shake=1;}}
   for(const b of bushes)b.shake=Math.max(0,b.shake-dt*3);
   if(p.doorCD>0)p.doorCD-=dt;
@@ -1584,8 +1675,9 @@ function updateGuard(g,dt){
   g.t+=dt;if(g.say){g.say.t+=dt;if(g.say.t>g.say.life)g.say=null;}
   const p=player;
   if(g.hidden){if(g.state==='patrol')residentRoutine(g,dt);return;}
+  if(g.dizzy>0){g.dizzy-=dt;g.moving=false;g.meter=0;return;}
   const dx=p.x-g.x,dy=p.y-g.y,d=Math.hypot(dx,dy);
-  const safe=ST.safe||p.caught>0||!!p.inShelter||fading;
+  const safe=ST.safe||p.caught>0||!!p.inShelter||fading||p.inv>0;
   let rate=0,seen=false;
   if(!safe&&d<460){
     let range=g.range*(isNight()?.62:1);if(p.dash)range*=1.12;
@@ -1595,21 +1687,21 @@ function updateGuard(g,dt){
     if(!hidden&&d<range&&Math.abs(angDiff(ang,g.dir))<g.fov/2&&los(g.x,g.y-4,p.x,p.y-4)){
       seen=true;let f=(1.25-d/range)*1.25;
       if(p.sneak)f*=.3;else if(p.moving)f*=1.1;if(p.dash)f*=1.4;if(loot.open)f*=1.1;
-      f*=stealthMult()*att;rate+=f*g.sens;if(att===0)seen=false;
+      f*=stealthMult()*att;rate+=f*g.sens*.6;if(att===0)seen=false;
     }
     let noise=p.dash?150:(p.moving&&!p.sneak?50:0);if(S.owned.has('boots'))noise*=.5;if(g.act==='sleep')noise*=.4;
-    if(!hidden&&d<noise&&los(g.x,g.y,p.x,p.y)){rate+=.5*g.sens;if(g.state==='patrol'||g.state==='return'){g.state='sus';g.act=null;}g.lx=p.x;g.ly=p.y;}
+    if(!hidden&&d<noise&&los(g.x,g.y,p.x,p.y)){rate+=.3*g.sens;if(g.state==='patrol'||g.state==='return'){g.state='sus';g.act=null;}g.lx=p.x;g.ly=p.y;}
     if(!hidden&&d<30){rate+=5;seen=true;}
   }
   if(g.state==='chase'){
     if(g.stun>0){g.stun-=dt;g.moving=false;turnTo(g,Math.atan2(dy,dx),8,dt);return;}
     crumb(g);
     if(seen){g.lost=0;g.lx=p.x;g.ly=p.y;}else g.lost+=dt;
-    if(safe||g.lost>2.2){g.state='search';g.wait=2;g.meter=.6;}
+    if(safe||g.lost>1.8){g.state='search';g.wait=2;g.meter=.6;}
     else{let tx=g.lx,ty=g.ly;
       if(!seen){for(let i=p.trail.length-1;i>=Math.max(0,p.trail.length-80);i--){const t=p.trail[i];if(los(g.x,g.y,t.x,t.y)){tx=t.x;ty=t.y;break;}}}else{tx=p.x;ty=p.y;}
-      g.chaseT=(g.chaseT||0)+dt;gMove(g,tx,ty,g.run*(g.chaseT<1.5?.7:1),dt);const d2=Math.hypot(p.x-g.x,p.y-g.y);
-      if(!(p.caught>0)&&(d2<34||(g.stuck>.5&&d2<70))){caught(g);return;}
+      g.chaseT=(g.chaseT||0)+dt;gMove(g,tx,ty,Math.min(g.run,125)*(g.chaseT<1.5?.75:1),dt);const d2=Math.hypot(p.x-g.x,p.y-g.y);
+      if(!(p.caught>0)&&(d2<34||(g.stuck>.5&&d2<70))){if(S.hearts>0)heartBarrier(g);else caught(g);return;}
       if(g.stuck>2.5){g.lost=2.3;g.stuck=0;}}
     return;
   }
@@ -1630,10 +1722,14 @@ function updateGuard(g,dt){
     if(g.kind==='resident')residentRoutine(g,dt);else if(g.kind==='wander')wanderRoutine(g,dt);else pathRoutine(g,dt);
   }
 }
+function heartBarrier(g){S.hearts--;player.inv=2;sfx('barrier');big('ハートバリア！',1300);burst(player.x,player.y-40,30);
+  for(const q of guards){if(q.state!=='chase'&&q!==g)continue;if(Math.hypot(q.x-player.x,q.y-player.y)>260)continue;q.state='search';q.wait=3;q.meter=0;q.dizzy=3;q.stun=0;q.crumbs=q.crumbs||[];
+    const a=Math.atan2(q.y-player.y,q.x-player.x);moveEnt(q,Math.cos(a)*60,Math.sin(a)*60,14);say(q,'あれれ〜？');}
+  fairySay(S.hearts?'ハートが守ってくれたポム！ いまのうちににげて！':'ハートがなくなったポム… 気をつけて！',3);save();}
 function caught(g){
   player.caught=2.2;S.stats.caught++;sfx('caught');big('つかまっちゃった！',2000);
-  const lost=Math.floor(S.bag.length/2);S.bag.splice(S.bag.length-lost,lost);renderBag();
-  setTimeout(()=>toast(lost?`宝物を${lost}こ返した… のこりは持って帰れたよ`:'ひみつ基地に帰された…',true),600);
+  const lost=Math.min(1,S.bag.length);S.bag.splice(S.bag.length-lost,lost);renderBag();
+  setTimeout(()=>toast(lost?'宝物を1こ落としちゃった… つぎはがんばろう！':'ひみつ基地にもどってきた',true),600);
   if(loot.open)closeLoot();
 }
 function respawn(){player.caught=0;bindStage(STAGES.home);player.x=BASE_DOOR.x;player.y=BASE_DOOR.y+40;player.trail=[];player.dir=0;resetAllGuards();save();}
@@ -1663,13 +1759,15 @@ function render(){
   for(const p of props){const px=p.x??(p.b&&p.b.x)??(p.c&&p.c.x),py=p.y2??p.y;const w=p.w||220;if(px+w<camX-m||px>camX+vw+m||py<camY-m||py>camY+vh+300)continue;list.push({y:py,p});}
   for(const o of ST.objs)if(o.draw)list.push({y:o.y-12,o});
   for(const g of guards){if(g.hidden||g.x<camX-m||g.x>camX+vw+m||g.y<camY-m||g.y>camY+vh+m)continue;list.push({y:g.y,g});}
+  for(const h of ST.hearts)if(h.on)list.push({y:h.y,hh:h});
   if(!player.inShelter)list.push({y:player.y,pl:1});
   list.sort((a,b)=>a.y-b.y);
-  for(const e of list){if(e.p)drawProp(c,e.p);else if(e.o)drawObj(c,e.o);else if(e.g)drawPerson(c,e.g);else drawPlayer(c);}
+  for(const e of list){if(e.p)drawProp(c,e.p);else if(e.o)drawObj(c,e.o);else if(e.hh)drawHeartPick(c,e.hh);else if(e.g)drawPerson(c,e.g);else drawPlayer(c);}
   {const on=ownerNear();if(on>0){c.save();c.globalAlpha=on*.7;c.fillStyle='#2a1030';const sx=W/2,sy=H-6;ell(c,sx,sy-28*on,16*on+6,30*on+8);circ(c,sx,sy-70*on-10,12*on+4);c.restore();}}
   if(player.inBush){c.save();c.globalAlpha=.8;drawProp(c,{type:'bush',b:player.inBush});c.restore();}
   for(const g of guards){if(g.hidden)continue;
-    if(g.meter>0||g.state==='chase'){const x=g.x,y=g.y-96;c.lineWidth=2.5;c.strokeStyle='#fff';
+    if(g.dizzy>0){c.fillStyle='#ffd23a';c.strokeStyle='#fff';c.lineWidth=1.5;for(let i=0;i<3;i++){const an=T*5+i/3*TAU;star(c,g.x+Math.cos(an)*16,g.y-80+Math.sin(an)*5,6,2.5);c.fill();c.stroke();}}
+    else if(g.meter>0||g.state==='chase'){const x=g.x,y=g.y-96;c.lineWidth=2.5;c.strokeStyle='#fff';
       if(g.state==='chase'){c.fillStyle='#ff4d6d';star(c,x,y-10,20,11,8,T*2);c.fill();c.stroke();c.fillStyle='#fff';c.font='22px "Mochiy Pop One",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('!',x,y-9);}
       else{c.fillStyle='#fff';circ(c,x,y-10,16);c.fillStyle=g.meter>.6?'#ff4d6d':'#ffc93c';c.beginPath();c.moveTo(x,y-10);c.arc(x,y-10,14,-Math.PI/2,-Math.PI/2+TAU*g.meter);c.closePath();c.fill();c.fillStyle='#fff';circ(c,x,y-10,9.5);c.fillStyle=HERO.line;c.font='15px "Mochiy Pop One",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('?',x,y-9);}}
     drawSay(c,g);}
@@ -1678,11 +1776,13 @@ function render(){
     else{rr(c,o.x-o.w/2-6,o.y-o.h-(o.kind==='case'?36:24),o.w+12,o.h+(o.kind==='case'?40:28),10);c.stroke();}}
   if(moveTarget){c.fillStyle='rgba(255,95,162,.55)';const mt=moveTarget;let px=player.x,py=player.y;for(let k=mt.i;k<mt.path.length;k++){const q=mt.path[k];const d=Math.hypot(q[0]-px,q[1]-py);for(let s2=20;s2<d;s2+=24)circ(c,px+(q[0]-px)*s2/d,py+(q[1]-py)*s2/d,3.2);px=q[0];py=q[1];}}
   if(tapMark){tapMark.t+=1/60;const a=Math.max(0,1-tapMark.t/.7);if(a>0){c.strokeStyle=tapMark.ok?`rgba(255,95,162,${a})`:`rgba(120,110,140,${a})`;c.lineWidth=3;c.beginPath();c.ellipse(tapMark.x,tapMark.y,10+tapMark.t*34,5+tapMark.t*17,0,0,TAU);c.stroke();if(tapMark.ok){c.fillStyle=`rgba(255,95,162,${a})`;heartP(c,tapMark.x,tapMark.y-14-tapMark.t*10,5);c.fill();}}else tapMark=null;}
+  drawFairy(c);
   drawParts(c,false);
   c.restore();
   if(chaseCount>0){c.setTransform(DPR,0,0,DPR,0,0);const a=.25+Math.sin(T*8)*.1;const gr=c.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*.35,VW/2,VH/2,Math.max(VW,VH)*.7);gr.addColorStop(0,'rgba(255,77,109,0)');gr.addColorStop(1,`rgba(255,77,109,${a})`);c.fillStyle=gr;c.fillRect(0,0,VW,VH);}
   if(player.caught>0){c.setTransform(DPR,0,0,DPR,0,0);c.fillStyle=`rgba(60,20,70,${Math.min(.65,(2.2-player.caught)*.8)})`;c.fillRect(0,0,VW,VH);}
   if(loot.open)drawLoot();
+  if(henshin)drawHenshin();
 }
 function drawCone(c,g,col,rm=1){const r=g.range*(isNight()?.62:1)*rm;c.fillStyle=col;c.beginPath();c.moveTo(g.x,g.y-4);
   const n=18;for(let i=0;i<=n;i++){const a=g.dir-g.fov/2+g.fov*i/n;let rr2=r;
@@ -1691,7 +1791,7 @@ function drawCone(c,g,col,rm=1){const r=g.range*(isNight()?.62:1)*rm;c.fillStyle
   c.closePath();c.fill();}
 function drawPlayer(c){const p=player;const blink=(Math.floor(p.t*10)%41===40);
   if(p.caught>0){drawFuka(c,p.x,p.y,{dir:0,t:p.t,moving:false,sneak:true,cos:S.costume,caught:1});return;}
-  drawFuka(c,p.x,p.y,{dir:p.dir,t:p.t,moving:p.moving,sneak:p.sneak,dash:p.dash,cos:S.costume,alpha:p.inBush?.55:1,blink});
+  drawFuka(c,p.x,p.y,{dir:p.dir,t:p.t,moving:p.moving,sneak:p.sneak,dash:p.dash,cos:S.costume,alpha:p.inBush?.55:p.inv>0&&Math.floor(p.inv*10)%2?.4:1,blink});
   if(p.dash&&p.moving&&Math.random()<.5)parts.push({x:p.x+Math.random()*16-8,y:p.y-4,vx:0,vy:-20,life:.35,t:0,col:'#fff'});
 }
 // ================= modals =================
@@ -1737,8 +1837,7 @@ $('shopCard').addEventListener('click',e=>{
   if(b.dataset.sell){const it=S.bag.splice(+b.dataset.sell,1)[0];S.stats.sold++;gain(sellPrice(it));sfx('sell');renderBag();renderShop();return;}
   if(b.dataset.sellall){let t=0;for(const it of S.bag)t+=sellPrice(it);const n=S.bag.length;S.stats.sold+=n;S.bag=[];gain(t);sfx('sell');setTimeout(()=>sfx('sell'),150);renderBag();renderShop();big(`+${yenJ(t)}`,1500);toast(`宝物${n}こを ${yenJ(t)} で売った！`);return;}
   if(b.dataset.buy){buyItem(b.dataset.buy);renderShop();return;}
-  if(b.dataset.bcos){tryCostume(b.dataset.bcos);renderShop();return;}
-  if(b.dataset.wear){tryCostume(b.dataset.wear);renderShop();return;}
+  if(b.dataset.bcos||b.dataset.wear){const before=S.costume;tryCostume(b.dataset.bcos||b.dataset.wear);if(S.costume!==before){closeModal('shop');startHenshin(before,S.costume);}else renderShop();return;}
 });
 function gain(v){S.money+=v;checkWin();save();}
 function checkWin(){if(!S.won&&S.money>=1e8){S.won=true;save();setTimeout(()=>{$('winText').textContent=`1億円を達成！ つかまった回数 ${S.stats.caught}回。ふーちゃんは立派なトレジャーハンターになった！`;const cvv=$('winPortrait');const c=cvv.getContext('2d');c.clearRect(0,0,340,340);c.fillStyle='#fff0f7';circ(c,170,170,160);drawFuka(c,170,322,{dir:0,t:0,cos:S.costume,sc:4.3,cheer:1});$('shop').hidden=true;openModal('win');sfx('win');},300);}}
@@ -1748,9 +1847,9 @@ function applyOwned(){for(const g of gates){g.s.off=S.owned.has(g.need);}}
 const KEY='kossori-treasure-v5',OLDKEY='kossori-treasure-v4';
 function allContainers(){const a=[];for(const id of STAGE_ORDER)a.push(...STAGES[id].containers);return a;}
 let started=false;
-function save(){if(!started)return;lastSave=Date.now();try{localStorage.setItem(KEY,JSON.stringify({money:S.money,owned:[...S.owned],costumes:[...S.costumes],costume:S.costume,bag:S.bag,won:S.won,stats:S.stats,stage:ST.id,px:Math.round(player.x),py:Math.round(player.y),cont:allContainers().map(c=>c.items)}));}catch(e){}}
+function save(){if(!started)return;lastSave=Date.now();try{localStorage.setItem(KEY,JSON.stringify({money:S.money,owned:[...S.owned],costumes:[...S.costumes],costume:S.costume,bag:S.bag,hearts:S.hearts,won:S.won,stats:S.stats,stage:ST.id,px:Math.round(player.x),py:Math.round(player.y),cont:allContainers().map(c=>c.items)}));}catch(e){}}
 function load(){try{let d=JSON.parse(localStorage.getItem(KEY)||'null');const old=!d;if(old){d=JSON.parse(localStorage.getItem(OLDKEY)||'null');if(!d)return false;}
-  Object.assign(S,{money:d.money||0,owned:new Set((d.owned||[]).filter(k=>SHOP.some(s=>s.id===k))),costumes:new Set(d.costumes||['normal']),costume:d.costume||'normal',bag:d.bag||[],won:!!d.won,stats:d.stats||{caught:0,sold:0},stage:old?'home':d.stage||'home',px:old?null:d.px,py:old?null:d.py});
+  Object.assign(S,{money:d.money||0,owned:new Set((d.owned||[]).filter(k=>SHOP.some(s=>s.id===k))),costumes:new Set(d.costumes||['normal']),costume:d.costume||'normal',bag:d.bag||[],hearts:d.hearts??3,won:!!d.won,stats:d.stats||{caught:0,sold:0},stage:old?'home':d.stage||'home',px:old?null:d.px,py:old?null:d.py});
   if(!COS[S.costume])S.costume='normal';const all=allContainers();
   if(!old&&Array.isArray(d.cont)&&d.cont.length===all.length)all.forEach((c,i)=>c.items=d.cont[i]||[]);else restock();applyOwned();return true;}catch(e){return false;}}
 function hasSave(){try{return !!(localStorage.getItem(KEY)||localStorage.getItem(OLDKEY));}catch(e){return false;}}
@@ -1760,7 +1859,7 @@ function isNight(){return false;}
 const REFILL=60;let refillAcc=0;
 function refill(c){const n=RI(KIND[c.kind].cnt[0],KIND[c.kind].cnt[1])+(c.bonus?1:0);c.items=[];for(let i=0;i<Math.min(n,6);i++)c.items.push(rollItem(c.zone));c.emptyT=0;}
 function restock(){for(const c of allContainers())refill(c);}
-function refillTick(dt){refillAcc+=dt;if(refillAcc<1)return;for(const c of allContainers()){if(c===loot.c||c.items.some(i=>i)){c.emptyT=0;continue;}c.emptyT=(c.emptyT||0)+refillAcc;if(c.emptyT>REFILL)refill(c);}refillAcc=0;}
+function refillTick(dt){refillAcc+=dt;if(refillAcc<1)return;for(const id of STAGE_ORDER)for(const h of STAGES[id].hearts){if(!h.on&&(h.t-=refillAcc)<=0)h.on=true;}for(const c of allContainers()){if(c===loot.c||c.items.some(i=>i)){c.emptyT=0;continue;}c.emptyT=(c.emptyT||0)+refillAcc;if(c.emptyT>REFILL)refill(c);}refillAcc=0;}
 function rollItem(z){const t=LOOT[z]||LOOT.A;const tot=t.reduce((a,b)=>a+b[1],0);let r=Math.random()*tot;for(const [k,w] of t){if((r-=w)<0){const I=ITEMS[k];return{k,v:Math.round((I.v[0]+Math.random()*(I.v[1]-I.v[0]))/10)*10};}}return{k:t[0][0],v:ITEMS[t[0][0]].v[0]};}
 
 // ================= loop =================
@@ -1781,6 +1880,9 @@ function step(now){
     saveAcc+=dt;if(saveAcc>5){saveAcc=0;save();}
     prompt=loot.open?null:findInteract();
   }
+  if(!paused&&started)updateFairy(dt);
+  $('app').classList.toggle('henshin',!!henshin);
+  if(henshin){henshin.t+=dt;if(!henshin.burst&&henshin.t>1.1){henshin.burst=true;burst(VW/2,VH*.3,44,true);sfx('win');}if(henshin.t>2.9){henshin=null;paused=false;fairySay('かわいいポム〜！',2);save();}}
   updParts(dt);
   actPressed=false;
   toastsEl.classList.toggle('low',loot.open);$('hudB').hidden=loot.open&&isTouch;$('ctrl').hidden=paused||loot.open;
@@ -1794,23 +1896,25 @@ buildHome();buildCamp();buildTown();buildBeach();buildMuseum();
 {let ri=0;for(const id of ['camp','town','beach']){for(const sh of STAGES[id].shelters){buildRoom(sh,id,ri++);STAGE_ORDER.push(sh.room);}}}
 buildBaseRoom();buildShopRoom();STAGE_ORDER.push('base','shop');
 for(const id of STAGE_ORDER)buildDecor(STAGES[id]);
+{const hn={home:3,camp:4,town:4,beach:4,museum:4};for(const id in hn)addHearts(STAGES[id],hn[id]);}
 bindStage(STAGES.home);restock();applyOwned();
-function drawPortrait(){const c=$('portrait').getContext('2d');c.clearRect(0,0,340,340);const g=c.createRadialGradient(170,170,20,170,170,165);g.addColorStop(0,'#fff');g.addColorStop(1,'#ffd6ea');c.fillStyle=g;circ(c,170,170,162);c.fillStyle='#ffc93c';for(const [x,y,r] of [[60,80,12],[285,110,9],[270,250,13],[70,240,8]]){star(c,x,y,r,r*.42);c.fill();}c.fillStyle='#ff8cc0';heartP(c,95,170,9);c.fill();heartP(c,262,200,7);c.fill();drawFuka(c,170,330,{dir:0,t:0,cos:'normal',sc:4.4,cheer:1});}
+function drawPortrait(){const c=$('portrait').getContext('2d');c.clearRect(0,0,340,340);const g=c.createRadialGradient(170,170,20,170,170,165);g.addColorStop(0,'#fff');g.addColorStop(1,'#ffd6ea');c.fillStyle=g;circ(c,170,170,162);c.fillStyle='#ffc93c';for(const [x,y,r] of [[60,80,12],[285,110,9],[270,250,13],[70,240,8]]){star(c,x,y,r,r*.42);c.fill();}c.fillStyle='#ff8cc0';heartP(c,95,170,9);c.fill();heartP(c,262,200,7);c.fill();drawFuka(c,170,330,{dir:0,t:0,cos:'normal',sc:4.4,cheer:1});drawFairyAt(c,272,96,2.3,0);}
 drawPortrait();
 if(hasSave())$('btnContinue').hidden=false;
-function start(fresh){audioInit();if(fresh){try{localStorage.removeItem(KEY);localStorage.removeItem(OLDKEY);}catch(e){}Object.assign(S,{money:0,owned:new Set(),costumes:new Set(['normal']),costume:'normal',bag:[],won:false,stats:{caught:0,sold:0},stage:'home',px:null,py:null});restock();applyOwned();}else load();
+function start(fresh){audioInit();if(fresh){try{localStorage.removeItem(KEY);localStorage.removeItem(OLDKEY);}catch(e){}Object.assign(S,{money:0,owned:new Set(),costumes:new Set(['normal']),costume:'normal',bag:[],hearts:3,won:false,stats:{caught:0,sold:0},stage:'home',px:null,py:null});restock();applyOwned();}else load();
   resetAllGuards();const st=STAGES[S.stage]||STAGES.home;bindStage(st);
   if(!fresh&&S.px!=null&&S.py!=null){player.x=S.px;player.y=S.py;resolve(player,12);}else{bindStage(STAGES.home);player.x=BASE_DOOR.x;player.y=BASE_DOOR.y+40;}
   player.caught=0;player.trail=[];moveTarget=null;ptr.down=false;started=true;player.doorCD=.8;if(ST.roomOf){ST.eta=15;ST.warned=false;}
   renderBag();$('title').hidden=true;paused=false;keys.clear();save();
   const bn=$('banner');bn.textContent=ST.name;bn.hidden=false;clearTimeout(bn.t);bn.t=setTimeout(()=>bn.hidden=true,1600);
-  if(fresh){setTimeout(()=>toast('行きたい場所をタップ（クリック）すると歩くよ！'),400);setTimeout(()=>toast('南の道から「キャンプ場」へ行ってみよう'),3200);}}
+  fairyGreet();
+  if(fresh){fairy.say=null;fairy.last={};fairySay('わたしはポムン！ いっしょに宝物をあつめるポム！',3);setTimeout(()=>toast('行きたい場所をタップ（クリック）すると歩くよ！'),400);setTimeout(()=>{fairy.last={};fairySay('下の道から キャンプ場へ行ってみるポム！',3);},4500);}}
 function resetNewBtn(){const b=$('btnNew');b.textContent='はじめから';delete b.dataset.armed;}
 $('btnNew').onclick=()=>{const b=$('btnNew');if(hasSave()&&!b.dataset.armed){b.dataset.armed='1';b.textContent='データを消してはじめる？';clearTimeout(resetNewBtn.t);resetNewBtn.t=setTimeout(resetNewBtn,4000);return;}resetNewBtn();start(true);};
 $('btnContinue').onclick=()=>start(false);
 addEventListener('pagehide',()=>save());document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
 renderBag();
-window.__game={S,player,get moveTarget(){return moveTarget},handleTap,findPath,get cam(){return{camX,camY,zoom}},get guards(){return guards},get containers(){return containers},get shelters(){return shelters},get ST(){return ST},STAGES,goStage,bindStage,openLoot,lootGrab,get loot(){return loot},setPos(x,y){player.x=x;player.y=y;},gates,applyOwned,refill};
+window.__game={S,player,get moveTarget(){return moveTarget},handleTap,findPath,get cam(){return{camX,camY,zoom}},get guards(){return guards},get containers(){return containers},get shelters(){return shelters},get ST(){return ST},STAGES,goStage,bindStage,openLoot,lootGrab,get loot(){return loot},setPos(x,y){player.x=x;player.y=y;},gates,applyOwned,refill,fairy,startHenshin};
 requestAnimationFrame(frame);
 
 })();
