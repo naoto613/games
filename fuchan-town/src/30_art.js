@@ -150,7 +150,7 @@ function drawBtn(c,x,y,r,col,icon,glow){c.save();c.translate(x,y);if(glow){const
 const hitC=(x,y,cx,cy,r)=>Math.hypot(x-cx,y-cy)<r;
 function drawBubble(c){if(!bub)return;const a=Math.min(1,bub.t*5,(bub.life-bub.t)*3);if(a<=0)return;c.globalAlpha=a;c.font=`800 22px ${FONT}`;
   const lines=[];let cur='';for(const ch of bub.text){cur+=ch;if(c.measureText(cur).width>380){lines.push(cur);cur='';}}if(cur)lines.push(cur);
-  const w=Math.min(420,Math.max(...lines.map(l=>c.measureText(l).width))+36),h=lines.length*28+22,x=W/2-w/2+30,y=scene===SCN.map?112:24;
+  const w=Math.min(420,Math.max(...lines.map(l=>c.measureText(l).width))+36),h=lines.length*28+22,x=W/2-w/2+30,y=isMap()?112:24;
   c.fillStyle='rgba(90,40,110,.15)';rr(c,x+3,y+5,w,h,22);c.fill();c.fillStyle='#fff';c.strokeStyle='#ffb3d6';c.lineWidth=4;rr(c,x,y,w,h,22);c.fill();c.stroke();c.fillStyle='#5a3a5a';c.textAlign='center';c.textBaseline='middle';lines.forEach((l,i)=>c.fillText(l,x+w/2,y+25+i*28));c.globalAlpha=1;}
 function drawCard(c){if(!card)return;const a=Math.min(1,card.t*5,(3-card.t)*3);if(a<=0)return;c.save();c.globalAlpha=a;const sc=elastic(Math.min(1,card.t*2.5))*.2+.8;const y=H*.2;c.translate(W/2,y);c.scale(sc,sc);
   c.fillStyle='rgba(90,40,110,.2)';rr(c,-190,-62,380,132,28);c.fill();c.fillStyle='#fffdf6';c.strokeStyle='#ffc93c';c.lineWidth=5;rr(c,-190,-68,380,132,28);c.fill();c.stroke();
@@ -165,7 +165,6 @@ function stepDots(c,n,i,yy=128){const x0=W/2-(n-1)*22+30;for(let k=0;k<n;k++){co
 // ================= places & stickers =================
 const PLACES=[
   {id:'detective',name:'たんていじむしょ',wall:'#ffe4f0',roof:'#7a4ad8',icon:'nyan',ja:'まじかる たんていじむしょ',big:1},
-  {id:'fuwa',name:'ふわふわタウン',wall:'#fff4fa',roof:'#ffa6cf',icon:'miru',ja:'ふわふわタウン',big:1},
   {id:'cake',name:'けーきやさん',wall:'#ffd0e4',roof:'#ff6fa8',icon:'cake',ja:'ケーキやさん'},
   {id:'doctor',name:'びょういん',wall:'#f4fbff',roof:'#5aa8ff',icon:'thermometer',ja:'びょういん'},
   {id:'bath',name:'おふろ',wall:'#d8f0ff',roof:'#3cc8d8',icon:'duck',ja:'おふろ'},
@@ -179,22 +178,17 @@ const PLACES=[
   {id:'music',name:'おんがくしつ',wall:'#fce4ff',roof:'#d86ae8',icon:'note',ja:'おんがくしつ'},
   {id:'brush',name:'はいしゃさん',wall:'#e8fff4',roof:'#3ac8a0',icon:'toothbrush',ja:'はいしゃさん'},
   {id:'yuen',name:'ゆうえんち',wall:'#fff0f6',roof:'#ff6f91',icon:'ferris',ja:'ゆうえんち'},
-  {id:'space',name:'うちゅう',wall:'#e8e4ff',roof:'#5a4ab8',icon:'rocket',ja:'うちゅう'},
-  {id:'train',name:'でんしゃ',wall:'#fff6e0',roof:'#3aa060',icon:'train',ja:'でんしゃ'},
   {id:'sea',name:'うみ',wall:'#e0f6ff',roof:'#2a8ad8',icon:'octopus',ja:'うみの たんけん'},
   {id:'snow',name:'ゆきあそび',wall:'#f4faff',roof:'#8ab8e8',icon:'snowman',ja:'ゆきあそび'},
   {id:'shiri',name:'しりとり',wall:'#fff8e0',roof:'#ff9a3a',icon:'wordchain',ja:'しりとり'},
   {id:'hide',name:'かくれんぼ',wall:'#effbe8',roof:'#4cae6a',icon:'bushpeek',ja:'かくれんぼ'},
-  {id:'daruma',name:'だるまさん',wall:'#fff0ec',roof:'#e84a4a',icon:'daruma',ja:'だるまさんが ころんだ'},
   {id:'fire',name:'しょうぼうしょ',wall:'#fff0ec',roof:'#d8282e',icon:'firetruck',ja:'しょうぼうしょ'},
   {id:'race',name:'かけっこ',wall:'#f4f8ff',roof:'#3a8ad8',icon:'medal',ja:'こうていの かけっこ'},
   {id:'obst',name:'しょうがいぶつ',wall:'#f0fff4',roof:'#3aa060',icon:'hurdle',ja:'しょうがいぶつ きょうそう'},
-  {id:'tama',name:'たまいれ',wall:'#fff4f4',roof:'#ff5f6f',icon:'tamabasket',ja:'たまいれ'},
   {id:'crane',name:'クレーンゲーム',wall:'#fff0f8',roof:'#ff6fae',icon:'claw',ja:'クレーンゲーム'},
   {id:'blocks',name:'つみき',wall:'#fff8e8',roof:'#ffb03a',icon:'blockhouse',ja:'つみきの へや'},
   {id:'dance',name:'ダンス',wall:'#f4ecff',roof:'#8a5ad8',icon:'discoball',ja:'ダンス ステージ'},
   {id:'pizza',name:'ピザやさん',wall:'#fff4e8',roof:'#e84a3a',icon:'pizza',ja:'ピザやさん'},
-  {id:'icecream',name:'アイスやさん',wall:'#f0fbff',roof:'#8ad0ff',icon:'icecone',ja:'アイスクリームやさん'},
   {id:'sushi',name:'おすしやさん',wall:'#fff8ec',roof:'#3a2a4a',icon:'nigiri',ja:'おすしやさん'},
   {id:'salon',name:'ヘアサロン',wall:'#fff0f8',roof:'#ff6fae',icon:'scissors',ja:'ヘアサロン'},
   {id:'carwash',name:'くるまやさん',wall:'#eef6ff',roof:'#3a8ad8',icon:'carR',ja:'くるまの しゅうりやさん'},
@@ -220,12 +214,12 @@ const STK=[['cake','cake'],['cake','strawberry'],['cake','candle'],['doctor','be
   ['shop','apple'],['shop','cart'],['shop','coin'],['dress','dress'],['dress','crown'],['dress','wand'],['zoo','rabbit'],['zoo','panda'],['zoo','pig'],['school','letterA'],['school','letterABC'],['school','pencil'],
   ['festival','goldfish'],['festival','hanabi'],['festival','kakigori'],['nurie','palette'],['nurie','crayon'],['nurie','icecream'],['puzzle','puzzle'],['puzzle','chick'],['puzzle','starcandy'],
   ['music','note'],['music','xylophone'],['music','mic'],['brush','toothbrush'],['brush','tooth'],['brush','hippo'],
-  ['detective','nyan'],['detective','lens'],['detective','heartgem'],['fuwa','miru'],['fuwa','purin'],['fuwa','penpen'],
-  ['yuen','ferris'],['yuen','horse'],['yuen','cotton'],['space','rocket'],['space','saturn'],['space','alien'],['train','train'],['train','ticket'],['train','crossing'],['sea','octopus'],['sea','whale'],['sea','turtle'],['snow','snowman'],['snow','mitten'],['snow','snowflake'],
-  ['shiri','wordchain'],['shiri','ablock'],['shiri','speech'],['hide','bushpeek'],['hide','boxpeek'],['hide','gemstone'],['daruma','daruma'],['daruma','stopsign'],['daruma','kendama'],
-  ['fire','firetruck'],['fire','helmet'],['fire','hydrant'],['race','medal'],['race','baton'],['race','flagcheck'],['obst','hurdle'],['obst','tire'],['obst','anpan'],['tama','redball'],['tama','tamabasket'],['tama','whistle'],
+  ['detective','nyan'],['detective','lens'],['detective','heartgem'],
+  ['yuen','ferris'],['yuen','horse'],['yuen','cotton'],['sea','octopus'],['sea','whale'],['sea','turtle'],['snow','snowman'],['snow','mitten'],['snow','snowflake'],
+  ['shiri','wordchain'],['shiri','ablock'],['shiri','speech'],['hide','bushpeek'],['hide','boxpeek'],['hide','gemstone'],
+  ['fire','firetruck'],['fire','helmet'],['fire','hydrant'],['race','medal'],['race','baton'],['race','flagcheck'],['obst','hurdle'],['obst','tire'],['obst','anpan'],
   ['crane','claw'],['crane','goldstar'],['crane','capsuletoy'],['blocks','blockhouse'],['blocks','blocktower'],['blocks','blockcube'],['dance','discoball'],['dance','maracas'],['dance','ribbonstick'],
-  ['pizza','pizza'],['pizza','chefhat'],['pizza','pizzacutter'],['icecream','icecone'],['icecream','sundae'],['icecream','sprinkles'],['sushi','nigiri'],['sushi','maki'],['sushi','teacup'],['salon','lionface'],['salon','scissors'],['salon','dryer'],['carwash','carR'],['carwash','wrench'],['carwash','oilcan'],['farm','tractor'],['farm','pumpkin'],['farm','eggbasket'],['kouji','excavator'],['kouji','hardhat'],['kouji','tcone'],['tidy','toybox'],['tidy','recyclebin'],['tidy','vacuum'],['pet','puppy'],['pet','dogbowl'],['pet','tennisball'],['airport','plane'],['airport','suitcase'],['airport','passport'],['mojitsuri','hirafish'],['mojitsuri','fishrod'],['mojitsuri','bucket'],['kazu','kazutrain'],['kazu','num123'],['kazu','abacus'],['tashizan','applebasket'],['tashizan','applepie'],['tashizan','plussign'],['katachi','shapes'],['katachi','shapehouse'],['katachi','circle'],['iro','paintpot'],['iro','rainbow2'],['iro','colorballoons'],['tokei','clock2'],['tokei','alarm'],['tokei','sunmoon'],['memory','cards'],['memory','qcard'],['memory','magnifier'],['tensen','dotstar'],['tensen','ruler'],['tensen','compass'],['meiro','maze'],['meiro','goalflag'],['meiro','bento'],['kage','shadowcat'],['kage','flashlight'],['kage','shadowhand']].map(([place,k])=>({id:place+'_'+k,place,k}));
+  ['pizza','pizza'],['pizza','chefhat'],['pizza','pizzacutter'],['sushi','nigiri'],['sushi','maki'],['sushi','teacup'],['salon','lionface'],['salon','scissors'],['salon','dryer'],['carwash','carR'],['carwash','wrench'],['carwash','oilcan'],['farm','tractor'],['farm','pumpkin'],['farm','eggbasket'],['kouji','excavator'],['kouji','hardhat'],['kouji','tcone'],['tidy','toybox'],['tidy','recyclebin'],['tidy','vacuum'],['pet','puppy'],['pet','dogbowl'],['pet','tennisball'],['airport','plane'],['airport','suitcase'],['airport','passport'],['mojitsuri','hirafish'],['mojitsuri','fishrod'],['mojitsuri','bucket'],['kazu','kazutrain'],['kazu','num123'],['kazu','abacus'],['tashizan','applebasket'],['tashizan','applepie'],['tashizan','plussign'],['katachi','shapes'],['katachi','shapehouse'],['katachi','circle'],['iro','paintpot'],['iro','rainbow2'],['iro','colorballoons'],['tokei','clock2'],['tokei','alarm'],['tokei','sunmoon'],['memory','cards'],['memory','qcard'],['memory','magnifier'],['tensen','dotstar'],['tensen','ruler'],['tensen','compass'],['meiro','maze'],['meiro','goalflag'],['meiro','bento'],['kage','shadowcat'],['kage','flashlight'],['kage','shadowhand']].map(([place,k])=>({id:place+'_'+k,place,k}));
 const STKC={};
 function scal(c,cx,cy,R,n,amp){c.beginPath();for(let i=0;i<=120;i++){const a=i/120*TAU,r=R+amp*Math.cos(n*a);c.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);}c.closePath();}
 function stkCol(k){const st=STK.find(q=>q.k===k);const p=st&&PLACES.find(q=>q.id===st.place);return p?p.roof:'#ff8cc0';}
@@ -256,12 +250,15 @@ function hanamaru(c,x,y,s,a){c.save();c.translate(x,y);c.scale(s,s);c.globalAlph
   c.lineWidth=8;for(let i=0;i<8;i++){const a2=i/8*TAU;c.beginPath();c.ellipse(Math.cos(a2)*96,Math.sin(a2)*80,26,16,a2,0,TAU);c.stroke();}c.restore();}
 function wallet(c,x,y,sc){sc=sc||1;c.save();c.translate(x,y);c.scale(sc,sc);c.fillStyle='rgba(255,255,255,.94)';rr(c,-120,-24,240,48,24);c.fill();c.strokeStyle='#ffc93c';c.lineWidth=3;c.stroke();coinIcon(c,-92,0,17);hanaIcon(c,18,0,17);
   c.fillStyle='#7a5000';c.font=`800 22px ${FONT}`;c.textAlign='left';c.textBaseline='middle';const cc=cel&&cel.dc!=null?cel.dc:SAVE.coins,hh=cel&&cel.dh!=null?cel.dh:SAVE.hana;c.fillText(cc,-68,1,78);c.fillStyle='#c02a6a';c.fillText(hh,42,1,70);c.restore();}
-function celebrate(place,lucky){if(cel)return;const chest=place==='chest';
+function isMap(){return scene===SCN.map||scene===SCN.map2d;}
+function pickScn(n){return(!HAS3D&&SCN2D[n])||SCN[n];}
+function bestOf(id){return(SAVE.best&&SAVE.best[id])||0;}
+function celebrate(place,lucky,stars){if(cel)return;const chest=place==='chest';stars=chest?3:clamp(stars||(lucky?3:2),1,3);if(!SAVE.best)SAVE.best={};let newBest=false;if(!chest&&stars>(SAVE.best[place]||0)){SAVE.best[place]=stars;newBest=true;}
   if(!chest){SAVE.plays[place]=(SAVE.plays[place]||0)+1;}const qd=!chest&&questMark(place);const study=STUDY.has(place);
-  const coins=chest?50:10+(lucky?5:0)+(qd?5:0),hana=chest?5:study?3+(lucky?1:0):0;
+  const coins=chest?50:5+stars*5+(qd?5:0),hana=chest?5:study?1+stars:0;
   const list=chest?STK:STK.filter(s=>s.place===place);const un=list.filter(s=>!SAVE.stickers.includes(s.id));let st=null,shiny=false;
   if(un.length)st=chest?pick(un):un[0];else if(chest||lucky){const ns=list.filter(s=>!SAVE.shiny.includes(s.id));if(ns.length){st=pick(ns);shiny=true;}}
-  cel={t:0,ph:'yay',pt:0,place,coins,hana,study,st,shiny,qd,qall:qd&&SAVE.quest.chest,gift:null,dc:SAVE.coins,dh:SAVE.hana,fly:[],sent:0,senth:0,lucky};
+  cel={t:0,ph:'yay',pt:0,place,coins,hana,study,st,shiny,qd,stars,newBest,qall:qd&&SAVE.quest.chest,gift:null,dc:SAVE.coins,dh:SAVE.hana,fly:[],sent:0,senth:0,lucky};
   SAVE.coins+=coins;SAVE.hana+=hana;if(st)celGive();save();sfx('fanfare');confetti(chest?160:90);RK.clap=3;
   setTimeout(()=>{if(!cel)return;say(cel.qall?'おねがい ぜんぶ クリア！ マップに たからばこが でたよ！':study?'はなまる！ べんきょう がんばったね！ はなまるコインも もらえたよ！':qd?'おねがい クリア！ コインを もらったよ！':'やったね！ コインを もらったよ！');},400);}
 function celGive(){const st=cel.st;const before=SAVE.stickers.length;if(!SAVE.stickers.includes(st.id))SAVE.stickers.push(st.id);if(cel.shiny&&!SAVE.shiny.includes(st.id))SAVE.shiny.push(st.id);
@@ -272,8 +269,10 @@ function drawCel(c){const t=cel.t;const a=Math.min(1,t*3);c.fillStyle=`rgba(255,
   c.save();c.translate(W/2,H*.4);c.rotate(t*.4);const cols=cel.study?['#ffe0ea','#fff3c0','#ffe8f4','#fff0d0']:['#ffd6ea','#fff3c0','#d6f0ff','#e8dcff'];for(let i=0;i<12;i++){c.fillStyle=cols[i%4];c.globalAlpha=a;c.beginPath();c.moveTo(0,0);c.arc(0,0,900,i/12*TAU,(i+.5)/12*TAU);c.closePath();c.fill();}c.restore();c.globalAlpha=a;
   c.textAlign='center';c.textBaseline='middle';c.font=`54px ${POP}`;c.lineJoin='round';c.lineWidth=10;c.strokeStyle='#fff';const ty=H*.13;const TT=cel.study?'はなまる！':cel.place==='chest'?'たからばこ！':'やったね！';c.strokeText(TT,W/2,ty+Math.sin(T*4)*4);c.fillStyle=cel.study?'#ff3d6a':'#ff5fa2';c.fillText(TT,W/2,ty+Math.sin(T*4)*4);
   if(cel.qd){c.save();c.translate(W/2,ty+62);c.rotate(-.04);c.fillStyle='#fff';rr(c,-150,-22,300,44,22);c.fill();c.strokeStyle='#6cd08a';c.lineWidth=4;c.stroke();c.fillStyle='#3aa060';c.font=`800 22px ${FONT}`;c.fillText(cel.qall?'✔ おねがい ぜんぶ クリア！':'✔ おねがい クリア！',0,1);c.restore();}
-  const cy=H*.38;
-  if(cel.study){const k=clamp((t-.3)/.35,0,1);const s=k<1?2.4-1.4*easeOut(k):1;c.save();c.translate(W/2,cy);c.rotate(-.15);hanamaru(c,0,0,s*1.25,k);c.restore();}
+  if(cel.place!=='chest'){for(let i=0;i<3;i++){const k=clamp((t-.5-i*.25)*3,0,1);if(k<=0)continue;const on=i<cel.stars,x=W/2+(i-1)*70,y=ty+(cel.qd?112:70)-(i===1?10:0);c.save();c.translate(x,y);c.scale(elastic(k)*(on?1:.8),elastic(k)*(on?1:.8));c.fillStyle=on?'#ffc21a':'rgba(200,180,200,.6)';star(c,0,0,30,13);c.fill();c.strokeStyle='#fff';c.lineWidth=4;c.stroke();c.restore();}
+    if(cel.newBest&&t>1.3){c.fillStyle='#ff5f6f';c.font=`800 18px ${FONT}`;c.fillText('ベスト きろく！',W/2+150,ty+(cel.qd?112:70));}}
+  const cy=H*.4;
+  if(cel.study){const k=clamp((t-.3)/.35,0,1);const s=k<1?2.4-1.4*easeOut(k):1;c.save();c.translate(W/2,cy);c.rotate(-.15);hanamaru(c,0,0,s*1.0,k);c.restore();}
   else{c.save();c.translate(W/2,cy);const sp=Math.cos(T*3);c.scale(Math.max(.08,Math.abs(sp)),1);coinIcon(c,0,0,90);c.restore();}
   c.font=`800 30px ${FONT}`;c.lineWidth=8;c.strokeStyle='#fff';
   const rows=[['c',`コイン  +${cel.coins}`]];if(cel.hana)rows.push(['h',`はなまるコイン  +${cel.hana}`]);if(cel.st)rows.push(['s',cel.shiny?'キラキラシール ゲット！':'シール ゲット！']);if(cel.gift)rows.push(['g',`ごほうび「${cel.gift[3]}」`]);
@@ -307,9 +306,9 @@ class Dr{constructor(o){Object.assign(this,{x:0,y:0,hx:0,hy:0,r:48,held:false,s:
 
 const SPECIAL_THING={
   nyan:(c,x,y,s)=>drawNyan(c,x,y+4*s,s*.62,0),
-  miru:(c,x,y,s)=>drawFriend(c,FR.miru,x,y+34*s,s*.5,{t:0}),
-  purin:(c,x,y,s)=>drawFriend(c,FR.purin,x,y+34*s,s*.5,{t:0}),
-  penpen:(c,x,y,s)=>drawFriend(c,FR.pen,x,y+34*s,s*.5,{t:0}),
+  miru:(c,x,y,s)=>drawAnimal(c,'rabbit',x,y+34*s,s*.5,{t:0,happy:1}),
+  purin:(c,x,y,s)=>drawAnimal(c,'bear',x,y+34*s,s*.5,{t:0,happy:1}),
+  penpen:(c,x,y,s)=>drawAnimal(c,'chick',x,y+34*s,s*.5,{t:0,happy:1}),
   lens:(c,x,y,s)=>{c.save();c.translate(x,y);c.scale(s,s);c.lineCap='round';c.strokeStyle='#7a4a2a';c.lineWidth=9;c.beginPath();c.moveTo(10,10);c.lineTo(28,28);c.stroke();
     c.fillStyle='rgba(200,235,255,.8)';c.strokeStyle='#e8b000';c.lineWidth=6;c.beginPath();c.arc(-6,-6,20,0,TAU);c.fill();c.stroke();c.fillStyle='rgba(255,255,255,.8)';ell(c,-13,-13,6,4);c.fillStyle='#ff5fa2';heartP(c,-6,-4,6);c.fill();c.restore();},
   heartgem:(c,x,y,s)=>{c.save();c.translate(x,y);c.scale(s,s);c.fillStyle='#ffd23a';star(c,0,0,30,14,8);c.fill();const g=c.createRadialGradient(-6,-8,2,0,0,24);g.addColorStop(0,'#fff');g.addColorStop(.35,'#ff8cc0');g.addColorStop(1,'#e8307a');c.fillStyle=g;heartP(c,0,2,20);c.fill();c.strokeStyle='#fff';c.lineWidth=2.5;c.stroke();c.fillStyle='rgba(255,255,255,.8)';ell(c,-8,-6,5,3);c.restore();},

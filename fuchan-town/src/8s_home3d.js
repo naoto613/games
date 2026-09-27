@@ -11,7 +11,7 @@ function geo3(k,f){return G3.g[k]||(G3.g[k]=f());}
 function rbGeo(w,h,d,r){return geo3(`rb${w}|${h}|${d}|${r}`,()=>{r=Math.min(r,w/2,h/2,d/2)*.98;if(r<.02)return new THREE.BoxGeometry(w,h,d);const seg=7,g=new THREE.BoxGeometry(1,1,1,seg,seg,seg).toNonIndexed();
   const P=g.attributes.position.array,N=g.attributes.normal.array,hs=.5/seg,bx=w/2-r,by=h/2-r,bz=d/2-r,v=new THREE.Vector3();
   for(let i=0;i<P.length;i+=3){const x=P[i],y=P[i+1],z=P[i+2];v.set(x-Math.sign(x)*hs,y-Math.sign(y)*hs,z-Math.sign(z)*hs).normalize();P[i]=bx*Math.sign(x)+v.x*r;P[i+1]=by*Math.sign(y)+v.y*r;P[i+2]=bz*Math.sign(z)+v.z*r;N[i]=v.x;N[i+1]=v.y;N[i+2]=v.z;}return g;});}
-function mesh3(g,geo,col,x,y,z){const m=new THREE.Mesh(geo,col&&col.isMaterial?col:m3(col));m.position.set(x||0,y||0,z||0);m.castShadow=true;m.receiveShadow=true;g.add(m);return m;}
+function mesh3(g,geo,col,x,y,z){const m=new THREE.Mesh(geo,col&&(col.isMaterial||Array.isArray(col))?col:m3(col));m.position.set(x||0,y||0,z||0);m.castShadow=true;m.receiveShadow=true;g.add(m);return m;}
 // box (y = bottom)
 function B3(g,w,h,d,col,x,y,z,r){return mesh3(g,rbGeo(w,h,d,r==null?Math.min(w,h,d)*.2:r),col,x,(y||0)+h/2,z);}
 function C3(g,rt,rb,h,col,x,y,z,seg){return mesh3(g,geo3(`cy${rt}|${rb}|${h}|${seg}`,()=>new THREE.CylinderGeometry(rt,rb,h,seg||28)),col,x,(y||0)+h/2,z);}

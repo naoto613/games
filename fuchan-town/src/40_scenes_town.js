@@ -25,20 +25,19 @@ SCN.title={bg:'#bfe9ff',song:'town',enter(){},
 
 // ================= map =================
 const CATS=[
-  {id:'c_special',name:'とくべつ',roof:'#ff5f9a',wall:'#fff0f6',icon:'nyan',ja:'とくべつ アトラクション',places:['detective','fuwa']},
-  {id:'c_shop',name:'おみせやさん',roof:'#ff8cc0',wall:'#fff4f8',icon:'cake',ja:'おみせの まち',places:['cake','pizza','icecream','sushi','shop','dress','salon']},
-  {id:'c_care',name:'おせわの いえ',roof:'#ff9a5a',wall:'#fff6ee',icon:'puppy',ja:'おせわの いえ',places:['doctor','brush','bath','pet','tidy']},
-  {id:'c_moji',name:'もじと ことば',roof:'#3a9ad8',wall:'#eef8ff',icon:'letterA',ja:'もじと ことばの がっこう',places:['school','mojitsuri','shiri','memory','iro','kage']},
-  {id:'c_kazu',name:'かずと ちえ',roof:'#ff8a3a',wall:'#fff6ee',icon:'num123',ja:'かずと ちえの がっこう',places:['kazu','tashizan','tokei','katachi','tensen','meiro','puzzle']},
-  {id:'c_learn',name:'つくって あそぼ',roof:'#4cae6a',wall:'#f0fff0',icon:'palette',ja:'つくって あそぼの もり',places:['nurie','music','blocks']},
-  {id:'c_fun',name:'あそびの ひろば',roof:'#ffa030',wall:'#fff8e8',icon:'ferris',ja:'あそびの ひろば',places:['yuen','crane','dance','festival','zoo','hide','daruma']},
-  {id:'c_sports',name:'うんどうかい',roof:'#3a8ad8',wall:'#f0f6ff',icon:'medal',ja:'うんどうかい',places:['race','obst','tama']},
-  {id:'c_work',name:'はたらく くるま',roof:'#e8a000',wall:'#fffae8',icon:'excavator',ja:'はたらく くるまの まち',places:['fire','kouji','carwash','airport','farm']},
-  {id:'c_adv',name:'ぼうけん',roof:'#7a5ad8',wall:'#f4f0ff',icon:'rocket',ja:'ぼうけんの みなと',places:['space','sea','train','snow']}];
+  {id:'c_shop',name:'おみせどおり',roof:'#ff8cc0',wall:'#fff4f8',icon:'cake',ja:'おみせどおり',places:['cake','pizza','sushi','shop','dress','salon'],lm:'shop',pos:[-7,-14]},
+  {id:'c_care',name:'おせわの いえ',roof:'#ff9a5a',wall:'#fff6ee',icon:'puppy',ja:'おせわの いえ',places:['doctor','brush','bath','pet','tidy'],lm:'care',pos:[7,-14]},
+  {id:'c_moji',name:'もじと ことば',roof:'#3a9ad8',wall:'#eef8ff',icon:'letterA',ja:'もじと ことばの がっこう',places:['school','mojitsuri','shiri','memory','iro','kage'],lm:'moji',pos:[-7,-27]},
+  {id:'c_kazu',name:'かずと ちえ',roof:'#ff8a3a',wall:'#fff6ee',icon:'num123',ja:'かずと ちえの がっこう',places:['kazu','tashizan','tokei','katachi','tensen','meiro','puzzle'],lm:'kazu',pos:[7,-27]},
+  {id:'c_learn',name:'アトリエ',roof:'#4cae6a',wall:'#f0fff0',icon:'palette',ja:'つくって あそぼの アトリエ',places:['nurie','music','blocks','dance'],lm:'art',pos:[-7,-40]},
+  {id:'c_fun',name:'ゆうえんち',roof:'#ffa030',wall:'#fff8e8',icon:'ferris',ja:'ゆうえんち',places:['yuen','crane','festival','zoo'],lm:'fun',pos:[7,-40]},
+  {id:'c_sports',name:'こうえん',roof:'#3a8ad8',wall:'#f0f6ff',icon:'medal',ja:'こうえんと うんどうじょう',places:['race','obst','hide'],lm:'park',pos:[-7,-53]},
+  {id:'c_work',name:'はたらく くるま',roof:'#e8a000',wall:'#fffae8',icon:'excavator',ja:'はたらく くるまの まち',places:['fire','kouji','carwash','airport','farm'],lm:'work',pos:[7,-53]},
+  {id:'c_adv',name:'ぼうけんの みなと',roof:'#7a5ad8',wall:'#f4f0ff',icon:'nyan',ja:'ぼうけんの みなと',places:['detective','sea','snow'],lm:'port',pos:[0,-65]}];
 CATS.forEach(q=>q.isCatG=true);
 const HOMES=[{id:'myhouse',name:'わたしの おうち',ja:'ふーちゃんの おうち',wall:'#fff0f6',roof:'#ff5f9a',icon:'house3',nw:1},{id:'kagu',name:'かぐやさん',ja:'かぐやさん',wall:'#fff8e8',roof:'#ffa030',icon:'sofa3',nw:1}];
 function catOf(id){const q=CATS.find(q=>q.places.includes(id));return q?q.id:null;}
-SCN.map={bg:'#a8e488',song:'town',cat:null,
+SCN.map2d={bg:'#a8e488',song:'town',cat:null,
   RG(r){return 890+r*360;},
   lay(){const C=this.cat&&CATS.find(q=>q.id===this.cat);const list=C?C.places.map(id=>PLACES.find(p=>p.id===id)).filter(Boolean):[...HOMES,...CATS];this.cells=list.map((p,i)=>({p,x:i%2?450:150,G:this.RG(Math.floor(i/2)),s:.8}));this.WH=Math.max(H+10,this.RG(Math.floor((list.length-1)/2))+200);},
   enter(){if(this.nextCat!==undefined){this.cat=this.nextCat;delete this.nextCat;}else if(this.lastId&&!this.lastId.startsWith('c_'))this.cat=catOf(this.lastId);this.lay();if(!this.fu){this.clouds=[...Array(5)].map((_,i)=>({x:i*150+rand(0,80),y:rand(50,150),s:rand(.5,.75),b:0}));this.balloons=[];this.balT=2;this.sunSpin=0;this.birds=[...Array(2)].map(()=>({x:rand(0,W),y:rand(80,160),s:rand(40,70)}));
