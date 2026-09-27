@@ -1,7 +1,7 @@
 // ================= dance =================
 SCN.dance={bg:'#1a1030',song:null,
   POSES:[['cheer','ばんざい','#ff5f6f'],['point','ポーズ','#ffd23a'],['wave','バイバイ','#5aa8ff'],['spin','くるっ','#6cd08a']],
-  enter(){this.ph='ready';this.t=-3;this.fin=0;const N=28,pat=[];for(let i=0;i<N;i++){const k=i<8?i%2*2:Math.random()*4|0;pat.push({i:k,t:1.2+i*.78,hit:0});}this.notes=pat;this.combo=0;this.max=0;this.hits=0;this.cur=null;this.curT=0;this.judge=null;
+  enter(){this.ph='ready';this.t=-3;this.fin=0;const N=24+(Math.random()*9|0),gap=pick([.7,.78,.86]),intro=pick([[0,2],[1,3],[0,1,2,3],[3,2,1,0],[0,0,3,3]]),pat=[];for(let i=0;i<N;i++){const k=i<8?intro[i%intro.length]:Math.random()*4|0;pat.push({i:k,t:1.2+i*gap,hit:0});}this.notes=pat;this.combo=0;this.max=0;this.hits=0;this.cur=null;this.curT=0;this.judge=null;
     say('ダンス！ うえから おちてくる マークが ボタンに かさなったら タッチ！ ふーちゃんが おどるよ');setTimeout(()=>{if(scene===this){this.ph='play';this.t=0;}},3000);},
   bx(i){return 90+i*140;},by(){return H-110;},
   update(dt){if(this.judge)this.judge.t+=dt;if(this.curT>0)this.curT-=dt;

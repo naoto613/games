@@ -27,11 +27,11 @@ SCN.title={bg:'#bfe9ff',song:'town',enter(){},
 const CATS=[
   {id:'c_shop',name:'おみせどおり',roof:'#ff8cc0',wall:'#fff4f8',icon:'cake',ja:'おみせどおり',places:['cake','pizza','sushi','shop','dress','salon'],lm:'shop',pos:[-7,-14]},
   {id:'c_care',name:'おせわの いえ',roof:'#ff9a5a',wall:'#fff6ee',icon:'puppy',ja:'おせわの いえ',places:['doctor','brush','bath','pet','tidy'],lm:'care',pos:[7,-14]},
-  {id:'c_moji',name:'もじと ことば',roof:'#3a9ad8',wall:'#eef8ff',icon:'letterA',ja:'もじと ことばの がっこう',places:['school','mojitsuri','shiri','memory','iro','kage'],lm:'moji',pos:[-7,-27]},
+  {id:'c_moji',name:'もじと ことば',roof:'#3a9ad8',wall:'#eef8ff',icon:'letterA',ja:'もじと ことばの がっこう',places:['school','mojitsuri','shiri','memory','kage','eikaiwa'],lm:'moji',pos:[-7,-27]},
   {id:'c_kazu',name:'かずと ちえ',roof:'#ff8a3a',wall:'#fff6ee',icon:'num123',ja:'かずと ちえの がっこう',places:['kazu','tashizan','tokei','katachi','tensen','meiro','puzzle'],lm:'kazu',pos:[7,-27]},
   {id:'c_learn',name:'アトリエ',roof:'#4cae6a',wall:'#f0fff0',icon:'palette',ja:'つくって あそぼの アトリエ',places:['nurie','music','blocks','dance'],lm:'art',pos:[-7,-40]},
-  {id:'c_fun',name:'ゆうえんち',roof:'#ffa030',wall:'#fff8e8',icon:'ferris',ja:'ゆうえんち',places:['yuen','crane','festival','zoo'],lm:'fun',pos:[7,-40]},
-  {id:'c_sports',name:'こうえん',roof:'#3a8ad8',wall:'#f0f6ff',icon:'medal',ja:'こうえんと うんどうじょう',places:['race','obst','hide'],lm:'park',pos:[-7,-53]},
+  {id:'c_fun',name:'ゆうえんち',roof:'#ffa030',wall:'#fff8e8',icon:'ferris',ja:'ゆうえんち',places:['yuen','crane','festival','zoo','babanuki','sugoroku'],lm:'fun',pos:[7,-40]},
+  {id:'c_sports',name:'こうえん',roof:'#3a8ad8',wall:'#f0f6ff',icon:'medal',ja:'こうえんと うんどうじょう',places:['race','obst','hide','onigokko'],lm:'park',pos:[-7,-53]},
   {id:'c_work',name:'はたらく くるま',roof:'#e8a000',wall:'#fffae8',icon:'excavator',ja:'はたらく くるまの まち',places:['fire','kouji','carwash','airport','farm'],lm:'work',pos:[7,-53]},
   {id:'c_adv',name:'ぼうけんの みなと',roof:'#7a5ad8',wall:'#f4f0ff',icon:'nyan',ja:'ぼうけんの みなと',places:['detective','sea','snow'],lm:'port',pos:[0,-65]}];
 CATS.forEach(q=>q.isCatG=true);
@@ -364,7 +364,7 @@ SCN.doctor={bg:'#e6f6ff',song:'play',
 // ================= bath =================
 SCN.bath={bg:'#dff4ff',song:'play',
   enter(){this.lay();const hx=this.fx,hy=this.fy+FUHEAD.y*this.s;this.step=0;this.fin=0;
-    this.spots=[[-40,-6,20],[38,-20,18],[4,-44,17],[-26,34,16],[30,30,18],[0,60,19]].map(([a,b,r])=>({x:hx+a,y:hy+b,r,st:'dirt',p:0,q:0}));
+    this.spots=shuffle([[-40,-6,20],[38,-20,18],[4,-44,17],[-26,34,16],[30,30,18],[0,60,19],[-10,10,17],[44,8,16]]).slice(0,4+Math.floor(Math.random()*3)).map(([a,b,r])=>({x:hx+a+rand(-6,6),y:hy+b+rand(-6,6),r,st:'dirt',p:0,q:0}));
     const bx=this.bx,by=this.wy+36-30*3.2;this.spots.push({x:bx-14,y:by-6,r:14,st:'dirt',p:0,q:0},{x:bx+13,y:by+10,r:13,st:'dirt',p:0,q:0});
     this.hair=[[-40,-40],[0,-54],[40,-40],[-50,-8]].map(([a,b])=>({x:hx+a,y:hy+b,f:0}));this.hair.push({x:bx,y:by-34,f:0});this.drops=[];
     this.tools=['sponge','shampoo','shower','towel'].map((k,i)=>new Dr({k,hx:90+i*140,hy:H-80,r:56}));this.dr=null;this.ducks=[{x:92,hop:0},{x:540,hop:0}];this.floats=[];this.fT=1;

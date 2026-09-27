@@ -34,7 +34,7 @@ reg3('crane',{bg:'#ffe8f4',song:'fuwa',
   tryGrab(){let best=null,bd=.95;for(const p of this.prizes){if(p.st!=='in')continue;const d=Math.hypot(p.x-this.cx,p.z-this.cz);if(d<bd){bd=d;best=p;}}
     if(!best){sfx('no');say('あれれ… なにも つかめなかった');return;}const lv=lvOf('crane'),chance=bd<.35?.95:bd<.6?.75:.45;if(Math.random()<chance){best.st='held';this.caught=best;best.slip=(bd>.5&&Math.random()<.35)?rand(1.2,3):0;sfx('snap');say(best.rare?'すごい！ レアな けいひんを つかんだ！':'つかんだ！');}else{sfx('no');burst(W/2,H*.45,6,'dot');say('おしい！ まんなかを ねらおう');}},
   drop(slip){const p=this.caught;this.caught=null;if(!p)return;p.st='fall';p.vy=0;p.toWin=!slip&&Math.hypot(p.x-this.chute.x,p.z-this.chute.z)<.6;if(slip){sfx('boing');say('あ〜！ おちちゃった…');}},
-  win(p){this.won.push(p.id);SAVE.own[p.id]=(SAVE.own[p.id]||0)+1;save();sfx('fanfare');confetti(p.rare?90:50);const d=IT3M[p.id];setTimeout(()=>{if(scene===this){sayPair(d.n+' ゲット！',d.en);}},300);setTimeout(()=>{if(scene===this)say('とった けいひんは おうちに かざれるよ！');},2400);},
+  win(p){this.won.push(p.id);(SAVE.prizes=SAVE.prizes||[]).push(p.id);if(SAVE.prizes.length>6)SAVE.prizes.shift();save();sfx('fanfare');confetti(p.rare?90:50);const d=IT3M[p.id];setTimeout(()=>{if(scene===this){sayPair(d.n+' ゲット！',d.en);}},300);setTimeout(()=>{if(scene===this)say('とった けいひんは おうちの リビングに かざられるよ！');},2400);},
   relX(){if(this.ph!=='x')return;this.hold=0;this.ph='z';sfx('tick');say('つぎは あおい ボタン！ おくに うごくよ。 よこから みてね');},
   relZ(){if(this.ph!=='z')return;this.hold=0;this.ph='down';this.lastSide=1;sfx('launch');},
   draw(c){sky3(c,'#ffe6f4','#fff6e6',false);c.fillStyle='rgba(255,255,255,.5)';for(let i=0;i<14;i++){const x=(i*97)%W,y=(i*61)%(H*.5);star(c,x,y,6,2.6);c.fill();}render3(c,this.S);

@@ -197,16 +197,19 @@ const PLACES=[
   {id:'tidy',name:'おかたづけ',wall:'#f4fff0',roof:'#4cae6a',icon:'recyclebin',ja:'おかたづけの へや'},
   {id:'pet',name:'ペットショップ',wall:'#fff4ec',roof:'#ff9a5a',icon:'puppy',ja:'ペットの おせわ'},
   {id:'airport',name:'くうこう',wall:'#eef6ff',roof:'#5aa8ff',icon:'plane',ja:'くうこう'},
-  {id:'mojitsuri',name:'ひらがなつり',wall:'#eef8ff',roof:'#3a9ad8',icon:'hirafish',ja:'ひらがな つり',nw:1},
-  {id:'kazu',name:'かずの でんしゃ',wall:'#fff4f0',roof:'#ff6f6f',icon:'kazutrain',ja:'かずの でんしゃ',nw:1},
-  {id:'tashizan',name:'たしざん',wall:'#f4fff0',roof:'#6cc060',icon:'applebasket',ja:'りんごの たしざん',nw:1},
-  {id:'katachi',name:'かたちの くに',wall:'#fff8f0',roof:'#ffa030',icon:'shapes',ja:'かたちの くに',nw:1},
-  {id:'iro',name:'いろの まほう',wall:'#fff0f8',roof:'#ff6fa8',icon:'paintpot',ja:'いろの まほう',nw:1},
-  {id:'tokei',name:'とけい',wall:'#fffae8',roof:'#e8a000',icon:'clock2',ja:'とけいの いちにち',nw:1},
-  {id:'memory',name:'おなじカード',wall:'#f4f0ff',roof:'#8a5ae8',icon:'cards',ja:'おなじ カード さがし',nw:1},
-  {id:'tensen',name:'てんつなぎ',wall:'#fffaf0',roof:'#ff8a5a',icon:'dotstar',ja:'てんつなぎ',nw:1},
-  {id:'meiro',name:'めいろ',wall:'#f0fff4',roof:'#4cae6a',icon:'maze',ja:'ひよこの めいろ',nw:1},
-  {id:'kage',name:'かげあて',wall:'#f4f0fa',roof:'#5a4a8a',icon:'shadowcat',ja:'かげあて クイズ',nw:1},
+  {id:'mojitsuri',name:'ひらがなつり',wall:'#eef8ff',roof:'#3a9ad8',icon:'hirafish',ja:'ひらがな つり'},
+  {id:'kazu',name:'かずの でんしゃ',wall:'#fff4f0',roof:'#ff6f6f',icon:'kazutrain',ja:'かずの でんしゃ'},
+  {id:'tashizan',name:'たしざん',wall:'#f4fff0',roof:'#6cc060',icon:'applebasket',ja:'りんごの たしざん'},
+  {id:'katachi',name:'かたちの くに',wall:'#fff8f0',roof:'#ffa030',icon:'shapes',ja:'かたちの くに'},
+  {id:'tokei',name:'とけい',wall:'#fffae8',roof:'#e8a000',icon:'clock2',ja:'とけいの いちにち'},
+  {id:'memory',name:'おなじカード',wall:'#f4f0ff',roof:'#8a5ae8',icon:'cards',ja:'おなじ カード さがし'},
+  {id:'tensen',name:'てんつなぎ',wall:'#fffaf0',roof:'#ff8a5a',icon:'dotstar',ja:'てんつなぎ'},
+  {id:'meiro',name:'めいろ',wall:'#f0fff4',roof:'#4cae6a',icon:'maze',ja:'ひよこの めいろ'},
+  {id:'kage',name:'かげあて',wall:'#f4f0fa',roof:'#5a4a8a',icon:'shadowcat',ja:'かげあて クイズ'},
+  {id:'babanuki',name:'ばばぬき',wall:'#fff4ec',roof:'#b48cff',icon:'ghostcard',ja:'ばばぬき',nw:1},
+  {id:'sugoroku',name:'すごろく',wall:'#f4fff0',roof:'#6cc060',icon:'dice',ja:'サイコロ すごろく',nw:1},
+  {id:'onigokko',name:'おにごっこ',wall:'#fff4f0',roof:'#ff6f6f',icon:'onimask',ja:'おにごっこ',nw:1},
+  {id:'eikaiwa',name:'えいかいわ',wall:'#eef6ff',roof:'#3a8ad8',icon:'hibubble',ja:'えいごで おはなし',nw:1},
 ];
 PLACES.forEach((p,i)=>p.x=280+i*400);
 const WORLD=280+(PLACES.length-1)*400+280;
@@ -219,7 +222,7 @@ const STK=[['cake','cake'],['cake','strawberry'],['cake','candle'],['doctor','be
   ['shiri','wordchain'],['shiri','ablock'],['shiri','speech'],['hide','bushpeek'],['hide','boxpeek'],['hide','gemstone'],
   ['fire','firetruck'],['fire','helmet'],['fire','hydrant'],['race','medal'],['race','baton'],['race','flagcheck'],['obst','hurdle'],['obst','tire'],['obst','anpan'],
   ['crane','claw'],['crane','goldstar'],['crane','capsuletoy'],['blocks','blockhouse'],['blocks','blocktower'],['blocks','blockcube'],['dance','discoball'],['dance','maracas'],['dance','ribbonstick'],
-  ['pizza','pizza'],['pizza','chefhat'],['pizza','pizzacutter'],['sushi','nigiri'],['sushi','maki'],['sushi','teacup'],['salon','lionface'],['salon','scissors'],['salon','dryer'],['carwash','carR'],['carwash','wrench'],['carwash','oilcan'],['farm','tractor'],['farm','pumpkin'],['farm','eggbasket'],['kouji','excavator'],['kouji','hardhat'],['kouji','tcone'],['tidy','toybox'],['tidy','recyclebin'],['tidy','vacuum'],['pet','puppy'],['pet','dogbowl'],['pet','tennisball'],['airport','plane'],['airport','suitcase'],['airport','passport'],['mojitsuri','hirafish'],['mojitsuri','fishrod'],['mojitsuri','bucket'],['kazu','kazutrain'],['kazu','num123'],['kazu','abacus'],['tashizan','applebasket'],['tashizan','applepie'],['tashizan','plussign'],['katachi','shapes'],['katachi','shapehouse'],['katachi','circle'],['iro','paintpot'],['iro','rainbow2'],['iro','colorballoons'],['tokei','clock2'],['tokei','alarm'],['tokei','sunmoon'],['memory','cards'],['memory','qcard'],['memory','magnifier'],['tensen','dotstar'],['tensen','ruler'],['tensen','compass'],['meiro','maze'],['meiro','goalflag'],['meiro','bento'],['kage','shadowcat'],['kage','flashlight'],['kage','shadowhand']].map(([place,k])=>({id:place+'_'+k,place,k}));
+  ['pizza','pizza'],['pizza','chefhat'],['pizza','pizzacutter'],['sushi','nigiri'],['sushi','maki'],['sushi','teacup'],['salon','lionface'],['salon','scissors'],['salon','dryer'],['carwash','carR'],['carwash','wrench'],['carwash','oilcan'],['farm','tractor'],['farm','pumpkin'],['farm','eggbasket'],['kouji','excavator'],['kouji','hardhat'],['kouji','tcone'],['tidy','toybox'],['tidy','recyclebin'],['tidy','vacuum'],['pet','puppy'],['pet','dogbowl'],['pet','tennisball'],['airport','plane'],['airport','suitcase'],['airport','passport'],['mojitsuri','hirafish'],['mojitsuri','fishrod'],['mojitsuri','bucket'],['kazu','kazutrain'],['kazu','num123'],['kazu','abacus'],['tashizan','applebasket'],['tashizan','applepie'],['tashizan','plussign'],['katachi','shapes'],['katachi','shapehouse'],['katachi','circle'],['tokei','clock2'],['tokei','alarm'],['tokei','sunmoon'],['memory','cards'],['memory','qcard'],['memory','magnifier'],['tensen','dotstar'],['tensen','ruler'],['tensen','compass'],['meiro','maze'],['meiro','goalflag'],['meiro','bento'],['kage','shadowcat'],['kage','flashlight'],['kage','shadowhand'],['babanuki','ghostcard'],['babanuki','cardfan'],['babanuki','starcandy'],['sugoroku','dice'],['sugoroku','sgboard'],['sugoroku','pawn'],['onigokko','onimask'],['onigokko','sneaker'],['onigokko','whistle'],['eikaiwa','hibubble'],['eikaiwa','abcbook'],['eikaiwa','letterABC']].map(([place,k])=>({id:place+'_'+k,place,k}));
 const STKC={};
 function scal(c,cx,cy,R,n,amp){c.beginPath();for(let i=0;i<=120;i++){const a=i/120*TAU,r=R+amp*Math.cos(n*a);c.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);}c.closePath();}
 function stkCol(k){const st=STK.find(q=>q.k===k);const p=st&&PLACES.find(q=>q.id===st.place);return p?p.roof:'#ff8cc0';}
@@ -243,7 +246,7 @@ function drawSticker(c,k,x,y,s,owned,shiny){c.save();c.translate(x,y);c.scale(s,
   c.restore();}
 // ================= celebration: coins reward =================
 let cel=null;
-const STUDY=new Set(['school','shiri','puzzle','mojitsuri','kazu','tashizan','katachi','iro','tokei','memory','tensen','meiro','kage']);
+const STUDY=new Set(['school','shiri','puzzle','mojitsuri','kazu','tashizan','katachi','tokei','memory','tensen','meiro','kage','eikaiwa']);
 function coinIcon(c,x,y,r){c.save();c.translate(x,y);c.fillStyle='#e8a000';circ(c,0,r*.1,r);c.fillStyle=gfill(c,-r*.3,-r*.3,r*1.2,'#ffd23a',.35,-.1);circ(c,0,0,r);c.strokeStyle='#fff3b0';c.lineWidth=r*.12;c.beginPath();c.arc(0,0,r*.74,0,TAU);c.stroke();c.fillStyle='#fff6c8';star(c,0,r*.04,r*.46,r*.2);c.fill();c.restore();}
 function hanaIcon(c,x,y,r){c.save();c.translate(x,y);c.fillStyle='#d8407a';circ(c,0,r*.1,r);c.fillStyle=gfill(c,-r*.3,-r*.3,r*1.2,'#ff7ab0',.35,-.1);circ(c,0,0,r);c.fillStyle='#ffe0ee';for(let i=0;i<5;i++){const a=i/5*TAU-Math.PI/2;circ(c,Math.cos(a)*r*.42,Math.sin(a)*r*.42,r*.27);}c.fillStyle='#ffd23a';circ(c,0,0,r*.24);c.restore();}
 function hanamaru(c,x,y,s,a){c.save();c.translate(x,y);c.scale(s,s);c.globalAlpha*=a==null?1:a;c.strokeStyle='#ff3d5a';c.lineCap='round';c.lineWidth=9;c.beginPath();for(let i=0;i<=220;i++){const t=i/220*TAU*3.2,r=26+i*.26;c.lineTo(Math.cos(t)*r,Math.sin(t)*r*.8);}c.stroke();

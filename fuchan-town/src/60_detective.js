@@ -94,7 +94,7 @@ SCN.detective={bg:'#2a1a4a',song:'hero',
   enter(){this.ph='menu';this.t=0;this.solved=SAVE.det||[];this.lay();say('ここは まじかる たんてい じむしょ！ じけんを えらんでね');},
   lay(){},
   cardP(i){return{x:W/2,y:H*.14+110+i*Math.min(118,(H*.62-110)/4)};},
-  startCase(i){this.ci=i;this.cs=CASES[i];this.ph='intro';this.t=0;this.found=[];this.clues=this.cs.clues.map((q,j)=>({k:q[0],ja:q[1],x:[150,440,300][j]+rand(-30,30),y:[H*.5,H*.56,H*.7][j]+rand(-20,20),got:false,hov:0}));
+  startCase(i){this.ci=i;this.cs=CASES[i];this.ph='intro';this.t=0;this.found=[];const slots=shuffle([[130,H*.48],[450,H*.52],[300,H*.7],[180,H*.66],[420,H*.72]]);this.clues=this.cs.clues.map((q,j)=>({k:q[0],ja:q[1],x:slots[j%5][0]+rand(-25,25),y:slots[j%5][1]+rand(-18,18),got:false,hov:0}));
     this.lens={x:W/2,y:H-160,held:false};this.fu={x:120,y:H*.86,hurt:0};this.mon={hp:100,flash:0,warn:0,cd:3,pur:0,shake:0};this.shots=[];this.stars=[];this.shield=0;this.power=0;this.cmb=0;this.maxC=0;this.lastT=-9;this.trace=null;this.beam=0;
     say(this.cs.intro);},
   update(dt){this.t+=dt;const m=this.mon;

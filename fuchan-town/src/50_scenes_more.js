@@ -310,14 +310,17 @@ SCN.nurie={bg:'#fff8e8',song:'play',
 
 // ================= puzzle =================
 function makePuzzlePic(i){const S=420,oc=document.createElement('canvas');oc.width=oc.height=S;const c=oc.getContext('2d');
-  const g=c.createLinearGradient(0,0,0,S);g.addColorStop(0,i===2?'#ffe0f0':'#8fd8ff');g.addColorStop(.6,i===2?'#fff0f8':'#dff6ff');g.addColorStop(.6,i===2?'#f0c090':'#8ad86a');g.addColorStop(1,i===2?'#e0a070':'#6cc05a');c.fillStyle=g;c.fillRect(0,0,S,S);
+  const PC={2:['#ffe0f0','#fff0f8','#f0c090','#e0a070'],3:['#5ec0ee','#8ad8ff','#f0dca8','#e0c890'],4:['#2a2a6a','#5a4a9a','#3a6a4a','#2a5a3a'],5:['#bfe8ff','#e8f8ff','#a8e488','#8ad06a']}[i]||['#8fd8ff','#dff6ff','#8ad86a','#6cc05a'];const g=c.createLinearGradient(0,0,0,S);g.addColorStop(0,PC[0]);g.addColorStop(.6,PC[1]);g.addColorStop(.6,PC[2]);g.addColorStop(1,PC[3]);c.fillStyle=g;c.fillRect(0,0,S,S);
   const saveT=T;
   if(i===0){sun(c,340,70,32,0);cloud(c,110,80,.7,true);tree(c,60,260,.9);flowers(c,0,S,280,400,5);drawFuka(c,160,370,{outfit:OUTFIT0,t:0,dir:0,sc:4,wave:1});drawRikki(c,300,370,{sc:3,t:0,happy:1});}
   else if(i===1){cloud(c,320,70,.8,true);for(const [k,x] of [['bear',100],['rabbit',210],['panda',320]])drawAnimal(c,k,x,360,.95,{t:0,happy:1});c.strokeStyle='#8a7a9a';c.lineWidth=2;for(const [x,col] of [[60,'#ff6f91'],[370,'#ffd23a']]){c.beginPath();c.moveTo(x,180);c.lineTo(x+10,260);c.stroke();c.fillStyle=col;ell(c,x,150,26,32);}}
+  else if(i===3){for(const [k,x,y,sc] of [['whale',290,110,1.3],['fish',90,150,1.1],['octopus',120,330,1.2],['crab',300,350,1.1],['starfish',210,380,.9]])drawThing(c,k,x,y,sc);c.fillStyle='rgba(255,255,255,.5)';for(let k=0;k<8;k++)circ(c,40+k*47,60+(k%3)*30,6);}
+  else if(i===4){c.fillStyle='#fff6c0';circ(c,320,80,40);c.fillStyle=PC[1];circ(c,338,70,34);c.fillStyle='#ffe890';for(let k=0;k<12;k++){star(c,30+(k*73)%360,30+(k*41)%200,8,3.5);c.fill();}drawAnimal(c,'rabbit',130,370,.9,{t:0,happy:1});drawAnimal(c,'cat',290,370,.9,{t:0,happy:1});}
+  else if(i===5){tree(c,340,250,.8);for(const [k,x] of [['pig',90],['chick',200],['dog',310]])drawAnimal(c,k,x,370,.85,{t:0,happy:1});drawItem(c,'carrot',60,230,1.2);drawItem(c,'tomato',160,240,1.1);cloud(c,120,70,.7,true);sun(c,330,60,28,0);}
   else{c.fillStyle='#fff';ell(c,210,330,170,40);drawItem(c,'cake',210,250,3.6);drawItem(c,'strawberry',70,340,1.4);drawItem(c,'heartcookie',350,340,1.4);drawItem(c,'starcandy',80,90,1.3);drawItem(c,'starcandy',340,70,1.1);drawItem(c,'candle',210,110,1.5);}
   return oc;}
 SCN.puzzle={bg:'#e8f6ff',song:'play',
-  enter(){this.round=0;this.fin=0;this.lucky=false;this.sd=null;this.hunt=null;this.pics=[0,1,2].map(makePuzzlePic);this.lay();this.setup();},
+  enter(){this.round=0;this.fin=0;this.lucky=false;this.sd=null;this.hunt=null;this.pics=shuffle([0,1,2,3,4,5]).slice(0,3).map(makePuzzlePic);this.lay();this.setup();},
   lay(){this.bx=90;this.by=150;this.bs=420;},
   setupShadow(){this.sd=null;this.done=0;const ks=shuffle(['apple','duck','crown','balloon','cake','carrot','fish','rabbit','panda','strawberry']).slice(0,4);
     const sil=k=>{const o=document.createElement('canvas');o.width=o.height=200;const g=o.getContext('2d');drawThing(g,k,100,100,2.2);g.globalCompositeOperation='source-in';g.fillStyle='#5a6a9a';g.fillRect(0,0,200,200);return o;};
@@ -409,7 +412,7 @@ SCN.music={bg:'#fbe8ff',song:null,
 // ================= brush (dentist) =================
 SCN.brush={bg:'#e8fff4',song:'play',
   enter(){this.step=0;this.fin=0;this.lay();this.foam=[];this.rinse=0;
-    this.dirt=[];const kinds=['food','food','germ','germ','germ','food','cav','cav','germ','food'];kinds.forEach((k,i)=>{const top=i%2===0;const ti=i%6;this.dirt.push({kind:k,tx:ti,top,hp:k==='cav'?1.6:1,ph:rand(0,6),dx:0,dy:0});});
+    this.dirt=[];const kinds=shuffle(['food','food','germ','germ','germ','food','cav','cav','germ','food','germ','food']).slice(0,7+Math.floor(Math.random()*4));kinds.forEach((k,i)=>{const top=i%2===0;const ti=i%6;this.dirt.push({kind:k,tx:ti,top,hp:k==='cav'?1.6:1,ph:rand(0,6),dx:0,dy:0});});
     this.tools=['toothbrush','cup'].map((k,i)=>new Dr({k,hx:200+i*200,hy:H-80,r:58}));this.dr=null;this.boss=null;this.lucky=false;this.pt=pick([['#b8a8dc','かばさん'],['#ffb3c8','ピンクの かばちゃん'],['#9ad0ff','みずいろの かばくん']]);say(this.pt[1]+'の はを みがいて あげよう！ はぶらしで ごしごし！');},
   hitBoss(n){const b=this.boss;if(!b||b.hp<=0)return;b.hp-=n;b.hitT=.25;if(Math.random()<.5||n>=1)sfx('pop');if(b.hp<=0){b.flee=.01;sfx('boom');confetti(50);rkCheer();say('ばいきんキングを やっつけた！ つよい！');this.lucky=b.fast;setTimeout(()=>{if(scene===this){this.boss=null;this.step=1;sfx('fanfare');say('あわあわ！ コップの おみずで ぶくぶく しよう');}},2000);}else if(Math.random()<.35)say(pick(['いたたた！','やめてくれ〜！','くっ… まだまだ！']));},
   drawBoss(c,b){const k=b.flee>0?Math.max(0,1-b.flee):1;const x=b.x+(b.flee>0?b.flee*400:0),y=b.y-(b.flee>0?b.flee*300:0);c.save();c.translate(x,y);c.scale(k*(b.hitT>0?1.15:1),k*(b.hitT>0?.85:1));c.rotate(Math.sin(b.t*3)*.1);c.fillStyle=b.hitT>0?'#ffffff':gfill(c,-10,-10,60,'#7ad060');c.strokeStyle='#3a8a30';c.lineWidth=5;c.beginPath();for(let i=0;i<16;i++){const a=i/16*TAU,r=i%2?44:58;c.lineTo(Math.cos(a+b.t)*r,Math.sin(a+b.t)*r);}c.closePath();c.fill();c.stroke();
