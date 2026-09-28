@@ -61,7 +61,7 @@ STEP.doctor={
     if(a.k==='lens'){const tgt=v==='thorn'?'paw':v==='powder'?'nose':v==='scrape'?'leg':'belly';const[x,y]=PP(tgt);drawIcon(c,'lens',x+4,y+4,1.2);
       if(a.t>.5)this.zoom(c,(zx,zy)=>{c.fillStyle=this.n.kind==='turtle'?'#8ad08a':(AN[this.n.kind].b||'#ffe4d4');c.fillRect(zx-60,zy-60,120,120);if(v==='thorn'){for(const[dx,dy]of[[-12,0],[14,-8]]){c.save();c.translate(zx+dx,zy+dy);c.rotate(.5);drawIcon(c,'thorn',0,0,1.3);c.restore();}}
         else if(v==='spots'){c.fillStyle='#ff6a8a';for(let i=0;i<7;i++)circ(c,zx-40+hash(i,4)*80,zy-40+hash(i,5)*80,6);}else if(v==='scrape'){c.fillStyle='#ff4a5a';for(let i=0;i<5;i++)c.fillRect(zx-24+i*11,zy-18,5,36);}else if(v==='powder'){c.fillStyle='#a060e0';for(let i=0;i<16;i++)circ(c,zx-40+hash(i,6)*80,zy-40+hash(i,7)*80,4);}else otext(c,'OK',zx,zy,40,'#fff','#3ec46a');});}},
-  draw(c){const d=this.d;drawBG(c,'clinic');this.drawPatient(c);this.drawAnim(c);
+  draw(c){const d=this.d;drawBG(c,d.bg||'clinic');this.drawPatient(c);this.drawAnim(c);
     drawFutan(c,46,600,{s:1.55,doc:1,pose:this.anim?'point':'idle',happy:this.ph==='end'});drawRicky(c,356,560,{s:1.4,nurse:1,happy:this.ph==='end'});
     if(this.ph==='exam'||this.ph==='intro'||this.ph==='diag0'){c.fillStyle='rgba(255,255,255,.95)';rr(c,6,616,388,96,22);c.fill();c.strokeStyle='#8ad0ff';c.lineWidth=4;c.stroke();
       TOOLS.forEach((k,i)=>{const x=this.toolX(i),u=this.used[k],act=this.anim&&this.anim.k===k;c.save();c.translate(x,652);if(!u&&!this.anim&&this.ph==='exam'){const p=1+Math.sin(T*5+i)*.05;c.scale(p,p);}c.fillStyle=act?'#fff6c8':u?'#e8f8e8':'#f0f8ff';circ(c,0,0,31);c.strokeStyle=u?'#6cd08a':'#b8d0e8';c.lineWidth=3;c.beginPath();c.arc(0,0,31,0,TAU);c.stroke();drawIcon(c,k,0,0,1);c.restore();

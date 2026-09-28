@@ -22,13 +22,14 @@ const NPC={
   zou:{kind:'elephant',name:'ぞうさん',vo:[.8,.95]},
   lion:{kind:'lion',name:'ライオンくん',vo:[.9,1]},
 };
-const NAMES={fu:'ふーちゃん',rk:'リッキー',kuro:'クロニャン',witch:'ドロドロン',narr:''};
+const NAMES={fu:'ふーちゃん',rk:'リッキー',kuro:'クロニャン',witch:'ドロドロン',moya:'モヤモヤン',narr:''};
 function nameOf(id){return NAMES[id]!=null?NAMES[id]:(NPC[id]?NPC[id].name:id);}
 function drawCast(c,id,x,y,o={}){const t=T+(o.seed||0);
   if(id==='fu')drawFutan(c,x,y,{s:2.1,t,talk:o.talk,cure:o.cure,doc:o.doc,happy:o.emo==='happy',ouch:o.emo==='ouch',pose:o.emo==='happy'?'win':o.emo==='think'?'think':o.pose||'idle',item:o.item});
   else if(id==='rk')drawRicky(c,x,y,{s:1.9,t,happy:o.emo==='happy',nurse:o.doc,cure:o.cure,talk:o.talk});
   else if(id==='kuro'){drawKuro.talk=o.talk;drawKuro(c,x,y,1.2,t,o.emo||'');drawKuro.talk=false;}
   else if(id==='witch')drawWitch(c,x,y,1.5,t,{kind:o.emo==='kind'});
+  else if(id==='moya')drawGhost(c,x,y,1.3,t,{kind:o.emo==='kind'||o.emo==='happy',sad:o.emo==='sad',talk:o.talk});
   else{const n=NPC[id];if(n)drawAnimal(c,n.kind,x,y,1.15,{t,talk:o.talk,acc:n.acc,happy:o.emo==='happy',sad:o.emo==='sad',sick:o.emo==='sick',sleep:o.emo==='sleep'});}}
 const RUN={steps:[],i:0,onEnd:null,ci:-1,flags:{},mode:'story',doc:false,cure:false};
 function runSteps(steps,onEnd,opt={}){RUN.steps=steps;RUN.i=opt.start||0;RUN.onEnd=onEnd;RUN.ci=opt.ci??-1;RUN.flags=Object.assign({},opt.flags||{});RUN.mode=opt.mode||'story';startStep();}

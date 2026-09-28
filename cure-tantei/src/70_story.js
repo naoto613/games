@@ -1,4 +1,4 @@
-// ================= story (8 じけん) =================
+// ================= story (じけん 1〜8) =================
 const CHAPTERS=[
 // ---------------- 1 ----------------
 {title:'きえた いちごケーキ',icon:'cake',bg:'bakery',gem:0,steps:[
@@ -119,7 +119,7 @@ const CHAPTERS=[
     ['fu','3こめの ひかりの ジュエル！',{emo:'happy'}]]},
 ]},
 // ---------------- 4 ----------------
-{title:'びょういんは おおいそがし',icon:'med',bg:'clinic',gem:3,steps:[
+{title:'びょういんは おおいそがし',icon:'med:pink',bg:'clinic',gem:3,steps:[
   {t:'talk',bg:'office',lines:[
     ['narr','ジリリリン！',{fx:'ring'}],
     ['kumadoc','どうぶつびょういんの くまです。 くしゃみの かんじゃさんが いっぱいで… てつだって ください！'],

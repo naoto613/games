@@ -81,7 +81,7 @@ const hasTTS='speechSynthesis' in window;let JV=null,EV=null;
 function pickVoice(v,re,pref){const c=v.filter(x=>re.test(x.lang));for(const p of pref){const f=c.find(x=>p.test(x.name));if(f)return f;}return c.find(x=>x.localService)||c[0]||null;}
 function loadVoices(){if(!hasTTS)return;const v=speechSynthesis.getVoices();if(!v.length)return;JV=pickVoice(v,/^ja/i,[/Kyoko|O-ren|Google 日本語|Haruka|Nanami/i]);EV=pickVoice(v,/^en[-_]US/i,[/Samantha|Google US English|Aria|Jenny|Zira|Karen|Allison/i])||pickVoice(v,/^en/i,[/Samantha|Google|Daniel|Karen/i]);}
 if(hasTTS){loadVoices();try{speechSynthesis.addEventListener('voiceschanged',loadVoices);}catch(e){speechSynthesis.onvoiceschanged=loadVoices;}}
-const VO={fu:[1.4,1.02],rk:[1.7,1.05],kuro:[.85,1],witch:[.6,.92],narr:[1.2,1],en:[1.2,.85]};
+const VO={moya:[1.05,1.12],fu:[1.4,1.02],rk:[1.7,1.05],kuro:[.85,1],witch:[.6,.92],narr:[1.2,1],en:[1.2,.85]};
 const SQ=[];let SCUR=null,SWD=0,SGEN=0,SCAN=0;
 function speaking(){return hasTTS&&(!!SCUR||SQ.length>0);}
 function speakOne(text,lang,who){if(!hasTTS||!text)return;const t=text.replace(/[「」『』☆★♪♡・…]/g,' ').replace(/〜/g,'ー').trim();if(!t)return;
