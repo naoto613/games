@@ -6,7 +6,7 @@ STEP.chase={
   update(dt){const d=this.d;this.t+=dt;if(this.stun>0)this.stun-=dt;
     if(this.fy>0||this.vy!==0){this.fy+=this.vy*dt;this.vy-=1600*dt;if(this.fy<=0){this.fy=0;this.vy=0;}}
     if(this.ph==='run'){const sp=250*(this.stun>0?.45:1);this.scroll+=sp*dt;
-      if(this.t<this.len-2){this.spawn-=dt;if(this.spawn<=0){this.spawn=rand(1.5,2.4);this.obs.push({x:470,k:pick(this.bg==='snow'?['snowman','rock']:this.bg==='beach'?['crab','sand']:this.bg==='night'?['rock','box']:['box','cone']),hit:false});}
+      if(this.t<this.len-2){this.spawn-=dt;if(this.spawn<=0){this.spawn=rand(1.5,2.4);this.obs.push({x:470,k:pick(this.bg==='forest'?['rock','box']:this.bg==='snow'?['snowman','rock']:this.bg==='beach'?['crab','sand']:this.bg==='night'?['rock','box']:['box','cone']),hit:false});}
         this.sspawn-=dt;if(this.sspawn<=0){this.sspawn=rand(.6,1);const h=pick([40,40,110,150]);this.stars.push({x:470,y:GY-h,got:false});}}
       for(const o of this.obs){o.x-=sp*dt;if(!o.hit&&this.stun<=0&&Math.abs(o.x-100)<30&&this.fy<40){o.hit=true;this.stun=.9;sfx('hurt');SHAKE=.2;say(pick(['いたた！','おっとっと！']),'fu');}}
       for(const s of this.stars){s.x-=sp*dt;if(!s.got&&Math.hypot(s.x-100,s.y-(GY-this.fy-45))<42){s.got=true;this.got++;sfx('coin');floatText(s.x,s.y-20,String(this.got),'#ffb03a',22);}}
@@ -14,7 +14,7 @@ STEP.chase={
       if(this.t>=this.len){this.ph='catch';this.ct=0;sfx('fanfare');const n=Math.min(this.got,20);say(`つかまえた！ ほしは ${JA_NUM[n]}こ あつめたよ！`,'fu',n+' stars!');}}
     if(this.ph==='catch'){this.ct+=dt;if(this.ct>3.2&&this.fin==null)finish(this,.1);}},
   draw(c){const d=this.d;drawBG(c,this.bg);const p=clamp(this.t/this.len,0,1);
-    c.fillStyle=this.bg==='beach'?'#f0d090':this.bg==='night'?'#2a3a2a':this.bg==='snow'?'#e4f0fc':this.bg==='fair'?'#e8d0a8':'#c8c0b8';c.fillRect(VX0-2,GY,VX1-VX0+4,VY1-GY);c.fillStyle='rgba(255,255,255,.3)';for(let x=-(this.scroll%80)+VX0-80;x<VX1;x+=80)c.fillRect(x,GY+14,40,8);
+    c.fillStyle=this.bg==='beach'?'#f0d090':this.bg==='night'?'#2a3a2a':this.bg==='snow'?'#e4f0fc':this.bg==='fair'?'#e8d0a8':this.bg==='matsuri'?'#5a4a4a':this.bg==='forest'?'#2a4a2a':'#c8c0b8';c.fillRect(VX0-2,GY,VX1-VX0+4,VY1-GY);c.fillStyle='rgba(255,255,255,.3)';for(let x=-(this.scroll%80)+VX0-80;x<VX1;x+=80)c.fillRect(x,GY+14,40,8);
     for(const s of this.stars){drawGlow(c,'#fff6a0',s.x,s.y,26,.6);drawIcon(c,'star',s.x,s.y,.8);}
     for(const o of this.obs){c.save();c.translate(o.x,GY);if(o.k==='box'){c.fillStyle='#d8a060';rr(c,-22,-44,44,44,4);c.fill();c.strokeStyle=LN;c.lineWidth=2.5;c.stroke();c.beginPath();c.moveTo(-22,-22);c.lineTo(22,-22);c.stroke();}
       else if(o.k==='cone'){c.fillStyle='#ff8a2a';c.beginPath();c.moveTo(-18,0);c.lineTo(0,-46);c.lineTo(18,0);c.closePath();c.fill();c.strokeStyle=LN;c.lineWidth=2.5;c.stroke();c.fillStyle='#fff';c.fillRect(-9,-24,18,6);}
