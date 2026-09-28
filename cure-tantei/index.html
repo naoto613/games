@@ -156,8 +156,13 @@ function speakOne(text,lang,who){if(!hasTTS||!text)return;const t=text.replace(/
 function spNext(){if(SCUR||!SQ.length)return;const q=SQ.shift();if(!JV||!EV)loadVoices();const g=++SGEN;
   try{const u=new SpeechSynthesisUtterance(q.text);const en=q.lang==='en';u.lang=en?'en-US':'ja-JP';const v=en?EV:JV;if(v)u.voice=v;
     const p=en?VO.en:(VO[q.who]||(NPC[q.who]&&NPC[q.who].vo)||[1.35,1.02]);u.rate=p[1];u.pitch=clamp(p[0],.5,1.8);u.volume=1;SCUR=u;
-    const done=()=>{if(g!==SGEN)return;SCUR=null;clearTimeout(SWD);if(SQ.length)setTimeout(spNext,60);};u.onend=done;u.onerror=done;SWD=setTimeout(done,2500+q.text.length*(en?160:200));
+    const tag=q.text.slice(0,10);vlog('speak '+tag);u.onstart=()=>vlog('start '+tag);
+    const done=(ev)=>{if(ev&&ev.type==='error')vlog('ERROR '+(ev.error||'')+' '+tag);if(g!==SGEN)return;SCUR=null;clearTimeout(SWD);if(SQ.length)setTimeout(spNext,60);};u.onend=done;u.onerror=done;SWD=setTimeout(done,2500+q.text.length*(en?160:200));
     try{speechSynthesis.resume();}catch(e){}speechSynthesis.speak(u);}catch(e){SCUR=null;}}
+const VLOG=[];function vlog(m){VLOG.push(((performance.now()/1000)|0)+'s '+m);if(VLOG.length>14)VLOG.shift();}
+const VDEBUG=/debug/.test(location.search);
+// Chrome の タッチは ゆびを はなした ときに はじめて 音声が ゆるされるので、pointerup でも アンロックする
+let TTSUP=0;function ttsUnlockUp(){if(TTSUP||!hasTTS)return;TTSUP=1;vlog('unlock(up) active='+(navigator.userActivation?navigator.userActivation.hasBeenActive:'?'));try{loadVoices();speechSynthesis.resume();if(!speaking()&&LASTSAY)replay();}catch(e){vlog('unlock err '+e.message);}}
 let TTSOK=0;function ttsUnlock(){if(TTSOK||!hasTTS)return;TTSOK=1;try{loadVoices();const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='en-US';speechSynthesis.speak(u);}catch(e){}}
 function hush(){if(!hasTTS)return;SQ.length=0;SGEN++;SCUR=null;clearTimeout(SWD);SCAN=Date.now();try{speechSynthesis.cancel();}catch(e){}}
 let LASTSAY=null;
@@ -1484,7 +1489,8 @@ SCN.title={
     drawBtn(c,200,620,230,70,'はじめる！','#ff5fa2',{pulse:1,size:28});
     txt(c,hasTTS?'5さい〜 ／ こえと おとが でるよ':'この ブラウザでは こえが でません（Safari・Chrome で あそんでね）',200,690,hasTTS?13:11,'#8a5a7a');},
   down(x,y){
-    if(inR(x,y,200,620,240,80)){sfx('henshin');say('キュアたんてい ふーちゃん！ はじまるよ！','fu');go(SCN.office);}},
+    if(inR(x,y,200,620,240,80))this.pressed=1;},
+  up(x,y){if(this.pressed&&inR(x,y,200,620,260,100)){this.pressed=0;sfx('henshin');say('キュアたんてい ふーちゃん！ はじまるよ！','fu');go(SCN.office);}this.pressed=0;},
 };
 const OFFICE_BTNS=[['files','じけん ファイル','#ff5fa2','letter'],['book','たんてい てちょう','#ffa03a','book'],['practice','れんしゅう','#5aa8ff','star']];
 SCN.office={
@@ -1589,7 +1595,7 @@ cv.addEventListener('pointerdown',e=>{audioInit();ttsUnlock();if(ptrId!==null&&p
   if(scene.isStep){if(inC(p.x,p.y,36,34,30)){sfx('tap');go(SCN.office);return;}if(inC(p.x,p.y,364,34,30)){sfx('tap');replay();return;}if(INS&&inR(p.x,p.y,200,106,372,76)){replay();return;}}
   if(scene.down)scene.down(p.x,p.y);});
 cv.addEventListener('pointermove',e=>{if(e.pointerId!==ptrId||TR||!scene)return;const p=toL(e);if(scene.move)scene.move(p.x,p.y);});
-const ptrUp=e=>{if(e.pointerId!==ptrId)return;ptrId=null;if(TR||!scene)return;const p=toL(e);if(scene.up)scene.up(p.x,p.y);};
+const ptrUp=e=>{ttsUnlockUp();if(e.pointerId!==ptrId)return;ptrId=null;if(TR||!scene)return;const p=toL(e);if(scene.up)scene.up(p.x,p.y);};
 cv.addEventListener('pointerup',ptrUp);cv.addEventListener('pointercancel',ptrUp);cv.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('visibilitychange',()=>{if(document.hidden){hush();if(AC)AC.suspend();}else if(AC)AC.resume();});
 let last=performance.now();
@@ -1607,6 +1613,9 @@ function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last
     drawCard(c);
     if(FLASH>0){c.globalAlpha=clamp(FLASH,0,1);c.fillStyle=FLASHCOL;c.fillRect(VX0-2,VY0-2,VX1-VX0+4,VY1-VY0+4);c.globalAlpha=1;}
     drawTR(c);
+    if(VDEBUG){c.fillStyle='rgba(0,0,0,.75)';c.fillRect(0,420,400,300);c.font='12px monospace';c.textAlign='left';c.textBaseline='top';c.fillStyle='#8f8';
+      const vs=hasTTS?speechSynthesis.getVoices():[];const L=['tts:'+hasTTS+' voices:'+vs.length+' ja:'+vs.filter(v=>/^ja/i.test(v.lang)).length,'JV:'+(JV?JV.name+' '+JV.lang+(JV.localService?' local':' net'):'none'),'EV:'+(EV?EV.name:'none'),'speaking:'+(hasTTS&&speechSynthesis.speaking)+' pending:'+(hasTTS&&speechSynthesis.pending)+' paused:'+(hasTTS&&speechSynthesis.paused)+' act:'+(navigator.userActivation?navigator.userActivation.hasBeenActive:'?'),...VLOG];
+      L.forEach((l,i)=>c.fillText(l,6,426+i*17));}
   }catch(err){if(!frame.e){frame.e=1;console.error(err);}}
 }
 scene=SCN.title;scene.enter();

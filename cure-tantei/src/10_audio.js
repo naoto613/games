@@ -89,8 +89,13 @@ function speakOne(text,lang,who){if(!hasTTS||!text)return;const t=text.replace(/
 function spNext(){if(SCUR||!SQ.length)return;const q=SQ.shift();if(!JV||!EV)loadVoices();const g=++SGEN;
   try{const u=new SpeechSynthesisUtterance(q.text);const en=q.lang==='en';u.lang=en?'en-US':'ja-JP';const v=en?EV:JV;if(v)u.voice=v;
     const p=en?VO.en:(VO[q.who]||(NPC[q.who]&&NPC[q.who].vo)||[1.35,1.02]);u.rate=p[1];u.pitch=clamp(p[0],.5,1.8);u.volume=1;SCUR=u;
-    const done=()=>{if(g!==SGEN)return;SCUR=null;clearTimeout(SWD);if(SQ.length)setTimeout(spNext,60);};u.onend=done;u.onerror=done;SWD=setTimeout(done,2500+q.text.length*(en?160:200));
+    const tag=q.text.slice(0,10);vlog('speak '+tag);u.onstart=()=>vlog('start '+tag);
+    const done=(ev)=>{if(ev&&ev.type==='error')vlog('ERROR '+(ev.error||'')+' '+tag);if(g!==SGEN)return;SCUR=null;clearTimeout(SWD);if(SQ.length)setTimeout(spNext,60);};u.onend=done;u.onerror=done;SWD=setTimeout(done,2500+q.text.length*(en?160:200));
     try{speechSynthesis.resume();}catch(e){}speechSynthesis.speak(u);}catch(e){SCUR=null;}}
+const VLOG=[];function vlog(m){VLOG.push(((performance.now()/1000)|0)+'s '+m);if(VLOG.length>14)VLOG.shift();}
+const VDEBUG=/debug/.test(location.search);
+// Chrome の タッチは ゆびを はなした ときに はじめて 音声が ゆるされるので、pointerup でも アンロックする
+let TTSUP=0;function ttsUnlockUp(){if(TTSUP||!hasTTS)return;TTSUP=1;vlog('unlock(up) active='+(navigator.userActivation?navigator.userActivation.hasBeenActive:'?'));try{loadVoices();speechSynthesis.resume();if(!speaking()&&LASTSAY)replay();}catch(e){vlog('unlock err '+e.message);}}
 let TTSOK=0;function ttsUnlock(){if(TTSOK||!hasTTS)return;TTSOK=1;try{loadVoices();const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='en-US';speechSynthesis.speak(u);}catch(e){}}
 function hush(){if(!hasTTS)return;SQ.length=0;SGEN++;SCUR=null;clearTimeout(SWD);SCAN=Date.now();try{speechSynthesis.cancel();}catch(e){}}
 let LASTSAY=null;

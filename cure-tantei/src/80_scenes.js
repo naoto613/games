@@ -12,7 +12,8 @@ SCN.title={
     drawBtn(c,200,620,230,70,'はじめる！','#ff5fa2',{pulse:1,size:28});
     txt(c,hasTTS?'5さい〜 ／ こえと おとが でるよ':'この ブラウザでは こえが でません（Safari・Chrome で あそんでね）',200,690,hasTTS?13:11,'#8a5a7a');},
   down(x,y){
-    if(inR(x,y,200,620,240,80)){sfx('henshin');say('キュアたんてい ふーちゃん！ はじまるよ！','fu');go(SCN.office);}},
+    if(inR(x,y,200,620,240,80))this.pressed=1;},
+  up(x,y){if(this.pressed&&inR(x,y,200,620,260,100)){this.pressed=0;sfx('henshin');say('キュアたんてい ふーちゃん！ はじまるよ！','fu');go(SCN.office);}this.pressed=0;},
 };
 const OFFICE_BTNS=[['files','じけん ファイル','#ff5fa2','letter'],['book','たんてい てちょう','#ffa03a','book'],['practice','れんしゅう','#5aa8ff','star']];
 SCN.office={
