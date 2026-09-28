@@ -226,9 +226,37 @@ function fits(p){if(!p)return false;for(let y=0;y<=N-p.h;y++)for(let x=0;x<=N-p.
 function refill(){let set;
   for(let i=0;i<40;i++){set=[genPiece(),genPiece(),genPiece()];if(i<15?set.every(fits):set.some(fits))break;}
   tray=set;trayT=0;}
-function newGame(){board.fill(-1);placedAt.fill(-9);score=dispScore=combo=since=0;clearing=[];parts=[];texts=[];msg=null;recShown=OPT.best===0;cureSeen=false;overT=0;idleT=0;refill();
+// さいしょの ばん：あと すこしで そろう れつを おいておき、それを けせる ブロックを わたす
+let hint=new Set();
+function startLayout(){board.fill(-1);hint=new Set();
+  const tf=Math.random()<.5,fx=Math.random()<.5,fy=Math.random()<.5,ri=a=>a+Math.random()*(N-a)|0;
+  const at=(x,y)=>{if(fx)x=N-1-x;if(fy)y=N-1-y;if(tf)[x,y]=[y,x];return y*N+x;};
+  const put=(x,y,col)=>{board[at(x,y)]=col;},gap=(x,y)=>hint.add(at(x,y));
+  const cols=PAL.map((_,i)=>i).sort(()=>Math.random()-.5),help=[];
+  const mk=str=>{let cells=shape(str);if(tf)cells=cells.map(([x,y])=>[y,x]);cells=norm(cells);return{cells,w:Math.max(...cells.map(c=>c[0]))+1,h:Math.max(...cells.map(c=>c[1]))+1,col:cols[5+help.length]};};
+  if(Math.random()<.5){
+    // したの 2れつ：おなじ ばしょに 2マスの すきま → 2×2 で いっきに 2れつ
+    const gx=Math.random()*(N-1)|0;
+    for(const y of[6,7])for(let x=0;x<N;x++){if(x===gx||x===gx+1)gap(x,y);else put(x,y,cols[y-6]);}
+    help.push(mk('##/##'));
+    // たての 1れつ：うえに 3マスの すきま
+    const xs=[...Array(N).keys()].filter(x=>x!==gx&&x!==gx+1),x0=pick(xs),gy=Math.random()*4|0;
+    for(let y=0;y<6;y++){if(y>=gy&&y<gy+3)gap(x0,y);else put(x0,y,cols[2]);}
+    help.push(mk('#/#/#'));
+  }else{
+    // よこの 1れつ と たての 1れつ（どちらも すきまは 2〜3マス）
+    const y0=5+(Math.random()*3|0),a=2+(Math.random()*2|0),gx=Math.random()*(N-a+1)|0;
+    for(let x=0;x<N;x++){if(x>=gx&&x<gx+a)gap(x,y0);else put(x,y0,cols[0]);}
+    help.push(mk('#'.repeat(a)));
+    const xs=[...Array(N).keys()].filter(x=>x<gx||x>=gx+a),x0=pick(xs),b=2+(Math.random()*2|0);
+    const gys=[...Array(N-b+1).keys()].filter(g=>y0<g||y0>=g+b),gy=pick(gys);
+    for(let y=0;y<N;y++){if(y>=gy&&y<gy+b)gap(x0,y);else if(y!==y0)put(x0,y,cols[1]);}
+    help.push(mk(Array(b).fill('#').join('/')));
+  }
+  tray=[...help,genPiece()].sort(()=>Math.random()-.5);trayT=0;}
+function newGame(){placedAt.fill(-9);score=dispScore=combo=since=0;clearing=[];parts=[];texts=[];msg=null;recShown=OPT.best===0;cureSeen=false;overT=0;idleT=0;startLayout();
   FU.ouch=false;FU.cureT=0;RI.sad=false;state='play';saveGame();
-  say(FU,pick(['がんばるぞ〜！','いっしょに やろう！','よーし！']),2);later(.5,()=>say(RI,'ばぶ！',1.6));}
+  say(FU,'ひかる ところを うめてね！',2.8);later(.6,()=>say(RI,'ばぶ！',1.6));}
 // 1れつ そろうか しらべる（p を gx,gy に おいたら）
 function linesAfter(p,gx,gy){const b=board.slice();for(const[x,y]of p.cells)b[(gy+y)*N+gx+x]=p.col;const rows=[],cols=[];
   for(let i=0;i<N;i++){let r=true,c=true;for(let j=0;j<N;j++){if(b[i*N+j]<0)r=false;if(b[j*N+i]<0)c=false;}if(r)rows.push(i);if(c)cols.push(i);}return{rows,cols};}
@@ -236,9 +264,10 @@ function linesAfter(p,gx,gy){const b=board.slice();for(const[x,y]of p.cells)b[(g
 function place(i,gx,gy){const p=tray[i];if(!p||!canPlace(p,gx,gy))return false;
   const{rows,cols}=linesAfter(p,gx,gy);tray[i]=null;idleT=0;
   for(const[x,y]of p.cells){const k=(gy+y)*N+gx+x;board[k]=p.col;placedAt[k]=CLK;}
+  if(since>=2)hint.clear();
   SFX.place();
   const n=rows.length+cols.length,cx=L.bx+(gx+p.w/2)*L.c,cy=L.by+(gy+p.h/2)*L.c;let gain=p.cells.length;
-  if(n){combo++;since=0;
+  if(n){combo++;since=0;hint.clear();
     const set=new Set();rows.forEach(r=>{for(let j=0;j<N;j++)set.add(r*N+j);});cols.forEach(c=>{for(let j=0;j<N;j++)set.add(j*N+c);});
     let sx=0,sy=0;
     for(const k of set){const x=k%N,y=k/N|0;sx+=x;sy+=y;const d=Math.hypot(x-(gx+p.w/2-.5),y-(gy+p.h/2-.5));clearing.push({x,y,col:board[k],t:-d*.035,sp:false});board[k]=-1;}
@@ -414,7 +443,8 @@ function drawBoard(c){const{bx,by,bw,c:s}=L;
     c.fillStyle=(x+y)%2?'#2d2766':'#2a2460';rr(c,px+1.5,py+1.5,s-3,s-3,s*.12);c.fill();
     if(v>=0){const pa=CLK-placedAt[k],sc=pa<.2?1+.14*Math.sin(pa/.2*Math.PI):1,ss=(s-2)*sc,o=(s-ss)/2;
       const ci=hl&&hl.has(k)?dcol:(gray>=0&&(y+x)<gray?-1:v);drawBlock(c,ci,px+o,py+o,ss);}
-    else if(hl&&hl.has(k)){c.fillStyle=hexA(PAL[dcol].b,.25);rr(c,px+1.5,py+1.5,s-3,s-3,s*.12);c.fill();}}
+    else if(hl&&hl.has(k)){c.fillStyle=hexA(PAL[dcol].b,.25);rr(c,px+1.5,py+1.5,s-3,s-3,s*.12);c.fill();}
+    else if(hint.has(k)&&state==='play'){const a=.25+.2*Math.sin(CLK*5);c.fillStyle=`rgba(255,240,160,${a})`;rr(c,px+1.5,py+1.5,s-3,s-3,s*.12);c.fill();c.strokeStyle=`rgba(255,240,160,${a+.3})`;c.lineWidth=2;c.stroke();}}
   // ゴースト
   if(drag&&drag.ok){const p=tray[drag.i];for(const[x,y]of p.cells){const k=(drag.gy+y)*N+drag.gx+x;drawBlock(c,p.col,bx+(drag.gx+x)*s+1,by+(drag.gy+y)*s+1,s-2,hl&&hl.has(k)?.95:.45);}}
   // きえる アニメ
@@ -444,7 +474,7 @@ let last=performance.now();
 function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;update(dt);render();requestAnimationFrame(loop);}
 function hideAll(){['title','over','confirm'].forEach(id=>$(id).classList.remove('show'));}
 $('startBtn').onclick=()=>{au();hideAll();newGame();};
-$('contBtn').onclick=()=>{au();hideAll();const g=loadGame();if(!g){newGame();return;}
+$('contBtn').onclick=()=>{au();hideAll();hint.clear();const g=loadGame();if(!g){newGame();return;}
   board=g.board;tray=g.tray;score=dispScore=g.score|0;combo=g.combo|0;since=g.since|0;placedAt.fill(-9);recShown=score>=OPT.best;trayT=0;state='play';FU.ouch=false;RI.sad=false;
   if(tray.every(t=>!t))refill();if(!tray.some(fits)){gameOver();return;}say(FU,'つづきから がんばろう！',2);later(.5,()=>say(RI,'ばぶ！',1.5));};
 $('againBtn').onclick=()=>{au();hideAll();newGame();};
