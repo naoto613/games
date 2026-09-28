@@ -3,13 +3,13 @@ let idle=0,hintSaid=0;
 function toV(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left-OX)/SC,y:(e.clientY-r.top-OY)/SC};}
 let ptrId=null;
 const RKLINES=['りっきー！ きゃっきゃ！','ねえね がんばれー！','ばぶー！','りっきーも おてつだい！','あーうー！','ねえね だいすき！'];
-cv.addEventListener('pointerdown',e=>{audioInit();if(ptrId!==null&&ptrId!==e.pointerId)return;ptrId=e.pointerId;try{cv.setPointerCapture(e.pointerId);}catch(_){}const p=toV(e);idle=0;hintSaid=0;LOOK.x=p.x;LOOK.on=1;ring(p.x,p.y,'rgba(255,255,255,.9)');
+cv.addEventListener('pointerdown',e=>{audioInit();ttsUnlock();if(ptrId!==null&&ptrId!==e.pointerId)return;ptrId=e.pointerId;try{cv.setPointerCapture(e.pointerId);}catch(_){}const p=toV(e);idle=0;hintSaid=0;LOOK.x=p.x;LOOK.on=1;ring(p.x,p.y,'rgba(255,255,255,.9)');
   if(tr)return;if(cel){celDown(p.x,p.y);return;}
   if(!scene.noHome&&hitC(p.x,p.y,56,60,46)){sfx('tap');go('lobby');return;}
   if(scene.rkPos&&!scene.noRk){const r=scene.rkPos;if(rkHit(p.x,p.y,r.x,r.y,r.sc)){RK.hop=1;rkCheer();say(pick(scene.rkLines||RKLINES));burst(r.x,r.y-40*r.sc,8,'heart');return;}}
   if(scene.down)scene.down(p.x,p.y);});
 cv.addEventListener('pointermove',e=>{if(e.pointerId!==ptrId)return;const p=toV(e);LOOK.x=p.x;if(scene.move&&!tr&&!cel)scene.move(p.x,p.y);});
-const up=e=>{if(e.pointerId!==ptrId)return;ptrId=null;LOOK.on=0;const p=toV(e);if(scene.up&&!tr&&!cel)scene.up(p.x,p.y);};
+const up=e=>{ttsUnlockUp();if(e.pointerId!==ptrId)return;ptrId=null;LOOK.on=0;const p=toV(e);if(scene.up&&!tr&&!cel)scene.up(p.x,p.y);};
 cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);cv.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('visibilitychange',()=>{if(document.hidden){hush();if(AC)AC.suspend();}else if(AC)AC.resume();});
 // ================= loop =================

@@ -26,7 +26,7 @@ const EN10=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','
 function numEn(n){if(n<20)return EN1[n];if(n>=100)return 'one hundred';return EN10[Math.floor(n/10)]+(n%10?'-'+EN1[n%10]:'');}
 const NJ=['ゼロ','いち','に','さん','よん','ご','ろく','なな','はち','きゅう'];
 function numJa(n){if(n<10)return NJ[n];if(n>=100)return 'ひゃく';const t=Math.floor(n/10),o=n%10;return(t===1?'':NJ[t])+'じゅう'+(o?NJ[o]:'');}
-function sayNum(n,pre='',post=''){hush();speak(pre+n+post);speak(String(n),'en');card={num:n,ja:numJa(n),en:numEn(n),t:0};}
+function sayNum(n,pre='',post=''){hush();speak(pre+n+post);speak(String(n),'en');LASTSAY={t:performance.now(),list:[[pre+n+post,'ja'],[String(n),'en']]};card={num:n,ja:numJa(n),en:numEn(n),t:0};}
 function sayColorNum(n,col){const C=COLORS[col];hush();speak(`${C[1]} ${n}こ`);speak(`${numEn(n)} ${C[2]}`,'en');}
 // ================= extra audio =================
 function toneP(f,d,pan,v=.25,t0=0){if(!AC||!SAVE.sound)return;const t=AC.currentTime+t0;const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.02);g.gain.setValueAtTime(v,t+d-.05);g.gain.linearRampToValueAtTime(.0001,t+d);

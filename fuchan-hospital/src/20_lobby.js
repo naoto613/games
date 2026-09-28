@@ -29,7 +29,7 @@ SCN.title={bg:'#bfe8ff',song:'clinic',noHome:1,
     c.save();const bob=Math.sin(T*2)*6;txtO(c,'ふーちゃんと リッキーの',W/2,H*.08+bob,32,'#ff5fa2','#fff',9);txtO(c,'キラキラ びょういん',W/2,H*.16+bob,54,'#ff4d8d','#fff',12);c.restore();
     fu(c,150,H*.9,3.2,{wave:1});drawRikki(c,300,H*.9,{sc:2.4,t:T,happy:1,wave:1});drawAnimal(c,'bear',450,H*.9,.9,{t:T,happy:1});
     if(Math.sin(T*4)>-.4)txtO(c,'タッチで はじめる',W/2,H*.96,30,'#fff','#ff5fa2',8);},
-  down(x,y){sfx('pop');say('ふーちゃん びょういんへ ようこそ！ いっしょに おいしゃさんの おしごとを しよう！');go('lobby');}};
+  up(x,y){if(tr)return;sfx('pop');go('lobby');say('ふーちゃん びょういんへ ようこそ！ いっしょに おいしゃさんの おしごとを しよう！');}};
 // ================= lobby =================
 // ================= thumbnail (800x500) =================
 function drawThumb(c){const Wt=800,Ht=500;c.fillStyle=vfill(c,0,340,'#8fd8ff',.3,0);c.fillRect(0,0,Wt,Ht);

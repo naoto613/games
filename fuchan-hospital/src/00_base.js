@@ -246,14 +246,24 @@ setInterval(()=>{if(!AC||!BG)return;const want=scene&&scene.song!==undefined?sce
   while(bgNext<AC.currentTime+.22){playStep(S,bgStep,bgNext);bgNext+=spb;bgStep=(bgStep+1)%S.lead.length;}},50);
 // ================= voice =================
 const hasTTS='speechSynthesis' in window;let JV=null,EV=null;
-function loadVoices(){if(!hasTTS)return;const v=speechSynthesis.getVoices();JV=v.find(x=>/^ja/i.test(x.lang))||null;EV=v.find(x=>/^en[-_]US/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null;}
-if(hasTTS){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
-function speaking(){return hasTTS&&speechSynthesis.speaking;}
-function speak(text,lang,pitch){if(!SAVE.sound||!hasTTS||!text)return;try{const u=new SpeechSynthesisUtterance(text);u.lang=lang==='en'?'en-US':'ja-JP';const v=lang==='en'?EV:JV;if(v)u.voice=v;u.rate=lang==='en'?.8:1.02;u.pitch=pitch||1.35;speechSynthesis.speak(u);}catch(e){}}
-function hush(){if(hasTTS)try{speechSynthesis.cancel();}catch(e){}}
+function pickVoice(v,re,pref){const c=v.filter(x=>re.test(x.lang));for(const p of pref){const f=c.find(x=>p.test(x.name));if(f)return f;}return c.find(x=>x.localService)||c[0]||null;}
+function loadVoices(){if(!hasTTS)return;const v=speechSynthesis.getVoices();if(!v.length)return;JV=pickVoice(v,/^ja/i,[/Kyoko|O-ren|Google 日本語|Haruka|Nanami/i]);EV=pickVoice(v,/^en[-_]US/i,[/Samantha|Google US English|Aria|Jenny|Zira|Karen|Allison/i])||pickVoice(v,/^en/i,[/Samantha|Google|Daniel|Karen/i]);}
+if(hasTTS){loadVoices();try{speechSynthesis.addEventListener('voiceschanged',loadVoices);}catch(e){speechSynthesis.onvoiceschanged=loadVoices;}}
+// 読み上げキュー：日本語→英語 を 1つずつ じゅんばんに（Safari などで 2つめが きえる ことへの たいさく）
+const SQ=[];let SCUR=null,SWD=0,SGEN=0,SCAN=0;
+function speaking(){return hasTTS&&(!!SCUR||SQ.length>0);}
+function speak(text,lang,pitch){if(!SAVE.sound||!hasTTS||!text)return;SQ.push({text,lang,pitch});if(!SCUR&&SQ.length===1){const w=Math.max(0,140-(Date.now()-SCAN));if(w)setTimeout(spNext,w);else spNext();}}
+function spNext(){if(SCUR||!SQ.length)return;const q=SQ.shift();if(!JV||!EV)loadVoices();const g=++SGEN;
+  try{const u=new SpeechSynthesisUtterance(q.text);const en=q.lang==='en';u.lang=en?'en-US':'ja-JP';const v=en?EV:JV;if(v)u.voice=v;u.rate=en?.85:1.02;u.pitch=q.pitch||(en?1.2:1.35);u.volume=1;SCUR=u;
+    const done=()=>{if(g!==SGEN)return;SCUR=null;clearTimeout(SWD);if(SQ.length)setTimeout(spNext,60);};u.onend=done;u.onerror=done;SWD=setTimeout(done,2500+q.text.length*(en?160:200));
+    try{speechSynthesis.resume();}catch(e){}speechSynthesis.speak(u);}catch(e){SCUR=null;}}
+let TTSOK=0;function ttsUnlock(){if(TTSOK||!hasTTS)return;TTSOK=1;try{loadVoices();const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='en-US';speechSynthesis.speak(u);}catch(e){}}
+function hush(){if(!hasTTS)return;SQ.length=0;SGEN++;SCUR=null;clearTimeout(SWD);SCAN=Date.now();try{speechSynthesis.cancel();}catch(e){}}
+// Chrome の タッチは ゆびを はなした ときに はじめて 音声が ゆるされるので、pointerup でも アンロックして さいごの セリフを いいなおす
+let LASTSAY=null,TTSUP=0;function ttsUnlockUp(){if(TTSUP||!hasTTS)return;TTSUP=1;try{loadVoices();speechSynthesis.resume();if(!speaking()&&LASTSAY&&performance.now()-LASTSAY.t<6000){const L=LASTSAY;hush();for(const [t,l] of L.list)speak(t,l);}}catch(e){}}
 let bub=null,card=null;
-function say(text){hush();speak(text.replace(/[☆♪]/g,''));bub={text,t:0,life:Math.max(2.6,text.length*.17)};}
-function sayWord(k,extra){const w=WORDS[k];if(!w)return;hush();if(extra)speak(extra);speak(w[0]);speak(w[1],'en');card={k,ja:w[0],en:w[1],t:0};}
+function say(text){hush();const tx=text.replace(/[☆♪]/g,'');speak(tx);LASTSAY={t:performance.now(),list:[[tx,'ja']]};bub={text,t:0,life:Math.max(2.6,text.length*.17)};}
+function sayWord(k,extra){const w=WORDS[k];if(!w)return;hush();if(extra)speak(extra);speak(w[0]);speak(w[1],'en');LASTSAY={t:performance.now(),list:[[w[0],'ja'],[w[1],'en']]};card={k,ja:w[0],en:w[1],t:0};}
 function sayPair(ja,en,k){hush();speak(ja);if(en)speak(en,'en');card={k,ja,en,t:0};}
 // ================= particles =================
 const parts=[];
