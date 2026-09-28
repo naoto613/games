@@ -14,7 +14,7 @@ function hash(x,y){let h=(x*374761393+y*668265263)|0;h=Math.imul(h^(h>>>13),1274
 
 // ---------- save ----------
 const SAVE={cleared:0,words:[],cp:null,mute:false,stars:{},doc:0,wins:0};
-try{Object.assign(SAVE,JSON.parse(localStorage.getItem('cureTantei')||'{}'));}catch(e){}
+try{Object.assign(SAVE,JSON.parse(localStorage.getItem('cureTantei')||'{}'));}catch(e){}SAVE.mute=false;
 function save(){try{localStorage.setItem('cureTantei',JSON.stringify(SAVE));}catch(e){}}
 function learn(k){if(k&&!SAVE.words.includes(k)){SAVE.words.push(k);save();}}
 
