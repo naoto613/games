@@ -18,11 +18,11 @@ SCN.title={
 const OFFICE_BTNS=[['files','じけん ファイル','#ff5fa2','letter'],['book','たんてい てちょう','#ffa03a','book'],['practice','れんしゅう','#5aa8ff','star']];
 SCN.office={
   enter(){bgm('office');this.t=0;RUN.doc=false;RUN.cure=false;const n=SAVE.cleared;
-    const line=()=>say(n===0?'ようこそ、たんてい じむしょへ！ 「じけん ファイル」を タッチして、さいしょの じけんを はじめよう！':n>=8?'まちは へいわ！ れんしゅうや てちょうで あそぼう！':pick(['つぎの じけんが まってるよ！','きょうも たんてい がんばろう！','じけん ファイルを みてみよう！']),'fu');if(speaking())setTimeout(()=>{if(scene===SCN.office)line();},1800);else line();},
+    const line=()=>say(n===0?'ようこそ、たんてい じむしょへ！ 「じけん ファイル」を タッチして、さいしょの じけんを はじめよう！':n>=CHAPTERS.length?'まちは へいわ！ れんしゅうや てちょうで あそぼう！':pick(['つぎの じけんが まってるよ！','きょうも たんてい がんばろう！','じけん ファイルを みてみよう！']),'fu');if(speaking())setTimeout(()=>{if(scene===SCN.office)line();},1800);else line();},
   update(dt){this.t+=dt;},
   draw(c){drawBG(c,'office');c.fillStyle='rgba(255,255,255,.9)';rr(c,70,20,260,46,23);c.fill();c.strokeStyle='#c8905a';c.lineWidth=3;c.stroke();txt(c,'たんてい じむしょ',200,44,22,'#a0643a','center',900);
-    for(let i=0;i<8;i++){const x=200+(i-3.5)*40,got=i<SAVE.cleared;if(got)drawIcon(c,'gem:'+GEM_COLS[i],x,92,.62);else{c.fillStyle='rgba(120,80,40,.25)';circ(c,x,92,12);}}
-    OFFICE_BTNS.forEach(([k,l,col,ic],i)=>drawBtn(c,200,245+i*88,300,70,l,col,{icon:ic,pulse:k==='files'&&SAVE.cleared<8,size:24}));
+    for(let i=0;i<CHAPTERS.length;i++){const x=200+(i-(CHAPTERS.length-1)/2)*33,got=i<SAVE.cleared;if(got)drawIcon(c,rewardIcon(i),x,92,.55);else{c.fillStyle='rgba(120,80,40,.25)';circ(c,x,92,11);}}
+    OFFICE_BTNS.forEach(([k,l,col,ic],i)=>drawBtn(c,200,245+i*88,300,70,l,col,{icon:ic,pulse:k==='files'&&SAVE.cleared<CHAPTERS.length,size:24}));
     drawFutan(c,120,660,{s:2.3,item:'lens',pose:'point'});drawRicky(c,250,625,{s:2});},
   down(x,y){
     OFFICE_BTNS.forEach(([k],i)=>{if(inR(x,y,200,245+i*88,300,74)){sfx('pop');go(SCN[k]);}});
@@ -32,31 +32,33 @@ SCN.office={
 SCN.files={
   enter(){bgm('office');this.t=0;say('どの じけんを しらべる？','fu');},
   update(dt){this.t+=dt;},
-  cardY(i){return 118+i*72;},
-  draw(c){drawBG(c,'office');c.fillStyle='rgba(60,30,20,.35)';c.fillRect(VX0-2,VY0-2,VX1-VX0+4,VY1-VY0+4);backBtn(c);otext(c,'じけん ファイル',200,40,26,'#fff','#ff5fa2','center',FONT);
+  cardY(i){return 96+i*57+(i>=8?14:0);},
+  draw(c){drawBG(c,'office');c.fillStyle='rgba(60,30,20,.35)';c.fillRect(VX0-2,VY0-2,VX1-VX0+4,VY1-VY0+4);backBtn(c);otext(c,'じけん ファイル',200,40,26,'#fff','#ff5fa2','center',FONT);otext(c,'だい2ぶ',64,this.cardY(8)-34,14,'#fff','#a060e0','center',FONT);
     CHAPTERS.forEach((ch,i)=>{const y=this.cardY(i),open=i<=SAVE.cleared,done=i<SAVE.cleared,k=easeBack(clamp(this.t*4-i*.25,0,1));if(k<=0)return;c.save();c.translate(200,y);c.scale(k,k);c.rotate(((i%3)-1)*.012);
-      c.fillStyle='rgba(0,0,0,.25)';rr(c,-178,-28,356,62,14);c.fill();c.fillStyle=open?'#fff6dc':'#d8cfc4';rr(c,-180,-32,360,62,14);c.fill();c.strokeStyle=open?'#c8905a':'#a89a8a';c.lineWidth=3;c.stroke();
-      c.fillStyle=open?'#ff5fa2':'#a89a8a';circ(c,-150,-1,19);txt(c,String(i+1),-150,0,20,'#fff','center',900);
-      if(open){drawIcon(c,ch.icon,-108,-1,.9);txt(c,ch.title,-80,0,18,'#4a3a2a','left',900);}else{drawIcon(c,'lock',-108,-1,.8);txt(c,'？？？',-80,0,18,'#8a7a6a','left',900);}
-      if(done){c.save();c.translate(140,0);c.rotate(-.25);c.strokeStyle='#ff3d6d';c.lineWidth=3;c.beginPath();c.arc(0,0,24,0,TAU);c.stroke();txt(c,'かいけつ',0,1,11,'#ff3d6d','center',900);c.restore();}
-      else if(open&&SAVE.cp&&SAVE.cp.ci===i&&SAVE.cp.i>0){c.fillStyle='#5aa8ff';rr(c,108,-14,60,26,13);c.fill();txt(c,'つづき',138,0,13,'#fff','center',900);}
-      else if(open){c.fillStyle='#ff5fa2';rr(c,112,-14,56,26,13);c.fill();txt(c,'NEW',140,0,13,'#fff','center',900);}c.restore();});},
+      c.fillStyle='rgba(0,0,0,.25)';rr(c,-178,-22,356,48,12);c.fill();c.fillStyle=open?(i>=8?'#f4ecff':'#fff6dc'):'#d8cfc4';rr(c,-180,-25,360,48,12);c.fill();c.strokeStyle=open?'#c8905a':'#a89a8a';c.lineWidth=3;c.stroke();
+      c.fillStyle=open?(i>=8?'#a060e0':'#ff5fa2'):'#a89a8a';circ(c,-152,-1,16);txt(c,String(i+1),-152,0,17,'#fff','center',900);
+      if(open){drawIcon(c,ch.icon,-112,-1,.75);c.font=`900 16px ${FONT}`;const tw=c.measureText(ch.title).width;txt(c,ch.title,-88,0,Math.min(16,16*200/tw),'#4a3a2a','left',900);}else{drawIcon(c,'lock',-112,-1,.65);txt(c,'？？？',-88,0,16,'#8a7a6a','left',900);}
+      if(done){c.save();c.translate(146,0);c.rotate(-.25);c.strokeStyle='#ff3d6d';c.lineWidth=3;c.beginPath();c.arc(0,0,20,0,TAU);c.stroke();txt(c,'かいけつ',0,1,11,'#ff3d6d','center',900);c.restore();}
+      else if(open&&SAVE.cp&&SAVE.cp.ci===i&&SAVE.cp.i>0){c.fillStyle='#5aa8ff';rr(c,112,-12,60,24,12);c.fill();txt(c,'つづき',142,0,13,'#fff','center',900);}
+      else if(open){c.fillStyle='#ff5fa2';rr(c,116,-12,56,24,12);c.fill();txt(c,'NEW',144,0,13,'#fff','center',900);}c.restore();});},
   down(x,y){if(inC(x,y,36,34,30)){sfx('tap');go(SCN.office);return;}
-    CHAPTERS.forEach((ch,i)=>{if(!inR(x,y,200,this.cardY(i),360,64))return;if(i>SAVE.cleared){sfx('no');say('まえの じけんを かいけつすると ひらくよ','rk');return;}sfx('pop');startChapter(i);});},
+    CHAPTERS.forEach((ch,i)=>{if(!inR(x,y,200,this.cardY(i),360,52))return;if(i>SAVE.cleared){sfx('no');say('まえの じけんを かいけつすると ひらくよ','rk');return;}sfx('pop');startChapter(i);});},
 };
+function rewardIcon(j){return j>=8?'smilestar':'gem:'+GEM_COLS[j];}
 function startChapter(i){const cp=SAVE.cp&&SAVE.cp.ci===i&&SAVE.cp.i>0?SAVE.cp:null;runSteps(CHAPTERS[i].steps,()=>chapterClear(i),{ci:i,start:cp?cp.i:0,flags:cp?cp.flags:{}});}
 function chapterClear(i){SAVE.cp=null;if(SAVE.cleared<=i)SAVE.cleared=i+1;SAVE.stars[i]=1;save();SCN.clear.ci=i;go(SCN.clear);}
 SCN.clear={
-  enter(){this.t=0;bgm('office');sfx('fanfare');confetti(90);const i=this.ci;say(i>=7?'ぜんぶの じけんを かいけつ！ キュアたんてい ふーちゃん、だいかつやく！':`じけん かいけつ！ ひかりの ジュエルを ${JA_NUM[i+1]}こ あつめたよ！`,'fu');},
+  enter(){this.t=0;bgm('office');sfx('fanfare');confetti(90);const i=this.ci;say(i===7?'だい1ぶ かんけつ！ ひかりの ジュエルが ぜんぶ そろったよ！':i>=CHAPTERS.length-1?'ぜんぶの じけんを かいけつ！ キュアたんてい ふーちゃん、だいかつやく！':i>=8?`じけん かいけつ！ えがおの スターを ${JA_NUM[i-7]}こ あつめたよ！`:`じけん かいけつ！ ひかりの ジュエルを ${JA_NUM[i+1]}こ あつめたよ！`,'fu');},
   update(dt){this.t+=dt;if(this.t>1&&this.t<1.05)sfx('stamp');},
   draw(c){const i=this.ci;drawBG(c,'title');const k=easeBack(clamp((this.t-.6)*2.5,0,1));
     c.save();c.translate(200,150);c.rotate(-.12);c.scale(k*1.2||.001,k*1.2||.001);c.strokeStyle='#ff3d6d';c.lineWidth=8;rr(c,-140,-44,280,88,16);c.stroke();otext(c,'じけん かいけつ！',0,2,34,'#ff3d6d','#fff');c.restore();
     txt(c,`じけん ${i+1}「${CHAPTERS[i].title}」`,200,236,16,'#5b2c47','center',900);
-    for(let j=0;j<8;j++){const a=-Math.PI/2+j/8*TAU,x=200+Math.cos(a)*104,y=380+Math.sin(a)*104,got=j<SAVE.cleared;const isNew=j===i;
-      if(got){const kk=isNew?easeBack(clamp((this.t-1.4)*2,0,1)):1;if(kk>0){c.save();c.translate(x,y);c.scale(kk,kk);drawIcon(c,'gem:'+GEM_COLS[j],0,0,1.05);c.restore();}}else{c.fillStyle='rgba(120,80,140,.25)';circ(c,x,y,16);}}
-    drawFutan(c,180,425,{s:1.3,cure:1,pose:'win'});drawRicky(c,230,405,{s:1.1,cure:1,happy:1});txt(c,`ひかりの ジュエル ${SAVE.cleared} / 8`,200,522,20,'#ff5fa2','center',900);
-    if(this.t>1.8){drawBtn(c,200,590,260,62,'じむしょに もどる','#ff8cc6',{size:21});if(i<7)drawBtn(c,200,666,260,62,'つぎの じけんへ','#5aa8ff',{size:21,pulse:1});}},
-  down(x,y){if(this.t<1.8)return;if(inR(x,y,200,590,260,66)){sfx('pop');go(SCN.office);}else if(this.ci<7&&inR(x,y,200,666,260,66)){sfx('pop');startChapter(this.ci+1);}},
+    const p2=i>=8;const nn=p2?3:8,off=p2?8:0;for(let j=0;j<nn;j++){const J=j+off,a=-Math.PI/2+j/nn*TAU,x=p2?110+j*90:200+Math.cos(a)*104,y=p2?300:380+Math.sin(a)*104,got=J<SAVE.cleared;const isNew=J===i;
+      if(got){const kk=isNew?easeBack(clamp((this.t-1.4)*2,0,1)):1;if(kk>0){c.save();c.translate(x,y);c.scale(kk,kk);drawIcon(c,rewardIcon(J),0,0,p2?1.6:1.05);c.restore();}}else{c.fillStyle='rgba(120,80,140,.25)';circ(c,x,y,p2?24:16);}}
+    drawFutan(c,180,p2?450:425,{s:1.3,cure:1,pose:'win'});drawRicky(c,230,p2?430:405,{s:1.1,cure:1,happy:1});if(p2){drawKuro(c,110,455,.6,T,'happy');drawGhost(c,300,455,.7,T,{kind:1});}
+    txt(c,p2?`えがおの スター ${Math.max(0,SAVE.cleared-8)} / 3`:`ひかりの ジュエル ${Math.min(8,SAVE.cleared)} / 8`,200,522,20,'#ff5fa2','center',900);
+    if(this.t>1.8){drawBtn(c,200,590,260,62,'じむしょに もどる','#ff8cc6',{size:21});if(i<CHAPTERS.length-1)drawBtn(c,200,666,260,62,i===7?'だい2ぶへ！':'つぎの じけんへ','#5aa8ff',{size:21,pulse:1});}},
+  down(x,y){if(this.t<1.8)return;if(inR(x,y,200,590,260,66)){sfx('pop');go(SCN.office);}else if(this.ci<CHAPTERS.length-1&&inR(x,y,200,666,260,66)){sfx('pop');startChapter(this.ci+1);}},
 };
 SCN.book={
   enter(){this.tab=0;this.page=0;this.t=0;bgm('office');say('たんてい てちょう だよ。 あつめた ジュエルと、おぼえた ことばが みられるよ','fu');},
@@ -64,10 +66,11 @@ SCN.book={
   draw(c){drawBG(c,'office');c.fillStyle='rgba(60,30,20,.3)';c.fillRect(VX0-2,VY0-2,VX1-VX0+4,VY1-VY0+4);backBtn(c);otext(c,'たんてい てちょう',200,40,24,'#fff','#ffa03a','center',FONT);
     c.fillStyle='#fffaf0';rr(c,16,110,368,596,20);c.fill();c.strokeStyle='#e0b070';c.lineWidth=4;c.stroke();
     ['ジュエル','ことば'].forEach((l,i)=>{c.fillStyle=this.tab===i?'#ffa03a':'#f0dcc0';rr(c,40+i*165,74,155,44,14);c.fill();txt(c,l,117+i*165,96,18,this.tab===i?'#fff':'#a0643a','center',900);});
-    if(this.tab===0){for(let j=0;j<8;j++){const x=80+(j%4)*80,y=190+Math.floor(j/4)*150,got=j<SAVE.cleared;c.fillStyle=got?'#fff0f8':'#eee';circ(c,x,y,32);if(got){drawIcon(c,'gem:'+GEM_COLS[j],x,y,1.2);}else txt(c,'?',x,y+2,26,'#bbb');
-        c.font=`800 11px ${FONT}`;const ls=wrap(c,got?CHAPTERS[j].title:'？？？',74);ls.forEach((l,k)=>txt(c,l,x,y+48+k*14,11,'#5b2c47'));}
-      txt(c,`ひかりの ジュエル  ${SAVE.cleared} / 8`,200,470,20,'#ff5fa2','center',900);
-      drawIcon(c,'steth',80,540,1);txt(c,`なおした かんじゃさん： ${SAVE.doc||0}にん`,120,540,17,'#5b2c47','left',900);
+    if(this.tab===0){for(let j=0;j<8;j++){const x=80+(j%4)*80,y=170+Math.floor(j/4)*118,got=j<SAVE.cleared;c.fillStyle=got?'#fff0f8':'#eee';circ(c,x,y,32);if(got){drawIcon(c,'gem:'+GEM_COLS[j],x,y,1.2);}else txt(c,'?',x,y+2,26,'#bbb');
+        c.font=`800 11px ${FONT}`;const ls=wrap(c,got?CHAPTERS[j].title:'？？？',74);ls.forEach((l,k)=>txt(c,l,x,y+44+k*13,11,'#5b2c47'));}
+      txt(c,`ひかりの ジュエル  ${Math.min(8,SAVE.cleared)} / 8`,200,396,17,'#ff5fa2','center',900);
+      for(let j=0;j<3;j++){const x=120+j*80,got=8+j<SAVE.cleared;c.fillStyle=got?'#fff8e0':'#eee';circ(c,x,445,26);if(got)drawIcon(c,'smilestar',x,445,1);else txt(c,'?',x,447,22,'#bbb');}txt(c,`えがおの スター  ${Math.max(0,SAVE.cleared-8)} / 3`,200,490,15,'#ffa03a','center',900);
+      drawIcon(c,'steth',80,545,1);txt(c,`なおした かんじゃさん： ${SAVE.doc||0}にん`,120,545,17,'#5b2c47','left',900);
       drawIcon(c,'heart',80,600,.9);txt(c,`やっつけた モンスター： ${SAVE.wins||0}ひき`,120,600,17,'#5b2c47','left',900);
       drawIcon(c,'book',80,660,.9);txt(c,`おぼえた ことば： ${SAVE.words.filter(w=>WORDS[w]).length}こ`,120,660,17,'#5b2c47','left',900);}
     else{const per=20,pages=Math.ceil(WORD_ORDER.length/per);this.page=clamp(this.page,0,pages-1);const list=WORD_ORDER.slice(this.page*per,this.page*per+per);
@@ -97,7 +100,7 @@ function genDoc(){const T0=pick(['cold','swallow','thorn','scrape','tooth','powd
   if(T0==='scrape')return[Object.assign(base,{pt:pick(['kame','usa','pen']),say:'ころんで あしが ヒリヒリ…',tools:Object.assign(base.tools,{lens:'scrape'}),need:['lens'],diag:{ans:'scrape',wrong:others('scrape'),ok:'すりきずだね'},treat:[{t:'band',n:randi(2,4)}]})];
   if(T0==='tooth')return[Object.assign(base,{pt:pick(['kuma','nezumi','lion']),say:'はが ズキズキ するの…',tools:Object.assign(base.tools,{light:'tooth'}),need:['light'],diag:{ans:'tooth',wrong:others('tooth'),ok:'むしばだね'},treat:[{t:'rub',area:'mouth'},{t:'med',col:pick(['yellow','pink'])}]})];
   return[Object.assign(base,{pt:pick(['buta2','hitsuji']),say:'はなが むずむず… ハクション！',tools:Object.assign(base.tools,{lens:'powder'}),need:['lens'],diag:{ans:'powder',wrong:others('powder'),ok:'へんな こなが ついてたんだね'},treat:[{t:'rub',area:'face'}]})];}
-const MONS=[{kind:'cake',name:'ケーキモンスター',col:'#ffb3d6',item:'cake'},{kind:'candy',name:'キャンディモンスター',col:'#ff7ab8',item:'candy'},{kind:'paint',name:'えのぐモンスター',col:'#b48cff',item:'paint'},{kind:'germ',name:'ハクションモンスター',col:'#a060e0',item:'med:pink'},{kind:'clock',name:'すうじモンスター',col:'#ff9a2a',item:'clock'},{kind:'octo',name:'タコモンスター',col:'#ff7a9a',item:'chest'},{kind:'star',name:'ほしモンスター',col:'#ffd23a',item:'star'}];
+const MONS=[{kind:'cake',name:'ケーキモンスター',col:'#ffb3d6',item:'cake'},{kind:'candy',name:'キャンディモンスター',col:'#ff7ab8',item:'candy'},{kind:'paint',name:'えのぐモンスター',col:'#b48cff',item:'paint'},{kind:'germ',name:'ハクションモンスター',col:'#a060e0',item:'med:pink'},{kind:'clock',name:'すうじモンスター',col:'#ff9a2a',item:'clock'},{kind:'octo',name:'タコモンスター',col:'#ff7a9a',item:'chest'},{kind:'star',name:'ほしモンスター',col:'#ffd23a',item:'star'},{kind:'balloon',name:'ふうせんモンスター',col:'#ff6f91',item:'balloon'},{kind:'snowman',name:'ゆきだるまモンスター',col:'#5aa8ff',item:'snowman'}];
 function genBattle(){const m=MONS[randi(0,Math.min(MONS.length-1,Math.max(0,SAVE.cleared)))];return[{t:'battle',mon:m,lv:randi(1,3),chances:shuffle(['num','color','letter','count','shape','word','add']).slice(0,2),fin:pick(['heart','star','circle','rainbow','diamond','moon']),item:m.item}];}
 function genDots(){const s=pick([['star',10,'star','night'],['heart',10,'heart','park'],['fish',11,'fish','beach'],['clock',12,'clock','school']]);return[{t:'dots',shape:s[0],n:s[1],reveal:s[2],bg:s[3],done:'できた！ '+(WORDS[s[2]]?WORDS[s[2]][0]+'だ！':'')}];}
 const PRACTICE=[['えいご クイズ','#ff5fa2','apple',genEng,'えいごの ことばを きいて えらぼう'],['かず クイズ','#ffa03a','n:5',genNum,'かぞえたり たしざん したり'],['ABC パズル','#3a8aff','l:A',genAbc,'アルファベットを ならべよう'],

@@ -104,5 +104,5 @@ function drawIcon(c,k,x,y,s=1){if(!k)return;c.save();c.translate(x,y);c.scale(s,
     case'd_scrape':F('#ffe4d4');rr(c,-10,-20,20,40,9);c.fill();c.stroke();F('#ff5a6a');for(let i=0;i<4;i++){c.fillRect(-6+i*3,-2,2,6);}break;
     case'd_powder':F('#ffe4d4');circ(c,0,4,16);c.stroke();drawIcon(c,'powder',0,4,.5);F('#a060e0');for(const[a,b]of[[-14,-14],[12,-16],[16,-4]])circ(c,a,b,3);break;
     case'd_tired':txt(c,'Zzz',0,0,20,'#7a6ab8');break;
-    default:F('#ddd');circ(c,0,0,18);c.stroke();txt(c,'?',0,1,18,LN);
+    default:if(drawIcon2(c,k))break;F('#ddd');circ(c,0,0,18);c.stroke();txt(c,'?',0,1,18,LN);
   }c.restore();}
