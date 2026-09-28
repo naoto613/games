@@ -246,24 +246,11 @@ setInterval(()=>{if(!AC||!BG)return;const want=scene&&scene.song!==undefined?sce
   while(bgNext<AC.currentTime+.22){playStep(S,bgStep,bgNext);bgNext+=spb;bgStep=(bgStep+1)%S.lead.length;}},50);
 // ================= voice =================
 const hasTTS='speechSynthesis' in window;let JV=null,EV=null;
-// よみあげ：ふーちゃんのまち と おなじ「すぐ speak」方式 ＋ ブラウザの ふぐあい たいさく
-function loadVoices(){if(!hasTTS)return;let v=[];try{v=speechSynthesis.getVoices()||[];}catch(e){}if(!v.length)return;const J=v.filter(x=>/^ja/i.test(x.lang));
-  JV=J.find(x=>x.localService&&/Kyoko|O-ren|Nanami|Haruka|Ayumi|Sayaka|Female|女性/i.test(x.name))||J.find(x=>x.localService)||J[0]||null;
-  const E=v.filter(x=>/^en[-_]US/i.test(x.lang));const E2=E.length?E:v.filter(x=>/^en/i.test(x.lang));
-  EV=E2.find(x=>x.localService&&/Samantha|Aria|Jenny|Zira|Karen|Allison|Female/i.test(x.name))||E2.find(x=>x.localService)||E2[0]||null;}
-if(hasTTS){loadVoices();try{speechSynthesis.addEventListener?speechSynthesis.addEventListener('voiceschanged',loadVoices):speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}
-  setInterval(()=>{try{if(speechSynthesis.paused)speechSynthesis.resume();}catch(e){}},800);}
-const SPK={gen:0,refs:[],lastCancel:-1e9,wasBusy:false,pend:[],timer:0,until:0};
-function speaking(){return hasTTS&&performance.now()<SPK.until;}
-function mkUtt(text,lang,pitch){const u=new SpeechSynthesisUtterance(text);const en=lang==='en';u.lang=en?'en-US':'ja-JP';const v=en?EV:JV;if(v)try{u.voice=v;}catch(e){}u.rate=en?.8:1.02;u.pitch=pitch||1.35;u.volume=1;return u;}
-function speak(text,lang,pitch){if(!SAVE.sound||!hasTTS||!text)return;if(!JV||!EV)loadVoices();let u;try{u=mkUtt(text,lang,pitch);}catch(e){return;}
-  SPK.refs.push(u);if(SPK.refs.length>40)SPK.refs.shift();SPK.until=Math.max(SPK.until,performance.now())+text.length*170+700;
-  // cancel の ちょくごに speak すると きえる ブラウザが あるので、そのときだけ すこし まって じゅんばんに
-  const since=performance.now()-SPK.lastCancel;
-  if(SPK.wasBusy&&since<100){SPK.pend.push(u);if(!SPK.timer){const g=SPK.gen;SPK.timer=setTimeout(()=>{SPK.timer=0;if(g!==SPK.gen){SPK.pend.length=0;return;}const L=SPK.pend.splice(0);for(const q of L)try{speechSynthesis.speak(q);}catch(e){}},100-since);}return;}
-  try{speechSynthesis.speak(u);if(speechSynthesis.paused)speechSynthesis.resume();}catch(e){}}
-let TTSOK=0;function ttsUnlock(){if(TTSOK||!hasTTS)return;TTSOK=1;try{loadVoices();const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='ja-JP';SPK.refs.push(u);speechSynthesis.speak(u);}catch(e){}}
-function hush(){if(!hasTTS)return;SPK.gen++;SPK.pend.length=0;if(SPK.timer){clearTimeout(SPK.timer);SPK.timer=0;}let b=false;try{b=speechSynthesis.speaking||speechSynthesis.pending;speechSynthesis.cancel();}catch(e){}SPK.wasBusy=b;SPK.lastCancel=performance.now();SPK.until=0;}
+function loadVoices(){if(!hasTTS)return;const v=speechSynthesis.getVoices();JV=v.find(x=>/^ja/i.test(x.lang))||null;EV=v.find(x=>/^en[-_]US/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null;}
+if(hasTTS){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
+function speaking(){return hasTTS&&speechSynthesis.speaking;}
+function speak(text,lang,pitch){if(!SAVE.sound||!hasTTS||!text)return;try{const u=new SpeechSynthesisUtterance(text);u.lang=lang==='en'?'en-US':'ja-JP';const v=lang==='en'?EV:JV;if(v)u.voice=v;u.rate=lang==='en'?.8:1.02;u.pitch=pitch||1.35;speechSynthesis.speak(u);}catch(e){}}
+function hush(){if(hasTTS)try{speechSynthesis.cancel();}catch(e){}}
 let bub=null,card=null;
 function say(text){hush();speak(text.replace(/[☆♪]/g,''));bub={text,t:0,life:Math.max(2.6,text.length*.17)};}
 function sayWord(k,extra){const w=WORDS[k];if(!w)return;hush();if(extra)speak(extra);speak(w[0]);speak(w[1],'en');card={k,ja:w[0],en:w[1],t:0};}

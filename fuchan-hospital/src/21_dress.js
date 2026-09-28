@@ -20,8 +20,8 @@ SCN.lobby={bg:'#fff4fa',song:'clinic',noHome:1,
     const nx=RANKS[ri+1];txt(c,'つぎの ランクまで',W-165,H-138,16,'#a07aa8');if(nx){const p=(SAVE.hearts-RANKS[ri][0])/(nx[0]-RANKS[ri][0]);c.fillStyle='#ffe0ee';rr(c,W-255,H-118,180,20,10);c.fill();c.fillStyle='#ff6f9a';rr(c,W-255,H-118,Math.max(20,180*p),20,10);c.fill();txt(c,`${nx[0]-SAVE.hearts}`,W-64,H-108,18,'#ff4d7d','right');}else txt(c,'さいこう ランク！',W-165,H-108,20,'#ff4d7d');
     const w=this.walker;if(w){c.save();if(w.dir<0){c.translate(w.x,0);c.scale(-1,1);c.translate(-w.x,0);}drawAnimal(c,w.k,w.x,H-34,.62,{t:T,hop:Math.abs(Math.sin(T*6))*.35,acc:w.acc,accC:w.accC,happy:1});c.restore();}
     fu(c,100,H-20,2.6,{wave:Math.sin(T*.7)>.6});rk(this,c,226,H-22,1.9,{happy:Math.sin(T*.9)>.3});
-    soundBtn(c);},
-  down(x,y){if(soundHit(x,y))return;for(let i=0;i<11;i++){const r=this.cell(i);if(Math.abs(x-r.x)<r.w/2&&Math.abs(y-r.y)<r.h/2){sfx('pop');ring(r.x,r.y,'#fff');go(ROOMS[i].id);return;}}
+},
+  down(x,y){for(let i=0;i<11;i++){const r=this.cell(i);if(Math.abs(x-r.x)<r.w/2&&Math.abs(y-r.y)<r.h/2){sfx('pop');ring(r.x,r.y,'#fff');go(ROOMS[i].id);return;}}
     const w=this.walker;if(w&&Math.abs(x-w.x)<50&&y>H-120){sfx('boing');hush();speak(`${WORDS[w.k][0]}さん、 こんにちは！`);speak(`Hello, ${WORDS[w.k][1]}!`,'en');card={k:w.k,ja:WORDS[w.k][0],en:WORDS[w.k][1],t:0};return;}
     if(hitC(x,y,100,H-90,70)){sfx('boing');REACT.k='good';REACT.t=1;say(pick(['きょうも おいしゃさんの おしごと がんばるぞ！','ちょうしんきで どきどきを きくのが すき！',`いまは ${RANKS[rankIdx()][1]} だよ！`]));}}};
 // ================= dress up =================

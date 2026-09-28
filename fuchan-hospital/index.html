@@ -265,24 +265,11 @@ setInterval(()=>{if(!AC||!BG)return;const want=scene&&scene.song!==undefined?sce
   while(bgNext<AC.currentTime+.22){playStep(S,bgStep,bgNext);bgNext+=spb;bgStep=(bgStep+1)%S.lead.length;}},50);
 // ================= voice =================
 const hasTTS='speechSynthesis' in window;let JV=null,EV=null;
-// よみあげ：ふーちゃんのまち と おなじ「すぐ speak」方式 ＋ ブラウザの ふぐあい たいさく
-function loadVoices(){if(!hasTTS)return;let v=[];try{v=speechSynthesis.getVoices()||[];}catch(e){}if(!v.length)return;const J=v.filter(x=>/^ja/i.test(x.lang));
-  JV=J.find(x=>x.localService&&/Kyoko|O-ren|Nanami|Haruka|Ayumi|Sayaka|Female|女性/i.test(x.name))||J.find(x=>x.localService)||J[0]||null;
-  const E=v.filter(x=>/^en[-_]US/i.test(x.lang));const E2=E.length?E:v.filter(x=>/^en/i.test(x.lang));
-  EV=E2.find(x=>x.localService&&/Samantha|Aria|Jenny|Zira|Karen|Allison|Female/i.test(x.name))||E2.find(x=>x.localService)||E2[0]||null;}
-if(hasTTS){loadVoices();try{speechSynthesis.addEventListener?speechSynthesis.addEventListener('voiceschanged',loadVoices):speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}
-  setInterval(()=>{try{if(speechSynthesis.paused)speechSynthesis.resume();}catch(e){}},800);}
-const SPK={gen:0,refs:[],lastCancel:-1e9,wasBusy:false,pend:[],timer:0,until:0};
-function speaking(){return hasTTS&&performance.now()<SPK.until;}
-function mkUtt(text,lang,pitch){const u=new SpeechSynthesisUtterance(text);const en=lang==='en';u.lang=en?'en-US':'ja-JP';const v=en?EV:JV;if(v)try{u.voice=v;}catch(e){}u.rate=en?.8:1.02;u.pitch=pitch||1.35;u.volume=1;return u;}
-function speak(text,lang,pitch){if(!SAVE.sound||!hasTTS||!text)return;if(!JV||!EV)loadVoices();let u;try{u=mkUtt(text,lang,pitch);}catch(e){return;}
-  SPK.refs.push(u);if(SPK.refs.length>40)SPK.refs.shift();SPK.until=Math.max(SPK.until,performance.now())+text.length*170+700;
-  // cancel の ちょくごに speak すると きえる ブラウザが あるので、そのときだけ すこし まって じゅんばんに
-  const since=performance.now()-SPK.lastCancel;
-  if(SPK.wasBusy&&since<100){SPK.pend.push(u);if(!SPK.timer){const g=SPK.gen;SPK.timer=setTimeout(()=>{SPK.timer=0;if(g!==SPK.gen){SPK.pend.length=0;return;}const L=SPK.pend.splice(0);for(const q of L)try{speechSynthesis.speak(q);}catch(e){}},100-since);}return;}
-  try{speechSynthesis.speak(u);if(speechSynthesis.paused)speechSynthesis.resume();}catch(e){}}
-let TTSOK=0;function ttsUnlock(){if(TTSOK||!hasTTS)return;TTSOK=1;try{loadVoices();const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='ja-JP';SPK.refs.push(u);speechSynthesis.speak(u);}catch(e){}}
-function hush(){if(!hasTTS)return;SPK.gen++;SPK.pend.length=0;if(SPK.timer){clearTimeout(SPK.timer);SPK.timer=0;}let b=false;try{b=speechSynthesis.speaking||speechSynthesis.pending;speechSynthesis.cancel();}catch(e){}SPK.wasBusy=b;SPK.lastCancel=performance.now();SPK.until=0;}
+function loadVoices(){if(!hasTTS)return;const v=speechSynthesis.getVoices();JV=v.find(x=>/^ja/i.test(x.lang))||null;EV=v.find(x=>/^en[-_]US/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null;}
+if(hasTTS){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
+function speaking(){return hasTTS&&speechSynthesis.speaking;}
+function speak(text,lang,pitch){if(!SAVE.sound||!hasTTS||!text)return;try{const u=new SpeechSynthesisUtterance(text);u.lang=lang==='en'?'en-US':'ja-JP';const v=lang==='en'?EV:JV;if(v)u.voice=v;u.rate=lang==='en'?.8:1.02;u.pitch=pitch||1.35;speechSynthesis.speak(u);}catch(e){}}
+function hush(){if(hasTTS)try{speechSynthesis.cancel();}catch(e){}}
 let bub=null,card=null;
 function say(text){hush();speak(text.replace(/[☆♪]/g,''));bub={text,t:0,life:Math.max(2.6,text.length*.17)};}
 function sayWord(k,extra){const w=WORDS[k];if(!w)return;hush();if(extra)speak(extra);speak(w[0]);speak(w[1],'en');card={k,ja:w[0],en:w[1],t:0};}
@@ -550,7 +537,7 @@ function drawAnimal(c,k,x,y,s,st={}){const A=AN[k];if(!A)return drawItem(c,k,x,y
 const SKEY='fuchan-hospital-v1';
 const SAVE={sound:true,hearts:0,plays:{},coat:'#ffffff',dress:'pink',hat:'nurse',item:'none',rk:{wear:'flower',hat:'none',toy:'blocks'},owned:[],v:2};
 try{Object.assign(SAVE,JSON.parse(localStorage.getItem(SKEY)||'{}'));}catch(e){}
-if(!Array.isArray(SAVE.owned))SAVE.owned=[];if(!SAVE.rk||typeof SAVE.rk!=='object')SAVE.rk={wear:'flower',hat:'none',toy:'blocks'};if(!SAVE.item)SAVE.item='none';delete SAVE.stickers;if(!SAVE.plays||typeof SAVE.plays!=='object')SAVE.plays={};
+if(!Array.isArray(SAVE.owned))SAVE.owned=[];if(!SAVE.rk||typeof SAVE.rk!=='object')SAVE.rk={wear:'flower',hat:'none',toy:'blocks'};if(!SAVE.item)SAVE.item='none';delete SAVE.stickers;SAVE.sound=true;if(!SAVE.plays||typeof SAVE.plays!=='object')SAVE.plays={};
 function save(){try{localStorage.setItem(SKEY,JSON.stringify(SAVE));}catch(e){}}
 function lvOf(id){return SAVE.plays[id]||0;}
 const RANKS=[[0,'みならい ナース','trainee'],[40,'ナース','nurse'],[120,'ドクター','doctor'],[260,'ベテラン ドクター','expert doctor'],[450,'スーパー ドクター','super doctor'],[800,'いんちょう せんせい','hospital director']];
@@ -865,8 +852,6 @@ const ROOMS=[
   {id:'dress',name:'ふーちゃんと リッキーの おきがえ',sub:'',icon:'fuchan',col:'#8ad0ff'},
 ];
 M('fuchan',c=>{drawFuka(c,0,34,{outfit:fuOutfit(),t:0,sc:1.25,steth:true,happy:1});});
-function soundBtn(c){drawBtn(c,56,60,36,SAVE.sound?'#8ad0ff':'#b8b0c8',SAVE.sound?'sound':'mute');}
-function soundHit(x,y){if(hitC(x,y,56,60,42)){SAVE.sound=!SAVE.sound;save();if(!SAVE.sound)hush();else sfx('tap');return true;}return false;}
 function hospitalFront(c,x,y,w,h,t){c.fillStyle='rgba(60,40,90,.15)';rr(c,x-w/2+6,y-h+10,w,h,20);c.fill();c.fillStyle=vfill(c,y-h,y,'#ffffff',.02,-.06);rr(c,x-w/2,y-h,w,h,[20,20,6,6]);c.fill();c.strokeStyle='#c8d8f0';c.lineWidth=4;c.stroke();
   c.fillStyle='#ff9ac8';rr(c,x-w/2-10,y-h-18,w+20,36,18);c.fill();crossSign(c,x,y-h-40,26);
   const cols=5,rows=3;for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){const wx=x-w/2+24+i*(w-48)/cols,wy=y-h+40+j*54;c.fillStyle=(i+j+Math.floor(t))%7===0?'#fff4b0':'#aee0ff';rr(c,wx,wy,(w-48)/cols-14,36,8);c.fill();c.fillStyle='rgba(255,255,255,.6)';c.fillRect(wx+5,wy+5,8,26);}
@@ -915,8 +900,8 @@ SCN.lobby={bg:'#fff4fa',song:'clinic',noHome:1,
     const nx=RANKS[ri+1];txt(c,'つぎの ランクまで',W-165,H-138,16,'#a07aa8');if(nx){const p=(SAVE.hearts-RANKS[ri][0])/(nx[0]-RANKS[ri][0]);c.fillStyle='#ffe0ee';rr(c,W-255,H-118,180,20,10);c.fill();c.fillStyle='#ff6f9a';rr(c,W-255,H-118,Math.max(20,180*p),20,10);c.fill();txt(c,`${nx[0]-SAVE.hearts}`,W-64,H-108,18,'#ff4d7d','right');}else txt(c,'さいこう ランク！',W-165,H-108,20,'#ff4d7d');
     const w=this.walker;if(w){c.save();if(w.dir<0){c.translate(w.x,0);c.scale(-1,1);c.translate(-w.x,0);}drawAnimal(c,w.k,w.x,H-34,.62,{t:T,hop:Math.abs(Math.sin(T*6))*.35,acc:w.acc,accC:w.accC,happy:1});c.restore();}
     fu(c,100,H-20,2.6,{wave:Math.sin(T*.7)>.6});rk(this,c,226,H-22,1.9,{happy:Math.sin(T*.9)>.3});
-    soundBtn(c);},
-  down(x,y){if(soundHit(x,y))return;for(let i=0;i<11;i++){const r=this.cell(i);if(Math.abs(x-r.x)<r.w/2&&Math.abs(y-r.y)<r.h/2){sfx('pop');ring(r.x,r.y,'#fff');go(ROOMS[i].id);return;}}
+},
+  down(x,y){for(let i=0;i<11;i++){const r=this.cell(i);if(Math.abs(x-r.x)<r.w/2&&Math.abs(y-r.y)<r.h/2){sfx('pop');ring(r.x,r.y,'#fff');go(ROOMS[i].id);return;}}
     const w=this.walker;if(w&&Math.abs(x-w.x)<50&&y>H-120){sfx('boing');hush();speak(`${WORDS[w.k][0]}さん、 こんにちは！`);speak(`Hello, ${WORDS[w.k][1]}!`,'en');card={k:w.k,ja:WORDS[w.k][0],en:WORDS[w.k][1],t:0};return;}
     if(hitC(x,y,100,H-90,70)){sfx('boing');REACT.k='good';REACT.t=1;say(pick(['きょうも おいしゃさんの おしごと がんばるぞ！','ちょうしんきで どきどきを きくのが すき！',`いまは ${RANKS[rankIdx()][1]} だよ！`]));}}};
 // ================= dress up =================
@@ -1776,7 +1761,7 @@ let idle=0,hintSaid=0;
 function toV(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left-OX)/SC,y:(e.clientY-r.top-OY)/SC};}
 let ptrId=null;
 const RKLINES=['りっきー！ きゃっきゃ！','ねえね がんばれー！','ばぶー！','りっきーも おてつだい！','あーうー！','ねえね だいすき！'];
-cv.addEventListener('pointerdown',e=>{audioInit();ttsUnlock();if(ptrId!==null&&ptrId!==e.pointerId)return;ptrId=e.pointerId;try{cv.setPointerCapture(e.pointerId);}catch(_){}const p=toV(e);idle=0;hintSaid=0;LOOK.x=p.x;LOOK.on=1;ring(p.x,p.y,'rgba(255,255,255,.9)');
+cv.addEventListener('pointerdown',e=>{audioInit();if(ptrId!==null&&ptrId!==e.pointerId)return;ptrId=e.pointerId;try{cv.setPointerCapture(e.pointerId);}catch(_){}const p=toV(e);idle=0;hintSaid=0;LOOK.x=p.x;LOOK.on=1;ring(p.x,p.y,'rgba(255,255,255,.9)');
   if(tr)return;if(cel){celDown(p.x,p.y);return;}
   if(!scene.noHome&&hitC(p.x,p.y,56,60,46)){sfx('tap');go('lobby');return;}
   if(scene.rkPos&&!scene.noRk){const r=scene.rkPos;if(rkHit(p.x,p.y,r.x,r.y,r.sc)){RK.hop=1;rkCheer();say(pick(scene.rkLines||RKLINES));burst(r.x,r.y-40*r.sc,8,'heart');return;}}

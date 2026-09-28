@@ -2,7 +2,7 @@
 const SKEY='fuchan-hospital-v1';
 const SAVE={sound:true,hearts:0,plays:{},coat:'#ffffff',dress:'pink',hat:'nurse',item:'none',rk:{wear:'flower',hat:'none',toy:'blocks'},owned:[],v:2};
 try{Object.assign(SAVE,JSON.parse(localStorage.getItem(SKEY)||'{}'));}catch(e){}
-if(!Array.isArray(SAVE.owned))SAVE.owned=[];if(!SAVE.rk||typeof SAVE.rk!=='object')SAVE.rk={wear:'flower',hat:'none',toy:'blocks'};if(!SAVE.item)SAVE.item='none';delete SAVE.stickers;if(!SAVE.plays||typeof SAVE.plays!=='object')SAVE.plays={};
+if(!Array.isArray(SAVE.owned))SAVE.owned=[];if(!SAVE.rk||typeof SAVE.rk!=='object')SAVE.rk={wear:'flower',hat:'none',toy:'blocks'};if(!SAVE.item)SAVE.item='none';delete SAVE.stickers;SAVE.sound=true;if(!SAVE.plays||typeof SAVE.plays!=='object')SAVE.plays={};
 function save(){try{localStorage.setItem(SKEY,JSON.stringify(SAVE));}catch(e){}}
 function lvOf(id){return SAVE.plays[id]||0;}
 const RANKS=[[0,'みならい ナース','trainee'],[40,'ナース','nurse'],[120,'ドクター','doctor'],[260,'ベテラン ドクター','expert doctor'],[450,'スーパー ドクター','super doctor'],[800,'いんちょう せんせい','hospital director']];

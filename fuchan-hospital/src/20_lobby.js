@@ -13,8 +13,6 @@ const ROOMS=[
   {id:'dress',name:'ふーちゃんと リッキーの おきがえ',sub:'',icon:'fuchan',col:'#8ad0ff'},
 ];
 M('fuchan',c=>{drawFuka(c,0,34,{outfit:fuOutfit(),t:0,sc:1.25,steth:true,happy:1});});
-function soundBtn(c){drawBtn(c,56,60,36,SAVE.sound?'#8ad0ff':'#b8b0c8',SAVE.sound?'sound':'mute');}
-function soundHit(x,y){if(hitC(x,y,56,60,42)){SAVE.sound=!SAVE.sound;save();if(!SAVE.sound)hush();else sfx('tap');return true;}return false;}
 function hospitalFront(c,x,y,w,h,t){c.fillStyle='rgba(60,40,90,.15)';rr(c,x-w/2+6,y-h+10,w,h,20);c.fill();c.fillStyle=vfill(c,y-h,y,'#ffffff',.02,-.06);rr(c,x-w/2,y-h,w,h,[20,20,6,6]);c.fill();c.strokeStyle='#c8d8f0';c.lineWidth=4;c.stroke();
   c.fillStyle='#ff9ac8';rr(c,x-w/2-10,y-h-18,w+20,36,18);c.fill();crossSign(c,x,y-h-40,26);
   const cols=5,rows=3;for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){const wx=x-w/2+24+i*(w-48)/cols,wy=y-h+40+j*54;c.fillStyle=(i+j+Math.floor(t))%7===0?'#fff4b0':'#aee0ff';rr(c,wx,wy,(w-48)/cols-14,36,8);c.fill();c.fillStyle='rgba(255,255,255,.6)';c.fillRect(wx+5,wy+5,8,26);}
