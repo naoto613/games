@@ -756,7 +756,7 @@ function ownCount(){return ITEMS.filter(i=>(i.c==='top'||i.c==='hat'||i.c==='acc
 
 // ================= sound =================
 let AC=null;
-function au(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();}
+function au(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();voiceWarm();}
 function tone(f,d,type='sine',v=.15,f2,delay=0){if(!AC||S.mute)return;const t=AC.currentTime+delay,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.03);}
 const SFX={
@@ -829,7 +829,7 @@ function drawRoom(c,x,y,w,h,fy,r,tod,t,mini){
 // ================= ひと =================
 const RK={say:null,sayT:0,expr:null,exprT:0,jump:0,pose:null,poseT:0};
 const FU={say:null,sayT:0,pose:null,poseT:0,happy:0};
-function sayR(s,d=1.8){RK.say=s;RK.sayT=d;}
+function sayR(s,d=1.8){RK.say=s;RK.sayT=d;speakR(s);}
 function sayF(s,d=1.8){FU.say=s;FU.sayT=d;}
 function exprR(e,d=1.2,j){RK.expr=e;RK.exprT=d;if(j)RK.jump=d;}
 function kidOpts(extra){const f=Object.assign({stage:S.stage,wear:S.wear,hair:HAIRS[S.hair],hs:S.hs,t:CLK},extra);return f;}
@@ -958,7 +958,7 @@ function stageUp(){snapLook();
   if(S.stage===8){birth();return;}
   S.stage++;S.exp=0;S.wear={};const st=STAGES[S.stage];const gift=st.gift&&!S.own[st.gift]?ITEM[st.gift]:null;if(gift)S.own[gift.id]=1;
   const coin=50+S.stage*30;S.coin+=coin;S.g={hun:80,cln:80,moo:90,ene:80};save();updHUD();ceremony(st.up,`<p>${S.name}は ${st.n}（${st.age}）に なったよ！</p>`+(gift?`<p>おいわいに ${gift.e} ${gift.n}を もらった！</p>`:'')+`<p class="small">+${coin}🪙</p>`);}
-function ceremony(title,html,extra={}){mode='cere';MT=0;showBar(false);SFX.up();CE=extra;
+function ceremony(title,html,extra={}){mode='cere';MT=0;showBar(false);SFX.up();CE=extra;setTimeout(()=>sayR(pick(UPTALK[tg()]),2.2),1100);
   q(()=>panel({low:1,title,html,btns:[['やったー！']]}));
   setTimeout(()=>runQ(),1300);}
 let CE={};
@@ -1047,6 +1047,33 @@ function bgmTick(){if(!AC||S.mute||S.bgmOff||AC.state!=='running'||mode==='title
     bgmStyle(s,ch,when,fq,spb,G);
     const n=G.mel[s];if(n!=null)btone(fq(n),spb*G.len,G.lead,G.vol,when);
     BGM.step++;BGM.next+=spb;}}
+
+// ================= リッキーの こえ（せいちょうに あわせて かわる） =================
+// ブラウザの よみあげ（にほんご）を つかう。ないときは ピコピコ こえで かわりに。
+// ステージ: あかちゃん → ほいくえん → … → おとな。 だんだん ひくく、はっきり、はやく。
+const VOICE=[
+  {p:2.0,r:.85,v:1,bf:560},{p:1.95,r:.9,v:1,bf:520},{p:1.8,r:1.0,v:1,bf:470},{p:1.6,r:1.05,v:1,bf:420},
+  {p:1.4,r:1.05,v:1,bf:370},{p:1.3,r:1.05,v:1,bf:340},{p:1.2,r:1.0,v:1,bf:320},{p:1.15,r:1.0,v:1,bf:300},{p:1.15,r:1.0,v:1,bf:300}];
+const TTS='speechSynthesis' in window&&'SpeechSynthesisUtterance' in window;
+let JAV=null,ttsReady=false;
+function pickVoice(){if(!TTS)return;const vs=speechSynthesis.getVoices().filter(v=>/^ja/i.test(v.lang));
+  JAV=vs.find(v=>/Kyoko|Nanami|Haruka|Ayumi|O-?Ren|Mizuki|Sayaka|female/i.test(v.name))||vs.find(v=>/Google/i.test(v.name))||vs[0]||null;}
+if(TTS){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function voiceWarm(){if(!TTS||ttsReady)return;ttsReady=true;try{const u=new SpeechSynthesisUtterance('');u.volume=0;speechSynthesis.speak(u);}catch(e){}}
+function duck(on){if(BGMG&&AC)BGMG.gain.setTargetAtTime(on?.3:.8,AC.currentTime,.08);}
+function speakR(text){if(S.mute||S.voiceOff)return;
+  const clean=text.replace(/[^぀-ヿ一-鿿ー〜！？!?、。a-zA-Z0-9 ]/g,'').replace(/〜/g,'ー').trim();
+  const V=VOICE[S.stage]||VOICE[0];
+  const canTTS=TTS&&(JAV||(!speechSynthesis.getVoices().length&&/^ja/i.test(navigator.language||'')));
+  if(canTTS&&/[぀-ヿ一-鿿]/.test(clean)){
+    try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(clean);u.lang='ja-JP';if(JAV){try{u.voice=JAV;}catch(e){}}u.pitch=V.p;u.rate=V.r;u.volume=V.v;
+      u.onstart=()=>duck(true);u.onend=u.onerror=()=>duck(false);speechSynthesis.speak(u);return;}catch(e){}}
+  babble(clean,V);}
+// よみあげが ないときの ピコピコ こえ（もじの かずだけ ♪）
+function babble(s,V){if(!AC)return;const n=Math.max(1,Math.min(8,[...s.replace(/[ー！？!?、。 ]/g,'')].length))||2,q=/[？?]$/.test(s),ex=/[！!]$/.test(s),dur=S.stage<=1?.13:.09;
+  for(let i=0;i<n;i++){const t=i*dur*1.1,up=q&&i===n-1?1.35:ex&&i===0?1.15:1,f=V.bf*(1+Math.sin(i*2.3)*.12)*up;
+    tone(f,dur,'triangle',.09,f*(q&&i===n-1?1.3:.9),t);tone(f*2,dur*.8,'sine',.03,f*1.8,t);}}
+const UPTALK=[['きゃー！','あぶぶー！'],['やったぁ！','ねーね！'],['やったー！','ふーたん みてー！'],['がんばるね！','ありがと、おねえちゃん'],['ありがとう、おねえちゃん！','これからも よろしくね']];
 
 // ================= シーン =================
 function kidMouthY(st){const B=BODY[st];return((B.sit?-5:-B.leg)-B.bh-B.R*.2)*B.s;}
@@ -1291,7 +1318,7 @@ function openDex(tab){DX=tab||DX;const tabs=[['food','たべもの'],['out','お
 function wearIds(){const w=wearOf(S.wear,S.stage);return{top:w.top.id,hat:w.hat?w.hat.id:'none',acc:w.acc?w.acc.id:'none'};}
 
 // ---------- せってい ----------
-function openOpt(){panel({icon:'⚙️',title:'せってい',html:`<p>${S.gen}だいめ ${S.name}・${S.day}にちめ</p>`,col:1,btns:[[S.mute?'🔇 おと: オフ':'🔊 おと: オン',()=>{S.mute=!S.mute;save();openOpt();return false;},'sub'],[S.bgmOff?'🎵 BGM: オフ':'🎵 BGM: オン',()=>{S.bgmOff=!S.bgmOff;BGM.song=-1;save();openOpt();return false;},'sub'],['📜 あそびかた',()=>{howto();return false;},'sub'],['🗑️ さいしょから',()=>{confirmReset();return false;},'gry'],['とじる']]});}
+function openOpt(){panel({icon:'⚙️',title:'せってい',html:`<p>${S.gen}だいめ ${S.name}・${S.day}にちめ</p>`,col:1,btns:[[S.mute?'🔇 おと: オフ':'🔊 おと: オン',()=>{S.mute=!S.mute;save();openOpt();return false;},'sub'],[S.voiceOff?'🗣️ リッキーの こえ: オフ':'🗣️ リッキーの こえ: オン',()=>{S.voiceOff=!S.voiceOff;save();openOpt();if(!S.voiceOff)sayR(talk('poke'),1.6);return false;},'sub'],[S.bgmOff?'🎵 BGM: オフ':'🎵 BGM: オン',()=>{S.bgmOff=!S.bgmOff;BGM.song=-1;save();openOpt();return false;},'sub'],['📜 あそびかた',()=>{howto();return false;},'sub'],['🗑️ さいしょから',()=>{confirmReset();return false;},'gry'],['とじる']]});}
 function howto(){panel({icon:'📜',title:'あそびかた',html:`<div style="text-align:left;font-weight:800;font-size:15px;line-height:1.7">
   🍼 ごはん・🛁 おふろ・🎈 あそぶ・🌙 ねんね で おせわ しよう。<br>
   🌱 おせわ すると せいちょうポイントが たまって、ほいくえん → ようちえん → … → けっこん → あかちゃん と そだっていくよ。<br>
