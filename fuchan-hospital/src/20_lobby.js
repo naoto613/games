@@ -10,8 +10,12 @@ const ROOMS=[
   {id:'checkup',name:'けんしん',sub:'リッキー',icon:'rikki',col:'#ff8cc8'},
   {id:'body',name:'からだ ずかん',sub:'えいご',icon:'heart',col:'#e84a5a'},
   {id:'meal',name:'にゅういん',sub:'ごはん',icon:'onigiri',col:'#4cc86a'},
+  {id:'nursery',name:'あかちゃん',sub:'おせわ',icon:'milkbottle',col:'#ff9ac8'},
+  {id:'wash',name:'てあらい',sub:'ばいきん',icon:'soap',col:'#4ab8e0'},
+  {id:'toy',name:'ぬいぐるみ',sub:'チクチク',icon:'plushbear',col:'#ff9a3a'},
   {id:'dress',name:'ふーちゃんと リッキーの おきがえ',sub:'',icon:'fuchan',col:'#8ad0ff'},
 ];
+M('plushbear',c=>{drawAnimal(c,'bear',0,40,.62,{t:0,plush:1,happy:1,acc:'ribbon',accC:'#ff5fa2'});});
 M('fuchan',c=>{drawFuka(c,0,34,{outfit:fuOutfit(),t:0,sc:1.25,steth:true,happy:1});});
 function hospitalFront(c,x,y,w,h,t){c.fillStyle='rgba(60,40,90,.15)';rr(c,x-w/2+6,y-h+10,w,h,20);c.fill();c.fillStyle=vfill(c,y-h,y,'#ffffff',.02,-.06);rr(c,x-w/2,y-h,w,h,[20,20,6,6]);c.fill();c.strokeStyle='#c8d8f0';c.lineWidth=4;c.stroke();
   c.fillStyle='#ff9ac8';rr(c,x-w/2-10,y-h-18,w+20,36,18);c.fill();crossSign(c,x,y-h-40,26);

@@ -49,7 +49,7 @@ function drawAnimal(c,k,x,y,s,st={}){const A=AN[k];if(!A)return drawItem(c,k,x,y
   c.fillStyle=A.patch?dark:fc(0,-42,14,A.c);const armUp=st.happy||st.dance?Math.sin(t*7)*8:0;
   if(st.tummy){c.beginPath();c.ellipse(-16,-30,10,15,1.1,0,TAU);c.fill();c.stroke();c.beginPath();c.ellipse(16,-30,10,15,-1.1,0,TAU);c.fill();c.stroke();}
   else if(st.wave){c.beginPath();c.ellipse(-33,-42,10,16,.5,0,TAU);c.fill();c.stroke();c.save();c.translate(30,-58);c.rotate(-1.2+Math.sin(t*10)*.3);c.beginPath();c.ellipse(0,-12,10,16,0,0,TAU);c.fill();c.stroke();c.restore();}
-  else{c.beginPath();c.ellipse(-33,-42-armUp,10,16,.5,0,TAU);c.fill();c.stroke();c.beginPath();c.ellipse(33,-42-armUp,10,16,-.5,0,TAU);c.fill();c.stroke();}
+  else{c.beginPath();c.ellipse(-33,-42-armUp,10,16,.5,0,TAU);c.fill();c.stroke();if(!st.armOff){c.beginPath();c.ellipse(33,-42-armUp,10,16,-.5,0,TAU);c.fill();c.stroke();}else{c.fillStyle='#fff';for(let i=0;i<4;i++)circ(c,26+Math.cos(i*1.7)*5,-50+Math.sin(i*1.7)*5,5);}}
   // head
   const hy=-88,earC=A.earC||A.c;c.save();const tilt=(st.tilt||0)+(st.sad?Math.sin(t*1.5)*.03:0);c.translate(0,hy);c.rotate(tilt);c.translate(0,-hy);
   const ew=Math.sin(t*2.7+x)*.06;
@@ -75,7 +75,8 @@ function drawAnimal(c,k,x,y,s,st={}){const A=AN[k];if(!A)return drawItem(c,k,x,y
   // eyes
   const happy=st.happy||st.eat>0||st.dance,blink=((t*1.3+x*.01)%3.6)>3.46;const ey=A.big?hy-8:A.frog?hy-28:hy+2,ex=A.frog?16:13,lk=(st.look||0)*2.5;
   const ecol=A.patch?'#fff':dark;
-  if(happy){c.strokeStyle=ecol;c.lineWidth=3.2;for(const sx of[-1,1]){c.beginPath();c.arc(sx*ex,ey+1,5.5,Math.PI*1.1,Math.PI*1.9);c.stroke();}}
+  if(st.plush){for(const sx of[-1,1]){const x0=sx*ex;if(st.eyeMiss===sx){c.strokeStyle='#8a7a6a';c.lineWidth=1.5;c.beginPath();c.moveTo(x0-4,ey-3);c.quadraticCurveTo(x0,ey+2,x0+2,ey+8);c.moveTo(x0+3,ey-4);c.quadraticCurveTo(x0-1,ey,x0-3,ey+6);c.stroke();continue;}const col=(st.eyeCol&&st.eyeCol[sx])||'#3a2a2a';c.fillStyle=gfill(c,x0-2,ey-2,8,col,.3,-.2);circ(c,x0,ey,7);c.strokeStyle=shade(col,-.3);c.lineWidth=1.5;c.beginPath();c.arc(x0,ey,7,0,TAU);c.stroke();c.fillStyle='rgba(255,255,255,.85)';for(const [a2,b2] of[[-2,-2],[2,-2],[-2,2],[2,2]])circ(c,x0+a2,ey+b2,1.2);}}
+  else if(happy){c.strokeStyle=ecol;c.lineWidth=3.2;for(const sx of[-1,1]){c.beginPath();c.arc(sx*ex,ey+1,5.5,Math.PI*1.1,Math.PI*1.9);c.stroke();}}
   else if(st.cry){c.strokeStyle=ecol;c.lineWidth=3;for(const sx of[-1,1]){c.beginPath();c.moveTo(sx*ex-6,ey);c.lineTo(sx*ex+6,ey+(sx>0?-2:2));c.stroke();}c.fillStyle='rgba(120,200,255,.85)';for(const sx of[-1,1]){const d=(t*1.6+(sx>0?.5:0))%1;ell(c,sx*(ex+4),ey+6+d*26,3.5,5);}}
   else if(blink&&!st.sad){c.strokeStyle=ecol;c.lineWidth=3;for(const sx of[-1,1]){c.beginPath();c.moveTo(sx*ex-5,ey+1);c.quadraticCurveTo(sx*ex,ey+3,sx*ex+5,ey+1);c.stroke();}}
   else{for(const sx of[-1,1]){c.fillStyle=A.patch?'#1a1a2a':dark;ell(c,sx*ex+lk,ey,5.8,7.2);c.fillStyle='#fff';circ(c,sx*ex-2+lk,ey-3,2.4);circ(c,sx*ex+2+lk,ey+2.4,1.1);}
@@ -96,6 +97,7 @@ function drawAnimal(c,k,x,y,s,st={}){const A=AN[k];if(!A)return drawItem(c,k,x,y
   if(A.wh){c.strokeStyle=oc;c.lineWidth=1.8;for(const sx of[-1,1])for(const d of[-3,3]){c.beginPath();c.moveTo(sx*16,hy+12+d);c.lineTo(sx*32,hy+10+d*2);c.stroke();}}
   c.fillStyle=st.sick?'rgba(255,60,80,.55)':'rgba(255,120,150,.42)';ell(c,-22,hy+12,st.sick?9:6.5,st.sick?6:4);ell(c,22,hy+12,st.sick?9:6.5,st.sick?6:4);
   if(st.sweat){c.fillStyle='rgba(140,210,255,.9)';const d=(t*.8)%1;ell(c,30,hy-18+d*14,4,6);}
+  if(st.plush){c.save();c.strokeStyle=shade(base,-.5);c.lineWidth=1.6;c.setLineDash([4,3]);c.beginPath();c.moveTo(0,-66);c.lineTo(0,-12);c.moveTo(0,hy-34);c.lineTo(0,hy-20);c.moveTo(-30,hy+4);c.quadraticCurveTo(-26,hy+22,-14,hy+30);c.moveTo(30,hy+4);c.quadraticCurveTo(26,hy+22,14,hy+30);c.stroke();c.restore();}
   // accessories
   const acc=st.acc,ac=st.accC||'#ff5fa2';
   if(acc==='ribbon')bow(c,20,hy-30,9,ac);
