@@ -8,12 +8,14 @@
 - キュアふーたん サバイバー: https://naoto613.github.io/games/futan-survivor/
 - ふーたんの こっそりミッション: https://naoto613.github.io/games/futan-stealth/
 - ふーたんと リッキーの ブロックパズル: https://naoto613.github.io/games/futan-block/
+- キュアふーたんの キラキラカート: https://naoto613.github.io/games/futan-kart/
 
 ## 構成
 
 ```
 .
-├── index.html              # ゲーム一覧ページ
+├── index.html              # ゲーム一覧ページ（サムネイル・タイトル・説明のカード形式）
+├── thumbs/                 # 一覧ページ用サムネイル（<ゲームフォルダ名>.jpg、800×500）
 ├── .nojekyll               # Jekyll 処理を無効化（ファイルをそのまま配信）
 ├── README.md
 ├── kossori-treasure/
@@ -24,6 +26,9 @@
 │   └── index.html          # ふーたんの こっそりミッション（5歳向けステルスゲーム。単一 HTML で完結）
 ├── futan-block/
 │   └── index.html          # ふーたんと リッキーの ブロックパズル（8×8 の列そろえパズル。単一 HTML で完結）
+├── futan-kart/
+│   ├── index.html          # キュアふーたんの キラキラカート（5歳向け・タブレット想定の 3D カートレース）
+│   └── three.min.js        # three.js r149（fuchan-town と同じもの）
 └── fuchan-town/
     ├── index.html          # ふーちゃんのまち（4歳向け・スマホ縦持ち想定。ビルド済み成果物）
     ├── build.py            # src/*.js を連結して index.html を生成
@@ -37,13 +42,17 @@
 
 1. ルートに英小文字・ハイフン区切りのフォルダを作る（例: `new-game/`）。
 2. その中に `index.html` を置く。画像や JS などを分ける場合は同じフォルダに入れ、相対パス（`./img/foo.png` など）で参照する。
-3. ルートの `index.html` の `<ul id="games">` にリンクを 1 行追加する。
+3. タイトル画面のスクリーンショットを 800×500 の JPEG で `thumbs/<フォルダ名>.jpg` に置く。
+4. ルートの `index.html` の `<ul id="games">` にカードを 1 つ追加する（新しいものほど上に）。
 
    ```html
-   <li><a class="game" href="./new-game/"><div class="name">ゲーム名</div><div class="desc">ひとこと説明</div></a></li>
+   <li><a class="game" href="./new-game/">
+     <div class="thumb"><img src="./thumbs/new-game.jpg" alt="" width="800" height="500" loading="lazy"></div>
+     <div class="body"><div class="name">ゲーム名</div><div class="desc">かんたんな せつめい</div><div class="tags"><span>5さい〜</span><span>ジャンル</span></div></div>
+   </a></li>
    ```
 
-4. `main` に push すると、数分で `https://naoto613.github.io/games/new-game/` で公開される。
+5. `main` に push すると、数分で `https://naoto613.github.io/games/new-game/` で公開される。
 
 ## GitHub Pages の設定
 

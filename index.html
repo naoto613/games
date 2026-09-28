@@ -5,30 +5,56 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ゲームあつめ</title>
 <style>
-  :root{color-scheme:light dark;--bg:#fff6fb;--card:#fff;--ink:#4a2a5a;--sub:#8a6a9a;--accent:#ff5fa2;--line:#ffd0e6;}
-  @media (prefers-color-scheme:dark){:root{--bg:#1e1624;--card:#2a2032;--ink:#f3e6f7;--sub:#bba8c6;--accent:#ff8cc0;--line:#4a3656;}}
+  :root{color-scheme:light dark;--bg:#fff6fb;--card:#fff;--ink:#4a2a5a;--sub:#8a6a9a;--accent:#ff5fa2;--line:#ffd0e6;--tag:#fff0f7;}
+  @media (prefers-color-scheme:dark){:root{--bg:#1e1624;--card:#2a2032;--ink:#f3e6f7;--sub:#bba8c6;--accent:#ff8cc0;--line:#4a3656;--tag:#3a2a44;}}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Maru Gothic ProN","Yu Gothic",system-ui,sans-serif;line-height:1.6}
-  main{max-width:720px;margin:0 auto;padding:32px 16px}
+  main{max-width:1080px;margin:0 auto;padding:32px 16px 48px}
   h1{font-size:28px;margin:0 0 4px}
   .lead{color:var(--sub);margin:0 0 24px}
-  ul{list-style:none;padding:0;margin:0;display:grid;gap:12px}
-  a.game{display:block;padding:16px 18px;background:var(--card);border:2px solid var(--line);border-radius:16px;color:inherit;text-decoration:none}
-  a.game:hover,a.game:focus-visible{border-color:var(--accent)}
-  .name{font-weight:800;font-size:18px;color:var(--accent)}
+  ul{list-style:none;padding:0;margin:0;display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
+  li{display:flex}
+  a.game{display:flex;flex-direction:column;width:100%;background:var(--card);border:2px solid var(--line);border-radius:18px;overflow:hidden;color:inherit;text-decoration:none;transition:transform .12s,border-color .12s,box-shadow .12s}
+  a.game:hover,a.game:focus-visible{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 20px rgba(255,95,162,.18)}
+  .thumb{position:relative;aspect-ratio:16/10;background:var(--line)}
+  .thumb img{display:block;width:100%;height:100%;object-fit:cover}
+  .new{position:absolute;top:10px;left:10px;background:var(--accent);color:#fff;font-weight:800;font-size:13px;padding:2px 10px;border-radius:99px;box-shadow:0 2px 0 rgba(0,0,0,.15)}
+  .body{padding:12px 16px 16px;display:flex;flex-direction:column;gap:4px;flex:1}
+  .name{font-weight:800;font-size:18px;color:var(--accent);line-height:1.35}
   .desc{color:var(--sub);font-size:14px}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
+  .tags span{font-size:12px;font-weight:700;background:var(--tag);color:var(--sub);border-radius:99px;padding:1px 9px}
 </style>
 </head>
 <body>
 <main>
   <h1>ゲームあつめ</h1>
-  <p class="lead">ブラウザで遊べるゲームの一覧です。</p>
+  <p class="lead">ブラウザで遊べるゲームの一覧です。あそびたい ゲームを えらんでね。</p>
   <ul id="games">
-    <li><a class="game" href="./kossori-treasure/"><div class="name">こっそりトレジャー</div><div class="desc">見つからずに宝物を集めて、億万長者をめざそう！</div></a></li>
-    <li><a class="game" href="./fuchan-town/"><div class="name">ふーちゃんのまち</div><div class="desc">4さいから。3Dの しまを あるいて 9つの エリアへ！ 46の アトラクションは あそぶ たびに おだいや ステージが かわるよ。ばばぬき・サイコロすごろく・3Dおにごっこ・えいごで おはなし も あるよ。もじの がっこうでは かきじゅんを みながら なぞれる！ コインや はなまるコインを ためると「わたしの おうち」が 50だんかいで どんどん ごうかに なっていくよ</div></a></li>
-    <li><a class="game" href="./futan-survivor/"><div class="name">キュアふーたん サバイバー</div><div class="desc">5さいから。へんしんした キュアふーたんが わらわら でてくる てきを やっつけて、レベルアップで わざを えらんで どんどん つよくなる！ 4つの ステージに ちゅうボスと ボス。あかちゃんの ようせい リッキーも なかまに なるよ</div></a></li>
-    <li><a class="game" href="./futan-stealth/"><div class="name">ふーたんの こっそりミッション</div><div class="desc">5さいから。ふーたんと あかちゃんの リッキーが、かべや くさむら・ダンボールに かくれながら みつからないように ゴールを めざす ステルスゲーム！ 5つの ステージ。みつかっても はたから すぐ やりなおせるよ</div></a></li>
-    <li><a class="game" href="./futan-block/"><div class="name">ふーたんと リッキーの ブロックパズル</div><div class="desc">ブロックを ばんに おいて、たて か よこの 1れつを そろえると きえるよ！ いっぺんに たくさん けしたり コンボを つなげると てんすう アップ。ふーたんと あかちゃんの リッキーが よろこんでくれて、おおきな コンボで キュアふーたんに へんしん！</div></a></li>
+    <li><a class="game" href="./futan-kart/">
+      <div class="thumb"><img src="./thumbs/futan-kart.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
+      <div class="body"><div class="name">キュアふーたんの キラキラカート</div><div class="desc">キュアふーたんと リッキーが 3Dの カートで レース！ アイテムを なげたり、スターで むてきに なったり。4つの コースを はしろう</div><div class="tags"><span>5さい〜</span><span>3D レース</span><span>タブレット</span></div></div>
+    </a></li>
+    <li><a class="game" href="./futan-block/">
+      <div class="thumb"><img src="./thumbs/futan-block.jpg" alt="" width="800" height="500" loading="lazy"></div>
+      <div class="body"><div class="name">ふーたんと リッキーの ブロックパズル</div><div class="desc">ブロックを おいて たて・よこ 1れつ そろえると きえるよ。コンボで キュアふーたんに へんしん！</div><div class="tags"><span>パズル</span></div></div>
+    </a></li>
+    <li><a class="game" href="./futan-stealth/">
+      <div class="thumb"><img src="./thumbs/futan-stealth.jpg" alt="" width="800" height="500" loading="lazy"></div>
+      <div class="body"><div class="name">ふーたんの こっそりミッション</div><div class="desc">かべや くさむらに かくれながら、みつからないように ゴールを めざす ステルスゲーム</div><div class="tags"><span>5さい〜</span><span>ステルス</span></div></div>
+    </a></li>
+    <li><a class="game" href="./futan-survivor/">
+      <div class="thumb"><img src="./thumbs/futan-survivor.jpg" alt="" width="800" height="500" loading="lazy"></div>
+      <div class="body"><div class="name">キュアふーたん サバイバー</div><div class="desc">わらわら でてくる てきを やっつけて、レベルアップで わざを えらんで どんどん つよくなる！</div><div class="tags"><span>5さい〜</span><span>アクション</span></div></div>
+    </a></li>
+    <li><a class="game" href="./fuchan-town/">
+      <div class="thumb"><img src="./thumbs/fuchan-town.jpg" alt="" width="800" height="500" loading="lazy"></div>
+      <div class="body"><div class="name">ふーちゃんのまち</div><div class="desc">3Dの しまを おさんぽして、46の アトラクションで あそぼう。もじの れんしゅうや おうちづくりも！</div><div class="tags"><span>4さい〜</span><span>いろいろ</span><span>スマホ</span></div></div>
+    </a></li>
+    <li><a class="game" href="./kossori-treasure/">
+      <div class="thumb"><img src="./thumbs/kossori-treasure.jpg" alt="" width="800" height="500" loading="lazy"></div>
+      <div class="body"><div class="name">こっそりトレジャー</div><div class="desc">見つからずに宝物を集めて、億万長者をめざそう！</div><div class="tags"><span>ぼうけん</span></div></div>
+    </a></li>
   </ul>
 </main>
 </body>
