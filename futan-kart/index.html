@@ -472,7 +472,7 @@ const COURSES=[
    pts:[[0,-80],[0,60],[40,100],[100,80],[120,30],[170,20],[200,70],[250,60],[262,-20],[222,-72],[150,-60],[110,-112],[40,-122]],
    sky:['#2a1040','#b04a8a'],fog:'#5a2a6a',ground:'#4a3a6a',grass2:'#5a4a7a',road:'#c0a8d0',curb:['#ff4a78','#2a1a30'],light:[.55,.5],ai:.96,moya:4,dash:[.25,.5,.72,.92],land:'castle',stars:1},
 ];
-const HW=11,WALL=HW+8,LAPS=3,PMAX=30;
+const HW=11,WALL=HW+8,LAPS=3,PMAX=22;
 let TR=null;
 function buildTrackData(pts){const curve=new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(p[0],0,p[1])),true,'centripetal');
   const L=curve.getLength(),N=Math.round(L/2),sp=curve.getSpacedPoints(N),P=[],T=[],S=[];
@@ -684,11 +684,13 @@ function updKart(k,dt){const racing=state==='race'||state==='finish'||state==='r
       const turn=clamp(d*3,-tr,tr);k.h+=turn*dt;steer=clamp(-turn/tr,-1,1);
       if(k.isP&&BOT){k.useT+=dt;if(k.item&&k.roll<=0&&k.useT>1.2){k.useT=0;useItem();}}}
     else{steer=INPUT.steer;if(steer)k.h-=steer*tr*dt;
-      if(!steer||SAVE.easy){const d=angDiff(aimHeading(k,Math.round(8+k.v*.25),clamp(k.lat*.85,-HW*.6,HW*.6)),k.h);const str=(steer?.3:1.5)*(SAVE.easy?1:.3);k.h+=clamp(d*str,-tr,tr)*dt;}}}
+      // ハンドル ほじょ: てを はなしている ときだけ すこし。かんたんモードは はしに ちかづいたら もどす
+      const edge=SAVE.easy&&Math.abs(k.lat)>HW-1,str=Math.max(steer?0:(SAVE.easy?.4:.1),edge?.7:0);
+      if(str>0){const d=angDiff(aimHeading(k,Math.round(8+k.v*.25),clamp(k.lat*.85,-HW*.6,HW*.6)),k.h);k.h+=clamp(d*str,-tr*.6,tr*.6)*dt;}}}
   k.steerV+=(steer-k.steerV)*Math.min(1,dt*8);
   // speed
   const base=k.isP?PMAX*(1+k.coins*.01):PMAX*aiFactor(k);let tgt=base;const off=Math.abs(k.lat)>HW+.8,inv=k.star>0||k.rocket>0;
-  if(off&&!inv)tgt*=k.isP?(SAVE.easy?.8:.62):.75;
+  if(off&&!inv)tgt*=k.isP?(SAVE.easy?.7:.6):.75;
   if(k.boost>0)tgt=Math.max(tgt,base*1.45);if(k.star>0)tgt=base*1.28;if(k.rocket>0)tgt=PMAX*1.55;
   if(k.spin>0)tgt=base*.15;if(!racing)tgt=0;if(k.done&&k.isP)tgt=Math.min(tgt,PMAX*.6);
   k.v+=(tgt-k.v)*Math.min(1,dt*(tgt>k.v?(k.boost>0||inv?4:1.15):2.2));
@@ -705,7 +707,7 @@ function updKart(k,dt){const racing=state==='race'||state==='finish'||state==='r
   if(k.isP&&k.roll>0){k.roll-=dt;SFX.roll();if(k.roll<=0){k.item=k.rollItem;k.itemN=ITEMS[k.item].n||1;SFX.got();banner(ITEMS[k.item].ic+' '+ITEMS[k.item].name,'「なげる」を おしてね',null,1.3);say('ばぶ！',1,true);updItemBtn();}}}
 function aiFactor(k){const P=PL;let f=k.aiF;if(k.done)return f*.8;const gap=(k.dist+k.frac-P.dist-P.frac)*TR.seg;
   // じぶんとの さに おうじて あいての はやさを ほせい（まえに いすぎたら ゆっくり、うしろに いすぎたら はやく）
-  if(!P.done){const dz=12;if(gap>dz)f*=1-Math.min(SAVE.easy?.35:.25,(gap-dz)/(SAVE.easy?130:180));else if(gap<-dz)f*=1+Math.min(.35,(-gap-dz)/140);}return f;}
+  if(!P.done){const dz=12;if(gap>dz)f*=1-Math.min(SAVE.easy?.2:.12,(gap-dz)/(SAVE.easy?200:260));else if(gap<-dz)f*=1+Math.min(.35,(-gap-dz)/140);}return f;}
 function playerFinish(){const P=PL;state='finish';RACE.ft=0;P.item=null;P.roll=0;updItemBtn();BGM.on=false;SFX.clear();
   banner('ゴール！',P.fin+'い！',P.fin===1?'#ffb000':'#ff4f9a',3);say(P.fin<=3?'やったね！':'がんばったね！',3,true);
   const b=SAVE.best[CI];if(!b||P.fin<b)SAVE.best[CI]=P.fin;save();
