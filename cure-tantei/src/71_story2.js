@@ -1,5 +1,5 @@
-// ================= だい2ぶ：おばけの おうさま モヤモヤン（じけん 9〜11） =================
-Object.assign(NPC,{zouB:{kind:'elephant',name:'ふうせんやの ぞうさん',acc:['cap:#ff6f91'],vo:[.85,.95]}});
+// ================= だい2ぶ：おばけの おうさま モヤモヤン（じけん 9〜16） =================
+Object.assign(NPC,{zouB:{kind:'elephant',name:'ふうせんやの ぞうさん',acc:['cap:#ff6f91'],vo:[.85,.95]},usaQ:{kind:'rabbit',name:'うさぎの じょおう',acc:['crown'],vo:[1.6,1]},fukuL:{kind:'owl',name:'としょかんの フクロウ',acc:['glasses'],vo:[.95,.95]},obake:{kind:'ghost',name:'おばけの オバケン',bow:'#ff8cc6',vo:[1.5,1.1]}});
 CHAPTERS.push(
 // ---------------- 9 ----------------
 {title:'ゆうえんちの ふうせん どろぼう',icon:'balloon',bg:'fair',part:2,steps:[
@@ -45,9 +45,53 @@ CHAPTERS.push(
     ['narr','モヤモヤンは もやもやの なかに きえていった。',{out:'moya'}],
     ['fu','モヤモヤン… なんだか さみしそうな め だったね',{emo:'think'}],
     ['narr','ふうせんの なかから きらきら ひかる スターが でてきた！',{show:'smilestar'}],
-    ['rk','えがおの スター だって！ みんなが わらうと ひかるんだよ！',{emo:'happy'}]]},
+    ['rk','えがおの スター だって！ みんなが わらうと ひかるんだよ！',{emo:'happy'}],
+    ['kuro','8こ あつめると、ふしぎな ことが おきるらしいニャ！']]},
 ]},
 // ---------------- 10 ----------------
+{title:'もりの ホタルが きえた',icon:'firefly',bg:'forest',part:2,steps:[
+  {t:'talk',bg:'office',cast:['fu','rk'],flag:{lit:false},lines:[
+    ['narr','ジリリリン！',{fx:'ring'}],
+    ['kuma','もりの くまです… よるに ひかる ホタルが ぜんぶ いなくなって、もりが まっくらなんです'],
+    ['fu','ホタルが！？ もりへ しゅっぱつ！'],
+    ['kuro','くらいのは へっちゃら ニャ！ ねこの めは よく みえるニャ！',{in:'kuro',emo:'happy'}]]},
+  {t:'talk',bg:'forest',cast:['fu','rk','kuma','kuro'],set:{kuro:'happy'},lines:[
+    ['kuma','きのうまで キラキラ ひかって きれいだったのに…',{emo:'sad'}],
+    ['fu','だいじょうぶ！ ホタルを さがそう！'],
+    ['rk','むしめがね、しゅつどう！',{show:'lens'}]]},
+  {t:'search',bg:'forest',clues:[['fog','つめたい もやもや'],['acorn','かじった どんぐり'],['mushroom','はいいろの きのこ']]},
+  {t:'quiz',bg:'forest',rounds:[
+    {q:'「bear」は どれ？',say:[['bear','en'],['は どれかな？','ja']],top:{listen:true},ans:'a:bear',wrong:['a:rabbit','a:fox'],ok:'bear は くま！',okEn:'bear'},
+    {q:'「owl」は どれ？',say:[['owl','en'],['は どれかな？','ja']],top:{listen:true},ans:'a:owl',wrong:['a:chick','a:mouse'],ok:'owl は ふくろう！',okEn:'owl'},
+    {q:'「mushroom」は どれ？',say:[['mushroom','en'],['は どれかな？','ja']],top:{listen:true},ans:'mushroom',wrong:['acorn','leaf'],ok:'mushroom は きのこ！',okEn:'mushroom'}]},
+  {t:'talk',bg:'forest',cast:['fu','rk','kuma'],lines:[
+    ['kuma','いたたた… くらくて、とげの ある えだを さわっちゃったクマ',{emo:'sick'}],
+    ['fu','しんさつ しよう！']]},
+  {t:'doctor',bg:'forest',pt:'kuma',say:'てが チクチク いたいクマ…',
+    tools:{thermo:36.5,steth:'normal',light:'ok',xray:'ok',lens:'thorn'},need:['lens'],
+    diag:{ans:'thorn',wrong:['cold','tooth'],ok:'とげが ささってたんだね。 ぬいてあげよう！'},
+    treat:[{t:'thorn',n:3}],end:'いたくなくなったクマ！ ありがとう、せんせい！'},
+  {t:'talk',bg:'forest',cast:['fu','rk','kuma'],lines:[
+    ['kuma','そういえば、はいいろの きのこが ホタルを すいこんでたクマ！'],
+    ['rk','ホタルを ひかりの みちで よびもどそう！']]},
+  {t:'dots',bg:'forest',shape:'heart',n:10,reveal:'firefly',ins:'ホタルを 1から 10まで じゅんばんに つないで、ひかりの みちを つくろう！',done:'ハートの ひかりの みちが できた！'},
+  {t:'talk',bg:'forest',cast:['fu','rk','kuro'],set:{kuro:'happy'},lines:[
+    ['moya','モヤ〜ン！ ホタルの ひかりは ぼくが もらったモヤ！',{in:'moya',fx:'dark'}],
+    ['moya','くらい ほうが おばけは おちつくモヤ〜'],
+    ['fu','でも もりの みんなは こまってるよ！'],
+    ['moya','しらないモヤ！ きのこモンスター、いけ〜！',{fx:'dark'}],
+    ['kuro','ふーちゃん、へんしんニャ！']]},
+  {t:'battle',mon:{kind:'mushroom',name:'きのこモンスター',col:'#b86af0'},lv:2,chances:['count','shape'],fin:'star',item:'firefly',ally:'kuro'},
+  {t:'talk',bg:'forest',cure:true,flag:{lit:true},cast:['fu','rk','kuma','moya'],lines:[
+    ['narr','ホタルが もりいっぱいに ひかった！',{fx:'confetti'}],
+    ['kuma','きれいだクマ〜！ ありがとう！',{emo:'happy'}],
+    ['moya','…きれいモヤ。 でも ぼくは ひとりで みるモヤ…',{emo:'sad'}],
+    ['narr','モヤモヤンは そっと きえていった。',{out:'moya'}],
+    ['fu','モヤモヤン、ひかりを みて ちょっと わらってた…',{emo:'think'}],
+    ['narr','ホタルの ひかりが あつまって、えがおの スターに なった！',{show:'smilestar'}],
+    ['rk','えがおの スター 2こめ！',{emo:'happy'}]]},
+]},
+// ---------------- 11 ----------------
 {title:'ゆきやまの こおりの ゆきだるま',icon:'snowflake',bg:'snow',part:2,steps:[
   {t:'talk',bg:'office',cast:['fu','rk'],lines:[
     ['narr','ジリリリン！',{fx:'ring'}],
@@ -88,12 +132,166 @@ CHAPTERS.push(
     ['witch','あの こ… むかしの わたしと おなじ。 ひとりぼっち なのかも しれないわ',{in:'witch',emo:'kind'}],
     ['fu','こんどは モヤモヤンと ともだちに なろう！',{emo:'happy'}],
     ['narr','ゆきだるまの マフラーから えがおの スターが！',{show:'smilestar'}],
-    ['rk','えがおの スター 2こめ！']]},
+    ['rk','えがおの スター 3こめ！']]},
 ]},
-// ---------------- 11 ----------------
+// ---------------- 12 ----------------
+{title:'おかしの くにの パーティー',icon:'jelly',bg:'sweets',part:2,steps:[
+  {t:'talk',bg:'office',cast:['fu','rk'],flag:{grey:true},lines:[
+    ['narr','ジリリリン！',{fx:'ring'}],
+    ['usaQ','おかしの くにの じょおうです！ パーティーの おかしが ぜんぶ はいいろに なっちゃったの！'],
+    ['fu','おかしが はいいろ！？ たいへん！'],
+    ['rk','おかし たべたい！ ばぶー！',{emo:'happy'}]]},
+  {t:'talk',bg:'sweets',cast:['fu','rk','usaQ'],lines:[
+    ['usaQ','これじゃ パーティーが できないわ…',{emo:'sad'}],
+    ['fu','まかせて！ たんていと おいしゃさんで かいけつ するよ！']]},
+  {t:'memory',bg:'sweets',pairs:['cake','candy','donut','icecream','cookie','strawberry'],ins:'おかしの カードを めくって、おなじ えを 2まい そろえよう！',done:'ぜんぶ そろった！ おかしの なまえ、えいごで いえたね！'},
+  {t:'talk',bg:'sweets',doc:true,cast:['fu','rk','usa'],lines:[
+    ['usa','は、はが いたい〜！',{emo:'sick'}],
+    ['fu','うさぎさん！ すぐ しんさつ するね']]},
+  {t:'doctor',bg:'sweets',pt:'usa',say:'はいいろの あめを なめたら、はが ズキズキ…',
+    tools:{thermo:36.6,steth:'normal',light:'tooth',xray:'ok',lens:'ok'},need:['light'],
+    diag:{ans:'tooth',wrong:['cold','thorn'],ok:'むしばだね。 はみがき しよう！'},
+    treat:[{t:'rub',area:'mouth'},{t:'med',col:'pink'}],end:'ピカピカ！ ありがとう、せんせい！'},
+  {t:'talk',bg:'sweets',cast:['fu','rk','usa'],lines:[
+    ['usa','あめを くれたのは、はいいろの おばけ だったの'],
+    ['fu','やっぱり モヤモヤン…',{emo:'think'}],
+    ['rk','おかしの くらに なにか ありそう！ でも その まえに、かずの おべんきょう！']]},
+  {t:'quiz',bg:'sweets',rounds:[
+    {q:'キャンディが 3こ と 2こ。 ぜんぶで いくつ？',top:{add:[3,2,'candy']},ans:'n:5',wrong:['n:4','n:6'],ok:'3 たす 2 は 5！',okEn:'five'},
+    {q:'クッキーが 4こ と 3こ。 ぜんぶで いくつ？',top:{add:[4,3,'cookie']},ans:'n:7',wrong:['n:6','n:8'],ok:'4 たす 3 は 7！',okEn:'seven'},
+    {q:'いちごが 5こ と 1こ。 ぜんぶで いくつ？',top:{add:[5,1,'strawberry']},ans:'n:6',wrong:['n:5','n:7'],ok:'5 たす 1 は 6！',okEn:'six'}]},
+  {t:'lock',bg:'sweets',hints:[['candy',3],['cookie',5],['donut',2]],box:'chest',ins:'おかしの くらの ばんごう！ えの かずを かぞえて あわせよう',done:'カチャッ！ おかしの くらが あいた！'},
+  {t:'talk',bg:'sweets',cast:['fu','rk','witch'],set:{witch:'kind'},lines:[
+    ['moya','モヤ〜ン… ぼくも パーティー… じゃなくて！ おかしは ぜんぶ はいいろで いいモヤ！',{in:'moya',fx:'shake'}],
+    ['rk','いま、パーティーって いった！'],
+    ['moya','い、いってないモヤ！ ゼリーモンスター！',{fx:'dark'}],
+    ['witch','ふーちゃん、いきましょう！',{in:'witch',emo:'kind'}]]},
+  {t:'battle',mon:{kind:'jelly',name:'ゼリーモンスター',col:'#6ae0c8'},lv:2,chances:['add','color'],fin:'circle',item:'cake',ally:'witch'},
+  {t:'talk',bg:'sweets',cure:true,flag:{grey:false},cast:['fu','rk','usaQ','witch'],set:{witch:'kind'},lines:[
+    ['narr','おかしに いろが もどった！',{fx:'confetti'}],
+    ['usaQ','ありがとう！ パーティーを はじめましょう！',{emo:'happy'}],
+    ['fu','モヤモヤンも よんで あげたかったな…',{emo:'think'}],
+    ['witch','あの こ、パーティーって いってたわね。 ほんとは さみしいのよ'],
+    ['narr','パーティーの ケーキの うえで えがおの スターが ひかった！',{show:'smilestar'}],
+    ['rk','えがおの スター 4こめ！',{emo:'happy'}]]},
+]},
+// ---------------- 13 ----------------
+{title:'としょかんの きえた えほん',icon:'book',bg:'library',part:2,steps:[
+  {t:'talk',bg:'office',cast:['fu','rk'],flag:{read:false},lines:[
+    ['narr','ジリリリン！',{fx:'ring'}],
+    ['fukuL','としょかんの フクロウだホー。 えほんの えが もやもやで みえなくなって しまったホー'],
+    ['fu','えほんが よめないなんて かなしい！ すぐ いくね！']]},
+  {t:'talk',bg:'library',cast:['fu','rk','fukuL','kuro'],set:{kuro:'happy'},lines:[
+    ['fukuL','ほら、この えほんも… まっしろだホー',{emo:'sad'}],
+    ['kuro','もやもやを はらうには、ことばの まほうが いるニャ！',{in:'kuro'}],
+    ['fu','よーし、まほうの ことばを さがそう！']]},
+  {t:'abc',bg:'library',word:'BOOK',pic:'book',say:'えほんの まほうの ことば！ この じゅんばんで タッチ',done:'ほん！ いっさつめの えほんが もどった！'},
+  {t:'diff',bg:'library',sky:'#f4e4c8',ground:'#c8905a',ins:'きのうの としょかんの しゃしんと くらべて、ちがう ところを 3つ さがそう！',
+    pic:[['book',50,60,1],['book',95,60,1],['book',140,60,1],['clock',262,52,1],['a:owl',80,152,1.2],['apple',160,108,.8],['pencil',185,162,1],['glasses',250,162,1],['flower',300,172,.8]],
+    diffs:[[1,'gone'],[3,'star'],[6,'key']],done:'ぜんぶ みつけた！ おおきな かぎが おちてる…！'},
+  {t:'quiz',bg:'library',rounds:[
+    {q:'えほんに うつった かげ… これは だれ？',top:{icon:'ghost',sil:true,s:3.2},ans:'ghost',wrong:['a:cat','a:chick'],ok:'モヤモヤンの かげだ！',labels:{'ghost':'おばけ','a:cat':'ねこさん','a:chick':'ひよこちゃん'}}]},
+  {t:'search',bg:'library',clues:[['fog','もやもや'],['letter','はいいろの てがみ'],['crown','おうかんの かけら']]},
+  {t:'talk',bg:'library',cast:['fu','rk','kuro'],set:{kuro:'happy'},lines:[
+    ['fu','てがみに なにか かいてある… 「ぼくと あそんで」…',{show:'letter'}],
+    ['rk','モヤモヤンの じ だ！'],
+    ['moya','み、みちゃ だめモヤ〜！',{in:'moya',fx:'shake'}],
+    ['moya','えほんモンスター！ ぜんぶ もやもやに するモヤ！',{fx:'dark'}]]},
+  {t:'battle',mon:{kind:'book',name:'えほんモンスター',col:'#5aa8ff'},lv:3,chances:['letter','word'],fin:'rainbow',item:'book',ally:'kuro'},
+  {t:'talk',bg:'library',cure:true,flag:{read:true},cast:['fu','rk','fukuL','moya'],lines:[
+    ['narr','えほんに えが もどった！',{fx:'confetti'}],
+    ['fukuL','ありがとうだホー！ みんなで よめるホー！',{emo:'happy'}],
+    ['moya','えほんの おばけは いつも ひとりぼっち… ぼくと おなじモヤ',{emo:'sad'}],
+    ['narr','モヤモヤンは もやもやの なかに きえた。',{out:'moya'}],
+    ['fu','モヤモヤンは ひとりぼっちじゃないよ。 きっと つたえよう！'],
+    ['narr','えほんの さいごの ページに、えがおの スター！',{show:'smilestar'}],
+    ['rk','えがおの スター 5こめ！',{emo:'happy'}]]},
+]},
+// ---------------- 14 ----------------
+{title:'なつまつりの きえた はなび',icon:'firework',bg:'matsuri',part:2,steps:[
+  {t:'talk',bg:'office',cast:['fu','rk'],flag:{hanabi:false},lines:[
+    ['narr','ジリリリン！',{fx:'ring'}],
+    ['kitsune','おまつりの きつねです！ はなびが ぜんぶ しけって、うちあがらないの！'],
+    ['fu','はなび みたい！ おまつりへ いこう！',{emo:'happy'}]]},
+  {t:'talk',bg:'matsuri',cast:['fu','rk','kitsune'],lines:[
+    ['kitsune','もやもやで はなびが しめっちゃったの…',{emo:'sad'}],
+    ['rk','やたいで てがかりを さがそう！']]},
+  {t:'search',bg:'matsuri',clues:[['fog','しめった もやもや'],['lantern','きえた ちょうちん'],['candy','おちてた あめ']]},
+  {t:'count',bg:'matsuri',icon:'lantern',n:9,ins:'ちょうちんが いくつ あるかな？ タッチして かぞえよう'},
+  {t:'talk',bg:'matsuri',doc:true,cast:['fu','rk','lion'],lines:[
+    ['lion','きんぎょすくいで ころんじゃったガオ…',{emo:'sick'}],
+    ['fu','ライオンくん！ てあて しよう！']]},
+  {t:'doctor',bg:'matsuri',pt:'lion',say:'ひざが ヒリヒリ いたいガオ…',
+    tools:{thermo:36.5,steth:'normal',light:'ok',xray:'ok',lens:'scrape'},need:['lens'],
+    diag:{ans:'scrape',wrong:['tooth','dizzy'],ok:'すりきずだね。 ばんそうこうを はろう！'},
+    treat:[{t:'band',n:4}],end:'もう いたくないガオ！ ありがとう！'},
+  {t:'quiz',bg:'matsuri',rounds:[
+    {q:'つぎに くるのは どれ？',top:{row:['firework','lantern','firework','lantern','firework','?']},ans:'lantern',wrong:['candy','star'],ok:'はなび、ちょうちん、の じゅんばん！'},
+    {q:'つぎに くるのは どれ？',top:{row:['star','star','heart','star','star','?']},ans:'heart',wrong:['star','moon'],ok:'ほし、ほし、ハート の じゅんばん！'}]},
+  {t:'talk',bg:'matsuri',cast:['fu','rk'],lines:[
+    ['moya','モヤ〜ン！ はなびの おと、こわいモヤ… だから しめらせたモヤ！',{in:'moya',fx:'shake'}],
+    ['fu','こわかったの？'],
+    ['moya','こ、こわくないモヤ！ つかまえられるなら つかまえてみるモヤ〜！',{out:'moya'}]]},
+  {t:'chase',bg:'matsuri',target:'moya',len:24},
+  {t:'talk',bg:'matsuri',cast:['fu','rk','kuro','witch','moya'],set:{kuro:'happy',witch:'kind'},lines:[
+    ['moya','はぁ はぁ… ちょうちんモンスター！',{fx:'dark'}],
+    ['kuro','ぼくたちも いるニャ！'],
+    ['witch','みんなで いくわよ！']]},
+  {t:'battle',mon:{kind:'lantern',name:'ちょうちんモンスター',col:'#ff5a4a'},lv:3,chances:['num','shape'],fin:'heart',item:'firework',ally:['kuro','witch']},
+  {t:'talk',bg:'matsuri',cure:true,flag:{hanabi:true},cast:['fu','rk','kitsune','moya'],lines:[
+    ['narr','ドーン！ よぞらに おおきな はなび！',{fx:'confetti'}],
+    ['moya','わぁ… きれいモヤ…',{emo:'kind'}],
+    ['fu','ね、こわくないでしょ？ いっしょに みよう！'],
+    ['moya','でも… ぼくは わるい おばけモヤ…',{emo:'sad'}],
+    ['narr','モヤモヤンは よぞらへ きえていった。',{out:'moya'}],
+    ['narr','さいごの はなびが、えがおの スターに なった！',{show:'smilestar'}],
+    ['rk','えがおの スター 6こめ！',{emo:'happy'}]]},
+]},
+// ---------------- 15 ----------------
+{title:'おばけやしきの ひみつ',icon:'pumpkin',bg:'haunted',part:2,steps:[
+  {t:'talk',bg:'office',cast:['fu','rk','witch','kuro'],set:{witch:'kind',kuro:'happy'},lines:[
+    ['narr','モヤモヤンの ことが きになる ふーちゃんたち。'],
+    ['witch','モヤモヤンの ふるさと、「おばけやしき」を しらべてみましょう'],
+    ['kuro','おばけやしき… ちょ、ちょっと こわいニャ…',{emo:'sad'}],
+    ['fu','みんな いっしょなら だいじょうぶ！',{emo:'happy'}]]},
+  {t:'talk',bg:'haunted',cast:['fu','rk','obake'],lines:[
+    ['narr','ギィィ… とびらが ひらいた。'],
+    ['obake','あっ、にんげんの こだオバ！ いらっしゃいオバ〜',{fx:'sparkle'}],
+    ['fu','こんにちは！ モヤモヤンを しってる？'],
+    ['obake','モヤモヤンは むかし、おばけの みんなと あそんでたオバ。 でも かくれんぼで ずっと みつけて もらえなくて… それから ひとりぼっちオバ'],
+    ['rk','ずっと かくれてたの…？']]},
+  {t:'search',bg:'haunted',clues:[['pumpkin','かぼちゃの ランタン'],['letter','ふるい てがみ'],['ghost','おばけの らくがき']]},
+  {t:'diff',bg:'haunted',sky:'#5a4a7a',ground:'#3a4a3a',ins:'おばけやしきの えを くらべて、ちがう ところを 4つ さがそう！',
+    pic:[['moon',280,45,1],['star',60,40,.8],['star',150,55,.7],['ghost',90,110,1],['pumpkin',60,165,1.1],['pumpkin',270,165,1.1],['bell',200,120,.8],['lantern',170,170,.9],['mushroom',320,178,.7]],
+    diffs:[[2,'gone'],[3,'smilestar'],[5,'apple'],[6,'heart']],done:'ぜんぶ みつけた！ たんていの め、さすが！'},
+  {t:'talk',bg:'haunted',doc:true,cast:['fu','rk','nezumi'],lines:[
+    ['nezumi','おなかが へんなの… なにか のみこんじゃった かも…',{emo:'sick'}],
+    ['fu','しんさつ しよう！']]},
+  {t:'doctor',bg:'haunted',pt:'nezumi',say:'おなかが グルグル… なにか はいってるみたい',sick:true,
+    tools:{thermo:36.7,steth:'guru',light:'ok',xray:'key',lens:'ok'},need:['steth','xray'],
+    diag:{ans:'swallow',wrong:['cold','scrape'],ok:'かぎを のみこんじゃったんだね！'},
+    treat:[{t:'rub',area:'belly',item:'key'},{t:'med',col:'yellow'}],end:'すっきり！ その かぎ、やねうらの かぎ だよ！'},
+  {t:'lock',bg:'haunted',hints:[['pumpkin',2],['ghost',3],['star',7]],box:'chest',ins:'やねうらの たからばこ！ えの かずを かぞえて ばんごうを あわせよう',done:'パカッ！ なかには ふるい しゃしんが…'},
+  {t:'talk',bg:'haunted',cast:['fu','rk','kuro','witch'],set:{kuro:'happy',witch:'kind'},lines:[
+    ['narr','しゃしんには、おばけの みんなと わらう モヤモヤンが うつっていた。',{show:'heart'}],
+    ['fu','モヤモヤン、ほんとは わらうのが だいすき なんだ！'],
+    ['moya','み、みたモヤね…！ かえすモヤ！',{in:'moya',fx:'dark'}],
+    ['moya','かぼちゃモンスター！',{fx:'boom'}],
+    ['kuro','くるニャ！ みんなで いくニャ！']]},
+  {t:'battle',mon:{kind:'pumpkin',name:'かぼちゃモンスター',col:'#ff9a2a'},lv:3,chances:['letter','add','count'],fin:'moon',item:'heart',ally:['kuro','witch']},
+  {t:'talk',bg:'haunted',cure:true,cast:['fu','rk','obake','moya'],lines:[
+    ['moya','ぼくの ことなんて… だれも さがして くれなかったモヤ…',{emo:'sad'}],
+    ['obake','ちがうオバ！ みんな ずっと さがしてたオバ！'],
+    ['moya','え……？'],
+    ['narr','モヤモヤンは なきながら、くもの うえへ とんでいった。',{out:'moya'}],
+    ['fu','こんどは わたしたちが、モヤモヤンを みつけに いこう！',{emo:'happy'}],
+    ['narr','しゃしんが ひかって、えがおの スターが あらわれた！',{show:'smilestar'}],
+    ['rk','えがおの スター 7こめ！ あと ひとつ！',{emo:'happy'}]]},
+]},
+// ---------------- 16 ----------------
 {title:'くもの うえの モヤモヤじょう',icon:'ghost',bg:'sky',part:2,steps:[
   {t:'talk',bg:'sky',flag:{clear:false},cast:['fu','rk','kuro','witch'],set:{witch:'kind',kuro:'happy'},lines:[
-    ['narr','2この えがおの スターが ひかって、くもの うえへの みちが できた！',{fx:'sparkle'}],
+    ['narr','7この えがおの スターが ひかって、くもの うえへの みちが できた！',{fx:'sparkle'}],
     ['kuro','あれが モヤモヤじょう ニャ！'],
     ['witch','まちの もやもやは、ぜんぶ あそこから でているわ'],
     ['fu','みんなで いこう！ モヤモヤンに あいに！']]},
@@ -125,13 +323,15 @@ CHAPTERS.push(
     ['fu','いっしょに あそぼう！ きょうから ともだち だよ！',{emo:'happy'}],
     ['rk','ばぶー！ おばけの ともだち！',{emo:'happy'}],
     ['kuro','なかまが ふえたニャ！',{in:'kuro',emo:'happy'}],
-    ['narr','3この えがおの スターが そろって、まちじゅうに えがおが ひろがった！',{show:'smilestar'}]]},
+    ['obake','モヤモヤン、みーつけた！ だオバ！'],
+    ['moya','…みんな… みつけて くれて ありがとうモヤ！',{emo:'kind'}],
+    ['narr','8この えがおの スターが そろって、まちじゅうに えがおが ひろがった！',{show:'smilestar'}]]},
   {t:'talk',bg:'fair',cure:true,cast:['fu','rk','moya','kuro','witch'],set:{witch:'kind',kuro:'happy',moya:'kind'},lines:[
     ['narr','ゆうえんちで、みんなの えがお パーティー！',{fx:'confetti'}],
     ['moya','ふうせん、みんなに かえすモヤ！ いっしょに かんらんしゃ のるモヤ！'],
     ['witch','ふふ、ひとりぼっちより、みんなと いっしょが いちばんね'],
     ['fu','これからも まちの じけんは、キュアたんてい ふーちゃんに おまかせ！',{emo:'happy'}]]},
   {t:'credits',say:'キュアたんてい ふーちゃん だい2ぶ、おしまい！ あそんでくれて ありがとう！',end:'だい2ぶ おしまい',
-    list:[['fu','ふーちゃん'],['rk','リッキー'],['moya','モヤモヤン'],['kuro','クロニャン'],['witch','ドロドロン'],['zouB',''],['hiyoko',''],['pen',''],['hitsuji','']]},
+    list:[['fu','ふーちゃん'],['rk','リッキー'],['moya','モヤモヤン'],['kuro','クロニャン'],['witch','ドロドロン'],['obake',''],['zouB',''],['kuma',''],['hiyoko',''],['pen',''],['usaQ',''],['fukuL',''],['kitsune',''],['lion',''],['nezumi',''],['hitsuji','']]},
 ]},
 );

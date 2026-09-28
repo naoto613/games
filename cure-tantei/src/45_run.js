@@ -30,7 +30,7 @@ function drawCast(c,id,x,y,o={}){const t=T+(o.seed||0);
   else if(id==='kuro'){drawKuro.talk=o.talk;drawKuro(c,x,y,1.2,t,o.emo||'');drawKuro.talk=false;}
   else if(id==='witch')drawWitch(c,x,y,1.5,t,{kind:o.emo==='kind'});
   else if(id==='moya')drawGhost(c,x,y,1.3,t,{kind:o.emo==='kind'||o.emo==='happy',sad:o.emo==='sad',talk:o.talk});
-  else{const n=NPC[id];if(n)drawAnimal(c,n.kind,x,y,1.15,{t,talk:o.talk,acc:n.acc,happy:o.emo==='happy',sad:o.emo==='sad',sick:o.emo==='sick',sleep:o.emo==='sleep'});}}
+  else{const n=NPC[id];if(n&&n.kind==='ghost')drawGhost(c,x,y,.95,t,{kind:1,nocrown:1,bow:n.bow,talk:o.talk});else if(n)drawAnimal(c,n.kind,x,y,1.15,{t,talk:o.talk,acc:n.acc,happy:o.emo==='happy',sad:o.emo==='sad',sick:o.emo==='sick',sleep:o.emo==='sleep'});}}
 const RUN={steps:[],i:0,onEnd:null,ci:-1,flags:{},mode:'story',doc:false,cure:false};
 function runSteps(steps,onEnd,opt={}){RUN.steps=steps;RUN.i=opt.start||0;RUN.onEnd=onEnd;RUN.ci=opt.ci??-1;RUN.flags=Object.assign({},opt.flags||{});RUN.mode=opt.mode||'story';startStep();}
 function startStep(){const d=RUN.steps[RUN.i];if(RUN.ci>=0&&d.t!=='battle'){SAVE.cp={ci:RUN.ci,i:RUN.i,flags:RUN.flags};save();}go(mkStep(d));}

@@ -54,7 +54,7 @@ function drawHand(c,x,y){const b=Math.sin(T*8)*6;c.save();c.translate(x+8,y+14+b
   rr(c,-5,-26,10,24,5);c.fill();c.stroke();rr(c,-12,-6,26,24,9);c.fill();c.stroke();c.beginPath();c.moveTo(-2,-2);c.lineTo(-2,6);c.moveTo(4,-2);c.lineTo(4,6);c.stroke();c.restore();
   c.strokeStyle='rgba(255,255,255,.8)';c.lineWidth=3;c.beginPath();c.arc(x,y,14+((T*2)%1)*16,0,TAU);c.stroke();}
 // ---------- transition ----------
-function go(next){if(TR)return;if(scene!==SCN.title)hush();TR={t:0,next,sw:false};}
-function updTR(dt){if(!TR)return;TR.t+=dt;if(!TR.sw&&TR.t>=.32){TR.sw=true;scene=TR.next;INS=null;CARD=null;IDLE=0;PARTS.length=0;scene.enter&&scene.enter();}if(TR.t>=.64)TR=null;}
+function go(next){if(TR){if(TR.sw)TR.queue=next;else TR.next=next;return;}if(scene!==SCN.title)hush();TR={t:0,next,sw:false};}
+function updTR(dt){if(!TR)return;TR.t+=dt;if(!TR.sw&&TR.t>=.32){TR.sw=true;scene=TR.next;INS=null;CARD=null;IDLE=0;PARTS.length=0;scene.enter&&scene.enter();}if(TR.t>=.64){const q=TR.queue;TR=null;if(q)go(q);}}
 function drawTR(c){if(!TR)return;const k=TR.t<.32?TR.t/.32:1-(TR.t-.32)/.32;c.globalAlpha=clamp(k*1.2,0,1);c.fillStyle='#ffc0e0';c.fillRect(VX0-10,VY0-10,VX1-VX0+20,VY1-VY0+20);
   c.fillStyle='#fff';for(let i=0;i<8;i++){const a=i/8*TAU+T*2;heartP(c,200+Math.cos(a)*80*k,360+Math.sin(a)*80*k,16*k);c.fill();}c.globalAlpha=1;}
