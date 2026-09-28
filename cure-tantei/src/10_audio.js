@@ -1,9 +1,8 @@
 // ================= audio (sfx / original bgm / voice) =================
 let AC=null,MG=null,BGG=null,NOISE=null;
-let ttsUnlocked=false;
-function audioInit(){if(!ttsUnlocked&&'speechSynthesis' in window){ttsUnlocked=true;try{loadVoices();const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='ja-JP';speechSynthesis.speak(u);}catch(e){}}if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();MG=AC.createGain();MG.gain.value=.6;MG.connect(AC.destination);BGG=AC.createGain();BGG.gain.value=1;BGG.connect(MG);}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();}
-function tone(f,d,type='sine',v=.15,f2=0,when=0,dest){if(!AC||SAVE.mute)return;const t0=AC.currentTime+when,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t0);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t0+d);g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(v,t0+.01);g.gain.exponentialRampToValueAtTime(.001,t0+d);o.connect(g);g.connect(dest||MG);o.start(t0);o.stop(t0+d+.03);}
-function noise(d,v,f,when=0,dest,type='highpass'){if(!AC||SAVE.mute)return;if(!NOISE){NOISE=AC.createBuffer(1,AC.sampleRate*.5,AC.sampleRate);const a=NOISE.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;}
+function audioInit(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();MG=AC.createGain();MG.gain.value=.6;MG.connect(AC.destination);BGG=AC.createGain();BGG.gain.value=1;BGG.connect(MG);}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();}
+function tone(f,d,type='sine',v=.15,f2=0,when=0,dest){if(!AC)return;const t0=AC.currentTime+when,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t0);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t0+d);g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(v,t0+.01);g.gain.exponentialRampToValueAtTime(.001,t0+d);o.connect(g);g.connect(dest||MG);o.start(t0);o.stop(t0+d+.03);}
+function noise(d,v,f,when=0,dest,type='highpass'){if(!AC)return;if(!NOISE){NOISE=AC.createBuffer(1,AC.sampleRate*.5,AC.sampleRate);const a=NOISE.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;}
   const t0=AC.currentTime+when,src=AC.createBufferSource(),fl=AC.createBiquadFilter(),g=AC.createGain();src.buffer=NOISE;fl.type=type;fl.frequency.value=f;
   g.gain.setValueAtTime(v,t0);g.gain.exponentialRampToValueAtTime(.001,t0+d);src.connect(fl);fl.connect(g);g.connect(dest||MG);src.start(t0);src.stop(t0+d+.02);}
 const lastS={};function thr(k,ms){const n=performance.now();if(lastS[k]&&n-lastS[k]<ms)return false;lastS[k]=n;return true;}
@@ -67,7 +66,7 @@ const SONGS={
 const BGM={song:null,step:0,next:0};
 function bgm(name){if(BGM.song!==name){BGM.song=name;BGM.step=0;}}
 function bgmTick(){if(!AC||!BGG)return;const sp=speaking();BGG.gain.setTargetAtTime(sp?.35:1,AC.currentTime,.12);
-  if(SAVE.mute||!BGM.song||AC.state!=='running')return;const S=SONGS[BGM.song];if(!S)return;
+  if(!BGM.song||AC.state!=='running')return;const S=SONGS[BGM.song];if(!S)return;
   if(BGM.next<AC.currentTime)BGM.next=AC.currentTime+.05;
   while(BGM.next<AC.currentTime+.25){const spb=60/S.bpm/2,s=BGM.step%S.mel.length,ch=S.prog[(s>>3)%S.prog.length],when=BGM.next-AC.currentTime;
     if(s%4===0)tone(NOTE(ch[0]-24),spb*3,'triangle',.07,0,when,BGG);
@@ -76,33 +75,18 @@ function bgmTick(){if(!AC||!BGG)return;const sp=speaking();BGG.gain.setTargetAtT
     const n=S.mel[s];if(n!=null)tone(NOTE(n),spb*S.len,S.lead,S.vol,0,when,BGG);
     BGM.step++;BGM.next+=spb;}}
 // ---------- voice (speechSynthesis) ----------
-// ブラウザの よみあげ で セリフを しゃべる。キャラごとに こえの たかさ・はやさ・こえの しゅるいを かえる。
-const hasTTS='speechSynthesis' in window&&'SpeechSynthesisUtterance' in window;let JV=null,EV=null,JVM=null,JVS=[];
-function loadVoices(){if(!hasTTS)return;let v=[];try{v=speechSynthesis.getVoices()||[];}catch(e){}JVS=v.filter(x=>/^ja/i.test(x.lang));
-  const fem=/Kyoko|Nanami|Haruka|Ayumi|Mizuki|Sayaka|O-ren|Google 日本語|Female|女性/i,mal=/Otoya|Ichiro|Keita|Daichi|Hattori|Naoki|Male|男性/i;
-  JV=JVS.find(x=>fem.test(x.name)&&x.localService)||JVS.find(x=>fem.test(x.name))||JVS.find(x=>!mal.test(x.name))||JVS[0]||null;
-  JVM=JVS.find(x=>mal.test(x.name))||null;
-  EV=v.find(x=>/^en[-_]US/i.test(x.lang)&&/Samantha|Google US|Aria|Jenny|Female/i.test(x.name))||v.find(x=>/^en[-_]US/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null;}
-if(hasTTS){loadVoices();try{speechSynthesis.addEventListener?speechSynthesis.addEventListener('voiceschanged',loadVoices):speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}
-  // Chrome などで よみあげが とまったままに なるのを ふせぐ
-  setInterval(()=>{try{if(speechSynthesis.paused)speechSynthesis.resume();}catch(e){}},800);}
-const VO={fu:[1.45,1.05],rk:[1.95,1.12],kuro:[.85,1.05],witch:[.6,.92],narr:[1.15,1],en:[1.25,.82]};
-const SPK={gen:0,active:false,until:0,refs:[]};
-function speaking(){return SPK.active&&performance.now()<SPK.until;}
-function cleanTxt(t){return t.replace(/[「」『』☆★♪♡・…]/g,' ').replace(/〜/g,'ー').replace(/！+/g,'！').trim();}
-function mkUtt(text,lang,who){const u=new SpeechSynthesisUtterance(cleanTxt(text));u.lang=lang==='en'?'en-US':'ja-JP';
-  let v=lang==='en'?EV:JV;if(lang!=='en'&&(who==='kuro'||who==='witch')&&JVM)v=JVM;if(v)try{u.voice=v;}catch(e){}
-  const p=lang==='en'?VO.en:(VO[who]||(NPC[who]&&NPC[who].vo)||[1.25,1]);u.pitch=clamp(p[0],0,2);u.rate=p[1];u.volume=1;return u;}
-function speakList(list,who){if(SAVE.mute||!hasTTS||!list.length)return;const g=++SPK.gen;let busy=false;try{busy=speechSynthesis.speaking||speechSynthesis.pending;speechSynthesis.cancel();}catch(e){}
-  const chars=list.reduce((a,[t])=>a+t.length,0);SPK.active=true;SPK.until=performance.now()+chars*190+2500;
-  const go=()=>{if(g!==SPK.gen)return;SPK.refs=[];list.forEach(([t,l],i)=>{if(!t||!cleanTxt(t))return;try{const u=mkUtt(t,l,who);SPK.refs.push(u);
-      if(i===list.length-1)u.onend=u.onerror=()=>{if(g===SPK.gen)SPK.active=false;};speechSynthesis.speak(u);}catch(e){}});try{if(speechSynthesis.paused)speechSynthesis.resume();}catch(e){}};
-  // cancel の ちょくごに speak すると きえる ブラウザが あるので すこし まつ
-  if(busy)setTimeout(go,90);else go();}
-function speakOne(text,lang,who){speakList([[text,lang]],who);}
-function hush(){SPK.gen++;SPK.active=false;if(hasTTS)try{speechSynthesis.cancel();}catch(e){}}
+// ふーちゃんのまち と おなじ しくみで よみあげる（すぐに speak・さいしょの にほんご ボイス）。キャラごとに こえの たかさだけ かえる。
+const hasTTS='speechSynthesis' in window;let JV=null,EV=null;
+function loadVoices(){if(!hasTTS)return;const v=speechSynthesis.getVoices();JV=v.find(x=>/^ja/i.test(x.lang))||null;EV=v.find(x=>/^en[-_]US/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null;}
+if(hasTTS){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
+function speaking(){return hasTTS&&speechSynthesis.speaking;}
+const VO={fu:[1.4,1.02],rk:[1.7,1.05],kuro:[.85,1],witch:[.6,.92],narr:[1.2,1],en:[1.3,.8]};
+function speakOne(text,lang,who){if(!hasTTS||!text)return;try{const u=new SpeechSynthesisUtterance(text.replace(/[「」『』☆★♪♡・…]/g,' ').replace(/〜/g,'ー'));
+  u.lang=lang==='en'?'en-US':'ja-JP';const v=lang==='en'?EV:JV;if(v)u.voice=v;
+  const p=lang==='en'?VO.en:(VO[who]||(NPC[who]&&NPC[who].vo)||[1.3,1]);u.pitch=clamp(p[0],.5,1.8);u.rate=p[1];speechSynthesis.speak(u);}catch(e){}}
+function hush(){if(hasTTS)try{speechSynthesis.cancel();}catch(e){}}
 let LASTSAY=null;
 // say('にほんご', who, 'english')  /  say([['apple','en'],['は どれ？','ja']], who)
-function say(parts,who='fu',en){const list=typeof parts==='string'?[[parts,'ja']]:parts.map(p=>typeof p==='string'?[p,'ja']:p);if(en)list.push([en,'en']);
-  LASTSAY=[list,who];speakList(list,who);}
-function replay(){if(LASTSAY)speakList(LASTSAY[0],LASTSAY[1]);}
+function say(parts,who='fu',en){hush();const list=typeof parts==='string'?[[parts,'ja']]:parts.map(p=>typeof p==='string'?[p,'ja']:p);if(en)list.push([en,'en']);
+  LASTSAY=[list,who];for(const[t,l]of list)speakOne(t,l,who);}
+function replay(){if(LASTSAY){hush();for(const[t,l]of LASTSAY[0])speakOne(t,l,LASTSAY[1]);}}
