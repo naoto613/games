@@ -6,7 +6,7 @@ cv.addEventListener('pointerdown',e=>{audioInit();ttsUnlock();if(ptrId!==null&&p
   if(scene.isStep){if(inC(p.x,p.y,36,34,30)){sfx('tap');go(SCN.office);return;}if(inC(p.x,p.y,364,34,30)){sfx('tap');replay();return;}if(INS&&inR(p.x,p.y,200,106,372,76)){replay();return;}}
   if(scene.down)scene.down(p.x,p.y);});
 cv.addEventListener('pointermove',e=>{if(e.pointerId!==ptrId||TR||!scene)return;const p=toL(e);if(scene.move)scene.move(p.x,p.y);});
-const ptrUp=e=>{if(e.pointerId!==ptrId)return;ptrId=null;if(TR||!scene)return;const p=toL(e);if(scene.up)scene.up(p.x,p.y);};
+const ptrUp=e=>{ttsUnlockUp();if(e.pointerId!==ptrId)return;ptrId=null;if(TR||!scene)return;const p=toL(e);if(scene.up)scene.up(p.x,p.y);};
 cv.addEventListener('pointerup',ptrUp);cv.addEventListener('pointercancel',ptrUp);cv.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('visibilitychange',()=>{if(document.hidden){hush();if(AC)AC.suspend();}else if(AC)AC.resume();});
 let last=performance.now();
@@ -24,6 +24,9 @@ function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last
     drawCard(c);
     if(FLASH>0){c.globalAlpha=clamp(FLASH,0,1);c.fillStyle=FLASHCOL;c.fillRect(VX0-2,VY0-2,VX1-VX0+4,VY1-VY0+4);c.globalAlpha=1;}
     drawTR(c);
+    if(VDEBUG){c.fillStyle='rgba(0,0,0,.75)';c.fillRect(0,420,400,300);c.font='12px monospace';c.textAlign='left';c.textBaseline='top';c.fillStyle='#8f8';
+      const vs=hasTTS?speechSynthesis.getVoices():[];const L=['tts:'+hasTTS+' voices:'+vs.length+' ja:'+vs.filter(v=>/^ja/i.test(v.lang)).length,'JV:'+(JV?JV.name+' '+JV.lang+(JV.localService?' local':' net'):'none'),'EV:'+(EV?EV.name:'none'),'speaking:'+(hasTTS&&speechSynthesis.speaking)+' pending:'+(hasTTS&&speechSynthesis.pending)+' paused:'+(hasTTS&&speechSynthesis.paused)+' act:'+(navigator.userActivation?navigator.userActivation.hasBeenActive:'?'),...VLOG];
+      L.forEach((l,i)=>c.fillText(l,6,426+i*17));}
   }catch(err){if(!frame.e){frame.e=1;console.error(err);}}
 }
 scene=SCN.title;scene.enter();
