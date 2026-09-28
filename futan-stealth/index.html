@@ -608,7 +608,7 @@ function buildSelect(){const L=$('stageList');L.innerHTML='';STAGES.forEach((st,
   const ns=SAVE.stars[i];b.innerHTML=`<span class="em">${i>SAVE.cleared?'🔒':st.emoji}</span><span><b>${i+1}. ${st.name}</b><small>${['はじめての こっそり','いったり きたり','ダンボールで かくれんぼ','ねている てきに ちゅうい','さいごの ミッション'][i]}</small></span><span class="ok">${ns!=null?'⭐'.repeat(ns)+'☆'.repeat(3-ns):''}</span>`;
   b.onclick=()=>{audio();openTip(i);};L.appendChild(b);});}
 function openTip(i){G=null;const st=STAGES[i];$('tipArt').textContent=st.art;$('tipTitle').textContent=`ステージ${i+1}「${st.name}」`;$('tipText').innerHTML=st.tip;SI=i;state='tip';showOnly('tip');}
-function startStage(i){loadStage(i);state='play';showOnly(null);say(G.st.say,3);banner(`ステージ${i+1}`,G.st.name,'#3fb57a',1.8);}
+function startStage(i){loadStage(i);BGM.step=0;state='play';showOnly(null);say(G.st.say,3);banner(`ステージ${i+1}`,G.st.name,'#3fb57a',1.8);}
 function pauseGame(){if(state!=='play')return;state='pause';joy=null;showOnly('pause');}
 function resume(){if(state!=='pause')return;state='play';showOnly(null);}
 function showClear(){state='clear';const st=G.st,n=G.got;
@@ -636,7 +636,48 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseGame()
 refreshToggles();
 
 let last=performance.now();
-function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(state!=='pause')update(dt);render();requestAnimationFrame(loop);}
+// ================= BGM（このゲーム オリジナル） =================
+const BGM={on:false,step:0,next:0,song:0};
+const mel=t=>t.trim().split(/\s+/).map(x=>x==='.'?null:+x);
+let NOISE=null;
+function noise(d,v,f,when){if(!AC||MUTED())return;if(!NOISE){NOISE=AC.createBuffer(1,AC.sampleRate*.5,AC.sampleRate);const a=NOISE.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;}
+  const t0=AC.currentTime+when,src=AC.createBufferSource(),fl=AC.createBiquadFilter(),g=AC.createGain();src.buffer=NOISE;fl.type='highpass';fl.frequency.value=f;
+  g.gain.setValueAtTime(v,t0);g.gain.exponentialRampToValueAtTime(.001,t0+d);src.connect(fl);fl.connect(g);g.connect(OUT());src.start(t0);src.stop(t0+d+.02);}
+function bgmTick(){if(!AC||MUTED()||!BGM.on||AC.state!=='running')return;
+  if(BGM.next<AC.currentTime)BGM.next=AC.currentTime+.05;
+  while(BGM.next<AC.currentTime+.25){const S=SONGS[songOf()%SONGS.length],spb=60/S.bpm/2,s=BGM.step%S.mel.length,ch=S.prog[(s>>3)%S.prog.length],when=BGM.next-AC.currentTime,fq=n=>261.63*Math.pow(2,(S.key+n)/12);
+    STYLE(s,ch,when,fq,spb,S);
+    const n=S.mel[s];if(n!=null)tone(fq(n),spb*S.len,S.lead,S.vol,0,when);
+    BGM.step++;BGM.next+=spb;}}
+const MUTED=()=>SAVE.mute,OUT=()=>MG,songOf=()=>SI;
+// こっそり ぬきあし さしあし（ステージごとに ちがう きょく）
+const SONGS=[
+  {bpm:112,key:0,lead:'triangle',len:.7,vol:.07,  // まほうの おにわ
+   prog:[[0,3,7],[0,3,7],[5,8,12],[7,11,14],[0,3,7],[8,12,15],[5,8,12],[7,11,14]],
+   mel:mel(`12 . 15 . 12 . . .  14 . 15 . 17 . 15 .  17 . 20 . 17 . . .  19 . 17 . 14 . 11 .
+            12 . 15 . 19 . . 15  20 . 19 . 15 . . .  17 . 15 . 14 . 12 .  11 . . . 7 . . .`)},
+  {bpm:118,key:5,lead:'square',len:.5,vol:.03,  // おかしの もり
+   prog:[[0,4,7],[9,12,16],[5,9,12],[7,11,14]],
+   mel:mel(`12 . 11 12 . . 16 .  14 . 12 . 9 . . .  10 . 9 10 . . 14 .  12 . 11 . 7 . . .
+            12 . 14 . 16 . 17 .  19 . 16 . 12 . . .  17 . 16 . 14 . 11 .  12 . . . . . . .`)},
+  {bpm:104,key:9,lead:'sine',len:1.6,vol:.08,  // ほしぞらの きち
+   prog:[[0,3,7],[8,12,15],[10,14,17],[7,10,14]],
+   mel:mel(`12 . . . 15 . 14 .  12 . . . 8 . . .  10 . 12 . 14 . 17 .  15 . . . 14 . . .
+            19 . . 17 15 . . .  15 . 12 . 8 . . .  10 . 12 . 14 . 10 .  12 . . . . . . .`)},
+  {bpm:100,key:2,lead:'triangle',len:1.2,vol:.07,  // おばけやしき
+   prog:[[0,3,7],[0,3,7],[8,12,15],[7,11,14],[0,3,7],[0,3,7],[5,8,12],[7,11,14]],
+   mel:mel(`12 . 13 . 12 . . .  15 . 14 . 13 . 12 .  8 . . 12 . . 15 .  13 . . . 11 . . .
+            12 . 15 . 19 . 18 .  17 . 15 . 12 . . .  13 . 12 . 10 . 8 .  7 . . . . . . .`)},
+  {bpm:124,key:7,lead:'square',len:.8,vol:.03,  // やみの おしろ
+   prog:[[0,3,7],[8,12,15],[10,14,17],[7,11,14]],
+   mel:mel(`12 . 12 . 15 . 14 12  15 . 19 . 17 . 15 .  17 . 14 . 10 . 14 .  18 . 19 . 18 . 14 .
+            12 . 15 . 19 . 24 .  22 . 20 . 19 . 15 .  17 . 19 . 17 . 14 .  19 . . . 18 . . .`)}];
+function STYLE(s,ch,when,fq,spb,S){
+  // ピチカートの ベース（ぬきあし さしあし）
+  const b=[ch[0],null,ch[2],null,ch[0]+12,null,ch[2],null][s%8];if(b!=null)tone(fq(b-24),spb*.45,'triangle',.11,0,when);
+  if(s%2===1)noise(.025,.018,9000,when);
+  if(s%8===4)tone(fq(ch[1]),spb*.4,'sine',.03,0,when);}
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(state!=='pause')update(dt);render();BGM.on=!!G&&(state==='play'||state==='caught');bgmTick();requestAnimationFrame(loop);}
 requestAnimationFrame(loop);
 if(Q.has('st')){loadStage(+Q.get('st')||0);state='play';showOnly(null);}
 </script>

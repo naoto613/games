@@ -471,7 +471,35 @@ function drawBubble(c,ch,x,y,dir){if(ch.sayT<=0||!ch.say)return;const f=clamp(L.
 
 // ================= loop / ui =================
 let last=performance.now();
-function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;update(dt);render();requestAnimationFrame(loop);}
+// ================= BGM（このゲーム オリジナル） =================
+const BGM={on:false,step:0,next:0,song:0};
+const mel=t=>t.trim().split(/\s+/).map(x=>x==='.'?null:+x);
+let NOISE=null;
+function noise(d,v,f,when){if(!AC||MUTED())return;if(!NOISE){NOISE=AC.createBuffer(1,AC.sampleRate*.5,AC.sampleRate);const a=NOISE.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;}
+  const t0=AC.currentTime+when,src=AC.createBufferSource(),fl=AC.createBiquadFilter(),g=AC.createGain();src.buffer=NOISE;fl.type='highpass';fl.frequency.value=f;
+  g.gain.setValueAtTime(v,t0);g.gain.exponentialRampToValueAtTime(.001,t0+d);src.connect(fl);fl.connect(g);g.connect(OUT());src.start(t0);src.stop(t0+d+.02);}
+function bgmTick(){if(!AC||MUTED()||!BGM.on||AC.state!=='running')return;
+  if(BGM.next<AC.currentTime)BGM.next=AC.currentTime+.05;
+  while(BGM.next<AC.currentTime+.25){const S=SONGS[songOf()%SONGS.length],spb=60/S.bpm/2,s=BGM.step%S.mel.length,ch=S.prog[(s>>3)%S.prog.length],when=BGM.next-AC.currentTime,fq=n=>261.63*Math.pow(2,(S.key+n)/12);
+    STYLE(s,ch,when,fq,spb,S);
+    const n=S.mel[s];if(n!=null)tone(fq(n),spb*S.len,S.lead,S.vol,0,when);
+    BGM.step++;BGM.next+=spb;}}
+const MUTED=()=>OPT.mute,OUT=()=>AC.destination,songOf=()=>BGM.step>>6;
+// ゆったり かんがえる パズルの きょく（2きょくを こうたいで）
+const SONGS=[
+  {bpm:96,key:0,lead:'triangle',len:1.8,vol:.07,
+   prog:[[0,4,7,11],[9,12,16,19],[2,5,9,12],[7,11,14,17]],
+   mel:mel(`16 . 19 . 23 . 19 .  21 . . 19 16 . . .  17 . 21 . 24 . 21 .  19 . . . 14 . . .
+            16 . 19 . 24 . 23 .  21 . 19 . 16 . 12 .  14 . 17 . 21 . 19 .  17 . . . 16 . . .`)},
+  {bpm:96,key:5,lead:'triangle',len:1.8,vol:.07,
+   prog:[[0,4,7,11],[-1,2,6,9],[-3,0,4,7],[-5,-1,2,7]],
+   mel:mel(`12 . 16 . 19 . 16 .  14 . . 11 9 . . .  12 . 9 . 7 . 9 .  11 . . . 7 . . .
+            12 . 14 . 16 . 19 .  21 . 19 . 14 . 11 .  12 . 11 . 9 . 7 .  12 . . . . . . .`)}];
+function STYLE(s,ch,when,fq,spb,S){
+  if(s%8===0)tone(fq(ch[0]-24),spb*7,'triangle',.09,0,when);
+  if(s%2===1)tone(fq(ch[(s>>1)%ch.length]+12),spb*1.5,'sine',.035,0,when);
+  if(s%4===2)noise(.03,.01,8000,when);}
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;update(dt);render();BGM.on=state==='play';bgmTick();requestAnimationFrame(loop);}
 function hideAll(){['title','over','confirm'].forEach(id=>$(id).classList.remove('show'));}
 $('startBtn').onclick=()=>{au();hideAll();newGame();};
 $('contBtn').onclick=()=>{au();hideAll();hint.clear();const g=loadGame();if(!g){newGame();return;}
