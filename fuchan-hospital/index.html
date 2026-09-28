@@ -950,15 +950,15 @@ SCN.lobby={bg:'#9ad8ff',song:'clinic',noHome:1,noRk:1,hud:false,bubY:108,
     while(cf<f){wps.push({f:cf,x:150});wps.push({f:cf+1,x:30,climb:1});cf++;}
     while(cf>f){wps.push({f:cf,x:30});wps.push({f:cf-1,x:150,climb:1});cf--;}
     wps.push({f,x});this.wps=wps;this.follow=1;this.panTo=null;},
-  update(dt){const sp=this.wps.length&&this.wps[0].climb?320:480;
+  update(dt){const sp=this.wps.length&&this.wps[0].climb?640:960;
     if(this.wps.length){const w=this.wps[0],tx=w.x,ty=mFloorY(w.f);const dx=tx-this.fx,dy=ty-this.fy,d=Math.hypot(dx,dy);if(d<3){this.fx=tx;this.fy=ty;this.ff=w.f;this.wps.shift();if(!this.wps.length)this.arrive();}
       else{const k=Math.min(1,sp*dt/d);this.fx+=dx*k;this.fy+=dy*k;if(Math.abs(dx)>.5)this.dir=dx<0?1:2;if(w.climb&&Math.random()<dt*6)sfx('tick');}this.moving=1;this.hist.push([this.fx,this.fy]);if(this.hist.length>200)this.hist.shift();}
     else{this.moving=0;}
     if(this.panTo!=null){this.camX+=(this.panTo-this.camX)*Math.min(1,dt*6);if(Math.abs(this.panTo-this.camX)<1)this.panTo=null;}
-    if(this.follow){const t=this.camTarget();this.camX+=(t.x-this.camX)*Math.min(1,dt*7);this.camY+=(t.y-this.camY)*Math.min(1,dt*7);}
+    if(this.follow){const t=this.camTarget();this.camX+=(t.x-this.camX)*Math.min(1,dt*10);this.camY+=(t.y-this.camY)*Math.min(1,dt*10);}
     for(const n of this.npcs){if(n.wait>0){n.wait-=dt;continue;}const d=n.tx-n.x;if(Math.abs(d)<3){n.wait=rand(1.5,4);n.tx=rand(MSTW+60,MBW-60);}else{n.x+=Math.sign(d)*Math.min(Math.abs(d),55*dt);n.dir=d<0?-1:1;}}},
   arrive(){const r=this.roomAt(this.ff,this.fx);this.dir=0;if(this.pend&&r&&r.id===this.pend.id){this.near=r;const I=MINFO[r.id];sfx('bell');hush();speak(`ここは ${I[0]}。 ${I[1]}`);bub={text:`ここは ${I[0]}！`,t:0,life:2.6};if(r.id==='kids'||r.id==='lounge')this.near=null;}this.pend=null;},
-  rkPosW(){const h=this.hist;const p=h.length>16?h[h.length-16]:[this.fx-70,this.fy];return this.moving?{x:p[0],y:p[1]}:{x:this.rkRest??(this.fx-70),y:this.fy};},
+  rkPosW(){const h=this.hist;const p=h.length>9?h[h.length-9]:[this.fx-70,this.fy];return this.moving?{x:p[0],y:p[1]}:{x:this.rkRest??(this.fx-70),y:this.fy};},
   drawRoom(c,f,i){const id=MAPF[f][i],x=MSTW+i*MRW,top=mFloorY(f)-MFH+22,h=MFH-22,y0=mFloorY(f),I=MINFO[id];
     c.fillStyle=I[2];c.fillRect(x,top,MRW,h);c.fillStyle='rgba(255,255,255,.35)';c.fillRect(x,top,MRW,h*.45);c.fillStyle=shade(I[2],-.06);c.fillRect(x,y0-60,MRW,60);c.fillStyle=shade(I[2],-.14);c.fillRect(x,y0-8,MRW,8);
     const cx=x+MRW/2,t=T;c.save();
