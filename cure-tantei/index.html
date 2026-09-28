@@ -142,16 +142,24 @@ function bgmTick(){if(!AC||!BGG)return;const sp=speaking();BGG.gain.setTargetAtT
     const n=S.mel[s];if(n!=null)tone(NOTE(n),spb*S.len,S.lead,S.vol,0,when,BGG);
     BGM.step++;BGM.next+=spb;}}
 // ---------- voice (speechSynthesis) ----------
-// ふーちゃんのまち と おなじ しくみで よみあげる（すぐに speak・さいしょの にほんご ボイス）。キャラごとに こえの たかさだけ かえる。
+// キラキラびょういん で じっきで きこえた しくみを そのまま つかう：
+// じぶんの キューで 1つずつ よみあげ／cancel の あと すこし まつ／speak の まえに resume／さいしょの タッチで アンロック。
 const hasTTS='speechSynthesis' in window;let JV=null,EV=null;
-function loadVoices(){if(!hasTTS)return;const v=speechSynthesis.getVoices();JV=v.find(x=>/^ja/i.test(x.lang))||null;EV=v.find(x=>/^en[-_]US/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null;}
-if(hasTTS){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
-function speaking(){return hasTTS&&speechSynthesis.speaking;}
-const VO={fu:[1.4,1.02],rk:[1.7,1.05],kuro:[.85,1],witch:[.6,.92],narr:[1.2,1],en:[1.3,.8]};
-function speakOne(text,lang,who){if(!hasTTS||!text)return;try{const u=new SpeechSynthesisUtterance(text.replace(/[「」『』☆★♪♡・…]/g,' ').replace(/〜/g,'ー'));
-  u.lang=lang==='en'?'en-US':'ja-JP';const v=lang==='en'?EV:JV;if(v)u.voice=v;
-  const p=lang==='en'?VO.en:(VO[who]||(NPC[who]&&NPC[who].vo)||[1.3,1]);u.pitch=clamp(p[0],.5,1.8);u.rate=p[1];speechSynthesis.speak(u);}catch(e){}}
-function hush(){if(hasTTS)try{speechSynthesis.cancel();}catch(e){}}
+function pickVoice(v,re,pref){const c=v.filter(x=>re.test(x.lang));for(const p of pref){const f=c.find(x=>p.test(x.name));if(f)return f;}return c.find(x=>x.localService)||c[0]||null;}
+function loadVoices(){if(!hasTTS)return;const v=speechSynthesis.getVoices();if(!v.length)return;JV=pickVoice(v,/^ja/i,[/Kyoko|O-ren|Google 日本語|Haruka|Nanami/i]);EV=pickVoice(v,/^en[-_]US/i,[/Samantha|Google US English|Aria|Jenny|Zira|Karen|Allison/i])||pickVoice(v,/^en/i,[/Samantha|Google|Daniel|Karen/i]);}
+if(hasTTS){loadVoices();try{speechSynthesis.addEventListener('voiceschanged',loadVoices);}catch(e){speechSynthesis.onvoiceschanged=loadVoices;}}
+const VO={fu:[1.4,1.02],rk:[1.7,1.05],kuro:[.85,1],witch:[.6,.92],narr:[1.2,1],en:[1.2,.85]};
+const SQ=[];let SCUR=null,SWD=0,SGEN=0,SCAN=0;
+function speaking(){return hasTTS&&(!!SCUR||SQ.length>0);}
+function speakOne(text,lang,who){if(!hasTTS||!text)return;const t=text.replace(/[「」『』☆★♪♡・…]/g,' ').replace(/〜/g,'ー').trim();if(!t)return;
+  SQ.push({text:t,lang,who});if(!SCUR&&SQ.length===1){const w=Math.max(0,140-(Date.now()-SCAN));if(w)setTimeout(spNext,w);else spNext();}}
+function spNext(){if(SCUR||!SQ.length)return;const q=SQ.shift();if(!JV||!EV)loadVoices();const g=++SGEN;
+  try{const u=new SpeechSynthesisUtterance(q.text);const en=q.lang==='en';u.lang=en?'en-US':'ja-JP';const v=en?EV:JV;if(v)u.voice=v;
+    const p=en?VO.en:(VO[q.who]||(NPC[q.who]&&NPC[q.who].vo)||[1.35,1.02]);u.rate=p[1];u.pitch=clamp(p[0],.5,1.8);u.volume=1;SCUR=u;
+    const done=()=>{if(g!==SGEN)return;SCUR=null;clearTimeout(SWD);if(SQ.length)setTimeout(spNext,60);};u.onend=done;u.onerror=done;SWD=setTimeout(done,2500+q.text.length*(en?160:200));
+    try{speechSynthesis.resume();}catch(e){}speechSynthesis.speak(u);}catch(e){SCUR=null;}}
+let TTSOK=0;function ttsUnlock(){if(TTSOK||!hasTTS)return;TTSOK=1;try{loadVoices();const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='en-US';speechSynthesis.speak(u);}catch(e){}}
+function hush(){if(!hasTTS)return;SQ.length=0;SGEN++;SCUR=null;clearTimeout(SWD);SCAN=Date.now();try{speechSynthesis.cancel();}catch(e){}}
 let LASTSAY=null;
 // say('にほんご', who, 'english')  /  say([['apple','en'],['は どれ？','ja']], who)
 function say(parts,who='fu',en){hush();const list=typeof parts==='string'?[[parts,'ja']]:parts.map(p=>typeof p==='string'?[p,'ja']:p);if(en)list.push([en,'en']);
@@ -1576,7 +1584,7 @@ SCN.practice={
 // ================= input & loop =================
 function toL(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left-OX)/SC,y:(e.clientY-r.top-OY)/SC};}
 let ptrId=null;
-cv.addEventListener('pointerdown',e=>{audioInit();if(ptrId!==null&&ptrId!==e.pointerId)return;ptrId=e.pointerId;try{cv.setPointerCapture(e.pointerId);}catch(_){}
+cv.addEventListener('pointerdown',e=>{audioInit();ttsUnlock();if(ptrId!==null&&ptrId!==e.pointerId)return;ptrId=e.pointerId;try{cv.setPointerCapture(e.pointerId);}catch(_){}
   const p=toL(e);IDLE=0;ripple(p.x,p.y);if(TR||!scene)return;
   if(scene.isStep){if(inC(p.x,p.y,36,34,30)){sfx('tap');go(SCN.office);return;}if(inC(p.x,p.y,364,34,30)){sfx('tap');replay();return;}if(INS&&inR(p.x,p.y,200,106,372,76)){replay();return;}}
   if(scene.down)scene.down(p.x,p.y);});
