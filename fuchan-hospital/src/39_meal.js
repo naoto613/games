@@ -4,7 +4,7 @@ const GINFO={red:['あか','#ff4d6d','からだを つくる','red'],yellow:['�
 const GKEYS=['red','yellow','green'];
 const gOf=k=>GKEYS.find(g=>FOODG[g].includes(k));
 SCN.meal={bg:'#f0fff0',song:'fuwa',
-  enter(){const lv=lvOf('meal');this.mode=Math.random()<.5?'sort':'menu';this.miss=0;this.fin=0;this.ph=this.mode;this.hp=0;this.feedT=0;this.dessert=Math.random()<.6;this.P=newPatient(ANK.filter(k=>k!=='frog'));this.gown=pick(['#bfe0ff','#ffd0e4','#d8f0c8','#fff0b0']);this.lay();this.told={};this.placed={red:[],yellow:[],green:[]};
+  enter(){this.cured=0;this.ct=0;this.spoon=null;this.items=[];this.cur=null;this.buffet=null;this.queue=[];this.feedT=0;const lv=lvOf('meal');this.mode=Math.random()<.5?'sort':'menu';this.miss=0;this.fin=0;this.ph=this.mode;this.hp=0;this.feedT=0;this.dessert=Math.random()<.6;this.P=newPatient(ANK.filter(k=>k!=='frog'));this.gown=pick(['#bfe0ff','#ffd0e4','#d8f0c8','#fff0b0']);this.lay();this.told={};this.placed={red:[],yellow:[],green:[]};
     if(this.mode==='sort'){const per=lv<1?2:3;this.queue=shuffle(GKEYS.flatMap(g=>shuffle(FOODG[g]).slice(0,per)));this.total=this.queue.length;
       say(`${ptName(this.P)}さんは にゅういんちゅう。 げんきに なる ごはんを つくろう！ たべものを おなじ いろの おさらに のせてね`);setTimeout(()=>{if(scene===this)this.nextFood();},3800);}
     else{this.buffet=shuffle(GKEYS.flatMap(g=>shuffle(FOODG[g]).slice(0,3))).map((k,i)=>({k,i,used:0}));this.total=3;

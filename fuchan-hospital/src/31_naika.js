@@ -28,7 +28,7 @@ const NSTEP={
 };
 const NPOOL=['thermometer','icepack','steth','light','spray','hotpack','syringe','bottle','loupe','cream','eyedrop','tweezers','toothbrush','bandage'];
 SCN.naika={bg:'#e8f6ff',song:'clinic',
-  enter(){const lv=lvOf('naika');const pool=['cold','throat','tummy','rash','eye'].concat(lv>=1?['vaccine','ear']:['vaccine']);this.queue=shuffle(pool).slice(0,3);this.pi=0;this.miss=0;this.fin=0;
+  enter(){this.subDone=0;this.sub=null;this.med=null;const lv=lvOf('naika');const pool=['cold','throat','tummy','rash','eye'].concat(lv>=1?['vaccine','ear']:['vaccine']);this.queue=shuffle(pool).slice(0,3);this.pi=0;this.miss=0;this.fin=0;
     this.theme=pick([['#e6f4ff','#cfe8d8','#f0f8ff'],['#fff0f6','#e8dcf0','#fff8fb'],['#f0fff4','#d8ecd0','#f8fff8']]);this.lay();this.newPatient();},
   lay(){this.px=340;this.py=H*.6;this.s=1.75;if(this.tools)this.tools.forEach(t=>{t.hy=H-84;});},
   newPatient(){const d=this.queue[this.pi];this.D=DISEASE[d];this.dk=d;const P=newPatient(ANK.filter(k=>k!=='frog'||d!=='ear'));

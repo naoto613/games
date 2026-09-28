@@ -1,6 +1,6 @@
 // ================= うけつけ（ばんごう よび） =================
 SCN.reception={bg:'#fff6e8',song:'clinic',
-  enter(){const lv=lvOf('reception');this.lv=lv;this.maxN=lv<1?7:lv<3?10:20;this.round=0;this.N=6+Math.min(2,lv);this.miss=0;this.fin=0;this.lock=0;this.lay();
+  enter(){this.target=null;this.flash=0;const lv=lvOf('reception');this.lv=lv;this.maxN=lv<1?7:lv<3?10:20;this.round=0;this.N=6+Math.min(2,lv);this.miss=0;this.fin=0;this.lock=0;this.lay();
     this.modes=['num','num','dots','fingers'].concat(lv>=1?['en','dots']:[]).concat(lv>=2?['plus','en']:[]);this.door=0;this.events=shuffle(['sleepy','urgent','none','sleepy']).slice(0,2);
     this.theme=pick([['#fff0da','#f0d8b8','#fff6e6','#ffb3d0'],['#eaf6ff','#d4e6f0','#f4faff','#9ad0ff'],['#f4ffe8','#dcecc8','#fbfff4','#bfe8a0'],['#fff0f8','#f0d8e8','#fff8fc','#e0b8ff']]);
     const nums=shuffle([...Array(this.maxN)].map((_,i)=>i+1)).slice(0,5);this.seats=nums.map((n,i)=>Object.assign(newPatient(),{n,x:-120-i*140,tx:this.seatX(i),st:'in',shake:0,hop:0,i,sleep:0,urgent:0}));

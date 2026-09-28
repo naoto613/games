@@ -3,7 +3,7 @@ const PETS=['dog','cat','rabbit','chick','pig','panda','mouse','sheep','fox'];
 const PETFOOD={dog:'bone',cat:'fish',rabbit:'carrot',chick:'corn',pig:'apple',panda:'bamboo',mouse:'cheese',sheep:'broccoli',fox:'meat'};
 const PETACC=[['ribbon','リボン'],['cap','ぼうし'],['glasses','めがね'],['flower','おはな'],['scarf','マフラー'],['bowtie','ちょうネクタイ'],['beanie','ニットぼう']];
 SCN.pet={bg:'#fff4e8',song:'fuwa',
-  enter(){this.ph='pick';this.pets=shuffle(PETS).slice(0,3);this.k=null;this.miss=0;this.fin=0;this.si=-1;this.happy=0;this.acc=null;this.accC=pick(['#ff5fa2','#5aa8ff','#ffb03a','#4cc86a']);this.photo=0;this.tools=[];this.lay();
+  enter(){this.flag=0;this.photo=0;this.eat=0;this.w=null;this.ph='pick';this.pets=shuffle(PETS).slice(0,3);this.k=null;this.miss=0;this.fin=0;this.si=-1;this.happy=0;this.acc=null;this.accC=pick(['#ff5fa2','#5aa8ff','#ffb03a','#4cc86a']);this.photo=0;this.tools=[];this.lay();
     const extra=shuffle(['brush','nails','fleas','ears','bath']).slice(0,2+(lvOf('pet')>=1?1:0));this.steps=['weigh',...extra,...(Math.random()<.7?['shot']:[]),'treat','dress'];this.accOpts=shuffle(PETACC).slice(0,3);
     this.theme=pick([['#fff4e8','#f0dcc0','#ffe8d0'],['#f0f8ff','#d8e8f4','#e4f2ff'],['#f8fff0','#e0f0d0','#eef8e0']]);
     say('どうぶつびょういん！ きょうの かんじゃさんは だれ？ えらんでね');},

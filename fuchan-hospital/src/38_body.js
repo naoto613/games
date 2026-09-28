@@ -4,7 +4,7 @@ const BPARTS=[['head','あたま','head',[[0,-53]],6],['hair','かみのけ','ha
 const ORGANS=[['brain','のう','brain','かんがえたり おぼえたり する、 からだの しれいとう だよ'],['lungs','はい','lungs','いきを すって、 さんそを からだに とりいれるよ'],['heart','しんぞう','heart','どっくん どっくん。 ちを からだじゅうに おくる ポンプだよ'],
   ['stomach','い','stomach','たべものを どろどろに とかすよ'],['intestines','ちょう','intestines','とっても ながい くだ。 えいようを からだに とりこむよ'],['bones','ほね','bones','からだを ささえる かたい ほね。 ぎゅうにゅうで つよくなるよ']];
 SCN.body={bg:'#fff4f4',song:'calm',
-  enter(){const lv=lvOf('body');this.ph='out';this.qi=0;this.miss=0;this.fin=0;this.hl=null;this.learned=[];this.qs=shuffle(BPARTS).slice(0,5);this.enOnly=lv>=1&&Math.random()<.5;this.inMode=Math.random()<.5?'learn':'puzzle';this.lay();
+  enter(){this.qset=0;this.pieces=null;this.oq=null;const lv=lvOf('body');this.ph='out';this.qi=0;this.miss=0;this.fin=0;this.hl=null;this.learned=[];this.qs=shuffle(BPARTS).slice(0,5);this.enOnly=lv>=1&&Math.random()<.5;this.inMode=Math.random()<.5?'learn':'puzzle';this.lay();
     this.theme=pick([['#fff0f0','#f4dcdc','#fff8f8'],['#f0f6ff','#dce6f4','#f8fbff'],['#f4fff0','#dcecd4','#f8fff6']]);this.fuSeed=Math.random();
     say(this.enOnly?'からだ ずかん！ きょうは えいごだけで クイズ！ よく きいてね':'からだ ずかん！ ふーちゃんの からだで クイズだよ。 えいごも おぼえよう');setTimeout(()=>{if(scene===this)this.ask();},2800);},
   lay(){this.fs=Math.min(7.2,(H-260)/70);this.fx=W/2;this.fy=H-40;},

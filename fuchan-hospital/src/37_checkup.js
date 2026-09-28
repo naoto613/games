@@ -2,7 +2,7 @@
 const DIRS=[['up','うえ',-Math.PI/2],['down','した',Math.PI/2],['left','ひだり',Math.PI],['right','みぎ',0]];
 const PICS=['cat','dog','rabbit','bear','pig','chick','panda','fox','lion','elephant','frog','mouse'];
 SCN.checkup={bg:'#fff0f8',song:'fuwa',noRk:1,
-  enter(){const pool=shuffle(['height','weight','eye','eye2','ear','teeth','heart']).slice(0,4);this.steps=[...pool,'shot'];this.si=-1;this.miss=0;this.fin=0;this.tools=[];this.lay();this.cry=0;this.hap=0;this.calm=0;
+  enter(){this.shot=0;this.sub=null;this.popts=null;this.cd=null;this.side=null;this.dragBar=0;const pool=shuffle(['height','weight','eye','eye2','ear','teeth','heart']).slice(0,4);this.steps=[...pool,'shot'];this.si=-1;this.miss=0;this.fin=0;this.tools=[];this.lay();this.cry=0;this.hap=0;this.calm=0;
     say('きょうは リッキーの けんこうしんだん！ ふーちゃん せんせい、 よろしくね');setTimeout(()=>{if(scene===this)this.startStep();},2600);},
   lay(){this.gy=H*.66;this.rx=300;},
   startStep(){this.si++;const k=this.steps[this.si];this.key=k;this.tools=[];this.prog=0;

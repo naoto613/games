@@ -2,7 +2,7 @@
 const PLACES={park:{ja:'こうえん',en:'park',sky:'#8fd8ff',ground:'#8ee07a',side:'tree'},school:{ja:'がっこう',en:'school',sky:'#a8e0ff',ground:'#c8d8a0',side:'house'},beach:{ja:'うみ',en:'beach',sky:'#7ad0ff',ground:'#ffe8a8',side:'palm'},mountain:{ja:'やま',en:'mountain',sky:'#b8e0ff',ground:'#7ac870',side:'pine'}};
 const AIDS={leg:{ja:'あしを いためて うごけない',tool:'splint',done:'そえぎで あしを まもったよ'},head:{ja:'あたまを ぶつけて ちが でてる',tool:'bandage',done:'ばんそうこうで とめたよ'},heat:{ja:'あつくて ふらふら… ねっちゅうしょう',tool:'icepack',done:'ひやして すずしく なったね'},cold:{ja:'さむくて ぶるぶる ふるえてる',tool:'towel',done:'タオルで あたためたよ'}};
 SCN.ambulance={bg:'#e8f4ff',song:'hero',
-  enter(){this.ph='call';this.dial='';this.miss=0;this.fin=0;this.op=0;this.t=0;this.asked=0;this.lay();this.place=pick(Object.keys(PLACES));this.pt=newPatient();
+  enter(){this.str=null;this.yieldSaid=0;this.sirenT=0;this.rs=null;this.aidTools=null;this.bt=0;this.whereOpts=null;this.ph='call';this.dial='';this.miss=0;this.fin=0;this.op=0;this.t=0;this.asked=0;this.lay();this.place=pick(Object.keys(PLACES));this.pt=newPatient();
     const aidPool=this.place==='beach'?['heat','leg','head']:this.place==='mountain'?['cold','leg','head']:['leg','head','heat'];this.aid=pick(aidPool);
     say(`たいへん！ ${PLACES[this.place].ja}で ${ptName(this.pt)}さんが こまってる！ きゅうきゅうしゃを よぶ ばんごうは 1・1・9。 でんわを かけよう！`);},
   lay(){this.kx=W/2;this.ky=H*.36;},

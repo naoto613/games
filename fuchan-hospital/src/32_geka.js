@@ -1,6 +1,6 @@
 // ================= けがの てあて（すりきず・とげ・たんこぶ・こっせつ） =================
 SCN.geka={bg:'#fff0f4',song:'clinic',
-  enter(){const lv=lvOf('geka');this.loc=pick(['knee','elbow','forehead']);const extras=shuffle(['splinter','bump','frac','frac']).filter((v,i,a)=>a.indexOf(v)===i).slice(0,lv>=1?2:1+Math.floor(Math.random()*2));this.extras=extras;
+  enter(){this.done1=0;this.casting=0;this.washed=0;this.sprayed=0;const lv=lvOf('geka');this.loc=pick(['knee','elbow','forehead']);const extras=shuffle(['splinter','bump','frac','frac']).filter((v,i,a)=>a.indexOf(v)===i).slice(0,lv>=1?2:1+Math.floor(Math.random()*2));this.extras=extras;
     this.limb=pick(['arm','leg']);this.steps=['wash','spray','bandage'];if(extras.includes('splinter'))this.steps.push('splinter');if(extras.includes('bump'))this.steps.push('bump');if(extras.includes('frac'))this.steps.push('xray','cast','deco');
     this.si=-1;this.miss=0;this.fin=0;const P=newPatient();
     this.p=Object.assign(P,{x:W+160,walk:1,hop:0,shake:0,band:0,deco:[],dirt:[...Array(3+Math.floor(Math.random()*5))].map(()=>({a:rand(-20,20),b:rand(-12,12),w:0,done:0})),mist:0,spl:extras.includes('splinter')?1:0,bump:extras.includes('bump')?1:0,bumpS:1,frac:extras.includes('frac')?1:0});

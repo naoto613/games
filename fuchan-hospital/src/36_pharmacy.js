@@ -3,7 +3,7 @@ const PCOL=['red','blue','yellow','green','pink'];
 const SHAPES=[['circle','まる','circle'],['tri','さんかく','triangle'],['square','しかく','square'],['heart','ハート','heart']];
 const SYRUPS=[['#ff8cc8','いちご'],['#b48cff','ぶどう'],['#ffb03a','オレンジ']];
 SCN.pharmacy={bg:'#f6f0ff',song:'play',
-  enter(){const lv=lvOf('pharmacy');this.lv=lv;this.oi=0;this.N=3;this.miss=0;this.fin=0;this.lay();const types=['pills','shape'].concat(['syrup']);this.types=shuffle(types.concat(pick(types))).slice(0,3);this.newOrder();},
+  enter(){this.pour=0;this.give=0;this.cap=0;const lv=lvOf('pharmacy');this.lv=lv;this.oi=0;this.N=3;this.miss=0;this.fin=0;this.lay();const types=['pills','shape'].concat(['syrup']);this.types=shuffle(types.concat(pick(types))).slice(0,3);this.newOrder();},
   lay(){this.bx=W/2;this.by=H*.6;},
   newOrder(){const lv=this.lv;this.type=this.types[this.oi];this.inb=[];this.cap=0;this.give=0;this.P=newPatient();this.px=-120;this.level=0;this.pour=0;
     if(this.type==='pills'){const nc=lv<1?1+(Math.random()<.4?1:0):lv<2?2:3,mx=lv<1?3:lv<2?4:5;this.order=shuffle(PCOL).slice(0,nc).map(c=>({c,n:1+Math.floor(Math.random()*mx)}));}

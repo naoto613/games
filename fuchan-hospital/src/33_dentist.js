@@ -1,6 +1,6 @@
 // ================= はいしゃさん =================
 SCN.dentist={bg:'#e8fff4',song:'play',
-  enter(){const lv=lvOf('dentist');this.nt=lv<1?4:lv<3?5:6;this.teeth=[];for(const top of[true,false])for(let i=0;i<this.nt;i++)this.teeth.push({i,top,n:0,cav:0,rev:0,hole:0,fill:0,dp:0,loose:0,out:0});
+  enter(){this.done=0;this.count=0;this.bossDone=0;this.bossEnd=0;this.mdone=0;this.ddone=0;this.flyT=null;this.shine=0;const lv=lvOf('dentist');this.nt=lv<1?4:lv<3?5:6;this.teeth=[];for(const top of[true,false])for(let i=0;i<this.nt;i++)this.teeth.push({i,top,n:0,cav:0,rev:0,hole:0,fill:0,dp:0,loose:0,out:0});
     const sh=shuffle(this.teeth);sh.slice(0,(lv<1?2:3)+(Math.random()<.4?1:0)).forEach(t=>t.cav=1);const hasLoose=Math.random()<.55;if(hasLoose){const lt=sh.find(t=>!t.cav);lt.loose=1;}
     this.countRow=pick(['all','all','top','bottom']);
     this.steps=[].concat(Math.random()<.75?['count']:[],['mirror','drill','fill'],hasLoose?['loose']:[],['brush','rinse']);this.si=-1;this.miss=0;this.fin=0;this.foam=[];this.rinse=0;this.boss=null;this.minis=[];this.dirt=[];this.shine=0;
