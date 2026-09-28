@@ -1,11 +1,11 @@
 // ================= save =================
 const SKEY='fuchan-hospital-v1';
-const SAVE={sound:true,hearts:0,stickers:[],plays:{},coat:'#ffffff',dress:'pink',hat:'nurse',v:1};
+const SAVE={sound:true,hearts:0,plays:{},coat:'#ffffff',dress:'pink',hat:'nurse',item:'none',rk:{wear:'flower',hat:'none',toy:'blocks'},owned:[],v:2};
 try{Object.assign(SAVE,JSON.parse(localStorage.getItem(SKEY)||'{}'));}catch(e){}
-if(!Array.isArray(SAVE.stickers))SAVE.stickers=[];if(!SAVE.plays||typeof SAVE.plays!=='object')SAVE.plays={};
+if(!Array.isArray(SAVE.owned))SAVE.owned=[];if(!SAVE.rk||typeof SAVE.rk!=='object')SAVE.rk={wear:'flower',hat:'none',toy:'blocks'};if(!SAVE.item)SAVE.item='none';delete SAVE.stickers;if(!SAVE.plays||typeof SAVE.plays!=='object')SAVE.plays={};
 function save(){try{localStorage.setItem(SKEY,JSON.stringify(SAVE));}catch(e){}}
 function lvOf(id){return SAVE.plays[id]||0;}
-const RANKS=[[0,'みならい ナース','trainee'],[10,'ナース','nurse'],[25,'ドクター','doctor'],[45,'ベテラン ドクター','expert doctor'],[75,'スーパー ドクター','super doctor'],[120,'いんちょう せんせい','hospital director']];
+const RANKS=[[0,'みならい ナース','trainee'],[40,'ナース','nurse'],[120,'ドクター','doctor'],[260,'ベテラン ドクター','expert doctor'],[450,'スーパー ドクター','super doctor'],[800,'いんちょう せんせい','hospital director']];
 function rankIdx(h=SAVE.hearts){let r=0;RANKS.forEach((q,i)=>{if(h>=q[0])r=i;});return r;}
 // ================= words =================
 const WORDS={
@@ -14,7 +14,7 @@ const WORDS={
   hotpack:['ホットパック','hot pack'],spray:['しょうどく スプレー','spray'],light:['ライト','light'],medicine:['おくすり','medicine'],pill:['おくすり','pill'],bottle:['くすりの びん','bottle'],
   shower:['おみず','water'],xray:['レントゲン','X-ray'],cast:['ギプス','cast'],roll:['ほうたい','bandage roll'],mirror:['デンタルミラー','mirror'],drill:['ドリル','drill'],filling:['つめもの','filling'],
   toothbrush:['はぶらし','toothbrush'],tooth:['は','tooth'],cup:['コップ','cup'],brush:['ブラシ','brush'],clipper:['つめきり','nail clipper'],bone:['ほね','bone'],scale:['たいじゅうけい','scale'],
-  ambulance:['きゅうきゅうしゃ','ambulance'],heart:['しんぞう','heart'],love:['ハート','heart'],kit:['きゅうきゅうばこ','first aid kit'],hospital:['びょういん','hospital'],crown:['かんむり','crown'],star2:['ほし','star'],
+  ambulance:['サイレンを ならした きゅうきゅうしゃは あかしんごうでも ちゅういして とおれるよ','あつい ひは ねっちゅうしょうに ちゅうい。 こまめに おみずを のもう','きゅうきゅうしゃ','ambulance'],heart:['しんぞう','heart'],love:['ハート','heart'],kit:['きゅうきゅうばこ','first aid kit'],hospital:['びょういん','hospital'],crown:['かんむり','crown'],star2:['ほし','star'],
   germ:['ばいきん','germ'],ticket:['ばんごうふだ','number ticket'],phone:['でんわ','phone'],firetruck:['しょうぼうしゃ','fire truck'],stretcher:['たんか','stretcher'],camera:['カメラ','camera'],
   apple:['りんご','apple'],banana:['バナナ','banana'],carrot:['にんじん','carrot'],milk:['ぎゅうにゅう','milk'],bread:['パン','bread'],fish:['おさかな','fish'],egg:['たまご','egg'],cheese:['チーズ','cheese'],
   tomato:['トマト','tomato'],grapes:['ぶどう','grapes'],corn:['とうもろこし','corn'],onigiri:['おにぎり','rice ball'],rikki:['リッキー','Ricky'],ribbon:['リボン','ribbon'],mask:['マスク','mask'],
@@ -57,16 +57,10 @@ SONGS.calm={bpm:100,lead:[76,_,_,79,_,_,76,_,74,_,_,72,_,_,_,_,74,_,_,76,_,_,79,
 const SCN={};let scene=null,tr=null,cel=null;
 function go(id){if(tr||!SCN[id])return;hush();tr={t:0,next:id,sw:false};sfx('whoosh');}
 function bubY(){return scene&&scene.bubY!=null?scene.bubY:24;}
-function fuOutfit(extra){const d=DRESSES.find(x=>x.id===SAVE.dress)||DRESSES[2];return Object.assign({},d,{acc:SAVE.hat,boots:'#ff5f9a',coat:SAVE.coat},extra||{});}
-function fu(c,x,y,sc,o={}){drawFuka(c,x,y,Object.assign({outfit:fuOutfit(),t:T,sc,steth:true},o));}
-function rk(scn,c,x,y,sc,o={}){drawRikki(c,x,y,Object.assign({sc,t:T},o));scn.rkPos={x,y,sc};}
 function wrapText(c,text,maxW){const out=[];let cur='';for(const ch of text){if(ch==='\n'){out.push(cur);cur='';continue;}const nx=cur+ch;if(c.measureText(nx).width>maxW&&cur){out.push(cur);cur=ch;}else cur=nx;}if(cur)out.push(cur);return out;}
 function txt(c,s,x,y,size,col,align='center',font=FONT,wt=800){c.font=`${wt} ${size}px ${font}`;c.textAlign=align;c.textBaseline='middle';c.fillStyle=col;c.fillText(s,x,y);}
 function txtO(c,s,x,y,size,col,oc='#fff',ow=6,font=POP){c.font=`${size}px ${font}`;c.textAlign='center';c.textBaseline='middle';c.lineJoin='round';c.strokeStyle=oc;c.lineWidth=ow;c.strokeText(s,x,y);c.fillStyle=col;c.fillText(s,x,y);}
 function panel(c,x,y,w,h,r=24,fill='#fff',line='#ffc0dc',lw=4){c.fillStyle='rgba(90,40,110,.14)';rr(c,x+3,y+6,w,h,r);c.fill();c.fillStyle=fill;rr(c,x,y,w,h,r);c.fill();if(line){c.strokeStyle=line;c.lineWidth=lw;c.stroke();}}
-function roomBg(c,wall,floor,fy,stripe){const L=-OX/SC-2,R=W+OX/SC+2;c.fillStyle=wall;c.fillRect(L,-OY/SC-2,R-L,fy+OY/SC+4);if(stripe){c.fillStyle=stripe;for(let x=Math.floor(L/60)*60;x<R;x+=60)c.fillRect(x,-OY/SC,30,fy+OY/SC);}
-  c.fillStyle=shade(wall,-.08);c.fillRect(L,fy-26,R-L,26);c.fillStyle=vfill(c,fy,H,floor,.06,-.1);c.fillRect(L,fy,R-L,H-fy+OY/SC+4);c.strokeStyle='rgba(255,255,255,.35)';c.lineWidth=2;for(let x=Math.floor(L/80)*80;x<R;x+=80){c.beginPath();c.moveTo(x,fy);c.lineTo(x+(x-W/2)*.4,H+OY/SC);c.stroke();}
-  for(let y=fy+30,k=1;y<H+OY/SC;y+=30+k*10,k++){c.beginPath();c.moveTo(L,y);c.lineTo(R,y);c.stroke();}}
 function crossSign(c,x,y,s,col='#ff4d6d'){c.fillStyle='#fff';circ(c,x,y,s*1.3);c.fillStyle=col;c.fillRect(x-s*.3,y-s*.9,s*.6,s*1.8);c.fillRect(x-s*.9,y-s*.3,s*1.8,s*.6);}
 function numBtn(c,x,y,r,n,col='#5aa8ff',glow){c.save();c.translate(x,y);if(glow){c.fillStyle='rgba(255,255,255,.55)';circ(c,0,0,r+8+Math.sin(T*6)*4);}c.fillStyle=shade(col,-.28);circ(c,0,5,r);c.fillStyle=gfill(c,0,0,r,col,.3,-.1);circ(c,0,0,r);c.fillStyle='rgba(255,255,255,.4)';ell(c,-r*.28,-r*.42,r*.42,r*.2);c.restore();txtO(c,String(n),x,y+2,r*1.05,'#fff',shade(col,-.35),6);}
 // ================= medical items =================
@@ -117,49 +111,18 @@ const _drawCard=drawCard;
 drawCard=function(c){if(!card)return;if(card.num==null)return _drawCard(c);const a=Math.min(1,card.t*5,(3-card.t)*3);if(a<=0)return;c.save();c.globalAlpha=a;const sc=elastic(Math.min(1,card.t*2.5))*.2+.8;c.translate(W/2,H*.2);c.scale(sc,sc);
   c.fillStyle='rgba(90,40,110,.2)';rr(c,-170,-62,340,132,28);c.fill();c.fillStyle='#fffdf6';c.strokeStyle='#5aa8ff';c.lineWidth=5;rr(c,-170,-68,340,132,28);c.fill();c.stroke();
   txtO(c,String(card.num),-100,-2,72,'#ff5fa2','#fff',8);txt(c,card.ja,50,-24,card.ja.length>5?28:36,'#ff5fa2');txt(c,card.en,50,26,card.en.length>9?24:30,'#3a88e8');c.restore();};
-// ================= stickers =================
-const STICKERS=['bear','rabbit','cat','dog','panda','pig','chick','hippo','steth','thermometer','syringe','bandage','pill','medicine','ambulance','love','tooth','toothbrush','xray','kit','hospital','crown','star2','germ','heart','cast','rikki','ribbon'];
 const TIPS={
   reception:['びょういんでは ばんごうで よばれるよ。 じぶんの ばんごうを おぼえておこう','びょういんの まちあいしつでは しずかに まとうね','ほけんしょうと しんさつけんを わすれずに もっていこう'],
-  naika:['かぜの ときは あたたかくして、 すいぶんを とって ゆっくり ねようね','そとから かえったら てあらいと うがいで ばいきんを やっつけよう','しんぞうは 1ぷんかんに 80かいから 100かいも どきどき うごいているよ','おねつは からだが ばいきんと たたかっている しるしなんだよ','よぼうちゅうしゃは びょうきに なりにくく する バリアだよ'],
-  geka:['けがを したら まず おみずで きずぐちを きれいに あらおう','ひとの からだには ほねが およそ 200こ も あるんだよ','ほねを つよく するには ぎゅうにゅうや おさかなの カルシウムが だいじ','レントゲンを つかうと からだの なかの ほねが みえるんだ'],
-  dentist:['こどもの はは 20ぽん、 おとなの はは 32ほん あるよ','あまい ものを たべたら はみがきを しようね','むしばは ミュータンスきん という ばいきんが つくるんだ','はみがきは 1にち 2かい、 ねる まえは とくに ていねいにね','6さい くらいから おとなの はが はえてくるよ'],
-  pet:['どうぶつの おいしゃさんは じゅうい さん って いうんだよ','いぬの たいおんは 38ど くらいで、 ひとより すこし たかいんだ','ペットも よぼうちゅうしゃを するよ','ねこは 1にちに 12じかんいじょう ねむるんだって'],
+  naika:['めに ゴミが はいったら こすらずに めぐすりや おみずで あらおう','かゆくても かかないで ぬりぐすりを ぬろうね','みみに むしが はいったら すぐに おいしゃさんへ いこう','かぜの ときは あたたかくして、 すいぶんを とって ゆっくり ねようね','そとから かえったら てあらいと うがいで ばいきんを やっつけよう','しんぞうは 1ぷんかんに 80かいから 100かいも どきどき うごいているよ','おねつは からだが ばいきんと たたかっている しるしなんだよ','よぼうちゅうしゃは びょうきに なりにくく する バリアだよ'],
+  geka:['とげが ささったら むりに ほじらないで おとなに みせよう','たんこぶは つめたく ひやすと ちいさく なるよ','けがを したら まず おみずで きずぐちを きれいに あらおう','ひとの からだには ほねが およそ 200こ も あるんだよ','ほねを つよく するには ぎゅうにゅうや おさかなの カルシウムが だいじ','レントゲンを つかうと からだの なかの ほねが みえるんだ'],
+  dentist:['ぬけた こどもの はの あとから おとなの はが はえてくるよ','こどもの はは 20ぽん、 おとなの はは 32ほん あるよ','あまい ものを たべたら はみがきを しようね','むしばは ミュータンスきん という ばいきんが つくるんだ','はみがきは 1にち 2かい、 ねる まえは とくに ていねいにね','6さい くらいから おとなの はが はえてくるよ'],
+  pet:['ノミは どうぶつの けの なかで ぴょんぴょん はねる ちいさな むしだよ','うさぎは にんじん、 ねこは おさかなが だいすき','どうぶつの おいしゃさんは じゅうい さん って いうんだよ','いぬの たいおんは 38ど くらいで、 ひとより すこし たかいんだ','ペットも よぼうちゅうしゃを するよ','ねこは 1にちに 12じかんいじょう ねむるんだって'],
   ambulance:['きゅうきゅうしゃを よぶ でんわばんごうは 119ばん！','119ばんは かじの ときも つかうよ。 かじは しょうぼうしゃ','きゅうきゅうしゃが きたら くるまは みちを ゆずるよ','きゅうきゅうたいいんさんは くるまの なかでも てあてを するよ'],
-  pharmacy:['おくすりは きめられた かずだけ のもうね','おくすりは おうちの ひとと いっしょに のもうね','おくすりを だす ひとは やくざいし さん って いうよ','カプセルは なかに こなの おくすりが はいっているよ'],
-  checkup:['あかちゃんは うまれてから 1ねんで しんちょうが 25センチも のびるよ','しりょくけんさの Cの マークは ランドルトかん って いうんだ','よく ねると せが のびる ホルモンが でるよ','みみは おとを きく だけじゃなく からだの バランスも とっているよ'],
+  pharmacy:['シロップの おくすりは めもりを よく みて はかるよ','おくすりは きめられた かずだけ のもうね','おくすりは おうちの ひとと いっしょに のもうね','おくすりを だす ひとは やくざいし さん って いうよ','カプセルは なかに こなの おくすりが はいっているよ'],
+  checkup:['あかちゃんの しんぞうは おとなより はやく うごいているよ','あかちゃんは うまれてから 1ねんで しんちょうが 25センチも のびるよ','しりょくけんさの Cの マークは ランドルトかん って いうんだ','よく ねると せが のびる ホルモンが でるよ','みみは おとを きく だけじゃなく からだの バランスも とっているよ'],
   body:['のうは からだの しれいとう。 かんがえたり おぼえたり するよ','はいは いきを すって さんそを からだに とりこむよ','いぶくろは たべものを どろどろに とかすよ','ちょうは とっても ながくて、 えいようを きゅうしゅう するよ','しんぞうは ちを からだじゅうに おくる ポンプだよ'],
-  meal:['あかの たべものは ちや にくを つくる','きいろの たべものは からだを うごかす ちからに なる','みどりの たべものは からだの ちょうしを ととのえる','3つの いろを バランスよく たべると げんきに なれるよ'],
+  meal:['デザートは ごはんを ちゃんと たべてから すこしだけ','あかの たべものは ちや にくを つくる','きいろの たべものは からだを うごかす ちからに なる','みどりの たべものは からだの ちょうしを ととのえる','3つの いろを バランスよく たべると げんきに なれるよ'],
 };
-// ================= celebrate =================
-function celebrate(id,stars=3){if(cel)return;SAVE.plays[id]=(SAVE.plays[id]||0)+1;const r0=rankIdx();const hearts=2+stars;SAVE.hearts+=hearts;
-  const miss=STICKERS.filter(k=>!SAVE.stickers.includes(k));const st=miss.length&&Math.random()<.8?pick(miss):pick(STICKERS);const isNew=!SAVE.stickers.includes(st);if(isNew)SAVE.stickers.push(st);save();
-  const r1=rankIdx();cel={t:0,id,stars,hearts,st,isNew,tip:pick(TIPS[id]||['よく がんばったね']),rankUp:r1>r0?RANKS[r1]:null,open:0,said:0};
-  sfx('fanfare');confetti(90);RK.clap=2;say(pick(['だいせいこう！','やったね！ よく できました！','すごい！ りっぱな おいしゃさん！'])+` ありがとう ハートが ${hearts}こ！`);}
-function celUpdate(dt){const C=cel;C.t+=dt;if(C.open>0)C.open+=dt;else if(C.t>4.5)celOpen();
-  if(C.open>1.2&&C.said===0){C.said=1;const w=WORDS[C.st];if(w){hush();speak((C.isNew?'あたらしい シール！ ':'')+w[0]);speak(w[1],'en');}}
-  if(C.open>3.2&&C.said===1){C.said=2;if(C.rankUp){sfx('hooray');speak(`ランクアップ！ ${C.rankUp[1]}に なったよ！`);}speak('まめちしき。 '+C.tip);}}
-function celOpen(){if(cel.open>0)return;cel.open=.01;sfx('open');burst(W/2,H*.47,30,'star');}
-function celBtns(){return{retry:{x:W/2-120,y:H*.86},home:{x:W/2+120,y:H*.86}};}
-function celDown(x,y){const C=cel;if(C.t<.8)return;if(!C.open&&hitC(x,y,W/2,H*.47,110)){celOpen();return;}if(C.t<1.6)return;const b=celBtns();
-  if(hitC(x,y,b.retry.x,b.retry.y,60)){sfx('tap');const id=C.id;cel=null;go(id);return;}
-  if(hitC(x,y,b.home.x,b.home.y,60)){sfx('tap');cel=null;go('lobby');return;}
-  if(!C.open)celOpen();}
-function drawCel(c){const C=cel,a=Math.min(1,C.t*3);c.save();c.globalAlpha=a*.55;c.fillStyle='#4a2a5a';c.fillRect(-OX/SC-2,-OY/SC-2,W+2*OX/SC+4,H+2*OY/SC+4);c.globalAlpha=a;
-  const k=elastic(Math.min(1,C.t*1.6));c.translate(W/2,H/2);c.scale(.6+.4*k,.6+.4*k);c.translate(-W/2,-H/2);
-  panel(c,30,H*.08,W-60,H*.86,36,'#fffaf4','#ffb3d6',6);
-  const rays=T*.4;c.save();c.translate(W/2,H*.47);c.globalAlpha=a*.22;c.fillStyle='#ffd23a';for(let i=0;i<12;i++){c.rotate(TAU/12);c.beginPath();c.moveTo(0,0);c.lineTo(-24,-190);c.lineTo(24,-190);c.fill();}c.restore();c.globalAlpha=a;
-  txtO(c,'よく できました！',W/2,H*.14,46,'#ff5fa2','#fff',10);
-  for(let i=0;i<3;i++){const on=i<C.stars,kk=clamp((C.t-.4-i*.25)*3,0,1),s=elastic(kk);c.save();c.translate(W/2+(i-1)*84,H*.225-(i===1?12:0));c.scale(s,s);c.fillStyle=on?'#ffd23a':'#e8e0ea';star(c,0,0,36,16);c.fill();c.strokeStyle=on?'#e8a000':'#d0c0d8';c.lineWidth=4;c.stroke();c.restore();}
-  MED.love(c,W/2-90,H*.31,.8);txt(c,`+${C.hearts}`,W/2-40,H*.31,34,'#ff4d7d','left');txt(c,`ぜんぶで ${SAVE.hearts}`,W/2+150,H*.31,22,'#a07aa8','right');
-  const cy=H*.47;if(!C.open){const sh=Math.sin(T*20)*(C.t>1.5?.12:0);c.save();c.translate(W/2,cy);c.rotate(sh);c.fillStyle=gfill(c,-10,-20,70,'#ff8cc0');c.beginPath();c.arc(0,0,70,Math.PI,TAU);c.fill();c.fillStyle=gfill(c,-10,20,70,'#8ad0ff');c.beginPath();c.arc(0,0,70,0,Math.PI);c.fill();c.strokeStyle='#fff';c.lineWidth=6;c.beginPath();c.moveTo(-70,0);c.lineTo(70,0);c.stroke();c.beginPath();c.arc(0,0,70,0,TAU);c.stroke();c.fillStyle='rgba(255,255,255,.6)';ell(c,-26,-36,18,9);c.restore();
-    if(C.t>1)txt(c,'タッチで シールが でるよ！',W/2,cy+104,24,'#8a5a9a');}
-  else{const s=elastic(Math.min(1,C.open*1.8));c.save();c.translate(W/2,cy);c.scale(s,s);c.fillStyle='#fff';c.strokeStyle='#ffd23a';c.lineWidth=6;c.beginPath();c.arc(0,0,86,0,TAU);c.fill();c.stroke();drawThing(c,C.st,0,0,1.5);c.restore();
-    const w=WORDS[C.st]||['',''];txt(c,w[0],W/2,cy+112,30,'#ff5fa2');txt(c,w[1],W/2,cy+146,24,'#3a88e8');if(C.isNew){c.save();c.translate(W/2+86,cy-76);c.rotate(.25);c.fillStyle='#ff4d6d';rr(c,-40,-18,80,36,18);c.fill();txt(c,'NEW!',0,1,24,'#fff');c.restore();}}
-  let ty=H*.66;if(C.rankUp&&C.open>0){c.fillStyle='#ffd23a';rr(c,70,ty-24,W-140,44,22);c.fill();txt(c,`ランクアップ！ ${C.rankUp[1]}`,W/2,ty-1,26,'#8a4a00');ty+=40;}
-  if(C.open>0){c.font=`800 21px ${FONT}`;const L=wrapText(c,C.tip,W-160);const bh=L.length*29+54;c.fillStyle='#eaf6ff';rr(c,60,ty,W-120,bh,20);c.fill();c.strokeStyle='#9ad0ff';c.lineWidth=3;c.stroke();txt(c,'💡 まめちしき',W/2,ty+20,20,'#3a88e8');L.forEach((l,i)=>txt(c,l,W/2,ty+48+i*29,21,'#4a3a5a'));}
-  if(C.t>1.6){const b=celBtns();drawBtn(c,b.retry.x,b.retry.y,46,'#ffb03a','retry');drawBtn(c,b.home.x,b.home.y,46,'#ff8cc0','home');txt(c,'もういちど',b.retry.x,b.retry.y+64,20,'#8a5a9a');txt(c,'ロビーへ',b.home.x,b.home.y+64,20,'#8a5a9a');}
-  c.restore();}
 // ================= tool tray (choose the right tool) =================
 // tools: array of keys; target: key; returns index hit
 function toolRow(keys,y){const n=keys.length,gap=Math.min(130,(W-60)/n);return keys.map((k,i)=>({k,x:W/2+(i-(n-1)/2)*gap,y}));}
