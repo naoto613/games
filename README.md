@@ -9,6 +9,7 @@
 - ふーたんの こっそりミッション: https://naoto613.github.io/games/futan-stealth/
 - ふーたんと リッキーの ブロックパズル: https://naoto613.github.io/games/futan-block/
 - キュアふーたんの キラキラカート: https://naoto613.github.io/games/futan-kart/
+- ふーたんと リッキー すくすく にっき: https://naoto613.github.io/games/ricky-sukusuku/
 
 ## 構成
 
@@ -26,6 +27,8 @@
 │   └── index.html          # ふーたんの こっそりミッション（5歳向けステルスゲーム。単一 HTML で完結）
 ├── futan-block/
 │   └── index.html          # ふーたんと リッキーの ブロックパズル（8×8 の列そろえパズル。単一 HTML で完結）
+├── ricky-sukusuku/
+│   └── index.html          # ふーたんと リッキー すくすく にっき（4歳向け・スマホ縦持ちの育成ゲーム。単一 HTML で完結）
 ├── futan-kart/
 │   ├── index.html          # キュアふーたんの キラキラカート（5歳向け・タブレット想定の 3D カートレース）
 │   └── three.min.js        # three.js r149（fuchan-town と同じもの）
