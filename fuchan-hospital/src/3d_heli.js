@@ -6,7 +6,7 @@ M('heli',(c,o)=>{const sp=o.spin??T*30;c.fillStyle='rgba(0,0,0,.12)';ell(c,0,34,
 Object.assign(WORDS,{heli:['ドクターヘリ','helicopter']});
 const HDEST={sea:{ja:'うみの しま',sky:['#7ad0ff','#d8f4ff'],ground:'#ffe8a8',far:'#4aa8e8'},mountain:{ja:'やまの うえ',sky:['#a8d8ff','#eaf6ff'],ground:'#7ac870',far:'#9ab8d8'},snow:{ja:'ゆきやま',sky:['#c8d8f0','#f4f8ff'],ground:'#ffffff',far:'#b8c8e0'},boat:{ja:'うみの ふね',sky:['#ffb88a','#ffe8c8'],ground:'#4aa8e8',far:'#ff9a6a'}};
 SCN.heli={bg:'#9ad8ff',song:'hero',
-  enter(){this.ph='count';this.cd=3;this.miss=0;this.fin=0;this.t=0;this.dest=pick(Object.keys(HDEST));this.P=newPatient();this.hy=H*.45;this.ty=H*.45;this.dist=0;this.goal=6200;this.obs=[];this.items=[];this.spawn=1;this.hearts=0;this.bump=0;this.boost=0;this.hold=0;this.hx=150;this.rope=0;this.lift=0;this.bt=0;
+  enter(){this.saved=0;this.dragH=0;this.hold=0;this.lt=0;this.ph='count';this.cd=3;this.miss=0;this.fin=0;this.t=0;this.dest=pick(Object.keys(HDEST));this.P=newPatient();this.hy=H*.45;this.ty=H*.45;this.dist=0;this.goal=6200;this.obs=[];this.items=[];this.spawn=1;this.hearts=0;this.bump=0;this.boost=0;this.hold=0;this.hx=150;this.rope=0;this.lift=0;this.bt=0;
     this.nums=shuffle([1,2,3]);say(`${HDEST[this.dest].ja}で ${ptName(this.P)}さんが まってる！ ドクターヘリで しゅつどう！ 3・2・1 の じゅんに ボタンを おして はっしゃしよう`);},
   numP(i){return{x:W/2+(i-1)*150,y:H-110};},
   update(dt){this.t+=dt;if(this.bump>0)this.bump-=dt;if(this.boost>0)this.boost-=dt;

@@ -8,7 +8,7 @@ Object.assign(WORDS,{glasses:['めがね','glasses'],lens:['レンズ','lens']})
 const EYEPICS=['cat','dog','rabbit','bear','pig','chick','panda','fox','lion','elephant','frog','mouse'];
 const HIRA=['あ','い','う','え','お','か','き','く','け','こ','さ','し','す','せ','そ','た','ち','つ','て','と','な','に','ぬ','ね','の'];
 SCN.eye={bg:'#f0f6ff',song:'calm',
-  enter(){this.P=newPatient(ANK.filter(k=>k!=='frog'));this.need=1+Math.floor(Math.random()*5);this.lens=0;this.ph='lens';this.miss=0;this.fin=0;this.tried=[];this.chars=shuffle(HIRA).slice(0,3);this.pics=shuffle(EYEPICS).slice(0,3);this.want=[pick(GSHAPES),pick(GCOLS)];this.gl=null;this.worn=0;this.ri=0;this.hop=0;this.gd=null;this.lay();
+  enter(){this.dragG=0;this.rsel=null;this.rq=null;this.opts=null;this.P=newPatient(ANK.filter(k=>k!=='frog'));this.need=1+Math.floor(Math.random()*5);this.lens=0;this.ph='lens';this.miss=0;this.fin=0;this.tried=[];this.chars=shuffle(HIRA).slice(0,3);this.pics=shuffle(EYEPICS).slice(0,3);this.want=[pick(GSHAPES),pick(GCOLS)];this.gl=null;this.worn=0;this.ri=0;this.hop=0;this.gd=null;this.lay();
     greetPt(this.P,'こくばんの じが ぼやけて みえないの…');setTimeout(()=>{if(scene===this)say('レンズを かえて、 はっきり みえる ばんごうを さがそう！ 1から 5の ボタンを タッチ');},3000);},
   lay(){this.vx=W/2;this.vy=H*.3;this.vr=Math.min(170,H*.16);this.px=W/2;this.py=H*.66;},
   blur(){if(this.ph!=='lens'&&this.ph!=='solved')return 0;if(!this.lens)return 9;return Math.abs(this.lens-this.need)*3.2;},
