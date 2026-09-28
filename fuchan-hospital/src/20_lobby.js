@@ -13,6 +13,8 @@ const ROOMS=[
   {id:'nursery',name:'あかちゃん',sub:'おせわ',icon:'milkbottle',col:'#ff9ac8'},
   {id:'wash',name:'てあらい',sub:'ばいきん',icon:'soap',col:'#4ab8e0'},
   {id:'toy',name:'ぬいぐるみ',sub:'チクチク',icon:'plushbear',col:'#ff9a3a'},
+  {id:'eye',name:'めがねやさん',sub:'レンズ',icon:'glasses',col:'#5a88e8'},
+  {id:'heli',name:'ドクターヘリ',sub:'そら',icon:'heli',col:'#ff4d6d'},
   {id:'dress',name:'ふーちゃんと リッキーの おきがえ',sub:'',icon:'fuchan',col:'#8ad0ff'},
 ];
 M('plushbear',c=>{drawAnimal(c,'bear',0,40,.62,{t:0,plush:1,happy:1,acc:'ribbon',accC:'#ff5fa2'});});
