@@ -11,6 +11,7 @@
 - キュアふーたんの キラキラカート: https://naoto613.github.io/games/futan-kart/
 - ふーたんと リッキー すくすく にっき: https://naoto613.github.io/games/ricky-sukusuku/
 - キュアふーたん ストライク: https://naoto613.github.io/games/futan-strike/
+- ふーちゃんと リッキーの キラキラびょういん: https://naoto613.github.io/games/fuchan-hospital/
 
 ## 構成
 
@@ -35,6 +36,10 @@
 ├── futan-kart/
 │   ├── index.html          # キュアふーたんの キラキラカート（5歳向け・タブレット想定の 3D カートレース）
 │   └── three.min.js        # three.js r149（fuchan-town と同じもの）
+├── fuchan-hospital/
+│   ├── index.html          # ふーちゃんと リッキーの キラキラびょういん（5歳向け・スマホ縦持ちの おいしゃさんごっこ。ビルド済み成果物）
+│   ├── build.py            # src/*.js を連結して index.html を生成
+│   └── src/                # ソース（00_base は ふーちゃんのまち から流用した絵・音・声、30〜39 が各おへや）
 └── fuchan-town/
     ├── index.html          # ふーちゃんのまち（4歳向け・スマホ縦持ち想定。ビルド済み成果物）
     ├── build.py            # src/*.js を連結して index.html を生成
@@ -42,7 +47,7 @@
 ```
 
 各ゲームは `<ゲーム名>/index.html` の 1 フォルダ 1 ゲーム構成で、置いた HTML がそのまま配信されます。
-`fuchan-town` だけはソースを `src/` に分割しているので、編集後に `cd fuchan-town && python3 build.py` で `index.html` を再生成してからコミットしてください。
+`fuchan-town` と `fuchan-hospital` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
 
 ## ゲームの追加方法
 
