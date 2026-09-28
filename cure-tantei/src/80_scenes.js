@@ -10,20 +10,20 @@ SCN.title={
     drawGlow(c,'#fff',200,450,180,.6);drawFutan(c,150,540,{s:3.2,cure:1,pose:'win',item:'wand'});drawRicky(c,270,480,{s:2.6,cure:1,happy:1});
     drawIcon(c,'gem:#ff7ab8',60,330,1);drawIcon(c,'gem:#5ac8ff',345,350,.9);drawIcon(c,'lens',330,560,1.4);drawIcon(c,'steth',70,560,1.2);
     drawBtn(c,200,620,230,70,'はじめる！','#ff5fa2',{pulse:1,size:28});
-    drawRBtn(c,364,34,22,SAVE.mute?'mute':'sound','#8a7af0');txt(c,'5さい〜 ／ おとが でるよ',200,690,13,'#8a5a7a');},
-  down(x,y){if(inC(x,y,364,34,28)){SAVE.mute=!SAVE.mute;save();if(SAVE.mute)hush();sfx('tap');return;}
-    if(inR(x,y,200,620,240,80)){sfx('henshin');go(SCN.office);}},
+    drawRBtn(c,364,34,22,SAVE.mute?'mute':'sound','#8a7af0');txt(c,hasTTS?'5さい〜 ／ こえと おとが でるよ':'この ブラウザでは こえが でません（Safari・Chrome で あそんでね）',200,690,hasTTS?13:11,'#8a5a7a');},
+  down(x,y){if(inC(x,y,364,34,28)){SAVE.mute=!SAVE.mute;save();if(SAVE.mute)hush();else say('こえと おとが でるよ！','fu');sfx('tap');return;}
+    if(inR(x,y,200,620,240,80)){sfx('henshin');say('キュアたんてい ふーちゃん！ はじまるよ！','fu');go(SCN.office);}},
 };
 const OFFICE_BTNS=[['files','じけん ファイル','#ff5fa2','letter'],['book','たんてい てちょう','#ffa03a','book'],['practice','れんしゅう','#5aa8ff','star']];
 SCN.office={
   enter(){bgm('office');this.t=0;RUN.doc=false;RUN.cure=false;const n=SAVE.cleared;
-    say(n===0?'ようこそ、たんてい じむしょへ！ 「じけん ファイル」を タッチして、さいしょの じけんを はじめよう！':n>=8?'まちは へいわ！ れんしゅうや てちょうで あそぼう！':pick(['つぎの じけんが まってるよ！','きょうも たんてい がんばろう！','じけん ファイルを みてみよう！']),'fu');},
+    const line=()=>say(n===0?'ようこそ、たんてい じむしょへ！ 「じけん ファイル」を タッチして、さいしょの じけんを はじめよう！':n>=8?'まちは へいわ！ れんしゅうや てちょうで あそぼう！':pick(['つぎの じけんが まってるよ！','きょうも たんてい がんばろう！','じけん ファイルを みてみよう！']),'fu');if(speaking())setTimeout(()=>{if(scene===SCN.office)line();},1800);else line();},
   update(dt){this.t+=dt;},
   draw(c){drawBG(c,'office');c.fillStyle='rgba(255,255,255,.9)';rr(c,70,20,260,46,23);c.fill();c.strokeStyle='#c8905a';c.lineWidth=3;c.stroke();txt(c,'たんてい じむしょ',200,44,22,'#a0643a','center',900);
     for(let i=0;i<8;i++){const x=200+(i-3.5)*40,got=i<SAVE.cleared;if(got)drawIcon(c,'gem:'+GEM_COLS[i],x,92,.62);else{c.fillStyle='rgba(120,80,40,.25)';circ(c,x,92,12);}}
     OFFICE_BTNS.forEach(([k,l,col,ic],i)=>drawBtn(c,200,245+i*88,300,70,l,col,{icon:ic,pulse:k==='files'&&SAVE.cleared<8,size:24}));
     drawFutan(c,120,660,{s:2.3,item:'lens',pose:'point'});drawRicky(c,250,625,{s:2});drawRBtn(c,364,34,22,SAVE.mute?'mute':'sound','#8a7af0');},
-  down(x,y){if(inC(x,y,364,34,28)){SAVE.mute=!SAVE.mute;save();if(SAVE.mute)hush();sfx('tap');return;}
+  down(x,y){if(inC(x,y,364,34,28)){SAVE.mute=!SAVE.mute;save();if(SAVE.mute)hush();else say('こえと おとが でるよ！','fu');sfx('tap');return;}
     OFFICE_BTNS.forEach(([k],i)=>{if(inR(x,y,200,245+i*88,300,74)){sfx('pop');go(SCN[k]);}});
     if(inR(x,y,120,610,70,120)){sfx('tap');say(pick(['わたしは たんていの ふーちゃん！','むしめがねで なんでも みつけちゃう！','へんしんすると キュアふーちゃん！','おいしゃさんも できるんだよ！']),'fu');}
     if(inR(x,y,250,580,60,80)){sfx('baby');burst(250,560,8,'heart');say(pick(['ばぶー！','ねえね だいすき！','リッキーも たんてい！','きゃっきゃ！']),'rk');}},

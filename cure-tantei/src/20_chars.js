@@ -49,7 +49,8 @@ function drawFutan(c,x,y,o={}){
       c.fillStyle='#fff';ell(c,ex-1,ey-1.5,1.3,1.6);circ(c,ex+1.2,ey+2,.7);
       c.lineWidth=2;c.beginPath();c.ellipse(ex,ey,3.4,4.3,0,Math.PI*1.15,Math.PI*1.85);c.stroke();c.beginPath();c.moveTo(ex+k*3,ey-2.4);c.lineTo(ex+k*4.6,ey-3.6);c.stroke();c.lineWidth=1.5;}}
   c.fillStyle='rgba(255,110,150,.35)';ell(c,-9.2,HY+10,3,1.8);ell(c,9.2,HY+10,3,1.8);
-  if(o.ouch){c.fillStyle='#e0506a';ell(c,0,HY+11.5,1.8,2.2);}
+  if(o.talk){c.fillStyle='#e0506a';ell(c,0,HY+11.3,2.6,.8+Math.abs(Math.sin(t*15))*2.2);c.stroke();}
+  else if(o.ouch){c.fillStyle='#e0506a';ell(c,0,HY+11.5,1.8,2.2);}
   else if(pose==='think'){c.beginPath();c.moveTo(-2,HY+11);c.lineTo(2,HY+10.5);c.stroke();}
   else{c.fillStyle='#e0506a';c.beginPath();c.moveTo(-3,HY+10);c.quadraticCurveTo(0,HY+14.5,3,HY+10);c.closePath();c.fill();c.stroke();c.fillStyle='#fff';c.fillRect(-2,HY+10.2,4,.9);}
   // bangs
@@ -100,7 +101,7 @@ function drawKuro(c,x,y,s,t,mood=''){c.save();c.translate(x,y);c.scale(s,s);c.tr
   if(mood!=='happy'){c.fillStyle='#fff';c.beginPath();c.moveTo(-22,-18);c.quadraticCurveTo(0,-26,22,-18);c.lineTo(20,-8);c.quadraticCurveTo(0,-14,-20,-8);c.closePath();c.fill();c.stroke();
     for(const sd of[-1,1]){c.fillStyle='#ffd23a';ell(c,sd*9,-14,4.2,3.4);c.fillStyle='#1a1026';ell(c,sd*9,-14,1.4,3);}}
   else{c.lineWidth=2.2;for(const sd of[-1,1]){c.beginPath();c.arc(sd*8,-12,4,Math.PI*1.1,Math.PI*1.9);c.stroke();}c.fillStyle='rgba(255,120,160,.5)';ell(c,-13,-6,4,2.4);ell(c,13,-6,4,2.4);}
-  c.strokeStyle='#1a1026';c.lineWidth=2;c.beginPath();if(mood==='sad'){c.arc(0,-2,5,Math.PI*1.2,Math.PI*1.8);}else if(mood==='happy'){c.arc(0,-6,5,.2,Math.PI-.2);}else{c.moveTo(-6,-4);c.quadraticCurveTo(0,1,7,-5);}c.stroke();
+  if(drawKuro.talk){c.fillStyle='#6a1a3a';ell(c,0,-3,5,1.5+Math.abs(Math.sin(t*15))*3.5);}c.strokeStyle='#1a1026';c.lineWidth=2;c.beginPath();if(mood==='sad'){c.arc(0,-2,5,Math.PI*1.2,Math.PI*1.8);}else if(mood==='happy'){c.arc(0,-6,5,.2,Math.PI-.2);}else{c.moveTo(-6,-4);c.quadraticCurveTo(0,1,7,-5);}c.stroke();
   if(mood==='sad'){c.fillStyle='#8ad8ff';ell(c,-12,-4,2,3);}
   c.strokeStyle='#ddd';c.lineWidth=1;for(const sd of[-1,1])for(const d of[-2,2]){c.beginPath();c.moveTo(sd*12,-4+d);c.lineTo(sd*26,-5+d*1.6);c.stroke();}c.strokeStyle='#1a1026';c.lineWidth=2.4;
   c.fillStyle='#1a1026';c.beginPath();c.ellipse(0,-36,24,5,0,0,TAU);c.fill();rr(c,-13,-60,26,26,4);c.fill();c.fillStyle='#ff4d6d';c.fillRect(-13,-40,26,4);
@@ -215,6 +216,7 @@ function drawAnimal(c,k,x,y,s,o={}){const A=AN[k]||AN.cat,t=o.t??T;c.save();c.tr
     // mouth
     c.strokeStyle=LN;c.lineWidth=2;const my=sy+5;
     if(o.mouth==='open'){c.fillStyle='#b83a5a';ell(c,0,my+3,7,8);c.stroke();c.fillStyle='#ff8ca0';ell(c,0,my+7,4.5,3);}
+    else if(o.talk){c.fillStyle='#b83a5a';ell(c,0,my+3,5,1.5+Math.abs(Math.sin(t*15))*4.5);c.stroke();}
     else if(o.sad||o.sick){c.beginPath();c.arc(0,my+5,4,Math.PI*1.15,Math.PI*1.85);c.stroke();}
     else if(A.snout!=='trunk'){c.beginPath();c.arc(-3.5,my,3.5,.1,Math.PI-.1);c.stroke();c.beginPath();c.arc(3.5,my,3.5,.1,Math.PI-.1);c.stroke();}
     c.fillStyle=o.sick?'rgba(255,60,80,.45)':'rgba(255,110,150,.35)';ell(c,-17,HY+6,5,3);ell(c,17,HY+6,5,3);
@@ -260,7 +262,7 @@ function drawBird(c,k,t,o){const ey=-72;
   if(k==='turtle'){c.fillStyle='#8ad08a';for(const sd of[-1,1]){ell(c,sd*16,-4,10,6);c.stroke();ell(c,sd*30,-38,8,12,sd*.6);c.stroke();}
     c.fillStyle=gfill(c,-8,-40,40,'#3a9a5a');ell(c,0,-32,30,30);c.stroke();c.fillStyle='#ffe8a8';ell(c,0,-28,18,20);c.strokeStyle='#d8b870';for(let i=0;i<3;i++){c.beginPath();c.moveTo(-14,-38+i*9);c.lineTo(14,-38+i*9);c.stroke();}c.strokeStyle=LN;
     c.fillStyle=gfill(c,-6,-80,24,'#8ad08a');ell(c,0,-74,22,20);c.stroke();eyes(8,4);c.beginPath();c.arc(0,-66,5,.2,Math.PI-.2);c.stroke();c.fillStyle='rgba(255,110,150,.35)';ell(c,-14,-68,4,2.5);ell(c,14,-68,4,2.5);}
-  if(o.mouth==='open'){c.fillStyle='#b83a5a';ell(c,0,-60,6,7);c.stroke();}
+  if(o.mouth==='open'||(o.talk&&Math.sin(t*15)>0)){c.fillStyle='#b83a5a';ell(c,0,-58,5,5);c.stroke();}
   if((o.acc||[]).some(a=>a.startsWith('scarf'))){const col=(o.acc.find(a=>a.startsWith('scarf')).split(':')[1])||'#5aa8ff';c.fillStyle=col;c.strokeStyle=LN;c.lineWidth=2.2;rr(c,-20,-54,40,9,4);c.fill();c.stroke();}
   if((o.acc||[]).includes('band')){c.fillStyle='#ffe0c0';c.save();c.translate(-16,-10);c.rotate(-.3);rr(c,-9,-4,18,8,3);c.fill();c.stroke();c.restore();}
   if(o.sick){c.fillStyle='rgba(255,60,80,.45)';ell(c,-16,-62,5,3);ell(c,16,-62,5,3);}

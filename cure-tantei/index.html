@@ -68,7 +68,7 @@ function silhouette(c,fn,x,y,size,col='#2a1a3a'){const s=silCv.getContext('2d');
 // ================= audio (sfx / original bgm / voice) =================
 let AC=null,MG=null,BGG=null,NOISE=null;
 let ttsUnlocked=false;
-function audioInit(){if(!ttsUnlocked&&'speechSynthesis' in window){ttsUnlocked=true;try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}catch(e){}}if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();MG=AC.createGain();MG.gain.value=.6;MG.connect(AC.destination);BGG=AC.createGain();BGG.gain.value=1;BGG.connect(MG);}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();}
+function audioInit(){if(!ttsUnlocked&&'speechSynthesis' in window){ttsUnlocked=true;try{loadVoices();const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='ja-JP';speechSynthesis.speak(u);}catch(e){}}if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();MG=AC.createGain();MG.gain.value=.6;MG.connect(AC.destination);BGG=AC.createGain();BGG.gain.value=1;BGG.connect(MG);}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();}
 function tone(f,d,type='sine',v=.15,f2=0,when=0,dest){if(!AC||SAVE.mute)return;const t0=AC.currentTime+when,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t0);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t0+d);g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(v,t0+.01);g.gain.exponentialRampToValueAtTime(.001,t0+d);o.connect(g);g.connect(dest||MG);o.start(t0);o.stop(t0+d+.03);}
 function noise(d,v,f,when=0,dest,type='highpass'){if(!AC||SAVE.mute)return;if(!NOISE){NOISE=AC.createBuffer(1,AC.sampleRate*.5,AC.sampleRate);const a=NOISE.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;}
   const t0=AC.currentTime+when,src=AC.createBufferSource(),fl=AC.createBiquadFilter(),g=AC.createGain();src.buffer=NOISE;fl.type=type;fl.frequency.value=f;
@@ -143,21 +143,36 @@ function bgmTick(){if(!AC||!BGG)return;const sp=speaking();BGG.gain.setTargetAtT
     const n=S.mel[s];if(n!=null)tone(NOTE(n),spb*S.len,S.lead,S.vol,0,when,BGG);
     BGM.step++;BGM.next+=spb;}}
 // ---------- voice (speechSynthesis) ----------
-const hasTTS='speechSynthesis' in window;let JV=null,EV=null;
-function loadVoices(){if(!hasTTS)return;const v=speechSynthesis.getVoices();JV=v.find(x=>/^ja[-_]JP/i.test(x.lang))||v.find(x=>/^ja/i.test(x.lang))||null;
+// ブラウザの よみあげ で セリフを しゃべる。キャラごとに こえの たかさ・はやさ・こえの しゅるいを かえる。
+const hasTTS='speechSynthesis' in window&&'SpeechSynthesisUtterance' in window;let JV=null,EV=null,JVM=null,JVS=[];
+function loadVoices(){if(!hasTTS)return;let v=[];try{v=speechSynthesis.getVoices()||[];}catch(e){}JVS=v.filter(x=>/^ja/i.test(x.lang));
+  const fem=/Kyoko|Nanami|Haruka|Ayumi|Mizuki|Sayaka|O-ren|Google 日本語|Female|女性/i,mal=/Otoya|Ichiro|Keita|Daichi|Hattori|Naoki|Male|男性/i;
+  JV=JVS.find(x=>fem.test(x.name)&&x.localService)||JVS.find(x=>fem.test(x.name))||JVS.find(x=>!mal.test(x.name))||JVS[0]||null;
+  JVM=JVS.find(x=>mal.test(x.name))||null;
   EV=v.find(x=>/^en[-_]US/i.test(x.lang)&&/Samantha|Google US|Aria|Jenny|Female/i.test(x.name))||v.find(x=>/^en[-_]US/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null;}
-if(hasTTS){loadVoices();try{speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}}
-function speaking(){return hasTTS&&speechSynthesis.speaking;}
-const VO={fu:[1.45,1.05],rk:[1.95,1.12],kuro:[.8,1.05],witch:[.55,.92],narr:[1.15,1],en:[1.25,.82]};
-function speakOne(text,lang,who){if(SAVE.mute||!hasTTS||!text)return;try{const u=new SpeechSynthesisUtterance(text.replace(/[「」『』☆★♪♡・…]/g,' ').replace(/〜/g,'ー'));
-  u.lang=lang==='en'?'en-US':'ja-JP';const v=lang==='en'?EV:JV;if(v)u.voice=v;
-  const p=lang==='en'?VO.en:(VO[who]||(NPC[who]&&NPC[who].vo)||[1.25,1]);u.pitch=p[0];u.rate=p[1];speechSynthesis.speak(u);}catch(e){}}
-function hush(){if(hasTTS)try{speechSynthesis.cancel();}catch(e){}}
+if(hasTTS){loadVoices();try{speechSynthesis.addEventListener?speechSynthesis.addEventListener('voiceschanged',loadVoices):speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}
+  // Chrome などで よみあげが とまったままに なるのを ふせぐ
+  setInterval(()=>{try{if(speechSynthesis.paused)speechSynthesis.resume();}catch(e){}},800);}
+const VO={fu:[1.45,1.05],rk:[1.95,1.12],kuro:[.85,1.05],witch:[.6,.92],narr:[1.15,1],en:[1.25,.82]};
+const SPK={gen:0,active:false,until:0,refs:[]};
+function speaking(){return SPK.active&&performance.now()<SPK.until;}
+function cleanTxt(t){return t.replace(/[「」『』☆★♪♡・…]/g,' ').replace(/〜/g,'ー').replace(/！+/g,'！').trim();}
+function mkUtt(text,lang,who){const u=new SpeechSynthesisUtterance(cleanTxt(text));u.lang=lang==='en'?'en-US':'ja-JP';
+  let v=lang==='en'?EV:JV;if(lang!=='en'&&(who==='kuro'||who==='witch')&&JVM)v=JVM;if(v)try{u.voice=v;}catch(e){}
+  const p=lang==='en'?VO.en:(VO[who]||(NPC[who]&&NPC[who].vo)||[1.25,1]);u.pitch=clamp(p[0],0,2);u.rate=p[1];u.volume=1;return u;}
+function speakList(list,who){if(SAVE.mute||!hasTTS||!list.length)return;const g=++SPK.gen;let busy=false;try{busy=speechSynthesis.speaking||speechSynthesis.pending;speechSynthesis.cancel();}catch(e){}
+  const chars=list.reduce((a,[t])=>a+t.length,0);SPK.active=true;SPK.until=performance.now()+chars*190+2500;
+  const go=()=>{if(g!==SPK.gen)return;SPK.refs=[];list.forEach(([t,l],i)=>{if(!t||!cleanTxt(t))return;try{const u=mkUtt(t,l,who);SPK.refs.push(u);
+      if(i===list.length-1)u.onend=u.onerror=()=>{if(g===SPK.gen)SPK.active=false;};speechSynthesis.speak(u);}catch(e){}});try{if(speechSynthesis.paused)speechSynthesis.resume();}catch(e){}};
+  // cancel の ちょくごに speak すると きえる ブラウザが あるので すこし まつ
+  if(busy)setTimeout(go,90);else go();}
+function speakOne(text,lang,who){speakList([[text,lang]],who);}
+function hush(){SPK.gen++;SPK.active=false;if(hasTTS)try{speechSynthesis.cancel();}catch(e){}}
 let LASTSAY=null;
 // say('にほんご', who, 'english')  /  say([['apple','en'],['は どれ？','ja']], who)
-function say(parts,who='fu',en){hush();const list=typeof parts==='string'?[[parts,'ja']]:parts.map(p=>typeof p==='string'?[p,'ja']:p);if(en)list.push([en,'en']);
-  LASTSAY=[list,who];for(const[t,l]of list)speakOne(t,l,who);}
-function replay(){if(LASTSAY){hush();for(const[t,l]of LASTSAY[0])speakOne(t,l,LASTSAY[1]);}}
+function say(parts,who='fu',en){const list=typeof parts==='string'?[[parts,'ja']]:parts.map(p=>typeof p==='string'?[p,'ja']:p);if(en)list.push([en,'en']);
+  LASTSAY=[list,who];speakList(list,who);}
+function replay(){if(LASTSAY)speakList(LASTSAY[0],LASTSAY[1]);}
 // ================= characters =================
 const HAIR='#2b1d22',SKIN='#ffe4d4',LN='#5b2c47';
 // ふーちゃん  o:{t,s,cure,doc,pose:'idle'|'run'|'win'|'cast'|'point'|'hold'|'think',moving,dir,happy,ouch,item:'lens',spin,look}
@@ -209,7 +224,8 @@ function drawFutan(c,x,y,o={}){
       c.fillStyle='#fff';ell(c,ex-1,ey-1.5,1.3,1.6);circ(c,ex+1.2,ey+2,.7);
       c.lineWidth=2;c.beginPath();c.ellipse(ex,ey,3.4,4.3,0,Math.PI*1.15,Math.PI*1.85);c.stroke();c.beginPath();c.moveTo(ex+k*3,ey-2.4);c.lineTo(ex+k*4.6,ey-3.6);c.stroke();c.lineWidth=1.5;}}
   c.fillStyle='rgba(255,110,150,.35)';ell(c,-9.2,HY+10,3,1.8);ell(c,9.2,HY+10,3,1.8);
-  if(o.ouch){c.fillStyle='#e0506a';ell(c,0,HY+11.5,1.8,2.2);}
+  if(o.talk){c.fillStyle='#e0506a';ell(c,0,HY+11.3,2.6,.8+Math.abs(Math.sin(t*15))*2.2);c.stroke();}
+  else if(o.ouch){c.fillStyle='#e0506a';ell(c,0,HY+11.5,1.8,2.2);}
   else if(pose==='think'){c.beginPath();c.moveTo(-2,HY+11);c.lineTo(2,HY+10.5);c.stroke();}
   else{c.fillStyle='#e0506a';c.beginPath();c.moveTo(-3,HY+10);c.quadraticCurveTo(0,HY+14.5,3,HY+10);c.closePath();c.fill();c.stroke();c.fillStyle='#fff';c.fillRect(-2,HY+10.2,4,.9);}
   // bangs
@@ -260,7 +276,7 @@ function drawKuro(c,x,y,s,t,mood=''){c.save();c.translate(x,y);c.scale(s,s);c.tr
   if(mood!=='happy'){c.fillStyle='#fff';c.beginPath();c.moveTo(-22,-18);c.quadraticCurveTo(0,-26,22,-18);c.lineTo(20,-8);c.quadraticCurveTo(0,-14,-20,-8);c.closePath();c.fill();c.stroke();
     for(const sd of[-1,1]){c.fillStyle='#ffd23a';ell(c,sd*9,-14,4.2,3.4);c.fillStyle='#1a1026';ell(c,sd*9,-14,1.4,3);}}
   else{c.lineWidth=2.2;for(const sd of[-1,1]){c.beginPath();c.arc(sd*8,-12,4,Math.PI*1.1,Math.PI*1.9);c.stroke();}c.fillStyle='rgba(255,120,160,.5)';ell(c,-13,-6,4,2.4);ell(c,13,-6,4,2.4);}
-  c.strokeStyle='#1a1026';c.lineWidth=2;c.beginPath();if(mood==='sad'){c.arc(0,-2,5,Math.PI*1.2,Math.PI*1.8);}else if(mood==='happy'){c.arc(0,-6,5,.2,Math.PI-.2);}else{c.moveTo(-6,-4);c.quadraticCurveTo(0,1,7,-5);}c.stroke();
+  if(drawKuro.talk){c.fillStyle='#6a1a3a';ell(c,0,-3,5,1.5+Math.abs(Math.sin(t*15))*3.5);}c.strokeStyle='#1a1026';c.lineWidth=2;c.beginPath();if(mood==='sad'){c.arc(0,-2,5,Math.PI*1.2,Math.PI*1.8);}else if(mood==='happy'){c.arc(0,-6,5,.2,Math.PI-.2);}else{c.moveTo(-6,-4);c.quadraticCurveTo(0,1,7,-5);}c.stroke();
   if(mood==='sad'){c.fillStyle='#8ad8ff';ell(c,-12,-4,2,3);}
   c.strokeStyle='#ddd';c.lineWidth=1;for(const sd of[-1,1])for(const d of[-2,2]){c.beginPath();c.moveTo(sd*12,-4+d);c.lineTo(sd*26,-5+d*1.6);c.stroke();}c.strokeStyle='#1a1026';c.lineWidth=2.4;
   c.fillStyle='#1a1026';c.beginPath();c.ellipse(0,-36,24,5,0,0,TAU);c.fill();rr(c,-13,-60,26,26,4);c.fill();c.fillStyle='#ff4d6d';c.fillRect(-13,-40,26,4);
@@ -375,6 +391,7 @@ function drawAnimal(c,k,x,y,s,o={}){const A=AN[k]||AN.cat,t=o.t??T;c.save();c.tr
     // mouth
     c.strokeStyle=LN;c.lineWidth=2;const my=sy+5;
     if(o.mouth==='open'){c.fillStyle='#b83a5a';ell(c,0,my+3,7,8);c.stroke();c.fillStyle='#ff8ca0';ell(c,0,my+7,4.5,3);}
+    else if(o.talk){c.fillStyle='#b83a5a';ell(c,0,my+3,5,1.5+Math.abs(Math.sin(t*15))*4.5);c.stroke();}
     else if(o.sad||o.sick){c.beginPath();c.arc(0,my+5,4,Math.PI*1.15,Math.PI*1.85);c.stroke();}
     else if(A.snout!=='trunk'){c.beginPath();c.arc(-3.5,my,3.5,.1,Math.PI-.1);c.stroke();c.beginPath();c.arc(3.5,my,3.5,.1,Math.PI-.1);c.stroke();}
     c.fillStyle=o.sick?'rgba(255,60,80,.45)':'rgba(255,110,150,.35)';ell(c,-17,HY+6,5,3);ell(c,17,HY+6,5,3);
@@ -420,7 +437,7 @@ function drawBird(c,k,t,o){const ey=-72;
   if(k==='turtle'){c.fillStyle='#8ad08a';for(const sd of[-1,1]){ell(c,sd*16,-4,10,6);c.stroke();ell(c,sd*30,-38,8,12,sd*.6);c.stroke();}
     c.fillStyle=gfill(c,-8,-40,40,'#3a9a5a');ell(c,0,-32,30,30);c.stroke();c.fillStyle='#ffe8a8';ell(c,0,-28,18,20);c.strokeStyle='#d8b870';for(let i=0;i<3;i++){c.beginPath();c.moveTo(-14,-38+i*9);c.lineTo(14,-38+i*9);c.stroke();}c.strokeStyle=LN;
     c.fillStyle=gfill(c,-6,-80,24,'#8ad08a');ell(c,0,-74,22,20);c.stroke();eyes(8,4);c.beginPath();c.arc(0,-66,5,.2,Math.PI-.2);c.stroke();c.fillStyle='rgba(255,110,150,.35)';ell(c,-14,-68,4,2.5);ell(c,14,-68,4,2.5);}
-  if(o.mouth==='open'){c.fillStyle='#b83a5a';ell(c,0,-60,6,7);c.stroke();}
+  if(o.mouth==='open'||(o.talk&&Math.sin(t*15)>0)){c.fillStyle='#b83a5a';ell(c,0,-58,5,5);c.stroke();}
   if((o.acc||[]).some(a=>a.startsWith('scarf'))){const col=(o.acc.find(a=>a.startsWith('scarf')).split(':')[1])||'#5aa8ff';c.fillStyle=col;c.strokeStyle=LN;c.lineWidth=2.2;rr(c,-20,-54,40,9,4);c.fill();c.stroke();}
   if((o.acc||[]).includes('band')){c.fillStyle='#ffe0c0';c.save();c.translate(-16,-10);c.rotate(-.3);rr(c,-9,-4,18,8,3);c.fill();c.stroke();c.restore();}
   if(o.sick){c.fillStyle='rgba(255,60,80,.45)';ell(c,-16,-62,5,3);ell(c,16,-62,5,3);}
@@ -640,7 +657,7 @@ function instr(text,who='fu',en){INS={text,who,t:0};say(text,who,en);}
 function drawIns(c){if(!INS)return;const k=easeBack(Math.min(1,INS.t*3));c.save();c.translate(200,106);c.scale(k,k);
   c.fillStyle='rgba(90,30,70,.25)';rr(c,-186,-34,372,76,20);c.fill();c.fillStyle='rgba(255,255,255,.96)';rr(c,-186,-38,372,76,20);c.fill();c.strokeStyle='#ff8cc6';c.lineWidth=3.5;c.stroke();
   c.save();c.beginPath();c.arc(-150,0,27,0,TAU);c.fillStyle='#ffe8f4';c.fill();c.clip();
-  if(INS.who==='rk')drawRicky(c,-150,54,{s:1.5,noShadow:1});else if(INS.who==='kuro')drawKuro(c,-150,50,.55,T);else drawFutan(c,-150,48,{s:1.25,noShadow:1,doc:RUN.doc,cure:RUN.cure});c.restore();
+  if(INS.who==='rk')drawRicky(c,-150,54,{s:1.5,noShadow:1,talk:speaking()});else if(INS.who==='kuro')drawKuro(c,-150,50,.55,T);else drawFutan(c,-150,48,{s:1.25,noShadow:1,doc:RUN.doc,cure:RUN.cure,talk:speaking()});c.restore();
   c.strokeStyle='#ff8cc6';c.lineWidth=3;c.beginPath();c.arc(-150,0,27,0,TAU);c.stroke();
   c.font=`800 19px ${FONT}`;const ls=wrap(c,INS.text,300);const size=ls.length>2?16:19;c.font=`800 ${size}px ${FONT}`;const ls2=wrap(c,INS.text,300);
   c.textAlign='left';c.textBaseline='middle';c.fillStyle='#5b2c47';ls2.slice(0,3).forEach((l,i)=>c.fillText(l,-114,(i-(Math.min(3,ls2.length)-1)/2)*size*1.25));c.restore();}
@@ -655,7 +672,7 @@ function drawHand(c,x,y){const b=Math.sin(T*8)*6;c.save();c.translate(x+8,y+14+b
   rr(c,-5,-26,10,24,5);c.fill();c.stroke();rr(c,-12,-6,26,24,9);c.fill();c.stroke();c.beginPath();c.moveTo(-2,-2);c.lineTo(-2,6);c.moveTo(4,-2);c.lineTo(4,6);c.stroke();c.restore();
   c.strokeStyle='rgba(255,255,255,.8)';c.lineWidth=3;c.beginPath();c.arc(x,y,14+((T*2)%1)*16,0,TAU);c.stroke();}
 // ---------- transition ----------
-function go(next){if(TR)return;hush();TR={t:0,next,sw:false};}
+function go(next){if(TR)return;if(scene!==SCN.title)hush();TR={t:0,next,sw:false};}
 function updTR(dt){if(!TR)return;TR.t+=dt;if(!TR.sw&&TR.t>=.32){TR.sw=true;scene=TR.next;INS=null;CARD=null;IDLE=0;PARTS.length=0;scene.enter&&scene.enter();}if(TR.t>=.64)TR=null;}
 function drawTR(c){if(!TR)return;const k=TR.t<.32?TR.t/.32:1-(TR.t-.32)/.32;c.globalAlpha=clamp(k*1.2,0,1);c.fillStyle='#ffc0e0';c.fillRect(VX0-10,VY0-10,VX1-VX0+20,VY1-VY0+20);
   c.fillStyle='#fff';for(let i=0;i<8;i++){const a=i/8*TAU+T*2;heartP(c,200+Math.cos(a)*80*k,360+Math.sin(a)*80*k,16*k);c.fill();}c.globalAlpha=1;}
@@ -686,11 +703,11 @@ const NPC={
 const NAMES={fu:'ふーちゃん',rk:'リッキー',kuro:'クロニャン',witch:'ドロドロン',narr:''};
 function nameOf(id){return NAMES[id]!=null?NAMES[id]:(NPC[id]?NPC[id].name:id);}
 function drawCast(c,id,x,y,o={}){const t=T+(o.seed||0);
-  if(id==='fu')drawFutan(c,x,y,{s:2.1,t,cure:o.cure,doc:o.doc,happy:o.emo==='happy',ouch:o.emo==='ouch',pose:o.emo==='happy'?'win':o.emo==='think'?'think':o.pose||'idle',item:o.item});
+  if(id==='fu')drawFutan(c,x,y,{s:2.1,t,talk:o.talk,cure:o.cure,doc:o.doc,happy:o.emo==='happy',ouch:o.emo==='ouch',pose:o.emo==='happy'?'win':o.emo==='think'?'think':o.pose||'idle',item:o.item});
   else if(id==='rk')drawRicky(c,x,y,{s:1.9,t,happy:o.emo==='happy',nurse:o.doc,cure:o.cure,talk:o.talk});
-  else if(id==='kuro')drawKuro(c,x,y,1.2,t,o.emo||'');
+  else if(id==='kuro'){drawKuro.talk=o.talk;drawKuro(c,x,y,1.2,t,o.emo||'');drawKuro.talk=false;}
   else if(id==='witch')drawWitch(c,x,y,1.5,t,{kind:o.emo==='kind'});
-  else{const n=NPC[id];if(n)drawAnimal(c,n.kind,x,y,1.15,{t,acc:n.acc,happy:o.emo==='happy',sad:o.emo==='sad',sick:o.emo==='sick',sleep:o.emo==='sleep'});}}
+  else{const n=NPC[id];if(n)drawAnimal(c,n.kind,x,y,1.15,{t,talk:o.talk,acc:n.acc,happy:o.emo==='happy',sad:o.emo==='sad',sick:o.emo==='sick',sleep:o.emo==='sleep'});}}
 const RUN={steps:[],i:0,onEnd:null,ci:-1,flags:{},mode:'story',doc:false,cure:false};
 function runSteps(steps,onEnd,opt={}){RUN.steps=steps;RUN.i=opt.start||0;RUN.onEnd=onEnd;RUN.ci=opt.ci??-1;RUN.flags=Object.assign({},opt.flags||{});RUN.mode=opt.mode||'story';startStep();}
 function startStep(){const d=RUN.steps[RUN.i];if(RUN.ci>=0&&d.t!=='battle'){SAVE.cp={ci:RUN.ci,i:RUN.i,flags:RUN.flags};save();}go(mkStep(d));}
@@ -720,7 +737,7 @@ STEP.talk={
     const xs=R.length===1?[300]:R.length===2?[240,340]:[222,295,368];R.forEach((k,i)=>P[k]=[xs[i]||300,470]);return P;},
   draw(c){const d=this.d;drawBG(c,this.bg);const P=this.pos();
     for(const k of this.cast){const p=P[k];if(!p)continue;const sp=k===this.who;c.save();if(sp){c.translate(p[0],p[1]);c.scale(1.04,1.04);c.translate(-p[0],-p[1]);}
-      drawCast(c,k,p[0],p[1],{emo:this.emo[k],cure:d.cure,doc:d.doc,talk:sp&&k==='rk'&&speaking(),seed:k.length});c.restore();
+      drawCast(c,k,p[0],p[1],{emo:this.emo[k],cure:d.cure,doc:d.doc,talk:sp&&speaking(),seed:k.length});c.restore();
       if(sp&&this.who!=='narr'){c.fillStyle='#ff5fa2';const ty=k==='fu'?p[1]-160:k==='rk'?p[1]-110:k==='kuro'?p[1]-170:k==='witch'?p[1]-190:p[1]-150;c.beginPath();c.moveTo(p[0]-9,ty+Math.sin(T*6)*3);c.lineTo(p[0]+9,ty+Math.sin(T*6)*3);c.lineTo(p[0],ty+12+Math.sin(T*6)*3);c.closePath();c.fill();}}
     if(this.show){const k=easeBack(Math.min(1,this.showT*3));c.save();c.translate(200,270);c.scale(k,k);drawGlow(c,'#fff6a0',0,0,110,.8);c.fillStyle='rgba(255,255,255,.9)';circ(c,0,0,62);c.strokeStyle='#ffc83a';c.lineWidth=5;c.beginPath();c.arc(0,0,62,0,TAU);c.stroke();drawIcon(c,this.show,0,0,2.2);c.restore();
       const w=wordOf(this.show);if(w&&k>.9){otext(c,w[0],200,350,22,'#fff','#ff9a2a','center',FONT);otext(c,w[1],200,380,22,'#fff','#3a8aff','center',POP);}}
@@ -728,6 +745,7 @@ STEP.talk={
     c.fillStyle='rgba(90,30,70,.3)';rr(c,14,532,372,176,24);c.fill();c.fillStyle=narr?'rgba(250,244,255,.97)':'rgba(255,255,255,.97)';rr(c,14,526,372,176,24);c.fill();c.strokeStyle=narr?'#b48cff':who==='kuro'||who==='witch'?'#7a4ab8':'#ff8cc6';c.lineWidth=4;c.stroke();
     if(!narr){const nm=nameOf(who);c.font=`900 18px ${FONT}`;const w=c.measureText(nm).width+30;c.fillStyle=who==='kuro'||who==='witch'?'#7a4ab8':who==='rk'?'#ffb03a':who==='fu'?'#ff5fa2':'#5aa8ff';rr(c,28,510,w,32,16);c.fill();txt(c,nm,28+w/2,527,18,'#fff','center',900);}
     const n=para(c,text,34,566,332,21,'#4a2a3a',1.42);
+    if(speaking()){c.strokeStyle='#ff8cc6';c.lineWidth=3;c.lineCap='round';for(let k=0;k<3;k++){const a=.5+.5*Math.sin(T*10-k*1.2);c.globalAlpha=a;c.beginPath();c.arc(350,542,8+k*7,-.7,.7);c.stroke();}c.globalAlpha=1;}
     if(this.lt>.35){c.fillStyle='#ff8cc6';const bx=362,by=684+Math.sin(T*6)*3;c.beginPath();c.moveTo(bx-8,by-6);c.lineTo(bx+8,by-6);c.lineTo(bx,by+4);c.closePath();c.fill();}},
   down(){if(this.lt<.35)return;sfx('tap');this.next();},
   hint(){return this.lt>6?{x:340,y:660}:null;},
@@ -1472,20 +1490,20 @@ SCN.title={
     drawGlow(c,'#fff',200,450,180,.6);drawFutan(c,150,540,{s:3.2,cure:1,pose:'win',item:'wand'});drawRicky(c,270,480,{s:2.6,cure:1,happy:1});
     drawIcon(c,'gem:#ff7ab8',60,330,1);drawIcon(c,'gem:#5ac8ff',345,350,.9);drawIcon(c,'lens',330,560,1.4);drawIcon(c,'steth',70,560,1.2);
     drawBtn(c,200,620,230,70,'はじめる！','#ff5fa2',{pulse:1,size:28});
-    drawRBtn(c,364,34,22,SAVE.mute?'mute':'sound','#8a7af0');txt(c,'5さい〜 ／ おとが でるよ',200,690,13,'#8a5a7a');},
-  down(x,y){if(inC(x,y,364,34,28)){SAVE.mute=!SAVE.mute;save();if(SAVE.mute)hush();sfx('tap');return;}
-    if(inR(x,y,200,620,240,80)){sfx('henshin');go(SCN.office);}},
+    drawRBtn(c,364,34,22,SAVE.mute?'mute':'sound','#8a7af0');txt(c,hasTTS?'5さい〜 ／ こえと おとが でるよ':'この ブラウザでは こえが でません（Safari・Chrome で あそんでね）',200,690,hasTTS?13:11,'#8a5a7a');},
+  down(x,y){if(inC(x,y,364,34,28)){SAVE.mute=!SAVE.mute;save();if(SAVE.mute)hush();else say('こえと おとが でるよ！','fu');sfx('tap');return;}
+    if(inR(x,y,200,620,240,80)){sfx('henshin');say('キュアたんてい ふーちゃん！ はじまるよ！','fu');go(SCN.office);}},
 };
 const OFFICE_BTNS=[['files','じけん ファイル','#ff5fa2','letter'],['book','たんてい てちょう','#ffa03a','book'],['practice','れんしゅう','#5aa8ff','star']];
 SCN.office={
   enter(){bgm('office');this.t=0;RUN.doc=false;RUN.cure=false;const n=SAVE.cleared;
-    say(n===0?'ようこそ、たんてい じむしょへ！ 「じけん ファイル」を タッチして、さいしょの じけんを はじめよう！':n>=8?'まちは へいわ！ れんしゅうや てちょうで あそぼう！':pick(['つぎの じけんが まってるよ！','きょうも たんてい がんばろう！','じけん ファイルを みてみよう！']),'fu');},
+    const line=()=>say(n===0?'ようこそ、たんてい じむしょへ！ 「じけん ファイル」を タッチして、さいしょの じけんを はじめよう！':n>=8?'まちは へいわ！ れんしゅうや てちょうで あそぼう！':pick(['つぎの じけんが まってるよ！','きょうも たんてい がんばろう！','じけん ファイルを みてみよう！']),'fu');if(speaking())setTimeout(()=>{if(scene===SCN.office)line();},1800);else line();},
   update(dt){this.t+=dt;},
   draw(c){drawBG(c,'office');c.fillStyle='rgba(255,255,255,.9)';rr(c,70,20,260,46,23);c.fill();c.strokeStyle='#c8905a';c.lineWidth=3;c.stroke();txt(c,'たんてい じむしょ',200,44,22,'#a0643a','center',900);
     for(let i=0;i<8;i++){const x=200+(i-3.5)*40,got=i<SAVE.cleared;if(got)drawIcon(c,'gem:'+GEM_COLS[i],x,92,.62);else{c.fillStyle='rgba(120,80,40,.25)';circ(c,x,92,12);}}
     OFFICE_BTNS.forEach(([k,l,col,ic],i)=>drawBtn(c,200,245+i*88,300,70,l,col,{icon:ic,pulse:k==='files'&&SAVE.cleared<8,size:24}));
     drawFutan(c,120,660,{s:2.3,item:'lens',pose:'point'});drawRicky(c,250,625,{s:2});drawRBtn(c,364,34,22,SAVE.mute?'mute':'sound','#8a7af0');},
-  down(x,y){if(inC(x,y,364,34,28)){SAVE.mute=!SAVE.mute;save();if(SAVE.mute)hush();sfx('tap');return;}
+  down(x,y){if(inC(x,y,364,34,28)){SAVE.mute=!SAVE.mute;save();if(SAVE.mute)hush();else say('こえと おとが でるよ！','fu');sfx('tap');return;}
     OFFICE_BTNS.forEach(([k],i)=>{if(inR(x,y,200,245+i*88,300,74)){sfx('pop');go(SCN[k]);}});
     if(inR(x,y,120,610,70,120)){sfx('tap');say(pick(['わたしは たんていの ふーちゃん！','むしめがねで なんでも みつけちゃう！','へんしんすると キュアふーちゃん！','おいしゃさんも できるんだよ！']),'fu');}
     if(inR(x,y,250,580,60,80)){sfx('baby');burst(250,560,8,'heart');say(pick(['ばぶー！','ねえね だいすき！','リッキーも たんてい！','きゃっきゃ！']),'rk');}},

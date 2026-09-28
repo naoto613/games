@@ -39,7 +39,7 @@ function instr(text,who='fu',en){INS={text,who,t:0};say(text,who,en);}
 function drawIns(c){if(!INS)return;const k=easeBack(Math.min(1,INS.t*3));c.save();c.translate(200,106);c.scale(k,k);
   c.fillStyle='rgba(90,30,70,.25)';rr(c,-186,-34,372,76,20);c.fill();c.fillStyle='rgba(255,255,255,.96)';rr(c,-186,-38,372,76,20);c.fill();c.strokeStyle='#ff8cc6';c.lineWidth=3.5;c.stroke();
   c.save();c.beginPath();c.arc(-150,0,27,0,TAU);c.fillStyle='#ffe8f4';c.fill();c.clip();
-  if(INS.who==='rk')drawRicky(c,-150,54,{s:1.5,noShadow:1});else if(INS.who==='kuro')drawKuro(c,-150,50,.55,T);else drawFutan(c,-150,48,{s:1.25,noShadow:1,doc:RUN.doc,cure:RUN.cure});c.restore();
+  if(INS.who==='rk')drawRicky(c,-150,54,{s:1.5,noShadow:1,talk:speaking()});else if(INS.who==='kuro')drawKuro(c,-150,50,.55,T);else drawFutan(c,-150,48,{s:1.25,noShadow:1,doc:RUN.doc,cure:RUN.cure,talk:speaking()});c.restore();
   c.strokeStyle='#ff8cc6';c.lineWidth=3;c.beginPath();c.arc(-150,0,27,0,TAU);c.stroke();
   c.font=`800 19px ${FONT}`;const ls=wrap(c,INS.text,300);const size=ls.length>2?16:19;c.font=`800 ${size}px ${FONT}`;const ls2=wrap(c,INS.text,300);
   c.textAlign='left';c.textBaseline='middle';c.fillStyle='#5b2c47';ls2.slice(0,3).forEach((l,i)=>c.fillText(l,-114,(i-(Math.min(3,ls2.length)-1)/2)*size*1.25));c.restore();}
@@ -54,7 +54,7 @@ function drawHand(c,x,y){const b=Math.sin(T*8)*6;c.save();c.translate(x+8,y+14+b
   rr(c,-5,-26,10,24,5);c.fill();c.stroke();rr(c,-12,-6,26,24,9);c.fill();c.stroke();c.beginPath();c.moveTo(-2,-2);c.lineTo(-2,6);c.moveTo(4,-2);c.lineTo(4,6);c.stroke();c.restore();
   c.strokeStyle='rgba(255,255,255,.8)';c.lineWidth=3;c.beginPath();c.arc(x,y,14+((T*2)%1)*16,0,TAU);c.stroke();}
 // ---------- transition ----------
-function go(next){if(TR)return;hush();TR={t:0,next,sw:false};}
+function go(next){if(TR)return;if(scene!==SCN.title)hush();TR={t:0,next,sw:false};}
 function updTR(dt){if(!TR)return;TR.t+=dt;if(!TR.sw&&TR.t>=.32){TR.sw=true;scene=TR.next;INS=null;CARD=null;IDLE=0;PARTS.length=0;scene.enter&&scene.enter();}if(TR.t>=.64)TR=null;}
 function drawTR(c){if(!TR)return;const k=TR.t<.32?TR.t/.32:1-(TR.t-.32)/.32;c.globalAlpha=clamp(k*1.2,0,1);c.fillStyle='#ffc0e0';c.fillRect(VX0-10,VY0-10,VX1-VX0+20,VY1-VY0+20);
   c.fillStyle='#fff';for(let i=0;i<8;i++){const a=i/8*TAU+T*2;heartP(c,200+Math.cos(a)*80*k,360+Math.sin(a)*80*k,16*k);c.fill();}c.globalAlpha=1;}
