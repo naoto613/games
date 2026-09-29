@@ -36,7 +36,7 @@ SCN.geka={bg:'#fff0f4',song:'clinic',
     c.beginPath();c.ellipse(0,-12,16,7,0,0,TAU);c.stroke();c.lineWidth=6;for(const s2 of[-1,1]){c.beginPath();c.moveTo(s2*10,-8);c.lineTo(s2*18,-4);c.stroke();circ(c,s2*18,-3,5);c.beginPath();c.moveTo(s2*18,-58);c.lineTo(s2*30,-48);c.moveTo(s2*31,-44);c.lineTo(s2*40,-34);c.stroke();circ(c,s2*40,-33,4);}
     const cr=this.limb==='arm'?[31,-46]:[-18,-6];c.strokeStyle='#ff4d6d';c.lineWidth=3;c.beginPath();c.moveTo(cr[0]-5,cr[1]-6);c.lineTo(cr[0],cr[1]-1);c.lineTo(cr[0]-4,cr[1]+2);c.lineTo(cr[0]+2,cr[1]+6);c.stroke();c.strokeStyle=`rgba(255,77,109,${.5+Math.sin(T*8)*.4})`;c.lineWidth=2;c.beginPath();c.arc(cr[0],cr[1],12,0,TAU);c.stroke();
     c.restore();},
-  draw(c){const p=this.p,s=this.s,py=this.py,th=this.theme;roomBg(c,th[0],th[1],py-40,th[2],[['window',100,py-300,1,130,100],['shelf',W/2+10,py-250,1],['frame',W-100,py-300,1,'hand']]);
+  draw(c){const p=this.p,s=this.s,py=this.py,th=this.theme;roomBg(c,th[0],th[1],py-40,th[2],[['window',100,py-300,1,130,100],['shelf',W/2+10,py-250,1],['viewer',W-100,py-300,.8],['surglight',W/2-80,190,.8],['cart',W-70,py-94,.8]]);
     c.fillStyle='#fff';rr(c,this.px-130,py-14,260,24,12);c.fill();c.fillStyle='#e8b8c8';c.fillRect(this.px-110,py+10,14,50);c.fillRect(this.px+96,py+10,14,50);
     const sad=!p.cured&&!p.walk;const hurt=this.key==='splinter'&&this.prog>0;drawPt(c,p,p.x,py,s,{t:T,hop:p.walk?Math.abs(Math.sin(T*7))*.4:p.hop,sad:sad&&this.key!=='deco'&&!hurt,cry:hurt,happy:p.cured||this.key==='deco',shake:p.shake,look:LOOK.on&&!p.walk?clamp((LOOK.x-p.x)/200,-1,1):0});
     const k=this.wound();

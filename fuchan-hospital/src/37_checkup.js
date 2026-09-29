@@ -31,7 +31,7 @@ SCN.checkup={bg:'#fff0f8',song:'fuwa',noRk:1,
   chest(){return{x:this.rx,y:this.gy-14*2.8};},
   mouthPanel(){return{x:W/2,y:H*.36};},
   toothPos(i){const m=this.mouthPanel(),n=this.tn,top=Math.ceil(n/2);const isTop=i<top,j=isTop?i:i-top,cnt=isTop?top:n-top;return{x:m.x+(j-(cnt-1)/2)*56,y:isTop?m.y-44:m.y+48};},
-  draw(c){roomBg(c,'#fff0f8','#f4dce8',this.gy-20,'#fff6fb',[['window',96,this.gy-260,1,120,96,'#ffc8e0'],['frame',230,this.gy-280,1,'rainbow']]);const k=this.key,gy=this.gy,rx=this.rx;
+  draw(c){roomBg(c,'#fff0f8','#f4dce8',this.gy-20,'#fff6fb',[['window',96,this.gy-260,1,120,96,'#ffc8e0'],['frame',230,this.gy-280,1,'rainbow'],['curtain',W-90,this.gy-330,1,160],['sanitizer',36,this.gy-140,.9]]);const k=this.key,gy=this.gy,rx=this.rx;
     c.fillStyle='#fff';rr(c,440,150,130,120,12);c.fill();c.strokeStyle='#ffb3d6';c.lineWidth=4;c.stroke();txt(c,'すくすく',505,176,18,'#ff5fa2');MED.ruler(c,470,230,.7);MED.scale(c,530,236,.6);
     let sc=2.8;
     if(k==='height'){const px=2.6;sc=this.rkSc();c.fillStyle='#ffe08a';rr(c,rx+70,gy-300,34,300,6);c.fill();c.strokeStyle='#d0a030';c.lineWidth=3;c.stroke();for(let v=0;v<=110;v+=5){const y=gy-v*px;if(y<gy-296)break;c.strokeStyle='#a07020';c.lineWidth=v%10?1.5:3;c.beginPath();c.moveTo(rx+70,y);c.lineTo(rx+70+(v%10?10:18),y);c.stroke();if(v%10===0&&v>0)txt(c,String(v),rx+122,y,14,'#a07020','left');}

@@ -81,7 +81,7 @@ SCN.naika={bg:'#e8f6ff',song:'clinic',
     else if(key==='earlight'){p.lit=1;p.bugT=.01;good(g.x,g.y,1,'あっ！');say('みみの なかに ちいさな むしさんが いる！');this.next(2);}
     else if(key==='hot'){p.hot=1;good(g.x,g.y,1,'ぽかぽか');say('ぽかぽか あったかい〜');this.next(1.6);}
     else if(key==='medicine'){const lv=lvOf('naika');const pc=pick(['#ff4d6d','#4a9cff','#ffd23a','#4cc86a','#ff8cc8','#a878ff']);this.med={n:1+Math.floor(Math.random()*(lv>=1?5:3)),have:0,give:0,col:pc};this.tools=[];hush();speak(`おくすりを ${this.med.n}こ コップに いれてね`);speak(numEn(this.med.n),'en');bub={text:`おくすりを ${this.med.n}こ コップに いれてね`,t:0,life:3.4};}},
-  draw(c){const p=this.p,s=this.s,py=this.py,th=this.theme;roomBg(c,th[0],th[1],py-40,th[2],[['window',90,py-300,1,120,100],['poster',230,py-300,1,'germ','#9ad0ff','てあらい'],['clock',W-150,170,.6]]);
+  draw(c){const p=this.p,s=this.s,py=this.py,th=this.theme;roomBg(c,th[0],th[1],py-40,th[2],[['window',90,py-300,1,120,100],['poster',230,py-300,1,'germ','#9ad0ff','てあらい'],['clock',W-150,170,.6],['bpwall',W-50,py-190,.9],['sanitizer',32,py-140,.9],['desk',W-96,py-112,.85]]);
     c.fillStyle='#fff';rr(c,440,150,120,160,10);c.fill();c.strokeStyle='#9ac8e8';c.lineWidth=4;c.stroke();[.7,.55,.42,.32,.24].forEach((r,i)=>{const n=i<2?2:3;for(let j=0;j<n;j++)MED.landolt(c,500+(j-(n-1)/2)*(i<2?50:34),178+i*28-(i>2?(i-2)*4:0),r,{a:[0,1.57,3.14,4.71][(i*2+j)%4]});});
     c.fillStyle='#fff';rr(c,this.px-120,py-10,240,22,10);c.fill();c.fillStyle='#9ab8d8';c.fillRect(this.px-8,py+12,16,60);c.fillStyle='#bfd8f0';rr(c,this.px-60,py+66,120,14,7);c.fill();
     const D=this.D;const sick=!p.cured;const scared=this.key==='calm'&&p.calm<3;

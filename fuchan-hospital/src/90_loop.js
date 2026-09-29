@@ -37,4 +37,4 @@ resize();scene=SCN.title;scene.enter();
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{for(const k in SPR)delete SPR[k];});
 window.__dbg={PLAY,SAVE,WARD,sayWord,sayNum,say,speak,hush};
 requestAnimationFrame(frame);
-window.__hosp={thumb(cv2){const c=cv2.getContext('2d');c.setTransform(cv2.width/800,0,0,cv2.height/500,0,0);drawThumb(c);},SCN,get scene(){return scene},go,SAVE,celebrate,get cel(){return cel},get H(){return H},celDown,parts};
+window.__hosp={deco:drawDeco,thumb(cv2){const c=cv2.getContext('2d');c.setTransform(cv2.width/800,0,0,cv2.height/500,0,0);drawThumb(c);},SCN,get scene(){return scene},go,SAVE,celebrate,get cel(){return cel},get H(){return H},celDown,parts};

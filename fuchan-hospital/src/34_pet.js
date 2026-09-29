@@ -29,7 +29,7 @@ SCN.pet={bg:'#fff4e8',song:'fuwa',
     if(this.key==='treat'&&this.eat>0){this.eat+=dt;if(Math.random()<dt*4)sfx('munch');if(this.eat>1.6){this.eat=0;this.happy=1.5;sfx('heart');burst(P.x,P.y-180,10,'heart');this.next(.8);}}
     if(this.key==='bath'&&this.bph==='dry'){this.dry+=dt;if(Math.random()<dt*30)parts.push({x:P.x+rand(-60,60),y:P.y-rand(40,140),vx:rand(-300,300),vy:rand(-200,50),life:.6,t:0,kind:'drop',col:'#8ad0ff'});if(this.dry>1.4&&!this.flag){this.flag=1;good(P.x,P.y-100,2,'ブルブル〜！');this.happy=1.5;say('ブルブルって したら ふわふわ！');this.next(1.6);}}
     if(this.photo>0){this.photo+=dt;if(this.photo>2.6&&!this.fin)this.fin=.01;}if(this.fin>0){this.fin+=dt;if(this.fin>.5&&this.fin<9){this.fin=9;celebrate('pet',starsFor(this.miss));}}},
-  draw(c){const L=-OX/SC-2,R=W+OX/SC+2,th=this.theme;roomBg(c,th[0],th[1],H*.5,th[2],[['window',100,H*.5-200,1,120,100],['plant',W-40,H*.5,.8],['frame',W/2+60,H*.5-230,1,'dog']]);
+  draw(c){const L=-OX/SC-2,R=W+OX/SC+2,th=this.theme;roomBg(c,th[0],th[1],H*.5,th[2],[['window',100,H*.5-200,1,120,100],['sink',W-100,H*.5-40,.8],['frame',W/2+60,H*.5-230,1,'dog']]);
     if(this.ph==='pick'){txtO(c,'だれを みてあげる？',W/2,230,36,'#ff8a3a','#fff',8);this.pets.forEach((k,i)=>{const x=110+i*190,y=H*.36;panel(c,x-82,y,164,230,24,'#fff','#ffb38a');drawAnimal(c,k,x,y+200,.85,{t:T+i,sad:1,shake:Math.sin(T*2+i)>.9?.1:0});txt(c,WORDS[k][0],x,y+30,24,'#8a5a3a');txt(c,WORDS[k][1],x,y+54,16,'#3a88e8');});fu(c,90,H-40,2.4,{wave:1});rk(this,c,W-80,H-40,1.8);return;}
     const P=this.P(),s=this.s,k=this.key;
     if(k==='weigh'){c.fillStyle=gfill(c,P.x,P.y,120,'#e8eef8');rr(c,P.x-120,P.y-6,240,34,12);c.fill();c.strokeStyle='#9aa8c8';c.lineWidth=4;c.stroke();
