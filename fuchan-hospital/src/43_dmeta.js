@@ -10,7 +10,8 @@ ROOMS.push(
   {id:'dshape',name:'はの かたち',sub:'まえば・おくば',icon:'molar',col:'#a878ff',dent:1},
   {id:'dortho',name:'きょうせい',sub:'ならべる',icon:'bracket',col:'#3aa8c8',dent:1},
   {id:'dcrown',name:'かぶせもの',sub:'ぎこうし',icon:'crown',col:'#c8905a',dent:1});
-Object.assign(MINFO,{dreception:['うけつけ・まちあい','しんさつけんを だして まつ ところだよ','#eafaf4'],dcheck:['しか けんしん','はを しらべて けんしんひょうに かくよ','#e6faf4'],dxray:['レントゲンしつ','はの なかの しゃしんを とるよ','#eef2fb'],
+MINFO.dentist=['かばさんの はいしゃさん','むしばを なおして はみがき するよ','#e8fff4'];ROOMS.find(r=>r.id==='dentist').dent=1;
+Object.assign(MINFO,{shop:['ばいてん','おみまいの おはなや パンを うっているよ','#fff8ec'],dreception:['うけつけ・まちあい','しんさつけんを だして まつ ところだよ','#eafaf4'],dcheck:['しか けんしん','はを しらべて けんしんひょうに かくよ','#e6faf4'],dxray:['レントゲンしつ','はの なかの しゃしんを とるよ','#eef2fb'],
   dtreat:['ちりょうしつ','むしばを けずって つめものを するよ','#fff0f4'],dstain:['はみがき しどうしつ','みがきのこしを あかく そめて しらべるよ','#fff4f8'],dfluor:['よぼうしつ','フッそと シーラントで はを まもるよ','#eef6ff'],
   dscale:['クリーニングしつ','しせきを とって ピカピカに するよ','#fffbe8'],dbaby:['こどもの はの おへや','はえかわりを べんきょう するよ','#fff8ec'],dshape:['はの もけいしつ','はの かたちと やくわりを しらべるよ','#f6f2ff'],
   dortho:['きょうせいしつ','がたがたの はを きれいに ならべるよ','#eef6ff'],dcrown:['ぎこうしさんの こうぼう','かぶせものを つくるよ','#fff6ea']});
@@ -29,6 +30,9 @@ function dChair(c,x,y0,s=1,k){c.save();c.translate(x,y0);c.scale(s,s);c.fillStyl
   c.strokeStyle='#c8d0dc';c.lineWidth=5;c.beginPath();c.moveTo(-80,-60);c.lineTo(-80,-150);c.lineTo(-20,-170);c.stroke();c.fillStyle=steel(c,-40,-180,0,-170);c.beginPath();c.ellipse(-12,-168,26,10,-.3,0,TAU);c.fill();c.fillStyle='#fffbe0';ell(c,-12,-162,16,4);
   if(k)drawAnimal(c,k,-10,-60,.28,{t:T,gown:'#bfe0ff'});c.restore();}
 const DROOM={
+  shop(c,x,top,h,y0){c.fillStyle='#c8905a';for(let r=0;r<2;r++){c.fillRect(x+20,top+70+r*60,150,6);const it=[['bread','milk','apple','banana'],['onigiri','toothbrush','cup','egg']][r];it.forEach((k,i)=>drawItem(c,k,x+40+i*36,top+52+r*60,.36));}
+    c.fillStyle='#ffb03a';rr(c,x+180,y0-80,90,80,[12,12,0,0]);c.fill();c.fillStyle='#fff';c.fillRect(x+180,y0-84,90,8);drawAnimal(c,'bear',x+225,y0-66,.32,{t:T,acc:'cap',accC:'#ffb03a'});
+    for(let i=0;i<3;i++){c.fillStyle=['#ff8cc0','#ffd23a','#b48cff'][i];circ(c,x+60+i*20,y0-40,9);}c.fillStyle='#4cae4c';c.fillRect(x+78,y0-32,4,30);},
   dreception(c,x,top,h,y0){c.fillStyle='#5ac8a8';rr(c,x+150,y0-70,120,70,[12,12,0,0]);c.fill();c.fillStyle='#fff';c.fillRect(x+150,y0-74,120,8);drawAnimal(c,'rabbit',x+210,y0-60,.32,{t:T,acc:'cap',accC:'#5ac8a8'});
     c.fillStyle='rgba(150,220,255,.6)';rr(c,x+20,top+60,110,70,8);c.fill();c.strokeStyle='#fff';c.lineWidth=4;c.stroke();for(let i=0;i<3;i++){const fx=x+40+((T*20+i*40)%80),fy=top+84+i*14;c.fillStyle=['#ff9a3a','#ffd23a','#ff6f91'][i];ell(c,fx,fy,8,5);c.beginPath();c.moveTo(fx-8,fy);c.lineTo(fx-14,fy-5);c.lineTo(fx-14,fy+5);c.fill();}
     c.fillStyle='#ffb3d0';rr(c,x+20,y0-44,110,20,8);c.fill();},

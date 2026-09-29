@@ -1,9 +1,9 @@
 // ================= びょういん マップ（よこから みた たてもの を あるく） =================
 const MFH=300,MROOF=280,MSTW=160,MRW=280;
 // たてもの（びょういん と しかいいん）
-const BLDS={hosp:{floors:[['reception','pharmacy','dress','ambulance'],['naika','geka','dentist','body'],['checkup','nursery','wash','meal'],['pet','toy','kids','lounge'],['eye','heli']],ww:1000,name:'ふーちゃん びょういん',col:'#ff9ac8',oc:'#e0508a',to:'dent',toName:'しかいいん'},
-  dent:{floors:[['dreception','dcheck','dxray'],['dtreat','dstain','dfluor'],['dscale','dbaby','dshape'],['dortho','dcrown']],ww:560,name:'ふーちゃん しかいいん',col:'#5ac8a8',oc:'#2a9a7a',to:'hosp',toName:'びょういん'}};
-const NOGAME=['kids','lounge','dreception'];
+const BLDS={hosp:{floors:[['reception','pharmacy','dress','ambulance'],['naika','geka','shop','body'],['checkup','nursery','wash','meal'],['pet','toy','kids','lounge'],['eye','heli']],ww:1000,name:'ふーちゃん びょういん',col:'#ff9ac8',oc:'#e0508a',to:'dent',toName:'しかいいん'},
+  dent:{floors:[['dreception','dcheck','dxray'],['dtreat','dstain','dfluor'],['dscale','dbaby','dshape'],['dortho','dcrown','dentist']],ww:560,name:'ふーちゃん しかいいん',col:'#5ac8a8',oc:'#2a9a7a',to:'hosp',toName:'びょういん'}};
+const NOGAME=['kids','lounge','dreception','shop'];
 let MNF,MGROUND,MBW,MWW,MWH,MAPF,CURB='hosp';const MAPPOSB={hosp:null,dent:null};
 const MINFO={reception:['うけつけ','ばんごうで よばれるのを まつ ところだよ','#ffe8c8'],pharmacy:['くすりやさん','やくざいしさんが おくすりを わたすよ','#efe4ff'],dress:['ロッカールーム','ここで おきがえ できるよ','#e4f2ff'],ambulance:['きゅうきゅう いりぐち','きゅうきゅうしゃが とまっているよ','#ffe4e8'],
   naika:['しんさつしつ','おいしゃさんが びょうきを みるよ','#e6f4ff'],geka:['げか・レントゲン','けがの てあてや ほねの しゃしんを とるよ','#fff0f4'],dentist:['はいしゃさん','はの びょうきを なおすよ','#e8fff4'],body:['からだの としょしつ','からだの しくみを べんきょう するよ','#fff4ec'],
@@ -31,7 +31,7 @@ SCN.lobby={bg:'#9ad8ff',song:'clinic',noHome:1,noRk:1,hud:false,bubY:108,
     this.npcs=[...Array(MNF).keys()].map(f=>Object.assign(newPatient(),{f,mx:MSTW+MAPF[f].length*MRW-60,x:rand(MSTW+60,MSTW+MAPF[f].length*MRW-60),tx:MSTW+100,wait:rand(0,3),gown:pick(['#bfe0ff','#ffd0e4','#d8f0c8',null])}));
     this.balls=[...Array(14)].map((_,i)=>({x:rand(10,110),y:rand(0,30),c:pick(['#ff6f91','#ffd23a','#5aa8ff','#6cd08a','#b48cff'])}));
     const nr=this.roomAt(MAPPOS.f,this.fx);if(nr&&MAPPOS.back){this.near=nr;}MAPPOS.back=0;
-    this.greetedB=this.greetedB||{};if(!this.greetedB[CURB]){this.greetedB[CURB]=1;say(CURB==='dent'?'ふーちゃん しかいいんへ ようこそ！ はいしゃさんの おしごとが 10しゅるい あるよ。 おへやを タッチしてね':'ふーちゃん びょういんへ ようこそ！ いきたい おへやを タッチしてね。 かいだんで うえの かいにも いけるよ');}else say(sw?`${BLDS[CURB].name}に ついたよ！`:pick(['つぎは どこへ いく？','どの おへやに いこうかな？','きょうも がんばろうね！']));},
+    this.greetedB=this.greetedB||{};if(!this.greetedB[CURB]){this.greetedB[CURB]=1;say(CURB==='dent'?'ふーちゃん しかいいんへ ようこそ！ はいしゃさんの おしごとが 11しゅるい あるよ。 おへやを タッチしてね':'ふーちゃん びょういんへ ようこそ！ いきたい おへやを タッチしてね。 かいだんで うえの かいにも いけるよ');}else say(sw?`${BLDS[CURB].name}に ついたよ！`:pick(['つぎは どこへ いく？','どの おへやに いこうかな？','きょうも がんばろうね！']));},
   camTarget(){return{x:clamp(this.fx-W/2,0,MWW-W),y:clamp(this.fy-H*.64,0,Math.max(0,MWH-H))};},
   roomAt(f,x){if(x<MSTW||x>=MBW)return null;const i=Math.floor((x-MSTW)/MRW);if(i>=MAPF[f].length)return null;return{f,i,id:MAPF[f][i],cx:MSTW+i*MRW+MRW/2};},
   goTo(f,x){const wps=[];let cf=this.ff;const cur=this.wps.length?null:null;
@@ -97,7 +97,7 @@ SCN.lobby={bg:'#9ad8ff',song:'clinic',noHome:1,noRk:1,hud:false,bubY:108,
     // building
     const TW=(MSTW+MAPF[MNF-1].length*MRW),y4=mFloorY(MNF-1)-MFH;c.fillStyle='#fff';c.strokeStyle='#c8d8f0';c.lineWidth=6;rr(c,-14,y4+MFH-40,MBW+28,(MNF-1)*MFH+40,[18,18,0,0]);c.fill();c.stroke();rr(c,-14,y4-40,TW+28,MFH+40,[18,18,0,0]);c.fill();c.stroke();
     c.fillStyle=BB.col;rr(c,-24,y4-60,TW+48,30,15);c.fill();if(CURB==='hosp')crossSign(c,TW/2,y4-120,34);else{c.fillStyle='#fff';circ(c,TW/2,y4-120,46);drawItem(c,'tooth',TW/2,y4-120,1);}txtO(c,BB.name,TW/2,y4-190,46,'#fff',BB.oc,10);
-    const hpx=(TW+MBW)/2+10,hpy=y4+MFH-40;if(CURB==='dent')dentRoof(c,TW,hpy);else{c.fillStyle='#b8c4d8';rr(c,TW+20,hpy-14,MBW-TW-30,16,6);c.fill();c.fillStyle='#8a98b8';c.beginPath();c.ellipse(hpx,hpy-14,150,22,0,0,TAU);c.fill();c.strokeStyle='#fff';c.lineWidth=4;c.beginPath();c.ellipse(hpx,hpy-14,120,16,0,0,TAU);c.stroke();txt(c,'H',hpx,hpy-15,26,'#fff',undefined,POP,400);MED.heli(c,hpx,hpy-56,2.2,{spin:T*2});
+    const hpx=(TW+MBW)/2+10,hpy=y4+MFH-40;if(CURB==='dent')dentRoof(c,MBW-300,y4-58);else{c.fillStyle='#b8c4d8';rr(c,TW+20,hpy-14,MBW-TW-30,16,6);c.fill();c.fillStyle='#8a98b8';c.beginPath();c.ellipse(hpx,hpy-14,150,22,0,0,TAU);c.fill();c.strokeStyle='#fff';c.lineWidth=4;c.beginPath();c.ellipse(hpx,hpy-14,120,16,0,0,TAU);c.stroke();txt(c,'H',hpx,hpy-15,26,'#fff',undefined,POP,400);MED.heli(c,hpx,hpy-56,2.2,{spin:T*2});
     c.fillStyle='#ff4d6d';for(let k=0;k<4;k++){circ(c,TW+40+k*((MBW-TW-60)/3),hpy-24,Math.floor(T*3+k)%2?6:3);}}
     for(let f=0;f<MNF;f++){const y0=mFloorY(f);if(y0<cy0||y0-MFH>cy1)continue;this.drawStairs(c,f);for(let i=0;i<MAPF[f].length;i++){const x=MSTW+i*MRW;if(x+MRW<cx0||x>cx1)continue;this.drawRoom(c,f,i);}
       const fw=f===MNF-1?MSTW+MAPF[f].length*MRW:MBW;c.fillStyle='#e0e6f0';c.fillRect(-14,y0-MFH,fw+28,22);c.fillStyle='#c8d0e0';for(let i=0;i<=MAPF[f].length;i++){const x=MSTW+i*MRW;c.fillRect(x-6,y0-MFH+22,12,MFH-150);}}
@@ -131,6 +131,7 @@ SCN.lobby={bg:'#9ad8ff',song:'clinic',noHome:1,noRk:1,hud:false,bubY:108,
     const r=this.roomAt(f,wx);if(!r){if(CURB==='hosp'&&f===MNF-1){const hr={f,i:1,id:'heli',cx:MSTW+MRW*1.5};this.near=null;this.pend=hr;this.goTo(f,hr.cx);sfx('tap');hush();speak('ドクターヘリの ほうへ いこう！');}return;}
     if(r.id==='kids'&&this.near===null&&this.ff===f&&Math.abs(this.fx-r.cx)<60){for(const b of this.balls){b.x=rand(10,110);b.y=rand(-40,30);}sfx('boing');say('ボールプール たのしい！');return;}
     if(r.id==='lounge'&&this.ff===f&&Math.abs(this.fx-r.cx)<60){sfx('coin');say('ジュースで ひとやすみ。 ごくごく！');return;}
+    if(r.id==='shop'&&this.ff===f&&Math.abs(this.fx-r.cx)<60){sfx('coin');say(pick(['ばいてんで おかいもの。 おみまいの おはなを ください','パンと ぎゅうにゅうを かったよ','はブラシも うってるね']));return;}
     if(r.id==='dreception'&&this.ff===f&&Math.abs(this.fx-r.cx)<60){sfx('ding');say(pick(['しんさつけんと ほけんしょうを だしてね','よやくの おなまえを どうぞ','まちあいしつで えほんを よんで まってね','はみがき できたかな？']));return;}
     if(this.near&&this.near.id===r.id&&this.near.f===f){this.enterRoom(r);return;}
     this.near=null;this.pend=r;this.goTo(f,r.cx);sfx('tap');const I=MINFO[r.id];hush();speak(`${I[0]}へ いこう！`);},
