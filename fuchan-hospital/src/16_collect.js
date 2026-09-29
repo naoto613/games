@@ -42,8 +42,8 @@ function checkMedals(){for(const m of MEDALS)if(!SAVE.medals.includes(m[0])&&m[3
 // ---------- おしらせ（トースト） ----------
 const NOTES=[];
 function note(title,sub,o={},speech){NOTES.push(Object.assign({title,sub,t:0,speech:speech||`${title} ${sub}`},o));}
-function updNotes(dt){if(!NOTES.length||cel||tr||scene!==SCN.lobby)return;const n=NOTES[0];if(n.t===0){sfx(n.medal?'hooray':'spark');hush();speak(n.speech);}n.t+=dt;if(n.t>3.4)NOTES.shift();}
-function drawNotes(c){if(!NOTES.length||cel||tr||scene!==SCN.lobby)return;const n=NOTES[0];const k=Math.min(1,n.t*4,(3.4-n.t)*4);if(k<=0)return;
+function updNotes(dt){if(!NOTES.length||cel||tr||(scene!==SCN.lobby&&scene!==SCN.town))return;const n=NOTES[0];if(n.t===0){sfx(n.medal?'hooray':'spark');hush();speak(n.speech);}n.t+=dt;if(n.t>3.4)NOTES.shift();}
+function drawNotes(c){if(!NOTES.length||cel||tr||(scene!==SCN.lobby&&scene!==SCN.town))return;const n=NOTES[0];const k=Math.min(1,n.t*4,(3.4-n.t)*4);if(k<=0)return;
   c.save();c.globalAlpha=k;const y=H-160+(1-k)*60,w=W-80;panel(c,40,y-46,w,92,30,n.medal?'#fff8e0':'#fff',n.medal?'#ffd23a':'#ffb3d6',5);
   const ix=96;if(n.an)drawAnimal(c,n.an,ix,y+34,.3,{t:T,happy:1,shiny:n.shiny});else if(n.medal)drawMedal(c,ix,y,30,true,n.medal);else if(n.stamp)drawStamp(c,ix,y,30);else if(n.room){const r=ROOMS.find(q=>q.id===n.room);drawThing(c,r.icon,ix,y,.6);}
   txt(c,n.title,W/2+34,y-16,24,n.medal?'#c87a00':'#ff5fa2');txt(c,n.sub,W/2+34,y+18,19,'#6a5a8a');c.restore();}
@@ -65,7 +65,7 @@ function drawMedal(c,x,y,r,on,m){c.save();c.translate(x,y);if(on){c.fillStyle='#
 function drawStamp(c,x,y,r,rot=-.2){c.save();c.translate(x,y);c.rotate(rot);c.strokeStyle='#ff4d6d';c.lineWidth=r*.12;c.beginPath();c.arc(0,0,r,0,TAU);c.stroke();c.fillStyle='rgba(255,77,109,.12)';circ(c,0,0,r);crossSign(c,0,-r*.2,r*.32,'#ff4d6d');txt(c,'よくできました',0,r*.52,r*.26,'#ff4d6d');c.restore();}
 // ---------- ずかん・メダル・スタンプ の へや ----------
 SCN.book={bg:'#fff8ee',song:'calm',hud:false,noRk:1,
-  enter(){this.tab=this.nextTab||'zk';this.nextTab=null;this.sel=null;this.selT=0;dailyGet();say({zk:'かんじゃさん ずかん！ なおした どうぶつが のるよ',md:'メダルを あつめると びょういんの そとが にぎやかに なるよ',st:'きょうの おねがい！ 3つ クリアすると スタンプが もらえるよ'}[this.tab]);},
+  enter(){if(PREVSC&&PREVSC!==this)this.homeTo=PREVSC===SCN.town?'town':'lobby';this.tab=this.nextTab||'zk';this.nextTab=null;this.sel=null;this.selT=0;dailyGet();say({zk:'かんじゃさん ずかん！ なおした どうぶつが のるよ',md:'メダルを あつめると びょういんの そとが にぎやかに なるよ',st:'きょうの おねがい！ 3つ クリアすると スタンプが もらえるよ'}[this.tab]);},
   update(dt){this.selT+=dt;},
   tabs(){return[['zk','ずかん','#ff8c5a'],['md','メダル','#e8a800'],['st','おねがい','#ff5fa2']].map((q,i)=>({id:q[0],n:q[1],col:q[2],x:W/2+(i-1)*178,y:150}));},
   zkCells(){const top=250,ch=Math.min(200,(H-top-30)/4);return ZK.map((k,i)=>({k,x:W/2+(i%4-1.5)*140,y:top+Math.floor(i/4)*ch+ch/2,h:ch-12}));},
