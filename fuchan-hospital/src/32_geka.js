@@ -26,7 +26,7 @@ SCN.geka={bg:'#fff0f4',song:'clinic',
     if(p.walk){p.x+=Math.sign(this.px-p.x)*Math.min(Math.abs(this.px-p.x),260*dt);if(Math.abs(p.x-this.px)<1){p.walk=0;setTimeout(()=>{if(scene===this&&this.si<0)this.startStep();},2400);}}
     const d=this.tools.find(t=>t.held);
     if(this.key==='spray'&&d&&d.k==='spray'){const k=this.wound();if(Math.random()<dt*30)parts.push({x:d.x-20,y:d.y-20,vx:rand(-120,-60),vy:rand(-20,40),life:.5,t:0,kind:'puff',col:'#d8f0ff',r:6});if(Math.hypot(d.x-40-k.x,d.y-20-k.y)<110){p.mist+=dt;if(p.mist>1.1&&!this.done1){this.done1=1;good(k.x,k.y,1,'しゅっしゅっ');say('しょうどく かんりょう！');d.held=false;this.next();}}}
-    if(this.key==='splinter'&&d&&d.k==='tweezers'){const g=this.spl();if(Math.hypot(d.x-g.x,d.y-g.y)<60){this.prog+=dt;p.shake=.15;if(Math.random()<dt*6)sfx('squeak');if(this.prog>1.3&&!this.done1){this.done1=1;p.spl=0;d.held=false;good(g.x,g.y,2,'スポッ！');SHAKE=.2;for(let i=0;i<6;i++)parts.push({x:g.x,y:g.y,vx:rand(80,200),vy:rand(-260,-120),life:1,t:0,kind:'star',col:'#ffd23a',r:8,rot:0});say('とげが ぬけた！ いたく なくなったね');this.next(1.8);}}else this.prog=Math.max(0,this.prog-dt);}
+    if(this.key==='splinter'&&d&&d.k==='tweezers'){const g=this.spl(),tp=d.tip();if(Math.hypot(tp.x-g.x,tp.y-g.y)<50){this.prog+=dt;p.shake=.15;if(Math.random()<dt*6)sfx('squeak');if(this.prog>1.3&&!this.done1){this.done1=1;p.spl=0;d.held=false;good(g.x,g.y,2,'スポッ！');SHAKE=.2;for(let i=0;i<6;i++)parts.push({x:g.x,y:g.y,vx:rand(80,200),vy:rand(-260,-120),life:1,t:0,kind:'star',col:'#ffd23a',r:8,rot:0});say('とげが ぬけた！ いたく なくなったね');this.next(1.8);}}else this.prog=Math.max(0,this.prog-dt);}
     if(this.key==='bump'&&d&&d.k==='icepack'){const g=this.bumpP();if(Math.hypot(d.x-g.x,d.y-g.y)<70){this.prog+=dt;p.bumpS=Math.max(0,1-this.prog/1.8);if(Math.random()<dt*3)sfx('water');if(this.prog>1.8&&!this.done1){this.done1=1;p.bump=0;d.held=false;good(g.x,g.y,1,'ひんやり');say('たんこぶが ちいさく なったよ');this.next(1.6);}}}
     if(this.key==='xray'){const X=this.xr;if(X.held){const a=this.limbP();const dd=Math.hypot(X.x-a.x,X.y-a.y);if(dd<50){X.t+=dt;if(X.t>.9&&!X.found){X.found=1;X.held=0;sfx('xray');good(a.x,a.y,1,'はっけん！');say('あった！ ほねが ポキッと おれてるね');this.next(2.4);}}else X.t=Math.max(0,X.t-dt);if(Math.random()<dt*3)sfx('xray');}}
     if(this.fin>0){this.fin+=dt;if(this.fin>.6&&this.fin<9){this.fin=9;celebrate('geka',starsFor(this.miss));}}},
@@ -77,6 +77,6 @@ SCN.geka={bg:'#fff0f4',song:'clinic',
     if(this.key==='cast')return{x:a.x+62,y:a.y,x2:a.x,y2:a.y+62};
     if(this.key==='deco')return this.decoOpts.length?{x:W/2-180,y:H-84}:null;
     const t=this.tools.find(q=>q.k===this.want);if(!t||t.hidden)return null;
-    if(this.key==='splinter'){const g=this.spl();return{x:t.hx,y:t.hy,x2:g.x,y2:g.y};}if(this.key==='bump'){const g=this.bumpP();return{x:t.hx,y:t.hy,x2:g.x,y2:g.y};}
+    if(this.key==='splinter'){const g=t.aim(this.spl());return{x:t.hx,y:t.hy,x2:g.x,y2:g.y};}if(this.key==='bump'){const g=this.bumpP();return{x:t.hx,y:t.hy,x2:g.x,y2:g.y};}
     return{x:t.hx,y:t.hy,x2:k.x+(this.key==='spray'?40:0),y2:k.y+(this.key==='wash'?-30:this.key==='spray'?20:0)};},
   hintText(){return{wash:'シャワーを きずに もっていって ごしごし',spray:'スプレーを きずに',bandage:'ばんそうこうを きずに はろう',splinter:'ピンセットを とげに あてて まってね',bump:'こおりを たんこぶに あてよう',xray:'レントゲンの まどを うごかそう',cast:'まわりを ぐるぐる なぞろう',deco:'シールを タッチ'}[this.key]||'';}};

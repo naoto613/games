@@ -23,9 +23,9 @@ SCN.checkup={bg:'#fff0f8',song:'fuwa',noRk:1,
     if(this.key==='weight'&&this.wt>=0){this.wt+=dt;if(this.wt<1.5&&Math.random()<dt*14)sfx('tick');if(this.wt>1.6&&!this.wopts){this.wopts=shuffle([this.wv,...shuffle([5,6,7,8,9,10,11,12].filter(v=>v!==this.wv)).slice(0,2)]);say('なんキロ かな？ すうじを よんでね');}}
     if(this.side&&this.bt!=null)this.bt+=dt;
     const d=this.tools.find(t=>t.held);
-    if(this.key==='heart'&&d&&d.k==='steth'&&!this.sub){const c0=this.chest();if(Math.hypot(d.x-c0.x,d.y-c0.y)<70){this.prog+=dt;if(this.prog>.5){d.held=false;this.tools=[];this.sub={n:3+Math.floor(Math.random()*4),i:0,t:0,pop:0};say('とくとく… あかちゃんの しんぞうは はやいよ。 いくつ きこえた？');}}}
+    if(this.key==='heart'&&d&&d.k==='steth'&&!this.sub){const c0=this.chest(),tp=d.tip();if(Math.hypot(tp.x-c0.x,tp.y-c0.y)<65){this.prog+=dt;if(this.prog>.5){d.held=false;this.tools=[];this.sub={n:3+Math.floor(Math.random()*4),i:0,t:0,pop:0};say('とくとく… あかちゃんの しんぞうは はやいよ。 いくつ きこえた？');}}}
     if(this.sub){const b=this.sub;b.t+=dt;if(b.i<b.n&&b.t>.8+b.i*.45){b.i++;sfx('dokkun');b.pop=1;}if(b.pop>0)b.pop-=dt*4;if(b.i>=b.n&&!b.opts&&b.t>1+b.n*.45)b.opts=shuffle([b.n,...shuffle([2,3,4,5,6,7,8].filter(v=>v!==b.n)).slice(0,2)]);}
-    if(this.key==='shot'&&d&&d.k==='syringe'){const a=this.arm();if(Math.hypot(d.x-a.x,d.y-a.y)<70){this.prog+=dt;if(this.prog>1.1&&!this.shot){this.shot=1;d.held=false;this.cry=2.4;sfx('squeak');say('えーん！ … でも すぐ なきやんだ！ リッキー えらい！');setTimeout(()=>{if(scene===this){this.hap=3;good(this.rx,this.gy-150,3,'えらい！');}},2400);this.next(3.6);}}}
+    if(this.key==='shot'&&d&&d.k==='syringe'){const a=this.arm(),tp=d.tip();if(Math.hypot(tp.x-a.x,tp.y-a.y)<65){this.prog+=dt;if(this.prog>1.1&&!this.shot){this.shot=1;d.held=false;this.cry=2.4;sfx('squeak');say('えーん！ … でも すぐ なきやんだ！ リッキー えらい！');setTimeout(()=>{if(scene===this){this.hap=3;good(this.rx,this.gy-150,3,'えらい！');}},2400);this.next(3.6);}}}
     if(this.fin>0){this.fin+=dt;if(this.fin>2.6&&this.fin<9){this.fin=9;celebrate('checkup',starsFor(this.miss));}}},
   arm(){return{x:this.rx+11*2.8,y:this.gy-12*2.8};},
   chest(){return{x:this.rx,y:this.gy-14*2.8};},
@@ -80,5 +80,5 @@ SCN.checkup={bg:'#fff0f8',song:'fuwa',noRk:1,
     if(k==='teeth'){if(this.tdone)return null;for(let i=0;i<this.tn;i++)if(!this.tc.includes(i))return this.toothPos(i);return null;}
     if(this.sub)return this.sub.opts?{x:W/2+(this.sub.opts.indexOf(this.sub.n)-1)*150,y:H-78}:null;
     if(k==='shot'&&this.calm<3){const r=this.rkPos;return r?{x:r.x,y:r.y-36*r.sc}:null;}
-    const want=k==='heart'?'steth':'syringe';const t=this.tools.find(q=>q.k===want);if(!t||t.hidden)return null;const a=k==='heart'?this.chest():this.arm();return{x:t.hx,y:t.hy,x2:a.x,y2:a.y};},
+    const want=k==='heart'?'steth':'syringe';const t=this.tools.find(q=>q.k===want);if(!t||t.hidden)return null;const a=t.aim(k==='heart'?this.chest():this.arm());return{x:t.hx,y:t.hy,x2:a.x,y2:a.y};},
   hintText(){return{height:'あおい バーを したに ひっぱろう',weight:'たいじゅうけいを タッチ',eye:'Cの あいている ほうを タッチ',eye2:'えいごの どうぶつを タッチ',ear:'ピーの きこえた ほうを タッチ',teeth:'はを 1ぽんずつ タッチ',heart:'ちょうしんきを むねに',shot:this.calm<3?'リッキーの あたまを なでなで':'ちゅうしゃを うでに'}[this.key]||'';}};
