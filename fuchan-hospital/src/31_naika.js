@@ -50,18 +50,18 @@ SCN.naika={bg:'#e8f6ff',song:'clinic',
     if(this.fin>0){this.fin+=dt;if(this.fin>.8&&this.fin<9){this.fin=9;celebrate('naika',starsFor(this.miss));}}
     if(p.bug&&p.bugT>0){p.bugT+=dt;}
     if(this.si<0||p.cured)return;const st=this.st,key=this.key,d=this.tools.find(t=>t.held);
-    if(st.act==='hold'&&d&&!this.sub){const g=this.tg(st.tg);if(Math.hypot(d.x-g.x,d.y-g.y)<80){this.prog+=dt;
+    if(st.act==='hold'&&d&&!this.sub){const g=this.tg(st.tg),tp=d.tip();if(Math.hypot(tp.x-g.x,tp.y-g.y)<70){this.prog+=dt;
         if(key==='thermo'){p.temp=Math.min(1,this.prog/st.need);if(Math.random()<dt*6)sfx('tick');}
         if(key==='shot'&&this.prog<.1)p.shake=.4;if(key==='bugout'&&Math.random()<dt*8){p.shake=.2;sfx('squeak');}
         if(this.prog>=st.need)this.holdDone(key);}}
     if(st.act==='rub'&&d&&d.k===st.tool){if(key==='spray'){const m=this.tg('mouth');if(Math.random()<dt*20)parts.push({x:d.x-24,y:d.y-24,vx:rand(-140,-60),vy:rand(-10,50),life:.5,t:0,kind:'puff',col:'#d8f0ff',r:6});
         for(const g of p.germs){if(!g.alive)continue;const gx=m.x+g.a*this.s,gy=m.y+g.b*this.s;if(Math.hypot(d.x-30-gx,d.y-30-gy)<70){g.alive=0;good(gx,gy,1,pick(['えいっ！','やっつけた！']));}}
         if(p.germs.every(g=>!g.alive)&&!this.subDone){this.subDone=1;say('ばいきん ぜんぶ やっつけた！ のどが すっきり！');this.tools.forEach(t=>t.held=false);p.open=0;this.next(1.4);}}
-      else{const c0=this.tg('chest');for(const r of p.rash){const rx=p.x+r.a*this.s,ry=this.py+r.b*this.s;const dd=Math.hypot(d.x-(key==='loupe'?0:20)-rx,d.y-(key==='loupe'?-6:20)-ry);
+      else{const c0=this.tg('chest');for(const r of p.rash){const rx=p.x+r.a*this.s,ry=this.py+r.b*this.s;const tp=d.tip(),dd=key==='loupe'?Math.hypot(tp.x-rx,tp.y-ry):Math.hypot(d.x-20-rx,d.y-20-ry);
           if(key==='loupe'&&!r.rev&&dd<60){r.rev=1;good(rx,ry,1,'みつけた！');}
           if(key==='cream'&&!r.cr&&dd<55){r.w=(r.w||0)+dt;if(Math.random()<dt*10)sfx('squish');if(r.w>.3){r.cr=1;good(rx,ry,1,'ぬりぬり');}}}
         if(!this.subDone&&(key==='loupe'?p.rash.every(r=>r.rev):p.rash.every(r=>r.cr))){this.subDone=1;this.tools.forEach(t=>t.held=false);say(key==='loupe'?`ぶつぶつが ${p.rash.length}こ あったね！`:'ぬりぐすりで かゆいの とんでいけ！');if(key==='loupe')sayNum(p.rash.length,'ぶつぶつ ','こ');this.next(1.8);}}}
-    if(st.act==='drops'&&d&&d.k==='eyedrop'){const g=this.tg('eyes');if(Math.abs(d.x-g.x)<50&&Math.abs(d.y-g.y)<60){this.prog+=dt;if(this.prog>.55){this.prog=0;const i=p.drops[0]<2?0:1;p.drops[i]++;parts.push({x:g.x,y:g.y+10,vx:0,vy:260,life:.18,t:0,kind:'drop',col:'#7ac8ff'});sfx('water');const tot=p.drops[0]+p.drops[1];hush();speak(String(tot),'en');
+    if(st.act==='drops'&&d&&d.k==='eyedrop'){const g=this.tg('eyes'),tp=d.tip();if(Math.abs(tp.x-g.x)<50&&tp.y>g.y-90&&tp.y<g.y+20){this.prog+=dt;if(this.prog>.55){this.prog=0;const i=p.drops[0]<2?0:1;p.drops[i]++;parts.push({x:g.x,y:g.y+10,vx:0,vy:260,life:.18,t:0,kind:'drop',col:'#7ac8ff'});sfx('water');const tot=p.drops[0]+p.drops[1];hush();speak(String(tot),'en');
         if(p.drops[i]>=2)good(g.x,g.y+40,1,i?'みぎも OK！':'ひだり OK！');if(tot>=4){p.redEye=0;d.held=false;say('めぐすり 4てき！ めが すっきり！');this.next(1.6);}}}}
     if(this.sub&&this.sub.type==='beats'){const b=this.sub;b.t+=dt;if(b.i<b.n&&b.t>.7+b.i*.72){b.i++;sfx('dokkun');b.pop=1;const c=this.tg('chest');burst(c.x,c.y,4,'heart');}if(b.pop>0)b.pop-=dt*3;if(b.i>=b.n&&!b.asked&&b.t>.8+b.n*.72){b.asked=1;b.opts=shuffle([b.n,...shuffle([2,3,4,5,6,7].filter(v=>v!==b.n)).slice(0,2)]);say('どっくん どっくん。 なんかい きこえたかな？');}}
     if(this.med&&this.med.give){this.med.give+=dt;if(this.med.give>1.6&&!p.cured)this.cure();}},
@@ -81,7 +81,7 @@ SCN.naika={bg:'#e8f6ff',song:'clinic',
     else if(key==='earlight'){p.lit=1;p.bugT=.01;good(g.x,g.y,1,'あっ！');say('みみの なかに ちいさな むしさんが いる！');this.next(2);}
     else if(key==='hot'){p.hot=1;good(g.x,g.y,1,'ぽかぽか');say('ぽかぽか あったかい〜');this.next(1.6);}
     else if(key==='medicine'){const lv=lvOf('naika');const pc=pick(['#ff4d6d','#4a9cff','#ffd23a','#4cc86a','#ff8cc8','#a878ff']);this.med={n:1+Math.floor(Math.random()*(lv>=1?5:3)),have:0,give:0,col:pc};this.tools=[];hush();speak(`おくすりを ${this.med.n}こ コップに いれてね`);speak(numEn(this.med.n),'en');bub={text:`おくすりを ${this.med.n}こ コップに いれてね`,t:0,life:3.4};}},
-  draw(c){const p=this.p,s=this.s,py=this.py,th=this.theme;roomBg(c,th[0],th[1],py-40,th[2],[['window',90,py-300,1,120,100],['poster',230,py-300,1,'germ','#9ad0ff','てあらい'],['clock',W-150,170,.6]]);
+  draw(c){const p=this.p,s=this.s,py=this.py,th=this.theme;roomBg(c,th[0],th[1],py-40,th[2],[['window',90,py-300,1,120,100],['poster',230,py-300,1,'germ','#9ad0ff','てあらい'],['clock',W-150,170,.6],['bpwall',W-50,py-190,.9],['sanitizer',32,py-140,.9],['desk',W-96,py-112,.85]]);
     c.fillStyle='#fff';rr(c,440,150,120,160,10);c.fill();c.strokeStyle='#9ac8e8';c.lineWidth=4;c.stroke();[.7,.55,.42,.32,.24].forEach((r,i)=>{const n=i<2?2:3;for(let j=0;j<n;j++)MED.landolt(c,500+(j-(n-1)/2)*(i<2?50:34),178+i*28-(i>2?(i-2)*4:0),r,{a:[0,1.57,3.14,4.71][(i*2+j)%4]});});
     c.fillStyle='#fff';rr(c,this.px-120,py-10,240,22,10);c.fill();c.fillStyle='#9ab8d8';c.fillRect(this.px-8,py+12,16,60);c.fillStyle='#bfd8f0';rr(c,this.px-60,py+66,120,14,7);c.fill();
     const D=this.D;const sick=!p.cured;const scared=this.key==='calm'&&p.calm<3;
@@ -122,13 +122,14 @@ SCN.naika={bg:'#e8f6ff',song:'clinic',
     for(const t of this.tools){if(t.hit(x,y)){if(t.k!==this.st.tool){this.miss++;wrongTool(t,this.st.q);return;}t.held=true;t.lx=x;t.ly=y;sfx('tap');sayWord(t.k);return;}}
     if(hitC(x,y,p.x,this.py-80*this.s,90)){p.hop=.6;sfx('boing');}},
   move(x,y){const d=this.tools.find(t=>t.held);if(d){d.x=x;d.y=y;}},
-  up(x,y){const d=this.tools.find(t=>t.held);if(!d)return;if(this.st.act==='drop')this.drop(d,x,y);d.held=false;if(this.st.act==='hold'&&!this.sub&&this.prog<this.st.need)this.prog=0;},
+  up(x,y){const d=this.tools.find(t=>t.held);if(!d)return;if(this.st.act==='drop'){const tp=d.tip();this.drop(d,tp.x,tp.y);}d.held=false;if(this.st.act==='hold'&&!this.sub&&this.prog<this.st.need)this.prog=0;},
   hint(){const p=this.p;if(p.cured||this.si<0||p.walk)return null;if(this.sub&&this.sub.opts){const i=this.sub.opts.indexOf(this.sub.n);return{x:W/2+(i-1)*150,y:H-78};}if(this.sub)return null;
     if(this.med){const md=this.med;if(md.give)return null;return md.have<md.n?{x:150,y:H-110}:md.have>md.n?{x:360,y:H-110}:{x:500,y:H-110};}
     if(this.key==='palp'){const sp=this.spots.find(q=>q.sore);const t=this.tg('tummy');return{x:t.x+sp.x,y:t.y+sp.y};}
     if(this.key==='calm'){const h=this.tg('head');return{x:h.x,y:h.y+20};}
     const t=this.tools.find(q=>q.k===this.st.tool);if(!t||t.hidden)return null;let g=this.tg(this.st.tg);
-    if(this.key==='loupe'||this.key==='cream'){const r=p.rash.find(r=>this.key==='loupe'?!r.rev:!r.cr);if(!r)return null;g={x:p.x+r.a*this.s+(this.key==='loupe'?0:20),y:this.py+r.b*this.s+(this.key==='loupe'?-6:20)};}
+    if(this.key==='loupe'||this.key==='cream'){const r=p.rash.find(r=>this.key==='loupe'?!r.rev:!r.cr);if(!r)return null;g=this.key==='loupe'?t.aim({x:p.x+r.a*this.s,y:this.py+r.b*this.s}):{x:p.x+r.a*this.s+20,y:this.py+r.b*this.s+20};}
+    else if(this.key!=='spray')g=t.aim(this.st.act==='drops'?{x:g.x,y:g.y-30}:g);
     if(this.key==='spray'){const gm=p.germs.find(q=>q.alive);if(!gm)return null;const m=this.tg('mouth');g={x:m.x+gm.a*this.s+30,y:m.y+gm.b*this.s+30};}
     return{x:t.hx,y:t.hy,x2:g.x,y2:g.y};},
   hintText(){if(this.med)return `おくすりの びんを タッチして ${this.med.n}こ だそう`;return this.st?this.st.q:'';}};

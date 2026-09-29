@@ -25,7 +25,7 @@ SCN.pharmacy={bg:'#f6f0ff',song:'play',
     if(this.type==='syrup'){const y=oy+68;MED.syrup(c,195,y,.7,{lv:.7,col:this.syr[0]});txt(c,`${this.target} ml`,265,y-8,28,'#7a4ad8');txt(c,`${numEn(this.target)} ml`,265,y+18,13,'#8a7aa8');const ok=Math.abs(this.level-this.target)<=1;txt(c,String(Math.round(this.level)),360,y,26,ok?'#4cc86a':this.level>this.target?'#ff4d6d':'#b0a0c0');return;}
     this.order.forEach((o,i)=>{const y=oy+68+i*58,have=this.cnt(o.c),ok=have===o.n;let col='#7a4ad8',en='';if(this.type==='pills'){const C=COLORS[o.c];MED.pill(c,190,y,.8,{col:C[0]});col=C[0]==='#ffd23a'?'#d8a800':C[0];en=`${numEn(o.n)} ${C[2]}`;}else{const S=SHAPES.find(s=>s[0]===o.c);MED.tablet(c,190,y,.8,{sh:o.c,col:this.tcol});en=`${numEn(o.n)} ${S[2]}`;}
       txt(c,`× ${o.n}`,250,y-8,28,col);txt(c,en,262,y+18,13,'#8a7aa8');txt(c,`${have}`,355,y,26,ok?'#4cc86a':have>o.n?'#ff4d6d':'#b0a0c0');if(ok){c.strokeStyle='#4cc86a';c.lineWidth=5;c.beginPath();c.moveTo(372,y);c.lineTo(380,y+8);c.lineTo(394,y-10);c.stroke();}});},
-  draw(c){roomBg(c,'#f4eaff','#e4d8f4',H*.5,'#faf4ff',[['window',80,H*.5-240,1,100,80,'#e0c8ff']]);
+  draw(c){roomBg(c,'#f4eaff','#e4d8f4',H*.5,'#faf4ff',[['window',80,H*.5-240,1,100,80,'#e0c8ff'],['cabinet',W-90,H*.5-100,.9]]);
     for(let r=0;r<2;r++){c.fillStyle='#d8c0f0';c.fillRect(W-200,170+r*90,180,10);for(let i=0;i<4;i++)MED.bottle(c,W-176+i*44,145+r*90,.5);}
     drawPt(c,this.P,this.px,H*.5,.9,{t:T,happy:this.give>0,hop:this.give>0?Math.abs(Math.sin(T*6))*.5:0,wave:this.give>1.2});
     this.drawOrder(c);

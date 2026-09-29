@@ -25,11 +25,11 @@ SCN.pet={bg:'#fff4e8',song:'fuwa',
     if(this.key==='weigh'){const w=this.w;w.t+=dt;if(w.t>2&&!w.opts){w.opts=shuffle([w.v,...shuffle([1,2,3,4,5,6,7,8,9].filter(v=>v!==w.v)).slice(0,2)]);say('なんキロ かな？ はりが さしている かずを えらんでね');}}
     if(this.key==='fleas')for(const f of this.fleas){if(f.got)continue;f.t+=dt;if(f.t>1.2+Math.random()*.02){f.t=0;f.jump=1;f.a=clamp(f.a+rand(-40,40),-55,55);f.b=clamp(f.b+rand(-40,40),-150,-15);}if(f.jump>0)f.jump-=dt*3;}
     const d=this.tools.find(t=>t.held);
-    if(this.key==='shot'&&d&&d.k==='syringe'){if(Math.hypot(d.x-(P.x+34*s),d.y-(P.y-44*s))<80){this.prog+=dt;if(this.prog>1.1&&!this.flag){this.flag=1;d.held=false;good(P.x+34*s,P.y-44*s,2,'ちくっ！');this.happy=1;say('えらいね！ よく がまん できました');this.next(1.8);}}}
+    if(this.key==='shot'&&d&&d.k==='syringe'){if(Math.hypot(d.tip().x-(P.x+34*s),d.tip().y-(P.y-44*s))<70){this.prog+=dt;if(this.prog>1.1&&!this.flag){this.flag=1;d.held=false;good(P.x+34*s,P.y-44*s,2,'ちくっ！');this.happy=1;say('えらいね！ よく がまん できました');this.next(1.8);}}}
     if(this.key==='treat'&&this.eat>0){this.eat+=dt;if(Math.random()<dt*4)sfx('munch');if(this.eat>1.6){this.eat=0;this.happy=1.5;sfx('heart');burst(P.x,P.y-180,10,'heart');this.next(.8);}}
     if(this.key==='bath'&&this.bph==='dry'){this.dry+=dt;if(Math.random()<dt*30)parts.push({x:P.x+rand(-60,60),y:P.y-rand(40,140),vx:rand(-300,300),vy:rand(-200,50),life:.6,t:0,kind:'drop',col:'#8ad0ff'});if(this.dry>1.4&&!this.flag){this.flag=1;good(P.x,P.y-100,2,'ブルブル〜！');this.happy=1.5;say('ブルブルって したら ふわふわ！');this.next(1.6);}}
     if(this.photo>0){this.photo+=dt;if(this.photo>2.6&&!this.fin)this.fin=.01;}if(this.fin>0){this.fin+=dt;if(this.fin>.5&&this.fin<9){this.fin=9;celebrate('pet',starsFor(this.miss));}}},
-  draw(c){const L=-OX/SC-2,R=W+OX/SC+2,th=this.theme;roomBg(c,th[0],th[1],H*.5,th[2],[['window',100,H*.5-200,1,120,100],['plant',W-40,H*.5,.8],['frame',W/2+60,H*.5-230,1,'dog']]);
+  draw(c){const L=-OX/SC-2,R=W+OX/SC+2,th=this.theme;roomBg(c,th[0],th[1],H*.5,th[2],[['window',100,H*.5-200,1,120,100],['sink',W-100,H*.5-40,.8],['frame',W/2+60,H*.5-230,1,'dog']]);
     if(this.ph==='pick'){txtO(c,'だれを みてあげる？',W/2,230,36,'#ff8a3a','#fff',8);this.pets.forEach((k,i)=>{const x=110+i*190,y=H*.36;panel(c,x-82,y,164,230,24,'#fff','#ffb38a');drawAnimal(c,k,x,y+200,.85,{t:T+i,sad:1,shake:Math.sin(T*2+i)>.9?.1:0});txt(c,WORDS[k][0],x,y+30,24,'#8a5a3a');txt(c,WORDS[k][1],x,y+54,16,'#3a88e8');});fu(c,90,H-40,2.4,{wave:1});rk(this,c,W-80,H-40,1.8);return;}
     const P=this.P(),s=this.s,k=this.key;
     if(k==='weigh'){c.fillStyle=gfill(c,P.x,P.y,120,'#e8eef8');rr(c,P.x-120,P.y-6,240,34,12);c.fill();c.strokeStyle='#9aa8c8';c.lineWidth=4;c.stroke();
@@ -62,7 +62,7 @@ SCN.pet={bg:'#fff4e8',song:'fuwa',
   move(x,y){const t=this.tools.find(q=>q.held);if(!t)return;const d=Math.hypot(x-t.lx,y-t.ly);t.x=x;t.y=y;t.lx=x;t.ly=y;const P=this.P();
     if(this.key==='brush'&&t.k==='brush'){for(const q of this.tangles){if(q.hp>0&&Math.hypot(P.x+q.a-(x-10),P.y+q.b-(y-24))<50){q.hp-=d/260;if(Math.random()<.2)sfx('brush');if(q.hp<=0)good(P.x+q.a,P.y+q.b,1,'さらさら');}}
       if(this.tangles.every(q=>q.hp<=0)&&!this.flag){this.flag=1;t.held=false;this.happy=1;say('さらさら ふわふわ！');this.next();}}
-    if(this.key==='ears'&&t.k==='swab'){for(let i=0;i<2;i++){const e=this.earP(i);if(this.earD[i]>0&&Math.hypot(x-e.x,y-20-e.y)<50&&d>2){this.prog+=d;if(this.prog>70){this.prog=0;this.earD[i]--;sfx('squish');if(this.earD[i]===0)good(e.x,e.y,1,i?'みぎ OK':'ひだり OK');}}}
+    if(this.key==='ears'&&t.k==='swab'){for(let i=0;i<2;i++){const e=this.earP(i);const tp=t.tip();if(this.earD[i]>0&&Math.hypot(tp.x-e.x,tp.y-e.y)<46&&d>2){this.prog+=d;if(this.prog>70){this.prog=0;this.earD[i]--;sfx('squish');if(this.earD[i]===0)good(e.x,e.y,1,i?'みぎ OK':'ひだり OK');}}}
       if(this.earD.every(v=>v===0)&&!this.flag){this.flag=1;t.held=false;this.happy=1;say('おみみ すっきり！ よく きこえる！');this.next();}}
     if(this.key==='bath'){if(this.bph==='soap'&&t.k==='sponge'&&Math.hypot(x-P.x,y-(P.y-80))<140&&d>3){this.prog+=d;if(this.prog>40){this.prog=0;this.bub++;sfx('squish');bubbles(x,y,2);if(this.bub>=20){this.bph='rinse';t.held=false;good(P.x,P.y-100,1,'あわあわ！');this.tools=mkTray(['shower'],H-84);say('シャワーで あわを ながそう');}}}
       else if(this.bph==='rinse'&&t.k==='shower'){if(Math.random()<.6)parts.push({x,y,vx:rand(-30,30),vy:220,life:.5,t:0,kind:'drop',col:'#8ad0ff'});if(Math.hypot(x-P.x,y-(P.y-120))<160&&d>2){this.prog+=d;if(this.prog>50){this.prog=0;this.bub=Math.max(0,this.bub-2);sfx('water');if(this.bub===0){this.bph='dry';t.held=false;this.tools=[];this.flag=0;say('ぬれちゃった！');}}}}}},
@@ -75,7 +75,7 @@ SCN.pet={bg:'#fff4e8',song:'fuwa',
     if(k==='dress')return this.acc?{x:W-64,y:H-84}:{x:110,y:H-84};
     const want={brush:'brush',shot:'syringe',treat:this.food,ears:'swab',bath:this.bph==='rinse'?'shower':'sponge'}[k];const t=this.tools.find(q=>q.k===want);if(!t||t.hidden)return null;
     if(k==='brush'){const q=this.tangles.find(q=>q.hp>0);return q?{x:t.hx,y:t.hy,x2:P.x+q.a+10,y2:P.y+q.b+24}:null;}
-    if(k==='ears'){const i=this.earD[0]>0?0:1;const e=this.earP(i);return{x:t.hx,y:t.hy,x2:e.x,y2:e.y+20};}
+    if(k==='ears'){const i=this.earD[0]>0?0:1;const e=t.aim(this.earP(i));return{x:t.hx,y:t.hy,x2:e.x,y2:e.y};}
     if(k==='bath')return{x:t.hx,y:t.hy,x2:P.x+rand(-40,40),y2:P.y-80+rand(-30,30)};
-    if(k==='shot')return{x:t.hx,y:t.hy,x2:P.x+34*s,y2:P.y-44*s};return{x:t.hx,y:t.hy,x2:P.x,y2:P.y-72*s};},
+    if(k==='shot'){const g=t.aim({x:P.x+34*s,y:P.y-44*s});return{x:t.hx,y:t.hy,x2:g.x,y2:g.y};}return{x:t.hx,y:t.hy,x2:P.x,y2:P.y-72*s};},
   hintText(){return{weigh:'はりの さきの かずを えらんでね',brush:'ブラシで もじゃもじゃを とかそう',nails:'あしを タッチ',fleas:'ノミを タッチ',ears:'めんぼうで おみみを こしこし',bath:'スポンジで あわあわ',shot:'ちゅうしゃを うでに',treat:'すきな たべものを おくちへ',dress:'おしゃれを えらんで カメラ'}[this.key]||'えらんでね';}};

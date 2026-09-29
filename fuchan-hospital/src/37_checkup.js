@@ -23,15 +23,15 @@ SCN.checkup={bg:'#fff0f8',song:'fuwa',noRk:1,
     if(this.key==='weight'&&this.wt>=0){this.wt+=dt;if(this.wt<1.5&&Math.random()<dt*14)sfx('tick');if(this.wt>1.6&&!this.wopts){this.wopts=shuffle([this.wv,...shuffle([5,6,7,8,9,10,11,12].filter(v=>v!==this.wv)).slice(0,2)]);say('なんキロ かな？ すうじを よんでね');}}
     if(this.side&&this.bt!=null)this.bt+=dt;
     const d=this.tools.find(t=>t.held);
-    if(this.key==='heart'&&d&&d.k==='steth'&&!this.sub){const c0=this.chest();if(Math.hypot(d.x-c0.x,d.y-c0.y)<70){this.prog+=dt;if(this.prog>.5){d.held=false;this.tools=[];this.sub={n:3+Math.floor(Math.random()*4),i:0,t:0,pop:0};say('とくとく… あかちゃんの しんぞうは はやいよ。 いくつ きこえた？');}}}
+    if(this.key==='heart'&&d&&d.k==='steth'&&!this.sub){const c0=this.chest(),tp=d.tip();if(Math.hypot(tp.x-c0.x,tp.y-c0.y)<65){this.prog+=dt;if(this.prog>.5){d.held=false;this.tools=[];this.sub={n:3+Math.floor(Math.random()*4),i:0,t:0,pop:0};say('とくとく… あかちゃんの しんぞうは はやいよ。 いくつ きこえた？');}}}
     if(this.sub){const b=this.sub;b.t+=dt;if(b.i<b.n&&b.t>.8+b.i*.45){b.i++;sfx('dokkun');b.pop=1;}if(b.pop>0)b.pop-=dt*4;if(b.i>=b.n&&!b.opts&&b.t>1+b.n*.45)b.opts=shuffle([b.n,...shuffle([2,3,4,5,6,7,8].filter(v=>v!==b.n)).slice(0,2)]);}
-    if(this.key==='shot'&&d&&d.k==='syringe'){const a=this.arm();if(Math.hypot(d.x-a.x,d.y-a.y)<70){this.prog+=dt;if(this.prog>1.1&&!this.shot){this.shot=1;d.held=false;this.cry=2.4;sfx('squeak');say('えーん！ … でも すぐ なきやんだ！ リッキー えらい！');setTimeout(()=>{if(scene===this){this.hap=3;good(this.rx,this.gy-150,3,'えらい！');}},2400);this.next(3.6);}}}
+    if(this.key==='shot'&&d&&d.k==='syringe'){const a=this.arm(),tp=d.tip();if(Math.hypot(tp.x-a.x,tp.y-a.y)<65){this.prog+=dt;if(this.prog>1.1&&!this.shot){this.shot=1;d.held=false;this.cry=2.4;sfx('squeak');say('えーん！ … でも すぐ なきやんだ！ リッキー えらい！');setTimeout(()=>{if(scene===this){this.hap=3;good(this.rx,this.gy-150,3,'えらい！');}},2400);this.next(3.6);}}}
     if(this.fin>0){this.fin+=dt;if(this.fin>2.6&&this.fin<9){this.fin=9;celebrate('checkup',starsFor(this.miss));}}},
   arm(){return{x:this.rx+11*2.8,y:this.gy-12*2.8};},
   chest(){return{x:this.rx,y:this.gy-14*2.8};},
   mouthPanel(){return{x:W/2,y:H*.36};},
   toothPos(i){const m=this.mouthPanel(),n=this.tn,top=Math.ceil(n/2);const isTop=i<top,j=isTop?i:i-top,cnt=isTop?top:n-top;return{x:m.x+(j-(cnt-1)/2)*56,y:isTop?m.y-44:m.y+48};},
-  draw(c){roomBg(c,'#fff0f8','#f4dce8',this.gy-20,'#fff6fb',[['window',96,this.gy-260,1,120,96,'#ffc8e0'],['frame',230,this.gy-280,1,'rainbow']]);const k=this.key,gy=this.gy,rx=this.rx;
+  draw(c){roomBg(c,'#fff0f8','#f4dce8',this.gy-20,'#fff6fb',[['window',96,this.gy-260,1,120,96,'#ffc8e0'],['frame',230,this.gy-280,1,'rainbow'],['curtain',W-90,this.gy-330,1,160],['sanitizer',36,this.gy-140,.9]]);const k=this.key,gy=this.gy,rx=this.rx;
     c.fillStyle='#fff';rr(c,440,150,130,120,12);c.fill();c.strokeStyle='#ffb3d6';c.lineWidth=4;c.stroke();txt(c,'すくすく',505,176,18,'#ff5fa2');MED.ruler(c,470,230,.7);MED.scale(c,530,236,.6);
     let sc=2.8;
     if(k==='height'){const px=2.6;sc=this.rkSc();c.fillStyle='#ffe08a';rr(c,rx+70,gy-300,34,300,6);c.fill();c.strokeStyle='#d0a030';c.lineWidth=3;c.stroke();for(let v=0;v<=110;v+=5){const y=gy-v*px;if(y<gy-296)break;c.strokeStyle='#a07020';c.lineWidth=v%10?1.5:3;c.beginPath();c.moveTo(rx+70,y);c.lineTo(rx+70+(v%10?10:18),y);c.stroke();if(v%10===0&&v>0)txt(c,String(v),rx+122,y,14,'#a07020','left');}
@@ -80,5 +80,5 @@ SCN.checkup={bg:'#fff0f8',song:'fuwa',noRk:1,
     if(k==='teeth'){if(this.tdone)return null;for(let i=0;i<this.tn;i++)if(!this.tc.includes(i))return this.toothPos(i);return null;}
     if(this.sub)return this.sub.opts?{x:W/2+(this.sub.opts.indexOf(this.sub.n)-1)*150,y:H-78}:null;
     if(k==='shot'&&this.calm<3){const r=this.rkPos;return r?{x:r.x,y:r.y-36*r.sc}:null;}
-    const want=k==='heart'?'steth':'syringe';const t=this.tools.find(q=>q.k===want);if(!t||t.hidden)return null;const a=k==='heart'?this.chest():this.arm();return{x:t.hx,y:t.hy,x2:a.x,y2:a.y};},
+    const want=k==='heart'?'steth':'syringe';const t=this.tools.find(q=>q.k===want);if(!t||t.hidden)return null;const a=t.aim(k==='heart'?this.chest():this.arm());return{x:t.hx,y:t.hy,x2:a.x,y2:a.y};},
   hintText(){return{height:'あおい バーを したに ひっぱろう',weight:'たいじゅうけいを タッチ',eye:'Cの あいている ほうを タッチ',eye2:'えいごの どうぶつを タッチ',ear:'ピーの きこえた ほうを タッチ',teeth:'はを 1ぽんずつ タッチ',heart:'ちょうしんきを むねに',shot:this.calm<3?'リッキーの あたまを なでなで':'ちゅうしゃを うでに'}[this.key]||'';}};

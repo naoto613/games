@@ -25,10 +25,10 @@ SCN.dentist={bg:'#e8fff4',song:'play',
     if(this.boss){for(const B of this.boss){B.t+=dt;if(B.hitT>0)B.hitT-=dt;if(B.flee>0)B.flee+=dt;else{const sp=B.type==='speedy'?2.2:1;B.x=this.mx+Math.sin(B.t*1.3*sp+B.ph)*140;B.y=this.my+Math.sin(B.t*2.1*sp+B.ph)*44;}}
       for(const m of this.minis){if(m.hp<=0)continue;m.t+=dt;m.x+=m.vx*dt;m.y+=m.vy*dt;m.vx*=.98;m.vy*=.98;m.x=clamp(m.x,this.mx-190,this.mx+190);m.y=clamp(m.y,this.my-110,this.my+110);if(m.t>.6){m.vx+=rand(-200,200)*dt;m.vy+=rand(-200,200)*dt;}}
       if(this.bossesDone()&&!this.bossEnd){this.bossEnd=1;confetti(40);say('ばいきん ぜんめつ！ つよい！');setTimeout(()=>{if(scene===this){this.boss=null;this.next(.2);}},1400);}}
-    if(d&&this.key==='mirror'){for(const t of this.teeth){const p=this.tooth(t);if(t.cav&&!t.rev&&Math.hypot(d.x+14-p.x,d.y+26-p.y)<60){t.rev=1;good(p.x,p.y,1,'むしば はっけん！');}}if(this.teeth.every(t=>!t.cav||t.rev)&&!this.mdone){this.mdone=1;d.held=false;say(`むしばが ${this.teeth.filter(t=>t.cav).length}ほん あったよ`);this.next(1.8);}}
-    if(d&&this.key==='drill'){for(const t of this.teeth){if(!t.cav||t.hole)continue;const p=this.tooth(t);if(Math.hypot(d.x+14-p.x,d.y+30-p.y)<50){t.dp+=dt;if(Math.random()<dt*14)sfx('drill');if(Math.random()<dt*20)parts.push({x:p.x,y:p.y,vx:rand(-80,80),vy:rand(-120,-40),life:.4,t:0,kind:'dot',col:'#8a7a6a',r:5});if(t.dp>1){t.hole=1;good(p.x,p.y,1,'けずれた！');}}}
+    if(d&&this.key==='mirror'){for(const t of this.teeth){const p=this.tooth(t);if(t.cav&&!t.rev&&Math.hypot(d.tip().x-p.x,d.tip().y-p.y)<50){t.rev=1;good(p.x,p.y,1,'むしば はっけん！');}}if(this.teeth.every(t=>!t.cav||t.rev)&&!this.mdone){this.mdone=1;d.held=false;say(`むしばが ${this.teeth.filter(t=>t.cav).length}ほん あったよ`);this.next(1.8);}}
+    if(d&&this.key==='drill'){for(const t of this.teeth){if(!t.cav||t.hole)continue;const p=this.tooth(t);if(Math.hypot(d.tip().x-p.x,d.tip().y-p.y)<44){t.dp+=dt;if(Math.random()<dt*14)sfx('drill');if(Math.random()<dt*20)parts.push({x:p.x,y:p.y,vx:rand(-80,80),vy:rand(-120,-40),life:.4,t:0,kind:'dot',col:'#8a7a6a',r:5});if(t.dp>1){t.hole=1;good(p.x,p.y,1,'けずれた！');}}}
       if(this.teeth.every(t=>!t.cav||t.hole)&&!this.ddone){this.ddone=1;d.held=false;say('ぜんぶ けずれたよ。 いたくないよ、 がんばったね');this.next(1.8);}}
-    if(d&&this.key==='loose'){const t=this.teeth.find(q=>q.loose&&!q.out);if(t){const p=this.tooth(t);if(Math.hypot(d.x-p.x,d.y-p.y)<60){this.prog+=dt;if(Math.random()<dt*6)sfx('squeak');if(this.prog>1.4){t.out=1;d.held=false;this.flyT={x:p.x,y:p.y,t:0};good(p.x,p.y,3,'ぬけた！');SHAKE=.25;say('ぬけた！ ここから おとなの はが はえてくるよ');this.next(2.4);}}else this.prog=Math.max(0,this.prog-dt);}}
+    if(d&&this.key==='loose'){const t=this.teeth.find(q=>q.loose&&!q.out);if(t){const p=this.tooth(t);if(Math.hypot(d.tip().x-p.x,d.tip().y-p.y)<50){this.prog+=dt;if(Math.random()<dt*6)sfx('squeak');if(this.prog>1.4){t.out=1;d.held=false;this.flyT={x:p.x,y:p.y,t:0};good(p.x,p.y,3,'ぬけた！');SHAKE=.25;say('ぬけた！ ここから おとなの はが はえてくるよ');this.next(2.4);}}else this.prog=Math.max(0,this.prog-dt);}}
     if(this.key==='rinse'&&this.rinse>0){this.rinse+=dt;if(Math.random()<dt*20)drops(this.mx+rand(-150,150),this.my,2,'#9fd8ff');if(this.rinse>1.6){this.rinse=-1;this.foam=[];this.shine=.01;sfx('spark');banner('ピカピカ！','#2ec0a0',`${this.pt[1]} にっこり！`);burst(this.mx,this.my,30,'star');this.next(2.6);}}
     if(this.flyT)this.flyT.t+=dt;
     if(this.fin>0){this.fin+=dt;if(this.fin>.8&&this.fin<9){this.fin=9;celebrate('dentist',starsFor(this.miss));}}},
@@ -80,22 +80,22 @@ SCN.dentist={bg:'#e8fff4',song:'play',
     for(const t of this.tools){if(t.hit(x,y)){if(t.k!==this.want){this.miss++;wrongTool(t);return;}t.held=true;t.lx=x;t.ly=y;sfx('tap');sayWord(t.k);return;}}
     if(y<this.my-120){sfx('boing');say(pick(['あーん','はいしゃさん ちょっと どきどき','やさしく してね']));}},
   move(x,y){const t=this.tools.find(q=>q.held);if(!t)return;const d=Math.hypot(x-t.lx,y-t.ly);t.x=x;t.y=y;t.lx=x;t.ly=y;
-    if(t.k==='toothbrush'&&this.key==='brush'){const bx=x-18,by=y-24;let any=0;if(this.boss&&d>3){for(const b of this.boss)if(b.flee<=0&&Math.hypot(bx-b.x,by-b.y)<70)this.hitBoss(b,d/120);for(const m of this.minis)if(m.hp>0&&Math.hypot(bx-m.x,by-m.y)<45){m.hp=0;good(m.x,m.y,1,'ポン！');}}
+    if(t.k==='toothbrush'&&this.key==='brush'){const tp=t.tip(),bx=tp.x,by=tp.y;let any=0;if(this.boss&&d>3){for(const b of this.boss)if(b.flee<=0&&Math.hypot(bx-b.x,by-b.y)<70)this.hitBoss(b,d/120);for(const m of this.minis)if(m.hp>0&&Math.hypot(bx-m.x,by-m.y)<45){m.hp=0;good(m.x,m.y,1,'ポン！');}}
       for(const q of this.dirt){if(q.hp<=0)continue;const p=this.tooth(q.t);if(Math.hypot(p.x-bx,p.y-by)<55){q.hp-=d/200;any=1;if(q.hp<=0)good(p.x,p.y,1,q.kind==='germ'?'えいっ！':'ピカッ');}}
       if(d>4&&Math.random()<.35&&Math.abs(y-this.my)<170){this.foam.push({x:bx+rand(-12,12),y:by+rand(-10,10),r:rand(6,12),t:0});if(this.foam.length>80)this.foam.shift();}if(any&&Math.random()<.3)sfx('brush');
       if(!this.boss&&!this.bossDone&&this.dirt.every(q=>q.hp<=0)){this.bossDone=1;const ty=this.bossType;this.boss=ty==='twins'?[0,1].map(i=>({type:'twins',x:this.mx,y:this.my,hp:4,max:4,t:0,hitT:0,flee:0,ph:i*Math.PI})):[{type:ty,x:this.mx,y:this.my,hp:ty==='speedy'?4:6,max:ty==='speedy'?4:6,t:0,hitT:0,flee:0,ph:0}];
         sfx('siren1');say({king:'たいへん！ ばいきんキングが でてきた！',twins:'ふたごの ばいきんが でてきた！',speedy:'すばやい ばいきんが でてきた！'}[ty]+' ごしごし するか タッチで やっつけよう！');}}},
   up(x,y){const t=this.tools.find(q=>q.held);if(!t)return;t.held=false;if(this.key==='loose')this.prog=0;
-    if(this.key==='fill'&&t.k==='filling'){const h=this.teeth.find(q=>q.hole&&!q.fill&&Math.hypot(this.tooth(q).x-x,this.tooth(q).y-y)<60);if(h){h.fill=1;sfx('fill');good(this.tooth(h).x,this.tooth(h).y,1,'キラッ');if(this.teeth.every(q=>!q.hole||q.fill)){say('キラキラの つめもので ばっちり！');this.next(1.6);}}}
+    if(this.key==='fill'&&t.k==='filling'){const tp=t.tip(),h=this.teeth.find(q=>q.hole&&!q.fill&&Math.hypot(this.tooth(q).x-tp.x,this.tooth(q).y-tp.y)<60);if(h){h.fill=1;sfx('fill');good(this.tooth(h).x,this.tooth(h).y,1,'キラッ');if(this.teeth.every(q=>!q.hole||q.fill)){say('キラキラの つめもので ばっちり！');this.next(1.6);}}}
     if(this.key==='rinse'&&t.k==='cup'&&Math.hypot(x-this.mx,y-this.my)<220&&!this.rinse){this.rinse=.01;sfx('splash');say('ぶくぶく〜 ぺっ！');}},
   hint(){if(this.fin>0||this.si<0)return null;if(this.boss){const m=this.minis.find(m=>m.hp>0);if(m)return{x:m.x,y:m.y};const b=this.boss.find(b=>b.flee<=0);return b?{x:b.x,y:b.y}:null;}
     if(this.key==='count'){if(this.done)return null;const t=this.countSet().find(q=>!q.n);if(!t)return null;const p=this.tooth(t);return{x:p.x,y:p.y};}
     const tl=this.tools.find(q=>q.k===this.want);if(!tl||tl.hidden)return null;let g=null;
-    if(this.key==='mirror'){const t=this.teeth.find(q=>q.cav&&!q.rev);if(t){const p=this.tooth(t);g={x:p.x-14,y:p.y-26};}}
-    else if(this.key==='drill'){const t=this.teeth.find(q=>q.cav&&!q.hole);if(t){const p=this.tooth(t);g={x:p.x-14,y:p.y-30};}}
-    else if(this.key==='fill'){const t=this.teeth.find(q=>q.hole&&!q.fill);if(t)g=this.tooth(t);}
-    else if(this.key==='loose'){const t=this.teeth.find(q=>q.loose&&!q.out);if(t)g=this.tooth(t);}
-    else if(this.key==='brush'){const q=this.dirt.find(q=>q.hp>0);if(q){const p=this.tooth(q.t);g={x:p.x+18,y:p.y+24};}}
+    if(this.key==='mirror'){const t=this.teeth.find(q=>q.cav&&!q.rev);if(t)g=tl.aim(this.tooth(t));}
+    else if(this.key==='drill'){const t=this.teeth.find(q=>q.cav&&!q.hole);if(t)g=tl.aim(this.tooth(t));}
+    else if(this.key==='fill'){const t=this.teeth.find(q=>q.hole&&!q.fill);if(t)g=tl.aim(this.tooth(t));}
+    else if(this.key==='loose'){const t=this.teeth.find(q=>q.loose&&!q.out);if(t)g=tl.aim(this.tooth(t));}
+    else if(this.key==='brush'){const q=this.dirt.find(q=>q.hp>0);if(q)g=tl.aim(this.tooth(q.t));}
     else if(this.key==='rinse'&&!this.rinse)g={x:this.mx,y:this.my};
     return g?{x:tl.hx,y:tl.hy,x2:g.x,y2:g.y}:null;},
   hintText(){return{count:'はを 1ぽんずつ タッチ',mirror:'ミラーで はを しらべよう',drill:'ドリルを むしばに あてよう',fill:'つめものを あなに いれよう',loose:'ピンセットを ぐらぐらの はに あてて まってね',brush:'はぶらしで ごしごし',rinse:'コップを おくちへ'}[this.key]||'';}};

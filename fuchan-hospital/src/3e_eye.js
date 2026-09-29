@@ -18,7 +18,7 @@ SCN.eye={bg:'#f0f6ff',song:'calm',
   lensP(i){return{x:W/2+(i-2)*104,y:H-78};},
   optP(i){return{x:W/2+(i%3-1)*170,y:H-190+Math.floor(i/3)*110};},
   update(dt){if(this.hop>0)this.hop-=dt*2;if(this.fin>0){this.fin+=dt;if(this.fin>2.6&&this.fin<9){this.fin=9;celebrate('eye',starsFor(this.miss));}}},
-  draw(c){roomBg(c,'#eef4ff','#d8e4f4',H*.62,'#f6f9ff',[['window',80,H*.62-220,1,100,80],['frame',W-80,H*.62-230,1,'glasses']]);
+  draw(c){roomBg(c,'#eef4ff','#d8e4f4',H*.62,'#f6f9ff',[['window',80,H*.62-220,1,100,80],['frame',W-80,H*.62-230,1,'glasses'],['sanitizer',210,H*.62-150,.9]]);
     c.fillStyle='#fff';rr(c,W-170,H*.62-150,140,100,10);c.fill();c.strokeStyle='#c8d4e8';c.lineWidth=3;c.stroke();for(let i=0;i<3;i++)drawGlasses(c,W-100,H*.62-126+i*30,.55,GSHAPES[i][0],GCOLS[i][0]);
     this.drawChart(c,this.blur());
     const P=this.P,sc=1.25;drawPt(c,P,this.px,this.py,sc,{t:T,sad:this.ph==='lens'&&this.blur()>1,happy:this.hop>0||this.ph==='read'||this.fin>0,hop:this.hop,tilt:this.ph==='lens'&&this.blur()>1?Math.sin(T*1.5)*.08:0});
