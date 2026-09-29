@@ -13,6 +13,7 @@
 - キュアふーたん ストライク: https://naoto613.github.io/games/futan-strike/
 - ふーちゃんと リッキーの キラキラびょういん: https://naoto613.github.io/games/fuchan-hospital/
 - キュアたんてい ふーちゃん: https://naoto613.github.io/games/cure-tantei/
+- ふーたんと リッキーの こえあそびランド: https://naoto613.github.io/games/koe-asobi/
 
 ## 構成
 
@@ -34,6 +35,8 @@
 │   └── index.html          # ふーたんと リッキー すくすく にっき（4歳向け・スマホ縦持ちの育成ゲーム。単一 HTML で完結）
 ├── futan-strike/
 │   └── index.html          # キュアふーたん ストライク（5歳向け・スマホ縦持ちの ひっぱりアクション。単一 HTML で完結）
+├── koe-asobi/
+│   └── index.html          # ふーたんと リッキーの こえあそびランド（4歳〜・スマホ縦持ちの マイク録音あそび。こえへんしん15種・まぜまぜぶんしょう・こえピアノ・こえビート・さかさまチャレンジ・おおごえロケット。単一 HTML で完結、録音は IndexedDB に保存）
 ├── cure-tantei/
 │   ├── index.html          # キュアたんてい ふーちゃん（5歳向け・スマホ縦持ちの 探偵＋お医者さん＋プリキュアバトル 長編。ビルド済み成果物）
 │   ├── build.py            # src/*.js を連結して index.html を生成
