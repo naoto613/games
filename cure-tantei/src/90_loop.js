@@ -15,7 +15,7 @@ function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last
     updTR(dt);
     if(scene){if(scene.update)scene.update(dt);if(scene.fin!=null){scene.fin-=dt;if(scene.fin<=0){scene.fin=null;if(scene.isStep&&!scene._ended){scene._ended=true;stepDone();}}}}
     if(INS)INS.t+=dt;if(CARD){CARD.t+=dt;if(CARD.t>2.6)CARD=null;}IDLE+=dt;if(SHAKE>0)SHAKE-=dt;if(FLASH>0)FLASH-=dt*1.6;
-    updParts(dt);bgmTick();
+    updParts(dt);micTick(dt);bgmTick();
     const c=ctx;c.setTransform(1,0,0,1,0,0);c.fillStyle='#2a1030';c.fillRect(0,0,cv.width,cv.height);
     c.setTransform(DPR*SC,0,0,DPR*SC,DPR*OX,DPR*OY);if(SHAKE>0)c.translate(Math.sin(T*70)*SHAKE*10,Math.cos(T*60)*SHAKE*8);
     if(scene){scene.draw(c);drawParts(c);
@@ -25,7 +25,7 @@ function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last
     if(FLASH>0){c.globalAlpha=clamp(FLASH,0,1);c.fillStyle=FLASHCOL;c.fillRect(VX0-2,VY0-2,VX1-VX0+4,VY1-VY0+4);c.globalAlpha=1;}
     drawTR(c);
     if(VDEBUG){c.fillStyle='rgba(0,0,0,.75)';c.fillRect(0,420,400,300);c.font='12px monospace';c.textAlign='left';c.textBaseline='top';c.fillStyle='#8f8';
-      const vs=hasTTS?speechSynthesis.getVoices():[];const L=['tts:'+hasTTS+' voices:'+vs.length+' ja:'+vs.filter(v=>/^ja/i.test(v.lang)).length,'JV:'+(JV?JV.name+' '+JV.lang+(JV.localService?' local':' net'):'none'),'EV:'+(EV?EV.name:'none'),'speaking:'+(hasTTS&&speechSynthesis.speaking)+' pending:'+(hasTTS&&speechSynthesis.pending)+' paused:'+(hasTTS&&speechSynthesis.paused)+' act:'+(navigator.userActivation?navigator.userActivation.hasBeenActive:'?'),...VLOG];
+      const vs=hasTTS?speechSynthesis.getVoices():[];const L=['tts:'+hasTTS+' voices:'+vs.length+' ja:'+vs.filter(v=>/^ja/i.test(v.lang)).length,'JV:'+(JV?JV.name+' '+JV.lang+(JV.localService?' local':' net'):'none'),'EV:'+(EV?EV.name:'none'),'mic:'+MIC.ok+' '+MIC.state+' lv='+MIC.level.toFixed(3)+' pk='+MIC.peak.toFixed(3)+' nz='+MIC.noise.toFixed(3)+' '+MIC.mode+' '+MIC.err,'speaking:'+(hasTTS&&speechSynthesis.speaking)+' pending:'+(hasTTS&&speechSynthesis.pending)+' paused:'+(hasTTS&&speechSynthesis.paused)+' act:'+(navigator.userActivation?navigator.userActivation.hasBeenActive:'?'),...VLOG];
       L.forEach((l,i)=>c.fillText(l,6,426+i*17));}
   }catch(err){if(!frame.e){frame.e=1;console.error(err);}}
 }

@@ -127,11 +127,11 @@ STEP.battle={
       if(rec){for(let k=0;k<3;k++){c.strokeStyle=hexA(F.col,.6-k*.18);c.lineWidth=6;c.beginPath();c.arc(200,450,70+k*16+lv*40,0,TAU);c.stroke();}}
       c.save();c.translate(200,450);c.scale(p0+lv*.25,p0+lv*.25);drawGlow(c,rec?'#ff5a7a':'#fff6a0',0,0,110,.8);c.fillStyle=rec?'#ff4a6a':'#ff7ab8';circ(c,0,0,62);c.strokeStyle='#fff';c.lineWidth=6;c.beginPath();c.arc(0,0,62,0,TAU);c.stroke();
       c.fillStyle='#fff';rr(c,-15,-34,30,48,15);c.fill();c.strokeStyle='#fff';c.lineWidth=5;c.beginPath();c.arc(0,0,24,.15*Math.PI,.85*Math.PI);c.stroke();c.beginPath();c.moveTo(0,24);c.lineTo(0,36);c.moveTo(-12,36);c.lineTo(12,36);c.stroke();c.restore();
-      otext(c,rec?(MIC.heard?'いいよ！ その ちょうし！':'きいてるよ！ さけんで！'):ask?'マイクを つかって いい？（きょか を おしてね）':'マイクを タッチ！',200,548,ask?16:22,'#fff',rec?'#ff4a6a':'#b86af0','center',FONT);
+      otext(c,rec?(MIC.heard?'いいよ！ おわったら マイクを タッチ':'きいてるよ！ さけんで！'):ask?'マイクを つかって いい？（きょか を おしてね）':this.ph==='mic'?'じゅんび ちゅう…':'マイクを タッチ！',200,548,ask?16:22,'#fff',rec?'#ff4a6a':'#b86af0','center',FONT);
       if(this.ph==='mic0'||ask){c.fillStyle='rgba(255,255,255,.85)';rr(c,120,660,160,40,20);c.fill();txt(c,'マイク なしで',200,680,15,'#8a6a9a','center',900);}}
     if(this.ph==='beam'){const k=clamp(this.t/1,0,1),F=FIN[d.fin||'heart'];c.strokeStyle=hexA(F.col,.8);c.lineWidth=70*k;c.lineCap='round';c.beginPath();c.moveTo(f.x+30,f.y-90);c.lineTo(m.x,m.y);c.stroke();c.strokeStyle='#fff';c.lineWidth=26*k;c.stroke();
       for(let i=0;i<8;i++){const q=(T*2+i/8)%1;c.fillStyle='#fff';heartP(c,lerp(f.x,m.x,q),lerp(f.y-90,m.y,q),11);c.fill();}
-      const nm=F.name.replace('プリキュア！ ','');if(this.myVoice)otext(c,'♪ きみの こえ！ ♪',200,400,18,'#fff','#ffb03a','center',FONT);otext(c,'プリキュア！',200,440,26,'#fff',F.col);otext(c,nm,200,480,nm.length>12?22:28,'#fff',F.col);}
+      const nm=F.name.replace('プリキュア！ ','');if(this.myVoice)otext(c,'♪ きみの こえ！ ♪',200,400,18,'#fff','#ffb03a','center',FONT);else if(this.micMsg)otext(c,this.micMsg,200,400,14,'#fff','#8a6a9a','center',FONT);otext(c,'プリキュア！',200,440,26,'#fff',F.col);otext(c,nm,200,480,nm.length>12?22:28,'#fff',F.col);}
     if(this.ph==='win')otext(c,'やったー！',200,440,48,'#fff','#ff5fa2');},
   drawHen(c){const t=this.t;
     if(this.ph==='pend'){drawBG(c,'dark');drawMonster(c,this.d.mon,200,230,.45,T,{});drawFutan(c,110,640,{s:2.3,pose:'hold'});drawRicky(c,310,600,{s:1.9});
@@ -155,11 +155,12 @@ STEP.battle={
         if(o.ok){burst(o.x,o.y,20);const w=wordOf(o.k);if(w)learn(wordKey(o.k));this.chanceOK();}else{o.sh=.5;sfx('no');say([['ちがうよ！','ja'],...Q.say],'rk');}return;}}
     if(this.ph==='trace'){this.tracing=true;this.trc(x,y);}
     if(this.ph==='mic0'){if(inC(x,y,200,450,80)){this.micTap();return;}if(inR(x,y,200,680,170,48)){sfx('tap');this.startBeam(null);}}
-    if(this.ph==='mic'&&MIC.state==='asking'&&inR(x,y,200,680,170,48)){sfx('tap');micCancel();this.startBeam(null);}},
+    if(this.ph==='mic'&&MIC.state==='asking'&&inR(x,y,200,680,170,48)){sfx('tap');micCancel();this.startBeam(null);}
+    if(this.ph==='mic'&&MIC.state==='rec'&&MIC.t>.6&&inC(x,y,200,450,80)){sfx('tap');micStop();}},
   chanceOK(){const d=this.d;this.ph='combo';this.t=0;sfx('ok');const sp=['rk',...[].concat(d.ally||[])];this.sup=sp[(this.ci-1+sp.length)%sp.length];say('せいかい！ '+SUPPORT[this.sup][1],this.sup);INS=null;},
   trc(x,y){const tr=this.tr,p=tr.pts[tr.i];if(p&&Math.hypot(x-p.x,y-p.y)<58){tr.i++;sfx('count',Math.min(20,tr.i));if(tr.i>=tr.pts.length){this.tracing=false;if(MIC.ok&&this.d.mic!==false){this.ph='mic0';this.t=0;sfx('ready');const F=FIN[this.d.fin||'heart'];INS={text:'マイクを タッチして、おおきな こえで さけぼう！',who:'rk',t:0};say([['マイクを タッチして、おおきな こえで さけんでね！','ja'],[F.name,'ja']],'rk');}else this.startBeam(null);}}},
   startBeam(buf){const F=FIN[this.d.fin||'heart'];this.ph='beam';this.t=0;INS=null;sfx('beam');let len=0;if(buf){len=playEcho(buf);this.myVoice=true;}else{this.myVoice=false;say(F.name,'fu');}this.beamLen=Math.max(3.2,Math.min(8,len+.6));},
-  micTap(){if(this.ph!=='mic0')return;this.ph='mic';this.t=0;const self=this;micStart(buf=>{if(scene!==self||self.ph!=='mic')return;if(!buf&&MIC.state==='denied')self.micMsg='マイクが つかえなかったよ';self.startBeam(buf);});},
+  micTap(){if(this.ph!=='mic0')return;this.ph='mic';this.t=0;const self=this;micStart(buf=>{if(scene!==self||self.ph!=='mic')return;if(!buf){self.micMsg=MIC.err?'マイクが つかえなかったよ（'+MIC.err+'）':'こえが きこえなかったよ';}self.startBeam(buf);});},
   move(x,y){if(this.ph==='trace'&&this.tracing)this.trc(x,y);},
   up(){this.tracing=false;},
   hint(){const m=this.m;if(this.ph==='pend')return{x:200,y:430};if(this.ph==='fight')return m.warn>0?{x:200,y:668}:{x:m.x,y:m.y};

@@ -65,7 +65,7 @@ const SONGS={
 };
 const BGM={song:null,step:0,next:0};
 function bgm(name){if(BGM.song!==name){BGM.song=name;BGM.step=0;}}
-function bgmTick(){if(!AC||!BGG)return;const sp=speaking()||AC.currentTime<MIC.echoUntil;if(MIC.state==='rec'||MIC.state==='asking'){BGG.gain.setTargetAtTime(0,AC.currentTime,.05);BGM.next=AC.currentTime+.1;return;}BGG.gain.setTargetAtTime(sp?.35:1,AC.currentTime,.12);
+function bgmTick(){if(!AC||!BGG)return;const sp=speaking()||AC.currentTime<MIC.echoUntil;if(MIC.state==='rec'||MIC.state==='asking'||MIC.state==='busy'){BGG.gain.setTargetAtTime(0,AC.currentTime,.05);BGM.next=AC.currentTime+.1;return;}BGG.gain.setTargetAtTime(sp?.35:1,AC.currentTime,.12);
   if(!BGM.song||AC.state!=='running')return;const S=SONGS[BGM.song];if(!S)return;
   if(BGM.next<AC.currentTime)BGM.next=AC.currentTime+.05;
   while(BGM.next<AC.currentTime+.25){const spb=60/S.bpm/2,s=BGM.step%S.mel.length,ch=S.prog[(s>>3)%S.prog.length],when=BGM.next-AC.currentTime;
