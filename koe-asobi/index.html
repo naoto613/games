@@ -261,18 +261,18 @@ header.bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:1
 
 <!-- ================= ROCKET ================= -->
 <section class="screen" id="s-rocket">
-  <header class="bar"><button class="homeBtn" aria-label="もどる">🏠</button><h1>🚀 おおごえ ロケット</h1></header>
+  <header class="bar"><button class="homeBtn" aria-label="もどる">🏠</button><h1>🚀 こごえ ロケット</h1></header>
   <div id="rkWrap">
     <canvas id="rk"></canvas>
     <div id="rkOv">
-      <h2 id="rkTitle">おおごえ ロケット</h2>
-      <p id="rkMsg">「あーーー！」って こえを だすと<br>ロケットが うえに のぼるよ。<br>ほしを たくさん あつめよう！</p>
+      <h2 id="rkTitle">こごえ ロケット</h2>
+      <p id="rkMsg">ちいさな こえで「あー」って いうと<br>ロケットが うえに のぼるよ。<br>ほしを たくさん あつめよう！</p>
       <div class="bigNum" id="rkNum" style="display:none"></div>
       <button class="btn" id="rkStart">🚀 スタート</button>
     </div>
   </div>
-  <div class="row"><span class="hint" style="margin:0">マイクの かんど</span><div class="seg" id="rkSens"><button data-s="0.18">🦁 おおごえ</button><button data-s="0.09" class="on">🙂 ふつう</button><button data-s="0.045">🐭 ちいさい</button></div></div>
-  <p class="hint small">こえが おおきいほど たかく とぶよ。 しずかに すると おりてくる</p>
+  <div class="row"><span class="hint" style="margin:0">マイクの かんど</span><div class="seg" id="rkSens"><button data-s="0.018">🐭 ひそひそ</button><button data-s="0.03" class="on">🐰 こごえ</button><button data-s="0.07">🙂 ふつう</button></div></div>
+  <p class="hint small">おおきな こえは いらないよ。 こえを だしている あいだ のぼって、しずかに すると おりてくる<br>うまく のぼらない ときは 🐭、 すぐ うえに いっちゃう ときは 🙂 に してね</p>
 </section>
 
 <!-- ================= overlays ================= -->
@@ -617,7 +617,7 @@ const MODES=[
  {id:'piano',name:'こえ ピアノ',e:'🎹',ds:'じぶんの こえで ドレミ！ きらきらぼしも',bg:'linear-gradient(#8fd6ff,#4a9cf0)'},
  {id:'beat',name:'こえ ビート',e:'🥁',ds:'こえで ドン・パン！ リズムを つくろう',bg:'linear-gradient(#b7a3ff,#7d5ff0)'},
  {id:'saka',name:'さかさま チャレンジ',e:'🙃',ds:'さかさまの こえを まねすると…？',bg:'linear-gradient(#9be68a,#3fb35a)'},
- {id:'rocket',name:'おおごえ ロケット',e:'🚀',ds:'こえを だして ロケットを とばそう',bg:'linear-gradient(#6a7cff,#3a2a9a)'},
+ {id:'rocket',name:'こごえ ロケット',e:'🚀',ds:'ちいさな こえで ロケットを とばそう',bg:'linear-gradient(#6a7cff,#3a2a9a)'},
 ];
 const tiles=$('#tiles');
 MODES.forEach(m=>{const b=document.createElement('button');b.className='tile';b.style.background=m.bg;b.innerHTML=`<span class="em">${m.e}</span><span class="nm">${m.name}</span><span class="ds">${m.ds}</span>`;b.onclick=()=>{blip(700,.08);location.hash=m.id;};tiles.appendChild(b);});
@@ -828,13 +828,14 @@ const MIX_COLS=[
   wi=Math.floor(Math.random()*W.length);setW();upd();
 })();
 
-// ================= 6. おおごえ ロケット =================
+// ================= 6. こごえ ロケット =================
 const RK={tick:null};
 (function(){
-  const cv=$('#rk'),ovEl=$('#rkOv');let st='idle',cap=null,lv=0,raw=0,noise=.004,sens=.09,y=0,vy=0,items=[],parts=[],score=0,T=0,last=0,spawn=0,calib=[],best=LS.get('rkBest',0),W=0,H=0,sc=1,flameT=0;
+  const cv=$('#rk'),ovEl=$('#rkOv');let st='idle',cap=null,lv=0,raw=0,noise=.004,sens=LS.get('rkSens',.03),y=0,vy=0,items=[],parts=[],score=0,T=0,last=0,spawn=0,calib=[],best=LS.get('rkBest',0),W=0,H=0,sc=1,flameT=0;
   const DUR=40,bg=[...Array(40)].map(()=>({x:Math.random(),y:Math.random(),s:Math.random()*1.8+.5,p:Math.random()*TAU}));
   const clouds=[...Array(5)].map(()=>({x:Math.random(),y:rnd(.15,.9),s:rnd(.6,1.2),v:rnd(.03,.07)}));
-  $$('#rkSens button').forEach(b=>b.onclick=()=>{sens=+b.dataset.s;$$('#rkSens button').forEach(x=>x.classList.toggle('on',x===b));blip(600,.05);});
+  $$('#rkSens button').forEach(b=>b.classList.toggle('on',+b.dataset.s===sens));
+  $$('#rkSens button').forEach(b=>b.onclick=()=>{sens=+b.dataset.s;LS.set('rkSens',sens);$$('#rkSens button').forEach(x=>x.classList.toggle('on',x===b));blip(600,.05);});
   function resize(){const r=cv.parentElement.getBoundingClientRect();const h=Math.round(Math.min(innerHeight*.6,r.width*1.15,520));cv.style.height=h+'px';const s=sizeCanvas(cv);W=s.w;H=s.h;sc=Math.min(W,H)/360;}
   addEventListener('resize',()=>{if(cur==='rocket')resize();});
   function msg(title,html,btn,num){$('#rkTitle').textContent=title;$('#rkMsg').innerHTML=html;$('#rkStart').textContent=btn||'';$('#rkStart').style.display=btn?'':'none';const n=$('#rkNum');n.style.display=num!=null?'':'none';n.textContent=num??'';ovEl.classList.remove('hide');}
@@ -849,13 +850,13 @@ const RK={tick:null};
     st='play';ovEl.classList.add('hide');score=0;T=0;items=[];parts=[];y=H*.8;vy=0;spawn=0;blip(900,.15,'square',.08,1.3);}
   function end(){st='end';if(cap){cap.stop();cap=null;}releaseMic();const nb=score>best;if(nb){best=score;LS.set('rkBest',best);}fanfare();
     msg(nb?'しんきろく！🎉':'おしまい！',`⭐ を ${score}こ あつめたよ！<br><span style="font-size:14px">いちばん：${best}こ</span>`,'🚀 もういっかい',score);burst(['⭐','🌟','✨'],innerWidth/2,innerHeight/2,16);}
-  function stop(){if(cap){cap.stop();cap=null;}releaseMic();if(st==='play'||st==='calib'){st='idle';msg('おおごえ ロケット','「あーーー！」って こえを だすと<br>ロケットが うえに のぼるよ。<br>ほしを たくさん あつめよう！','🚀 スタート');}}
+  function stop(){if(cap){cap.stop();cap=null;}releaseMic();if(st==='play'||st==='calib'){st='idle';msg('こごえ ロケット','ちいさな こえで「あー」って いうと<br>ロケットが うえに のぼるよ。<br>ほしを たくさん あつめよう！','🚀 スタート');}}
   $('#rkStart').onclick=start;
   RK.tick=()=>{
     const now=performance.now()/1000,dt=Math.min(.05,now-(last||now));last=now;
     if(st==='calib')calib.push(raw);
     lv+=(raw-lv)*.35;
-    const L=st==='play'?clamp((lv-noise*1.6)/sens,0,1):0;
+    const L=st==='play'?clamp((lv-noise*1.5-.002)/sens,0,1):0;
     const top=H*.1,bot=H*.86;
     if(st==='play'){T+=dt;const target=bot-(bot-top)*L;y+=(target-y)*Math.min(1,dt*(target<y?6:2.2));
       spawn-=dt;if(spawn<=0){spawn=rnd(.55,.95);const big=Math.random()<.12;items.push({x:W+30,y:rnd(top,bot),big,r:(big?26:19)*sc,a:rnd(0,TAU)});}
@@ -876,7 +877,7 @@ const RK={tick:null};
     // メーター
     const mx=W-22*sc,mh=H*.6,my=H*.2;c.fillStyle='rgba(255,255,255,.2)';rr(c,mx-7*sc,my,14*sc,mh,7*sc);c.fill();
     const lg=c.createLinearGradient(0,my+mh,0,my);lg.addColorStop(0,'#5fe07a');lg.addColorStop(.6,'#ffd84a');lg.addColorStop(1,'#ff4f7a');c.fillStyle=lg;const fh=mh*L;if(fh>1){rr(c,mx-7*sc,my+mh-fh,14*sc,fh,7*sc);c.fill();}
-    c.font=`${16*sc}px ${FONT}`;c.fillText('📣',mx,my-14*sc);
+    c.font=`${16*sc}px ${FONT}`;c.fillText('🎤',mx,my-14*sc);
     if(st==='play'){c.fillStyle='rgba(255,255,255,.25)';rr(c,14,12,W-60*sc,12,6);c.fill();c.fillStyle='#ffd84a';rr(c,14,12,(W-60*sc)*(1-T/DUR),12,6);c.fill();
       c.font=`900 ${26*sc}px ${FONT}`;c.textAlign='left';c.lineWidth=5;c.strokeStyle='#3b2a8a';c.strokeText('⭐ '+score,16,46*sc);c.fillStyle='#fff';c.fillText('⭐ '+score,16,46*sc);
       if(T<3){c.textAlign='center';c.font=`900 ${24*sc}px ${FONT}`;c.globalAlpha=1-T/3;c.strokeText('こえを だして！',W/2,H*.5);c.fillText('こえを だして！',W/2,H*.5);c.globalAlpha=1;}}
