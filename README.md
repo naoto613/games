@@ -15,6 +15,7 @@
 - キュアたんてい ふーちゃん: https://naoto613.github.io/games/cure-tantei/
 - ふーたんと リッキーの こえあそびランド: https://naoto613.github.io/games/koe-asobi/
 - SKY GLIDER: https://naoto613.github.io/games/sky-glider/
+- GRAND CHIBIKKO AUTO: https://naoto613.github.io/games/chibikko-auto/
 
 ## 構成
 
@@ -42,6 +43,11 @@
 │   ├── index.html          # キュアたんてい ふーちゃん（5歳向け・スマホ縦持ちの 探偵＋お医者さん＋プリキュアバトル 長編。ビルド済み成果物）
 │   ├── build.py            # src/*.js を連結して index.html を生成
 │   └── src/                # ソース（キャラ・アイコン・背景・各ステップ・おいしゃさん・バトル・ストーリー）
+├── chibikko-auto/
+│   ├── index.html          # GRAND CHIBIKKO AUTO（5歳〜・リアル調 3D オープンワールド。GTA 風の まちを あるく／くるまに のる／7 ミッション／てはい＆パトカー／スタントジャンプ／かくれほし／ラジオ。ビルド済み成果物）
+│   ├── build.py            # src/*.js を連結して index.html を生成
+│   ├── three.min.js        # three.js r149（sky-glider と同じもの）
+│   └── src/                # ソース（00 描画基盤・空・テクスチャ、10 まち生成・当たり判定、20 くるま、30 ひと、35 おと、40 プレイヤー・カメラ、50 エフェクト・マーカー、60 ミッション、70 ゲーム進行・HUD・レーダー）
 ├── sky-glider/
 │   ├── index.html          # SKY GLIDER（全年齢・リアル調の 3D グライダーアクション。手続き生成の渓谷・物理ベースの空と大気フォグ・地形の影焼き込み。単一 HTML＋three.js）
 │   └── three.min.js        # three.js r149（futan-kart と同じもの）
@@ -59,7 +65,7 @@
 ```
 
 各ゲームは `<ゲーム名>/index.html` の 1 フォルダ 1 ゲーム構成で、置いた HTML がそのまま配信されます。
-`fuchan-town`・`fuchan-hospital`・`cure-tantei` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
+`fuchan-town`・`fuchan-hospital`・`cure-tantei`・`chibikko-auto` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
 
 ## ゲームの追加方法
 

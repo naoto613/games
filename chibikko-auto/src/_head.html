@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0a0b0d">
+<title>GRAND CHIBIKKO AUTO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#f5f3ee;--sub:rgba(245,243,238,.7);--gold:#ffd23f;--money:#7ddc6a;--red:#e8433b;--blue:#3b8de8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#0a0b0d;color:var(--ink);font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",system-ui,sans-serif;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.hide{display:none!important}
+.gta{font-family:Anton,Impact,"Arial Black","Hiragino Sans",sans-serif;font-weight:400}
+#vig{position:fixed;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 58%,rgba(0,0,0,.38) 100%)}
+#fade{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:30;transition:opacity .4s}
+
+/* ---------- HUD ---------- */
+#hud{position:fixed;inset:0;pointer-events:none;z-index:5}
+#tr{position:absolute;top:max(12px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right));text-align:right}
+#money{font-size:34px;color:var(--money);letter-spacing:.02em;-webkit-text-stroke:1.5px #0b2a07;text-shadow:2px 2px 0 #000;line-height:1}
+#stars{font-size:26px;letter-spacing:2px;line-height:1.1;margin-top:2px}
+#stars i{font-style:normal;color:rgba(255,255,255,.18);-webkit-text-stroke:1px rgba(0,0,0,.6)}
+#stars i.on{color:#fff;text-shadow:0 0 8px rgba(255,255,255,.7)}
+#stars.flash i.on{animation:sf .5s steps(2) infinite}
+@keyframes sf{50%{color:var(--gold)}}
+#timer{font-size:30px;color:#fff;-webkit-text-stroke:1px #000;text-shadow:2px 2px 0 #000;margin-top:4px}
+#counter{font-size:20px;color:#fff;-webkit-text-stroke:1px #000;text-shadow:2px 2px 0 #000;font-weight:800}
+#radarW{position:absolute;left:max(14px,env(safe-area-inset-left));top:max(12px,env(safe-area-inset-top));width:168px;height:168px;border-radius:50%;box-shadow:0 0 0 3px rgba(0,0,0,.55),0 4px 18px rgba(0,0,0,.45);overflow:hidden}
+#radar{width:168px;height:168px;display:block}
+#areaN,#vehN{position:absolute;right:max(18px,env(safe-area-inset-right));font-size:30px;color:#fff;-webkit-text-stroke:1.2px #000;text-shadow:2px 2px 0 #000;opacity:0;transition:opacity .6s;white-space:nowrap;font-weight:900;letter-spacing:.04em}
+#areaN{bottom:calc(max(18px,env(safe-area-inset-bottom)) + 210px);font-style:italic}
+#vehN{bottom:calc(max(18px,env(safe-area-inset-bottom)) + 250px);color:#cfe7ff}
+#radioN{position:absolute;top:max(14px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);text-align:center;opacity:0;transition:opacity .5s}
+#radioN .rn{font-size:26px;color:#fff;-webkit-text-stroke:1px #000;text-shadow:2px 2px 0 #000;font-weight:900}
+#radioN .rs{font-size:13px;color:#ffe9a8;text-shadow:1px 1px 0 #000;font-weight:700}
+#sub{position:absolute;left:50%;bottom:calc(max(16px,env(safe-area-inset-bottom)) + 150px);transform:translateX(-50%);width:min(92vw,820px);text-align:center;font-size:clamp(17px,2.6vw,24px);font-weight:800;color:#fff;text-shadow:0 0 4px #000,2px 2px 0 #000;line-height:1.45;letter-spacing:.04em}
+#sub b{color:var(--gold)}
+#sub .who{color:#8fd0ff}
+#obj{position:absolute;left:50%;bottom:calc(max(16px,env(safe-area-inset-bottom)) + 120px);transform:translateX(-50%);width:min(92vw,820px);text-align:center;font-size:clamp(15px,2.2vw,20px);font-weight:800;color:#fff;text-shadow:0 0 4px #000,2px 2px 0 #000}
+#obj b{color:var(--gold)}
+#help{position:absolute;left:50%;top:max(70px,calc(env(safe-area-inset-top) + 60px));transform:translateX(-50%);background:rgba(0,0,0,.72);border-radius:6px;padding:10px 16px;font-size:16px;font-weight:700;max-width:min(90vw,520px);text-align:center;opacity:0;transition:opacity .3s;line-height:1.5}
+#help b{color:var(--gold)}
+#big{position:absolute;left:0;right:0;top:34%;text-align:center;opacity:0;transition:opacity .5s}
+#big .t1{font-size:clamp(40px,8vw,84px);line-height:1;color:var(--gold);-webkit-text-stroke:2px #000;text-shadow:4px 4px 0 #000;letter-spacing:.03em;font-weight:900}
+#big .t2{font-size:clamp(20px,3.6vw,34px);color:#fff;-webkit-text-stroke:1px #000;text-shadow:2px 2px 0 #000;margin-top:10px;font-weight:900}
+#big.pass .t1{color:var(--gold)}
+#big.busted .t1{color:#ff5a4e}
+#big.mission .t1{color:#fff;font-size:clamp(30px,5.6vw,60px)}
+#big.mission .t2{color:var(--gold)}
+#slowfx{position:fixed;inset:0;pointer-events:none;z-index:2;opacity:0;transition:opacity .3s;box-shadow:inset 0 0 160px rgba(0,0,0,.65);background:linear-gradient(180deg,#000 0,#000 9%,transparent 9%,transparent 91%,#000 91%)}
+.bub{position:absolute;transform:translate(-50%,-100%);background:#fff;color:#222;border-radius:14px;padding:4px 10px;font-size:16px;font-weight:900;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.35);opacity:0;transition:opacity .2s}
+.bub:after{content:"";position:absolute;left:50%;bottom:-7px;margin-left:-7px;border:7px solid transparent;border-bottom:0;border-top-color:#fff}
+#speedo{position:absolute;right:max(18px,env(safe-area-inset-right));bottom:calc(max(18px,env(safe-area-inset-bottom)) + 296px);font-size:22px;color:#fff;-webkit-text-stroke:1px #000;text-shadow:2px 2px 0 #000;opacity:.9}
+
+/* ---------- touch controls ---------- */
+#tc{position:fixed;inset:0;z-index:6;pointer-events:none}
+#stickBase{position:absolute;width:140px;height:140px;margin:-70px 0 0 -70px;border-radius:50%;border:2px solid rgba(255,255,255,.4);background:rgba(0,0,0,.18);pointer-events:none}
+#stickKnob{position:absolute;width:62px;height:62px;margin:-31px 0 0 -31px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 2px 10px rgba(0,0,0,.4);pointer-events:none}
+#stickHint{position:absolute;left:max(40px,env(safe-area-inset-left));bottom:max(40px,env(safe-area-inset-bottom));width:140px;height:140px;border-radius:50%;border:2px dashed rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:rgba(255,255,255,.7);text-shadow:1px 1px 0 #000;pointer-events:none}
+.tb{position:absolute;pointer-events:auto;touch-action:none;border-radius:50%;border:3px solid rgba(255,255,255,.75);background:rgba(10,12,16,.45);color:#fff;font:inherit;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;text-shadow:1px 1px 0 #000;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);padding:0}
+.tb .ic{font-size:30px}
+.tb .lb{font-size:12px;margin-top:2px}
+.tb.on{background:rgba(255,210,63,.6);border-color:#fff}
+.tb.pulse{animation:pu 1s ease-in-out infinite}
+@keyframes pu{50%{transform:scale(1.12);box-shadow:0 0 22px rgba(255,210,63,.9)}}
+#bA{right:max(26px,env(safe-area-inset-right));bottom:max(30px,env(safe-area-inset-bottom));width:96px;height:96px}
+#bB{right:calc(max(26px,env(safe-area-inset-right)) + 108px);bottom:max(22px,env(safe-area-inset-bottom));width:78px;height:78px}
+#bC{right:calc(max(26px,env(safe-area-inset-right)) + 14px);bottom:calc(max(30px,env(safe-area-inset-bottom)) + 110px);width:78px;height:78px}
+#bD{right:calc(max(26px,env(safe-area-inset-right)) + 110px);bottom:calc(max(22px,env(safe-area-inset-bottom)) + 92px);width:66px;height:66px}
+#bD .ic{font-size:24px}
+#bE{right:calc(max(26px,env(safe-area-inset-right)) + 190px);bottom:max(22px,env(safe-area-inset-bottom));width:66px;height:66px}
+#bE .ic{font-size:24px}
+#bPause{position:absolute;pointer-events:auto;top:max(12px,env(safe-area-inset-top));left:calc(max(14px,env(safe-area-inset-left)) + 180px);width:46px;height:46px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(0,0,0,.45);color:#fff;font-size:18px;font-weight:900}
+
+/* ---------- overlays ---------- */
+.ov{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:max(18px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
+#loading{background:#0a0b0d;flex-direction:column;gap:18px;z-index:40}
+#loading .lg{font-size:42px;letter-spacing:.04em;line-height:.95;text-align:center;-webkit-text-stroke:1.5px #000;text-shadow:3px 3px 0 #000}
+#loading .bar{width:220px;height:6px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden}
+#loading .bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .2s}
+#loading .tip{font-size:14px;color:var(--sub);font-weight:700}
+#title{background:linear-gradient(90deg,rgba(0,0,0,.62) 0,rgba(0,0,0,.25) 46%,rgba(0,0,0,0) 70%);justify-content:flex-start;align-items:center}
+.logo{line-height:.86;letter-spacing:.01em;text-shadow:5px 5px 0 #000;-webkit-text-stroke:2.5px #000}
+.logo .l1{font-size:clamp(48px,9vw,104px);color:#fff}
+.logo .l2{font-size:clamp(58px,11vw,128px);color:var(--gold);display:block}
+.logo .l3{font-size:clamp(48px,9vw,104px);color:#fff}
+.tsub{margin:14px 0 22px;font-size:clamp(15px,2.3vw,19px);font-weight:900;color:#fff;text-shadow:2px 2px 0 #000;letter-spacing:.08em}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.row .lab{font-size:13px;font-weight:800;color:var(--sub);width:86px}
+.btn{appearance:none;font:inherit;font-weight:900;font-size:16px;color:#fff;background:rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.55);border-radius:8px;padding:9px 16px;cursor:pointer;text-shadow:1px 1px 0 #000}
+.btn.on{background:var(--gold);color:#111;border-color:#fff;text-shadow:none}
+.btn.big{font-size:24px;padding:14px 40px;background:#e8433b;border-color:#fff;border-radius:10px;box-shadow:0 6px 0 #7a1712,0 10px 24px rgba(0,0,0,.4)}
+.btn.big:active{transform:translateY(4px);box-shadow:0 2px 0 #7a1712}
+.keys{margin-top:18px;font-size:12px;color:var(--sub);font-weight:700;line-height:1.8}
+.keys b{display:inline-block;border:1px solid rgba(255,255,255,.4);border-radius:4px;padding:0 6px;margin:0 3px;color:#fff;font-size:11px}
+#back{position:fixed;z-index:21;top:max(12px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right));font-size:13px;font-weight:800;color:#fff;text-decoration:none;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:7px 14px}
+#pause{background:rgba(0,0,0,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);flex-direction:column}
+.pm{width:min(96vw,880px);max-height:100%;overflow:auto;display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+.pm h2{margin:0 0 10px;font-size:34px;letter-spacing:.04em;color:#fff;-webkit-text-stroke:1px #000}
+.pcol{flex:1 1 300px;min-width:280px}
+#bigmap{width:100%;max-width:420px;aspect-ratio:1;border:3px solid rgba(255,255,255,.6);border-radius:8px;display:block;background:#123}
+.mlist{display:flex;flex-direction:column;gap:7px}
+.mi{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.22);border-radius:8px;padding:8px 12px;cursor:pointer;color:#fff;font:inherit;font-weight:800;font-size:16px;text-align:left}
+.mi:hover{border-color:var(--gold)}
+.mi .e{font-size:26px;width:34px;text-align:center}
+.mi .d{margin-left:auto;font-size:13px;color:var(--gold)}
+.stat{font-size:14px;font-weight:800;color:var(--sub);margin:10px 0;line-height:1.7}
+.stat b{color:#fff}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="vig"></div>
+<div id="slowfx"></div>
+<div id="hud" class="hide">
+  <div id="radarW"><canvas id="radar" width="336" height="336"></canvas></div>
+  <div id="tr">
+    <div id="money" class="gta">$00000000</div>
+    <div id="stars"><i>★</i><i>★</i><i>★</i><i>★</i><i>★</i></div>
+    <div id="timer" class="gta hide">0:00</div>
+    <div id="counter" class="hide"></div>
+  </div>
+  <div id="radioN"><div class="rn"></div><div class="rs"></div></div>
+  <div id="areaN"></div>
+  <div id="vehN"></div>
+  <div id="speedo" class="gta hide"></div>
+  <div id="help"></div>
+  <div id="big"><div class="t1 gta"></div><div class="t2"></div></div>
+  <div id="obj"></div>
+  <div id="sub"></div>
+  <div id="bubs"></div>
+</div>
+<div id="tc" class="hide">
+  <div id="stickHint">ここを<br>ゆびで うごかす</div>
+  <div id="stickBase" class="hide"></div><div id="stickKnob" class="hide"></div>
+  <button class="tb" id="bA"><span class="ic">⤴</span><span class="lb">ジャンプ</span></button>
+  <button class="tb" id="bB"><span class="ic">🚗</span><span class="lb">のる</span></button>
+  <button class="tb" id="bC"><span class="ic">📣</span><span class="lb">プップー</span></button>
+  <button class="tb" id="bD"><span class="ic">📻</span><span class="lb">ラジオ</span></button>
+  <button class="tb" id="bE"><span class="ic">🏃</span><span class="lb">はしる</span></button>
+  <button id="bPause">II</button>
+</div>
+
+<div id="loading" class="ov"><div class="lg gta"><span style="color:#fff">GRAND</span><br><span style="color:var(--gold)">CHIBIKKO</span><br><span style="color:#fff">AUTO</span></div><div class="bar"><i id="lbar"></i></div><div class="tip" id="ltip">まちを つくっているよ…</div></div>
+
+<div id="title" class="ov hide">
+  <div style="max-width:640px;width:100%">
+    <div class="logo gta"><span class="l1">GRAND</span><br><span class="l2">CHIBIKKO</span><span class="l3">AUTO</span></div>
+    <div class="tsub">グランド ちびっこ オート ─ ちびっこが まちを ぼうけん！</div>
+    <div class="row"><span class="lab">しゅじんこう</span><button class="btn on" data-kid="0">👦 おとこのこ</button><button class="btn" data-kid="1">👧 おんなのこ</button></div>
+    <div class="row"><span class="lab">おと</span><button class="btn on" data-snd="1">🔊 あり</button><button class="btn" data-snd="0">🔇 なし</button></div>
+    <div class="row" style="margin-top:20px"><button class="btn big" id="bStart">あそぶ ▶</button></div>
+    <div class="keys" id="keys">キーボード：<b>WASD</b>/<b>←↑↓→</b> いどう・うんてん　<b>F</b> のる/おりる　<b>SPACE</b> ジャンプ/ブレーキ　<b>SHIFT</b> はしる　<b>H</b> クラクション/サイレン/みず　<b>R</b> ラジオ　<b>マウスドラッグ</b> カメラ　<b>ESC</b> メニュー</div>
+  </div>
+</div>
+<a id="back" href="../">← ゲームいちらん</a>
+
+<div id="pause" class="ov hide">
+  <div class="pm">
+    <div class="pcol">
+      <h2 class="gta">PAUSE</h2>
+      <canvas id="bigmap" width="840" height="840"></canvas>
+      <div class="stat" id="pstat"></div>
+    </div>
+    <div class="pcol">
+      <h2 class="gta">ミッション</h2>
+      <div class="mlist" id="mlist"></div>
+      <div class="row" style="margin-top:14px"><button class="btn big" id="bResume" style="background:#2c8a3c;box-shadow:0 6px 0 #164d1f">つづける ▶</button></div>
+      <div class="row"><button class="btn" id="bQuit">ミッションを やめる</button><button class="btn" id="bSnd">🔊 おと</button><a class="btn" href="../" style="text-decoration:none">ゲームいちらんへ</a></div>
+    </div>
+  </div>
+</div>
+<div id="fade"></div>
+<script src="./three.min.js"></script>
+<script>
+'use strict';
