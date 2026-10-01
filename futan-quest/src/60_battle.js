@@ -97,7 +97,7 @@ async function startBattle(opts) {
   BT.t = 0; BT.camT = 0; BT.focus = null; BT.snap = true;
   AU.play(opts.music || (BT.boss ? 'boss' : 'battle'), { restart: true });
   $('#bwrap').classList.remove('hide'); drawBParty();
-  enemyWin = UI.panel('', { left: 'max(10px,env(safe-area-inset-left))', bottom: 'calc(max(14px,env(safe-area-inset-bottom)) + 150px)', minWidth: '170px', fontSize: '17px', lineHeight: '1.5' });
+  enemyWin = UI.panel('', { right: 'max(10px,env(safe-area-inset-right))', bottom: 'calc(max(14px,env(safe-area-inset-bottom)) + 150px)', minWidth: 'min(170px,40vw)', fontSize: '17px', lineHeight: '1.5' });
   drawEnemyWin();
   $('#fade').style.transition = 'opacity .4s'; $('#fade').style.opacity = '0';
   await sleep(350);
@@ -153,8 +153,8 @@ async function battleLoop(opts) {
   }
 }
 const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
-function cmdStyle() { return { left: 'max(10px,env(safe-area-inset-left))', bottom: 'calc(max(14px,env(safe-area-inset-bottom)) + 150px)', minWidth: '170px', zIndex: 2 }; }
-function subStyle() { return { left: 'calc(max(10px,env(safe-area-inset-left)) + min(188px, 44vw))', bottom: 'calc(max(14px,env(safe-area-inset-bottom)) + 150px)', minWidth: '210px', maxHeight: '46vh', overflowY: 'auto' }; }
+function cmdStyle() { return { left: 'max(10px,env(safe-area-inset-left))', bottom: 'calc(max(14px,env(safe-area-inset-bottom)) + 150px)', minWidth: 'min(170px,40vw)', zIndex: 2 }; }
+function subStyle() { return { left: 'calc(max(10px,env(safe-area-inset-left)) + min(188px, 44vw))', bottom: 'calc(max(14px,env(safe-area-inset-bottom)) + 150px)', minWidth: 'min(210px,50vw)', maxWidth: 'calc(100vw - min(188px, 44vw) - 20px)', maxHeight: '46vh', overflowY: 'auto', zIndex: 3 }; }
 async function chooseCommands() {
   const out = [];
   const members = GAME.party.map((p, i) => i).filter(i => alive(GAME.party[i]) && !GAME.party[i].sleep);

@@ -43,6 +43,7 @@ const UI = {
         if (i >= full.length) finish(); else requestAnimationFrame(step);
       };
       const h = this.push({
+        msg: true,
         key: (k) => {
           if (k !== 'ok' && k !== 'cancel') return;
           if (!done) { finish(); return; }

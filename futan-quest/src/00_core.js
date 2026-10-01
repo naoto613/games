@@ -53,7 +53,8 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const maxAniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.15, 5000);
-addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
+function fitView() { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.fov = camera.aspect < 1 ? clamp(55 / Math.pow(camera.aspect, 0.55), 55, 80) : 55; camera.updateProjectionMatrix(); }
+fitView(); addEventListener('resize', fitView); addEventListener('orientationchange', () => setTimeout(fitView, 300));
 
 // ================================================================ sun / sky
 const SUN = new V3();

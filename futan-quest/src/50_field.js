@@ -36,7 +36,7 @@ function readMove() {
 canvas.addEventListener('pointerdown', e => {
   AU.init();
   if (GAME.mode === 'title') { GAME.titleTap(); return; }
-  if (UI.busy) { UI.input('ok'); return; }
+  if (UI.busy) { const top = UI.stack[UI.stack.length - 1]; if (top && top.msg) UI.input('ok'); return; }
   if (GAME.mode !== 'field') return;
   if (e.pointerType === 'mouse') { FIELD.look.id = e.pointerId; FIELD.look.lx = e.clientX; FIELD.look.ly = e.clientY; canvas.setPointerCapture(e.pointerId); return; }
   if (e.clientX < innerWidth * 0.5 && FIELD.stick.id === null) {
@@ -153,7 +153,8 @@ function updateCamera(dt) {
   CAM.userT += dt;
   const moving = P.spd > 0.5;
   if (moving && CAM.userT > 1.5) CAM.yaw = lerpAng(CAM.yaw, P.h + Math.PI, 1 - Math.exp(-1.2 * dt));
-  const dist = inD ? Math.min(CAM.dist, 5.2) : CAM.dist, pitch = inD ? Math.max(CAM.pitch, 0.42) : CAM.pitch;
+  const portrait = camera.aspect < 1 ? 1.3 : 1;
+  const dist = (inD ? Math.min(CAM.dist, 5.2) : CAM.dist) * portrait, pitch = inD ? Math.max(CAM.pitch, 0.42) : CAM.pitch;
   const tx = P.x, ty = P.y + 1.0, tz = P.z;
   let cx = tx + Math.sin(CAM.yaw) * Math.cos(pitch) * dist, cz = tz + Math.cos(CAM.yaw) * Math.cos(pitch) * dist, cy = ty + Math.sin(pitch) * dist;
   if (inD) { // pull in if a wall is in the way

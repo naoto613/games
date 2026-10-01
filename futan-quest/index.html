@@ -11,7 +11,7 @@
 <style>
 :root{--ink:#fff;--sub:#c9c9c9;--gold:#ffd45a;--hp:#7fe07a;--mp:#7ab8ff;--warn:#ffb23f;--dead:#ff5b4f;--win:rgba(4,6,14,.86)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;overflow:hidden;background:#05070c;color:var(--ink);font-family:"DotGothic16","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html,body{touch-action:manipulation;margin:0;height:100%;overflow:hidden;background:#05070c;color:var(--ink);font-family:"DotGothic16","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
 .hide{display:none!important}
 #vig{position:fixed;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 55%,rgba(0,0,0,.45) 100%)}
@@ -72,8 +72,8 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-actio
 #stickHint{position:absolute;left:max(40px,calc(env(safe-area-inset-left) + 30px));bottom:max(46px,calc(env(safe-area-inset-bottom) + 36px));width:110px;height:110px;border-radius:50%;border:3px dashed rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:13px;color:rgba(255,255,255,.7);text-align:center;line-height:1.3}
 .tb{position:absolute;pointer-events:auto;border-radius:50%;background:var(--win);border:3px solid #fff;color:#fff;display:flex;align-items:center;justify-content:center;font-family:inherit;font-size:16px;box-shadow:0 0 0 2px rgba(0,0,0,.6);touch-action:none}
 .tb.on{background:#3d3420;border-color:var(--gold)}
-#bA{width:88px;height:88px;right:max(22px,calc(env(safe-area-inset-right) + 16px));bottom:max(40px,calc(env(safe-area-inset-bottom) + 30px));font-size:18px}
-#bB{width:64px;height:64px;right:max(122px,calc(env(safe-area-inset-right) + 118px));bottom:max(30px,calc(env(safe-area-inset-bottom) + 20px))}
+#bA{width:88px;height:88px;right:max(22px,calc(env(safe-area-inset-right) + 16px));bottom:max(40px,calc(env(safe-area-inset-bottom) + 30px));font-size:16px}
+#bB{width:64px;height:64px;font-size:13px;letter-spacing:-.05em;right:max(122px,calc(env(safe-area-inset-right) + 118px));bottom:max(30px,calc(env(safe-area-inset-bottom) + 20px))}
 #bRun{width:58px;height:58px;right:max(36px,calc(env(safe-area-inset-right) + 30px));bottom:max(146px,calc(env(safe-area-inset-bottom) + 136px));font-size:13px}
 #bRun.pulse{border-color:var(--gold);color:var(--gold)}
 #bA.glow{animation:glow 1s ease-in-out infinite}
@@ -110,8 +110,10 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-actio
   #bparty .pc{min-width:0;width:31vw;font-size:14px}
   #compass{top:calc(max(10px,env(safe-area-inset-top)) + 62px);width:180px}
   #quest{top:calc(max(10px,env(safe-area-inset-top)) + 92px);font-size:12px}
-  #gold{top:auto;bottom:calc(max(10px,env(safe-area-inset-bottom)) + 150px);right:10px}
-  #hint{font-size:14px;bottom:calc(max(18px,env(safe-area-inset-bottom)) + 130px)}
+  #gold{top:calc(max(10px,env(safe-area-inset-top)) + 62px);left:max(10px,env(safe-area-inset-left));right:auto;bottom:auto;font-size:14px;padding:3px 9px}
+  #hint{font-size:14px;bottom:calc(max(18px,env(safe-area-inset-bottom)) + 216px);white-space:normal;width:max-content;max-width:92vw;text-align:center;line-height:1.45}
+  #title .logo .l2{font-size:clamp(36px,12.5vw,116px);white-space:nowrap;letter-spacing:0}
+  #title .logo .l1{letter-spacing:.3em}
 }
 #loading{position:fixed;inset:0;z-index:70;background:#05070c;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;font-size:18px;letter-spacing:.2em}
 #loading .bar{width:220px;height:6px;border:1px solid #fff;border-radius:3px;overflow:hidden}
@@ -137,7 +139,7 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-actio
   <button class="tb" id="bRun">はしる</button>
 </div>
 <div id="bwrap" class="hide"><div id="bparty"></div></div>
-<div id="ui" style="position:fixed;inset:0;z-index:40;pointer-events:none"></div>
+<div id="ui" style="position:fixed;inset:0;z-index:52;pointer-events:none"></div>
 <div id="title" class="hide">
   <div class="logo">
     <div class="l1">ゆうしゃ ふーたんの ぼうけん</div>
@@ -211,7 +213,8 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const maxAniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.15, 5000);
-addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
+function fitView() { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.fov = camera.aspect < 1 ? clamp(55 / Math.pow(camera.aspect, 0.55), 55, 80) : 55; camera.updateProjectionMatrix(); }
+fitView(); addEventListener('resize', fitView); addEventListener('orientationchange', () => setTimeout(fitView, 300));
 
 // ================================================================ sun / sky
 const SUN = new V3();
@@ -2646,6 +2649,7 @@ const UI = {
         if (i >= full.length) finish(); else requestAnimationFrame(step);
       };
       const h = this.push({
+        msg: true,
         key: (k) => {
           if (k !== 'ok' && k !== 'cancel') return;
           if (!done) { finish(); return; }
@@ -2753,7 +2757,7 @@ function readMove() {
 canvas.addEventListener('pointerdown', e => {
   AU.init();
   if (GAME.mode === 'title') { GAME.titleTap(); return; }
-  if (UI.busy) { UI.input('ok'); return; }
+  if (UI.busy) { const top = UI.stack[UI.stack.length - 1]; if (top && top.msg) UI.input('ok'); return; }
   if (GAME.mode !== 'field') return;
   if (e.pointerType === 'mouse') { FIELD.look.id = e.pointerId; FIELD.look.lx = e.clientX; FIELD.look.ly = e.clientY; canvas.setPointerCapture(e.pointerId); return; }
   if (e.clientX < innerWidth * 0.5 && FIELD.stick.id === null) {
@@ -2870,7 +2874,8 @@ function updateCamera(dt) {
   CAM.userT += dt;
   const moving = P.spd > 0.5;
   if (moving && CAM.userT > 1.5) CAM.yaw = lerpAng(CAM.yaw, P.h + Math.PI, 1 - Math.exp(-1.2 * dt));
-  const dist = inD ? Math.min(CAM.dist, 5.2) : CAM.dist, pitch = inD ? Math.max(CAM.pitch, 0.42) : CAM.pitch;
+  const portrait = camera.aspect < 1 ? 1.3 : 1;
+  const dist = (inD ? Math.min(CAM.dist, 5.2) : CAM.dist) * portrait, pitch = inD ? Math.max(CAM.pitch, 0.42) : CAM.pitch;
   const tx = P.x, ty = P.y + 1.0, tz = P.z;
   let cx = tx + Math.sin(CAM.yaw) * Math.cos(pitch) * dist, cz = tz + Math.cos(CAM.yaw) * Math.cos(pitch) * dist, cy = ty + Math.sin(pitch) * dist;
   if (inD) { // pull in if a wall is in the way
@@ -3265,7 +3270,7 @@ async function startBattle(opts) {
   BT.t = 0; BT.camT = 0; BT.focus = null; BT.snap = true;
   AU.play(opts.music || (BT.boss ? 'boss' : 'battle'), { restart: true });
   $('#bwrap').classList.remove('hide'); drawBParty();
-  enemyWin = UI.panel('', { left: 'max(10px,env(safe-area-inset-left))', bottom: 'calc(max(14px,env(safe-area-inset-bottom)) + 150px)', minWidth: '170px', fontSize: '17px', lineHeight: '1.5' });
+  enemyWin = UI.panel('', { right: 'max(10px,env(safe-area-inset-right))', bottom: 'calc(max(14px,env(safe-area-inset-bottom)) + 150px)', minWidth: 'min(170px,40vw)', fontSize: '17px', lineHeight: '1.5' });
   drawEnemyWin();
   $('#fade').style.transition = 'opacity .4s'; $('#fade').style.opacity = '0';
   await sleep(350);
@@ -3321,8 +3326,8 @@ async function battleLoop(opts) {
   }
 }
 const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
-function cmdStyle() { return { left: 'max(10px,env(safe-area-inset-left))', bottom: 'calc(max(14px,env(safe-area-inset-bottom)) + 150px)', minWidth: '170px', zIndex: 2 }; }
-function subStyle() { return { left: 'calc(max(10px,env(safe-area-inset-left)) + min(188px, 44vw))', bottom: 'calc(max(14px,env(safe-area-inset-bottom)) + 150px)', minWidth: '210px', maxHeight: '46vh', overflowY: 'auto' }; }
+function cmdStyle() { return { left: 'max(10px,env(safe-area-inset-left))', bottom: 'calc(max(14px,env(safe-area-inset-bottom)) + 150px)', minWidth: 'min(170px,40vw)', zIndex: 2 }; }
+function subStyle() { return { left: 'calc(max(10px,env(safe-area-inset-left)) + min(188px, 44vw))', bottom: 'calc(max(14px,env(safe-area-inset-bottom)) + 150px)', minWidth: 'min(210px,50vw)', maxWidth: 'calc(100vw - min(188px, 44vw) - 20px)', maxHeight: '46vh', overflowY: 'auto', zIndex: 3 }; }
 async function chooseCommands() {
   const out = [];
   const members = GAME.party.map((p, i) => i).filter(i => alive(GAME.party[i]) && !GAME.party[i].sleep);
