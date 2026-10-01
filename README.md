@@ -16,6 +16,7 @@
 - ふーたんと リッキーの こえあそびランド: https://naoto613.github.io/games/koe-asobi/
 - SKY GLIDER: https://naoto613.github.io/games/sky-glider/
 - GRAND CHIBIKKO AUTO: https://naoto613.github.io/games/chibikko-auto/
+- ふーたんと そよかぜの タクト: https://naoto613.github.io/games/futan-takuto/
 
 ## 構成
 
@@ -43,6 +44,11 @@
 │   ├── index.html          # キュアたんてい ふーちゃん（5歳向け・スマホ縦持ちの 探偵＋お医者さん＋プリキュアバトル 長編。ビルド済み成果物）
 │   ├── build.py            # src/*.js を連結して index.html を生成
 │   └── src/                # ソース（キャラ・アイコン・背景・各ステップ・おいしゃさん・バトル・ストーリー）
+├── futan-takuto/
+│   ├── index.html          # ふーたんと そよかぜの タクト（5歳〜・トゥーン調 3D の うみと しまの ぼうけん。かぜのタクトで かぜを かえて ふねで しまを めぐり、3つの しずく→かみさまの とう→まものの とりでの ボス。ビルド済み成果物）
+│   ├── build.py            # src/*.js を連結して index.html を生成
+│   ├── three.min.js        # three.js r149（chibikko-auto と同じもの）
+│   └── src/                # ソース（00 描画基盤・トゥーン/アウトライン・入力、05 おと（BGM/効果音は すべて合成）、10 そら・うみシェーダー・かぜ・地形、15 小物、20 しまの配置、30 キャラ、40 プレイヤー・ふね・カメラ、50 エフェクト・てき・NPC、60 ストーリー・ボス、70 HUD・ちず・セーブ・メインループ）
 ├── chibikko-auto/
 │   ├── index.html          # GRAND CHIBIKKO AUTO（5歳〜・リアル調 3D オープンワールド。GTA 風の まちを あるく／くるまに のる／7 ミッション／てはい＆パトカー／スタントジャンプ／かくれほし／ラジオ。ビルド済み成果物）
 │   ├── build.py            # src/*.js を連結して index.html を生成
@@ -65,7 +71,7 @@
 ```
 
 各ゲームは `<ゲーム名>/index.html` の 1 フォルダ 1 ゲーム構成で、置いた HTML がそのまま配信されます。
-`fuchan-town`・`fuchan-hospital`・`cure-tantei`・`chibikko-auto` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
+`fuchan-town`・`fuchan-hospital`・`cure-tantei`・`chibikko-auto`・`futan-takuto` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
 
 ## ゲームの追加方法
 
