@@ -18,6 +18,7 @@
 - GRAND CHIBIKKO AUTO: https://naoto613.github.io/games/chibikko-auto/
 - ふーたんと そよかぜの タクト: https://naoto613.github.io/games/futan-takuto/
 - ふーたん クエスト: https://naoto613.github.io/games/futan-quest/
+- リモコロン 〜ふーたんと リッキーの ちょっかいタウン〜: https://naoto613.github.io/games/futan-remocolon/
 
 ## 構成
 
@@ -50,6 +51,8 @@
 │   ├── build.py            # src/*.js を連結して index.html を生成
 │   ├── three.min.js        # three.js r149（chibikko-auto と同じもの）
 │   └── src/                # ソース（00 描画基盤・トゥーン/アウトライン・入力、05 おと（BGM/効果音は すべて合成）、10 そら・うみシェーダー・かぜ・地形、15 小物、20 しまの配置、30 キャラ、40 プレイヤー・ふね・カメラ、50 エフェクト・てき・NPC、60 ストーリー・ボス、70 HUD・ちず・セーブ・メインループ）
+├── futan-remocolon/
+│   └── index.html          # リモコロン 〜ふーたんと リッキーの ちょっかいタウン〜（4歳〜・スマホ縦持ち。PS2『リモココロン』風の ちょっかい アドベンチャー。リモコンの ようせい コロンで つんつん→ビデオで ろくが→こまった ひとの こころに うつして えがおに。てがき ふうの ゆらゆら せん・3ステージ・よみあげ ナビ。単一 HTML で完結）
 ├── futan-quest/
 │   ├── index.html          # ふーたん クエスト（5歳〜・リアル調 3D のドラクエ風 RPG。フィールド／町2つ／ダンジョン3つ／コマンドバトル（おまかせ付き）／レベル・じゅもん・装備・店・宿／ボス3体＋2形態のラスボス／エンディング。ビルド済み成果物）
 │   ├── build.py            # src/*.js を連結して index.html を生成
