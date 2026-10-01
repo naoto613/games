@@ -14,6 +14,7 @@
 - ふーちゃんと リッキーの キラキラびょういん: https://naoto613.github.io/games/fuchan-hospital/
 - キュアたんてい ふーちゃん: https://naoto613.github.io/games/cure-tantei/
 - ふーたんと リッキーの こえあそびランド: https://naoto613.github.io/games/koe-asobi/
+- SKY GLIDER: https://naoto613.github.io/games/sky-glider/
 
 ## 構成
 
@@ -41,6 +42,9 @@
 │   ├── index.html          # キュアたんてい ふーちゃん（5歳向け・スマホ縦持ちの 探偵＋お医者さん＋プリキュアバトル 長編。ビルド済み成果物）
 │   ├── build.py            # src/*.js を連結して index.html を生成
 │   └── src/                # ソース（キャラ・アイコン・背景・各ステップ・おいしゃさん・バトル・ストーリー）
+├── sky-glider/
+│   ├── index.html          # SKY GLIDER（全年齢・リアル調の 3D グライダーアクション。手続き生成の渓谷・物理ベースの空と大気フォグ・地形の影焼き込み。単一 HTML＋three.js）
+│   └── three.min.js        # three.js r149（futan-kart と同じもの）
 ├── futan-kart/
 │   ├── index.html          # キュアふーたんの キラキラカート（5歳向け・タブレット想定の 3D カートレース）
 │   └── three.min.js        # three.js r149（fuchan-town と同じもの）
