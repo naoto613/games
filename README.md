@@ -18,6 +18,8 @@
 - GRAND CHIBIKKO AUTO: https://naoto613.github.io/games/chibikko-auto/
 - ふーたんと そよかぜの タクト: https://naoto613.github.io/games/futan-takuto/
 - ふーたん クエスト: https://naoto613.github.io/games/futan-quest/
+- ふーたんの はちゃめちゃ キッチン: https://naoto613.github.io/games/futan-kitchen/
+- リモコロン 〜ふーたんと リッキーの ちょっかいタウン〜: https://naoto613.github.io/games/futan-remocolon/
 - ふーモン ルビー: https://naoto613.github.io/games/fumon-ruby/
 
 ## 構成
@@ -55,6 +57,13 @@
 │   ├── index.html          # ふーモン ルビー（5歳〜・GBA ふうの ドット絵 モンスター育成 RPG。240×160 キャンバス、タイル・キャラ・モンスターは すべて コードで 描画。町4つ／道路3本／どうくつ／火山／いせき／ジム3つ／リーグ、25種の ふーモン・捕獲・しんか・ずかん・PC・ショップ・レポート（localStorage）。BGM/効果音は すべて合成。ビルド済み成果物）
 │   ├── build.py            # src/*.js を連結して index.html を生成
 │   └── src/                # ソース（00 入力・ループ、05 おと、10 ドット描画、15 タイル、16 たてもの、20 キャラ、25 ふーモン、30 わざ・どうぐ、40 ウィンドウ・メッセージ、50 フィールド、60 バトル、65 メニュー、70 マップ、75 ストーリー、80 タイトル）
+├── futan-kitchen/
+│   ├── index.html          # ふーたんの はちゃめちゃ キッチン（5歳〜・オーバークック風の きょうりょく クッキング。ローポリ 3D の キッチンで ちゅうもんの りょうりを つくって だす。8ステージ（ゆれる ふね・ベルトコンベア・こおり・なげわたし・かざんの ひ・うごく かべの ボス）、ひとり（こうたい）／ふたり（キーボード・ゲームパッド）、ようちえんバスの ワールドマップ、ストーリー。ビルド済み成果物）
+│   ├── build.py            # src/*.js を連結して index.html を生成
+│   ├── three.min.js        # three.js r149（futan-takuto と同じもの）
+│   └── src/                # ソース（00 描画基盤・アイコン・入力・セーブ・パーティクル、05 おと（BGM/効果音は すべて合成）・よみあげ、10 キャラ・ざいりょう・どうぐの モデル、20 レシピ・テーマ・ステージ、30 キッチンの ルール（ちょうり・ていしゅつ・なげる・ひ）、40 プレイヤー・HUD・ヒント・カメラ、60 ストーリー、65 ワールドマップ、70 ゲーム進行・メインループ）
+├── futan-remocolon/
+│   └── index.html          # リモコロン 〜ふーたんと リッキーの ちょっかいタウン〜（4歳〜・スマホ縦持ち。PS2『リモココロン』風の ちょっかい アドベンチャー。リモコンの ようせい コロンで つんつん→ビデオで ろくが→こまった ひとの こころに うつして えがおに。てがき ふうの ゆらゆら せん・3ステージ・よみあげ ナビ。単一 HTML で完結）
 ├── futan-quest/
 │   ├── index.html          # ふーたん クエスト（5歳〜・リアル調 3D のドラクエ風 RPG。フィールド／町2つ／ダンジョン3つ／コマンドバトル（おまかせ付き）／レベル・じゅもん・装備・店・宿／ボス3体＋2形態のラスボス／エンディング。ビルド済み成果物）
 │   ├── build.py            # src/*.js を連結して index.html を生成
@@ -82,7 +91,7 @@
 ```
 
 各ゲームは `<ゲーム名>/index.html` の 1 フォルダ 1 ゲーム構成で、置いた HTML がそのまま配信されます。
-`fuchan-town`・`fuchan-hospital`・`cure-tantei`・`chibikko-auto`・`futan-quest`・`futan-takuto`・`fumon-ruby` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
+`fuchan-town`・`fuchan-hospital`・`cure-tantei`・`chibikko-auto`・`futan-quest`・`futan-takuto`・`futan-kitchen`・`fumon-ruby` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
 
 ## ゲームの追加方法
 
