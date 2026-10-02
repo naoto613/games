@@ -18,6 +18,9 @@
 - GRAND CHIBIKKO AUTO: https://naoto613.github.io/games/chibikko-auto/
 - ふーたんと そよかぜの タクト: https://naoto613.github.io/games/futan-takuto/
 - ふーたん クエスト: https://naoto613.github.io/games/futan-quest/
+- ふーたんの はちゃめちゃキッチン: https://naoto613.github.io/games/futan-kitchen/
+- リモコロン 〜ふーたんと リッキーの ちょっかいタウン〜: https://naoto613.github.io/games/futan-remocolon/
+- ふーモン ルビー: https://naoto613.github.io/games/fumon-ruby/
 - STELLA NOCTIS ─宵星のレガリア─: https://naoto613.github.io/games/stella-noctis/
 
 ## 構成
@@ -56,6 +59,17 @@
 │   ├── build.py            # src/*.js を連結して index.html を生成
 │   ├── three.min.js        # three.js r149（chibikko-auto と同じもの）
 │   └── src/                # ソース（00 描画基盤・トゥーン/アウトライン・入力、05 おと（BGM/効果音は すべて合成）、10 そら・うみシェーダー・かぜ・地形、15 小物、20 しまの配置、30 キャラ、40 プレイヤー・ふね・カメラ、50 エフェクト・てき・NPC、60 ストーリー・ボス、70 HUD・ちず・セーブ・メインループ）
+├── fumon-ruby/
+│   ├── index.html          # ふーモン ルビー（5歳〜・GBA ふうの ドット絵 モンスター育成 RPG。240×160 キャンバス、タイル・キャラ・モンスターは すべて コードで 描画。町4つ／道路3本／どうくつ／火山／いせき／ジム3つ／リーグ、25種の ふーモン・捕獲・しんか・ずかん・PC・ショップ・レポート（localStorage）。BGM/効果音は すべて合成。ビルド済み成果物）
+│   ├── build.py            # src/*.js を連結して index.html を生成
+│   └── src/                # ソース（00 入力・ループ、05 おと、10 ドット描画、15 タイル、16 たてもの、20 キャラ、25 ふーモン、30 わざ・どうぐ、40 ウィンドウ・メッセージ、50 フィールド、60 バトル、65 メニュー、70 マップ、75 ストーリー、80 タイトル）
+├── futan-kitchen/
+│   ├── index.html          # ふーたんの はちゃめちゃキッチン（オーバークック風の協力クッキング。本家並みの難易度：チップ倍率×4・時間切れ減点・焦げ→延焼・皿洗い・落下リスポーン。プロローグ＋4ワールド×4ステージ＋最終決戦（トラックの隙間・通行人・揺れる船・コンベア・フライヤー・いかだ・氷・ワープ・溶岩・地震）。ひとり（シェフ交代）／ふたり（キーボード・ゲームパッド）、バスで走るワールドマップ。ビルド済み成果物）
+│   ├── build.py            # src/*.js を連結して index.html を生成
+│   ├── three.min.js        # three.js r149（futan-takuto と同じもの）
+│   └── src/                # ソース（00 描画基盤・角丸ボックス・手続きテクスチャ・アイコン・入力・セーブ、05 BGM/効果音（すべて合成）、10 シェフ（浮いた手）・食材・調理器具のモデル、20 レシピ・テーマ・ステージ、30 厨房ルール（調理・提供・チップ・投げる・火事・隙間・ワープ・通行人・落下）、40 プレイヤー・HUD・カメラ、60 ストーリー、65 ワールドマップ、70 ゲーム進行・メインループ）
+├── futan-remocolon/
+│   └── index.html          # リモコロン 〜ふーたんと リッキーの ちょっかいタウン〜（4歳〜・スマホ縦持ち。PS2『リモココロン』風の ちょっかい アドベンチャー。リモコンの ようせい コロンで つんつん→ビデオで ろくが→こまった ひとの こころに うつして えがおに。てがき ふうの ゆらゆら せん・3ステージ・よみあげ ナビ。単一 HTML で完結）
 ├── futan-quest/
 │   ├── index.html          # ふーたん クエスト（5歳〜・リアル調 3D のドラクエ風 RPG。フィールド／町2つ／ダンジョン3つ／コマンドバトル（おまかせ付き）／レベル・じゅもん・装備・店・宿／ボス3体＋2形態のラスボス／エンディング。ビルド済み成果物）
 │   ├── build.py            # src/*.js を連結して index.html を生成
@@ -83,7 +97,7 @@
 ```
 
 各ゲームは `<ゲーム名>/index.html` の 1 フォルダ 1 ゲーム構成で、置いた HTML がそのまま配信されます。
-`fuchan-town`・`fuchan-hospital`・`cure-tantei`・`chibikko-auto`・`futan-quest`・`futan-takuto`・`stella-noctis` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
+`fuchan-town`・`fuchan-hospital`・`cure-tantei`・`chibikko-auto`・`futan-quest`・`futan-takuto`・`futan-kitchen`・`fumon-ruby`・`stella-noctis` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
 
 ## ゲームの追加方法
 
