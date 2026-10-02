@@ -225,6 +225,7 @@ function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
   pollPadStart();
+  if (isTouch && VH > VW && APP.mode === 'play' && K.phase !== 'over') Game.pause();
   Game.inputLock = Math.max(0, (Game.inputLock || 0) - dt);
   switch (APP.mode) {
     case 'title': titleUpdate(dt); break;
@@ -242,6 +243,18 @@ function frame(now) {
   Parts.update(APP.mode === 'pause' ? 0 : dt);
   renderer.render(scene, camera);
 }
+
+// ================================================================ landscape only
+function lockLandscape() {
+  if (!isTouch) return;
+  const de = document.documentElement;
+  const rf = de.requestFullscreen || de.webkitRequestFullscreen;
+  const go = () => { try { screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(() => { }); } catch (e) { } };
+  try { if (rf && !document.fullscreenElement && !document.webkitFullscreenElement) { const r = rf.call(de); if (r && r.then) r.then(go, () => { }); else go(); } else go(); } catch (e) { }
+}
+$('#bFull').addEventListener('click', () => { Sound.unlock(); lockLandscape(); });
+for (const id of ['#b1p', '#b2p']) $(id).addEventListener('pointerdown', lockLandscape);
+addEventListener('orientationchange', () => setTimeout(resize, 250));
 
 // ================================================================ boot
 resize();
