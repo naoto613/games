@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#141a2e">
+<title>ひとり人狼 〜月影の村〜</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@700;900&family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap">
+<style>
+:root{--bg:#efe3cc;--bg2:#e4d3b2;--panel:#fffaf0;--ink:#3a2e22;--sub:#7a6a55;--line:#d6c29e;--accent:#a8432a;--bubble:#ffffff;--me:#fde9c8;--sys:#6b5a45;--black:#c0392b;--white:#2471a3;--priv:#efe4ff;--privInk:#4b2a8a;--btn:#a8432a;--btnInk:#fff}
+body.night{--bg:#121830;--bg2:#1a2242;--panel:#1c2444;--ink:#e8e6f2;--sub:#9aa0c0;--line:#2f3a66;--accent:#e6bd55;--bubble:#252e55;--me:#3a3560;--sys:#b8bede;--black:#ff7b6b;--white:#7cc0ff;--priv:#2c2456;--privInk:#d8c8ff;--btn:#e6bd55;--btnInk:#1a1630}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:linear-gradient(var(--bg),var(--bg2));background-attachment:fixed;color:var(--ink);font-family:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Yu Gothic",system-ui,sans-serif;transition:background .8s,color .8s;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
+#app{display:none;flex-direction:column;height:100vh;height:100dvh;max-width:1100px;margin:0 auto}
+#app.on{display:flex}
+header{display:flex;align-items:center;gap:8px;padding:8px 12px;padding-top:max(8px,env(safe-area-inset-top));border-bottom:1px solid var(--line)}
+#dayLabel{font-family:"Zen Old Mincho",serif;font-weight:900;font-size:18px;white-space:nowrap}
+#myRole{font-size:12px;font-weight:800;padding:2px 10px;border-radius:99px;background:var(--accent);color:var(--btnInk);white-space:nowrap;cursor:pointer}
+header .sp{flex:1}
+.hb{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:4px 10px;font-size:13px;font-weight:700;cursor:pointer}
+#board{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:6px;padding:8px 10px}
+.tile{position:relative;display:flex;flex-direction:column;align-items:center;padding:5px 2px 4px;border-radius:12px;background:var(--panel);border:2px solid transparent;cursor:pointer;transition:transform .15s,border-color .2s;min-width:0}
+.tile:hover{transform:translateY(-2px)}
+.tile.speak{border-color:var(--accent)}
+.tile.me{box-shadow:inset 0 0 0 1px var(--accent)}
+.av{width:46px;height:46px;border-radius:50%;overflow:hidden;flex:none;background:#999}
+.av svg{display:block;width:100%;height:100%}
+.tile .nm{font-size:12px;font-weight:800;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.tile .st{font-size:10px;color:var(--sub);min-height:13px;line-height:13px;white-space:nowrap}
+.tile.dead .av{filter:grayscale(1) brightness(.55)}
+.tile.dead .nm{text-decoration:line-through;opacity:.6}
+.tile.dead .st{color:var(--black);font-weight:700}
+.bd{position:absolute;top:2px;left:2px;display:flex;flex-direction:column;gap:2px;align-items:flex-start}
+.bd.r{left:auto;right:2px;align-items:flex-end}
+.b{font-size:10px;line-height:14px;padding:0 4px;border-radius:5px;color:#fff;font-weight:800;background:#7a5cc4}
+.b.seer{background:#7a4cc4}.b.medium{background:#2f8f7f}.b.knight{background:#3a6fb8}
+.b.blk{background:#c0392b}.b.wht{background:#2471a3}.b.wolf{background:#8e1f1f}.b.memo1{background:#5a9bd5}.b.memo2{background:#8a8a8a}.b.memo3{background:#d35400}
+.b.role{background:#555}.b.role.w{background:#8e1f1f}
+#log{flex:1;overflow-y:auto;padding:8px 12px 16px;scroll-behavior:smooth}
+.msg{display:flex;gap:8px;margin:7px 0;align-items:flex-start;animation:fin .25s ease-out}
+.msg .av{width:34px;height:34px}
+.msg .who{font-size:11px;color:var(--sub);font-weight:700}
+.bub{background:var(--bubble);border:1px solid var(--line);border-radius:4px 14px 14px 14px;padding:6px 11px;line-height:1.55;font-size:15px}
+.msg.mine{flex-direction:row-reverse}
+.msg.mine .bub{background:var(--me);border-radius:14px 4px 14px 14px}
+.msg.mine .who{text-align:right}
+.sys{text-align:center;color:var(--sys);font-size:13px;margin:10px 0;line-height:1.6;animation:fin .25s ease-out}
+.sys.head{font-family:"Zen Old Mincho",serif;font-weight:900;font-size:17px;color:var(--ink);margin:18px 0 8px}
+.sys.chief{font-style:italic}
+.priv{margin:8px auto;max-width:520px;background:var(--priv);color:var(--privInk);border-radius:10px;padding:7px 12px;font-size:14px;font-weight:700;text-align:center;animation:fin .25s ease-out}
+.votes{margin:8px auto;max-width:520px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;animation:fin .25s ease-out}
+.votes .row{display:flex;justify-content:space-between;gap:8px;padding:1px 0}
+.votes .tot{margin-top:6px;border-top:1px dashed var(--line);padding-top:6px;font-weight:800}
+.k{color:var(--black);font-weight:800}.w{color:var(--white);font-weight:800}
+@keyframes fin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+#panel{border-top:1px solid var(--line);padding:10px 12px;padding-bottom:max(10px,env(safe-area-inset-bottom));background:var(--panel);min-height:58px}
+#panel .q{font-size:13px;font-weight:800;color:var(--sub);margin-bottom:6px}
+.btns{display:flex;flex-wrap:wrap;gap:6px}
+.opt{border:none;background:var(--btn);color:var(--btnInk);border-radius:10px;padding:9px 13px;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.2)}
+.opt:active{transform:translateY(1px)}
+.opt.sub{background:transparent;color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.opt.pl{display:flex;align-items:center;gap:6px;padding:5px 10px 5px 5px}
+.opt.pl .av{width:26px;height:26px}
+.wait{color:var(--sub);font-size:13px;display:flex;align-items:center;gap:8px;justify-content:space-between}
+@media (min-width:860px){
+  #app.on{display:grid;grid-template-columns:290px 1fr;grid-template-rows:auto 1fr auto}
+  header{grid-column:1/3}
+  #board{grid-row:2/4;align-content:start;grid-template-columns:repeat(3,1fr);border-right:1px solid var(--line);overflow-y:auto}
+  .av{width:56px;height:56px}
+}
+/* title */
+#title{position:fixed;inset:0;overflow-y:auto;background:radial-gradient(ellipse at 70% 15%,#3b4880 0%,#1a2140 45%,#0b0f20 100%);color:#efe9ff;display:flex;flex-direction:column;align-items:center;padding:24px 16px 32px}
+#title.off{display:none}
+.scene{display:block;width:min(560px,100%);aspect-ratio:560/220;flex:none;margin-top:4px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.ttl{position:relative;font-family:"Zen Old Mincho",serif;font-weight:900;text-align:center;margin-top:4px;line-height:1.2}
+.ttl .t1{font-size:46px;letter-spacing:.08em;text-shadow:0 0 18px rgba(255,220,140,.35)}
+.ttl .t2{font-size:18px;color:#e6bd55;letter-spacing:.2em;margin-top:6px}
+.lead{max-width:460px;text-align:center;color:#b9bedb;font-size:14px;line-height:1.7;margin:14px 0 6px}
+.card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:14px;max-width:460px;width:100%;margin-top:10px}
+.card label{font-size:13px;color:#b9bedb;font-weight:700;display:block;margin-bottom:6px}
+.card input{width:100%;padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.25);color:#fff;font:inherit;font-size:16px}
+.roles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.rb{border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.2);color:#efe9ff;border-radius:10px;padding:7px 2px;font-size:13px;font-weight:800;cursor:pointer}
+.rb.on{background:#e6bd55;color:#1a1630;border-color:#e6bd55}
+.go{margin-top:16px;border:none;background:#e6bd55;color:#1a1630;font-family:"Zen Old Mincho",serif;font-weight:900;font-size:22px;padding:12px 44px;border-radius:99px;cursor:pointer;box-shadow:0 0 24px rgba(230,189,85,.45)}
+.links{display:flex;gap:10px;margin-top:14px}
+.links button{background:none;border:1px solid rgba(255,255,255,.25);color:#cfd3f0;border-radius:99px;padding:6px 14px;font-size:13px;cursor:pointer}
+.rec{font-size:12px;color:#8f95ba;margin-top:12px;text-align:center}
+.back{position:absolute;top:10px;left:12px;color:#cfd3f0;text-decoration:none;font-size:13px}
+/* modal */
+#modal{position:fixed;inset:0;background:rgba(5,8,20,.65);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+#modal.on{display:flex}
+.mbox{background:var(--panel);color:var(--ink);border-radius:16px;max-width:520px;width:100%;max-height:88vh;overflow-y:auto;padding:18px 18px 16px;box-shadow:0 10px 40px rgba(0,0,0,.4);animation:fin .25s ease-out}
+.mbox h2{font-family:"Zen Old Mincho",serif;margin:0 0 8px;font-size:22px}
+.mbox h3{font-size:15px;margin:14px 0 6px;border-left:4px solid var(--accent);padding-left:8px}
+.mbox p,.mbox li{font-size:14px;line-height:1.7}
+.mbox ul{padding-left:20px;margin:4px 0}
+.mbox table{border-collapse:collapse;width:100%;font-size:13px}
+.mbox td,.mbox th{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left;vertical-align:top}
+.mbox .close{margin-top:14px;display:flex;justify-content:flex-end;gap:8px}
+.rolecard{text-align:center}
+.rolecard .ic{font-size:64px;line-height:1.1}
+.rolecard .rn{font-family:"Zen Old Mincho",serif;font-weight:900;font-size:34px;margin:4px 0}
+.rolecard .tm{display:inline-block;font-size:12px;font-weight:800;padding:2px 12px;border-radius:99px;color:#fff;background:#2471a3}
+.rolecard .tm.w{background:#8e1f1f}
+.ph{display:flex;gap:12px;align-items:center}
+.ph .av{width:64px;height:64px}
+.memo{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.endlist{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.endlist div{display:flex;flex-direction:column;align-items:center;font-size:12px;font-weight:700;text-align:center}
+.endlist .av{width:44px;height:44px}
+.endlist .dead .av{filter:grayscale(1) brightness(.6)}
+.big{font-family:"Zen Old Mincho",serif;font-weight:900;font-size:30px;text-align:center;margin:4px 0}
+.big.win{color:#d4a017}.big.lose{color:#8e1f1f}
+</style>
+</head>
+<body class="night">
+
+<div id="title">
+  <a class="back" href="../">← ゲーム一覧</a>
+  <svg class="scene" viewBox="0 0 560 220" aria-hidden="true">
+    <defs>
+      <radialGradient id="mg" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff8dc"/><stop offset=".7" stop-color="#f3dc9a"/><stop offset="1" stop-color="#e6bd55"/></radialGradient>
+      <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1"><stop offset=".3" stop-color="#141a33"/><stop offset="1" stop-color="#141a33" stop-opacity="0"/></linearGradient>
+      <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="rgba(255,230,160,.45)"/><stop offset="1" stop-color="rgba(255,230,160,0)"/></radialGradient>
+    </defs>
+    <g fill="#fff" opacity=".7"><circle cx="40" cy="30" r="1.2"/><circle cx="110" cy="70" r="1"/><circle cx="170" cy="22" r="1.4"/><circle cx="250" cy="50" r="1"/><circle cx="300" cy="18" r="1.2"/><circle cx="480" cy="40" r="1"/><circle cx="520" cy="90" r="1.3"/><circle cx="80" cy="110" r=".9"/><circle cx="210" cy="95" r="1"/><circle cx="460" cy="120" r=".9"/></g>
+    <circle cx="390" cy="70" r="90" fill="url(#glow)"/>
+    <circle cx="390" cy="70" r="44" fill="url(#mg)"/>
+    <circle cx="376" cy="58" r="7" fill="#e8cf86" opacity=".6"/><circle cx="404" cy="86" r="5" fill="#e8cf86" opacity=".5"/>
+    <path d="M0,170 Q80,140 160,160 T330,150 T560,158 L560,220 L0,220Z" fill="url(#hill)"/>
+    <g fill="#0b0f20">
+      <path d="M30,180 l0,-26 l22,-18 l22,18 l0,26z"/><rect x="44" y="160" width="8" height="10" fill="#f3c66a"/>
+      <path d="M95,182 l0,-34 l30,-24 l30,24 l0,34z"/><rect x="112" y="156" width="9" height="11" fill="#f3c66a"/><rect x="130" y="156" width="9" height="11" fill="#f3c66a" opacity=".5"/>
+      <path d="M200,186 l0,-60 l12,-26 l12,26 l0,60z"/><rect x="208" y="140" width="7" height="10" fill="#f3c66a" opacity=".8"/>
+      <path d="M250,186 l0,-24 l20,-16 l20,16 l0,24z"/>
+      <path d="M440,186 l0,-30 l26,-22 l26,22 l0,30z"/><rect x="458" y="160" width="9" height="10" fill="#f3c66a"/>
+      <path d="M330,190 q4,-40 0,-60 q14,10 18,22 l10,-28 l8,4 l-2,18 q14,8 12,44z"/>
+    </g>
+    <g fill="#0b0f20">
+      <path d="M342,74 l6,-12 l4,10 q10,-2 18,4 l14,-4 l-8,10 q4,14 -4,22 l-6,22 l-4,0 l2,-20 l-12,0 l-2,20 l-4,0 l2,-24 q-10,-8 -8,-20z" transform="translate(-6,62) scale(.9)"/>
+    </g>
+  </svg>
+  <div class="ttl"><div class="t1">ひとり人狼</div><div class="t2">〜 月影の村 〜</div></div>
+  <p class="lead">満月の夜、9人の村に<b>人狼が2匹</b>まぎれこんだ。<br>8人の村人たちと話し合い、疑い、投票して——<br>村を救うか、それとも村を喰らうか。</p>
+  <div class="card">
+    <label for="pname">あなたの名前</label>
+    <input id="pname" maxlength="6" placeholder="旅人">
+  </div>
+  <div class="card">
+    <label>あなたの役職</label>
+    <div class="roles" id="rolePick"></div>
+  </div>
+  <button class="go" id="startBtn">村へ入る</button>
+  <div class="links"><button id="rulesBtn">あそびかた</button><button id="castBtn">村人たち</button></div>
+  <div class="rec" id="rec"></div>
+</div>
+
+<div id="app">
+  <header>
+    <div id="dayLabel">0日目</div>
+    <div id="myRole"></div>
+    <div class="sp"></div>
+    <button class="hb" id="infoBtn">📜 情報</button>
+    <button class="hb" id="speedBtn">▶ 普通</button>
+  </header>
+  <div id="board"></div>
+  <div id="log"></div>
+  <div id="panel"></div>
+</div>
+
+<div id="modal"><div class="mbox" id="mbox"></div></div>
+
+<script>
+'use strict';
+const $=s=>document.querySelector(s);
+const rnd=Math.random;
+const pick=a=>a[Math.floor(rnd()*a.length)];
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const gauss=()=>(rnd()+rnd()+rnd()-1.5)*0.8;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function softPick(items,score,temp){
+  const s=items.map(score);const m=Math.max(...s);
+  const w=s.map(x=>Math.exp((x-m)/temp));let r=rnd()*w.reduce((a,b)=>a+b,0);
+  for(let i=0;i<items.length;i++){r-=w[i];if(r<=0)return items[i]}
+  return items[items.length-1];
+}
+const Q=new URLSearchParams(location.search);
+const AUTO=Q.has('auto');
+
+/* ================= データ ================= */
+const ROLES={
+  villager:{n:'村人',team:'village',ic:'🧑‍🌾',d:'特別な能力はありません。話し合いと投票で人狼を見つけ出しましょう。'},
+  seer:{n:'占い師',team:'village',ic:'🔮',d:'毎晩ひとりを占い、その人が人狼かどうかを知ることができます。'},
+  medium:{n:'霊媒師',team:'village',ic:'🕯️',d:'その日に処刑された人が人狼だったかどうかを、夜に知ることができます。'},
+  knight:{n:'騎士',team:'village',ic:'🛡️',d:'毎晩ひとりを人狼の襲撃から守ります。自分自身は守れません。'},
+  wolf:{n:'人狼',team:'wolf',ic:'🐺',d:'夜に仲間と相談して、ひとりを襲います。昼は村人のふりをして生き延びましょう。'},
+  madman:{n:'狂人',team:'wolf',ic:'🃏',d:'人間ですが人狼の味方です。占われても「人間」と出ます。誰が人狼かは知りません。嘘で村を混乱させましょう。'},
+};
+const DECK=['wolf','wolf','seer','medium','knight','madman','villager','villager','villager'];
+const GUT=['発言が当たり障りなくて本音が見えない','話の流れに乗っているだけに見える','誰も疑おうとしないのが逆に気になる','村のためというより自分を守る発言が多い','妙に落ち着きすぎている','さっきから言っていることが少しずつ変わっている','議論を急いで終わらせようとしている','疑われた人をかばうタイミングが不自然な気がする'];
+
+const CHARS=[
+{name:'アキラ',g:'m',me:'僕',hon:'さん',bg:'#5b7fb8',skin:'#f3d3b5',hair:'#2b2f3a',cloth:'#34495e',hs:'short',eye:'glasses',desc:'村の学者。冷静沈着で、何事も論理で考える。',
+ T:{accuse:['{r}。現時点で最も人狼の可能性が高いのは{t}だと考える。','{r}。消去法でいけば、{t}が残る。'],
+  trust:'{t}は白寄りだと判断している。',defend:'僕を疑うのは筋が悪い。冷静に考えてほしい。',counter:'そうやって村人を吊らせようとする{a}の方が、よほど怪しい。',
+  agree:'{a}の意見に同意だ。{t}は怪しい。',disagree:'待ってくれ。{t}を疑う根拠としては弱い。',vote:'今日は{t}に投票する。',none:'まだ材料が少ない。もう少し情報が欲しいところだ。',
+  victim:'{v}が犠牲に…。冷静に、情報を整理しよう。',peace:'犠牲者なし。騎士の護衛が成功したようだ。',co:'僕が{role}だ。',res:'昨夜の占い結果を言う。{t}は{c}だ。',mres:'霊媒結果だ。{t}は{c}。',
+  fake:'{a}は偽物だ。本物の{role}は僕だ。',last:'…僕の推理が、村の役に立つことを祈る。',thanks:'{a}、信用してくれて感謝する。'}},
+{name:'ミサキ',g:'f',me:'わたし',hon:'kc',bg:'#f08aa8',skin:'#f8dcc4',hair:'#c9692c',cloth:'#e86a8f',hs:'pony',eye:'big',desc:'パン屋の看板娘。明るく元気で、思ったことはすぐ口に出す。',
+ T:{accuse:['{r}。だから{t}があやしいと思うな！','うーん、{r}。{t}、ちょっと怪しくない？'],
+  trust:'{t}は信じていいと思うな〜！',defend:'えーっ、わたし村人だよ！ ひどーい！',counter:'てか、いきなり疑ってくる{a}の方があやしいんですけど！',
+  agree:'わかる！ {t}、わたしも気になってた！',disagree:'えー、{t}はちがうと思うけどなー。',vote:'わたしは{t}に入れるね！',none:'うーん、まだ全然わかんないよ〜！',
+  victim:'うそ…{v}が…！ ぜったい犯人見つけるから！',peace:'やったー！ 誰も死んでない！ 騎士さんナイス！',co:'はいはーい！ わたしが{role}だよ！',res:'占い結果発表〜！ {t}は{c}だったよ！',mres:'霊媒結果〜！ {t}は{c}だったよ！',
+  fake:'ちょっと！ 本物の{role}はわたしだよ！ {a}はニセモノ！',last:'うう…あとはみんな、まかせたよ…！',thanks:'{a}、ありがと〜！'}},
+{name:'ゲンジ',g:'m',me:'わし',hon:'',bg:'#8b7d5c',skin:'#e8c3a0',hair:'#ececec',cloth:'#6b5a3a',hs:'old',eye:'narrow',desc:'村の長老。頑固だが、長年の勘は鋭い。',
+ T:{accuse:['{r}。わしは{t}を疑っておる。','{r}。{t}、おぬしが狼じゃろう。'],
+  trust:'{t}は信用できる目をしておる。',defend:'なにを言うか！ わしは狼などではない！',counter:'そんなことを言う{a}こそ、狼じゃろう！',
+  agree:'うむ、{a}の言う通りじゃ。{t}は怪しい。',disagree:'{a}よ、{t}を疑うのは早計じゃ。',vote:'わしは{t}に入れる。',none:'ふむ…まだ見極めがつかんのう。',
+  victim:'{v}…無念じゃったろう。',peace:'平和な朝じゃ。騎士がよくやってくれたのう。',co:'わしが{role}じゃ。',res:'{t}を占った。結果は{c}じゃ。',mres:'霊媒の結果じゃ。{t}は{c}であった。',
+  fake:'{a}、嘘をつくでない！ {role}はわしじゃ！',last:'わしを吊ったこと、後悔するでないぞ…',thanks:'{a}、見る目があるのう。'}},
+{name:'ユイ',g:'f',me:'わたし',hon:'さん',bg:'#8fbf9a',skin:'#fbe2cf',hair:'#4a3328',cloth:'#6f9f7a',hs:'bob',eye:'big',desc:'花屋の少女。気弱で人見知りだが、よく人を見ている。',
+ T:{accuse:['あの…{r}。だから、{t}が少し怪しいかなって…','{r}…。わたし、{t}が怖いです…'],
+  trust:'{t}は…いい人だと思います。',defend:'ち、ちがいます…！ わたし、人狼じゃないです…',counter:'…{a}は、どうしてわたしを…？ もしかして…',
+  agree:'わ、わたしも{a}と同じ意見です…',disagree:'あの…{t}は、違う気がします…',vote:'わたしは…{t}に入れます。',none:'えっと…まだ、よくわからないです…',
+  victim:'そんな…{v}が…こわい…',peace:'よかった…みんな無事です…',co:'あの…わたし、{role}です…！',res:'{t}を占いました…{c}、でした。',mres:'霊媒結果です…{t}は、{c}でした。',
+  fake:'え…{a}が{role}…？ 本物はわたし、なのに…',last:'みなさん…どうか、生き残って…',thanks:'あ、ありがとうございます、{a}…！'}},
+{name:'レン',g:'m',me:'俺',hon:'',bg:'#6d5a8f',skin:'#efcfb0',hair:'#1c1c24',cloth:'#2e2a3a',hs:'fringe',eye:'sharp',desc:'流れ者の猟師。皮肉屋で口が悪いが、根は熱い。',
+ T:{accuse:['{r}。{t}、お前が一番臭いんだよ。','{r}。どう見ても{t}だろ。'],
+  trust:'{t}は白だろ。狼にしちゃ素直すぎる。',defend:'は？ 俺を吊っても何も出ねえよ。',counter:'疑い先に困ってるのはお前の方だろ、{a}。',
+  agree:'珍しく{a}と意見が合ったな。{t}は臭え。',disagree:'{t}？ ないない。{a}、目が曇ってるぜ。',vote:'俺は{t}に入れる。文句あるか？',none:'今のところ決め手はねえな。',
+  victim:'{v}がやられたか。狼も手が早いな。',peace:'護衛成功か。やるじゃねえか。',co:'俺が{role}だ。',res:'{t}を占った。{c}だ。',mres:'霊媒結果。{t}は{c}だ。',
+  fake:'{a}が{role}？ 笑わせんな、偽物だよ。',last:'ちっ…せいぜい頑張れよ。',thanks:'…{a}、借りにしとくぜ。'}},
+{name:'ハナ',g:'f',me:'私',hon:'さん',bg:'#dfae62',skin:'#f6d8bd',hair:'#7a4a2a',cloth:'#b9773c',hs:'wavy',eye:'soft',desc:'宿屋の女将。面倒見がよく、みんなの母親のような存在。',
+ T:{accuse:['{r}。ごめんなさいね、{t}を疑わざるを得ないわ。','{r}。{t}のこと、少し気になってるの。'],
+  trust:'{t}のことは信じたいわ。',defend:'まあ…私は村人よ。信じてもらえないかしら。',counter:'{a}こそ、少し焦っているように見えるわ。',
+  agree:'{a}の言うこと、わかる気がするわ。{t}は少し怪しいわね。',disagree:'{t}はそんな人じゃないと思うわ。',vote:'私は{t}に投票するわね。',none:'みんな良い人に見えて、困っちゃうわね。',
+  victim:'{v}…かわいそうに…。',peace:'誰も襲われなかったのね。よかったわ。',co:'実は私、{role}なの。',res:'{t}を占ったわ。結果は{c}よ。',mres:'霊媒の結果よ。{t}は{c}だったわ。',
+  fake:'{a}…どうしてそんな嘘を？ {role}は私よ。',last:'みんな…仲良くね…',thanks:'{a}、ありがとう。嬉しいわ。'}},
+{name:'ソウタ',g:'m',me:'オレ',hon:'',bg:'#e0704a',skin:'#f1c9a5',hair:'#3a2418',cloth:'#c9432f',hs:'spiky',eye:'big',desc:'鍛冶屋の見習い。熱血でまっすぐ、ちょっと単純。',
+ T:{accuse:['{r}！ オレは{t}が怪しいと思う！','{r}！ {t}、正直に言えよ！'],
+  trust:'{t}はいいやつだ！ オレが保証する！',defend:'オレは村人だ！ 絶対に違う！',counter:'{a}の方こそ怪しいぞ！',
+  agree:'オレも{a}に賛成だ！ {t}が怪しい！',disagree:'{t}は違うって！ オレにはわかる！',vote:'オレは{t}に入れる！',none:'うーん、まだわかんねえ！',
+  victim:'{v}の仇は、絶対に取る！',peace:'騎士すげえ！ 誰も死んでないぞ！',co:'オレが{role}だ！',res:'{t}を占った！ {c}だ！',mres:'霊媒結果！ {t}は{c}だった！',
+  fake:'{a}、ウソつくな！ {role}はオレだ！',last:'ちくしょう…あとは頼んだ！',thanks:'{a}、サンキュー！'}},
+{name:'シズカ',g:'f',me:'私',hon:'さん',bg:'#4a4f7a',skin:'#f4e0d6',hair:'#121218',cloth:'#5a2a5a',hs:'hime',eye:'closed',desc:'村はずれに住む謎めいた女性。何を考えているのか読めない。',
+ T:{accuse:['{r}…。{t}から、獣の匂いがするの。','ふふ…{r}。{t}、あなたでしょう？'],
+  trust:'{t}の魂は…澄んでいるわ。',defend:'…私を疑うのね。いいわ、でも後悔するわよ。',counter:'{a}…あなたの方が、よほど狼らしいわ。',
+  agree:'…{a}の言葉、真実の響きがあるわね。',disagree:'{t}は…違うわ。星がそう告げている。',vote:'{t}に…一票を。',none:'…霧が深くて、まだ何も見えないわ。',
+  victim:'{v}の魂が…まだここを彷徨っているわ。',peace:'…今宵は、月が味方したようね。',co:'…私は、{role}よ。',res:'水晶が映したわ…{t}は{c}。',mres:'魂が語ったわ…{t}は{c}。',
+  fake:'ふふ…{a}、その仮面はすぐに剥がれるわ。',last:'…また、どこかの月夜で会いましょう。',thanks:'ふふ…{a}、ありがとう。'}},
+];
+
+/* ================= 絵 ================= */
+function avatar(p){
+  if(p.human){
+    return `<svg viewBox="0 0 64 64"><rect width="64" height="64" fill="#3b3557"/><circle cx="50" cy="12" r="5" fill="#f3dc9a" opacity=".8"/>
+<path d="M6,64 Q8,40 19,29 Q32,6 45,29 Q56,40 58,64Z" fill="#6b5640"/><path d="M14,64 Q18,46 32,44 Q46,46 50,64Z" fill="#584634"/>
+<ellipse cx="32" cy="35" rx="11" ry="12" fill="#2a2018"/><circle cx="27.5" cy="35" r="1.7" fill="#ffe9a8"/><circle cx="36.5" cy="35" r="1.7" fill="#ffe9a8"/></svg>`;
+  }
+  const c=p.ch,H=c.hair;let back='',front='',extra='',eyes='';
+  switch(c.hs){
+    case 'short':front=`<path d="M17,33 Q16,15 32,15 Q48,15 47,33 Q44,24 36,23 Q26,22 20,27Z" fill="${H}"/>`;break;
+    case 'pony':back=`<path d="M44,16 Q60,20 55,46 Q51,36 46,30Z" fill="${H}"/>`;front=`<path d="M17,34 Q15,15 32,15 Q49,15 47,34 Q45,25 38,24 Q34,28 26,26 Q20,27 17,34Z" fill="${H}"/><circle cx="46" cy="18" r="3" fill="#ff5f8a"/>`;break;
+    case 'old':front=`<path d="M18,35 Q16,26 20,23 L23,33Z M46,35 Q48,26 44,23 L41,33Z" fill="${H}"/>`;extra=`<path d="M21,40 Q32,61 43,40 Q38,46 32,45 Q26,46 21,40Z" fill="${H}"/><path d="M24,30 h6 M34,30 h6" stroke="${H}" stroke-width="2.6" stroke-linecap="round"/>`;break;
+    case 'bob':back=`<path d="M15,32 Q15,13 32,13 Q49,13 49,32 L49,46 Q40,48 32,47 Q24,48 15,46Z" fill="${H}"/>`;front=`<path d="M18,30 Q18,16 32,16 Q46,16 46,30 Q40,26 32,27 Q24,26 18,30Z" fill="${H}"/><rect x="40" y="20" width="6" height="3" rx="1.5" fill="#f7d14a"/>`;break;
+    case 'fringe':front=`<path d="M17,36 Q14,14 32,14 Q48,14 47,30 Q42,22 36,24 L31,41 Q27,30 17,36Z" fill="${H}"/>`;break;
+    case 'wavy':back=`<path d="M15,30 Q14,12 32,12 Q50,12 49,30 Q54,42 48,55 L16,55 Q10,42 15,30Z" fill="${H}"/>`;front=`<path d="M18,32 Q17,16 32,16 Q47,16 46,32 Q42,22 30,24 Q22,25 18,32Z" fill="${H}"/>`;break;
+    case 'spiky':front=`<path d="M17,33 L16,18 L22,22 L24,11 L30,19 L34,9 L38,19 L44,12 L45,22 L49,19 L47,33 Q42,24 32,25 Q22,24 17,33Z" fill="${H}"/>`;break;
+    case 'hime':back=`<path d="M15,30 Q15,12 32,12 Q49,12 49,30 L50,60 L14,60Z" fill="${H}"/>`;front=`<path d="M18,31 Q18,15 32,15 Q46,15 46,31 L44,29 L20,29Z" fill="${H}"/>`;break;
+  }
+  const ink='#2a1e1a';
+  switch(c.eye){
+    case 'glasses':eyes=`<circle cx="26.5" cy="34" r="4.3" fill="none" stroke="#333" stroke-width="1.3"/><circle cx="37.5" cy="34" r="4.3" fill="none" stroke="#333" stroke-width="1.3"/><path d="M30.8,34 h2.4" stroke="#333" stroke-width="1.2"/><circle cx="26.5" cy="34.3" r="1.5" fill="${ink}"/><circle cx="37.5" cy="34.3" r="1.5" fill="${ink}"/>`;break;
+    case 'big':eyes=`<ellipse cx="26.5" cy="34.5" rx="2.2" ry="2.8" fill="${ink}"/><ellipse cx="37.5" cy="34.5" rx="2.2" ry="2.8" fill="${ink}"/><circle cx="27.2" cy="33.4" r=".8" fill="#fff"/><circle cx="38.2" cy="33.4" r=".8" fill="#fff"/>`;break;
+    case 'narrow':eyes=`<path d="M24,35 h5 M35,35 h5" stroke="${ink}" stroke-width="1.6" stroke-linecap="round"/>`;break;
+    case 'sharp':eyes=`<path d="M23.5,33 L29,34.6 L24.5,35.6Z M40.5,33 L35,34.6 L39.5,35.6Z" fill="${ink}"/>`;break;
+    case 'soft':eyes=`<path d="M23.8,35 Q26.5,32.4 29.2,35 M34.8,35 Q37.5,32.4 40.2,35" stroke="${ink}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;break;
+    case 'closed':eyes=`<path d="M23.8,34 Q26.5,36.4 29.2,34 M34.8,34 Q37.5,36.4 40.2,34" stroke="${ink}" stroke-width="1.5" fill="none" stroke-linecap="round"/><circle cx="41" cy="40" r=".9" fill="${ink}"/>`;break;
+  }
+  return `<svg viewBox="0 0 64 64"><rect width="64" height="64" fill="${c.bg}"/>${back}
+<path d="M9,64 Q11,50 32,48 Q53,50 55,64Z" fill="${c.cloth}"/><rect x="28" y="44" width="8" height="6" fill="${c.skin}"/>
+<circle cx="32" cy="33" r="14" fill="${c.skin}"/>${front}${eyes}
+<ellipse cx="23.5" cy="39" rx="2.3" ry="1.3" fill="#f29a9a" opacity=".5"/><ellipse cx="40.5" cy="39" rx="2.3" ry="1.3" fill="#f29a9a" opacity=".5"/>
+<path d="M29,41.5 Q32,43.5 35,41.5" stroke="#a0524a" stroke-width="1.4" fill="none" stroke-linecap="round"/>${extra}</svg>`;
+}
+
+/* ================= 状態 ================= */
+let G=null;
+let speed=1;
+const P=i=>G.players[i];
+const alive=i=>G.players[i].alive;
+const aliveIds=()=>G.players.filter(p=>p.alive).map(p=>p.id);
+const aliveAIs=()=>aliveIds().filter(i=>i!==0);
+const nm=i=>G.players[i].name;
+const isWolf=i=>G.players[i].role==='wolf';
+const col=b=>b?'人狼（黒）':'人間（白）';
+function hon(s,t){
+  const T=P(t);if(T.human)return T.name+'さん';
+  const S=s==null?null:P(s);if(!S||S.human)return T.name+'さん';
+  const h=S.ch.hon;return T.name+(h==='kc'?(T.ch.g==='m'?'くん':'ちゃん'):h);
+}
+function fmt(tpl,o){return tpl.replace(/\{(\w+)\}/g,(m,k)=>o[k]!=null?o[k]:m)}
+function line(s,type,o){const a=P(s).ch.T[type];return fmt(Array.isArray(a)?pick(a):a,o||{})}
+
+function newGame(name,roleChoice){
+  const deck=shuffle(DECK.slice());
+  if(roleChoice&&roleChoice!=='random'){deck.splice(deck.indexOf(roleChoice),1);deck.unshift(roleChoice)}
+  const players=[{id:0,name,human:true,role:deck[0],alive:true}];
+  CHARS.forEach((c,i)=>players.push({id:i+1,name:c.name,ch:c,role:deck[i+1],alive:true}));
+  const n=players.length;
+  G={day:0,players,claims:{},votes:[],execs:[],attacks:[],acc:[],seerRes:[],medRes:[],guards:[],
+     g:players.map(()=>players.map(()=>gauss()*0.3)),intent:null,memo:{},spect:false,over:false,coDone:false};
+  for(let i=0;i<n;i++)G.g[i][i]=0;
+  // AI の作戦
+  for(const p of players){
+    if(p.human)continue;
+    if(p.role==='madman'){const r=rnd();p.plan=r<0.72?'seer':r<0.88?'medium':'none'}
+  }
+  const aiw=players.filter(p=>p.role==='wolf'&&!p.human);
+  if(aiw.length&&rnd()<0.14)pick(aiw).plan='seer';
+  else if(aiw.length&&rnd()<0.07)pick(aiw).plan='medium';
+  // 初日の白通知
+  const seer=players.find(p=>p.role==='seer');
+  const c=players.filter(p=>p.role!=='wolf'&&p.id!==seer.id);
+  G.seerRes.push({night:0,t:pick(c).id,black:false});
+}
+
+/* ================= 推理エンジン =================
+ * 人狼2人の組み合わせ（36通り）を全列挙し、
+ * 視点ごとの確定情報・CO・占い/霊媒結果・投票・印象から重み付けして
+ * 「誰が人狼か」「どのCOが本物か」の確率を出す。 */
+function persp(id,mode){
+  const p=P(id);
+  const o={id,g:G.g[id],notWolf:new Set(),res:[],role:null,isMad:false,fixedW:null,selfReal:false};
+  if(mode==='public'){o.g=G.players.map((_,j)=>G.players.reduce((a,q)=>a+(q.human?0:G.g[q.id][j]),0)/8);return o}
+  if(p.role==='wolf'){
+    const ws=G.players.filter(q=>q.role==='wolf').map(q=>q.id);
+    if(mode==='truth'){o.fixedW=ws;return o}
+    ws.forEach(w=>o.notWolf.add(w));o.selfReal=true;return o; // 村人のふり
+  }
+  o.notWolf.add(id);
+  if(p.role==='madman'){o.isMad=true;return o}
+  o.role=p.role;o.selfReal=true;
+  if(p.role==='seer')o.res=G.seerRes;else if(p.role==='medium')o.res=G.medRes;
+  return o;
+}
+function hiddenF(R){
+  if(R==='seer')return G.coDone?0.25:1;
+  if(R==='medium')return G.day>=3?0.35:G.day===2?0.7:1;
+  return 1;
+}
+function claimLik(o,isW,cids){
+  const nonW=cids.filter(c=>!isW(c));
+  const base=Math.pow(0.3,cids.length-nonW.length);
+  let opts;
+  if(o.isMad)opts=[o.id];
+  else{opts=[null];for(const c of nonW)if(!(o.selfReal&&c===o.id))opts.push(c)}
+  let tot=0;const real={};
+  for(const m of opts){
+    let f=(m===null)?0.35:1;
+    const rem=nonW.filter(c=>c!==m);
+    const seen={};let ok=true;
+    for(const c of rem){
+      const cl=G.claims[c];
+      if(seen[cl.role]){ok=false;break}
+      seen[cl.role]=1;
+      if(o.role&&cl.role===o.role&&c!==o.id){ok=false;break}
+      for(const r of cl.results){if(r.black!==isW(r.t)){ok=false;break}}
+      if(!ok)break;
+      if(cl.role==='seer'&&cl.day>1)f*=0.5;
+    }
+    if(!ok)continue;
+    for(const R of ['seer','medium'])if(!seen[R]&&o.role!==R)f*=hiddenF(R);
+    f*=base;tot+=f;
+    for(const c of rem)real[c]=(real[c]||0)+f;
+  }
+  return {tot,real};
+}
+function analyze(o,ignoreClaims){
+  const n=G.players.length,pw=new Array(n).fill(0),real={};let tot=0;
+  const attacked=new Set(G.attacks.filter(a=>a.victim!=null).map(a=>a.victim));
+  const cids=ignoreClaims?[]:Object.keys(G.claims).map(Number);
+  for(let a=0;a<n;a++)for(let b=a+1;b<n;b++){
+    if(o.fixedW){if(!(o.fixedW.includes(a)&&o.fixedW.includes(b)))continue}
+    else if(o.notWolf.has(a)||o.notWolf.has(b))continue;
+    if(attacked.has(a)||attacked.has(b))continue;
+    if(!G.players[a].alive&&!G.players[b].alive)continue;
+    const isW=j=>j===a||j===b;
+    let ok=true;for(const r of o.res)if(r.black!==isW(r.t)){ok=false;break}
+    if(!ok)continue;
+    let w=Math.exp((o.g[a]||0)+(o.g[b]||0));
+    for(const rec of G.votes){if(rec.map[a]===b)w*=0.45;if(rec.map[b]===a)w*=0.45}
+    let cl=null;
+    if(cids.length){cl=claimLik(o,isW,cids);if(cl.tot<=0)continue;w*=cl.tot}
+    tot+=w;pw[a]+=w;pw[b]+=w;
+    if(cl)for(const c in cl.real)real[c]=(real[c]||0)+w*cl.real[c]/cl.tot;
+  }
+  if(tot<=0){if(!ignoreClaims)return analyze(o,true);return {pw,real,used:false}}
+  for(let i=0;i<n;i++)pw[i]/=tot;
+  for(const c in real)real[c]/=tot;
+  return {pw,real,used:cids.length>0};
+}
+const view=(id,mode)=>analyze(persp(id,mode||'talk'));
+
+/* ================= AI の判断 ================= */
+function addG(L,t,v){G.g[L][t]=clamp(G.g[L][t]+v,-1.6,1.6)}
+function hear(from,to,kind){
+  G.acc.push({day:G.day,from,to,kind});
+  for(const L of aliveAIs()){
+    if(L===from)continue;
+    if(L===to){if(kind==='acc')addG(L,from,0.15);continue}
+    const V=view(L);const tr=clamp(1-V.pw[from]*1.6,0,1);
+    addG(L,to,kind==='acc'?0.3*tr-0.04:-0.22*tr);
+  }
+}
+function madTarget(s,V){
+  const cl=G.claims[s];const others=aliveIds().filter(i=>i!==s);
+  if(cl){
+    const bl=cl.results.filter(r=>r.black&&alive(r.t));if(bl.length)return bl[bl.length-1].t;
+    const rivals=others.filter(i=>G.claims[i]&&G.claims[i].role===cl.role);
+    if(rivals.length)return rivals.sort((a,b)=>(V.real[b]||0)-(V.real[a]||0))[0];
+  }
+  const c=others.filter(i=>!G.claims[i]);if(!c.length)return null;
+  return softPick(c,i=>-V.pw[i],0.15);
+}
+function reason(s,t,V){
+  const H=x=>hon(s,x),opts=[];
+  for(const k in G.claims){
+    const c=+k;if(c===s)continue;const cl=G.claims[c];
+    if(cl.role==='seer'&&cl.results.some(r=>r.t===t&&r.black)&&(V.real[c]||0)>0.35)return pick([`${H(c)}の占いで${H(t)}に黒が出ている`,`${H(c)}が${H(t)}を黒だと言っている。その結果は信じていい`,`占い師の${H(c)}が${H(t)}に黒を出した`]);
+  }
+  if(V.used&&G.claims[t]&&(V.real[t]||0)<0.3){const rn=ROLES[G.claims[t].role].n;return pick([`${H(t)}の${rn}COは偽物だと見ている`,`${H(t)}の${rn}COは信用できない`,`${H(t)}の${rn}としての結果は、ほかの情報と食い違っている`,`本物の${rn}は${H(t)}じゃない`]);}
+  for(const a of G.attacks)if(a.victim!=null&&G.acc.some(x=>x.from===a.victim&&x.to===t&&x.kind==='acc'))opts.push(`襲われた${H(a.victim)}が、${H(t)}を疑っていた`);
+  const lv=G.votes[G.votes.length-1];
+  if(lv){const v=lv.map[t];if(v!=null&&v!==lv.exec&&v!==s)opts.push(`${H(t)}は昨日、${H(v)}に票を入れていた。あの票が引っかかる`);}
+  const accs=G.acc.filter(x=>x.to===t&&x.kind==='acc'&&x.from!==s&&x.day===G.day&&V.pw[x.from]<0.22);
+  if(accs.length)opts.push(`${H(accs[accs.length-1].from)}の指摘はもっともだと思う`);
+  if(opts.length&&rnd()<0.75)return pick(opts);
+  return `${H(t)}は${pick(GUT)}`;
+}
+function aiStatement(s){
+  const p=P(s),V=view(s),others=aliveIds().filter(i=>i!==s),cl=G.claims[s];
+  if(cl&&cl.role==='seer'){
+    const bl=cl.results.filter(r=>r.black&&alive(r.t));
+    if(bl.length){const t=bl[bl.length-1].t;return {type:'acc',t,text:line(s,'accuse',{t:hon(s,t),r:`${p.ch.me}の占いで、${hon(s,t)}は黒と出た`})}}
+  }
+  if(p.role==='madman'&&rnd()<0.8){const t=madTarget(s,V);if(t!=null)return {type:'acc',t,text:line(s,'accuse',{t:hon(s,t),r:reason(s,t,V)})}}
+  const avg=others.reduce((a,i)=>a+V.pw[i],0)/others.length;
+  const sorted=others.slice().sort((a,b)=>V.pw[b]-V.pw[a]);
+  const top=sorted[0];
+  if(V.pw[top]<avg*1.25+0.02){
+    const lo=sorted[sorted.length-1];
+    if(rnd()<0.35&&V.pw[lo]<avg*0.6)return {type:'trust',t:lo,text:line(s,'trust',{t:hon(s,lo)})};
+    if(rnd()<0.5)return {type:'none',text:line(s,'none')};
+  }
+  let t=top;if(sorted[1]!=null&&V.pw[sorted[1]]>V.pw[top]*0.85&&rnd()<0.35)t=sorted[1];
+  return {type:'acc',t,text:line(s,'accuse',{t:hon(s,t),r:reason(s,t,V)})};
+}
+function tally(map){const c={};for(const k in map){const t=map[k];c[t]=(c[t]||0)+1}return c}
+function aiVote(s,cand,partial){
+  const p=P(s),c=cand.filter(i=>i!==s);
+  if(c.length===1)return c[0];
+  if(p.role==='wolf'){
+    const partner=G.players.find(q=>q.role==='wolf'&&q.id!==s&&q.alive);
+    const cnt=tally(partial);
+    if(partner&&c.includes(partner.id)&&(cnt[partner.id]||0)>=Math.ceil(aliveIds().length/2)-1&&rnd()<0.5)return partner.id;
+    const V=view(s);const nw=c.filter(i=>!isWolf(i));if(!nw.length)return pick(c);
+    return softPick(nw,i=>V.pw[i]+0.12*(cnt[i]||0),0.08);
+  }
+  if(p.role==='madman'){const V=view(s);const t=madTarget(s,V);if(t!=null&&c.includes(t))return t;return softPick(c,i=>-V.pw[i],0.2)}
+  const V=view(s,'self');
+  return softPick(c,i=>V.pw[i],0.06);
+}
+function computeVotes(fixed,cand,useIntent){
+  const map=Object.assign({},fixed);const ais=aliveAIs();
+  for(const s of ais)if(!isWolf(s)){
+    const it=useIntent&&G.intent?G.intent[s]:null;
+    map[s]=(it!=null&&cand.includes(it)&&it!==s)?it:aiVote(s,cand,map);
+  }
+  for(const s of ais)if(isWolf(s))map[s]=aiVote(s,cand,map);
+  return map;
+}
+function aiDivine(s){
+  const V=view(s,'self');const done=new Set(G.seerRes.map(r=>r.t));
+  let c=aliveIds().filter(i=>i!==s&&!done.has(i));if(!c.length)c=aliveIds().filter(i=>i!==s);
+  return softPick(c,i=>V.pw[i]+(G.claims[i]?0.05:0),0.08);
+}
+function aiGuard(k){
+  const V=view(k,'self');const c=aliveIds().filter(i=>i!==k);
+  return softPick(c,i=>{let s=(1-V.pw[i])*0.6;const cl=G.claims[i];if(cl){const r=V.real[i]||0;if(cl.role==='seer')s+=0.5+2.5*r;else if(cl.role==='medium')s+=0.3+1.5*r}return s},0.25);
+}
+function aiAttack(){
+  const ws=aliveIds().filter(isWolf);const lead=ws.find(i=>i!==0)??ws[0];
+  const VT=view(lead,'truth');const c=aliveIds().filter(i=>!isWolf(i));
+  return softPick(c,i=>{
+    let s=0.5;const cl=G.claims[i];
+    s-=1.1*G.attacks.filter(a=>a.victim==null&&a.tried===i).length;
+    if(cl){const r=VT.real[i]||0;if(cl.role==='seer')s+=0.5+3*r;else if(cl.role==='medium')s+=0.3+1.8*r;else s+=0.5+2*r}
+    else if(i===0)s+=0.4*G.acc.filter(x=>x.from===0&&x.kind==='acc'&&isWolf(x.to)).length;
+    else{const Vi=view(i);s+=1.6*ws.reduce((a,w)=>a+Vi.pw[w],0)}
+    return s+rnd()*0.4;
+  },0.35);
+}
+function fakeSeerResult(s){
+  const p=P(s),cl=G.claims[s];const done=new Set(cl?cl.results.map(r=>r.t):[]);
+  let cand=aliveIds().filter(i=>i!==s&&!done.has(i));if(!cand.length)cand=aliveIds().filter(i=>i!==s);
+  const night=G.day-1;const gray=cand.filter(i=>!G.claims[i]);
+  if(p.role==='wolf'){
+    const vill=cand.filter(i=>!isWolf(i));
+    if(vill.length&&rnd()<0.45){
+      const rivals=vill.filter(i=>G.claims[i]);
+      const vg=vill.filter(i=>!G.claims[i]);
+      return {night,t:(rivals.length&&rnd()<0.4)||!vg.length?pick(rivals.length?rivals:vill):pick(vg),black:true};
+    }
+    const partner=cand.find(i=>isWolf(i));
+    return {night,t:partner!=null&&rnd()<0.35?partner:pick(gray.length?gray:cand),black:false};
+  }
+  const blacks=cl?cl.results.filter(r=>r.black).length:0;
+  return {night,t:pick(gray.length?gray:cand),black:rnd()<(blacks?0.2:0.38)};
+}
+function fakeMediumBlack(s,ex){
+  if(isWolf(s))return isWolf(ex)?false:rnd()<0.25;
+  return rnd()<0.3;
+}
+function projectVotes(){
+  const cand=aliveIds();const map=computeVotes({},cand,false);return tally(map);
+}
+
+/* ================= 画面 ================= */
+const logEl=$('#log'),panel=$('#panel');
+let skipFn=null;
+function wait(ms){
+  if(AUTO||speed===0||ms<=0)return Promise.resolve();
+  return new Promise(r=>{const t=setTimeout(()=>{skipFn=null;r()},ms);skipFn=()=>{clearTimeout(t);skipFn=null;r()}});
+}
+logEl.addEventListener('click',()=>{if(skipFn)skipFn()});
+function scroll(){logEl.scrollTop=logEl.scrollHeight}
+function deco(t){return esc(t).replace(/人狼（黒）|黒/g,m=>`<span class="k">${m}</span>`).replace(/人間（白）|白/g,m=>`<span class="w">${m}</span>`)}
+function add(html){const d=document.createElement('div');d.innerHTML=html;const e=d.firstElementChild;logEl.appendChild(e);scroll();return e}
+function dur(t){return speed===2?250+t.length*14:600+t.length*42}
+async function sys(t,cls){add(`<div class="sys ${cls||''}">${esc(t)}</div>`);await wait(cls==='head'?900/speed:dur(t)*0.8)}
+async function priv(t){add(`<div class="priv">${deco(t)}</div>`);await wait(dur(t)*0.6)}
+let speakEl=null;
+async function say(s,t){
+  const p=P(s);
+  if(speakEl)speakEl.classList.remove('speak');
+  speakEl=document.querySelector(`.tile[data-id="${s}"]`);if(speakEl)speakEl.classList.add('speak');
+  add(`<div class="msg${p.human?' mine':''}"><div class="av">${avatar(p)}</div><div><div class="who">${esc(p.name)}${p.human?'（あなた）':''}</div><div class="bub">${deco(t)}</div></div></div>`);
+  await wait(dur(t));
+}
+const me=t=>say(0,t);
+
+function idle(){
+  if(G&&G.spect&&!G.over){
+    panel.innerHTML=`<div class="wait"><span>👻 観戦中…（ログをタップで早送り）</span><button class="opt sub" id="skipAll">結果までスキップ ⏩</button></div>`;
+    $('#skipAll').onclick=()=>{speed=0;updSpeed();if(skipFn)skipFn()};
+  }else panel.innerHTML=`<div class="wait"><span>…（ログをタップで早送り）</span></div>`;
+}
+function choose(q,opts){
+  if(AUTO)return Promise.resolve(pick(opts)[0]);
+  return new Promise(res=>{
+    panel.innerHTML=`<div class="q">${esc(q)}</div><div class="btns"></div>`;
+    const b=panel.querySelector('.btns');
+    for(const [v,label,cls] of opts){const e=document.createElement('button');e.className='opt '+(cls||'');e.innerHTML=label;e.onclick=()=>{idle();res(v)};b.appendChild(e)}
+  });
+}
+function chooseP(q,ids,cancel){
+  const opts=ids.map(i=>[i,`<span class="av">${avatar(P(i))}</span>${esc(nm(i))}`,'pl']);
+  if(cancel)opts.push([null,'戻る','sub']);
+  if(AUTO)return Promise.resolve(ids.length?pick(ids):null);
+  return choose(q,opts);
+}
+function setNight(on){document.body.classList.toggle('night',on)}
+function setDay(){
+  $('#dayLabel').textContent=`${G.day}日目 ${document.body.classList.contains('night')?'夜':'昼'}`;
+}
+function renderBoard(){
+  const H=P(0),show=G.spect||G.over;
+  const seerMarks={};if(H.role==='seer')for(const r of G.seerRes)seerMarks[r.t]=r.black;
+  const medMarks={};if(H.role==='medium')for(const r of G.medRes)medMarks[r.t]=r.black;
+  $('#board').innerHTML=G.players.map(p=>{
+    const L=[],R=[];
+    const cl=G.claims[p.id];if(cl)L.push(`<span class="b ${cl.role}">${ROLES[cl.role].n[0]}CO</span>`);
+    if(show&&!p.human)R.push(`<span class="b role ${ROLES[p.role].team==='wolf'?'w':''}">${ROLES[p.role].n}</span>`);
+    else{
+      if(H.role==='wolf'&&p.role==='wolf'&&!p.human)R.push(`<span class="b wolf">仲間</span>`);
+      if(p.id in seerMarks)R.push(`<span class="b ${seerMarks[p.id]?'blk':'wht'}">${seerMarks[p.id]?'黒':'白'}</span>`);
+      if(p.id in medMarks)R.push(`<span class="b ${medMarks[p.id]?'blk':'wht'}">霊${medMarks[p.id]?'黒':'白'}</span>`);
+      const m=G.memo[p.id];if(m)R.push(`<span class="b memo${m}">${['','白?','灰','黒?'][m]}</span>`);
+    }
+    let st='';
+    if(!p.alive)st=p.death==='exec'?`${p.deathDay}日目 処刑`:`${p.deathDay}日目 襲撃`;
+    else if(p.human)st='あなた';
+    return `<div class="tile${p.alive?'':' dead'}${p.human?' me':''}" data-id="${p.id}"><div class="bd">${L.join('')}</div><div class="bd r">${R.join('')}</div><div class="av">${avatar(p)}</div><div class="nm">${esc(p.name)}</div><div class="st">${st}</div></div>`;
+  }).join('');
+  if(speakEl){const e=document.querySelector(`.tile[data-id="${speakEl.dataset.id}"]`);if(e)e.classList.add('speak');speakEl=e}
+  $('#myRole').textContent=`${ROLES[H.role].ic} ${ROLES[H.role].n}`;
+  setDay();
+}
+$('#board').addEventListener('click',e=>{const t=e.target.closest('.tile');if(t)showPlayer(+t.dataset.id)});
+
+let modalRes=null;
+function modal(html,buttons){
+  if(modalRes){const r=modalRes;modalRes=null;r(null)}
+  return new Promise(res=>{
+    modalRes=res;
+    $('#mbox').innerHTML=html+`<div class="close"></div>`;
+    const c=$('#mbox .close');
+    for(const [v,label,cls] of (buttons||[[1,'とじる']])){const b=document.createElement('button');b.className='opt '+(cls||'');b.textContent=label;b.onclick=()=>{$('#modal').classList.remove('on');modalRes=null;res(v)};c.appendChild(b)}
+    $('#modal').classList.add('on');
+  });
+}
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal'){$('#modal').classList.remove('on');if(modalRes){const r=modalRes;modalRes=null;r(null)}}});
+
+function showPlayer(i){
+  const p=P(i),H=P(0);
+  const cl=G.claims[i];
+  let h=`<div class="ph"><div class="av">${avatar(p)}</div><div><h2 style="margin:0">${esc(p.name)}</h2><div style="font-size:13px;color:var(--sub)">${p.human?'あなた':esc(p.ch.desc)}</div></div></div>`;
+  h+=`<p>状態：${p.alive?'生存':(p.death==='exec'?`${p.deathDay}日目に処刑`:`${p.deathDay}日目の夜に襲撃`)}</p>`;
+  if(G.spect||G.over||p.human)h+=`<p>役職：<b>${ROLES[p.role].n}</b></p>`;
+  else if(H.role==='wolf'&&p.role==='wolf')h+=`<p>役職：<b>人狼（あなたの仲間）</b></p>`;
+  if(cl)h+=`<p>${ROLES[cl.role].n}CO（${cl.day}日目）${cl.results.length?'：'+cl.results.map(r=>`${nm(r.t)}→${r.black?'<span class="k">黒</span>':'<span class="w">白</span>'}`).join('、'):''}</p>`;
+  const onHim=[];for(const k in G.claims){const c=G.claims[k];for(const r of c.results)if(r.t===i)onHim.push(`${nm(+k)}（${ROLES[c.role].n}）→${r.black?'<span class="k">黒</span>':'<span class="w">白</span>'}`)}
+  if(onHim.length)h+=`<p>この人への結果：${onHim.join('、')}</p>`;
+  const vs=G.votes.map(v=>v.map[i]!=null?`${v.day}日目→${nm(v.map[i])}`:null).filter(Boolean);
+  if(vs.length)h+=`<p>投票：${vs.join('、')}</p>`;
+  if(!p.human){
+    h+=`<h3>推理メモ</h3><div class="memo">${['なし','白っぽい','グレー','黒っぽい'].map((t,k)=>`<button class="opt ${G.memo[i]===k||(!G.memo[i]&&!k)?'':'sub'}" data-m="${k}">${t}</button>`).join('')}</div>`;
+  }
+  modal(h);
+  document.querySelectorAll('#mbox [data-m]').forEach(b=>b.onclick=()=>{G.memo[i]=+b.dataset.m;renderBoard();showPlayer(i)});
+}
+function showInfo(){
+  if(!G)return;
+  let h=`<h2>📜 村の記録</h2><h3>CO と結果</h3>`;
+  const cs=Object.keys(G.claims).map(Number);
+  if(!cs.length)h+=`<p>まだ誰もCOしていません。</p>`;
+  else h+=`<table><tr><th>名前</th><th>CO</th><th>結果</th></tr>${cs.map(c=>{const cl=G.claims[c];return `<tr><td>${esc(nm(c))}${alive(c)?'':'（死）'}</td><td>${ROLES[cl.role].n}<br><small>${cl.day}日目</small></td><td>${cl.results.map(r=>`${cl.role==='medium'?r.day+'日':r.night+'夜'}：${esc(nm(r.t))}${r.black?'<span class="k">●黒</span>':'<span class="w">○白</span>'}`).join('<br>')||(cl.guards&&cl.guards.length?cl.guards.map(g=>`${g.night}夜：${esc(nm(g.t))}を護衛`).join('<br>'):'—')}</td></tr>`}).join('')}</table>`;
+  const H=P(0);
+  if(H.role==='seer'){h+=`<h3>あなたの占い結果</h3><p>${G.seerRes.map(r=>`${r.night}夜：${esc(nm(r.t))} ${r.black?'<span class="k">●人狼</span>':'<span class="w">○人間</span>'}`).join('<br>')}</p>`}
+  if(H.role==='medium'&&G.medRes.length){h+=`<h3>あなたの霊媒結果</h3><p>${G.medRes.map(r=>`${r.day}日目：${esc(nm(r.t))} ${r.black?'<span class="k">●人狼</span>':'<span class="w">○人間</span>'}`).join('<br>')}</p>`}
+  if(H.role==='wolf'){h+=`<h3>人狼の仲間</h3><p>${G.players.filter(p=>p.role==='wolf'&&!p.human).map(p=>esc(p.name)).join('、')}</p>`}
+  h+=`<h3>日ごとの出来事</h3>`;
+  for(let d=1;d<=G.day;d++){
+    const v=G.votes.find(x=>x.day===d);const a=G.attacks.find(x=>x.night===d-1);
+    let row=`<p><b>${d}日目</b>　`;
+    if(d>1)row+=`朝：${a&&a.victim!=null?esc(nm(a.victim))+'が襲撃された':'犠牲者なし'}<br>`;
+    if(v){row+=`処刑：${esc(nm(v.exec))}<br><small>${Object.keys(v.map).map(k=>`${esc(nm(+k))}→${esc(nm(v.map[k]))}`).join('／')}</small>`}
+    h+=row+'</p>';
+  }
+  modal(h);
+}
+$('#infoBtn').onclick=showInfo;
+$('#myRole').onclick=()=>{if(G)roleCard(false)};
+function updSpeed(){$('#speedBtn').textContent=speed===1?'▶ 普通':speed===2?'▶▶ 速い':'⏩ 瞬間'}
+$('#speedBtn').onclick=()=>{speed=speed===1?2:speed===2?0:1;updSpeed();if(speed===0&&skipFn)skipFn()};
+
+function roleCard(first){
+  const H=P(0),R=ROLES[H.role];
+  let ex='';
+  if(H.role==='wolf'){const w=G.players.filter(p=>p.role==='wolf'&&!p.human);ex=`<p>仲間の人狼：<b>${w.map(p=>esc(p.name)).join('、')}</b></p>`}
+  if(H.role==='seer'){const r=G.seerRes[0];ex=`<p>お告げ：<b>${esc(nm(r.t))}</b> は <span class="w">人間（白）</span> です。</p>`}
+  return modal(`<div class="rolecard"><div style="font-size:13px;color:var(--sub)">あなたの役職は…</div><div class="ic">${R.ic}</div><div class="rn">${R.n}</div><span class="tm ${R.team==='wolf'?'w':''}">${R.team==='wolf'?'人狼陣営':'村人陣営'}</span><p style="text-align:left">${R.d}</p>${ex}<p style="font-size:12px;color:var(--sub);text-align:left">勝利条件：${R.team==='wolf'?'生きている人狼の数が、人間の数と同じかそれ以上になること。':'人狼を2匹とも処刑すること。'}</p></div>`,[[1,first?'村へ向かう':'とじる']]);
+}
+
+/* ================= 進行 ================= */
+function kill(i,how){const p=P(i);p.alive=false;p.death=how;p.deathDay=G.day;if(i===0)G.spect=true;renderBoard()}
+
+async function aiClaim(s,role){
+  const prev=Object.keys(G.claims).map(Number).filter(c=>G.claims[c].role===role&&alive(c));
+  const cl=G.claims[s]={role,day:G.day,results:[],guards:[]};
+  renderBoard();
+  await say(s,line(s,'co',{role:ROLES[role].n}));
+  const real=P(s).role===role;
+  if(role==='seer'){
+    const rs=real?G.seerRes.slice():[fakeSeerResult(s)];
+    for(const r of rs){cl.results.push(r);await say(s,line(s,'res',{t:hon(s,r.t),c:col(r.black)}))}
+  }else if(role==='medium'){
+    if(real)for(const r of G.medRes){cl.results.push(r);await say(s,line(s,'mres',{t:hon(s,r.t),c:col(r.black)}))}
+    else for(const e of G.execs){const r={day:e.day,t:e.pid,black:fakeMediumBlack(s,e.pid)};cl.results.push(r);await say(s,line(s,'mres',{t:hon(s,r.t),c:col(r.black)}))}
+  }else if(role==='knight'){
+    let g=real?G.guards[G.guards.length-1]:null;
+    if(!real&&G.day>1){const c=aliveIds().filter(i=>i!==s);g={night:G.day-1,t:pick(c)}}
+    if(g&&g.t!=null){cl.guards.push(g);await say(s,`昨夜は${hon(s,g.t)}を護衛していた。`)}
+  }
+  renderBoard();
+  const c=prev.find(x=>x!==0);
+  if(c!=null){await say(c,line(c,'fake',{a:hon(c,s),role:ROLES[role].n}));hear(c,s,'acc')}
+}
+async function humanClaim(role){
+  const H=P(0);const cl=G.claims[0]={role,day:G.day,results:[],guards:[]};
+  renderBoard();
+  await me(`私が${ROLES[role].n}です。`);
+  if(role==='seer'){
+    if(H.role==='seer'){for(const r of G.seerRes){cl.results.push(r);await me(`${r.night===0?'お告げ':r.night+'日目の夜の占い'}：${nm(r.t)}さんは${col(r.black)}でした。`)}}
+    else await humanFakeSeer(cl);
+  }else if(role==='medium'){
+    if(H.role==='medium'){for(const r of G.medRes){cl.results.push(r);await me(`霊媒結果：${nm(r.t)}さんは${col(r.black)}でした。`)}}
+    else for(const e of G.execs){const b=await choose(`${nm(e.pid)}さん（${e.day}日目に処刑）の霊媒結果をどう発表する？`,[[false,'人間（白）'],[true,'人狼（黒）']]);cl.results.push({day:e.day,t:e.pid,black:b});await me(`霊媒結果：${nm(e.pid)}さんは${col(b)}でした。`)}
+  }else if(role==='knight'){
+    const g=H.role==='knight'?G.guards[G.guards.length-1]:null;
+    if(g&&g.t!=null){cl.guards.push(g);await me(`昨夜は${nm(g.t)}さんを護衛していました。`)}
+  }
+  renderBoard();
+  const rivals=Object.keys(G.claims).map(Number).filter(c=>c!==0&&G.claims[c].role===role&&alive(c));
+  if(rivals.length){const c=pick(rivals);await say(c,line(c,'fake',{a:hon(c,0),role:ROLES[role].n}));hear(c,0,'acc')}
+  else if(G.day>1&&role==='seer'){const c=pick(aliveAIs());await say(c,`今さら占い師CO……？ ${hon(c,0)}がずっと黙っていた理由が気になる。`);hear(c,0,'acc')}
+}
+async function humanFakeSeer(cl){
+  const done=new Set(cl.results.map(r=>r.t));
+  const t=await chooseP('誰を占ったことにする？',aliveIds().filter(i=>i!==0&&!done.has(i)));
+  const b=await choose(`${nm(t)}さんの結果は？`,[[false,'人間（白）と言う'],[true,'人狼（黒）と言う']]);
+  const r={night:G.day-1,t,black:b};cl.results.push(r);
+  await me(`${G.day===1?'お告げ':(G.day-1)+'日目の夜の占い'}：${nm(t)}さんは${col(b)}でした。`);
+  if(!b)hear(0,t,'trust');
+}
+
+async function intro(){
+  logEl.innerHTML='';G.day=0;setNight(true);renderBoard();$('#dayLabel').textContent='0日目 夜';
+  await sys('ある満月の夜——',"head");
+  await sys('「この村に、人狼が2匹まぎれこんでいる」。そんな噂が広まった。');
+  if(!AUTO)await roleCard(true);
+  const H=P(0);
+  if(H.role==='seer')await priv(`🔮 お告げ：${nm(G.seerRes[0].t)}は人間（白）だ。`);
+  if(H.role==='wolf'){const w=G.players.filter(p=>p.role==='wolf'&&!p.human);await priv(`🐺 仲間の人狼は ${w.map(p=>p.name).join('、')} だ。`)}
+}
+async function morning(){
+  setNight(false);renderBoard();
+  await sys(`── ${G.day}日目の朝 ──`,'head');
+  if(G.day===1){await sys('村長「話し合いで人狼を見つけ出し、毎日ひとりを処刑する。それがこの村の掟だ」','chief');return}
+  const a=G.attacks[G.attacks.length-1];
+  if(a&&a.victim!=null){
+    await sys(`無残な姿で発見されたのは…… ${nm(a.victim)}。`);
+    if(a.victim===0){await sys('あなたは人狼に襲われた……。ここからは観戦モードです。全員の役職が公開されます。');}
+    const r=shuffle(aliveAIs()).slice(0,2);for(const s of r)await say(s,line(s,'victim',{v:hon(s,a.victim)}));
+  }else{
+    await sys('今朝は、誰も襲われなかった。');const s=pick(aliveAIs());await say(s,line(s,'peace'));
+  }
+}
+async function coPhase(){
+  await sys('村長「まずは占い師に名乗り出てもらおう。占い師の者は、いるか？」','chief');
+  for(const s of shuffle(aliveAIs())){
+    const p=P(s);
+    if((p.role==='seer'&&rnd()<0.92)||p.plan==='seer')await aiClaim(s,'seer');
+  }
+  if(alive(0)){
+    const H=P(0);
+    const c=await choose('占い師としてCOしますか？',[['no','COしない','sub'],['yes',H.role==='seer'?'🔮 占い師COする':'🃏 占い師を騙る（嘘のCO）']]);
+    if(c==='yes')await humanClaim('seer');
+  }
+  if(!Object.keys(G.claims).length)await sys('……誰も名乗り出なかった。');
+  G.coDone=true;
+}
+async function reportPhase(){
+  const lastNight=G.day-1;const ex=G.execs.find(e=>e.day===G.day-1);
+  const cs=Object.keys(G.claims).map(Number).filter(c=>alive(c));
+  const seers=cs.filter(c=>G.claims[c].role==='seer'),meds=cs.filter(c=>G.claims[c].role==='medium');
+  if(seers.length)await sys('村長「占い師は、昨夜の結果を教えてくれ」','chief');
+  for(const c of seers){
+    const cl=G.claims[c];
+    if(c===0){
+      if(P(0).role==='seer'){const r=G.seerRes.find(x=>x.night===lastNight);if(r){cl.results.push(r);await me(`${lastNight}日目の夜の占い：${nm(r.t)}さんは${col(r.black)}でした。`)}}
+      else{const k=await choose('偽の占い結果を発表しますか？',[['y','発表する'],['n','今日は発表しない','sub']]);if(k==='y')await humanFakeSeer(cl);else await me('……今日の結果は、まだ言えません。')}
+    }else{
+      const r=P(c).role==='seer'?G.seerRes.find(x=>x.night===lastNight):fakeSeerResult(c);
+      if(r){cl.results.push(r);await say(c,line(c,'res',{t:hon(c,r.t),c:col(r.black)}))}
+    }
+  }
+  // 遅れて名乗り出る
+  const late=[];
+  for(const s of aliveAIs()){
+    if(G.claims[s])continue;const p=P(s);
+    if(p.role==='seer'&&rnd()<0.6)late.push([s,'seer']);
+    else if(p.role==='medium'&&ex&&rnd()<(G.day===2?0.85:0.6))late.push([s,'medium']);
+    else if(p.plan==='medium'&&ex&&G.day===2)late.push([s,'medium']);
+  }
+  if(meds.length||late.some(x=>x[1]==='medium'))await sys('村長「霊媒師はいるか？ 昨日処刑した者の正体を教えてくれ」','chief');
+  for(const c of meds){
+    if(!ex)break;const cl=G.claims[c];
+    if(c===0){
+      if(P(0).role==='medium'){const r=G.medRes.find(x=>x.day===ex.day);if(r){cl.results.push(r);await me(`霊媒結果：${nm(r.t)}さんは${col(r.black)}でした。`)}}
+      else{const b=await choose(`${nm(ex.pid)}さんの霊媒結果をどう発表する？`,[[false,'人間（白）'],[true,'人狼（黒）']]);cl.results.push({day:ex.day,t:ex.pid,black:b});await me(`霊媒結果：${nm(ex.pid)}さんは${col(b)}でした。`)}
+    }else{
+      const r=P(c).role==='medium'?G.medRes.find(x=>x.day===ex.day):{day:ex.day,t:ex.pid,black:fakeMediumBlack(c,ex.pid)};
+      if(r){cl.results.push(r);await say(c,line(c,'mres',{t:hon(c,r.t),c:col(r.black)}))}
+    }
+  }
+  for(const [s,role] of shuffle(late))if(alive(s)&&!G.claims[s])await aiClaim(s,role);
+}
+async function discussion(){
+  await sys('── 議論の時間 ──');
+  const accused={};
+  for(const s of shuffle(aliveAIs())){
+    const st=aiStatement(s);
+    if(st.type==='acc'&&accused[st.t]&&rnd()<0.55){const a=pick(accused[st.t]);if(a!==st.t)st.text=line(s,'agree',{a:hon(s,a),t:hon(s,st.t)})}
+    await say(s,st.text);
+    if(st.type==='acc'){hear(s,st.t,'acc');(accused[st.t]=accused[st.t]||[]).push(s)}
+    else if(st.type==='trust')hear(s,st.t,'trust');
+  }
+  const list=Object.keys(accused).map(Number).filter(t=>t!==0).sort((a,b)=>accused[b].length-accused[a].length).slice(0,2);
+  for(const t of list)await aiDefend(t,pick(accused[t]));
+  if(accused[0]&&alive(0))await priv(`⚠ ${accused[0].map(nm).join('、')} があなたを疑っている。`);
+}
+async function aiDefend(t,a){
+  if(!alive(t))return;
+  await say(t,line(t,'defend',{a:hon(t,a)}));
+  const V=view(t);const others=aliveIds().filter(i=>i!==t);const avg=others.reduce((x,i)=>x+V.pw[i],0)/others.length;
+  if(V.pw[a]>avg*1.1||rnd()<0.3){await say(t,line(t,'counter',{a:hon(t,a)}));hear(t,a,'acc')}
+}
+async function react(a,t,kind){
+  if(t!==0&&alive(t)){
+    if(kind==='acc')await aiDefend(t,a);
+    else await say(t,line(t,'thanks',{a:hon(t,a)}));
+  }
+  const others=shuffle(aliveAIs().filter(i=>i!==a&&i!==t));
+  let n=0;
+  for(const r of others){
+    if(n>=2)break;
+    const V=view(r);const o=aliveIds().filter(i=>i!==r);const avg=o.reduce((x,i)=>x+V.pw[i],0)/o.length;
+    if(kind==='acc'){
+      if(V.pw[t]>avg*1.15){await say(r,line(r,'agree',{a:hon(r,a),t:hon(r,t)}));hear(r,t,'acc');n++}
+      else if(V.pw[t]<avg*0.8){await say(r,line(r,'disagree',{a:hon(r,a),t:hon(r,t)}));hear(r,t,'trust');n++}
+    }else{
+      if(V.pw[t]>avg*1.3){await say(r,line(r,'accuse',{t:hon(r,t),r:reason(r,t,V)}));hear(r,t,'acc');n++}
+      else if(V.pw[t]<avg*0.85&&rnd()<0.6){await say(r,line(r,'trust',{t:hon(r,t)}));n++}
+    }
+  }
+}
+async function humanActions(){
+  if(!alive(0))return;
+  const proj=projectVotes();const mx=Math.max(...Object.values(proj));
+  if((proj[0]||0)>=3&&proj[0]===mx)await priv('⚠ このままでは、あなたに票が集まりそうだ……');
+  const N=3;
+  for(let k=0;k<N;k++){
+    const opts=[['acc','🗣 怪しい人を指摘'],['trust','🤝 信じる人を表明'],['ask','❓ 意見を聞く']];
+    if(!G.claims[0])opts.push(['co','📣 COする']);
+    opts.push(['end','🗳 投票へ進む','sub']);
+    const c=await choose(`あなたの番です（あと${N-k}回発言できます）`,opts);
+    if(c==='end')break;
+    const others=aliveIds().filter(i=>i!==0);
+    if(c==='acc'){
+      const t=await chooseP('誰を疑う？',others,true);if(t==null){k--;continue}
+      await me(pick([`${nm(t)}さんが怪しいと思います。`,`私は${nm(t)}さんを疑っています。`,`${nm(t)}さん、本当に村人ですか？`]));
+      hear(0,t,'acc');await react(0,t,'acc');
+    }else if(c==='trust'){
+      const t=await chooseP('誰を信じる？',others,true);if(t==null){k--;continue}
+      await me(pick([`${nm(t)}さんは信じていいと思います。`,`${nm(t)}さんは村人だと思う。`]));
+      hear(0,t,'trust');await react(0,t,'trust');
+    }else if(c==='ask'){
+      const t=await chooseP('誰に聞く？',aliveAIs(),true);if(t==null){k--;continue}
+      await me(`${nm(t)}さんは、誰が怪しいと思いますか？`);
+      const st=aiStatement(t);await say(t,st.text);
+      if(st.type==='acc')hear(t,st.t,'acc');else if(st.type==='trust')hear(t,st.t,'trust');
+    }else if(c==='co'){
+      const H=P(0);
+      const ro=['seer','medium','knight'].map(r=>[r,`${ROLES[r].ic} ${ROLES[r].n}${H.role===r?'':'（嘘）'}`]);
+      ro.push([null,'戻る','sub']);
+      const r=await choose('何の役職をCOする？',ro);if(r==null){k--;continue}
+      await humanClaim(r);
+    }
+  }
+}
+async function preVote(){
+  const proj=projectVotes();
+  let top=null,mx=0;for(const k in proj)if(proj[k]>mx){mx=proj[k];top=+k}
+  if(top!=null&&top!==0&&mx>=3&&!G.claims[top]&&alive(top)){
+    const p=P(top);
+    if(['seer','medium','knight'].includes(p.role)&&rnd()<0.9){await sys(`${p.name}に疑いが集まっている……`);await aiClaim(top,p.role)}
+    else if((p.role==='wolf'||p.role==='madman')&&!Object.values(G.claims).some(c=>c.role==='knight')&&rnd()<0.35){await sys(`${p.name}に疑いが集まっている……`);await aiClaim(top,'knight')}
+  }
+  await sys('── 投票前の表明 ──');
+  G.intent=null;G.intent=computeVotes({},aliveIds(),false);
+  for(const s of shuffle(aliveAIs()).slice(0,3))await say(s,line(s,'vote',{t:hon(s,G.intent[s])}));
+}
+async function doVote(cand,q){
+  const fixed={};
+  if(alive(0)){const t=await chooseP(q,cand.filter(i=>i!==0));fixed[0]=t}
+  return computeVotes(fixed,cand,true);
+}
+function voteCard(map,title){
+  const c=tally(map);const rows=Object.keys(map).map(k=>`<div class="row"><span>${esc(nm(+k))}</span><span>→ ${esc(nm(map[k]))}</span></div>`).join('');
+  const tot=Object.keys(c).sort((a,b)=>c[b]-c[a]).map(k=>`${esc(nm(+k))} ${c[k]}票`).join('　');
+  add(`<div class="votes"><div style="font-weight:800;margin-bottom:4px">${title}</div>${rows}<div class="tot">${tot}</div></div>`);
+}
+async function votePhase(){
+  await sys('── 投票の時間 ──','head');
+  let cand=aliveIds();
+  let map=await doVote(cand,'処刑する人に投票してください');
+  let c=tally(map),mx=Math.max(...Object.values(c)),top=Object.keys(c).filter(k=>c[k]===mx).map(Number);
+  voteCard(map,'投票結果');await wait(1600/(speed||1));
+  if(top.length>1){
+    await sys(`${top.map(nm).join('、')} が同票。決選投票を行います。`);
+    G.intent=null;
+    map=await doVote(top,'決選投票：処刑する人を選んでください');
+    c=tally(map);mx=Math.max(...Object.values(c));top=Object.keys(c).filter(k=>c[k]===mx).map(Number);
+    voteCard(map,'決選投票の結果');await wait(1600/(speed||1));
+    if(top.length>1){await sys('再び同票……くじ引きで決めることになった。');top=[pick(top)]}
+  }
+  const ex=top[0];
+  G.votes.push({day:G.day,map,exec:ex});
+  await sys(`${nm(ex)} が処刑されることになった。`);
+  if(ex!==0)await say(ex,line(ex,'last'));
+  else await me(pick(['……私は、人狼じゃないのに。','そんな……！','あとは頼みました……']));
+  G.execs.push({day:G.day,pid:ex});
+  kill(ex,'exec');
+  if(ex===0)await sys('あなたは処刑された……。ここからは観戦モードです。全員の役職が公開されます。');
+}
+async function nightPhase(){
+  setNight(true);renderBoard();
+  await sys(`── ${G.day}日目の夜 ──`,'head');
+  const ex=G.execs.find(e=>e.day===G.day);
+  if(ex)G.medRes.push({day:G.day,t:ex.pid,black:isWolf(ex.pid)});
+  const H=P(0);let guard=null,attack=null,hDiv=null;
+  if(H.alive){
+    if(H.role==='seer'){
+      const done=new Set(G.seerRes.map(r=>r.t));let c=aliveIds().filter(i=>i!==0&&!done.has(i));if(!c.length)c=aliveIds().filter(i=>i!==0);
+      hDiv=await chooseP('🔮 今夜は誰を占う？',c);
+      const b=isWolf(hDiv);G.seerRes.push({night:G.day,t:hDiv,black:b});renderBoard();
+      await priv(`🔮 占いの結果……${nm(hDiv)}は ${col(b)} だった。`);
+    }else if(H.role==='knight'){
+      guard=await chooseP('🛡 今夜は誰を守る？',aliveIds().filter(i=>i!==0));
+      await priv(`🛡 ${nm(guard)}を守ることにした。`);
+    }else if(H.role==='wolf'){
+      const partner=G.players.find(p=>p.role==='wolf'&&!p.human&&p.alive);
+      if(partner){const sug=aiAttack();await priv(`🐺 ${partner.name}「今夜は ${nm(sug)} を襲おうと思う。どうする？」`)}
+      attack=await chooseP('🐺 今夜は誰を襲う？',aliveIds().filter(i=>!isWolf(i)));
+      await priv(`🐺 ${nm(attack)}を襲うことにした。`);
+    }else{
+      if(H.role==='medium'&&ex)await priv(`🕯 霊媒の結果……${nm(ex.pid)}は ${col(isWolf(ex.pid))} だった。`);
+      await choose(H.role==='madman'?'🃏 人狼の勝利を祈りながら……':'夜が更けていく……',[['ok','🌙 眠りにつく']]);
+    }
+    renderBoard();
+  }
+  const seer=G.players.find(p=>p.role==='seer'&&p.alive&&!p.human);
+  if(seer){const t=aiDivine(seer.id);G.seerRes.push({night:G.day,t,black:isWolf(t)})}
+  const kn=G.players.find(p=>p.role==='knight'&&p.alive&&!p.human);
+  if(kn)guard=aiGuard(kn.id);
+  if(guard!=null)G.guards.push({night:G.day,t:guard});
+  if(attack==null)attack=aiAttack();
+  await sys('……村に、遠吠えが響いた。');
+  const victim=attack!=null&&attack!==guard?attack:null;
+  if(victim!=null){
+    for(const x of G.acc)if(x.from===victim&&x.kind==='acc')for(const L of aliveAIs())if(L!==x.to&&L!==victim)addG(L,x.to,0.12);
+  }
+  G.attacks.push({night:G.day,victim,tried:attack});
+  for(const row of G.g)for(let j=0;j<row.length;j++)row[j]=clamp(row[j]+gauss()*0.08,-1.6,1.6);
+  G.day++;
+  if(victim!=null){const p=P(victim);p.alive=false;p.death='attack';p.deathDay=G.day-1;if(victim===0)G.spect=true}
+}
+function winner(){
+  const al=aliveIds();const w=al.filter(isWolf).length;
+  if(w===0)return 'village';if(w>=al.length-w)return 'wolf';return null;
+}
+function loadRec(){try{return JSON.parse(localStorage.getItem('hitori-jinro')||'{}')}catch(e){return {}}}
+function saveRec(r){try{localStorage.setItem('hitori-jinro',JSON.stringify(r))}catch(e){}}
+async function endGame(win){
+  G.over=true;renderBoard();
+  const H=P(0),myWin=ROLES[H.role].team===win;
+  await sys(win==='village'?'── 人狼はすべて処刑された。村に平和が戻った ──':'── 人狼の牙が、最後の村人に届いた ──','head');
+  const r=loadRec();r.plays=(r.plays||0)+1;if(myWin)r.wins=(r.wins||0)+1;saveRec(r);
+  if(AUTO){window.__sim=window.__sim||{village:0,wolf:0,days:0,n:0};window.__sim[win]++;window.__sim.days+=G.day;window.__sim.n++;return}
+  panel.innerHTML=`<div class="btns"><button class="opt" id="again">もう一度あそぶ</button><button class="opt sub" id="toTitle">タイトルへ</button><button class="opt sub" id="seeRes">結果を見る</button></div>`;
+  $('#again').onclick=()=>start();
+  $('#toTitle').onclick=()=>toTitle();
+  const html=`<div class="big ${myWin?'win':'lose'}">${myWin?'勝利！':'敗北……'}</div><p style="text-align:center">${win==='village'?'🌅 村人陣営の勝利':'🌕 人狼陣営の勝利'}（${G.day}日目）<br>あなたは <b>${ROLES[H.role].n}</b>（${ROLES[H.role].team==='wolf'?'人狼陣営':'村人陣営'}）でした。</p>
+<div class="endlist">${G.players.map(p=>`<div class="${p.alive?'':'dead'}"><div class="av">${avatar(p)}</div>${esc(p.name)}<span style="color:${ROLES[p.role].team==='wolf'?'var(--black)':'var(--white)'}">${ROLES[p.role].n}</span></div>`).join('')}</div>
+<p style="text-align:center;font-size:12px;color:var(--sub)">通算 ${r.wins||0}勝 / ${r.plays}戦</p>`;
+  $('#seeRes').onclick=()=>modal(html,[[1,'とじる']]);
+  await modal(html,[[1,'とじる']]);
+}
+async function game(){
+  await intro();
+  for(G.day=1;;){
+    setNight(false);
+    await morning();
+    if(G.day===1)await coPhase();else await reportPhase();
+    await discussion();
+    await humanActions();
+    await preVote();
+    await votePhase();
+    let w=winner();if(w){await endGame(w);return}
+    await nightPhase();
+    w=winner();if(w){setNight(false);renderBoard();await morning();await endGame(w);return}
+  }
+}
+
+/* ================= タイトル ================= */
+let roleChoice='random';
+function buildRolePick(){
+  const list=[['random','おまかせ'],...Object.keys(ROLES).map(k=>[k,ROLES[k].n])];
+  $('#rolePick').innerHTML=list.map(([k,n])=>`<button class="rb ${k===roleChoice?'on':''}" data-r="${k}">${n}</button>`).join('');
+  document.querySelectorAll('.rb').forEach(b=>b.onclick=()=>{roleChoice=b.dataset.r;buildRolePick()});
+}
+function showRec(){const r=loadRec();$('#rec').textContent=r.plays?`通算 ${r.wins||0}勝 / ${r.plays}戦`:''}
+function toTitle(){$('#app').classList.remove('on');$('#title').classList.remove('off');setNight(true);showRec()}
+let gen=0;
+async function start(){
+  const name=($('#pname').value.trim()||'旅人').slice(0,6);
+  try{localStorage.setItem('hitori-jinro-name',name)}catch(e){}
+  $('#title').classList.add('off');$('#app').classList.add('on');
+  newGame(name,roleChoice);
+  const my=++gen;
+  idle();
+  try{await game()}catch(e){if(my===gen)throw e}
+}
+$('#startBtn').onclick=start;
+$('#rulesBtn').onclick=()=>modal(`<h2>あそびかた</h2>
+<p>あなたを含む<b>9人</b>の村に、<b>人狼が2匹</b>まぎれています。昼は話し合いと投票でひとりを処刑し、夜は人狼がひとりを襲います。ほかの8人はみんなコンピューターです。</p>
+<h3>役職（9人）</h3><ul>
+<li>🧑‍🌾 村人 ×3 … 能力なし</li><li>🔮 占い師 ×1 … 毎晩ひとりが人狼か分かる（初日は白のお告げ）</li><li>🕯️ 霊媒師 ×1 … 処刑した人が人狼か分かる</li><li>🛡️ 騎士 ×1 … 毎晩ひとりを襲撃から守る</li><li>🐺 人狼 ×2 … 夜にひとりを襲う</li><li>🃏 狂人 ×1 … 人狼の味方をする人間。占いでは白</li></ul>
+<h3>勝利条件</h3><ul><li>村人陣営：人狼を2匹とも処刑する</li><li>人狼陣営（人狼・狂人）：生きている人狼の数が、人間の数以上になる</li></ul>
+<h3>1日の流れ</h3><ul><li>朝：昨夜の犠牲者の発表。占い師・霊媒師（を名乗る人）が結果を報告</li><li>議論：みんなが怪しい人を言い合う。あなたは1日3回まで「指摘」「信用」「質問」「CO（役職の名乗り出）」ができる</li><li>投票：最も票を集めた人が処刑される（同票なら決選投票）</li><li>夜：役職ごとの行動</li></ul>
+<h3>ヒント</h3><ul><li>占い師を名乗るのは1人とは限りません。狂人や人狼の<b>偽物</b>が混じることも。</li><li>霊媒結果や、襲われた人（＝人狼ではない）から、どの占い師が本物か考えよう。</li><li>村人たちは、発言や投票、占い結果から本気で推理しています。人狼のときは疑われないように。</li><li>画面上の村人をタップすると、その人の記録と「推理メモ」が見られます。📜情報で全体の記録も確認できます。</li></ul>`);
+$('#castBtn').onclick=()=>modal(`<h2>村人たち</h2>${CHARS.map(c=>`<div class="ph" style="margin:8px 0"><div class="av" style="width:48px;height:48px">${avatar({ch:c})}</div><div><b>${c.name}</b><div style="font-size:13px;color:var(--sub)">${c.desc}</div></div></div>`).join('')}`);
+try{const n=localStorage.getItem('hitori-jinro-name');if(n)$('#pname').value=n}catch(e){}
+buildRolePick();showRec();updSpeed();
+
+if(AUTO){
+  window.runSim=async n=>{for(let i=0;i<n;i++){newGame('旅人',Q.get('role')||'random');await game()}return window.__sim};
+}
+</script>
+</body>
+</html>
