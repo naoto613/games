@@ -1,6 +1,7 @@
 // ================================================================ kitchen: grid, stations, items, rules
 const CH = 0.62; // counter height
 const K = {
+  combo: 1, peds: [], respawn: [],
   root: new THREE.Group(), lv: null, th: null, W: 0, H: 0, cells: [], kind: [], tiles: [], players: [], orders: [], floorItems: [], flying: [], pend: [],
   score: 0, delivered: 0, failed: 0, tipSum: 0, time: 0, T: 0, phase: 'off', active: 0, easy: true, t: 0, tilt: 0, shake: 0, boss: null,
 };
@@ -10,7 +11,10 @@ const ti = x => Math.round(x + (K.W - 1) / 2), tj = z => Math.round(z + (K.H - 1
 const inGrid = (i, j) => i >= 0 && j >= 0 && i < K.W && j < K.H;
 const tileAt = (i, j) => inGrid(i, j) ? K.cells[j][i] : null;
 const tileAtW = (x, z) => tileAt(ti(x), tj(z));
-function walkable(i, j) { return inGrid(i, j) && !K.cells[j][i] && K.kind[j][i] === 'floor'; }
+function walkable(i, j) { if (!inGrid(i, j) || K.cells[j][i]) return false; const k = K.kind[j][i]; return k === 'floor' || k === 'portal' || (k === 'gap' && !gapOpen(i, j)); }
+function solid(i, j) { return !inGrid(i, j) || !!K.cells[j][i]; }
+function fallZone(i, j) { if (!inGrid(i, j) || K.cells[j][i]) return false; const k = K.kind[j][i]; return k === 'void' || k === 'water' || k === 'lava' || (k === 'gap' && gapOpen(i, j)); }
+function gapOpen(i, j) { const g = K.gapG && K.gapG[j][i]; return g ? K.gapState[g] : false; }
 
 // conveyor belt texture
 const beltTex = (() => {
@@ -51,25 +55,25 @@ function compKey(ing) {
 }
 let why = '';
 function addToPlate(pl, key) {
-  if (pl.dirty) { why = 'よごれてる！ ながしで あらってね'; return false; }
-  if (!key) { why = 'さきに まないたで きってね'; return false; }
-  if (key === 'rice') { why = 'おこめは なべで たいてね'; return false; }
+  if (pl.dirty) { why = '汚れた皿だ！ シンクで洗おう'; return false; }
+  if (!key) { why = '先にまな板で切ろう'; return false; }
+  if (key === 'rice') { why = 'お米は鍋で炊こう'; return false; }
   const nw = pl.items.concat(key);
   for (const r of K.lv.recipes) if (isSub(nw, RECIPES[r].items)) { pl.items = nw; return true; }
-  why = pl.items.includes(key) ? 'もう はいってるよ' : 'その くみあわせの りょうりは ないよ';
+  why = pl.items.includes(key) ? 'もう入ってる' : 'その組み合わせは無理！';
   return false;
 }
 function levelUses(out) { return K.lv.recipes.some(r => RECIPES[r].items.includes(out)); }
 function addToPot(pot, ing) {
   const key = ing.st === 'chop' ? ing.id + '_c' : ing.id;
-  if (pot.state === 'burnt') return 'こげてる！ ゴミばこで すてよう';
-  const recs = (pot.pt === 'pot' ? POT_RECIPES : PAN_RECIPES).filter(r => levelUses(r.out));
+  if (pot.state === 'burnt') return '焦げてる！ ゴミ箱へ';
+  const recs = RECS_OF[pot.pt].filter(r => levelUses(r.out));
   const nw = pot.items.concat(key);
   const r = recs.find(r => isSub(nw, r.items));
   if (!r) {
-    if (ING[ing.id].chop && ing.st !== 'chop') return 'さきに まないたで きってね';
-    if (pot.items.length && recs.some(r => isSub(pot.items, r.items) && r.items.length === pot.items.length)) return 'もう いっぱいだよ';
-    return pot.pt === 'pan' ? 'フライパンには きった おにくを いれてね' : 'その なべには いれられないよ';
+    if (ING[ing.id].chop && ing.st !== 'chop') return '先にまな板で切ろう';
+    if (pot.items.length && recs.some(r => isSub(pot.items, r.items) && r.items.length === pot.items.length)) return 'もういっぱい';
+    return pot.pt === 'pan' ? '入れられない' : '入れられない';
   }
   pot.items = nw; pot.need = r.t * nw.length / r.items.length; pot.full = r.t;
   if (pot.state !== 'cook') { pot.state = 'cook'; }
@@ -78,8 +82,8 @@ function addToPot(pot, ing) {
 }
 function resetPot(pot) { pot.items = []; pot.cook = 0; pot.need = 0; pot.state = 'empty'; pot.over = 0; }
 function pour(pot, pl) {
-  if (pl.dirty) { why = 'よごれた おさらだよ'; return false; }
-  if (pot.state !== 'done') { why = pot.state === 'burnt' ? 'こげちゃった… ゴミばこへ' : pot.items.length ? 'まだ できてないよ' : 'からっぽだよ'; return false; }
+  if (pl.dirty) { why = '汚れた皿だ！'; return false; }
+  if (pot.state !== 'done') { why = pot.state === 'burnt' ? '焦げた… ゴミ箱へ' : pot.items.length ? 'まだできてない' : '空っぽ'; return false; }
   const out = potOut(pot.items);
   if (!addToPlate(pl, out)) return false;
   resetPot(pot); refresh(pot); refresh(pl); Sound.sfx('pour');
@@ -87,7 +91,7 @@ function pour(pot, pl) {
 }
 
 // ---------------------------------------------------------------- tiles
-const T_OF = { '#': 'counter', E: 'counter', '%': 'counter', C: 'board', S: 'stove', P: 'stove', D: 'plates', W: 'window', K: 'sink', R: 'ret', T: 'trash', '>': 'conv', '<': 'conv', '^': 'conv', v: 'conv' };
+const T_OF = { '#': 'counter', E: 'counter', '%': 'counter', C: 'board', S: 'stove', P: 'stove', F: 'stove', D: 'plates', W: 'window', K: 'sink', R: 'ret', T: 'trash', '>': 'conv', '<': 'conv', '^': 'conv', v: 'conv' };
 const CONV_D = { '>': [1, 0], '<': [-1, 0], '^': [0, -1], v: [0, 1] };
 function makeTile(ch, i, j) {
   const t = { ch, i, j, type: T_OF[ch] || 'crate', top: null, fire: 0, prog: 0, cprog: 0, g: new THREE.Group() };
@@ -105,34 +109,39 @@ function makeTile(ch, i, j) {
 function buildTileMesh(t) {
   const th = K.th, g = t.g;
   const body = (col, top) => {
-    g.add(at(mesh(G.box(0.98, CH - 0.07, 0.98), col, true, true), 0, (CH - 0.07) / 2, 0));
-    g.add(at(mesh(G.box(1.0, 0.08, 1.0), top, true, true), 0, CH - 0.04, 0));
+    g.add(at(mesh(G.rbox(0.96, CH - 0.06, 0.96, 0.04), TMat(texPanel(col)), true, true), 0, (CH - 0.06) / 2, 0));
+    g.add(at(mesh(G.rbox(1.0, 0.09, 1.0, 0.035), typeof top === 'string' ? TMat(texTop(top)) : M(top), true, true), 0, CH - 0.045, 0));
   };
   switch (t.type) {
     case 'counter':
-      if (t.mover) { body(0x8a5ae0, 0xffcf2e); for (const s of [-1, 1]) g.add(at(mesh(G.box(1.01, 0.06, 0.06), 0x2a1a12), 0, CH - 0.15, s * 0.47)); }
+      if (t.mover) { body(0x8a5ae0, 'steel'); for (const s of [-1, 1]) g.add(at(mesh(G.box(1.01, 0.06, 0.06), 0xffcf2e), 0, CH - 0.15, s * 0.47)); }
       else body(th.body, th.top);
       break;
     case 'board': {
       body(th.body, th.top);
-      const b = mesh(G.box(0.72, 0.05, 0.56), 0xe8c48a, true, true); b.position.y = CH + 0.025; g.add(b);
+      const b = mesh(G.rbox(0.72, 0.05, 0.56, 0.02), M(0xf0d29a), true, true); b.position.y = CH + 0.025; g.add(b);
       const k = new THREE.Group(); k.position.set(0.3, CH + 0.06, -0.2); k.rotation.y = 0.5; g.add(k);
-      k.add(at(mesh(G.box(0.05, 0.02, 0.26), 0xdfe6ee), 0, 0, 0.1)); k.add(at(mesh(G.box(0.05, 0.04, 0.12), 0x8a4a2a), 0, 0, -0.08));
+      k.add(at(mesh(G.rbox(0.06, 0.02, 0.26, 0.008), M(0xe8eef4, { metalness: 0.7, roughness: 0.25 })), 0, 0, 0.1)); k.add(at(mesh(G.rbox(0.05, 0.045, 0.12, 0.015), 0x6a3a1e), 0, 0, -0.08));
       t.knife = k; break;
     }
     case 'stove': {
-      body(0x5a6470, 0x2e3238);
-      const bm = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, emissive: 0xff4a1a, emissiveIntensity: 0, flatShading: true });
-      const ring = mesh(G.tor(0.26, 0.04, 4, 14), bm); ring.rotation.x = Math.PI / 2; ring.position.y = CH + 0.01; g.add(ring); t.burnerM = bm;
-      for (const s of [-1, 1]) g.add(at(mesh(G.cyl(0.05, 0.05, 0.05, 8), 0xdddddd), s * 0.25, CH - 0.18, 0.5)).rotation.x = Math.PI / 2;
+      body(0x6a7480, 'steel');
+      const bm = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, emissive: 0xff4a1a, emissiveIntensity: 0, roughness: 0.5 });
+      if (t.ch === 'F') {
+        g.add(at(mesh(G.rbox(0.8, 0.04, 0.8, 0.03), 0x2a2e34, false, true), 0, CH + 0.005, 0));
+        const oil = mesh(G.box(0.66, 0.02, 0.66), M(0xe8b030, { roughness: 0.15, emissive: 0x6a3a00, emissiveIntensity: 0.3 }), false); oil.position.y = CH + 0.02; g.add(oil);
+        const ring = mesh(G.box(0.7, 0.01, 0.04), bm); ring.position.set(0, CH - 0.15, 0.49); g.add(ring);
+      } else { const ring = mesh(G.tor(0.26, 0.04, 8, 24), bm); ring.rotation.x = Math.PI / 2; ring.position.y = CH + 0.01; g.add(ring); }
+      t.burnerM = bm;
+      for (const s of [-1, 1]) ad(g, at(mesh(G.cyl(0.05, 0.05, 0.05, 8), 0xdddddd), s * 0.25, CH - 0.18, 0.5)).rotation.x = Math.PI / 2;
       break;
     }
     case 'plates': body(th.body, th.top); t.stackG = new THREE.Group(); t.stackG.position.y = CH; g.add(t.stackG); updStack(t); break;
     case 'window': {
-      body(0xff4f3a, 0xffcf2e);
+      body(0xe8443a, 'steel');
       for (let k = -2; k <= 2; k++) g.add(at(mesh(G.box(0.1, CH - 0.1, 0.02), 0xffffff, false), k * 0.2, (CH - 0.1) / 2, 0.495));
       for (const s of [-1, 1]) g.add(at(mesh(G.box(0.08, 1.0, 0.08), 0x2a1a12), s * 0.46, CH + 0.5, -0.4));
-      const sg = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.32), new THREE.MeshBasicMaterial({ map: signTex('うけとり 🔔'), transparent: true })); sg.position.set(0, CH + 1.0, -0.38); g.add(sg);
+      const sg = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.32), new THREE.MeshBasicMaterial({ map: signTex('受け取り 🔔'), transparent: true })); sg.position.set(0, CH + 1.0, -0.38); g.add(sg);
       const bell = new THREE.Group(); bell.position.set(0.32, CH, 0.25); g.add(bell); t.bell = bell;
       bell.add(at(mesh(G.cyl(0.1, 0.1, 0.02, 10), 0x2a2a2a), 0, 0.01, 0));
       bell.add(at(mesh(new THREE.SphereGeometry(0.08, 10, 6, 0, TAU, 0, Math.PI / 2), M(0xffd84a, { metalness: 0.5, roughness: 0.3 })), 0, 0.02, 0));
@@ -152,22 +161,22 @@ function buildTileMesh(t) {
     case 'ret': {
       body(0x8a96a4, 0xb8c2cc);
       g.add(at(mesh(G.box(0.7, 0.03, 0.7), 0x2a2a30, false, true), 0, CH + 0.005, 0));
-      const sg = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.26), new THREE.MeshBasicMaterial({ map: signTex('よごれ おさら', '#ffffff'), transparent: true })); sg.position.set(0, CH + 0.62, -0.42); g.add(sg);
+      const sg = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.26), new THREE.MeshBasicMaterial({ map: signTex('皿返却', '#ffffff'), transparent: true })); sg.position.set(0, CH + 0.62, -0.42); g.add(sg);
       for (const s of [-1, 1]) g.add(at(mesh(G.box(0.06, 0.6, 0.06), 0x5a6470), s * 0.44, CH + 0.3, -0.44));
       t.dirtyG = new THREE.Group(); t.dirtyG.position.y = CH; g.add(t.dirtyG); updRet(t); break;
     }
     case 'trash': {
-      g.add(at(mesh(G.cyl(0.36, 0.3, CH - 0.04, 10), 0x2aa86a, true, true), 0, (CH - 0.04) / 2, 0));
-      g.add(at(mesh(G.cyl(0.38, 0.38, 0.06, 10), 0x1e7a4a), 0, CH - 0.02, 0));
-      g.add(at(mesh(G.cyl(0.27, 0.27, 0.02, 10), 0x0e2a1a, false), 0, CH + 0.01, 0));
+      g.add(at(mesh(G.cyl(0.36, 0.3, CH - 0.04, 24), M(0x8a96a4, { metalness: 0.5, roughness: 0.4 }), true, true), 0, (CH - 0.04) / 2, 0));
+      ad(g, at(mesh(G.tor(0.36, 0.035, 8, 28), M(0x5a6470, { metalness: 0.5, roughness: 0.4 })), 0, CH - 0.02, 0)).rotation.x = Math.PI / 2;
+      g.add(at(mesh(G.cyl(0.33, 0.33, 0.02, 24), 0x1a1e22, false), 0, CH - 0.03, 0));
       const ic = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.34), new THREE.MeshBasicMaterial({ map: iconTex('🗑️'), transparent: true })); ic.position.set(0, 0.3, 0.345); g.add(ic);
       break;
     }
     case 'crate': {
-      g.add(at(mesh(G.box(0.96, CH - 0.06, 0.96), 0xc8904a, true, true), 0, (CH - 0.06) / 2, 0));
-      for (const y of [0.15, 0.35]) g.add(at(mesh(G.box(0.98, 0.05, 0.98), 0xa8703a), 0, y, 0));
-      g.add(at(mesh(G.box(1.0, 0.07, 1.0), 0xe0a860, true, true), 0, CH - 0.035, 0));
-      const ic = new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.62), new THREE.MeshBasicMaterial({ map: iconTex(ING[t.crate].e === 'nori' || ING[t.crate].e === 'bun' ? ING[t.crate].e : ING[t.crate].e), transparent: true }));
+      g.add(at(mesh(G.rbox(0.96, CH - 0.06, 0.96, 0.03), TMat(texWood()), true, true), 0, (CH - 0.06) / 2, 0));
+      for (const y of [0.15, 0.35]) g.add(at(mesh(G.rbox(0.99, 0.05, 0.99, 0.02), 0x9a6232), 0, y, 0));
+      g.add(at(mesh(G.rbox(1.0, 0.07, 1.0, 0.03), TMat(texWood()), true, true), 0, CH - 0.035, 0));
+      const ic = new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.62), new THREE.MeshBasicMaterial({ map: iconTex(ING[t.crate].e), transparent: true }));
       ic.rotation.x = -Math.PI / 2; ic.position.y = CH + 0.004; g.add(ic);
       const ic2 = ic.clone(); ic2.rotation.x = 0; ic2.scale.setScalar(0.55); ic2.position.set(0, 0.26, 0.49); g.add(ic2);
       break;
@@ -250,7 +259,7 @@ function buildEnv(lv) {
     }
     case 'snow':
       around(18, 2, (x, z, r) => pine(x, z, 0.8 + r() * 0.6, 0x2a7a5a, true));
-      { const sm = new THREE.Group(); sm.position.set(-W / 2 - 2, -0.9, H / 2 - 1); sm.add(at(mesh(G.ico(0.6, 1), 0xffffff), 0, 0.5, 0)); sm.add(at(mesh(G.ico(0.42, 1), 0xffffff), 0, 1.3, 0)); sm.add(at(mesh(G.cone(0.08, 0.3, 5), 0xff8a1e), 0, 1.3, 0.45)).rotation.x = Math.PI / 2; K.env.add(sm); }
+      { const sm = new THREE.Group(); sm.position.set(-W / 2 - 2, -0.9, H / 2 - 1); sm.add(at(mesh(G.ico(0.6, 1), 0xffffff), 0, 0.5, 0)); sm.add(at(mesh(G.ico(0.42, 1), 0xffffff), 0, 1.3, 0)); ad(sm, at(mesh(G.cone(0.08, 0.3, 5), 0xff8a1e), 0, 1.3, 0.45)).rotation.x = Math.PI / 2; K.env.add(sm); }
       K.snow = true;
       break;
     case 'camp': {
@@ -270,9 +279,12 @@ function buildEnv(lv) {
     }
     case 'boss': {
       for (let k = 0; k < 8; k++) { const a = k / 8 * TAU; const pl = mesh(G.cyl(0.5, 0.6, 6, 6), 0x5a3a9a); pl.position.set(Math.cos(a) * (W / 2 + 4), 2, Math.sin(a) * (H / 2 + 4) - 2); if (pl.position.z > H / 2) continue; K.env.add(pl); }
-      const hp = makeHarapekon(); hp.g.scale.setScalar(2.1); hp.g.position.set(wx(7), -0.9, wz(0) - 2.9); K.env.add(hp.g); K.boss = { P: hp, fill: 0 };
       break;
     }
+  }
+  if (lv.boss) {
+    const wt = K.tiles.find(t => t.type === 'window');
+    const hp = makeHarapekon(); hp.g.scale.setScalar(2.1); hp.g.position.set(wt ? wt.x : 0, -0.9, wz(0) - 2.9); K.env.add(hp.g); K.boss = { P: hp, fill: 0 };
   }
 }
 function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -283,58 +295,179 @@ function clearKitchen() {
   for (const o of [...K.root.children]) { K.root.remove(o); disposeTree(o); }
   for (const o of [...K.env.children]) { K.env.remove(o); disposeTree(o); }
   K.tiles = []; K.players = []; K.orders = []; K.floorItems = []; K.flying = []; K.pend = []; K.boss = null; K.sea = null; K.snow = false; K.embers = false; K.catPaw = null; K.lavaTop = null; K.campFire = null; K.mover = null;
-  K.root.rotation.set(0, 0, 0);
+  K.peds = []; K.respawn = []; K.portals = []; K.gapMeshes = []; K.gapG = null; K.gapState = { A: false, B: false }; K.combo = 1; K.lavaM = null; K.waterM = null;
+  K.root.rotation.set(0, 0, 0); K.root.position.set(0, 0, 0);
   $('#orders').innerHTML = '';
   Parts.clear();
 }
 function buildKitchen(lv) {
   clearKitchen();
   K.lv = lv; K.th = THEMES[lv.theme]; K.W = lv.map[0].length; K.H = lv.map.length;
-  K.cells = []; K.kind = [];
-  for (let j = 0; j < K.H; j++) { K.cells.push(Array(K.W).fill(null)); K.kind.push(Array(K.W).fill('floor')); }
-  const floorM1 = M(K.th.f1, lv.ice ? { roughness: 0.15, metalness: 0.1 } : {}), floorM2 = M(K.th.f2, lv.ice ? { roughness: 0.15, metalness: 0.1 } : {});
-  const fgeo = G.box(1, 0.1, 1);
-  const waterM = new THREE.MeshStandardMaterial({ color: 0x3aa8e8, roughness: 0.25, transparent: true, opacity: 0.9, flatShading: true });
+  K.cells = []; K.kind = []; K.gapG = [];
+  for (let j = 0; j < K.H; j++) { K.cells.push(Array(K.W).fill(null)); K.kind.push(Array(K.W).fill('floor')); K.gapG.push(Array(K.W).fill(null)); }
+  const iceO = lv.ice ? { roughness: 0.08, metalness: 0.15 } : {};
+  const floorM1 = TMat(texFloor(K.th.f1), iceO), floorM2 = TMat(texFloor(K.th.f2), iceO);
+  const fgeo = G.rbox(1, 0.12, 1, 0.02, 4);
+  K.waterM = new THREE.MeshStandardMaterial({ color: 0x2f9ae0, roughness: 0.12, metalness: 0.1, transparent: true, opacity: 0.88 });
+  K.lavaM = new THREE.MeshStandardMaterial({ color: 0xff5a14, emissive: 0xff3a00, emissiveIntensity: 0.9, roughness: 0.5 });
+  const gapM = TMat(texSteel());
   for (let j = 0; j < K.H; j++) for (let i = 0; i < K.W; i++) {
     const ch = lv.map[j][i];
     if (ch === ' ') { K.kind[j][i] = 'void'; continue; }
-    if (ch === '~') {
-      K.kind[j][i] = 'water';
-      const w = new THREE.Mesh(G.box(1, 0.1, 1), waterM); w.position.set(wx(i), -0.09, wz(j)); w.receiveShadow = true; K.root.add(w);
+    if (ch === '~' || ch === 'L') {
+      K.kind[j][i] = ch === '~' ? 'water' : 'lava';
+      const w = new THREE.Mesh(G.box(1, 0.1, 1), ch === '~' ? K.waterM : K.lavaM); w.position.set(wx(i), -0.12, wz(j)); w.receiveShadow = true; K.root.add(w);
       continue;
     }
-    const f = new THREE.Mesh(fgeo, (i + j) % 2 ? floorM1 : floorM2); f.position.set(wx(i), -0.05, wz(j)); f.receiveShadow = true; K.root.add(f);
+    if (ch === '=' || ch === '-') {
+      K.kind[j][i] = 'gap'; K.gapG[j][i] = ch === '=' ? 'A' : 'B';
+      const w = new THREE.Mesh(G.box(1, 0.1, 1), (lv.theme === 'raft' || lv.theme === 'volcano') ? K[lv.theme === 'raft' ? 'waterM' : 'lavaM'] : MB(0x1a1410)); w.position.set(wx(i), -0.3, wz(j)); K.root.add(w);
+      const f = new THREE.Mesh(fgeo, lv.ice ? floorM1 : gapM); f.position.set(wx(i), -0.06, wz(j)); f.receiveShadow = true; f.castShadow = true; K.root.add(f);
+      K.gapMeshes.push({ m: f, i, j, g: K.gapG[j][i] });
+      continue;
+    }
+    if (ch === '@') {
+      K.kind[j][i] = 'portal'; K.portals.push({ i, j });
+      const f = new THREE.Mesh(fgeo, floorM1); f.position.set(wx(i), -0.06, wz(j)); f.receiveShadow = true; K.root.add(f);
+      const ring = new THREE.Mesh(new THREE.RingGeometry(0.18, 0.46, 32), new THREE.MeshBasicMaterial({ color: 0xb06aff, transparent: true, opacity: 0.85, side: THREE.DoubleSide }));
+      ring.rotation.x = -Math.PI / 2; ring.position.set(wx(i), 0.012, wz(j)); K.root.add(ring);
+      const glow = new THREE.Mesh(new THREE.CircleGeometry(0.42, 32), new THREE.MeshBasicMaterial({ color: 0xe0b8ff, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false }));
+      glow.rotation.x = -Math.PI / 2; glow.position.set(wx(i), 0.015, wz(j)); K.root.add(glow);
+      K.portals[K.portals.length - 1].ring = ring;
+      continue;
+    }
+    const f = new THREE.Mesh(fgeo, (i + j) % 2 ? floorM1 : floorM2); f.position.set(wx(i), -0.06, wz(j)); f.receiveShadow = true; K.root.add(f);
     if (ch !== '.') { const t = makeTile(ch, i, j); K.cells[j][i] = t; K.tiles.push(t); }
   }
-  // initial items
   for (const t of K.tiles) {
-    if (t.ch === 'S') placeOn(t, newPot('pot'));
-    if (t.ch === 'P') placeOn(t, newPot('pan'));
-    if (t.ch === 'E') placeOn(t, newExt());
+    if (t.ch === 'S') { const pt = newPot('pot'); pt.home = t; placeOn(t, pt); }
+    if (t.ch === 'P') { const pt = newPot('pan'); pt.home = t; placeOn(t, pt); }
+    if (t.ch === 'F') { const pt = newPot('fry'); pt.home = t; placeOn(t, pt); }
+    if (t.ch === 'E') { const e = newExt(); e.home = t; placeOn(t, e); }
   }
   if (lv.mover) {
-    K.mover = { tiles: K.tiles.filter(t => t.mover), state: 0, t: lv.mover.period, d: lv.mover.dz, period: lv.mover.period };
+    K.mover = { tiles: K.tiles.filter(t => t.mover), state: 0, t: lv.mover.period, d: lv.mover.d, period: lv.mover.period };
     for (const t of K.mover.tiles) { t.bi = t.i; t.bj = t.j; }
   }
+  if (lv.gaps) { K.gapT = lv.gaps.close; K.gapPh = 0; }
+  if (lv.peds) K.pedT = 1.5;
   buildEnv(lv);
   aimSun(0, 0);
 }
 
-// ---------------------------------------------------------------- movers (boss stage)
+// ---------------------------------------------------------------- movers
 function toggleMover() {
   const mv = K.mover; mv.state = 1 - mv.state;
   for (const t of mv.tiles) K.cells[t.j][t.i] = null;
-  for (const t of mv.tiles) { t.i = t.bi; t.j = t.bj + (mv.state ? mv.d : 0); t.x = wx(t.i); t.z = wz(t.j); K.cells[t.j][t.i] = t; }
-  // push out anything standing in the way
-  const fix = o => {
-    if (walkable(ti(o.x), tj(o.z))) return;
-    let best = null, bd = 1e9;
-    for (let j = 0; j < K.H; j++) for (let i = 0; i < K.W; i++) if (walkable(i, j)) { const d = Math.hypot(wx(i) - o.x, wz(j) - o.z); if (d < bd) { bd = d; best = [i, j]; } }
-    if (best) { o.x = wx(best[0]); o.z = wz(best[1]); if (o.obj) o.obj.position.set(o.x, 0, o.z); }
-  };
-  for (const p of K.players) fix(p);
-  for (const f of K.floorItems) { fix(f); f.it.obj.position.set(f.x, 0, f.z); }
+  for (const t of mv.tiles) { t.i = t.bi + (mv.state ? mv.d[0] : 0); t.j = t.bj + (mv.state ? mv.d[1] : 0); t.x = wx(t.i); t.z = wz(t.j); K.cells[t.j][t.i] = t; }
+  for (const p of K.players) if (!p.dead) pushOut(p);
+  for (const f of K.floorItems) { pushOut(f); f.it.obj.position.set(f.x, 0, f.z); }
   Sound.sfx('move'); K.shake = 0.5;
+}
+function pushOut(o) {
+  if (walkable(ti(o.x), tj(o.z))) return;
+  let best = null, bd = 1e9;
+  for (let j = 0; j < K.H; j++) for (let i = 0; i < K.W; i++) if (walkable(i, j)) { const d = Math.hypot(wx(i) - o.x, wz(j) - o.z); if (d < bd) { bd = d; best = [i, j]; } }
+  if (best) { o.x = wx(best[0]); o.z = wz(best[1]); }
+}
+// ---------------------------------------------------------------- opening gaps (trucks, rafts, bridges, ice holes)
+function updGaps(dt) {
+  if (!K.lv.gaps || K.phase !== 'run') return;
+  const G2 = K.lv.gaps, hasB = K.gapMeshes.some(g => g.g === 'B');
+  K.gapT -= dt;
+  if (K.gapT <= 0) {
+    K.gapPh = (K.gapPh + 1) % (hasB ? 4 : 2);
+    // phases: 0 all closed, 1 A open, (2 all closed, 3 B open)
+    K.gapState.A = K.gapPh === 1; K.gapState.B = K.gapPh === 3;
+    K.gapT = (K.gapPh % 2) ? G2.open : G2.close;
+    Sound.sfx(K.gapPh % 2 ? 'move' : 'place');
+  }
+  const warn = K.gapT < 1.6 && K.gapPh % 2 === 0;
+  const nextG = K.gapPh === 0 ? 'A' : 'B';
+  for (const g of K.gapMeshes) {
+    const open = K.gapState[g.g];
+    const ty = open ? -0.9 : -0.06;
+    g.m.position.y = damp(g.m.position.y, ty, open ? 5 : 9, dt);
+    g.m.visible = g.m.position.y > -0.85;
+    g.m.position.x = wx(g.i) + (warn && g.g === nextG ? Math.sin(K.t * 40) * 0.025 : 0);
+  }
+  // anything resting on an open gap falls
+  for (let k = K.floorItems.length - 1; k >= 0; k--) { const f = K.floorItems[k]; if (fallZone(ti(f.x), tj(f.z))) { K.floorItems.splice(k, 1); loseItem(f.it); } }
+}
+// ---------------------------------------------------------------- portals
+function portalCheck(p) {
+  if (K.portals.length < 2 || p.dead) return;
+  const i = ti(p.x), j = tj(p.z);
+  const on = K.portals.findIndex(q => q.i === i && q.j === j);
+  if (on < 0) { p.portalLock = false; return; }
+  if (p.portalLock) return;
+  const dst = K.portals[on ^ 1]; if (!dst) return;
+  const ox = p.x - wx(i), oz = p.z - wz(j);
+  p.x = wx(dst.i) + ox; p.z = wz(dst.j) + oz; p.portalLock = true;
+  Sound.sfx('swap');
+  const wp = new V3(p.x, 0.5, p.z); K.root.localToWorld(wp);
+  Parts.burst(wp, 14, { col: 0xc890ff, star: true, size: 0.22, life: 0.6, spd: 2, up: 2, g: 3, add: true });
+}
+// ---------------------------------------------------------------- pedestrians
+function updPeds(dt) {
+  const pd = K.lv.peds; if (!pd) return;
+  if (K.phase === 'run') {
+    K.pedT -= dt;
+    if (K.pedT <= 0) {
+      K.pedT = pd.every * rnd(0.7, 1.4);
+      const dir = Math.random() < 0.5 ? 1 : -1; const row = pick(pd.rows);
+      const P = makePed(); K.root.add(P.g);
+      K.peds.push({ P, x: dir > 0 ? wx(0) - 1.6 : wx(K.W - 1) + 1.6, z: wz(row) + rnd(-0.15, 0.15), dir, sp: rnd(1.3, 2.1), ph: 0 });
+    }
+  }
+  for (let k = K.peds.length - 1; k >= 0; k--) {
+    const q = K.peds[k];
+    q.x += q.dir * q.sp * dt; q.ph += dt * q.sp * 5.5;
+    animChef(q.P, { move: 1, phase: q.ph }, dt);
+    q.P.g.position.set(q.x, 0, q.z); q.P.g.rotation.y = q.dir > 0 ? Math.PI / 2 : -Math.PI / 2;
+    for (const p of K.players) {
+      if (p.dead) continue;
+      const dx = p.x - q.x, dz = p.z - q.z, d = Math.hypot(dx, dz);
+      if (d < 0.62) {
+        const nz = Math.abs(dz) > 0.05 ? Math.sign(dz) : (p.z < wz(Math.round(K.H / 2)) ? -1 : 1);
+        p.x += q.dir * q.sp * dt * 1.2; p.z += nz * (0.62 - d) * 0.6;
+        if (!p.bumpT || p.bumpT <= 0) { p.bumpT = 0.6; Sound.sfx('bump'); }
+      }
+    }
+    if (Math.abs(q.x) > K.W / 2 + 2.5) { K.root.remove(q.P.g); disposeTree(q.P.g); K.peds.splice(k, 1); }
+  }
+}
+// ---------------------------------------------------------------- falling & respawning
+function killPlayer(p) {
+  if (p.dead) return;
+  p.dead = 5; p.task = null;
+  if (p.hold) { const it = p.hold; p.hold = null; loseItem(it); }
+  Sound.sfx('splash'); say(p, 'うわぁ〜っ！');
+  const wp = new V3(p.x, 0, p.z); K.root.localToWorld(wp);
+  const lava = K.kind[tj(p.z)] && K.kind[tj(p.z)][ti(p.x)] === 'lava';
+  Parts.burst(wp, 16, { col: lava ? 0xff7a2a : 0xbfe8ff, size: 0.2, life: 0.7, spd: 1.8, up: 3.5, g: 10, add: lava });
+  p.fallY = 0;
+}
+function updDead(p, dt) {
+  p.dead -= dt;
+  p.fallY = Math.max(-3, p.fallY - dt * 6);
+  p.P.g.position.set(p.x, p.fallY, p.z); p.P.g.visible = p.fallY > -2.5;
+  p.ring.visible = false; p.arrow.visible = false; p.hl.visible = false;
+  if (p.dead <= 0) {
+    p.dead = 0; const st = K.lv.start[p.idx];
+    p.x = wx(st[0]); p.z = wz(st[1]); pushOut(p); p.vx = p.vz = 0; p.dashV = 0;
+    p.P.g.visible = true; p.P.g.position.set(p.x, 0, p.z);
+    const wp = new V3(p.x, 0.5, p.z); K.root.localToWorld(wp);
+    Parts.burst(wp, 16, { col: 0xffffff, size: 0.35, life: 0.6, spd: 2, up: 1, g: 0, op: 0.8 });
+    Sound.sfx('swap');
+  }
+}
+// something fell off the kitchen: pots, plates and extinguishers come back, food is gone
+function loseItem(it) {
+  killItem(it);
+  if (it.kind === 'pot') { resetPot(it); const h = it.home; const t = h && !h.top ? h : K.tiles.find(t => t.type === 'counter' && !t.top); if (t) { placeOn(t, it); refresh(it); } }
+  else if (it.kind === 'ext') { const h = it.home; const t = h && !h.top ? h : K.tiles.find(t => t.type === 'counter' && !t.top); if (t) { placeOn(t, it); refresh(it); } }
+  else if (it.kind === 'plate') { const n = it.dirty ? it.n : 1; for (let k = 0; k < n; k++) K.pend.push({ t: 8 + k, dirty: !!K.lv.dirty }); }
 }
 
 // ---------------------------------------------------------------- players
@@ -381,31 +514,31 @@ function takeFrom(t) {
 function doPick(p) {
   const t = frontTile(p);
   if (!p.hold) {
-    if (t && t.fire > 0) return fail('ひが ついてる！ しょうかきで けして！', p);
+    if (t && t.fire > 0) return fail('火事だ！ 消火器で消そう！', p);
     if (t) { const it = takeFrom(t); if (it) { holdIt(p, it); Sound.sfx('pick'); p.task = null; Tut.ev('take', it, t); return; } }
     const f = frontFloor(p);
     if (f) { K.floorItems.splice(K.floorItems.indexOf(f), 1); holdIt(p, f.it); Sound.sfx('pick'); return; }
     return;
   }
-  if (!t) return fail(p.hold.kind === 'ing' && K.lv.throw ? 'カウンターに おくか、 なげてね' : 'カウンターに おいてね', p);
+  if (!t) return fail(p.hold.kind === 'ing' && K.lv.throw ? 'ここには置けない' : 'ここには置けない', p);
   if (putTo(t, p)) { Tut.ev('put', null, t); }
   else fail(why, p);
 }
 function putTo(t, p) {
   const h = p.hold; why = '';
-  if (t.fire > 0) { why = 'ひが ついてる！'; return false; }
+  if (t.fire > 0) { why = '火事だ！'; return false; }
   switch (t.type) {
     case 'trash':
       if (h.kind === 'ing') { killItem(h); p.hold = null; }
-      else if (h.kind === 'pot') { if (!h.items.length) { why = 'からっぽだよ'; return false; } resetPot(h); refresh(h); }
-      else if (h.kind === 'plate') { if (h.dirty || !h.items.length) { why = h.dirty ? 'よごれた おさらは ながしへ' : 'からっぽだよ'; return false; } h.items = []; refresh(h); }
-      else { why = 'しょうかきは すてないでね'; return false; }
+      else if (h.kind === 'pot') { if (!h.items.length) { why = '空っぽ'; return false; } resetPot(h); refresh(h); }
+      else if (h.kind === 'plate') { if (h.dirty || !h.items.length) { why = h.dirty ? '汚れた皿はシンクへ' : '空っぽ'; return false; } h.items = []; refresh(h); }
+      else { why = '消火器は捨てられない'; return false; }
       Sound.sfx('drop'); return true;
     case 'window': return serve(h, p, t);
     case 'sink':
       if (h.kind === 'plate' && h.dirty) { t.dirty += h.n; killItem(h); p.hold = null; updSink(t); Sound.sfx('place'); return true; }
-      why = 'ここは よごれた おさらを あらう ところ'; return false;
-    case 'ret': why = 'よごれた おさらが もどってくる ところだよ'; return false;
+      why = 'ここは汚れた皿を洗う所'; return false;
+    case 'ret': why = 'ここには置けない'; return false;
     case 'plates':
       if (h.kind === 'plate' && !h.dirty && !h.items.length) { t.plates++; killItem(h); p.hold = null; updStack(t); Sound.sfx('place'); return true; }
       if (t.plates > 0 && h.kind === 'ing') { // put directly onto a fresh plate from the stack
@@ -413,11 +546,11 @@ function putTo(t, p) {
         return false;
       }
       if (t.plates > 0 && h.kind === 'pot') { const pl = newPlate(); if (pour(h, pl)) { t.plates--; updStack(t); placeAside(p, pl); return true; } return false; }
-      why = 'おさらの たなだよ'; return false;
+      why = 'ここには置けない'; return false;
   }
   if (!t.top) {
-    if (t.type === 'stove' && h.kind !== 'pot') { why = 'コンロには なべや フライパンを おいてね'; return false; }
-    if (t.type === 'board' && h.kind !== 'ing') { why = 'まないたには ざいりょうを おいてね'; return false; }
+    if (t.type === 'stove' && h.kind !== 'pot') { why = 'コンロには調理器具だけ'; return false; }
+    if (t.type === 'board' && h.kind !== 'ing') { why = 'まな板には食材だけ'; return false; }
     if (t.type === 'conv' && h.kind === 'ext') { why = ''; }
     p.hold = null; placeOn(t, h); Sound.sfx('place'); return true;
   }
@@ -440,79 +573,82 @@ function combine(p, h, t) {
   if (h.kind === 'ing') {
     if (b.kind === 'plate') { if (addToPlate(b, compKey(h))) { killItem(h); p.hold = null; refresh(b); Sound.sfx('plop'); return true; } return false; }
     if (b.kind === 'pot') { const r = addToPot(b, h); if (r === true) { killItem(h); p.hold = null; refresh(b); Sound.sfx('plop'); return true; } why = r; return false; }
-    why = 'もう なにか のってるよ'; return false;
+    why = 'もう何か載ってる'; return false;
   }
   if (h.kind === 'plate') {
-    if (h.dirty) { why = 'よごれた おさらは ながしへ'; return false; }
+    if (h.dirty) { why = '汚れた皿はシンクへ'; return false; }
     if (b.kind === 'ing') { if (addToPlate(h, compKey(b))) { killItem(b); t.top = null; refresh(h); Sound.sfx('plop'); return true; } return false; }
     if (b.kind === 'pot') return pour(b, h);
     if (b.kind === 'plate' && !b.dirty) { // merge contents
-      if (!h.items.length) { why = 'もう おさらが あるよ'; return false; }
+      if (!h.items.length) { why = 'もう皿がある'; return false; }
       const save = b.items.slice(); let ok = true;
       for (const k of h.items) if (!addToPlate(b, k)) { ok = false; break; }
       if (!ok) { b.items = save; return false; }
       h.items = []; refresh(h); refresh(b); Sound.sfx('plop'); return true;
     }
-    why = 'もう なにか のってるよ'; return false;
+    why = 'もう何か載ってる'; return false;
   }
   if (h.kind === 'pot') {
     if (b.kind === 'plate') return pour(h, b);
     if (b.kind === 'ing') { const r = addToPot(h, b); if (r === true) { killItem(b); t.top = null; refresh(h); Sound.sfx('plop'); return true; } why = r; return false; }
   }
-  why = 'もう なにか のってるよ'; return false;
+  why = 'もう何か載ってる'; return false;
 }
 
 // ---------------------------------------------------------------- serving & orders
 function serve(h, p, t) {
-  if (h.kind !== 'plate') { why = h.kind === 'pot' ? 'おさらに もりつけてから だしてね' : 'おさらに のせてから だしてね'; return false; }
-  if (h.dirty) { why = 'よごれた おさらは ながしへ'; return false; }
-  if (!h.items.length) { why = 'からっぽだよ'; return false; }
+  if (h.kind !== 'plate') { why = h.kind === 'pot' ? '皿に盛り付けよう' : '皿に載せよう'; return false; }
+  if (h.dirty) { why = '汚れた皿はシンクへ'; return false; }
+  if (!h.items.length) { why = '空っぽ'; return false; }
   const idx = K.orders.findIndex(o => !o.gone && sameSet(RECIPES[o.r].items, h.items));
-  if (idx < 0) {
-    why = K.lv.recipes.some(r => sameSet(RECIPES[r].items, h.items)) ? 'いまは ちゅうもん されてないよ' : 'まだ かんせい してないよ';
-    return false;
+  killItem(h); p.hold = null;
+  K.pend.push({ t: K.lv.dirty ? 7 : 4, dirty: !!K.lv.dirty });
+  if (t.bell) t.bell.userData.ring = 0.4;
+  const wp = new V3(); t.g.getWorldPosition(wp); wp.y += 1;
+  if (idx < 0) { // wrong dish: wasted, combo lost
+    K.combo = 1; K.wrong = (K.wrong || 0) + 1;
+    Sound.sfx('wrong'); popText('注文と違う！', wp, true); updCombo();
+    return true;
   }
   const o = K.orders[idx];
-  const tip = Math.round(clamp(o.t / o.T, 0, 1) * 10) + (idx === 0 ? 2 : 0);
+  if (idx === 0) K.combo = Math.min(4, K.combo + (K.delivered > 0 || K.combo > 1 ? 1 : 0)); else K.combo = 1;
+  if (idx === 0 && K.delivered === 0) K.combo = 1;
+  const tip = Math.ceil(clamp(o.t / o.T, 0, 1) * 8) * K.combo;
   const pts = RECIPES[o.r].pts;
-  K.score += pts + tip; K.tipSum += tip; K.delivered++;
+  K.score += pts + tip; K.base += pts; K.tipSum += tip; K.delivered++;
   o.gone = true; o.el.classList.add('done'); setTimeout(() => o.el.remove(), 500);
   K.orders.splice(idx, 1);
-  killItem(h); p.hold = null;
-  K.pend.push({ t: K.lv.dirty ? 6 : 3.5, dirty: !!K.lv.dirty });
   Sound.sfx('serve'); setTimeout(() => Sound.sfx('coin'), 250);
-  const wp = new V3(); t.g.getWorldPosition(wp); wp.y += 1;
-  popText('+' + (pts + tip), wp);
+  popText('+' + pts + (tip ? '  +' + tip : ''), wp);
   Parts.burst(wp, 14, { col: 0xffcf2e, star: true, size: 0.28, life: 0.9, spd: 2.5, up: 3, g: 6 });
-  if (t.bell) t.bell.userData.ring = 0.4;
   $('#coin').classList.remove('pop'); void $('#coin').offsetWidth; $('#coin').classList.add('pop');
+  updCombo();
   if (K.boss) { K.boss.fill++; K.boss.P.chomp = 0.8; Sound.sfx('chomp'); bossCheck(); }
   if (K.orders.length < 2) K.nextOrder = Math.min(K.nextOrder, 1.5);
-  Tut.ev('serve');
   return true;
 }
+function updCombo() { const e = $('#tips'); e.textContent = K.combo > 1 ? 'チップ ×' + K.combo : ''; e.classList.remove('pop'); void e.offsetWidth; if (K.combo > 1) e.classList.add('pop'); }
 function returnPlate(dirty) {
   if (dirty) { const r = K.tiles.find(t => t.type === 'ret'); if (r) { r.dirty++; updRet(r); return; } }
   const d = K.tiles.find(t => t.type === 'plates'); if (d) { d.plates++; updStack(d); }
 }
-function orderMax() { return K.lv.tut === 1 ? 2 : K.easy ? 3 : 4; }
+function orderMax() { return K.lv.tut ? 3 : K.twoP ? 5 : 4; }
 function spawnOrder() {
   const rs = K.lv.recipes;
   let r = pick(rs);
-  if (K.lv.tut === 1 && K.delivered + K.orders.length < 2) r = 'salad_l';
-  if (K.lv.tut === 2 && K.delivered + K.orders.length < 1) r = 'soup';
+  if (K.lv.tut && K.delivered + K.orders.length < 2) r = rs[0];
   const last = K.orders.slice(-2).map(o => o.r);
   if (last.length === 2 && last[0] === r && last[1] === r && rs.length > 1) r = rs.find(x => x !== r);
-  const T = RECIPES[r].time * (K.easy ? 1.6 : 1) * (K.twoP ? 0.9 : 1);
+  const T = RECIPES[r].time * (K.lv.prologue ? 0.7 : 1);
   const o = { r, t: T, T, el: ticketEl(r) };
   K.orders.push(o); $('#orders').appendChild(o.el);
   Sound.sfx('order');
 }
-const PROC = { lettuce_c: 'knife', tomato_c: 'knife', fish_c: 'knife', soup: 'pot', gohan: 'pot', curry: 'pot', patty: 'pan' };
+const PROC = { lettuce_c: 'knife', tomato_c: 'knife', fish_c: 'knife', soup_t: 'pot', soup_o: 'pot', soup_m: 'pot', gohan: 'pot', curry: 'pot', patty: 'pan', ffish: 'fry', chips: 'fry' };
 function ticketEl(r) {
   const R = RECIPES[r]; const d = document.createElement('div'); d.className = 'tk';
-  d.style.rotate = (Math.random() * 4 - 2).toFixed(1) + 'deg';
-  d.innerHTML = `<div class="tb"><i></i></div><img class="dish" src="${iconURL(R.ic)}" alt=""><div class="nm">${R.n}</div><div class="cs">${R.items.map(k => `<span class="ci"><img src="${iconURL(COMP[k].ic)}" alt="">${PROC[k] ? `<b><img src="${iconURL(PROC[k])}" alt=""></b>` : ''}</span>`).join('')}</div>`;
+  d.innerHTML = `<div class="tb"><i></i></div><div class="dw"><img class="dish" src="${iconURL(R.ic)}" alt=""></div><div class="cs">${R.items.map(k => `<span class="ci"><img src="${iconURL(COMP[k].ic)}" alt="">${PROC[k] ? `<b><img src="${iconURL(PROC[k])}" alt=""></b>` : ''}</span>`).join('')}</div>`;
+  d.title = R.n;
   d._bar = d.querySelector('.tb i');
   return d;
 }
@@ -522,10 +658,10 @@ function updOrders(dt) {
     const f = clamp(o.t / o.T, 0, 1);
     o.el._bar.style.width = (f * 100).toFixed(1) + '%';
     o.el._bar.className = f < 0.25 ? 'low' : f < 0.5 ? 'mid' : '';
-    o.el.classList.toggle('shake', f < 0.2);
+    o.el.classList.toggle('shake', f < 0.15);
     if (o.t <= 0) {
-      K.orders.splice(k, 1); K.failed++;
-      if (!K.easy) K.score = Math.max(0, K.score - 10);
+      K.orders.splice(k, 1); K.failed++; K.combo = 1; updCombo();
+      K.score = Math.max(0, K.score - 10);
       o.el.classList.remove('shake'); o.el.classList.add('bad'); setTimeout(() => o.el.remove(), 650);
       Sound.sfx('expire');
       K.nextOrder = Math.min(K.nextOrder, 2);
@@ -533,11 +669,12 @@ function updOrders(dt) {
   }
   K.nextOrder -= dt;
   if (K.orders.length < orderMax() && (K.nextOrder <= 0 || K.orders.length === 0)) {
-    spawnOrder(); K.nextOrder = (K.lv.tut === 1 ? 22 : K.easy ? 20 : 15) * (K.twoP ? 0.8 : 1);
+    spawnOrder(); K.nextOrder = K.lv.prologue ? 5 : (K.lv.tut ? 20 : 13) * (K.twoP ? 0.8 : 1);
   }
 }
+function bossNeed() { return K.lv.need || 12; }
 function bossCheck() {
-  const need = K.easy ? 8 : 12;
+  const need = bossNeed();
   $('#boss .b i').style.width = Math.min(100, K.boss.fill / need * 100) + '%';
   $('#bossT').textContent = `${Math.min(K.boss.fill, need)} / ${need}`;
   if (K.boss.fill >= need && K.phase === 'run') { K.boss.won = true; Game.endRound(true); }
@@ -584,12 +721,11 @@ function updFlying(dt) {
       if (!landOn(t, f.it)) dropFloor(f.it, f.lx, f.lz);
       K.flying.splice(k, 1); continue;
     }
-    const kd = K.kind[j][i];
-    if (!t && kd === 'floor') { f.lx = f.x; f.lz = f.z; if (f.y <= 0.05) { f.it.obj.rotation.set(0, 0, 0); K.root.remove(f.it.obj); dropFloor(f.it, f.x, f.z); Sound.sfx('place'); K.flying.splice(k, 1); } continue; }
-    if ((kd === 'water' || kd === 'void') && f.y <= -0.1) {
+    if (!t && walkable(i, j)) { f.lx = f.x; f.lz = f.z; if (f.y <= 0.05) { f.it.obj.rotation.set(0, 0, 0); K.root.remove(f.it.obj); dropFloor(f.it, f.x, f.z); Sound.sfx('place'); K.flying.splice(k, 1); } continue; }
+    if (fallZone(i, j) && f.y <= -0.1) {
       const wp = new V3(f.x, -0.1, f.z); K.root.localToWorld(wp);
-      Parts.burst(wp, 10, { col: 0xbfe8ff, size: 0.18, life: 0.6, spd: 1.5, up: 3, g: 10 });
-      killItem(f.it); K.flying.splice(k, 1); Sound.sfx('splash'); say(f.from, 'あっ… おちちゃった');
+      Parts.burst(wp, 10, { col: K.kind[j][i] === 'lava' ? 0xff7a2a : 0xbfe8ff, size: 0.18, life: 0.6, spd: 1.5, up: 3, g: 10 });
+      loseItem(f.it); K.flying.splice(k, 1); Sound.sfx('splash'); say(f.from, 'あっ、落ちた…');
     }
   }
 }
@@ -598,7 +734,7 @@ function updFlying(dt) {
 function flammable(t) { return t && t.type !== 'window' && t.type !== 'sink' && t.type !== 'trash'; }
 function ignite(t) {
   if (t.fire > 0 || !flammable(t)) return;
-  t.fire = 1; t.spread = rnd(7, 10) * (K.easy ? 1.5 : 1);
+  t.fire = 1; t.spread = rnd(5, 8);
   t.fireG = makeFire(); t.fireG.position.y = CH; t.g.add(t.fireG);
   Sound.sfx('fire');
   if (t.top && t.top.kind === 'pot' && t.top.items.length && t.top.state !== 'burnt') { t.top.state = 'burnt'; refresh(t.top); }
@@ -612,7 +748,7 @@ function updFire(dt) {
     if (Math.random() < dt * 6) { const wp = new V3(); t.g.getWorldPosition(wp); wp.y += 1.1; Parts.add(wp, { col: 0x5a5050, size: 0.35, grow: 0.9, life: 1.4, vx: rnd(-0.2, 0.2), vy: 1.2, vz: rnd(-0.2, 0.2), op: 0.5 }); }
     t.spread -= dt;
     if (t.spread <= 0) {
-      t.spread = rnd(7, 10) * (K.easy ? 1.5 : 1);
+      t.spread = rnd(5, 8);
       const nb = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([a, b]) => tileAt(t.i + a, t.j + b)).filter(n => n && flammable(n) && !n.fire);
       if (nb.length) ignite(pick(nb));
     }

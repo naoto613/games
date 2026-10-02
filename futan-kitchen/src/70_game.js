@@ -11,67 +11,69 @@ function blurAll() { if (document.activeElement && document.activeElement.blur) 
 
 // ================================================================ game flow
 const Game = {
-  lv: 0, menuCtl: new Ctl(['all', 'touch', 'pad0']), endT: 0, resultFor: null,
+  lv: 0, menuCtl: new Ctl(['all', 'touch', 'pad0']), endT: 0,
   toTitle() {
-    APP.mode = 'title'; Voice.stop();
+    APP.mode = 'title';
     for (const s of ['#hud', '#tc', '#intro', '#result', '#pauseM', '#mapUI', '#story', '#help']) show(s, false);
     MapW.leave();
     show('#title', true);
-    buildKitchen(LEVELS[0]); setupPlayers(); K.phase = 'off'; K.easy = Save.d.diff === 'easy';
+    buildKitchen(LEVELS[1]); setupPlayers(); K.phase = 'off';
     setView('kitchen'); K.titleT = 0;
     Music.play('title');
   },
   start(twoP) {
     APP.twoP = twoP; Sound.unlock(); Sound.sfx('click');
     show('#title', false);
-    if (!Save.d.seenIntro) Story.play('intro', () => { Save.d.seenIntro = 1; Save.write(); this.toMap(0); });
+    if (!Save.d.seenIntro) Story.play('intro', () => this.openIntro(0));
     else this.toMap();
   },
   toMap(focus) {
     for (const s of ['#hud', '#intro', '#result', '#pauseM', '#title']) show(s, false);
     show('#tc', false);
     Floats.clear(); clearKitchen();
-    if (focus == null) { focus = 0; for (let i = 0; i < LEVELS.length; i++) if (MapW.unlocked(i)) focus = i; }
+    if (focus == null) { focus = 0; for (let i = 0; i < LEVELS.length - 1; i++) if (MapW.unlocked(i)) focus = i; }
     MapW.enter(focus);
   },
   openIntro(i) {
     const L = LEVELS[i];
-    if (L.boss && !Save.d.seenBoss) { MapW.leave(); Story.play('boss', () => { Save.d.seenBoss = 1; Save.write(); this.openIntro(i); }); return; }
-    this.lv = i; MapW.leave(); show('#title', false);
+    if (L.id === 'FINAL' && !Save.d.seenBoss) { MapW.leave(); Story.play('boss', () => { Save.d.seenBoss = 1; Save.write(); this.openIntro(i); }); return; }
+    this.lv = i; MapW.leave(); show('#title', false); show('#result', false); show('#pauseM', false);
     APP.mode = 'intro'; setView('kitchen');
-    K.easy = Save.d.diff === 'easy';
+    K.easy = false;
     buildKitchen(L); setupPlayers(); K.phase = 'off'; K.t = 0;
     Music.play(K.th.music);
     fitKitchenCam(0, true);
-    const chain = k => COMP[k].how.map(x => x.startsWith('×') ? `<b style="font-size:16px">${x}</b>` : `<img src="${iconURL(x)}" alt="">`).join('<span class="ar">▸</span>').replace(/<span class="ar">▸<\/span><b/g, '<b');
+    const chain = k => COMP[k].how.map(x => x.startsWith('×') ? `<b style="font-size:15px">${x}</b>` : `<img src="${iconURL(x)}" alt="">`).join('<span class="ar">▸</span>').replace(/<span class="ar">▸<\/span><b/g, '<b');
     const kb = isTouch ? '' : APP.twoP
-      ? `<div class="keys">1P: <kbd>WASD</kbd> いどう <kbd>スペース</kbd> つかむ・おく <kbd>E</kbd> きる・あらう${L.throw ? '・なげる' : ''} <kbd>左Shift</kbd> ダッシュ<br>2P: <kbd>↑↓←→</kbd> いどう <kbd>Enter</kbd> つかむ・おく <kbd>右Shift</kbd> きる・あらう <kbd>/</kbd> ダッシュ　（ゲームパッドも OK）</div>`
-      : `<div class="keys"><kbd>↑↓←→</kbd>/<kbd>WASD</kbd> いどう　<kbd>スペース</kbd> つかむ・おく　<kbd>E</kbd> きる・あらう${L.throw ? '・なげる' : ''}${L.fire || L.erupt ? '・けす' : ''}　<kbd>Shift</kbd> ダッシュ　<kbd>Tab</kbd> こうたい</div>`;
-    $('#introC').innerHTML = `<div class="no">ステージ ${L.id}</div><h2>${L.name}</h2>
+      ? `<div class="keys">1P：<kbd>WASD</kbd> 移動　<kbd>Space</kbd> 持つ/置く　<kbd>E</kbd> 切る/洗う/投げる　<kbd>左Shift</kbd> ダッシュ<br>2P：<kbd>↑↓←→</kbd> 移動　<kbd>Enter</kbd> 持つ/置く　<kbd>右Shift</kbd> 切る/洗う/投げる　<kbd>/</kbd> ダッシュ　（ゲームパッド対応）</div>`
+      : `<div class="keys"><kbd>WASD</kbd>/<kbd>↑↓←→</kbd> 移動　<kbd>Space</kbd> 持つ/置く　<kbd>E</kbd>/<kbd>Ctrl</kbd> 切る/洗う/投げる/消火　<kbd>Shift</kbd> ダッシュ　<kbd>Tab</kbd> シェフ交代　<kbd>Esc</kbd> ポーズ</div>`;
+    const head = L.prologue ? `<div class="tagno">プロローグ</div><h2>${L.name}</h2>`
+      : `<div class="tagno">${L.id === 'FINAL' ? '最終ステージ' : 'ステージ ' + L.id}</div><h2>${L.name}</h2><div class="starrow">${L.stars.map((v, k) => `<span><b>${'★'.repeat(k + 1)}</b> ${v}</span>`).join('')}</div>`;
+    const talk = L.prologue ? 'ハラペコンに料理を100皿！ ……とにかく、作れるだけ作るのじゃ！' : L.talk;
+    $('#introC').innerHTML = `${head}
       <div class="recipes">${L.recipes.map(r => { const R = RECIPES[r]; return `<div class="rcp"><img class="dish" src="${iconURL(R.ic)}" alt=""><span class="nm">${R.n}</span><span class="eq">＝</span>${R.items.map(k => `<span class="chain">${chain(k)}</span>`).join('<span class="eq">＋</span>')}</div>`; }).join('')}</div>
-      <div class="talk"><img src="${PORTRAIT.enchou}" alt=""><div>${L.talk}</div></div>
-      <button class="btn red" id="goBtn">🍳 スタート！${isTouch ? '' : '（スペース）'}</button>${kb}`;
+      ${talk ? `<div class="talk"><img src="${PORTRAIT.enchou}" alt=""><div>${talk}</div></div>` : ''}
+      <button class="btn" id="goBtn">▶ スタート${isTouch ? '' : '（Space）'}</button>${kb}`;
     show('#intro', true); blurAll();
     $('#goBtn').onclick = () => this.begin();
-    Voice.say(L.talk, 0.9);
     this.menuCtl.poll(); this.menuCtl.clear(); this.inputLock = 0.4;
   },
   begin() {
     if (APP.mode !== 'intro') return;
-    Sound.unlock(); Sound.sfx('click'); Voice.stop();
+    Sound.unlock(); Sound.sfx('click');
     show('#intro', false);
     APP.mode = 'play';
     const L = LEVELS[this.lv];
-    K.score = 0; K.delivered = 0; K.failed = 0; K.tipSum = 0; K.time = 0; K.T = L.time + (K.easy ? 30 : 0);
-    K.phase = 'ready'; K.readyT = 2.6; K.nextOrder = 0.5; K.eruptT = K.easy ? 16 : 12; K.meteor = null; K.t = 0;
-    Tut.on = !!L.tut || K.easy;
-    show('#hud', true); $('#hud').classList.add('hasOrders');
+    K.score = 0; K.base = 0; K.delivered = 0; K.failed = 0; K.tipSum = 0; K.wrong = 0; K.time = 0; K.T = L.time; K.combo = 1;
+    K.phase = 'ready'; K.readyT = 2.6; K.nextOrder = 0.5; K.eruptT = 12; K.meteor = null; K.t = 0;
+    Tut.on = !!L.tut;
+    show('#hud', true);
     show('#boss', !!L.boss);
     if (L.boss) { K.boss.fill = 0; bossCheck(); }
     if (isTouch) { show('#tc', true); $('#tc').classList.remove('maponly'); show('#tSwap', !APP.twoP); }
     $('#orders').innerHTML = ''; $('#tips').textContent = '';
     updHUD();
-    bigText('よーい…'); Sound.sfx('count'); Voice.say('よーい');
+    bigText('Ready…'); Sound.sfx('count');
     Music.fast = 1;
   },
   endRound(win) {
@@ -79,60 +81,66 @@ const Game = {
     K.phase = 'over'; this.endT = 2.6;
     Tut.target = null; Tut.text = '';
     const L = LEVELS[this.lv];
-    if (L.boss) { if (win) { bigText('まんぷく！'); Sound.sfx('fanfare'); } else { bigText('タイムアップ！', true); Sound.sfx('whistle'); } }
-    else { bigText('タイムアップ！'); Sound.sfx('whistle'); }
-    Voice.say(L.boss && win ? 'まんぷく！' : 'タイムアップ！');
-    for (const p of K.players) { p.task = null; p.cheer = true; }
+    if (L.boss && win) { bigText('満腹！'); Sound.sfx('fanfare'); }
+    else { bigText('タイムアップ！', true); Sound.sfx('whistle'); }
+    for (const p of K.players) { p.task = null; p.cheer = !(L.prologue); p.sad = !!L.prologue; }
     for (const o of K.orders) o.el.classList.remove('shake');
   },
   showResult() {
+    const L = LEVELS[this.lv];
+    if (L.prologue) {
+      show('#hud', false); show('#tc', false); Floats.clear(); clearKitchen();
+      Story.play('intro2', () => { Save.d.seenIntro = 1; Save.write(); this.toMap(0); });
+      return;
+    }
     APP.mode = 'result';
     show('#hud', false); show('#tc', false);
-    const L = LEVELS[this.lv]; const mul = K.easy ? 0.75 : 1;
-    const th = L.stars.map(s => Math.round(s * mul));
+    const th = L.stars;
     let stars = th.filter(s => K.score >= s).length;
     const lose = L.boss && !(K.boss && K.boss.won);
     if (lose) stars = 0;
     const prev = Save.d.stars[L.id] || 0;
     if (stars > prev) Save.d.stars[L.id] = stars;
-    if (K.score > (Save.d.best[L.id] || 0)) Save.d.best[L.id] = K.score;
+    const newBest = K.score > (Save.d.best[L.id] || 0);
+    if (newBest) Save.d.best[L.id] = K.score;
     Save.write();
-    const hasNext = this.lv + 1 < LEVELS.length && MapW.unlocked(this.lv + 1);
-    const title = lose ? 'ざんねん…' : stars === 3 ? 'すごーい！' : stars === 2 ? 'じょうず！' : stars === 1 ? 'クリア！' : 'もう ちょっと！';
+    const hasNext = this.lv + 1 < LEVELS.length && MapW.unlocked(this.lv);
+    const title = lose ? 'ハラペコンはまだ腹ペコ…' : L.boss && stars === 0 ? 'ハラペコン満腹！' : stars === 3 ? 'パーフェクト！' : stars === 2 ? 'グレート！' : stars === 1 ? 'クリア！' : '失敗…';
     $('#resultC').innerHTML = `<h2>${title}</h2>
-      <div style="font-size:16px">ステージ ${L.id}　${L.name}</div>
+      <div style="font-size:15px;color:#c8d4f0">${L.id === 'FINAL' ? '最終ステージ' : 'ステージ ' + L.id}　${L.name}</div>
       <div id="rStars"><span>★</span><span>★</span><span>★</span></div>
       <table id="rTable">
-        <tr><td>🍽️ できた りょうり</td><td>${K.delivered} こ</td></tr>
-        <tr><td>💰 チップ</td><td>${K.tipSum}</td></tr>
-        <tr><td>⏰ まにあわなかった</td><td>${K.failed} こ</td></tr>
-        ${L.boss ? `<tr><td>😋 ハラペコンの おなか</td><td>${lose ? 'まだ ペコペコ…' : 'まんぷく！'}</td></tr>` : ''}
-        <tr class="tot"><td>とくてん</td><td class="dg">${K.score}</td></tr>
+        <tr><td>🍽️ 提供した料理 ×${K.delivered}</td><td>+${K.base}</td></tr>
+        <tr><td>💰 チップ</td><td>+${K.tipSum}</td></tr>
+        <tr><td>⏰ 時間切れの注文 ×${K.failed}</td><td>-${K.failed * 10}</td></tr>
+        ${K.wrong ? `<tr><td>❌ 間違えた料理 ×${K.wrong}</td><td>0</td></tr>` : ''}
+        ${L.boss ? `<tr><td>😋 ハラペコン</td><td>${lose ? K.boss.fill + ' / ' + bossNeed() : '満腹！'}</td></tr>` : ''}
+        <tr class="tot"><td>スコア${newBest && K.score ? ' <small style="font-size:13px">NEW BEST!</small>' : ''}</td><td class="dg">${K.score}</td></tr>
       </table>
-      <div id="rNeed">★ ${th[0]}　★★ ${th[1]}　★★★ ${th[2]}${lose ? '<br>ハラペコンを まんぷくに すると クリアだよ！' : ''}</div>
+      <div id="rNeed">★ ${th[0]}　★★ ${th[1]}　★★★ ${th[2]}${lose ? '<br>ハラペコンを満腹にすればクリア' : ''}</div>
       <div class="row">
-        ${L.boss && !lose ? `<button class="btn red" id="rEnd">🎉 エンディングへ</button>` : ''}
-        ${hasNext && !L.boss ? `<button class="btn red" id="rNext">▶ つぎの ステージ</button>` : ''}
-        <button class="btn ${(!hasNext || stars === 0) && !(L.boss && !lose) ? 'red' : ''}" id="rRetry">↺ もういちど</button>
-        <button class="btn white" id="rMap">🚌 ちずへ</button>
+        ${L.boss && !lose ? `<button class="btn" id="rEnd">🎉 エンディングへ</button>` : ''}
+        ${hasNext && !L.boss && stars > 0 ? `<button class="btn" id="rNext">▶ 次のステージ</button>` : ''}
+        <button class="btn blue" id="rRetry">↺ リトライ</button>
+        <button class="btn grey" id="rMap">🚌 マップへ</button>
       </div>`;
     show('#result', true); blurAll();
-    this.resDefault = $('#rEnd') ? 'end' : $('#rNext') && stars > 0 ? 'next' : 'retry';
+    this.resDefault = $('#rEnd') ? 'end' : $('#rNext') ? 'next' : 'retry';
     const sp = $$('#rStars span');
     sp.forEach((s, k) => { if (k < stars) s.classList.add('got'); setTimeout(() => { s.classList.add('pop'); if (k < stars) Sound.sfx('star'); }, 400 + k * 450); });
-    setTimeout(() => { Sound.sfx(stars ? 'fanfare' : 'sad'); Voice.say(title + '。 ' + K.score + 'てん！'); }, 400 + 3 * 450);
+    setTimeout(() => Sound.sfx(stars ? 'fanfare' : 'sad'), 400 + 3 * 450);
     if ($('#rEnd')) $('#rEnd').onclick = () => this.ending();
     if ($('#rNext')) $('#rNext').onclick = () => { Sound.sfx('click'); show('#result', false); this.openIntro(this.lv + 1); };
     $('#rRetry').onclick = () => { Sound.sfx('click'); show('#result', false); this.openIntro(this.lv); };
-    $('#rMap').onclick = () => { Sound.sfx('click'); this.toMap(this.lv); };
+    $('#rMap').onclick = () => { Sound.sfx('click'); this.toMap(this.lv - 1); };
     this.menuCtl.poll(); this.menuCtl.clear(); this.inputLock = 1.2;
   },
   ending() {
     Sound.sfx('click'); show('#result', false); Floats.clear(); clearKitchen();
-    Story.play('ending', () => { Save.d.cleared = 1; Save.write(); this.toMap(LEVELS.length - 1); });
+    Story.play('ending', () => { Save.d.cleared = 1; Save.write(); this.toMap(LEVELS.length - 2); });
   },
   pause() {
-    if (APP.mode === 'play' && K.phase !== 'over') { APP.mode = 'pause'; show('#pauseM', true); syncOpts(); blurAll(); Voice.stop(); }
+    if (APP.mode === 'play' && K.phase !== 'over') { APP.mode = 'pause'; show('#pauseM', true); syncOpts(); blurAll(); }
     else if (APP.mode === 'pause') this.resume();
   },
   resume() { if (APP.mode !== 'pause') return; show('#pauseM', false); APP.mode = 'play'; },
@@ -141,33 +149,28 @@ Hooks.pause = () => Game.pause();
 $('#bPause').addEventListener('click', () => { Sound.sfx('click'); Game.pause(); });
 $('#pRes').addEventListener('click', () => Game.resume());
 $('#pRetry').addEventListener('click', () => { show('#pauseM', false); Floats.clear(); Game.openIntro(Game.lv); });
-$('#pMap').addEventListener('click', () => { show('#pauseM', false); Game.toMap(Game.lv); });
+$('#pMap').addEventListener('click', () => { show('#pauseM', false); if (LEVELS[Game.lv].prologue) { Game.endT = 0; APP.mode = 'play'; K.phase = 'over'; return; } Game.toMap(Game.lv - 1); });
 $('#b1p').addEventListener('click', () => Game.start(false));
 $('#b2p').addEventListener('click', () => Game.start(true));
 $('#bMapTitle').addEventListener('click', () => { Sound.sfx('click'); MapW.leave(); Game.toTitle(); });
 function syncOpts() {
-  $$('[data-diff]').forEach(b => b.classList.toggle('on', b.dataset.diff === Save.d.diff));
-  $$('[data-voice]').forEach(b => b.classList.toggle('on', +b.dataset.voice === (Voice.on ? 1 : 0)));
   $$('[data-snd]').forEach(b => b.classList.toggle('on', +b.dataset.snd === (Sound.on ? 1 : 0)));
 }
-$$('[data-diff]').forEach(b => b.addEventListener('click', () => { Save.d.diff = b.dataset.diff; Save.write(); K.easy = Save.d.diff === 'easy'; Sound.unlock(); Sound.sfx('click'); syncOpts(); }));
-$$('[data-voice]').forEach(b => b.addEventListener('click', () => { Voice.setOn(b.dataset.voice === '1'); Sound.unlock(); Sound.sfx('click'); syncOpts(); if (Voice.on) Voice.say('よみあげ オン'); }));
 $$('[data-snd]').forEach(b => b.addEventListener('click', () => { Sound.unlock(); Sound.setOn(b.dataset.snd === '1'); Sound.sfx('click'); syncOpts(); }));
 $('#bHelp').addEventListener('click', () => {
   Sound.unlock(); Sound.sfx('click');
-  $('#helpC').innerHTML = `<h2>あそびかた</h2>
-  <div style="font-size:15px;line-height:1.6">ちゅうもん（うえの かみ）の りょうりを つくって 「うけとりぐち」🔔へ もっていこう！ はやく だすと チップが もらえるよ。</div>
+  $('#helpC').innerHTML = `<h2>操作方法</h2>
+  <div style="font-size:14px;line-height:1.6;font-weight:500">画面左上の注文を、左から順に作って受け取り口🔔へ。左端の注文から順番に出すとチップ倍率（最大×4）が上がり、時間切れや順番飛ばしでリセット。注文が時間切れになると -10点。</div>
   <div class="hgrid">
-    <div><b>✋ つかむ・おく</b>はこから ざいりょうを とる・カウンターに おく・おさらに のせる・なべに いれる</div>
-    <div><b>🔪 きる・あらう</b>まないたの まえで おすと トントン きるよ。 ながしでは おさらを あらう</div>
-    <div><b>🍲 なべ・フライパン</b>いれると コンロで にえるよ。 ✓が でたら おさらに もりつけ。 ほっとくと こげる！</div>
-    <div><b>🔄 こうたい</b>ひとりで あそぶ ときは ふーたんと リッキーを いれかえられるよ</div>
-    <div><b>💨 ダッシュ</b>すばやく うごける！</div>
-    <div><b>🧯 しょうかき</b>ひが ついたら もって 🔪ボタンで けそう</div>
-    <div><b>⌨️ キーボード</b>いどう: ↑↓←→/WASD<br>つかむ: スペース　きる: E<br>ダッシュ: Shift　こうたい: Tab<br>ポーズ: Esc</div>
-    <div><b>👭 ふたりで</b>1P: WASD・スペース・E・左Shift<br>2P: ↑↓←→・Enter・右Shift・/<br>ゲームパッド 2こ でも あそべるよ</div>
+    <div><b>持つ／置く</b>木箱から食材を取る、カウンターに置く、皿に盛る、鍋に入れる、料理を提供する。</div>
+    <div><b>切る／洗う／投げる</b>まな板の前で切る（その場を離れると中断）。シンクで皿洗い。食材を持っているときは投げる。</div>
+    <div><b>調理と焦げ</b>✓が出たら完成。放置すると「!」が点滅して焦げ、やがて火事に。延焼するので消火器で消そう。</div>
+    <div><b>シェフ交代</b>ひとりプレイではふーたんとリッキーを切り替えて2人分働かせる。切っている途中で交代しても作業は続く。</div>
+    <div><b>落下</b>水・溶岩・隙間に落ちると5秒後に復活。持っていた食材は失われる。</div>
+    <div><b>キーボード（ひとり）</b>移動 WASD/矢印　持つ Space　切る E/Ctrl<br>ダッシュ Shift　交代 Tab/Q　ポーズ Esc</div>
+    <div><b>ふたりプレイ</b>1P：WASD・Space・E・左Shift<br>2P：矢印・Enter・右Shift・/<br>ゲームパッド2台でもOK（A持つ X切る B ダッシュ）</div>
   </div>
-  <button class="btn red" id="helpOk">わかった！</button>`;
+  <button class="btn" id="helpOk">OK</button>`;
   show('#help', true); $('#helpOk').onclick = () => { Sound.sfx('click'); show('#help', false); };
 });
 
@@ -196,7 +199,7 @@ function playUpdate(dt) {
   K.t += dt;
   if (K.phase === 'ready') {
     const before = K.readyT; K.readyT -= dt;
-    if (before > 0.9 && K.readyT <= 0.9) { bigText('スタート！'); Sound.sfx('go'); Voice.say('スタート！'); }
+    if (before > 0.9 && K.readyT <= 0.9) { bigText('GO!'); Sound.sfx('go'); }
     if (K.readyT <= 0) { K.phase = 'run'; if (!APP.twoP) showWho(); }
   } else if (K.phase === 'run') {
     K.time += dt; updOrders(dt); updFire(dt);

@@ -1,8 +1,8 @@
 // ================================================================ play simulation (players, stations, HUD)
-const chopTime = () => K.easy ? 1.3 : 1.8;
-const washTime = () => K.easy ? 1.6 : 2.2;
-const burnTime = () => K.easy ? 20 : 12;
-const fireOn = () => !!K.lv.fire || !K.easy;
+const chopTime = () => 2.0;
+const washTime = () => 2.6;
+const burnTime = () => 9;
+const fireOn = () => true;
 
 function setupPlayers() {
   const lv = K.lv;
@@ -14,13 +14,13 @@ function setupPlayers() {
 }
 function curCtl(p) { return APP.twoP ? p.ctl : p.idx === K.active ? K.ctl1 : null; }
 function showWho() {
-  const w = $('#who'); w.textContent = 'いま うごかすのは ' + (K.active ? 'リッキー 🔵' : 'ふーたん 🩷');
+  const w = $('#who'); w.textContent = '操作中：' + (K.active ? 'リッキー 🔵' : 'ふーたん 🩷');
   w.classList.add('on'); clearTimeout(w._t); w._t = setTimeout(() => w.classList.remove('on'), 1400);
 }
 function collide(p) {
   const r = 0.3, ci = ti(p.x), cj = tj(p.z);
   for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) {
-    const i = ci + di, j = cj + dj; if (walkable(i, j)) continue;
+    const i = ci + di, j = cj + dj; if (!solid(i, j)) continue;
     const bx = wx(i), bz = wz(j);
     const nx = clamp(p.x, bx - 0.5, bx + 0.5), nz = clamp(p.z, bz - 0.5, bz + 0.5);
     const dx = p.x - nx, dz = p.z - nz, d = Math.hypot(dx, dz);
@@ -33,20 +33,22 @@ function collide(p) {
 function doAct(p) {
   if (p.hold) {
     if (p.hold.kind === 'ext') return;
-    if (p.hold.kind === 'ing' && K.lv.throw) { throwIt(p); return; }
-    if (p.hold.kind === 'ing') { const t = frontTile(p); if (t && t.type === 'board') say(p, 'まないたに おいてから きってね'); else say(p, ING[p.hold.id].chop ? 'まないたで きろう' : 'これは きらなくて いいよ'); }
+    if (p.hold.kind === 'ing') { throwIt(p); return; }
+    if (p.hold.kind === 'ing') { const t = frontTile(p); if (t && t.type === 'board') say(p, 'まな板に置いてから切ろう'); else say(p, ING[p.hold.id].chop ? 'まないたで きろう' : 'これは切らなくていい'); }
     return;
   }
   const t = frontTile(p); if (!t) return;
-  if (t.fire > 0) { fail('ひが ついてる！', p); return; }
+  if (t.fire > 0) { fail('火事だ！', p); return; }
   if (t.type === 'board' && t.top && t.top.kind === 'ing') {
-    if (t.top.st === 'chop') { say(p, 'もう きれてるよ'); return; }
-    if (!ING[t.top.id].chop) { say(p, 'これは きらなくて いいよ'); return; }
+    if (t.top.st === 'chop') { say(p, 'もう切ってある'); return; }
+    if (!ING[t.top.id].chop) { say(p, 'これは切らなくていい'); return; }
     p.task = { type: 'chop', t }; return;
   }
   if (t.type === 'sink' && t.dirty > 0) { p.task = { type: 'wash', t }; return; }
 }
 function stepPlayer(p, dt, ctl) {
+  if (p.dead) { updDead(p, dt); return; }
+  if (p.bumpT > 0) p.bumpT -= dt;
   let mx = 0, mz = 0; if (ctl) { mx = ctl.x; mz = ctl.y; }
   const m = Math.hypot(mx, mz);
   if (m > 0.12) { p.face = dampAng(p.face, Math.atan2(mx, mz), 16, dt); if (p.task) p.task = null; }
@@ -62,6 +64,8 @@ function stepPlayer(p, dt, ctl) {
   if (K.lv.tilt && K.phase === 'run') vx += -K.tilt * 14;
   p.x += vx * dt; p.z += vz * dt;
   collide(p);
+  portalCheck(p);
+  if (K.phase === 'run' && fallZone(ti(p.x), tj(p.z))) { killPlayer(p); return; }
   if (ctl) { if (ctl.pressed.pick) doPick(p); if (ctl.pressed.act) doAct(p); }
   p.spray = !!(ctl && ctl.cur.act && p.hold && p.hold.kind === 'ext');
   if (p.spray) spray(p, dt);
@@ -102,9 +106,10 @@ function simPlayers(dt) {
   for (const p of K.players) stepPlayer(p, dt, run ? curCtl(p) : null);
   // chefs bump each other
   const [a, b] = K.players; const dx = b.x - a.x, dz = b.z - a.z, d = Math.hypot(dx, dz);
-  if (d < 0.56 && d > 1e-4) { const k = (0.56 - d) / 2; a.x -= dx / d * k; a.z -= dz / d * k; b.x += dx / d * k; b.z += dz / d * k; collide(a); collide(b); }
+  if (!a.dead && !b.dead && d < 0.56 && d > 1e-4) { const k = (0.56 - d) / 2; a.x -= dx / d * k; a.z -= dz / d * k; b.x += dx / d * k; b.z += dz / d * k; collide(a); collide(b); }
   // markers & target highlight
   for (const p of K.players) {
+    if (p.dead) { if (p.dead > 0) Floats.mark('dead' + p.idx, new V3(wx(K.lv.start[p.idx][0]), 1.2, wz(K.lv.start[p.idx][1])).applyMatrix4(K.root.matrixWorld), 'warn', Math.ceil(p.dead)); continue; }
     const ctl = curCtl(p), act = !!ctl;
     p.ring.visible = act || APP.twoP; p.ring.material.opacity = act ? 0.9 : 0.35;
     p.arrow.visible = act && !APP.twoP; p.arrow.position.y = 1.55 + Math.sin(K.t * 5) * 0.06;
@@ -114,7 +119,7 @@ function simPlayers(dt) {
 }
 function cookPot(pot, t, dt) {
   if (pot.state === 'cook') {
-    pot.cook = Math.min(pot.need, pot.cook + dt * (K.easy ? 1.2 : 1));
+    pot.cook = Math.min(pot.need, pot.cook + dt);
     if (pot.cook >= pot.need - 1e-6 && potOut(pot.items)) { pot.state = 'done'; pot.over = 0; refresh(pot); Sound.sfx('done'); }
     if (Math.random() < dt * 3) { const wp = new V3(); t.g.getWorldPosition(wp); wp.y += CH + 0.35; Parts.add(wp, { col: 0xffffff, size: 0.25, grow: 0.6, life: 1.1, vx: rnd(-0.1, 0.1), vy: 0.7, vz: rnd(-0.1, 0.1), op: 0.55 }); }
     if (pot.pt === 'pan' && Math.random() < dt * 8) Sound.noise(0.08, 0.04, 'highpass', 4000);
@@ -150,6 +155,9 @@ function simStations(dt) {
   beltTex.offset.x -= dt * 0.75;
 }
 function simMisc(dt) {
+  updGaps(dt); updPeds(dt);
+  for (const q of K.portals) if (q.ring) q.ring.rotation.z += dt * 2;
+  if (K.lavaM) K.lavaM.emissiveIntensity = 0.8 + Math.sin(K.t * 3) * 0.2;
   // tilt (ship)
   if (K.lv.tilt) { K.tilt = Math.sin(K.t * 0.62) * 0.055 + Math.sin(K.t * 1.3) * 0.012; K.root.rotation.z = K.tilt; K.root.rotation.x = Math.sin(K.t * 0.47) * 0.018; K.root.position.y = Math.sin(K.t * 0.9) * 0.06; }
   if (K.sea) { const pa = K.sea.geometry.attributes.position; for (let k = 0; k < pa.count; k++) { const x = pa.getX(k), y = pa.getY(k); pa.setZ(k, Math.sin(x * 0.4 + K.t * 1.5) * 0.15 + Math.cos(y * 0.35 + K.t) * 0.12); } pa.needsUpdate = true; K.sea.geometry.computeVertexNormals(); }
@@ -166,8 +174,8 @@ function simMisc(dt) {
   if (K.lv.erupt && K.phase === 'run') {
     K.eruptT -= dt;
     if (K.eruptT <= 0) {
-      K.eruptT = K.easy ? rnd(28, 34) : rnd(18, 24);
-      Sound.sfx('rumble'); K.shake = 0.8; bigText('ふんか！', true);
+      K.eruptT = rnd(16, 22);
+      Sound.sfx('rumble'); K.shake = 0.8; bigText('噴火！', true);
       const cand = K.tiles.filter(t => (t.type === 'counter' || t.type === 'board') && !t.fire && !(t.top && t.top.kind === 'ext'));
       const tg = pick(cand);
       if (tg) {
@@ -187,7 +195,7 @@ function simMisc(dt) {
   if (K.mover && K.phase === 'run') {
     K.mover.t -= dt;
     if (K.mover.t <= 2 && !K.mover.warned) { K.mover.warned = true; if (K.boss) K.boss.roar = 1.6; Sound.sfx('roar'); bigText('グオー！', true); }
-    if (K.mover.t <= 0) { K.mover.t = K.mover.period * (K.easy ? 1.3 : 1); K.mover.warned = false; toggleMover(); }
+    if (K.mover.t <= 0) { K.mover.t = K.mover.period; K.mover.warned = false; toggleMover(); }
   }
   if (K.mover) for (const t of K.mover.tiles) { t.g.position.x = damp(t.g.position.x, t.x, 6, dt); t.g.position.z = damp(t.g.position.z, t.z, 6, dt); if (K.mover.t < 2 && K.phase === 'run') t.g.position.y = Math.abs(Math.sin(K.t * 30)) * 0.03; else t.g.position.y = 0; }
   if (K.boss) { if (K.boss.roar > 0) K.boss.roar -= dt; animHarapekon(K.boss.P, { roar: K.boss.roar > 0, eat: K.boss.P.chomp > 0 }, dt); }
@@ -261,21 +269,21 @@ function updFloats() {
 }
 
 // ---------------------------------------------------------------- hints (planner for little cooks)
-const RAW_OF = { lettuce_c: 'lettuce', tomato_c: 'tomato', fish_c: 'fish', nori: 'nori', bun: 'bun', soup: 'tomato', gohan: 'rice', patty: 'meat' };
+const RAW_OF = { lettuce_c: 'lettuce', tomato_c: 'tomato', fish_c: 'fish', nori: 'nori', bun: 'bun', soup_t: 'tomato', soup_o: 'onion', soup_m: 'mushroom', gohan: 'rice', patty: 'meat', ffish: 'fish', chips: 'potato' };
 const Tut = {
   target: null, text: '', on: false,
   ev() { },
   missing(have, need) { const c = {}; for (const k of have) c[k] = (c[k] || 0) + 1; const out = []; for (const k of need) { if (c[k]) c[k]--; else out.push(k); } return out; },
   find(f) { let best = null, bd = 1e9; const p = K.players[K.active]; for (const t of K.tiles) if (!(t.fire > 0) && f(t)) { const d = Math.hypot(t.x - p.x, t.z - p.z); if (d < bd) { bd = d; best = t; } } return best; },
-  potFor(out) { return this.find(t => t.top && t.top.kind === 'pot' && (t.top.pt === 'pan') === (out === 'patty') && (t.top.items.length === 0 || POT_RECIPES.concat(PAN_RECIPES).some(r => r.out === out && isSub(t.top.items, r.items)))); },
+  potFor(out) { const pt = PAN_RECIPES.some(r => r.out === out) ? 'pan' : FRY_RECIPES.some(r => r.out === out) ? 'fry' : 'pot'; return this.find(t => t.top && t.top.kind === 'pot' && t.top.pt === pt && (t.top.items.length === 0 || ALL_COOK.some(r => r.out === out && isSub(t.top.items, r.items)))); },
   compute() {
     this.target = null; this.text = '';
     if (!this.on || K.phase !== 'run' || !K.orders.length) return;
     const p = K.players[K.active]; if (!p) return;
     if (K.tiles.some(t => t.fire > 0)) {
-      if (p.hold && p.hold.kind === 'ext') { this.text = 'ひに むかって 🧯 けす！'; this.target = K.tiles.find(t => t.fire > 0); return; }
+      if (p.hold && p.hold.kind === 'ext') { this.text = '火に向かって消火！'; this.target = K.tiles.find(t => t.fire > 0); return; }
       const e = K.tiles.find(t => t.top && t.top.kind === 'ext');
-      if (e && !p.hold) { this.text = 'しょうかきを ✋ もとう'; this.target = e; return; }
+      if (e && !p.hold) { this.text = '消火器を持とう'; this.target = e; return; }
     }
     const R = RECIPES[K.orders[0].r];
     const plateOK = pl => pl.kind === 'plate' && !pl.dirty && isSub(pl.items, R.items);
@@ -286,66 +294,66 @@ const Tut = {
     const plateSrc = () => this.find(t => (t.type === 'plates' && t.plates > 0) || (t.type === 'sink' && t.clean > 0));
     if (h) {
       if (h.kind === 'plate') {
-        if (h.dirty) return T('ながしに おいて 🔪 あらおう', this.find(t => t.type === 'sink'));
-        if (sameSet(h.items, R.items)) return T('うけとりぐちへ ✋', this.find(t => t.type === 'window'));
-        if (!plateOK(h)) return T('ゴミばこで すてよう', this.find(t => t.type === 'trash'));
+        if (h.dirty) return T('シンクに置いて洗おう', this.find(t => t.type === 'sink'));
+        if (sameSet(h.items, R.items)) return T('受け取り口へ！', this.find(t => t.type === 'window'));
+        if (!plateOK(h)) return T('ゴミ箱へ', this.find(t => t.type === 'trash'));
         const miss = this.missing(h.items, R.items);
-        for (const m of miss) { const s = doneHas(m) || readyItem(m); if (s) return T(s.top.kind === 'pot' ? 'なべから もりつけよう ✋' : 'のせよう ✋', s); }
-        return T('おさらを カウンターに おこう ✋', this.find(t => t.type === 'counter' && !t.top));
+        for (const m of miss) { const s = doneHas(m) || readyItem(m); if (s) return T(s.top.kind === 'pot' ? '鍋から盛り付けよう' : '載せよう', s); }
+        return T('皿をカウンターに置こう', this.find(t => t.type === 'counter' && !t.top));
       }
       if (h.kind === 'ing') {
         const key = compKey(h);
-        if (!key) return T('まないたに おこう ✋', this.find(t => t.type === 'board' && !t.top));
+        if (!key) return T('まな板に置こう', this.find(t => t.type === 'board' && !t.top));
         if (R.items.includes(key)) {
           const pl = this.find(t => t.top && plateOK(t.top) && isSub(t.top.items.concat(key), R.items));
-          return T('おさらに のせよう ✋', pl || this.find(t => t.type === 'plates' && t.plates > 0) || this.find(t => t.type === 'counter' && !t.top));
+          return T('皿に載せよう', pl || this.find(t => t.type === 'plates' && t.plates > 0) || this.find(t => t.type === 'counter' && !t.top));
         }
-        for (const out of R.items) { const pt = this.potFor(out); if (pt && POT_RECIPES.concat(PAN_RECIPES).some(r => r.out === out && isSub(pt.top.items.concat(key), r.items))) return T(out === 'patty' ? 'フライパンに いれよう ✋' : 'なべに いれよう ✋', pt); }
-        return T('いまは いらないかも。 ゴミばこへ', this.find(t => t.type === 'trash'));
+        for (const out of R.items) { const pt = this.potFor(out); if (pt && ALL_COOK.some(r => r.out === out && isSub(pt.top.items.concat(key), r.items))) return T('調理器具に入れよう', pt); }
+        return T('今は不要。ゴミ箱へ', this.find(t => t.type === 'trash'));
       }
       if (h.kind === 'pot') {
-        if (h.state === 'done') return T('おさらに いれよう ✋', this.find(t => t.top && plateOK(t.top)) || plateSrc());
-        return T('コンロに もどそう ✋', this.find(t => t.type === 'stove' && !t.top));
+        if (h.state === 'done') return T('皿に盛ろう', this.find(t => t.top && plateOK(t.top)) || plateSrc());
+        return T('コンロに戻そう', this.find(t => t.type === 'stove' && !t.top));
       }
       return;
     }
     // empty hands
     const board = this.find(t => t.type === 'board' && t.top && t.top.kind === 'ing' && t.top.st !== 'chop' && ING[t.top.id].chop);
-    if (board) return T('🔪 で きろう！', board);
+    if (board) return T('切ろう！', board);
     const burnt = this.find(t => t.top && t.top.kind === 'pot' && t.top.state === 'burnt');
-    if (burnt) return T('こげた なべを ✋ もって ゴミばこへ', burnt);
+    if (burnt) return T('焦げた鍋をゴミ箱へ', burnt);
     const fin = this.find(t => t.top && t.top.kind === 'plate' && sameSet(t.top.items, R.items));
-    if (fin) return T('かんせい！ ✋ もとう', fin);
-    for (const m of R.items) { const s = doneHas(m); if (s) { const pl = this.find(t => t.top && plateOK(t.top)); return T(pl ? 'おさらを ✋ もって なべへ' : 'おさらを ✋ とろう', pl || plateSrc() || this.find(t => t.type === 'ret' && t.dirty > 0)); } }
+    if (fin) return T('完成！ 持っていこう', fin);
+    for (const m of R.items) { const s = doneHas(m); if (s) { const pl = this.find(t => t.top && plateOK(t.top)); return T(pl ? '皿を持って鍋へ' : '皿を取ろう', pl || plateSrc() || this.find(t => t.type === 'ret' && t.dirty > 0)); } }
     const prepped = R.items.map(readyItem).find(Boolean);
-    if (prepped) return T('✋ もとう', prepped);
+    if (prepped) return T('持とう', prepped);
     if (!plateSrc() && !K.tiles.some(t => t.top && t.top.kind === 'plate')) {
-      const r = this.find(t => t.type === 'ret' && t.dirty > 0); if (r) return T('よごれた おさらを ✋ もとう', r);
-      const s = this.find(t => t.type === 'sink' && t.dirty > 0); if (s) return T('🔪 で おさらを あらおう', s);
+      const r = this.find(t => t.type === 'ret' && t.dirty > 0); if (r) return T('汚れた皿を取ろう', r);
+      const s = this.find(t => t.type === 'sink' && t.dirty > 0); if (s) return T('皿を洗おう', s);
     }
     // which raw ingredient next?
     const pl = K.tiles.map(t => t.top).find(it => it && plateOK(it));
-    const pri = k => ['curry', 'soup', 'gohan', 'patty'].includes(k) ? 0 : PROC[k] ? 1 : 2;
+    const pri = k => ['curry', 'soup_t', 'soup_o', 'soup_m', 'gohan', 'patty', 'ffish', 'chips'].includes(k) ? 0 : PROC[k] ? 1 : 2;
     const miss = this.missing(pl ? pl.items : [], R.items).sort((a, b) => pri(a) - pri(b));
     for (const m of miss) {
       if (RAW_OF[m]) {
-        if (POT_RECIPES.concat(PAN_RECIPES).some(r => r.out === m)) {
-          const pt = this.potFor(m); const rec = POT_RECIPES.concat(PAN_RECIPES).find(r => r.out === m);
+        if (ALL_COOK.some(r => r.out === m)) {
+          const pt = this.potFor(m); const rec = ALL_COOK.find(r => r.out === m);
           if (pt && pt.top.items.length >= rec.items.length) continue; // cooking already
           const need = this.missing(pt ? pt.top.items : [], rec.items)[0];
           const id = need.replace('_c', '');
-          return T(ING[id].n + 'を ✋ とろう', this.find(t => t.type === 'crate' && t.crate === id));
+          return T(ING[id].n + 'を取ろう', this.find(t => t.type === 'crate' && t.crate === id));
         }
-        return T(ING[RAW_OF[m]].n + 'を ✋ とろう', this.find(t => t.type === 'crate' && t.crate === RAW_OF[m]));
+        return T(ING[RAW_OF[m]].n + 'を取ろう', this.find(t => t.type === 'crate' && t.crate === RAW_OF[m]));
       }
       if (m === 'curry') {
         const pt = this.potFor('curry'); const rec = POT_RECIPES.find(r => r.out === 'curry');
         if (pt && pt.top.items.length >= 3) continue;
         const need = this.missing(pt ? pt.top.items : [], rec.items)[0]; const id = need.replace('_c', '');
-        return T(ING[id].n + 'を ✋ とろう', this.find(t => t.type === 'crate' && t.crate === id));
+        return T(ING[id].n + 'を取ろう', this.find(t => t.type === 'crate' && t.crate === id));
       }
     }
-    if (!pl) return T('おさらを ✋ とって じゅんび', plateSrc());
+    if (!pl) return T('皿を用意しよう', plateSrc());
   },
 };
 
@@ -356,16 +364,16 @@ function updHUD() {
   const txt = m + ':' + String(s).padStart(2, '0');
   const ct = $('#clockT'); if (ct.textContent !== txt) ct.textContent = txt;
   $('#clock').style.setProperty('--p', (left / K.T * 100).toFixed(1));
-  $('#clock').classList.toggle('low', left < 20 && K.phase === 'run');
+  $('#clock').classList.toggle('low', left < 20 && K.phase === 'run'); $('#clock').classList.toggle('mid', left >= 20 && left < 60);
   const st = String(K.score); if ($('#scoreT').textContent !== st) $('#scoreT').textContent = st;
   const hint = Tut.text; const he = $('#hint'); if (he.textContent !== hint) he.textContent = hint;
   const tl = $('#tActL'), ti2 = $('#tActI');
   if (isTouch && K.players.length) {
     const p = K.players[APP.twoP ? 0 : K.active];
-    let l = 'きる', i = '🔪';
-    if (p.hold && p.hold.kind === 'ext') { l = 'けす'; i = '🧯'; }
-    else if (p.hold && p.hold.kind === 'ing' && K.lv.throw) { l = 'なげる'; i = '🤾'; }
-    else { const t = frontTile(p); if (t && t.type === 'sink') { l = 'あらう'; i = '🫧'; } }
+    let l = '切る', i = '🔪';
+    if (p.hold && p.hold.kind === 'ext') { l = '消火'; i = '🧯'; }
+    else if (p.hold && p.hold.kind === 'ing') { l = '投げる'; i = '🤾'; }
+    else { const t = frontTile(p); if (t && t.type === 'sink') { l = '洗う'; i = '🫧'; } }
     if (tl.textContent !== l) { tl.textContent = l; ti2.textContent = i; }
   }
 }
