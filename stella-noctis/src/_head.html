@@ -36,7 +36,7 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-actio
 #title .jp:before,#title .jp:after{content:"";display:inline-block;width:3em;height:1px;background:linear-gradient(90deg,transparent,#e8c97a);vertical-align:middle;margin:0 .8em}
 #title .jp:after{transform:scaleX(-1)}
 @keyframes lgIn{0%{opacity:0;filter:blur(12px);letter-spacing:.4em}100%{opacity:1}}
-#tmenu{position:absolute;bottom:13vh;display:flex;flex-direction:column;gap:10px;align-items:center;animation:lgIn 1s 1.6s both}
+#tmenu{position:absolute;bottom:13vh;display:flex;flex-direction:column;gap:10px;align-items:center;animation:lgIn .6s .1s both}
 #tmenu button{font:inherit;font-family:"Cinzel","Shippori Mincho B1",serif;font-size:clamp(16px,2.3vw,22px);letter-spacing:.2em;color:#f4efe2;background:none;border:0;padding:4px 30px;cursor:pointer;position:relative;text-shadow:0 2px 4px #000}
 #tmenu button small{display:block;font-family:"Shippori Mincho B1",serif;font-size:.6em;letter-spacing:.3em;color:#c9cfe6}
 #tmenu button.sel,#tmenu button:hover{color:#ffe7a8}
@@ -47,7 +47,8 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-actio
 @keyframes blink{50%{opacity:.25}}
 #title .copy{position:absolute;bottom:max(10px,env(safe-area-inset-bottom));font-size:11px;color:#9aa3c4;letter-spacing:.15em}
 #orient{position:fixed;inset:auto 0 0 0;z-index:70;background:rgba(0,0,0,.75);text-align:center;padding:8px;font-size:13px;color:#ffe7a8;display:none}
-@media (orientation:portrait) and (pointer:coarse){#orient{display:block}}
+@media (orientation:portrait) and (pointer:coarse){#orient{display:block;inset:auto 0 auto 0;top:0;font-size:11px;padding:3px;background:rgba(0,0,0,.5)}}
+
 
 /* ---------------- prologue ---------------- */
 #prologue{position:fixed;inset:0;z-index:55;background:#000;display:flex;align-items:center;justify-content:center;text-align:center;font-family:"Shippori Mincho B1",serif;font-size:clamp(16px,2.6vw,24px);line-height:2.2;letter-spacing:.12em;padding:20px;cursor:pointer}
@@ -245,6 +246,26 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-actio
 #tT{right:calc(max(18px,env(safe-area-inset-right)) + 0px);bottom:calc(max(30px,env(safe-area-inset-bottom)) + 160px);width:46px;height:46px}
 #tM{right:calc(max(14px,env(safe-area-inset-right)) + 0px);top:calc(max(12px,env(safe-area-inset-top)) + 40px);width:46px;height:46px;border-radius:8px}
 #tK{left:max(14px,env(safe-area-inset-left));top:calc(max(12px,env(safe-area-inset-top)) + 110px);width:46px;height:46px;border-radius:8px}
+@media (orientation:portrait){
+#party{top:calc(max(6px,env(safe-area-inset-top)) + 58px);bottom:auto;gap:4px;width:calc(100vw - 16px);justify-content:center}
+.pp{width:31vw;padding:3px 6px 4px 6px;border-radius:3px}
+.pp .fc{display:none}.pp .n{font-size:10px}.pp .hp{font-size:15px}.pp .tp{font-size:9px}
+#tgt{min-width:0;width:calc(100vw - 28px);top:max(18px,env(safe-area-inset-top))}
+#ol{left:auto;right:8px;bottom:auto;top:calc(max(6px,env(safe-area-inset-top)) + 122px);width:62px;height:62px}
+#ol .lbl{top:20px;font-size:7px}#ol .v{top:30px;font-size:11px}
+#combo{top:calc(max(6px,env(safe-area-inset-top)) + 200px)}
+#arteName{top:calc(max(6px,env(safe-area-inset-top)) + 130px)}#arteName2{top:calc(max(6px,env(safe-area-inset-top)) + 168px)}
+#tip{bottom:auto;top:40%;font-size:12px}
+#menu{flex-direction:column}#menu .side{width:auto;flex-direction:row;flex-wrap:wrap}#menu .side .info{display:none}
+}
+@media (orientation:landscape) and (max-height:520px){
+#party{left:max(84px,calc(env(safe-area-inset-left) + 76px));transform:none;gap:4px}
+.pp{width:clamp(110px,19vw,150px);padding:3px 6px 4px 40px}.pp .fc{width:36px;height:46px;top:-8px}.pp .hp{font-size:16px}
+#ol{width:66px;height:66px}#ol .lbl{top:22px;font-size:7px}#ol .v{top:33px;font-size:11px}
+#tA{width:68px;height:68px}#tB{width:58px;height:58px;right:calc(max(18px,env(safe-area-inset-right)) + 78px)}
+#tG{right:calc(max(18px,env(safe-area-inset-right)) + 140px);width:48px;height:48px}
+#dlg{min-height:96px;font-size:14px;padding:8px 14px}#dlg .face{width:76px;height:88px}
+}
 </style>
 </head>
 <body>
@@ -303,6 +324,6 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-actio
 <div id="prologue" class="hide"></div>
 <div id="shatter"></div>
 <div id="fade"></div>
-<div id="orient">横持ちがおすすめです</div>
+<div id="orient">横向きにすると画面が広くなります（回転ロックを解除してね）</div>
 <script src="./three.min.js"></script>
 <script>

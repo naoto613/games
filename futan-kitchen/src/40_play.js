@@ -112,7 +112,7 @@ function simPlayers(dt) {
     if (p.dead) { if (p.dead > 0) Floats.mark('dead' + p.idx, new V3(wx(K.lv.start[p.idx][0]), 1.2, wz(K.lv.start[p.idx][1])).applyMatrix4(K.root.matrixWorld), 'warn', Math.ceil(p.dead)); continue; }
     const ctl = curCtl(p), act = !!ctl;
     p.ring.visible = act || APP.twoP; p.ring.material.opacity = act ? 0.9 : 0.35;
-    p.arrow.visible = act && !APP.twoP; p.arrow.position.y = 1.55 + Math.sin(K.t * 5) * 0.06;
+    p.arrow.visible = act && !APP.twoP; p.arrow.position.y = 1.75 + Math.sin(K.t * 5) * 0.06;
     const t = act && run ? frontTile(p) : null;
     if (t) { p.hl.visible = true; p.hl.position.set(t.x, CH + 0.03, t.z); p.hl.material.opacity = 0.35 + Math.sin(K.t * 6) * 0.12; } else p.hl.visible = false;
   }
@@ -380,16 +380,33 @@ function updHUD() {
 function bigText(t, red) { const b = $('#big'); b.textContent = t; b.className = red ? 'red' : ''; void b.offsetWidth; b.classList.add('show'); }
 
 // ---------------------------------------------------------------- camera framing
+const _camT = new V3(0, 0, 0);
 function fitKitchenCam(dt, snap) {
   const portrait = VW < VH;
-  camera.fov = portrait ? 52 : 36; camera.updateProjectionMatrix();
+  camera.fov = portrait ? 46 : 34; camera.updateProjectionMatrix();
   const pitch = 0.98, fovV = camera.fov * Math.PI / 180, fovH = 2 * Math.atan(Math.tan(fovV / 2) * camera.aspect);
-  const needW = (K.W + 1.0) / 2 / Math.tan(fovH / 2);
-  const needH = ((K.H + 1.2) * Math.sin(pitch) + 2.6 * Math.cos(pitch)) / 2 / Math.tan(fovV / 2);
-  const d = Math.max(needW, needH) * 1.08 + 2;
-  const tz = 0.45;
-  const tx = new V3(0, d * Math.sin(pitch), tz + d * Math.cos(pitch));
-  if (snap) camera.position.copy(tx); else camera.position.lerp(tx, 1 - Math.exp(-4 * dt));
+  const tH = Math.tan(fovH / 2), tV = Math.tan(fovV / 2);
+  // distance that shows the whole kitchen (small margin for HUD)
+  const needW = (K.W + 0.3) / 2 / tH;
+  const needH = ((K.H + 0.9) * Math.sin(pitch) + 1.4 * Math.cos(pitch)) / 2 / tV;
+  let d = Math.max(needW, needH);
+  // never let a tile get too small: cap the distance and follow the chefs instead
+  const minPx = portrait ? Math.max(60, VW * 0.16) : Math.max(54, Math.min(VW, VH) * 0.095);
+  const dMax = Math.min(VW / (2 * tH * minPx), VH / (2 * tV * minPx * 0.95));
+  let cx = 0, cz = 0.3;
+  if (d > dMax) {
+    d = dMax;
+    const ps = K.players.filter(p => !p.dead);
+    const foc = APP.twoP || !ps.length ? ps : [K.players[K.active].dead ? ps[0] : K.players[K.active]];
+    if (foc.length) { cx = foc.reduce((a, p) => a + p.x, 0) / foc.length; cz = foc.reduce((a, p) => a + p.z, 0) / foc.length + 0.3 + (portrait && isTouch ? 1.3 : 0); }
+    const halfW = d * tH, halfD = d * tV / Math.sin(pitch) * 0.9;
+    const lx = Math.max(0, K.W / 2 + 0.2 - halfW), lz = Math.max(0, K.H / 2 + 0.5 - halfD);
+    cx = clamp(cx, -lx, lx); cz = clamp(cz, -lz + 0.3, lz + 0.3 + (portrait && isTouch ? 1.3 : 0));
+  }
+  const tgt = new V3(cx, 0, cz);
+  if (snap) _camT.copy(tgt); else _camT.lerp(tgt, 1 - Math.exp(-3.5 * dt));
+  const pos = new V3(_camT.x, d * Math.sin(pitch), _camT.z + d * Math.cos(pitch));
+  if (snap) camera.position.copy(pos); else camera.position.lerp(pos, 1 - Math.exp(-6 * dt));
   if (K.shake > 0) camera.position.add(new V3(rnd(-1, 1), rnd(-1, 1), 0).multiplyScalar(K.shake * 0.15));
-  camera.lookAt(0, 0, tz);
+  camera.lookAt(camera.position.x, 0, camera.position.z - d * Math.cos(pitch));
 }

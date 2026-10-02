@@ -474,10 +474,10 @@ function loseItem(it) {
 function makePlayer(kind, i, j, idx) {
   const P = makeChef(kind);
   const p = { idx, kind, P, x: wx(i), z: wz(j), vx: 0, vz: 0, face: Math.PI, hold: null, task: null, dashV: 0, dashCd: 0, phase: 0, throwT: 0, spray: false, ctl: null, bumpCd: 0 };
-  p.hand = new THREE.Object3D(); p.hand.position.set(0, 0.5, 0.36); P.g.add(p.hand);
+  p.hand = new THREE.Object3D(); p.hand.position.set(0, 0.52, 0.4); P.g.add(p.hand);
   const ring = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.4, 24), MB(kind === 'ricky' ? 0x3d8bff : 0xff4f8a, { transparent: true, opacity: 0.85, depthWrite: false }));
   ring.rotation.x = -Math.PI / 2; ring.position.y = 0.02; P.g.add(ring); p.ring = ring;
-  const arrow = mesh(G.cone(0.14, 0.24, 4), MB(kind === 'ricky' ? 0x3d8bff : 0xff4f8a), false); arrow.rotation.x = Math.PI; arrow.position.y = 1.55; P.g.add(arrow); p.arrow = arrow;
+  const arrow = mesh(G.cone(0.14, 0.24, 4), MB(kind === 'ricky' ? 0x3d8bff : 0xff4f8a), false); arrow.rotation.x = Math.PI; arrow.position.y = 1.75; P.g.add(arrow); p.arrow = arrow;
   const hl = new THREE.Mesh(G.box(1.04, 0.06, 1.04), new THREE.MeshBasicMaterial({ color: kind === 'ricky' ? 0x8ac4ff : 0xffb0d0, transparent: true, opacity: 0.55, depthWrite: false }));
   hl.visible = false; K.root.add(hl); p.hl = hl;
   P.g.position.set(p.x, 0, p.z); K.root.add(P.g);

@@ -19,7 +19,7 @@ function makeChef(kind, o = {}) {
   const R = kind === 'ricky', PED = kind === 'ped';
   const P = { g: new THREE.Group(), kind, t: Math.random() * 5 };
   const suit = o.suit || (R ? 0x4f9cf0 : 0xff6fa6), hair = o.hair || (R ? 0x3b2414 : 0x4a2814), skin = o.skin || SKIN;
-  const root = new THREE.Group(); root.scale.setScalar(o.scale || (R ? 0.78 : 0.86)); P.g.add(root); P.root = root;
+  const root = new THREE.Group(); root.scale.setScalar(o.scale || (R ? 0.86 : 0.96)); P.g.add(root); P.root = root;
   // stubby feet
   for (const s of [-1, 1]) {
     const f = mesh(G.sph(0.09, 14, 10), o.shoe || (R ? 0x2a4a9a : 0x8a2a3a)); f.scale.set(1, 0.6, 1.45); f.position.set(s * 0.12, 0.05, 0.03);
