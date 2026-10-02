@@ -60,7 +60,8 @@ function titleMenu() {
     UI.pop(w); tm.classList.add('hide');
     if (i === 0) newGame(); else continueGame();
   };
-  btns.forEach((b, i) => { b.onclick = () => go(i); b.onmouseenter = () => { if (can[i]) { sel = i; paint(); } }; });
+  const t0 = performance.now();
+  btns.forEach((b, i) => { b.onclick = () => { if (performance.now() - t0 > 700) go(i); }; b.onmouseenter = () => { if (can[i]) { sel = i; paint(); } }; });
   const w = { update() { if (Input.pressed.u || Input.pressed.d) { do { sel = (sel + (Input.pressed.u ? 2 : 1)) % 3; } while (!can[sel]); paint(); Audio2.sfx('cursor'); } if (Input.pressed.ok) go(sel); } };
   UI.push(w);
 }
@@ -188,6 +189,8 @@ function frame(now) {
   Input.any = false;
   requestAnimationFrame(frame);
 }
+// title: any tap/click starts (the title overlay sits above the canvas)
+$('#title').addEventListener('pointerdown', (e) => { Input.any = true; Audio2.unlock(); tryLandscape(); });
 // boot
 (function boot() {
   Game.toTitle();

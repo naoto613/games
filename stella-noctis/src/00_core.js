@@ -43,6 +43,15 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 addEventListener('resize', resize); resize();
+addEventListener('orientationchange', () => { setTimeout(resize, 100); setTimeout(resize, 500); });
+if (window.visualViewport) visualViewport.addEventListener('resize', resize);
+// smartphones: go fullscreen + landscape on first tap (Android etc.; iOS ignores)
+let _fsTried = false;
+function tryLandscape() {
+  if (!isTouch || _fsTried) return; _fsTried = true;
+  const el = document.documentElement, rq = el.requestFullscreen || el.webkitRequestFullscreen;
+  try { const p = rq && rq.call(el, { navigationUI: 'hide' }); const lock = () => { try { screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(() => { }); } catch (_) { } setTimeout(resize, 300); }; if (p && p.then) p.then(lock).catch(() => { }); else lock(); } catch (_) { }
+}
 
 function makeLights(scene, o) {
   const amb = new THREE.HemisphereLight(o.sky || 0xbfd4ff, o.ground || 0x6a5a48, o.amb || 0.62);
