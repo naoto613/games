@@ -30,6 +30,10 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 #topbar{position:absolute;left:64px;right:64px;top:calc(var(--st) + 4px);height:42px;z-index:5;display:flex;align-items:center;justify-content:center;gap:8px;color:#fff;pointer-events:none}
 #stName{font-family:var(--dela);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #cnt{font-size:11px;font-weight:800;color:#bbb;white-space:nowrap}
+#bHint{pointer-events:auto;flex:none;border:0;border-radius:99px;background:#ffd23f;color:#3a2a00;font-weight:900;font-size:11px;padding:4px 9px;font-family:inherit;box-shadow:0 2px 0 #b8901a;cursor:pointer}
+#bHint.nudge{animation:hn .9s ease-in-out infinite}@keyframes hn{50%{transform:scale(1.18);background:#fff3a0}}
+.htabs{display:flex;gap:6px;margin:4px 0 6px}.htab{flex:1;border:2px solid #ddd;background:#fff;border-radius:10px;padding:5px 2px;font-weight:900;font-family:inherit;font-size:13px;cursor:pointer}.htab small{display:block;font-size:10px;color:#888}.htab.on{border-color:#ffb400;background:#fff6cc}
+.hl li.nx{background:#fff3c0;border:2px dashed #ffb400}.hl li.nx::before{content:"💡 "}.hl li.lk{color:#aaa}.hl li.lk::before{content:"・ ";color:#aaa}
 #botbar{position:absolute;left:64px;right:64px;bottom:calc(var(--sb) + 6px);height:46px;z-index:5;display:flex;align-items:center;justify-content:center;gap:6px;color:#fff}
 .zk{width:38px;height:34px;border-radius:10px;border:2px solid #707070;background:#3a3a3a;color:#fff;font-size:20px;font-weight:800;line-height:1;padding:0}
 .zk:active{transform:translateY(2px)}
@@ -106,7 +110,7 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 <div id="app">
   <div id="screen"><canvas id="cv"></canvas><div id="toast"></div><div id="cap"></div></div>
   <div id="led"></div>
-  <div id="topbar"><span id="stName">STAGE</span><span id="cnt"></span></div>
+  <div id="topbar"><span id="stName">STAGE</span><span id="cnt"></span><button id="bHint" aria-label="ヒント">💡ヒント</button></div>
   <div id="botbar"><button class="zk" id="bZout" aria-label="ちいさく">－</button><div id="zbar"><div id="zfill"></div></div><button class="zk" id="bZin" aria-label="おおきく">＋</button><div id="time">8:00<small>のこり</small></div></div>
   <button class="cb" id="bMenu" aria-label="メニュー"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3.5" fill="none" stroke="#fff" stroke-width="2.4"/><path d="M9.5 7v4M14.5 7v4" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><path d="M8 11h8v1.5a4 4 0 0 1-8 0z" fill="#fff"/><path d="M12 16.5v4" stroke="#fff" stroke-width="2.2"/></svg></button>
   <button class="cb" id="bFit" aria-label="ぜんたい／ズーム"><svg viewBox="0 0 24 24"><path d="M7.5 13V6.5a1.4 1.4 0 0 1 2.8 0V12V4.6a1.4 1.4 0 0 1 2.8 0V12V5.6a1.4 1.4 0 0 1 2.8 0V12.5V8.6a1.4 1.4 0 0 1 2.8 0V15c0 4.2-2.8 7-6.8 7-3 0-4.8-1.6-6.3-4l-2.2-3.6a1.4 1.4 0 0 1 2.3-1.6z" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/></svg></button>
@@ -498,7 +502,7 @@ function updCnt(){$('cnt').textContent=`♥ ${Object.keys(G.dexSet||{}).length}`
 function setHud(on){for(const id of['topbar','botbar','bMenu','bFit','bDex','bClk','led'])$(id).style.visibility=on?'visible':'hidden';}
 
 function startStage(i){
-  stIdx=i;G.caps=[];clearTimeout(nextCap.t);capOn=false;$('cap').classList.remove('on');G.ents=[];G.fx=[];G.f={};G.steps=[];G.tl=[];G.over=false;G.won=null;G.pokes=0;G.dexSet={};G.speed=1;$('bClk').classList.remove('ff');BGM.rate=1;
+  stIdx=i;G.caps=[];clearTimeout(nextCap.t);capOn=false;$('cap').classList.remove('on');G.ents=[];G.fx=[];G.f={};G.steps=[];G.tl=[];G.over=false;G.won=null;G.pokes=0;G.dexSet={};G.speed=1;G.hintUsed=false;G.hintMark=null;G.lastProg=0;G.lastN=0;G.nudged=false;$('bHint').classList.remove('nudge');$('bClk').classList.remove('ff');BGM.rate=1;
   ST=STAGES[i]();if(EXTRAS[i])EXTRAS[i](ST,G.f);G.min=ST.t0;mode='play';setHud(true);resize();
   cam.z=clamp(ST.start.z||1,zMin(),ZMAX);cam.x=ST.start.x;cam.y=ST.start.y;clampCam();
   $('stName').textContent=`${i+1}. ${ST.name}`;updCnt();
@@ -532,6 +536,7 @@ $('bZin').onclick=()=>{if(mode!=='play')return;animZoom(cam.z*1.8);sfx('tap');};
 $('bZout').onclick=()=>{if(mode!=='play')return;animZoom(cam.z/1.8);sfx('tap');};
 $('bFit').onclick=()=>{if(mode!=='play')return;sfx('tap');if(cam.z>zMin()*1.3)animZoom(zMin(),ST.W/2,ST.H/2);else animZoom(1.6);};
 $('bClk').onclick=()=>{if(mode!=='play')return;G.speed=G.speed===1?3:1;$('bClk').classList.toggle('ff',G.speed>1);BGM.rate=G.speed>1?1.25:1;sfx('tap');showToast(G.speed>1?'▶▶ はやおくり':'▶ ふつうの はやさ');};
+$('bHint').onclick=()=>{audioInit();if(mode!=='play')return;$('bHint').classList.remove('nudge');openHint();};
 $('bDex').onclick=()=>{if(mode!=='play')return;sfx('tap');mode='pause';const ov=$('ov');const ks=Object.values(G.dexSet);
   ov.innerHTML=`<div class="panel"><h2>♥ みつけた チョッカイ</h2><p>このステージで ためした チョッカイ: <b>${ks.length}しゅるい</b>（チョッカイ ${G.pokes}かい）<br>ずかん（これまでの きろく）: <b>${dexStat(stIdx).join(' / ')}</b>　ミニコロン <b>${countMC(stIdx)} / 3</b></p><div class="dexl">${ks.map(k=>`<div>・${k}</div>`).join('')||'<div>まだ ないよ</div>'}</div><button class="btn p" id="dxB">もどる</button></div>`;
   ov.classList.add('show');$('dxB').onclick=()=>{ov.classList.remove('show');mode='play';};};
@@ -563,6 +568,7 @@ function update(dt){
   while(G.tl.length&&G.tl[0].m<=G.min){const ev=G.tl.shift();try{ev.fn();}catch(err){console.error(err);}}
   for(const e of G.ents)tickEnt(e,gdt);
   if(ST.update)ST.update(gdt);
+  G.lastProg+=dt;if(G.steps.length!==G.lastN){G.lastN=G.steps.length;G.lastProg=0;}if(G.lastProg>70&&!G.nudged){G.nudged=true;$('bHint').classList.add('nudge');showToast('こまったら 💡ヒント を みてね');}
   if(G.min>=ST.t1&&!G.over){G.min=ST.t1;if(ST.timeUp)ST.timeUp();lose();}
 }
 function tickEnt(e,dt){
@@ -628,7 +634,8 @@ function render(){
   drawBubbles();
 }
 const TAGS={futan:['ふーたん','#ff5f9e'],mama:['かあちゃん',COL.red],papa:['パパ',COL.blue],ricky:['リッキー','#f0a000'],pochi:['ポチ','#c8803a'],penta:['ペンタ','#20a5b5'],santa:['サンタ','#d82a2a'],keeper:['もりさん','#2a9a50'],hachi:['ハチ','#c8803a'],rud:['ルドルフ','#a0522d'],take:['タケシ','#3ccf6e'],gouda:['ごうだ','#4a5a7a'],mc:['しかい','#ff7eb6'],jin:['ジン','#5a6a3a'],mgr:['かんりにん','#2a7a40'],teacher:['せんせい','#ff7eb6']};
-function drawTags(){if(SAVE.noTag)return;C.font='900 10px "M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif';C.textBaseline='middle';C.textAlign='center';const placed=[];
+function drawTags(){if(G.hintMark&&T<G.hintMark.until&&!G.hintMark.e.hidden){const e=G.hintMark.e;const s=w2s(e.x,e.y-(e.k==='person'?e.look.h*(e.sit?.8:1.05):(e.h||20)));const b=Math.abs(Math.sin(T*5))*8;C.save();C.fillStyle='#ffd23f';C.strokeStyle='#3a2a00';C.lineWidth=2;C.beginPath();C.moveTo(s[0],s[1]-6-b);C.lineTo(s[0]-10,s[1]-22-b);C.lineTo(s[0]+10,s[1]-22-b);C.closePath();C.fill();C.stroke();C.restore();}
+  if(SAVE.noTag)return;C.font='900 10px "M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif';C.textBaseline='middle';C.textAlign='center';const placed=[];
   for(const e of G.ents){const t=TAGS[e.id];if(!t||e.hidden||e.noTag)continue;const s=w2s(e.x,e.y);if(s[0]<-40||s[0]>CW+40||s[1]<-20||s[1]>CH+30)continue;
     const w=C.measureText(t[0]).width+12,x=s[0];let y=s[1]+5+Math.max(0,4-cam.z*4);for(let k=0;k<4&&placed.some(r=>Math.abs(r[0]-x)<(r[1]+w)/2+2&&Math.abs(r[2]-y)<16);k++)y+=16;placed.push([x,w,y]);
     C.fillStyle='#fff';C.beginPath();C.moveTo(x,y-1);C.lineTo(x-5,y+5);C.lineTo(x+5,y+5);C.fill();
@@ -2352,6 +2359,98 @@ function stage9(){
 
 const STAGES=[stage1,stage2,stage3,stage4,stage5,stage6,stage7,stage8,stage9];
 const STAGE_META=[{name:'わすれもの おべんとう',routes:{A:'かあちゃんの おとどけ',B:'めいけん ポチの おつかい',C:'カラスと おじいさんの とどけもの'},col:'#2a9a50'},{name:'パパの おつかい',routes:{A:'パンやさんの とくせい ケーキ',B:'ケーキやさん ふっかつ',C:'いちごで かあちゃんの てづくり ケーキ'},col:COL.org},{name:'まいごの なつまつり',routes:{A:'まいごの おしらせ',B:'くらやみに ひかる ふーたん',C:'ポチの はなと かたぐるま'},col:COL.pur},{name:'どうぶつえんの だいだっそう',routes:{A:'しいくいんさんの おむかえ',B:'おさかなで ゆうどう',C:'ふーたんと ペンギン ぎょうれつ'},col:'#20b5b5'},{name:'なつの うみと むぎわらぼうし',routes:{A:'ねぼすけ ライフセーバー',B:'カニと カモメと うみいぬ ハチ',C:'サーファーと ビッグウェーブ'},col:COL.blue},{name:'ゆきの クリスマス',routes:{A:'あかはなの ルドルフ',B:'ハスキーの ゆきぞり',C:'パパに たくした プレゼント'},col:COL.red},{name:'デパートの おくじょう ヒーローショー',routes:{A:'ねぼすけ ヒーローの マスク',B:'バケツ ピカリオン（パパ）',C:'しょだい ピカリオン ふっかつ'},col:'#e8483a'},{name:'キャンプの カレーライス',routes:{A:'ひろった ライターと かわいた まき',B:'ソロキャンパーの おすそわけ',C:'てるてるぼうずの おまじない'},col:'#2a7a40'},{name:'ようちえんの はっぴょうかい',routes:{A:'かあちゃんの へんがお',B:'リッキーの はじめての ことば',C:'ポチの おむかえ'},col:'#ff7eb6'}];
+// ---------------- ヒント ----------------
+const H_=(k,id,t,d)=>({k,id,t,d});
+const HINTS=[
+ {A:[H_('かあちゃんが おべんとうに','ricky','かあちゃんは おべんとうの わすれものに きづいていない。いえの なかを よく みてみよう','8:00すぎ、ベビーベッドの リッキー（または まどべの ねこ）に チョッカイ'),
+     H_('こうじの おじさん','worker','おべんとうを もった かあちゃんが こうじげんばで とおれずに こまっている','こうじの バーの そばで ねている おじさんに チョッカイ'),
+     H_('インターホン|おそとあそび','intercom','かあちゃんが ようちえんの もんの まえで まっている','ようちえんの インターホンに チョッカイ（10:30〜11:00の おそとあそびなら そのまま あえる）')],
+  B:[H_('にわへ','cat','おべんとうを ポチに はこんで もらえたら… まずは おべんとうを そとへ','9:00すぎ、まどべの ねこに チョッカイ（おべんとうが にわに おちる）'),
+     H_('とめがね','clip','ポチは くさりで つながれている','ポチの くさりの ちいさな とめがねに チョッカイ（ズームしてね）'),
+     H_('ごほうび|おいはらう','saus','ポチが しょうてんがいで よりみち ちゅう…','にくやの つりさげ ソーセージ（または にくやさん）に チョッカイ'),
+     H_('まど|インターホン|おそとあそび','window','ポチが ようちえんに ついた！ ふーたんに しらせよう','きょうしつの まど（または インターホン）に チョッカイ')],
+  C:[H_('にわへ','cat','おべんとうを そとに だして、だれかに はこんで もらおう','9:00すぎ、まどべの ねこに チョッカイ（おべんとうが にわに おちる）'),
+     H_('カラス','crow','にわの おべんとうを ねらって いる とりが いる','でんちゅうの カラスに チョッカイ'),
+     H_('おしボタン','light','おべんとうを ひろった おじいさんが おうだんほどうで まっている','しんごうの おしボタンに チョッカイ'),
+     H_('インターホン|おそとあそび','intercom','おじいさんが ようちえんの もんの まえに いる','ようちえんの インターホンに チョッカイ')]},
+ {A:[H_('おもいだす|でんわ','memo','パパは だいじな ことを わすれて カフェで くつろいでいる','パパの あしもとに おちている メモ（または けいたいでんわ）に チョッカイ'),
+     H_('パンやの ポスター','poster','ケーキやさんが しまっていて パパは しょんぼり… ほかに ケーキは？','パンやの「とくせい ケーキ」の ポスターに チョッカイ'),
+     H_('おばあちゃんが おきる','furin','ろうそくを うる だがしやの おばあちゃんが いねむり ちゅう','だがしやの ふうりん（または みせの ねこ）に チョッカイ')],
+  B:[H_('ブレーカー','breaker','ケーキやさんが ていでんで しまっている…','ケーキやの うらの ブレーカーに チョッカイ（パパが くる まえに！）'),
+     H_('おもいだす|でんわ','phone','パパは だいじな ことを わすれている','カフェの パパの けいたいでんわ（または メモ）に チョッカイ'),
+     H_('おばあちゃんが おきる','gcat','ろうそくを うる だがしやの おばあちゃんが いねむり ちゅう','だがしやの みせの ねこ（または ふうりん）に チョッカイ')],
+  C:[H_('おもいだす|でんわ','memo','パパは だいじな ことを わすれている','パパの あしもとの メモ（または けいたいでんわ）に チョッカイ'),
+     H_('いちご','ichigo','ケーキが かえないなら、かあちゃんに つくって もらう ざいりょうは？','やおやの いちごの はりがみに チョッカイ'),
+     H_('おばあちゃんが おきる','furin','ろうそくを うる だがしやの おばあちゃんが いねむり ちゅう','だがしやの ふうりん（または みせの ねこ）に チョッカイ')]},
+ {A:[H_('たこやき','tako','まいごの ふーたんに だれも きづいて いない。おまわりさんは なにを している？','たこやきを たべている おまわりさんの たこやきに チョッカイ'),
+     H_('スピーカー','spk','まいごセンターの アナウンスが かあちゃんに とどかない','まいごセンターの スピーカーの むきを かえる'),
+     H_('マイク','mic','アナウンスの おじさんが いねむり ちゅう（19〜20じは たいこも うるさい）','マイクの スイッチに チョッカイ（たいこが うるさい ときは たいこの ばちにも）')],
+  B:[H_('くしゃみ','glowman','くらやみでも めだつ ものが あれば…','ひかる おもちゃやさんに チョッカイ（くしゃみで ひかる わっかが とぶ）'),
+     H_('はつでんき','gen','ふーたんが ひかっても、まわりが あかるいと めだたない','はつでんきの スイッチに チョッカイ（ていでんさせる）')],
+  C:[H_('ポチの はな','pochi','パパと ポチが ふーたんを さがしに きた','パパが たちどまった ときに ポチに チョッカイ'),
+     H_('かたぐるま','futan','ちいさな ふーたんは ひとごみで みえない','パパの そばに きた ふーたんに チョッカイ')]},
+ {A:[H_('むせんき','radio','しいくいんさんは ペンタの だっそうに きづいていない','しいくいんさんの むせんきに チョッカイ'),
+     H_('アイスや','ice','しいくいんさんが ペンタを さがして いる','アイスやの おねえさんに チョッカイ（ペンタの そばで ひめい！）'),
+     H_('かぎ','key','しいくいんさんが ゲートの まえで こまっている','しいくいん ごやの ちいさな かぎに チョッカイ')],
+  B:[H_('アシカ','sealion','ペンタは おさかなが だいすき','アシカに チョッカイ（エサの バケツが ひっくりかえる）'),
+     H_('カモメ','gull','おさかなを くわえた とりが いれば…','カモメに チョッカイ'),
+     H_('かけがね','latch','ペンタが プールの まえまで きた','プールの とびらの かけがねに チョッカイ')],
+  C:[H_('ほうそう','pa','ペンタは ある うたが すき','ほうそうの スイッチに チョッカイ（ペンギンの うた）'),
+     H_('ぎょうれつ','futan','ふーたんが ペンタの ちかくに いる','ペンタの ちかくの ふーたんに チョッカイ'),
+     H_('かけがね','latch','ペンタが プールの まえまで きた','プールの とびらの かけがねに チョッカイ')]},
+ {A:[H_('ふえ','whistle','ライフセーバーさんが いねむり ちゅう','ライフセーバーの ちいさな ふえに チョッカイ'),
+     H_('そうがんきょう','bino','おきた ライフセーバーさんは まだ ぼうしに きづいていない','ライフセーバーの そうがんきょうに チョッカイ')],
+  B:[H_('カニ','crab','ぼうしを ひろって くれそうな とりが いわばに いる','いわばの カニに チョッカイ（カモメが とびたつ）'),
+     H_('ロープ','rope','ぼうしが うみのいえの やねの うえに…','はたざおの ロープに チョッカイ'),
+     H_('ハチ','hachi','ぼうしが すなはまに おちた','ひるねしている いぬの ハチに チョッカイ')],
+  C:[H_('ラジオ','radio','サーファーさんは おおきな なみを まっている','うみのいえの ラジオに チョッカイ（なみの よほう）'),
+     H_('サーファー','surfer','ビッグウェーブは 11じ・12じ・13じに くる','ビッグウェーブが きている あいだに サーファーに チョッカイ')]},
+ {A:[H_('にんじん','carrot','トナカイの ルドルフは げんきが ない','ゆきだるまの にんじんに チョッカイ'),
+     H_('すず','bell','げんきに なった ルドルフを サンタさんに しらせたい','トナカイの すずに チョッカイ'),
+     H_('まどの かぎ','latch','サンタさんが ふーたんの いえの まどの そとに いる','まどの ちいさな かぎに チョッカイ')],
+  B:[H_('ハスキー','husky','そりを ひいて くれる どうぶつは いないかな？','ハスキーの ユキに チョッカイ'),
+     H_('じょせつしゃ','plow','ゆきの ふきだまりで そりが すすめない','じょせつしゃの うんてんしゅに チョッカイ'),
+     H_('まどの かぎ','latch','サンタさんが ふーたんの いえの まどの そとに いる','まどの ちいさな かぎに チョッカイ')],
+  C:[H_('てがみ','letter','ふーたんの てがみが サンタさんに とどいていない','ポストに はさまった てがみに チョッカイ'),
+     H_('ドアベル','dbell','サンタさんが プレゼントを パパに たくしたい','ケーキやの ドアベルに チョッカイ（パパが でてくる）'),
+     H_('すなばこ','sandbin','かえりみちの さかが こおって つるつる…','すなばこに チョッカイ（さかに すなを まく）')]},
+ {A:[H_('スマホ','phone','なかのひとの タケシさんが がくやで ねている','がくやの テーブルの スマホ（アラーム）に チョッカイ。タケシさん ほんにんを つつくと…？'),
+     H_('レバー','lever','ピカリオンの マスクが かんらんしゃの うえに！','かんらんしゃの レバーに チョッカイ（13:20の かぜの あと）')],
+  B:[H_('しずかな','ricky','パパは ベンチで リッキーと いっしょ','ベビーカーの リッキーに チョッカイ（パパが しずかな ところへ）'),
+     H_('スーツ','spare','がくやの うらに なにか ある…','パパが ちかくに いるときに「よびの スーツ」の はこに チョッカイ'),
+     H_('バケツ','bucket','スーツは きたけど ヘルメットが ない','せいそうの おばちゃんの バケツに チョッカイ')],
+  C:[H_('ポスター','poster','けいびいんさんは ピカリオンが なつかしい みたい…','エレベーターの そばの ちいさな ポスターに チョッカイ'),
+     H_('ごうださん','futan','ごうださんの ひみつが わかった！ だれかが おねがい すれば…','ふーたんに チョッカイ')]},
+ {A:[H_('ハンモック','hammock','カレーの たんとうの パパが ねている（あめの あとでも だいじょうぶ）','ハンモックに チョッカイ'),
+     H_('ライター','lighter','マッチが ぬれて ひが つけられない','くさむらで ひかる ちいさな ライターに チョッカイ'),
+     H_('まき','mgr','ライターは あるけど まきが ぬれている','かんりとうの かんりにんさんに チョッカイ（かわいた まき）')],
+  B:[H_('ケトル','kettle','となりの ソロキャンパーさんは きげんが わるい','ジンさんの ちいさな ケトルに チョッカイ（コーヒーで ごきげんに）'),
+     H_('ジンさんに','futan','あめで まきが ぬれた あと、ごきげんな ジンさんに たのめば…','あめの あと、ジンさんが ごきげんな うちに ふーたんに チョッカイ')],
+  C:[H_('てるてる','teru','16:20ごろ にわかあめの よほう','16:20 より まえに テントの てるてるぼうずに チョッカイ'),
+     H_('ハンモック','hammock','てんきは だいじょうぶ。あとは パパを おこすだけ','ハンモックに チョッカイ')]},
+ {A:[H_('ビデオカメラ','camcorder','かあちゃんが ゆうぎしつで ビデオの じゅんび ちゅう','かあちゃんの ビデオカメラの ちいさな ランプに チョッカイ'),
+     H_('へんがお','mama','かあちゃんが どかんの ちかくを とおる','どかんの そばに きた かあちゃんに チョッカイ')],
+  B:[H_('おしゃぶり','paci','パパの となりで リッキーが おしゃぶりを くわえている','リッキーの ちいさな おしゃぶりに チョッカイ'),
+     H_('ことば','ricky','パパと リッキーが えんていに でてきた','どかんの そばの リッキーに チョッカイ')],
+  C:[H_('かけがね','latch','もんの そとに だれかが きている','もんの ちいさな かけがねに チョッカイ'),
+     H_('ボール','ball','ポチは ボールが だいすき','すべりだいの そばの ボールに チョッカイ')]},
+];
+function hintRe(k){return new RegExp(k);}
+function hintProg(r){const L=(HINTS[stIdx]||{})[r]||[];const labels=G.steps.filter(s=>s.r===r||s.r==='*').map(s=>s.label);let n=0;for(const h of L){if(labels.some(l=>hintRe(h.k).test(l)))n++;else break;}return n;}
+function hintRoute(){const H=HINTS[stIdx]||{};const rs=Object.keys(H);let best=null,bp=-1;
+  for(const r of rs){const p=hintProg(r);const nw=!(SAVE.routes[stIdx]||{})[r];if(p>bp||(p===bp&&nw&&best&&(SAVE.routes[stIdx]||{})[best])){bp=p;best=r;}}return best||'A';}
+function openHint(r,lv){if(mode!=='play'&&mode!=='pause')return;mode='pause';sfx('tap');const ov=$('ov');const H=HINTS[stIdx]||{};r=r||hintRoute();const L=H[r]||[];const p=hintProg(r);const h=L[p];
+  const got=SAVE.routes[stIdx]||{};
+  ov.innerHTML=`<div class="panel"><h2>💡 ヒント</h2><div class="htabs">${Object.keys(H).map(k=>`<button class="htab${k===r?' on':''}" data-r="${k}">ルート${k}${got[k]?' ★':''}<small>${hintProg(k)}/${H[k].length}</small></button>`).join('')}</div>
+   <ul class="steps hl">${L.map((x,i)=>i<p?`<li>${x.d.replace(/（.*?）/g,'')}</li>`:i===p?`<li class="nx">${lv?x.d:x.t}</li>`:`<li class="lk">？？？</li>`).join('')}</ul>
+   ${h?(lv?`<button class="btn p" id="hGo">📍 ばしょを みる</button>`:`<button class="btn p" id="hMore">もっと くわしく</button><p style="font-size:11px;color:#888;margin:4px 0 0">※ くわしい ヒントを みると、この プレイの クリア ランクは A まで</p>`):`<p style="font-weight:800">この ルートの チョッカイは ぜんぶ できているよ！ あとは まつだけ。🕒で はやおくり してみよう</p>`}
+   <button class="btn w" id="hBack">もどる</button></div>`;
+  ov.classList.add('show');
+  ov.querySelectorAll('.htab').forEach(b=>b.onclick=()=>openHint(b.dataset.r,0));
+  const m=$('hMore');if(m)m.onclick=()=>{G.hintUsed=true;openHint(r,1);};
+  const g=$('hGo');if(g)g.onclick=()=>{ov.classList.remove('show');mode='play';const e=G.ents.find(x=>x.id===h.id);
+    if(e&&!e.hidden&&e.y>-1e4){animZoom(Math.max(cam.z,e.tiny?3:1.8),e.x,e.y-(e.h||20)/2);G.hintMark={e,until:T+6};}else showToast('いまは みえない みたい。すこし まってみよう');};
+  $('hBack').onclick=()=>{sfx('tap');ov.classList.remove('show');mode='play';};}
 // =====================================================================
 //  やりこみ：ついかの ひと・アトラクション・ひみつ イベント・ミニコロン
 // =====================================================================
@@ -2566,9 +2665,9 @@ function showResult(){
   if(G.pokes>=100)SAVE.fl.poke100=1;if(!won)SAVE.fl.fail=1;
   const[dn,dt]=dexStat(stIdx);const extra=`<p style="font-size:13px">ミニコロン ${countMC(stIdx)} / 3 ／ ずかん ${dn} / ${dt} ／ ひみつ ${SAVE.sec[stIdx]?'★':'？'}</p>`;
   if(won){const first=!SAVE.routes[stIdx]||!SAVE.routes[stIdx][won];SAVE.routes[stIdx]=SAVE.routes[stIdx]||{};SAVE.routes[stIdx][won]=1;SAVE.cleared=Math.max(SAVE.cleared,stIdx+1);
-    const rr=(ST.t1-G.min)/(ST.t1-ST.t0),rank=rr>=.6?'S':rr>=.4?'A':rr>=.2?'B':'C';const ob=SAVE.best[stIdx];const nb=!ob||RANKS.indexOf(rank)<RANKS.indexOf(ob);if(nb)SAVE.best[stIdx]=rank;save();
+    const rr=(ST.t1-G.min)/(ST.t1-ST.t0),rank=(rr>=.6&&!G.hintUsed)?'S':rr>=.4?'A':rr>=.2?'B':'C';const ob=SAVE.best[stIdx];const nb=!ob||RANKS.indexOf(rank)<RANKS.indexOf(ob);if(nb)SAVE.best[stIdx]=rank;save();
     const steps=G.steps.filter(s=>s.r===won||s.r==='*');const found=Object.keys(SAVE.routes[stIdx]).length;
-    ov.innerHTML=`<div class="panel"><div class="stamp">STAGE CLEAR!</div><div class="rank r${rank}">RANK ${rank}${nb&&ob?' <small>ベスト こうしん！</small>':''}</div><p style="text-align:center"><span class="tag">ルート ${won}</span> <b>${ST.routeTitle[won]}</b>${first?' 🆕':''}</p>
+    ov.innerHTML=`<div class="panel"><div class="stamp">STAGE CLEAR!</div><div class="rank r${rank}">RANK ${rank}${G.hintUsed?' <small style="color:#888">（ヒント しよう）</small>':''}${nb&&ob?' <small>ベスト こうしん！</small>':''}</div><p style="text-align:center"><span class="tag">ルート ${won}</span> <b>${ST.routeTitle[won]}</b>${first?' 🆕':''}</p>
      <p style="font-size:13px;margin-bottom:0">クリアに ひつようだった チョッカイ:</p><ul class="steps">${steps.map(s=>`<li>${s.label}</li>`).join('')}</ul>
      <p style="font-size:13px">⏰ ${hhmm(G.min)} クリア ／ チョッカイ ${G.pokes}かい ／ みつけた ${Object.keys(G.dexSet).length}しゅるい</p>
      <p style="font-size:13px">このステージの ルート ${found} / ${ST.routeNames.length}${found<ST.routeNames.length?' … べつの ほうほうでも クリア できるかも？':' コンプリート！'}</p>${extra}
@@ -2601,10 +2700,11 @@ function goSelect(){mode='select';show('select');$('ov').classList.remove('show'
 function loadStage(i){mode='loading';show('loading');BGM.song=-1;let n=0;const iv=setInterval(()=>{n++;$('ldots').textContent='.'.repeat(n%4);if(n>=8){clearInterval(iv);show(null);startStage(i);}},140);}
 $('bMenu').onclick=()=>{audioInit();sfx('tap');if(mode!=='play')return;mode='pause';const ov=$('ov');
   ov.innerHTML=`<div class="panel"><h2>ポーズ</h2><span class="tag">STAGE ${stIdx+1}</span> <b>${ST.name}</b><div class="goal" style="margin-top:6px">${ST.goal}</div>
-   <p style="font-size:12px;color:#666">ドラッグ: いどう／ピンチ・ホイール・＋－: ズーム／タップ: チョッカイ／🕒: はやおくり／✋: ぜんたい・ズーム／♥: みつけた チョッカイ。ちいさな どうぐは さいだい ちかくまで ズームしないと さわれない。</p>
-   <button class="btn p" id="mBack">つづける</button><button class="btn w" id="mRe">さいしょから やりなおす</button><button class="btn w" id="mTag">${SAVE.noTag?'🏷 なまえふだ: オフ':'🏷 なまえふだ: オン'}</button><button class="btn w" id="mSnd">${SAVE.mute?'🔇 おと: オフ':'🔊 おと: オン'}</button><button class="btn w" id="mSel">ステージ セレクト</button><button class="btn w" id="mTitle">タイトルへ</button></div>`;
+   <p style="font-size:12px;color:#666">ドラッグ: いどう／ピンチ・ホイール・＋－: ズーム／タップ: チョッカイ／🕒: はやおくり／✋: ぜんたい・ズーム／♥: みつけた チョッカイ／💡: ヒント。ちいさな どうぐは さいだい ちかくまで ズームしないと さわれない。</p>
+   <button class="btn p" id="mBack">つづける</button><button class="btn w" id="mHint">💡 ヒントを みる</button><button class="btn w" id="mRe">さいしょから やりなおす</button><button class="btn w" id="mTag">${SAVE.noTag?'🏷 なまえふだ: オフ':'🏷 なまえふだ: オン'}</button><button class="btn w" id="mSnd">${SAVE.mute?'🔇 おと: オフ':'🔊 おと: オン'}</button><button class="btn w" id="mSel">ステージ セレクト</button><button class="btn w" id="mTitle">タイトルへ</button></div>`;
   ov.classList.add('show');
   $('mBack').onclick=()=>{ov.classList.remove('show');mode='play';};
+  $('mHint').onclick=()=>{mode='play';openHint();};
   $('mRe').onclick=()=>{ov.classList.remove('show');loadStage(stIdx);};
   $('mSnd').onclick=()=>{SAVE.mute=!SAVE.mute;save();if(MG)MG.gain.value=SAVE.mute?0:.85;mode='play';$('bMenu').onclick();};
   $('mTag').onclick=()=>{SAVE.noTag=!SAVE.noTag;save();mode='play';$('bMenu').onclick();};
