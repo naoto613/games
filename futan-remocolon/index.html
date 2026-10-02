@@ -509,7 +509,7 @@ function setHud(on){for(const id of['topbar','botbar','bMenu','bFit','bDex','bCl
 
 function startStage(i){
   stIdx=i;G.caps=[];clearTimeout(nextCap.t);capOn=false;$('cap').classList.remove('on');G.ents=[];G.fx=[];G.f={};G.steps=[];G.tl=[];G.over=false;G.won=null;G.pokes=0;G.dexSet={};G.speed=1;G.hintUsed=false;G.pairs={};G.sel=null;G.hintMark=null;G.lastProg=0;G.lastN=0;G.nudged=false;$('bHint').classList.remove('nudge');$('bClk').classList.remove('ff');BGM.rate=1;
-  ST=STAGES[i]();if(EXTRAS[i])EXTRAS[i](ST,G.f);updSel();G.min=ST.t0;mode='play';setHud(true);resize();
+  ST=STAGES[i]();if(EXTRAS[i])EXTRAS[i](ST,G.f);makeDecoys();updSel();G.min=ST.t0;mode='play';setHud(true);resize();
   cam.z=clamp(ST.start.z||1,zMin(),ZMAX);cam.x=ST.start.x;cam.y=ST.start.y;clampCam();
   $('stName').textContent=`${i+1}. ${ST.name}`;updCnt();
   bgmPlay(ST.song);showIntro();
@@ -518,7 +518,7 @@ function showIntro(){
   mode='intro';const ov=$('ov');
   ov.innerHTML=`<div class="panel"><span class="tag">STAGE ${stIdx+1}</span><h2>${ST.name}</h2><div class="goal">${ST.goal}</div>
    <p style="font-size:13px">⏰ ${hhmm(ST.t0)} 〜 ${hhmm(ST.t1)}</p>
-   <p style="font-size:12px;color:#666"><b>① タップで えらぶ → ② べつの ものを タップ</b>すると、えらんだ ひとや どうぶつが それに きづいて うごくよ。おなじ ものを もういちど タップすると その ものに チョッカイ。かんけい ない くみあわせは「？」。<br>ふきだし・かんばん・ポスターを よく みて、だれに なにを きづかせるか かんがえよう。ちいさな どうぐは ズームすると キラッと ひかる。<br>🕒 ボタンで はやおくり、✋ ボタンで ぜんたい／ズーム、♥ ボタンで みつけた チョッカイ。</p>
+   <p style="font-size:12px;color:#666"><b>① タップで えらぶ → ② べつの ものを タップ</b>すると、えらんだ ひとや どうぶつが それに きづいて うごくよ。おなじ ものを もういちど タップすると その ものに チョッカイ。かんけい ない くみあわせは「？」。<br>ふきだし・かんばん・ポスターを よく みて、だれに なにを きづかせるか かんがえよう。ちいさな どうぐは ズームしないと さわれない ことも。<br>🕒 ボタンで はやおくり、✋ ボタンで ぜんたい／ズーム、♥ ボタンで みつけた チョッカイ。</p>
    <button class="btn p" id="bGo">スタート！</button></div>`;ov.classList.add('show');
   $('bGo').onclick=()=>{audioInit();sfx('start');ov.classList.remove('show');mode='play';};
 }
@@ -549,18 +549,19 @@ $('bDex').onclick=()=>{if(mode!=='play')return;sfx('tap');mode='pause';const ov=
   ov.classList.add('show');$('dxB').onclick=()=>{ov.classList.remove('show');mode='play';};};
 window.addEventListener('keydown',ev=>{if(mode!=='play')return;if(ev.key==='+'||ev.key===';')animZoom(cam.z*1.8);if(ev.key==='-')animZoom(cam.z/1.8);});
 
-function hitTest(wx,wy){let best=null,ba=1e12;
+function hitTest(wx,wy){let best=null,ba=1e12,bd=null,bda=1e12;
   for(const e of G.ents){if(e.hidden||!e.poke)continue;const w=e.w,h=e.h;const ss=Math.min(w,h)*cam.z;
     if(e.tiny?ss<6:ss<3)continue;
-    const pad=Math.max(6/cam.z,(30/cam.z-Math.min(w,h))/2);
-    const hx=e.x-w/2-pad,hy=e.y-h-pad;if(wx>=hx&&wx<=hx+w+pad*2&&wy>=hy&&wy<=hy+h+pad*2){const a=w*h;if(a<ba){ba=a;best=e;}}}
-  return best;}
+    const pad=e.decoy?2/cam.z:Math.max(6/cam.z,(30/cam.z-Math.min(w,h))/2);
+    const hx=e.x-w/2-pad,hy=e.y-h-pad;if(wx>=hx&&wx<=hx+w+pad*2&&wy>=hy&&wy<=hy+h+pad*2){const a=w*h;if(e.decoy){if(a<bda){bda=a;bd=e;}}else if(a<ba){ba=a;best=e;}}}
+  return best||bd;}
 // ---------------- ふたつ えらぶ チョッカイ ----------------
 function PR(a,b,fn){for(const x of[].concat(a))for(const y of[].concat(b)){if(G.pairs[x+'|'+y])console.warn('PAIR DUP',stIdx,x,y);G.pairs[x+'|'+y]=fn;G.pairs[y+'|'+x]=fn;for(const id of[x,y]){const e=G.ents.find(q=>q.id===id);if(e&&!e.poke)e.poke=q=>narr(q,'('+q.name+')');}}}
 function U(id,line){const e=G.ents.find(q=>q.id===id);if(!e){console.warn('U?',id);return;}e.use=e.poke;e.poke=q=>{q.react=Math.max(q.react,.5);if(line)say(q,line);else narr(q,'('+q.name+')');};return e;}
 function fire(id){const e=G.ents.find(q=>q.id===id);if(e)(e.use||e.poke)(e);}
 function pkeys(e){return[e.id,String(e.id).replace(/\d+$/,''),e.gk].filter(Boolean);}
-function resolvePair(a,b){for(const ka of pkeys(a))for(const kb of pkeys(b)){const fn=G.pairs[ka+'|'+kb];if(fn){const r=fn(a,b);return r!==false;}}return false;}
+function resolvePair(a,b){for(const ka of pkeys(a))for(const kb of pkeys(b)){const fn=G.pairs[ka+'|'+kb];if(fn){const r=fn(a,b);return r!==false;}}
+  const sg=a.text?a:b.text?b:null,o=sg===a?b:a;if(sg&&o.k==='person'&&!o.decoy){say(o,'えーと…「'+sg.text.replace(/\n/g,' ')+'」だって',5);return true;}return false;}
 function selSet(e){G.sel=e;sfx('tap');G.fx.push({k:'bang',e,life:.7});updSel();}
 function selClear(){G.sel=null;updSel();}
 function updSel(){const s=G.sel;$('screen').classList.toggle('sel',!!s);$('selbar').classList.toggle('on',!!s);
@@ -661,9 +662,6 @@ function render(){
 }
 const TAGS={futan:['ふーたん','#ff5f9e'],mama:['かあちゃん',COL.red],papa:['パパ',COL.blue],ricky:['リッキー','#f0a000'],pochi:['ポチ','#c8803a'],penta:['ペンタ','#20a5b5'],santa:['サンタ','#d82a2a'],keeper:['もりさん','#2a9a50'],hachi:['ハチ','#c8803a'],rud:['ルドルフ','#a0522d'],take:['タケシ','#3ccf6e'],gouda:['ごうだ','#4a5a7a'],mc:['しかい','#ff7eb6'],jin:['ジン','#5a6a3a'],mgr:['かんりにん','#2a7a40'],teacher:['せんせい','#ff7eb6']};
 function drawSelFx(){
-  // ちいさな もの の キラッ
-  if(cam.z>=1.1){for(const e of G.ents){if(!e.tiny||!e.poke||e.hidden||String(e.id).startsWith('mc_'))continue;const s=w2s(e.x,e.y-e.h/2);if(s[0]<-10||s[0]>CW+10||s[1]<-10||s[1]>CH+10)continue;
-    const a=.45+.45*Math.sin(T*4+e.x*.1);C.save();C.globalAlpha=a;C.strokeStyle='#fff';C.lineWidth=1.6;const r=5+Math.min(8,e.w*cam.z*.5);C.beginPath();C.arc(s[0],s[1],r,0,7);C.stroke();C.fillStyle='#fff';const k=3+Math.sin(T*4+e.x)*1.2;C.beginPath();C.moveTo(s[0]+r+1,s[1]-r-1-k);C.lineTo(s[0]+r+2,s[1]-r-2);C.lineTo(s[0]+r+1+k,s[1]-r-1);C.lineTo(s[0]+r+2,s[1]-r);C.closePath();C.fill();C.restore();}}
   // えらんだ もの
   if(G.sel&&!G.sel.hidden){const e=G.sel;const f=w2s(e.x,e.y),h=w2s(e.x,e.y-topOf(e));const rx=Math.max(16,e.w*cam.z*.7),ry=Math.max(6,rx*.32);
     C.save();C.setLineDash([6,5]);C.lineDashOffset=-T*30;C.lineWidth=3;C.strokeStyle='#ffd23f';C.beginPath();C.ellipse(f[0],f[1],rx,ry,0,0,7);C.stroke();C.setLineDash([]);
@@ -1865,6 +1863,9 @@ function stage5(){
   PR('mama','lg',()=>{say(ent('mama'),'ライフセーバーさん ねてる まりっ… ふえの おとで おきるかしら');});
   PR('futan','hat',()=>{say(ent('futan'),'ぼうし〜！ とどかないよ〜');});
   PR('gull','hat',()=>{say(ent('gull'),'クワ？ (キラキラ リボン… でも いまは ねむい)');});
+  st.decoys=[...[[200,300],[1240,290],[1880,300],[560,280]].map(([px,py])=>({k:'palm',name:'ヤシの き',x:px+3,y:py+40,w:40,h:70})),...[[600,520],[1350,520],[1520,600],[420,560]].map(([px,py])=>({k:'para',name:'パラソル',x:px,y:py+42,w:80,h:70})),
+    ...[[120,780,60],[230,820,46],[330,760,40],[80,880,50],[260,900,40]].map(([x,y,r])=>({k:'rock',name:'いわ',x,y:y+r*.6,w:r*2,h:r*1.2})),...[[480,640],[860,560],[1240,640],[1600,700],[300,560],[1800,560]].map(([x,y])=>({k:'towel',name:'レジャーシート',x:x+28,y:y+26,w:56,h:26})),
+    {k:'tower',name:'みはりだい',x:1140,y:660,w:80,h:100},{k:'pier',name:'さんばし',x:1730,y:1150,w:60,h:500},{k:'net',name:'ビーチバレーの ネット',x:1570,y:500,w:140,h:80},{k:'boat',name:'ヨット',x:1500,y:1152,w:70,h:72}];
   return st;
 }
 
@@ -2365,6 +2366,8 @@ function stage8(){
   PR('mama','teru',()=>{say(mama,'てるてるぼうず… ふーたんが おいのり したら きくかも まりっ');});
   PR('papa','mgr',()=>{if(papa.st==='lit')fire('mgr');else say(papa,'かわいた まき… でも ひを つける ものが ないと…');});
   PR('mama','jin',()=>{say(mama,'となりの かた、バーナー もってる まりっ… こどもが たのめば かしてくれるかも まりっ');});
+  st.decoys=[{k:'tent',name:'テント',x:450,y:440,w:250,h:150},{k:'kamado',name:'かまど',x:560,y:652,w:60,h:44},{k:'wood',name:'まき',x:670,y:648,w:46,h:22},{k:'camp',name:'キャンプファイヤーの まき',x:1000,y:780,w:200,h:90},
+    {k:'bbq',name:'バーベキューコンロ',x:980,y:410,w:80,h:30},{k:'tent',name:'ちいさな テント',x:1290,y:420,w:120,h:90},{k:'bridge',name:'はし',x:1225,y:1200,w:90,h:240},{k:'rock',name:'かわらの いし',x:620,y:1012,w:44,h:26},{k:'rock',name:'かわらの いし',x:200,y:1008,w:60,h:36}];
   return st;
 }
 
@@ -2859,7 +2862,7 @@ function goSelect(){mode='select';show('select');$('ov').classList.remove('show'
 function loadStage(i){mode='loading';show('loading');BGM.song=-1;let n=0;const iv=setInterval(()=>{n++;$('ldots').textContent='.'.repeat(n%4);if(n>=8){clearInterval(iv);show(null);startStage(i);}},140);}
 $('bMenu').onclick=()=>{audioInit();sfx('tap');if(mode!=='play')return;mode='pause';const ov=$('ov');
   ov.innerHTML=`<div class="panel"><h2>ポーズ</h2><span class="tag">STAGE ${stIdx+1}</span> <b>${ST.name}</b><div class="goal" style="margin-top:6px">${ST.goal}</div>
-   <p style="font-size:12px;color:#666">ドラッグ: いどう／ピンチ・ホイール・＋－: ズーム／タップ → べつの もの: きづかせる／おなじ ものを 2かい: チョッカイ／🕒: はやおくり／✋: ぜんたい・ズーム／♥: みつけた チョッカイ／💡: ヒント。ちいさな どうぐは ズームすると キラッと ひかる。</p>
+   <p style="font-size:12px;color:#666">ドラッグ: いどう／ピンチ・ホイール・＋－: ズーム／タップ → べつの もの: きづかせる／おなじ ものを 2かい: チョッカイ／🕒: はやおくり／✋: ぜんたい・ズーム／♥: みつけた チョッカイ／💡: ヒント。なにが なにに はんのう するかは ためして みないと わからない！</p>
    <button class="btn p" id="mBack">つづける</button><button class="btn w" id="mHint">💡 ヒントを みる</button><button class="btn w" id="mRe">さいしょから やりなおす</button><button class="btn w" id="mTag">${SAVE.noTag?'🏷 なまえふだ: オフ':'🏷 なまえふだ: オン'}</button><button class="btn w" id="mSnd">${SAVE.mute?'🔇 おと: オフ':'🔊 おと: オン'}</button><button class="btn w" id="mSel">ステージ セレクト</button><button class="btn w" id="mTitle">タイトルへ</button></div>`;
   ov.classList.add('show');
   $('mBack').onclick=()=>{ov.classList.remove('show');mode='play';};
@@ -2904,6 +2907,24 @@ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;
     if(ST&&(mode==='play'||mode==='intro'||mode==='pause'||mode==='result')){render();drawHud();}
   }catch(err){console.error(err);}
   requestAnimationFrame(frame);}
+// ---------------- けしきの もの（なにが おこるかは ためして みないと わからない） ----------------
+let DEC=null;
+const DECO={treeR:(x,y,r)=>({k:'tree',name:'き',x,y:y+r*.8,w:r*1.5,h:r*1.8}),bush:(x,y,w)=>({k:'bush',name:'しげみ',x:x+w/2,y:y+12,w,h:16}),
+  signB:(x,y,w,h,t)=>({k:'sign',name:'かんばん',x:x+w/2,y:y+h,w,h,text:String(t)}),plantPot:(x,y,s)=>({k:'pot',name:'うえきばち',x,y,w:12*(s||1),h:18*(s||1)}),
+  vend:(x,y)=>({k:'vend',name:'じどうはんばいき',x,y,w:24,h:34}),lamp:(x,y)=>({k:'lamp',name:'がいとう',x,y,w:12,h:64}),stoneLantern:(x,y)=>({k:'lantern',name:'いしどうろう',x,y,w:20,h:34}),
+  flowersBed:(x,y,w)=>({k:'flower',name:'かだん',x:x+w/2,y:y+10,w,h:20}),bike:(x,y)=>({k:'bike',name:'じてんしゃ',x,y,w:26,h:16}),nobori:(x,y,c,t)=>({k:'sign',name:'のぼり',x:x+6,y,w:14,h:62,text:String(t)}),
+  sofa:(x,y,w)=>({k:'sofa',name:'ソファ',x:x+w/2,y:y+26,w,h:26}),dtable:(x,y,w,h)=>({k:'table',name:'テーブル',x:x+w/2,y:y+h,w,h}),fridge:(x,y)=>({k:'fridge',name:'れいぞうこ',x:x+12,y:y+34,w:24,h:34}),
+  kitchen:(x,y,w)=>({k:'kitchen',name:'だいどころ',x:x+w/2,y:y+28,w,h:28}),shelf:(x,y,w,h)=>({k:'shelf',name:'たな',x:x+w/2,y:y+h,w,h}),clockW:(x,y,r)=>({k:'clock',name:'とけい',x,y:y+(r||7),w:(r||7)*2,h:(r||7)*2}),
+  frameP:(x,y,w,h)=>({k:'frame',name:'え',x:x+w/2,y:y+h,w,h}),chair:(x,y)=>({k:'chair',name:'いす',x,y:y+6,w:12,h:12}),pole:(x,y)=>({k:'pole',name:'でんちゅう',x,y,w:8,h:110}),rug:(x,y,rx,ry)=>({k:'rug',name:'じゅうたん',x,y:y+ry,w:rx*2,h:ry*2})};
+for(const k in DECO){const f=window[k];if(typeof f!=='function')continue;window[k]=function(...a){if(DEC){try{DEC.push(DECO[k](...a));}catch(e){}}return f.apply(this,a);};}
+const DECO_SAY={tree:['(はっぱが ざわざわ)','(とりが いっぴき とんでいった)','(なにも おちてこない)'],bush:['(がさがさ…)','(なにも いない みたい)'],pot:['(うえきばち)','(はっぱが ゆれた)'],vend:['ガコン… (なにも でない)','(ボタンが ひかった)'],
+  lamp:['(がいとうが チカチカ)'],lantern:['(いしどうろう)'],flower:['(はなの いい かおり)','(ちょうちょが とんだ)'],bike:['チリンチリン♪'],sofa:['(ふかふか)'],table:['(テーブル)','(コトッ)'],fridge:['(ブーン…)'],kitchen:['(ぽたっ… すいどうの しずく)'],
+  shelf:['(ほんや おもちゃが ならんでいる)'],clock:['(チクタク…)'],frame:['(きれいな え)'],chair:['(ガタッ)'],palm:['(ヤシの みは おちてこない)'],para:['(パラソルが くるっと まわった)'],rock:['(ゴツゴツ)','(フナムシが にげた)'],towel:['(すなが ついている)'],tower:['(たかい みはりだい)'],pier:['(ギシギシ…)'],net:['(ネットが ゆれた)'],boat:['(とおくの ヨット)'],tent:['(テントの ジッパー)','(なかは からっぽ)'],kamado:['(つめたい かまど)'],wood:['(まき)'],camp:['(くみあげた まき)'],bbq:['(ジュウジュウ)'],bridge:['(ギシッ)'],pole:['(でんせんが ゆれた)'],rug:['(ふわふわ)']};
+function decoyPoke(e){if(e.text){narr(e,'「'+e.text.replace(/\n/g,' ')+'」',5);return;}const L=DECO_SAY[e.k]||['(…)'];e.react=.6;narr(e,L[Math.floor(Math.random()*L.length)]);}
+function makeDecoys(){const sx=X,sv=VR,sz=cam.z,sl=LW;DEC=[];const c=document.createElement('canvas');c.width=c.height=4;X=c.getContext('2d');VR={x0:-1e5,y0:-1e5,x1:1e5,y1:1e5};cam.z=2;
+  try{ST.ground();}catch(err){console.error(err);}const L=DEC.concat(ST.decoys||[]);DEC=null;X=sx;VR=sv;cam.z=sz;LW=sl;let n=0;
+  for(const d of L){if(!d||!(d.w>=4&&d.h>=4)||!isFinite(d.x+d.y))continue;E({id:'d'+(n++),gk:'d_'+d.k,k:d.k,name:d.name,x:d.x,y:d.y,w:d.w,h:d.h,decoy:true,text:d.text,zs:-1e5,bubY:d.h,draw(){},poke:decoyPoke});}}
+
 setHud(false);resize();resizeTitle();requestAnimationFrame(frame);
 window.__RC={startStage:i=>{show(null);startStage(i);},get G(){return G;},get cam(){return cam;},get mode(){return mode;},set mode(v){mode=v;},tap,w2s,zoomAt,get CW(){return CW;},get CH(){return CH;},ent:id=>G.ents.find(e=>e.id===id)};
 </script>
