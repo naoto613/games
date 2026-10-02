@@ -556,12 +556,12 @@ function hitTest(wx,wy){let best=null,ba=1e12;
     const hx=e.x-w/2-pad,hy=e.y-h-pad;if(wx>=hx&&wx<=hx+w+pad*2&&wy>=hy&&wy<=hy+h+pad*2){const a=w*h;if(a<ba){ba=a;best=e;}}}
   return best;}
 // ---------------- ふたつ えらぶ チョッカイ ----------------
-function PR(a,b,fn){for(const x of[].concat(a))for(const y of[].concat(b)){G.pairs[x+'|'+y]=fn;G.pairs[y+'|'+x]=fn;for(const id of[x,y]){const e=G.ents.find(q=>q.id===id);if(e&&!e.poke)e.poke=q=>narr(q,'('+q.name+')');}}}
+function PR(a,b,fn){for(const x of[].concat(a))for(const y of[].concat(b)){if(G.pairs[x+'|'+y])console.warn('PAIR DUP',stIdx,x,y);G.pairs[x+'|'+y]=fn;G.pairs[y+'|'+x]=fn;for(const id of[x,y]){const e=G.ents.find(q=>q.id===id);if(e&&!e.poke)e.poke=q=>narr(q,'('+q.name+')');}}}
 function U(id,line){const e=G.ents.find(q=>q.id===id);if(!e){console.warn('U?',id);return;}e.use=e.poke;e.poke=q=>{q.react=Math.max(q.react,.5);if(line)say(q,line);else narr(q,'('+q.name+')');};return e;}
 function fire(id){const e=G.ents.find(q=>q.id===id);if(e)(e.use||e.poke)(e);}
 function pkeys(e){return[e.id,String(e.id).replace(/\d+$/,''),e.gk].filter(Boolean);}
 function resolvePair(a,b){for(const ka of pkeys(a))for(const kb of pkeys(b)){const fn=G.pairs[ka+'|'+kb];if(fn){const r=fn(a,b);return r!==false;}}return false;}
-function selSet(e){G.sel=e;sfx('tap');G.fx.push({k:'bang',e,life:.7});if(e.k==='person'||e.animal){e.react=Math.max(e.react,.35);}updSel();}
+function selSet(e){G.sel=e;sfx('tap');G.fx.push({k:'bang',e,life:.7});updSel();}
 function selClear(){G.sel=null;updSel();}
 function updSel(){const s=G.sel;$('screen').classList.toggle('sel',!!s);$('selbar').classList.toggle('on',!!s);
   $('selTx').innerHTML=s?`✋ <b>${s.name}</b> → なにに きづかせる？<small>べつの ものを タップ ／ おなじ ものを もういちど で チョッカイ</small>`:'👆 きになる ものを タップして えらぼう';}
@@ -1704,7 +1704,7 @@ function stage4(){
   // ---------- ふたつ えらぶ チョッカイ ----------
   U('radio');U('ice','アイス いかが〜？');U('key');U('sealion','オウ？');U('gull','クワ？');U('latch');U('pa');U('futan','ペンギン かわいい〜');
   PR('keeper','radio',()=>fire('radio'));
-  PR('ice','freezer',()=>fire('ice'));
+  PR('ice',['freezer','penta'],()=>fire('ice'));
   PR('keeper','key',()=>fire('key'));
   PR('sealion','bucket',()=>fire('sealion'));
   PR('gull','bucket',()=>fire('gull'));
@@ -2011,7 +2011,7 @@ function stage6(){
   PR('rud',['bell','santa'],()=>fire('bell'));
   PR(['mama','futan'],'latch',()=>fire('latch'));
   PR('husky','santa',()=>fire('husky'));
-  PR('santa','plow',()=>fire('plow'));
+  PR(['santa','husky','sleigh'],'plow',()=>fire('plow'));PR('husky','sleigh',()=>fire('husky'));
   PR('santa','letter',()=>fire('letter'));
   PR('santa','dbell',()=>fire('dbell'));
   PR('papa','sandbin',()=>fire('sandbin'));
@@ -2358,12 +2358,12 @@ function stage8(){
   U('hammock');U('lighter');U('kettle');U('teru');U('mgr','いらっしゃい！ まきは 1たば 500えん！');U('futan','ムシ つかまえた〜！ …にげた');
   PR(['pochi','futan','mama'],['papa','hammock'],()=>{if(papa.st!=='nap')return false;say(futan,'パパ〜 おきて〜！');fire('hammock');});
   PR('papa','lighter',()=>fire('lighter'));
-  PR('mgr','papa',()=>fire('mgr'));
+
   PR('jin','kettle',()=>fire('kettle'));
   PR('futan','jin',()=>fire('futan'));
   PR('futan','teru',()=>fire('teru'));
   PR('mama','teru',()=>{say(mama,'てるてるぼうず… ふーたんが おいのり したら きくかも まりっ');});
-  PR('papa','mgr',()=>{say(papa,'かわいた まき… でも ひを つける ものが ないと…');});
+  PR('papa','mgr',()=>{if(papa.st==='lit')fire('mgr');else say(papa,'かわいた まき… でも ひを つける ものが ないと…');});
   PR('mama','jin',()=>{say(mama,'となりの かた、バーナー もってる まりっ… こどもが たのめば かしてくれるかも まりっ');});
   return st;
 }
