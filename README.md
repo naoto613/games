@@ -18,6 +18,7 @@
 - GRAND CHIBIKKO AUTO: https://naoto613.github.io/games/chibikko-auto/
 - ふーたんと そよかぜの タクト: https://naoto613.github.io/games/futan-takuto/
 - ふーたん クエスト: https://naoto613.github.io/games/futan-quest/
+- STELLA NOCTIS ─宵星のレガリア─: https://naoto613.github.io/games/stella-noctis/
 
 ## 構成
 
@@ -45,6 +46,11 @@
 │   ├── index.html          # キュアたんてい ふーちゃん（5歳向け・スマホ縦持ちの 探偵＋お医者さん＋プリキュアバトル 長編。ビルド済み成果物）
 │   ├── build.py            # src/*.js を連結して index.html を生成
 │   └── src/                # ソース（キャラ・アイコン・背景・各ステップ・おいしゃさん・バトル・ストーリー）
+├── stella-noctis/
+│   ├── index.html          # STELLA NOCTIS ─宵星のレガリア─（テイルズ オブ ヴェスペリア風のトゥーン調 3D アクション RPG。下町→平原→森→遺跡の 4 エリア、LMBS 風リアルタイムバトル（ライン移動・フリーラン・特技→奥義連携・OL・バーストアーツ・秘奥義カットイン・フェイタルストライク）、AI 仲間 2 人、スキット、料理、セーブ。ビルド済み成果物。`?debug&area=forest&lv=8&party=sieg,lucia,noa` でデバッグ起動）
+│   ├── build.py            # src/*.js を連結して index.html を生成
+│   ├── three.min.js        # three.js r149（futan-takuto と同じもの）
+│   └── src/                # ソース（00 描画基盤・入力、05 おと（全合成）、10 空・地形・小物、20 キャラ／モンスター、25 SVG 立ち絵、30 データ、40 アニメ、45 エフェクト、50 バトル、55 フィールド、60 UI・スキット、65 ストーリー、70 ゲーム進行）
 ├── futan-takuto/
 │   ├── index.html          # ふーたんと そよかぜの タクト（5歳〜・トゥーン調 3D の うみと しまの ぼうけん。かぜのタクトで かぜを かえて ふねで しまを めぐり、3つの しずく→かみさまの とう→まものの とりでの ボス。ビルド済み成果物）
 │   ├── build.py            # src/*.js を連結して index.html を生成
@@ -77,7 +83,7 @@
 ```
 
 各ゲームは `<ゲーム名>/index.html` の 1 フォルダ 1 ゲーム構成で、置いた HTML がそのまま配信されます。
-`fuchan-town`・`fuchan-hospital`・`cure-tantei`・`chibikko-auto`・`futan-quest`・`futan-takuto` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
+`fuchan-town`・`fuchan-hospital`・`cure-tantei`・`chibikko-auto`・`futan-quest`・`futan-takuto`・`stella-noctis` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
 
 ## ゲームの追加方法
 
