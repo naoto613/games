@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ひらめき スープ屋</title>
+<style>
+:root{
+  --bg:#1b1a2e;--bg2:#24223d;--card:#2f2c4d;--card2:#3a3660;--ink:#f4efe4;--sub:#b9b2d6;--line:#4c4778;
+  --gold:#f2c46d;--gold2:#ffdf9c;--yes:#5fd39a;--no:#ff7a8a;--irr:#9aa3c7;--part:#ffc36b;--key:#ffd75e;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(120% 80% at 50% 0%,#2e2a52 0%,var(--bg) 60%) fixed,var(--bg);color:var(--ink);
+  font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic","Noto Sans JP",system-ui,sans-serif;line-height:1.6;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+.app{position:relative;max-width:620px;height:100%;margin:0 auto;display:flex;flex-direction:column}
+.screen{position:absolute;inset:0;display:none;flex-direction:column}
+.screen.on{display:flex}
+
+/* ---- title ---- */
+#title{align-items:center;justify-content:safe center;text-align:center;padding:24px 16px;gap:10px;overflow:auto}
+.sign{position:relative;padding:18px 26px 16px;border:3px solid var(--gold);border-radius:18px;background:linear-gradient(#3a2f2a,#2a221f);
+  box-shadow:0 0 0 6px #2a221f,0 0 30px rgba(242,196,109,.25)}
+.sign h1{margin:0;font-size:clamp(30px,9vw,46px);letter-spacing:.06em;color:var(--gold2);text-shadow:0 0 12px rgba(255,200,100,.5)}
+.sign p{margin:2px 0 0;color:#e6d3b0;font-size:14px;letter-spacing:.1em}
+.master{flex:none;width:150px;height:150px;margin:8px auto 0;filter:drop-shadow(0 6px 10px rgba(0,0,0,.4))}
+.master.bob{animation:bob 3s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.lead{color:var(--sub);font-size:14px;max-width:420px;margin:0}
+@media (max-height:620px){#title{gap:6px;padding:12px 16px}#title .master{width:96px;height:96px;margin:0 auto}.big{padding:10px}}
+.big{display:block;width:min(320px,90%);margin:6px auto 0;padding:14px;border-radius:16px;font-size:20px;font-weight:800;color:#2a1d10;
+  background:linear-gradient(var(--gold2),var(--gold));box-shadow:0 4px 0 #a9813a,0 8px 18px rgba(0,0,0,.35);transition:transform .08s}
+.big:active{transform:translateY(3px);box-shadow:0 1px 0 #a9813a}
+.sub-btn{display:block;width:min(320px,90%);margin:4px auto 0;padding:11px;border-radius:14px;font-weight:700;background:var(--card);border:2px solid var(--line)}
+.prog{font-size:13px;color:var(--sub)}
+
+/* ---- menu ---- */
+.bar{display:flex;align-items:center;gap:8px;padding:10px 12px;padding-top:max(10px,env(safe-area-inset-top));background:rgba(20,18,36,.85);border-bottom:1px solid var(--line);backdrop-filter:blur(6px);z-index:2}
+.bar h2{flex:1;margin:0;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-btn{width:38px;height:38px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:18px;display:grid;place-items:center;flex:none}
+.pts{font-weight:800;color:var(--gold2);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px 10px;font-size:15px;white-space:nowrap}
+.list{flex:1;overflow:auto;padding:14px 16px 30px;display:flex;flex-direction:column;gap:10px}
+.stage{display:flex;align-items:center;gap:12px;text-align:left;padding:12px 14px;border-radius:16px;background:var(--card);border:2px solid var(--line);transition:border-color .12s,transform .08s}
+.stage:hover{border-color:var(--gold)}
+.stage:active{transform:scale(.99)}
+.stage .no{flex:none;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-weight:800;background:var(--bg2);color:var(--gold2)}
+.stage .t{flex:1;min-width:0}
+.stage .t b{display:block;font-size:16px}
+.stage .t small{color:var(--sub);font-size:12px}
+.stage .rk{flex:none;width:42px;text-align:center;font-weight:900;font-size:22px}
+.rk.S{color:#ffd75e;text-shadow:0 0 10px rgba(255,215,94,.6)}.rk.A{color:#ff9fd0}.rk.B{color:#7fd8ff}.rk.C{color:#b9b2d6}.rk.G{color:#6b6690;font-size:13px}
+
+/* ---- play ---- */
+#play .problem{margin:10px 12px 0;padding:12px 14px;border-radius:16px;background:linear-gradient(#3b3226,#2d2620);border:2px solid #6b5636;position:relative;flex:none}
+.problem .lbl{font-size:12px;color:var(--gold);font-weight:800;letter-spacing:.1em}
+.problem .txt{font-size:15px;max-height:40vh;overflow:auto}
+.problem.fold .txt{max-height:3.2em;overflow:hidden;-webkit-mask:linear-gradient(#000 55%,transparent)}
+.problem .tog{position:absolute;right:8px;top:6px;font-size:12px;color:var(--sub);padding:2px 8px;border-radius:8px;background:rgba(0,0,0,.25)}
+.log{flex:1;overflow:auto;padding:12px 12px 16px;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth}
+.msg{display:flex;gap:8px;align-items:flex-end;max-width:92%;animation:pop .22s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}}
+.msg .av{flex:none;width:34px;height:34px}
+.msg .bb{padding:8px 12px;border-radius:16px;font-size:15px;background:var(--card);border:1px solid var(--line)}
+.msg.me{align-self:flex-end;flex-direction:row-reverse}
+.msg.me .bb{background:#4a4380;border-color:#5f57a3;border-bottom-right-radius:4px}
+.msg.mt .bb{border-bottom-left-radius:4px}
+.ans{display:inline-block;font-weight:900;font-size:17px;margin-right:6px}
+.ans.y{color:var(--yes)}.ans.n{color:var(--no)}.ans.x{color:var(--irr)}.ans.p{color:var(--part)}
+.keytag{display:inline-block;margin-top:4px;font-size:12px;font-weight:800;color:#2a1d10;background:var(--key);border-radius:99px;padding:0 8px}
+.flash{display:inline-block;font-size:12px;font-weight:800;color:#fff;background:#d65ad0;border-radius:99px;padding:0 8px;margin-left:4px}
+.sys{align-self:center;font-size:12px;color:var(--sub);background:rgba(0,0,0,.25);padding:3px 10px;border-radius:99px;text-align:center;max-width:95%}
+.hintmsg .bb{background:#3d3520;border-color:#7a6430}
+
+.dock{flex:none;padding:8px 10px;padding-bottom:max(10px,env(safe-area-inset-bottom));background:rgba(20,18,36,.92);border-top:1px solid var(--line)}
+.ask{display:flex;gap:6px}
+.ask input{flex:1;min-width:0;font:inherit;font-size:16px;color:var(--ink);background:var(--bg2);border:2px solid var(--line);border-radius:14px;padding:9px 12px;outline:none}
+.ask input:focus{border-color:var(--gold)}
+.ask button{flex:none;padding:0 16px;border-radius:14px;font-weight:800;background:var(--card2);border:2px solid var(--line)}
+.acts{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.3fr;gap:6px;margin-top:7px}
+.acts button{padding:9px 4px;border-radius:13px;font-weight:800;font-size:14px;background:var(--card);border:2px solid var(--line);position:relative;white-space:nowrap}
+.acts .solve{background:linear-gradient(var(--gold2),var(--gold));color:#2a1d10;border-color:#a9813a}
+.badge{position:absolute;top:-7px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:var(--key);color:#2a1d10;font-size:12px;line-height:20px}
+.badge.new{background:#ff6fb5;color:#fff}
+
+/* ---- sheets ---- */
+.veil{position:absolute;inset:0;background:rgba(6,5,15,.6);display:none;z-index:5;animation:fade .15s}
+.veil.on{display:block}
+@keyframes fade{from{opacity:0}}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:82%;display:flex;flex-direction:column;background:var(--bg2);border-top:2px solid var(--line);border-radius:22px 22px 0 0;
+  padding-bottom:env(safe-area-inset-bottom);animation:up .2s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.3}}
+.sheet header{display:flex;align-items:center;gap:8px;padding:14px 16px 8px}
+.sheet header h3{flex:1;margin:0;font-size:17px}
+.sheet .body{overflow:auto;padding:4px 14px 18px;display:flex;flex-direction:column;gap:7px}
+.qbtn{text-align:left;padding:11px 13px;border-radius:13px;background:var(--card);border:1px solid var(--line);font-size:15px;transition:border-color .1s}
+.qbtn:hover{border-color:var(--gold)}
+.qbtn.new{border-color:#ff6fb5;box-shadow:inset 3px 0 0 #ff6fb5}
+.qbtn.done{opacity:.55;cursor:default;font-size:14px}
+.sec{font-size:12px;color:var(--sub);font-weight:800;margin:6px 2px 0}
+.fact{padding:10px 12px;border-radius:12px;background:#3a3322;border:1px solid #6b5a2e;font-size:15px}
+.fact::before{content:"🔑 "}
+.empty{color:var(--sub);font-size:14px;text-align:center;padding:16px}
+.choice{text-align:left;padding:13px 14px;border-radius:14px;background:var(--card);border:2px solid var(--line);font-size:15px;font-weight:700}
+.choice:hover{border-color:var(--gold)}
+.choice.bad{opacity:.4;text-decoration:line-through;cursor:default;border-color:var(--no)}
+.note{font-size:13px;color:var(--sub)}
+.giveup{align-self:center;font-size:13px;color:var(--sub);text-decoration:underline;padding:6px}
+
+/* ---- result ---- */
+#result{overflow:auto;align-items:center;padding:20px 16px 30px;padding-top:max(20px,env(safe-area-inset-top));gap:12px;text-align:center}
+.stamp{font-size:30px;font-weight:900;color:var(--gold2);letter-spacing:.12em;animation:pop .4s}
+.rankbig{font-size:84px;font-weight:900;line-height:1;animation:zoom .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes zoom{from{transform:scale(2.5);opacity:0}}
+.truth{text-align:left;width:100%;padding:14px 16px;border-radius:16px;background:linear-gradient(#3b3226,#2d2620);border:2px solid #6b5636}
+.truth h4{margin:0 0 4px;color:var(--gold);font-size:13px;letter-spacing:.1em}
+.truth p{margin:0;font-size:15px}
+.stats{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.stats span{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px 10px;font-size:13px}
+.row{display:flex;gap:8px;width:100%;max-width:420px}
+.row button{flex:1}
+
+/* ---- howto ---- */
+.how p{margin:0 0 8px;font-size:15px}
+.how .ex{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
+.how .ex span{font-size:13px;padding:2px 10px;border-radius:99px;background:var(--card);border:1px solid var(--line)}
+
+.toast{position:absolute;left:50%;top:70px;transform:translateX(-50%);background:#d65ad0;color:#fff;font-weight:800;padding:6px 16px;border-radius:99px;z-index:9;
+  box-shadow:0 6px 16px rgba(0,0,0,.4);animation:toast 1.6s forwards;pointer-events:none;white-space:nowrap}
+@keyframes toast{0%{opacity:0;transform:translate(-50%,-10px)}12%,80%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- タイトル -->
+  <section class="screen on" id="title">
+    <div class="sign"><h1>ひらめき スープ屋</h1><p>ひとりで あそべる 水平思考クイズ</p></div>
+    <svg class="master bob" id="masterBig" viewBox="0 0 120 120"></svg>
+    <p class="lead">「いらっしゃい。今夜も ふしぎな お話を ご用意しましたよ」<br>店主のカメ吉が「はい／いいえ」で答えてくれる。質問をかさねて、お話の<b>真相</b>を あばこう。</p>
+    <button class="big" id="btnStart">あそぶ</button>
+    <button class="sub-btn" id="btnHow">あそびかた</button>
+    <div class="prog" id="titleProg"></div>
+  </section>
+
+  <!-- 問題えらび -->
+  <section class="screen" id="menu">
+    <div class="bar"><button class="icon-btn" data-go="title" aria-label="もどる">←</button><h2>本日の メニュー</h2><span class="pts" id="menuTotal"></span></div>
+    <div class="list" id="stageList"></div>
+  </section>
+
+  <!-- プレイ -->
+  <section class="screen" id="play">
+    <div class="bar"><button class="icon-btn" id="btnBack" aria-label="もどる">←</button><h2 id="pTitle"></h2><span class="pts" id="pScore"></span></div>
+    <div class="problem" id="problem"><div class="lbl">QUESTION</div><div class="txt" id="pText"></div><button class="tog" id="pTog">たたむ</button></div>
+    <div class="log" id="log"></div>
+    <div class="dock">
+      <form class="ask" id="askForm" autocomplete="off">
+        <input id="askInput" placeholder="自由に質問してみよう（例：男は背が低い？）" enterkeyhint="send">
+        <button type="submit">聞く</button>
+      </form>
+      <div class="acts">
+        <button id="btnQ">📋 質問リスト<span class="badge new" id="qBadge" hidden></span></button>
+        <button id="btnMemo">🔑 メモ<span class="badge" id="memoBadge" hidden></span></button>
+        <button id="btnHint">💡 ヒント</button>
+        <button class="solve" id="btnSolve">🎯 答える</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- けっか -->
+  <section class="screen" id="result"></section>
+
+  <div class="veil" id="veil"><div class="sheet" id="sheet"></div></div>
+</div>
+
+<script>
+'use strict';
+/* =========================================================
+   問題データ
+   a: y=はい n=いいえ x=関係ありません p=部分的にはい
+   f: 重要な事実（メモに残る） id/r: r の質問をすると出てくる
+   k: キーワード（グループごとに1つ以上ふくまれていれば一致）
+   ========================================================= */
+const PUZZLES = [
+{
+  id:'hair', title:'ぬれない髪', lv:1,
+  q:'どしゃ降りの雨の中、ある男が 傘も帽子もなしに 30分間 外に立っていた。服は びしょぬれに なったのに、男の髪の毛は 1本も ぬれなかった。いったい なぜ？',
+  truth:'男は スキンヘッド（はげ頭）で、そもそも 髪の毛が 1本も なかった。「1本も ぬれなかった」のは、ぬれる髪が なかったからなのです。',
+  choices:['男には 髪の毛が 1本も なかったから','男は 屋根のある バス停の下に 立っていたから','髪に 強力な 防水スプレーを かけていたから','男は ずっと 逆立ちを していたから'],
+  hints:['雨は ちゃんと 男の頭に 当たっていたよ。','「ぬれなかった」のは、髪のほうに 理由が あるのかも？','そもそも、ぬれる髪の毛は あったのかな？'],
+  qs:[
+    {q:'男は 屋根の下に いましたか？',a:'n',k:[['屋根','やね','軒','建物','屋内','室内','バス停']]},
+    {q:'男は 何かで 頭を 守っていましたか？',a:'n',k:[['頭','あたま'],['守','まも','隠','かく','覆','おお','かぶ','被']]},
+    {q:'雨は 男の頭に 当たっていましたか？',a:'y',f:'雨は 男の頭に ちゃんと 当たっていた',k:[['頭','あたま'],['当た','あた','かか','濡','ぬれ']]},
+    {q:'髪に 特別な 薬や スプレーを 使っていましたか？',a:'n',k:[['薬','くすり','スプレー','ワックス','防水','撥水','整髪']]},
+    {id:'style',q:'男の 髪型が 関係ありますか？',a:'y',f:'男の 髪型（頭）が 関係している',k:[['髪型','かみがた','ヘア','頭','あたま']]},
+    {id:'few',r:'style',q:'男は 髪の毛が 少ないですか？',a:'y',f:'男は 髪の毛が 少ない…？',k:[['髪','かみ','毛'],['少な','すくな','うす','薄','ない','無','はげ','禿','ぼうず','坊主']]},
+    {r:'few',q:'男には 髪の毛が 1本も ないのですか？',a:'y',f:'男には 髪の毛が 1本も ない！',k:[['1本','一本','いっぽん','まったく','全く','全然','ぜんぜん','はげ','禿','すきんへっど','ぼうず','坊主']]},
+    {q:'男は 長いあいだ じっと 立っていましたか？',a:'y',k:[['立','たって','じっと']]},
+    {q:'男は 人間ですか？',a:'y',k:[['人間','にんげん']]},
+    {q:'男は ロボットや 人形ですか？',a:'n',k:[['ロボット','人形','にんぎょう','マネキン','像']]},
+    {q:'雨は ふつうの 雨でしたか？',a:'y',k:[['雨','あめ'],['普通','ふつう','本物','ほんもの']]},
+    {q:'男は かつらを かぶっていましたか？',a:'n',k:[['かつら','ウィッグ']]},
+    {q:'男の 職業は 関係ありますか？',a:'x',k:[['職業','仕事','しごと']]},
+    {q:'男は 逆立ちを していましたか？',a:'n',k:[['逆立','さかだち']]},
+  ]
+},
+{
+  id:'truck', title:'信号むし', lv:1,
+  q:'大型トラックの 運転手が、一方通行の道を 逆向きに 進み、さらに 車用の信号が 赤なのに 交差点を わたった。すぐそばに パトカーが いたのに、警察官は 何も 注意しなかった。なぜ？',
+  truth:'運転手は そのとき トラックを 運転しておらず、歩いていた。一方通行は 車の ルールなので 歩行者には 関係なし。交差点は 歩行者が どの方向にも わたれる スクランブル交差点で、歩行者用の信号は 青だったのです。',
+  choices:['運転手は そのとき 歩いていたから','警察官が 居眠りを していたから','救急の 荷物を 運んでいて 特別に 許されていたから','信号が 故障していることを 警察も 知っていたから'],
+  hints:['警察官は ちゃんと 運転手を 見ていたよ。','運転手は 何も ルール違反を していない。','運転手は そのとき「運転中」だったのかな？'],
+  qs:[
+    {id:'nodrive',q:'運転手は トラックを 運転していましたか？',a:'n',f:'運転手は そのとき トラックを 運転していなかった！',k:[['運転','うんてん','乗','のって','のり'],['トラック','車','くるま','中']]},
+    {id:'walk',r:'nodrive',q:'運転手は 歩いていましたか？',a:'y',f:'運転手は 歩いていた',k:[['歩','ある','徒歩','とほ']]},
+    {r:'walk',q:'歩行者用の 信号は 青でしたか？',a:'y',f:'歩行者用の信号は 青だった',k:[['歩行者','ほこうしゃ','横断歩道'],['青','あお','信号']]},
+    {q:'警察官は 運転手を 見ていましたか？',a:'y',k:[['警察','けいさつ','パトカー','おまわり'],['見','気づ','きづ','知']]},
+    {q:'警察官は 眠っていましたか？',a:'n',k:[['眠','ねむ','寝']]},
+    {q:'特別な 許可が ありましたか？',a:'n',k:[['許可','きょか','特別','とくべつ','緊急','きんきゅう','救急']]},
+    {q:'信号は 故障していましたか？',a:'n',k:[['故障','こしょう','壊','こわ']]},
+    {q:'運転手は 何か ルール違反を しましたか？',a:'n',f:'運転手は 何も ルール違反を していない',k:[['法律','ルール','違反','いはん','破','やぶ','悪い','わるい']]},
+    {q:'トラックは この話に 関係ありますか？',a:'n',f:'トラックは この話に 関係ない',k:[['トラック']]},
+    {q:'運転手は 自転車や バイクに 乗っていましたか？',a:'n',k:[['自転車','じてんしゃ','バイク']]},
+    {q:'交差点は 特別な 交差点でしたか？',a:'p',f:'交差点は どの方向にも 歩いて わたれる「スクランブル交差点」',k:[['交差点','こうさてん','スクランブル'],['特別','とくべつ','スクランブル','変わ','かわ','どんな']]},
+    {q:'夜の 出来事ですか？',a:'x',k:[['夜','昼','朝','時間']]},
+    {q:'運転手は 警察官と 知り合いですか？',a:'n',k:[['知り合い','しりあい','友達','ともだち','家族']]},
+  ]
+},
+{
+  id:'coffee', title:'コーヒーの指輪', lv:1,
+  q:'彼女は うっかり、大切な指輪を コーヒーの中に 落としてしまった。あわてて すぐに 拾い上げたが、指輪は 少しも ぬれていなかった。なぜ？',
+  truth:'指輪を 落としたのは、いれる前の「コーヒーの粉」の中だった。液体の コーヒーでは ないので、ぬれなかったのです。',
+  choices:['落としたのは 液体ではなく コーヒーの粉の中だったから','コーヒーが カチカチに 凍っていたから','指輪に 水をはじく 特殊な コーティングが してあったから','落とした 瞬間に 布で ふき取ったから'],
+  hints:['「コーヒー」と 聞くと、カップに 入った 飲み物を 想像するよね。','その コーヒーは、まだ 飲める 状態じゃ なかった。','いれる前の コーヒーって、どんな 形？'],
+  qs:[
+    {id:'notliq',q:'その コーヒーは 液体でしたか？',a:'n',f:'その コーヒーは 液体では なかった！',k:[['液体','えきたい','飲み物','のみもの','水','みず']]},
+    {r:'notliq',q:'コーヒーは 凍っていましたか？',a:'n',k:[['凍','こお','氷','こおり','アイス']]},
+    {r:'notliq',q:'コーヒーは 粉や 豆の 状態でしたか？',a:'y',f:'コーヒーは 粉の 状態だった',k:[['粉','こな','豆','まめ','パウダー','インスタント']]},
+    {q:'コーヒーは カップに 入っていましたか？',a:'n',f:'カップには 入っていなかった',k:[['カップ','コップ','マグ']]},
+    {q:'これから コーヒーを いれるところでしたか？',a:'y',f:'これから コーヒーを いれるところだった',k:[['いれ','淹','作','つく','準備','じゅんび','これから']]},
+    {q:'指輪に 特殊な 加工が されていましたか？',a:'n',k:[['加工','コーティング','特殊','とくしゅ','防水']]},
+    {q:'指輪を ふきましたか？',a:'n',k:[['拭','ふいた','ふき','タオル','ハンカチ']]},
+    {q:'コーヒーは 熱かったですか？',a:'n',k:[['熱','あつ','ホット','温度','おんど']]},
+    {q:'コーヒーは 本物の コーヒーですか？',a:'y',k:[['本物','ほんもの','普通','ふつう']]},
+    {q:'場所は 関係ありますか？',a:'x',k:[['家','いえ','店','カフェ','場所']]},
+    {q:'指輪の 素材は 関係ありますか？',a:'x',k:[['素材','金','ダイヤ','銀','プラチナ']]},
+    {q:'指輪は すぐに 拾いましたか？',a:'y',k:[['すぐ','急','拾','ひろ']]},
+  ]
+},
+{
+  id:'dark', title:'まっくらな道', lv:2,
+  q:'町じゅうが 停電した日。全身 黒い服の男が、街灯の 消えた 黒い アスファルトの道を 歩いていた。そこへ ライトを つけていない 車が 走ってきたが、運転手は 男に 気づき、ちゃんと 止まった。なぜ 気づけたの？',
+  truth:'それは 昼間の 出来事だった。停電していても、明るい 太陽の下なら 黒い服の男も よく 見えるのです。',
+  choices:['昼間の 出来事だったから','男が 光る 腕時計を していたから','運転手が 暗視ゴーグルを つけていたから','男が 大声で 叫んだから'],
+  hints:['停電も、黒い服も、黒い道も、ひっかけ かも？','車のライトや 街灯が なくても 明るいときって？','それは「いつ」の 出来事だった？'],
+  qs:[
+    {id:'notnight',q:'夜の 出来事ですか？',a:'n',f:'夜の 出来事では ない！',k:[['夜','よる','暗','くら','深夜']]},
+    {r:'notnight',q:'昼間の 出来事ですか？',a:'y',f:'昼間の 出来事だった',k:[['昼','ひる','朝','あさ','明る','あかる','太陽','たいよう','日中','夕方']]},
+    {q:'男は 光るものを 持っていましたか？',a:'n',k:[['光','ひか','懐中電灯','反射','スマホ']]},
+    {q:'車の ライトは 壊れていましたか？',a:'x',k:[['車','くるま'],['ライト','ヘッドライト','壊','故障']]},
+    {q:'男は 声を 出しましたか？',a:'n',k:[['声','こえ','叫','さけ','大声','音']]},
+    {q:'運転手は 特別な 道具を 使いましたか？',a:'n',k:[['道具','ゴーグル','暗視','カメラ','センサー']]},
+    {q:'運転手は とても 目が いいですか？',a:'x',k:[['目','視力','しりょく']]},
+    {q:'停電は 関係ありますか？',a:'n',f:'停電は ひっかけ。気づけたことには 関係ない',k:[['停電','ていでん','電気']]},
+    {q:'男の 服の 色は 関係ありますか？',a:'n',k:[['服','ふく','色','いろ','黒']]},
+    {q:'道に 何か 明かりが ありましたか？',a:'p',f:'明かりは あった。とても 大きな 明かりが…',k:[['明かり','あかり','照明','電灯']]},
+    {q:'月が 出ていましたか？',a:'x',k:[['月','つき']]},
+    {q:'車は ゆっくり 走っていましたか？',a:'x',k:[['ゆっくり','速','スピード','はや']]},
+    {q:'運転手と 男は 知り合いですか？',a:'n',k:[['知り合い','友達','家族']]},
+  ]
+},
+{
+  id:'train', title:'ゆずらない青年', lv:2,
+  q:'満員の 電車。座っている 青年の 目の前に、杖を ついた おばあさんが 立った。青年は 終点まで 一度も 席を 立たなかったが、それを 見ていた 乗客は だれも 青年を 責めなかった。なぜ？',
+  truth:'青年は その電車の 運転士で、運転席に 座っていた。運転士が 席を ゆずったら 電車は 走れません。おばあさんは 先頭車両の いちばん前、運転席の すぐ後ろに 立っていたのです。',
+  choices:['青年は 電車の 運転士だったから','青年も ケガを していて 立てなかったから','おばあさんが「座らなくていい」と 断ったから','乗客が みんな 眠っていたから'],
+  hints:['青年は 決して 意地悪な 人じゃ ないよ。','青年が 座っていた席は、ふつうの 座席じゃない。','青年が 立ち上がったら、電車は どうなる？'],
+  qs:[
+    {q:'青年は 体の どこかが 悪かったですか？',a:'n',k:[['体','からだ','ケガ','けが','病気','びょうき','足']]},
+    {q:'おばあさんは 座るのを 断りましたか？',a:'n',k:[['断','ことわ','座りたく','いらない']]},
+    {id:'notpas',q:'青年は 乗客ですか？',a:'n',f:'青年は ふつうの 乗客では ない！',k:[['乗客','じょうきゃく','客']]},
+    {id:'work',r:'notpas',q:'青年は 電車で 仕事を していますか？',a:'y',f:'青年は 電車で 仕事を していた',k:[['仕事','しごと','職員','働','はたら','係','スタッフ','社員']]},
+    {r:'work',q:'青年は 運転士ですか？',a:'y',f:'青年は 運転士！',k:[['運転','うんてん']]},
+    {r:'work',q:'青年は 車掌ですか？',a:'n',k:[['車掌','しゃしょう']]},
+    {q:'青年が 座っていた席は ふつうの 座席ですか？',a:'n',f:'青年が 座っていたのは 特別な 席',k:[['席','せき','座席','いす','椅子'],['普通','ふつう','特別','とくべつ','どんな']]},
+    {q:'青年は 優先席に 座っていましたか？',a:'n',k:[['優先席','ゆうせんせき']]},
+    {q:'青年は 眠っていましたか？',a:'n',k:[['眠','ねむ','寝']]},
+    {q:'青年は おばあさんに 気づいていましたか？',a:'x',k:[['気づ','きづ','見えて','知って']]},
+    {q:'おばあさんは 青年の 家族ですか？',a:'n',k:[['家族','かぞく','孫','まご','知り合い']]},
+    {q:'電車は ふつうの 電車ですか？',a:'y',k:[['電車','列車','でんしゃ'],['普通','ふつう','特別']]},
+    {q:'乗客は 青年の 事情を 知っていましたか？',a:'y',f:'乗客は ひとめで 青年が 立てない 理由が わかった',k:[['事情','じじょう','理由','りゆう','わけ'],['知','わか','分か']]},
+  ]
+},
+{
+  id:'snake', title:'ゴムのヘビ', lv:2,
+  q:'ある男が カフェに 入ってきて「水を 1杯 ください」と 言った。すると 店員は カウンターの下から おもちゃの ヘビを 取り出し、いきなり 男の 顔の前に 突きつけた。男は「ありがとう！」と 言って、水も 飲まずに 帰っていった。なぜ？',
+  truth:'男は しゃっくりが 止まらず 困っていた。水を 飲んで 止めようと したが、店員は それに 気づいて、もっと よく効く 方法——びっくりさせること——で 止めてあげた。しゃっくりが 止まったので、男は お礼を 言って 帰ったのです。',
+  choices:['男の しゃっくりを、おどろかせて 止めてあげたから','男は ヘビが 大好きで、見せてもらって 満足したから','店員と 男は 合言葉を 決めた スパイ仲間だったから','男は のどが 渇いていたことを 忘れたから'],
+  hints:['店員は 男を 助けてあげたんだよ。','男は 水を「飲みたかった」わけでは ない。','水を 一気に 飲む、びっくりさせる…どちらも 何かを 止める おまじない。'],
+  qs:[
+    {q:'男は のどが 渇いていましたか？',a:'n',f:'男は のどが 渇いていた わけでは ない',k:[['のど','喉','渇','かわ']]},
+    {id:'body',q:'男の 体の 調子が 関係ありますか？',a:'y',f:'男の 体の ちょっとした 不調が 関係している',k:[['体','からだ','調子','ちょうし','具合','ぐあい','病気','症状']]},
+    {r:'body',q:'男は しゃっくりを していましたか？',a:'y',f:'男は しゃっくりが 止まらなかった！',k:[['しゃっくり']]},
+    {q:'男には おどろくことが 必要でしたか？',a:'y',f:'男には「おどろくこと」が 必要だった',k:[['驚','おどろ','びっくり']]},
+    {q:'店員と 男は 知り合いですか？',a:'n',k:[['知り合い','友達','ともだち','仲間','家族']]},
+    {q:'ヘビそのものに 意味が ありますか？',a:'n',f:'ヘビで なくても よかった',k:[['ヘビ','蛇']]},
+    {q:'男は ヘビが 好きですか？',a:'x',k:[['ヘビ','蛇'],['好き','すき']]},
+    {q:'店員は 男を 怒らせたかったのですか？',a:'n',k:[['怒','おこ','いじわる','意地悪','いやがらせ','嫌がらせ']]},
+    {q:'店員は 男を 助けましたか？',a:'y',f:'店員は 男を 助けてあげた',k:[['助','たす','親切','しんせつ']]},
+    {q:'水は 飲む以外の 目的で たのみましたか？',a:'p',f:'水は 飲むためだけど、のどを うるおす ためでは ない',k:[['水','みず'],['使','つか','目的','ため','理由']]},
+    {q:'合言葉や 暗号ですか？',a:'n',k:[['合言葉','暗号','あいことば','スパイ']]},
+    {q:'お金は 関係ありますか？',a:'x',k:[['お金','おかね','払','はら','代金']]},
+  ]
+},
+{
+  id:'doctor', title:'わたしの息子', lv:2,
+  q:'サッカーの 試合中に 足を 骨折した 少年が、父親の 運転する 車で 病院へ 運ばれた。父親が 受付で 手続きを していると、診察室の 医師が 少年を 見るなり 叫んだ。「この子は 私の 息子です！」 医師は うそを ついていない。どういうこと？',
+  truth:'医師は 少年の 母親だった。「お医者さん＝男の人」という 思い込みが あると、なかなか 気づけません。',
+  choices:['医師は 少年の 母親だったから','医師が 本当の 父親で、付き添いの 男は 育ての 親だったから','医師は 患者を みんな「息子」と 呼ぶ くせが あったから','少年は 双子で、医師は もう ひとりと 勘違いしたから'],
+  hints:['医師も 父親も、うそは ついていないよ。','医師の 性別は？','少年の「親」は、父親だけ じゃないよね。'],
+  qs:[
+    {q:'付き添った 父親は、少年の 本当の 父親ですか？',a:'y',f:'付き添った 父親は 少年の 実の 父親',k:[['父','ちち','お父'],['本当','ほんとう','実','血']]},
+    {id:'female',q:'医師は 男性ですか？',a:'n',f:'医師は 男性では ない！',k:[['男','おとこ']]},
+    {r:'female',q:'医師は 女性ですか？',a:'y',f:'医師は 女性',k:[['女','おんな']]},
+    {r:'female',q:'医師は 少年の 母親ですか？',a:'y',f:'医師は 少年の 母親！',k:[['母','はは','お母','ママ']]},
+    {q:'医師の 性別が 関係ありますか？',a:'y',f:'医師の 性別が ポイント',k:[['性別','せいべつ']]},
+    {q:'医師は 勘違いを していますか？',a:'n',k:[['勘違','かんちが','間違','まちが','人違い']]},
+    {q:'少年に 兄弟は いますか？',a:'x',k:[['兄弟','きょうだい','双子','ふたご']]},
+    {q:'少年は 養子ですか？',a:'n',k:[['養子','ようし','育て','義理','ぎり']]},
+    {q:'医師と 父親は 知り合いですか？',a:'y',f:'医師と 父親は とても よく 知っている 仲',k:[['医師','医者','いしゃ','先生'],['父','ちち'],['知り合い','知って','しって','関係']]},
+    {q:'「息子」は たとえや あだ名ですか？',a:'n',k:[['比喩','たとえ','例え','あだ名','呼び方','くせ']]},
+    {q:'サッカーや 骨折は 関係ありますか？',a:'x',k:[['サッカー','試合','骨折']]},
+  ]
+},
+{
+  id:'taxi', title:'おしゃべりな お客', lv:2,
+  q:'とても おしゃべりな 女性客に うんざりした タクシー運転手は、「すみません、私は 耳が 聞こえないんです」と うそを ついた。女性は 静かに なった。ところが 目的地で 降りたあと、女性は「あの運転手、うそを ついていたわ！」と 気づいた。なぜ わかったの？',
+  truth:'女性は 乗るときに 行き先を 口で 伝えていた。耳が 聞こえないなら 行き先も わからない はずなのに、ちゃんと 目的地に 着いたから うそだと わかったのです。',
+  choices:['口で 伝えた 行き先に、ちゃんと 着いたから','運転手が ラジオを 聞いていたから','運転手が 電話で 話していたから','運転手の 名札に「耳は 聞こえます」と 書いてあったから'],
+  hints:['降りる前のことを 思い出してみて。','タクシーに 乗ったら、まず 最初に 何をする？','耳が 聞こえないなら、できない はずのことは？'],
+  qs:[
+    {q:'運転手は うっかり 返事を してしまいましたか？',a:'n',k:[['返事','へんじ','答え','こたえ','うなず','反応']]},
+    {q:'運転手は ラジオや 音楽を 聞いていましたか？',a:'n',k:[['ラジオ','音楽','おんがく','イヤホン']]},
+    {q:'運転手は 電話や 無線を 使いましたか？',a:'n',k:[['電話','でんわ','スマホ','無線']]},
+    {id:'before',q:'女性は 乗ったときに 何か したことが 関係ありますか？',a:'y',f:'女性が 乗ったときに したことが ポイント',k:[['乗る前','のるまえ','乗った','のった','乗るとき','最初','はじめ']]},
+    {id:'dest',q:'女性は 行き先を 伝えましたか？',a:'y',f:'女性は 行き先を「口で」伝えた',k:[['行き先','いきさき','目的地','もくてきち','場所']]},
+    {r:'dest',q:'行き先は 紙や 地図で 伝えましたか？',a:'n',k:[['紙','かみ','メモ','書','地図','ちず','スマホ','指']]},
+    {q:'タクシーは 正しい 場所に 着きましたか？',a:'y',f:'タクシーは ちゃんと 目的地に 着いた',k:[['着','つい','到着','正し','ただし']]},
+    {q:'女性は 運転手の 顔を 見て 気づきましたか？',a:'n',k:[['顔','かお','表情']]},
+    {q:'お金の やりとりが 関係ありますか？',a:'n',k:[['お金','おかね','料金','おつり','払']]},
+    {q:'女性は 耳が 聞こえますか？',a:'y',k:[['女性','女','客'],['耳','聞こえ']]},
+    {q:'運転手は 降りたあとに 何か 言いましたか？',a:'n',k:[['降り','おり','あと'],['言','話','声']]},
+    {q:'女性は もともと 運転手と 知り合いですか？',a:'n',k:[['知り合い','友達','家族']]},
+  ]
+},
+{
+  id:'elevator', title:'エレベーターの男', lv:3,
+  q:'マンションの 10階に 住む男は、毎朝 エレベーターで 1階まで 下りて 出かける。ところが 帰りは エレベーターを 7階で 降り、のこりは 階段で 上がる。ただし 雨の日と、だれかと 一緒のときだけは、10階まで エレベーターで 上がる。なぜ？',
+  truth:'男は とても 背が低く、エレベーターの「10」のボタンに 手が 届かなかった（「7」までなら 届く）。雨の日は 傘で ボタンを 押せるし、だれかと 一緒なら 押してもらえる。下りの「1」のボタンは 低い 位置に あるので 届くのです。',
+  choices:['背が低くて 10階の ボタンに 手が 届かないから','健康のため 少しでも 階段を 歩きたいから','7階に 住む 恋人に 毎日 顔を 見せに 行くから','10階に 止まると エレベーターが よく 故障するから'],
+  hints:['7階に 用事が あるわけでは ないよ。','男は 本当は 10階まで 乗りたいと 思っている。','雨の日に 持っている「長いもの」が あれば…？'],
+  qs:[
+    {q:'男は 健康のために 階段を 使っていますか？',a:'n',k:[['健康','けんこう','運動','うんどう','ダイエット']]},
+    {q:'男は 階段が 好きですか？',a:'n',k:[['階段','かいだん'],['好き','すき']]},
+    {q:'7階に 用事が ありますか？',a:'n',f:'7階には 何の 用事も ない',k:[['7階','ななかい','7'],['用','知り合い','友達','恋人','家族','誰','だれ']]},
+    {q:'男は 本当は 10階まで 乗りたいのですか？',a:'y',f:'男は 本当は 10階まで 乗りたい',k:[['10階','10','じゅっかい'],['乗りたい','行きたい','上がりたい','したい']]},
+    {q:'エレベーターは 故障していますか？',a:'n',k:[['故障','こしょう','壊','こわ']]},
+    {id:'body',q:'男の 体が 関係ありますか？',a:'y',f:'男の 体の 特徴が 関係している',k:[['体','からだ','身体','特徴','とくちょう']]},
+    {id:'short',r:'body',q:'男は 背が低いですか？',a:'y',f:'男は とても 背が低い',k:[['背','せが','せの','身長','しんちょう','小柄','こがら','低','ひく','小さ','ちいさ']]},
+    {q:'男は 足が 悪いですか？',a:'n',k:[['足','あし','ケガ','けが','車いす','車椅子']]},
+    {q:'男は 子どもですか？',a:'n',k:[['子ども','子供','こども','少年']]},
+    {id:'rain',q:'雨の日に 持っている 物が 関係ありますか？',a:'y',f:'雨の日に 持っている 物が 役に 立つ',k:[['雨','あめ'],['持','もの','物','道具']]},
+    {r:'rain',q:'傘が 関係ありますか？',a:'y',f:'傘が あれば 10階まで 行ける',k:[['傘','かさ']]},
+    {id:'btn',q:'エレベーターの ボタンが 関係ありますか？',a:'y',f:'エレベーターの ボタンが 関係している',k:[['ボタン','押','おす','おし','おせ']]},
+    {r:'short',q:'10階の ボタンに 手が 届かないのですか？',a:'y',f:'男は 10階の ボタンに 手が 届かない！',k:[['届','とど']]},
+    {q:'一緒に いる人に 何か してもらうのですか？',a:'y',f:'一緒に いる人に あることを してもらう',k:[['一緒','いっしょ','誰か','だれか','他の人'],['して','頼','たの','手伝']]},
+    {r:'btn',q:'朝 下りるときは ボタンに 問題が ないのですか？',a:'y',f:'下りで 押す「1」の ボタンは 低い 位置に ある',k:[['朝','下り','くだり','1階','いっかい']]},
+  ]
+},
+{
+  id:'barber', title:'床屋えらび', lv:3,
+  q:'ある 小さな 町には、床屋が 2軒しか ない。A店の 店主は いつも きれいに 髪が 整っている。B店の 店主は ぼさぼさで ひどい 髪型だ。旅人は 少し 考えて、B店で 髪を 切ってもらうことに した。なぜ？',
+  truth:'町に 床屋は 2軒だけなので、店主どうしは おたがいの 髪を 切り合っている。A店主の きれいな髪は B店主が 切ったもの、B店主の ひどい髪は A店主が 切ったもの。つまり 腕が いいのは B店主なのです。',
+  choices:['店主どうしが 髪を 切り合っていて、B店主の ほうが 腕が いいと わかったから','B店の ほうが 料金が 安かったから','A店は その日 休みだったから','旅人は ぼさぼさの 髪型に したかったから'],
+  hints:['旅人は 腕のいい 床屋に 切ってほしかった。','店主たちの 髪は、だれが 切っている？','A店主の きれいな髪は、だれの 作品？'],
+  qs:[
+    {q:'料金が 関係ありますか？',a:'n',k:[['料金','りょうきん','値段','ねだん','安','やす','お金']]},
+    {q:'A店は 営業していましたか？',a:'y',k:[['営業','えいぎょう','休み','やすみ','開いて','あいて']]},
+    {q:'旅人は ぼさぼさの 髪型に したかったのですか？',a:'n',k:[['ぼさぼさ'],['したかった','したい','なりたい','好き']]},
+    {q:'旅人は 腕のいい 床屋を 選んだのですか？',a:'y',f:'旅人は 腕のいい 床屋を 選んだ',k:[['腕','うで','上手','じょうず','うまい','技術']]},
+    {id:'self',q:'店主は 自分で 自分の髪を 切っていますか？',a:'n',f:'店主は 自分で 自分の髪は 切らない',k:[['自分','じぶん']]},
+    {id:'other',r:'self',q:'店主の髪は、ほかの だれかが 切っていますか？',a:'y',f:'店主の髪は ほかの 床屋が 切っている',k:[['他','ほか','別','べつ','だれ','誰'],['切','きっ','きら']]},
+    {r:'other',q:'A店主の髪を 切ったのは B店主ですか？',a:'y',f:'A店主の きれいな髪を 切ったのは B店主！',k:[['a'],['b']]},
+    {q:'町に 2軒しか ないことは 重要ですか？',a:'y',f:'床屋が 2軒しか ないことが ポイント',k:[['2軒','二軒','2つ','ふたつ','2けん','にけん']]},
+    {q:'旅人は 店主たちと 知り合いですか？',a:'n',k:[['知り合い','友達','家族']]},
+    {q:'B店主は 髪型に 興味が ないのですか？',a:'x',k:[['興味','きょうみ','気にし','無頓着']]},
+    {q:'お店の 見た目や 清潔さが 関係ありますか？',a:'n',k:[['見た目','きれいさ','清潔','せいけつ','汚']]},
+    {q:'旅人は 町の人に 評判を 聞きましたか？',a:'n',k:[['評判','ひょうばん','うわさ','噂','口コミ']]},
+  ]
+},
+{
+  id:'hotel', title:'ねむれない夜', lv:3,
+  q:'出張で ホテルに 泊まった男は、夜中に なっても 眠れなかった。男は 電話の 受話器を 取って ある番号に かけ、相手が 出ても 何も 言わずに 切った。すると 男は、すぐに ぐっすり 眠ることが できた。なぜ？',
+  truth:'隣の部屋の 客の いびきが うるさくて 眠れなかった。男は 隣の部屋に 電話を かけて 相手を 起こし、いびきが 止まった すきに 眠ったのです。',
+  choices:['隣の部屋の いびきを 止めるため、電話で 起こしたから','家族の 声を 聞いて 安心したから','時報を 聞いて 時間を 確かめたから','電話を かけると 子守歌が 流れる サービスだったから'],
+  hints:['男が 眠れなかったのは、男のせいじゃ ない。','ホテルの 壁は うすいことが ある。','相手が 電話に 出るために 起きると、何が 止まる？'],
+  qs:[
+    {id:'noise',q:'男は 何かの 音のせいで 眠れなかったのですか？',a:'y',f:'うるさい 音のせいで 眠れなかった',k:[['音','おと','うるさ','騒','さわ']]},
+    {id:'human',r:'noise',q:'その音は 人が 出していましたか？',a:'y',f:'音を 出していたのは 人間',k:[['人','ひと','誰','だれ','客'],['音','出し','だし']]},
+    {r:'human',q:'それは いびきですか？',a:'y',f:'音の 正体は いびき！',k:[['いびき','寝息','ねいき']]},
+    {id:'neighbor',q:'電話を かけた 相手は 隣の部屋の 人ですか？',a:'y',f:'電話の 相手は 隣の部屋の 客',k:[['隣','となり']]},
+    {q:'電話の 相手は 家族ですか？',a:'n',k:[['家族','かぞく','妻','奥さん','子ども','子供','恋人']]},
+    {q:'電話の 相手は ホテルの フロントですか？',a:'n',k:[['フロント','受付','従業員','スタッフ']]},
+    {q:'男は 不安や 悩みで 眠れなかったのですか？',a:'n',k:[['不安','ふあん','悩','なや','心配','緊張','ストレス']]},
+    {q:'部屋の 暑さ・寒さ・明るさの せいですか？',a:'n',k:[['暑','寒','温度','明る','まぶし','ベッド','枕']]},
+    {q:'電話を 鳴らすこと 自体に 意味が ありますか？',a:'y',f:'電話の ベルを 鳴らすこと 自体に 意味が あった',k:[['鳴ら','ならし','ベル','着信']]},
+    {q:'男は 相手を 起こしたかったのですか？',a:'y',f:'男は 相手を 起こしたかった',k:[['起こ','おこし','おこす','目を覚','めをさ']]},
+    {q:'男は 何かを 聞きたかったのですか？',a:'n',k:[['聞きた','ききた','聞こう','時報']]},
+    {q:'男は いたずらを したのですか？',a:'p',f:'いたずらに 近いけど、男には ちゃんとした 理由が あった',k:[['いたずら','嫌がらせ','いやがらせ']]},
+    {q:'男は 薬を 飲みましたか？',a:'n',k:[['薬','くすり','睡眠']]},
+  ]
+},
+{
+  id:'romeo', title:'ロミオとジュリエット', lv:3,
+  q:'ある朝、家の 主人が 居間に 入ると、ロミオと ジュリエットが 床の上で 死んでいた。まわりには 割れた ガラスと 水たまり。窓は 開いていて、カーテンが 風で 揺れている。いったい 何が あったの？',
+  truth:'ロミオと ジュリエットは 金魚。夜の 強い風で カーテンが あおられ、棚の上の 金魚鉢が 落ちて 割れてしまった。水から 出てしまった 2匹は 助からなかったのです。',
+  choices:['2匹は 金魚で、風で 金魚鉢が 落ちて 割れたから','2人は 泥棒に おそわれたから','2人は 毒入りの 水を 飲んでしまったから','2人は 窓から 入ってきた 鳥に おどろいたから'],
+  hints:['「ロミオと ジュリエット」という 名前に だまされないで。','割れた ガラスと 水たまり…もとは 何が 入っていた？','2人…いや、2匹は 水の中でしか 生きられない。'],
+  qs:[
+    {id:'nothuman',q:'ロミオと ジュリエットは 人間ですか？',a:'n',f:'ロミオと ジュリエットは 人間では ない！',k:[['人間','にんげん','人']]},
+    {id:'animal',r:'nothuman',q:'2匹は 動物ですか？',a:'y',f:'2匹は 動物（ペット）',k:[['動物','どうぶつ','ペット','生き物','いきもの']]},
+    {r:'animal',q:'2匹は 魚ですか？',a:'y',f:'2匹は 金魚！',k:[['魚','さかな','金魚','きんぎょ','めだか']]},
+    {r:'animal',q:'2匹は 犬や 猫や 鳥ですか？',a:'n',k:[['犬','いぬ','猫','ねこ','鳥','とり','ハムスター']]},
+    {q:'だれかに 殺されたのですか？',a:'n',f:'犯人は いない',k:[['殺','ころ','犯人','はんにん','泥棒','どろぼう','誰か','襲','おそ']]},
+    {q:'事故ですか？',a:'y',f:'これは 事故',k:[['事故','じこ','偶然','たまたま']]},
+    {q:'毒が 関係ありますか？',a:'n',k:[['毒','どく']]},
+    {q:'ガラスは 何かの 入れ物ですか？',a:'y',f:'ガラスは 水の 入った 入れ物だった',k:[['ガラス','割れ','われ'],['入れ物','いれもの','容器','鉢','はち','水槽','すいそう','コップ','瓶','びん','何']]},
+    {q:'水たまりは その 入れ物の 水ですか？',a:'y',k:[['水','みず']]},
+    {q:'窓から 何かが 入ってきましたか？',a:'p',f:'入ってきたのは 強い 風だけ',k:[['窓','まど'],['入','はい']]},
+    {q:'風が 関係ありますか？',a:'y',f:'強い 風が 関係している',k:[['風','かぜ','カーテン']]},
+    {q:'2人は 恋人どうしですか？',a:'x',k:[['恋人','こいびと','夫婦','カップル','結婚']]},
+    {q:'家の 主人は 悲しみましたか？',a:'y',k:[['悲し','かなし','泣']]},
+  ]
+},
+{
+  id:'phone', title:'出ない電話', lv:4,
+  q:'まだ 携帯電話が なかった ころの お話。都会で ひとり暮らしを する 大学生の マキは、毎晩 10時ごろ 実家に 電話を かける。電話が 鳴っても、母親は 絶対に 受話器を 取らない。それでも 母親は 毎晩、その 電話の音を 聞いて ほっとしている。なぜ？',
+  truth:'電話の ベルは「無事に 家に 帰ったよ」という 2人だけの 合図。マキは アルバイトから 帰ると 実家の 電話を 3回 鳴らして 切る。母親は その音で 娘の 無事を 確かめていた。電話に 出なければ 通話料が かからないので、毎日 続けられたのです。',
+  choices:['電話の音が「無事に 帰った」合図で、出なければ 電話代が かからないから','母親は 耳が 遠く、電話の 音しか 聞こえないから','母親は 娘と けんかしていて、話したくないから','電話の ベルの メロディーが、母親の 好きな 曲だから'],
+  hints:['2人は とても 仲よし。けんかは していないよ。','電話が「鳴る」こと そのものに 意味が ある。','電話に 出なければ、何が かからない？'],
+  qs:[
+    {q:'母親と マキは 仲が 悪いのですか？',a:'n',f:'母親と マキは とても 仲が いい',k:[['仲','なか','けんか','喧嘩']]},
+    {q:'母親は 耳が 悪いのですか？',a:'n',k:[['耳','みみ','聞こえ']]},
+    {q:'母親は 忙しくて 出られないのですか？',a:'n',k:[['忙','いそが','手が離せ','出られない','でられない']]},
+    {id:'ring',q:'電話が 鳴ること 自体に 意味が ありますか？',a:'y',f:'電話が 鳴ること 自体が メッセージ',k:[['音','おと','ベル','鳴','着信','コール']]},
+    {id:'sign',r:'ring',q:'電話は 何かの 合図ですか？',a:'y',f:'電話は 2人で 決めた 合図！',k:[['合図','あいず','サイン','しるし','メッセージ']]},
+    {r:'sign',q:'「無事」を 知らせる 合図ですか？',a:'y',f:'「無事に 家に 帰ったよ」という 合図',k:[['無事','ぶじ','安全','元気','帰った','かえった','帰宅','生きて']]},
+    {id:'money',q:'お金が 関係ありますか？',a:'y',f:'お金が 関係している',k:[['お金','おかね','料金','電話代','節約','せつやく']]},
+    {r:'money',q:'電話に 出ると お金が かかるのですか？',a:'y',f:'電話に 出なければ 通話料が かからない',k:[['出る','出ると','でる','でると','出ない','でない','つなが','繋が'],['料','代','かか','金']]},
+    {q:'マキは 毎晩 同じ 回数だけ 鳴らしますか？',a:'y',k:[['回数','かいすう','何回','3回','さんかい']]},
+    {q:'10時という 時間に 意味が ありますか？',a:'p',f:'10時は マキが アルバイトから 帰ってくる 時間',k:[['10時','時間','時刻','じかん']]},
+    {q:'マキと 母親は 前もって 決めごとを していましたか？',a:'y',f:'2人は 前もって ある 約束を していた',k:[['約束','やくそく','決め','きめ','ルール']]},
+    {q:'マキは 危ない目に あっていますか？',a:'n',k:[['危','あぶ','事件','危険']]},
+    {q:'母親は 電話の 使い方が わからないのですか？',a:'n',k:[['使い方','わからない','苦手','機械']]},
+  ]
+},
+{
+  id:'paper', title:'新聞を買う男', lv:4,
+  q:'男は 毎朝 駅前の 小さな 売店で 新聞を 1部 買う。ところが 男は その新聞を 一度も 読まず、そのまま 会社の ゴミ箱に 捨ててしまう。男は ニュースに まったく 興味が ない。それなのに、なぜ 毎朝 新聞を 買い続けるの？',
+  truth:'売店を ひとりで 切り盛りしているのは、男の 年老いた 母親。心配されるのが 大きらいな 母は「用もないのに 来るんじゃないよ」と 言う。だから 男は "お客" として 毎朝 新聞を 買い、母が 元気かどうか、顔を 見て 確かめていたのです。',
+  choices:['売店の 店主が 年老いた 母親で、毎朝 元気な 顔を 確かめるため','新聞に ついてくる くじを 集めているから','会社で 新聞を 持っていると えらく 見えるから','売店の 店員に 片思いしていて、話す きっかけが ほしいから'],
+  hints:['新聞の 中身は どうでも いいんだ。','大事なのは「あの売店」で 買うこと。','売店に いるのは、男にとって とても 大切な人。'],
+  qs:[
+    {q:'男は 字が 読めますか？',a:'y',k:[['字','読め','よめ']]},
+    {q:'新聞の 中身が 関係ありますか？',a:'n',f:'新聞の 中身は まったく 関係ない',k:[['中身','記事','内容','ニュース']]},
+    {q:'新聞の おまけや くじが 目当てですか？',a:'n',k:[['おまけ','くじ','付録','チラシ','クーポン']]},
+    {q:'新聞を「買う」ことに 意味が ありますか？',a:'y',f:'買いに 行くこと そのものに 意味が ある',k:[['買う','かう','買い','かい','行為']]},
+    {id:'shop',q:'その 売店が 関係ありますか？',a:'y',f:'あの 売店で 買うことが 大事',k:[['売店','ばいてん','店','みせ','キオスク']]},
+    {id:'clerk',r:'shop',q:'売店の 店員が 関係ありますか？',a:'y',f:'売店の 店員が 関係している',k:[['店員','店主','てんいん','てんしゅ','売り子','おばあ','おじい','人']]},
+    {id:'know',r:'clerk',q:'男と 店員は 知り合いですか？',a:'y',f:'男と 店員は とても 深い 関係',k:[['知り合い','しりあい','知って','関係']]},
+    {id:'mom',r:'know',q:'店員は 男の 家族ですか？',a:'y',f:'店員は 男の 母親！',k:[['家族','かぞく','母','はは','親','おや','母親','ははおや','お母さん','おかあさん']]},
+    {q:'男は 店員に 恋を していますか？',a:'n',k:[['恋','こい','好き','片思い']]},
+    {q:'店員は お年寄りですか？',a:'y',f:'店員は 年を とっている',k:[['高齢','こうれい','年','とし','老','歳','お年寄り']]},
+    {r:'clerk',q:'男は 店員の 様子を 確かめたいのですか？',a:'y',f:'男は 店員が 元気か 確かめたい',k:[['様子','ようす','元気','健康','確か','たしか','安否','見守','心配']]},
+    {r:'mom',q:'男は ふつうに 会いに 行けないのですか？',a:'y',f:'母は「用もないのに 来るな」と 言う。心配されるのが 大きらい',k:[['会い','あい','訪','直接','行けない','いけない']]},
+    {q:'会社で 新聞を 見せびらかしたいのですか？',a:'n',k:[['会社','見せ','えら','偉']]},
+    {q:'売店の 売り上げに 協力しているのですか？',a:'p',f:'売り上げに 協力…というより、もっと 大事な 理由が ある',k:[['売り上げ','うりあげ','応援','協力']]},
+  ]
+},
+];
+
+/* どの問題でも聞ける（リストには出ない）質問 */
+const COMMON = [
+  {q:'超能力や 魔法、おばけは 関係ありますか？',a:'n',k:[['超能力','魔法','まほう','幽霊','ゆうれい','おばけ','宇宙人','呪']]},
+  {q:'夢の 中の お話ですか？',a:'n',k:[['夢','ゆめ']]},
+];
+
+const ANS = {y:'はい',n:'いいえ',x:'関係ありません',p:'部分的には はい'};
+const LV = ['','★','★★','★★★','★★★★'];
+
+/* ---------------- 保存 ---------------- */
+const SAVE_KEY='hirameki-soup-v1';
+let save={};
+try{save=JSON.parse(localStorage.getItem(SAVE_KEY))||{}}catch(e){}
+function writeSave(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(save))}catch(e){}}
+
+/* ---------------- 音 ---------------- */
+let ac=null;
+function tone(f,d=.09,type='sine',v=.08,delay=0){
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    const t=ac.currentTime+delay,o=ac.createOscillator(),g=ac.createGain();
+    o.type=type;o.frequency.setValueAtTime(f,t);
+    g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d+.02);
+  }catch(e){}
+}
+const SFX={
+  y:()=>{tone(660,.1);tone(880,.14,'sine',.08,.08)},
+  n:()=>{tone(330,.12,'triangle');tone(247,.16,'triangle',.08,.09)},
+  x:()=>tone(440,.12,'triangle',.05),
+  p:()=>{tone(523,.1);tone(587,.12,'sine',.07,.08)},
+  key:()=>[784,988,1175].forEach((f,i)=>tone(f,.12,'sine',.07,.09*i)),
+  flash:()=>[880,1109,1319,1760].forEach((f,i)=>tone(f,.12,'square',.035,.07*i)),
+  bad:()=>tone(160,.3,'sawtooth',.05),
+  win:()=>[523,659,784,1047,784,1047].forEach((f,i)=>tone(f,.18,'triangle',.08,.11*i)),
+  tap:()=>tone(1200,.03,'sine',.03),
+};
+
+/* ---------------- カメ吉（店主）の絵 ---------------- */
+const MASTER_SVG=`
+<ellipse cx="60" cy="112" rx="34" ry="5" fill="#000" opacity=".25"/>
+<path d="M28 96c-8 6-14 4-16 0 4-2 9-6 14-9z" fill="#7cc79a"/>
+<path d="M92 96c8 6 14 4 16 0-4-2-9-6-14-9z" fill="#7cc79a"/>
+<ellipse cx="60" cy="88" rx="36" ry="24" fill="#4f9c74"/>
+<path d="M30 84q30-22 60 0" fill="none" stroke="#3b7a59" stroke-width="3"/>
+<path d="M44 78l6 14M76 78l-6 14M60 70v26" stroke="#3b7a59" stroke-width="3"/>
+<ellipse cx="60" cy="96" rx="26" ry="12" fill="#f4e3b5"/>
+<path d="M50 92l10 6 10-6-10 10z" fill="#c0392b"/><circle cx="60" cy="96" r="2.4" fill="#8e2a20"/>
+<ellipse cx="60" cy="50" rx="27" ry="24" fill="#7cc79a"/>
+<ellipse cx="60" cy="58" rx="16" ry="10" fill="#9fdcb6"/>
+<circle cx="49" cy="47" r="5.2" fill="#fff"/><circle cx="71" cy="47" r="5.2" fill="#fff"/>
+<circle cx="50" cy="48" r="3" fill="#2a2235"/><circle cx="72" cy="48" r="3" fill="#2a2235"/>
+<circle cx="51" cy="47" r="1" fill="#fff"/><circle cx="73" cy="47" r="1" fill="#fff"/>
+<path d="M53 60q7 5 14 0" fill="none" stroke="#2a2235" stroke-width="2.2" stroke-linecap="round"/>
+<ellipse cx="42" cy="57" rx="4" ry="2.4" fill="#ff9fb0" opacity=".7"/><ellipse cx="78" cy="57" rx="4" ry="2.4" fill="#ff9fb0" opacity=".7"/>
+<path d="M36 34q24-26 48 0z" fill="#fff"/><rect x="34" y="31" width="52" height="7" rx="3.5" fill="#f1ece0"/>
+<path d="M40 30q-6-18 10-16 4-10 14-4 12-6 14 6 12 2 6 14z" fill="#fff"/>`;
+function masterSvg(cls=''){return `<svg class="${cls}" viewBox="0 0 120 120">${MASTER_SVG}</svg>`}
+document.getElementById('masterBig').innerHTML=MASTER_SVG;
+
+/* ---------------- テキスト照合 ---------------- */
+function norm(s){
+  return s.normalize('NFKC').toLowerCase()
+    .replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60))
+    .replace(/[\s、。，．,.!！?？「」『』()（）・…〜~\-]/g,'');
+}
+function matchQ(text,list){
+  const t=norm(text);if(!t)return null;
+  let best=null,bestScore=0;
+  for(const q of list){
+    if(norm(q.q)===t)return q;
+    let score=0,ok=true;
+    for(const g of q.k){
+      let m=0;for(const w of g){const n=norm(w);if(n&&t.includes(n))m=Math.max(m,n.length)}
+      if(!m){ok=false;break}
+      score+=100+m;
+    }
+    if(ok&&score>=bestScore){bestScore=score;best=q}
+  }
+  return best;
+}
+
+/* ---------------- 画面切り替え ---------------- */
+const $=id=>document.getElementById(id);
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));closeSheet()}
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{SFX.tap();go(b.dataset.go)});
+function go(id){if(id==='menu')renderMenu();if(id==='title')renderTitle();show(id)}
+
+function rankOf(s){return s>=85?'S':s>=70?'A':s>=50?'B':'C'}
+function renderTitle(){
+  const n=PUZZLES.filter(p=>save[p.id]&&save[p.id].best!=null).length;
+  $('titleProg').textContent=n?`クリア ${n} / ${PUZZLES.length} 問`:`全 ${PUZZLES.length} 問`;
+}
+function renderMenu(){
+  let total=0;
+  $('stageList').innerHTML=PUZZLES.map((p,i)=>{
+    const s=save[p.id];let rk='<span class="rk G">未</span>';
+    if(s&&s.best!=null){const r=rankOf(s.best);total+=s.best;rk=`<span class="rk ${r}">${r}</span>`}
+    else if(s&&s.gaveup)rk='<span class="rk G">真相<br>済</span>';
+    return `<button class="stage" data-i="${i}"><span class="no">${i+1}</span><span class="t"><b>${p.title}</b><small>むずかしさ ${LV[p.lv]}${s&&s.best!=null?`　ベスト ${s.best}点`:''}</small></span>${rk}</button>`;
+  }).join('');
+  $('menuTotal').textContent=`合計 ${total}点`;
+  $('stageList').querySelectorAll('.stage').forEach(b=>b.onclick=()=>{SFX.tap();startPuzzle(+b.dataset.i)});
+}
+
+/* ---------------- プレイ ---------------- */
+let G=null;
+function startPuzzle(i){
+  const p=PUZZLES[i];
+  G={i,p,asked:new Set(),facts:[],hints:0,wrong:new Set(),qCount:0,flash:0,newQ:new Set(),done:false};
+  $('pTitle').textContent=`No.${i+1} ${p.title}`;
+  $('pText').textContent=p.q;
+  $('problem').classList.remove('fold');$('pTog').textContent='たたむ';
+  $('log').innerHTML='';
+  show('play');
+  sys('「はい」「いいえ」で 答えられる 質問を してね');
+  master(i===0&&!save.played?'ようこそ。まずは 下の「質問リスト」から 聞いてみるのが おすすめです。自由に 文章で 聞いても かまいませんよ。':'さあ、どこからでも どうぞ。');
+  save.played=1;writeSave();
+  updateHud();
+}
+function score(){
+  if(!G)return 0;
+  return Math.max(10,Math.min(100,100-G.qCount*2-hintCost()-G.wrong.size*15+G.flash*3));
+}
+function hintCost(){return [0,10,20,35][G.hints]}
+function visibleQs(){return G.p.qs.filter(q=>!q.r||G.asked.has(G.p.qs.find(x=>x.id===q.r)))}
+function updateHud(){
+  $('pScore').textContent=score()+'点';
+  const nb=$('qBadge'),mb=$('memoBadge');
+  const fresh=[...G.newQ].filter(q=>!G.asked.has(q)).length;
+  nb.hidden=!fresh;nb.textContent=fresh;
+  mb.hidden=!G.facts.length;mb.textContent=G.facts.length;
+  $('btnHint').textContent=G.hints>=G.p.hints.length?'💡 ヒント済':'💡 ヒント';
+}
+function addMsg(cls,html,av){
+  const d=document.createElement('div');d.className='msg '+cls;
+  d.innerHTML=(av?`<span class="av">${masterSvg()}</span>`:'')+`<div class="bb">${html}</div>`;
+  $('log').appendChild(d);
+  requestAnimationFrame(()=>{$('log').scrollTop=$('log').scrollHeight});
+  return d;
+}
+function master(t,extra=''){return addMsg('mt'+extra,t,true)}
+function sys(t){const d=document.createElement('div');d.className='sys';d.textContent=t;$('log').appendChild(d)}
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+function ask(q,typed){
+  if(G.done)return;
+  addMsg('me',esc(typed||q.q));
+  if(G.asked.has(q)){
+    setTimeout(()=>{master(`<span class="ans ${q.a}">${ANS[q.a]}</span>${typed?`<br><small>（「${esc(q.q)}」は もう 聞きましたね）</small>`:'（さっきも 聞きましたね）'}`)},250);
+    return;
+  }
+  const hidden=q.r&&!G.asked.has(G.p.qs.find(x=>x.id===q.r));
+  G.asked.add(q);G.qCount++;
+  if(hidden){G.flash++;}
+  if(q.id){G.p.qs.filter(x=>x.r===q.id).forEach(x=>{if(!G.asked.has(x))G.newQ.add(x)})}
+  const isNewFact=q.f&&!G.facts.includes(q.f);
+  if(isNewFact)G.facts.push(q.f);
+  setTimeout(()=>{
+    let h=`<span class="ans ${q.a}">${ANS[q.a]}</span>`;
+    if(typed&&norm(typed)!==norm(q.q))h+=`<br><small style="color:var(--sub)">→「${esc(q.q)}」として 答えます</small>`;
+    if(hidden)h+=`<span class="flash">✨ ひらめき！ +3</span>`;
+    if(isNewFact)h+=`<br><span class="keytag">🔑 いい質問です！</span> ${esc(q.f)}`;
+    master(h);
+    (hidden?SFX.flash:isNewFact?SFX.key:SFX[q.a])();
+    if(hidden)toast('✨ ひらめき！');
+    const nq=q.id?G.p.qs.filter(x=>x.r===q.id&&!G.asked.has(x)).length:0;
+    if(nq)sys(`📋 質問リストに 新しい 質問が ${nq}つ 増えました`);
+    updateHud();
+  },300);
+}
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;$('app').appendChild(d);setTimeout(()=>d.remove(),1700)}
+
+$('askForm').onsubmit=e=>{
+  e.preventDefault();
+  const inp=$('askInput'),t=inp.value.trim();if(!t||G.done)return;
+  inp.value='';
+  const q=matchQ(t,G.p.qs)||matchQ(t,COMMON.map(c=>c));
+  if(!q){
+    addMsg('me',esc(t));
+    setTimeout(()=>{master('うーん…その 質問には うまく 答えられません。<br><small>言い方を 変えるか、「📋 質問リスト」から 選んでみてください（回数には 数えません）</small>');SFX.x()},250);
+    return;
+  }
+  ask(q,t);
+};
+$('pTog').onclick=()=>{const f=$('problem').classList.toggle('fold');$('pTog').textContent=f?'ひらく':'たたむ'};
+$('btnBack').onclick=()=>{SFX.tap();go('menu')};
+
+/* ---------------- シート ---------------- */
+function openSheet(title,html,after){
+  $('sheet').innerHTML=`<header><h3>${title}</h3><button class="icon-btn" id="sheetX" aria-label="とじる">✕</button></header><div class="body">${html}</div>`;
+  $('veil').classList.add('on');$('sheetX').onclick=closeSheet;
+  if(after)after($('sheet'));
+}
+function closeSheet(){$('veil').classList.remove('on')}
+$('veil').onclick=e=>{if(e.target===$('veil'))closeSheet()};
+
+$('btnQ').onclick=()=>{
+  SFX.tap();
+  const vis=visibleQs(),open=vis.filter(q=>!G.asked.has(q)),done=vis.filter(q=>G.asked.has(q));
+  open.sort((a,b)=>(G.newQ.has(b)?1:0)-(G.newQ.has(a)?1:0));
+  let h=`<div class="note">タップすると 質問します（1回 −2点）。リストに ない 質問も、下の 入力らんから 自由に 聞けます。かくれた 核心の 質問を 先に 当てると <b>ひらめき +3点</b>！</div>`;
+  h+=open.length?open.map(q=>`<button class="qbtn${G.newQ.has(q)?' new':''}" data-q="${G.p.qs.indexOf(q)}">${G.newQ.has(q)?'🆕 ':''}${esc(q.q)}</button>`).join(''):'<div class="empty">リストの 質問は ぜんぶ 聞きました。自由入力も ためしてみて！</div>';
+  if(done.length)h+=`<div class="sec">聞いた 質問</div>`+done.map(q=>`<div class="qbtn done"><span class="ans ${q.a}" style="font-size:14px">${ANS[q.a]}</span>${esc(q.q)}</div>`).join('');
+  openSheet('📋 質問リスト',h,s=>s.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{const q=G.p.qs[+b.dataset.q];G.newQ.delete(q);closeSheet();ask(q)}));
+};
+$('btnMemo').onclick=()=>{
+  SFX.tap();
+  const h=G.facts.length?G.facts.map(f=>`<div class="fact">${esc(f)}</div>`).join(''):'<div class="empty">まだ 手がかりは ありません。<br>「🔑 いい質問です！」と 言われた 事実が ここに たまります。</div>';
+  openSheet('🔑 わかったこと',h+(G.hints?`<div class="sec">ヒント</div>`+G.p.hints.slice(0,G.hints).map(t=>`<div class="fact" style="background:#2f2a45;border-color:var(--line)">💡 ${esc(t)}</div>`).join(''):''));
+};
+$('btnHint').onclick=()=>{
+  SFX.tap();if(G.done)return;
+  if(G.hints>=G.p.hints.length){master('ヒントは もう ありません。あとは あなたの ひらめき しだい！');return}
+  const cost=[10,10,15][G.hints];
+  openSheet('💡 ヒント',`<div class="note">ヒント ${G.hints+1} / ${G.p.hints.length} を 見ますか？（−${cost}点）</div><button class="big" id="hintOk" style="width:100%">見る</button>`,()=>{
+    $('hintOk').onclick=()=>{closeSheet();G.hints++;addMsg('mt hintmsg',`💡 ヒント${G.hints}：${esc(G.p.hints[G.hints-1])}`,true);SFX.p();updateHud()};
+  });
+};
+let choiceOrder=[];
+$('btnSolve').onclick=()=>{
+  SFX.tap();if(G.done)return;
+  if(!choiceOrder.length||choiceOrder.pid!==G.p.id){choiceOrder=G.p.choices.map((c,i)=>i).sort(()=>Math.random()-.5);choiceOrder.pid=G.p.id}
+  const h=`<div class="note">真相は どれ？ まちがえると −15点。</div>`+choiceOrder.map(i=>`<button class="choice${G.wrong.has(i)?' bad':''}" data-c="${i}">${esc(G.p.choices[i])}</button>`).join('')+`<button class="giveup" id="giveup">ギブアップして 真相を 見る</button>`;
+  openSheet('🎯 真相を 答える',h,s=>{
+    s.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{
+      const c=+b.dataset.c;if(G.wrong.has(c))return;
+      if(c===0){closeSheet();finish(true)}
+      else{G.wrong.add(c);b.classList.add('bad');SFX.bad();updateHud();closeSheet();
+        addMsg('me',esc(G.p.choices[c]));
+        setTimeout(()=>master('<span class="ans n">ざんねん！</span>それは 真相では ありません。<small>（−15点）</small>'),250)}
+    });
+    $('giveup').onclick=()=>{closeSheet();finish(false)};
+  });
+};
+
+function finish(win){
+  G.done=true;
+  const p=G.p,sc=win?score():null;
+  const s=save[p.id]||(save[p.id]={});
+  let best=false;
+  if(win){if(s.best==null||sc>s.best){s.best=sc;best=true}}else s.gaveup=1;
+  writeSave();
+  const r=win?rankOf(sc):null;
+  const next=G.i+1<PUZZLES.length;
+  $('result').innerHTML=`
+    <div class="stamp">${win?'せいかい！':'ギブアップ'}</div>
+    ${win?`<div class="rankbig rk ${r}">${r}</div><div style="font-size:22px;font-weight:800">${sc}点${best?' <span class="flash">ベスト更新</span>':''}</div>`:''}
+    ${masterSvg('master')}
+    <div class="truth"><h4>QUESTION</h4><p>${esc(p.q)}</p></div>
+    <div class="truth"><h4>真相</h4><p>${esc(p.truth)}</p></div>
+    ${win?`<div class="stats"><span>質問 ${G.qCount}回</span><span>ヒント ${G.hints}回</span><span>まちがい ${G.wrong.size}回</span><span>ひらめき ${G.flash}回</span></div>`:''}
+    <div class="row"><button class="sub-btn" id="rMenu">メニューへ</button>${next?'<button class="big" id="rNext" style="margin-top:4px">つぎの お話</button>':''}</div>`;
+  show('result');$('result').scrollTop=0;
+  win?SFX.win():SFX.n();
+  $('rMenu').onclick=()=>{SFX.tap();go('menu')};
+  if(next)$('rNext').onclick=()=>{SFX.tap();startPuzzle(G.i+1)};
+}
+
+/* ---------------- タイトル ---------------- */
+$('btnStart').onclick=()=>{SFX.tap();go('menu')};
+$('btnHow').onclick=()=>{
+  SFX.tap();
+  openSheet('あそびかた',`<div class="how">
+    <p>🍲 店主の カメ吉が、ちょっと ふしぎな お話（QUESTION）を 出します。</p>
+    <p>❓ あなたは「はい／いいえ」で 答えられる 質問を して、お話の 真相を 推理します。答えは 4しゅるい：</p>
+    <div class="ex"><span><b class="ans y">はい</b></span><span><b class="ans n">いいえ</b></span><span><b class="ans x">関係ありません</b></span><span><b class="ans p">部分的には はい</b></span></div>
+    <p>📋 <b>質問リスト</b>から 選ぶか、入力らんに <b>自由に 文章で</b> 聞こう。核心に せまる 質問をすると「🔑 いい質問です！」と 手がかりが <b>メモ</b>に たまり、リストに 新しい 質問が 出てきます。</p>
+    <p>✨ まだ リストに 出ていない 核心の 質問を 自由入力で 当てると <b>ひらめきボーナス</b>！</p>
+    <p>🎯 真相が わかったら「答える」で 4つの 中から 選ぼう。</p>
+    <p>💯 100点から スタート。質問 −2点、ヒント −10〜15点、まちがい −15点。少ない 質問で 当てるほど 高ランク（S/A/B/C）！</p>
+  </div>`);
+};
+renderTitle();
+if(location.hash.startsWith('#p')){const n=parseInt(location.hash.slice(2))-1;if(PUZZLES[n])startPuzzle(n)}
+</script>
+</body>
+</html>
