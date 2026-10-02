@@ -199,7 +199,7 @@ const LK={
   futanY:{h:44,kid:1,skin:'#ffd9c0',body:'#ff8fb8',shape:'yukata',obi:COL.yel,pat:'#fff',hair:'bob',hairCol:'#2b1d22',leg:'#ffd9c0',shoe:'#c9874a',acc:'flower'},
   mama:{h:62,skin:'#ffd9c0',body:'#e8483a',shape:'tri',hair:'pattsun',eye:'thin',fem:true,hairCol:'#4a2a1a',leg:'#ffd9c0',shoe:'#5a3a6a',acc:'apron'},
   mamaY:{h:62,skin:'#ffd9c0',body:'#4a8ad8',shape:'yukata',obi:COL.pink,pat:'#fff',hair:'pattsun',eye:'thin',fem:true,acc:'flower',hairCol:'#4a2a1a',leg:'#ffd9c0',shoe:'#c9874a'},
-  papa:{h:66,skin:'#f5cfa8',body:'#2a3a6a',shape:'box',hair:'short',hairCol:'#1d1a24',leg:'#2a3a6a',shoe:INK,acc:'tie glasses'},
+  papa:{h:68,skin:'#f5cfa8',body:'#3a8ad8',shape:'box',hair:'short',hairCol:'#1d1a24',leg:'#c8a878',shoe:'#7a4a2a',acc:'tie glasses mustache'},
   teacher:{h:58,skin:'#ffd9c0',body:'#ff8fb8',shape:'tri',hair:'pig',hairCol:'#a8502b',leg:'#ffd9c0',shoe:'#fff',acc:'apron'},
   butcher:{h:64,skin:'#f5c9a0',body:'#fff',shape:'bean',bw:.4,hair:'short',hairCol:'#2b1d22',hat:'hachi',leg:'#2b3a6a',shoe:INK,acc:'apron mustache'},
   worker:{h:64,skin:'#e8b088',body:COL.org,shape:'box',hair:'short',hairCol:INK,hat:'helmet',hatCol:COL.yel,leg:'#3a3a5a',shoe:INK},
@@ -625,8 +625,17 @@ function render(){
   const vg=C.createRadialGradient(CW/2,CH/2,Math.min(CW,CH)*.38,CW/2,CH/2,Math.max(CW,CH)*.78);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(20,10,30,.24)');C.fillStyle=vg;C.fillRect(0,0,CW,CH);
   drawBubbles();
 }
+const TAGS={futan:['ふーたん','#ff5f9e'],mama:['かあちゃん',COL.red],papa:['パパ',COL.blue],ricky:['リッキー','#f0a000'],pochi:['ポチ','#c8803a'],penta:['ペンタ','#20a5b5'],santa:['サンタ','#d82a2a'],keeper:['もりさん','#2a9a50'],hachi:['ハチ','#c8803a'],rud:['ルドルフ','#a0522d']};
+function drawTags(){if(SAVE.noTag)return;C.font='900 10px "M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif';C.textBaseline='middle';C.textAlign='center';const placed=[];
+  for(const e of G.ents){const t=TAGS[e.id];if(!t||e.hidden||e.noTag)continue;const s=w2s(e.x,e.y);if(s[0]<-40||s[0]>CW+40||s[1]<-20||s[1]>CH+30)continue;
+    const w=C.measureText(t[0]).width+12,x=s[0];let y=s[1]+5+Math.max(0,4-cam.z*4);for(let k=0;k<4&&placed.some(r=>Math.abs(r[0]-x)<(r[1]+w)/2+2&&Math.abs(r[2]-y)<16);k++)y+=16;placed.push([x,w,y]);
+    C.fillStyle='#fff';C.beginPath();C.moveTo(x,y-1);C.lineTo(x-5,y+5);C.lineTo(x+5,y+5);C.fill();
+    C.beginPath();C.roundRect?C.roundRect(x-w/2-1.5,y+3.5,w+3,16,8):C.rect(x-w/2-1.5,y+3.5,w+3,16);C.fill();
+    C.fillStyle=t[1];C.beginPath();C.roundRect?C.roundRect(x-w/2,y+5,w,13,6.5):C.rect(x-w/2,y+5,w,13);C.fill();
+    C.fillStyle='#fff';C.fillText(t[0],x,y+11.8);}
+  C.textAlign='left';}
 function drawBubbles(){
-  const small=cam.z<.5;
+  drawTags();const small=cam.z<.5;
   C.font='800 12px "M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif';C.textBaseline='top';C.textAlign='left';
   for(const e of G.ents){if(!e.bub||e.hidden)continue;
     const top=e.bubY!=null?e.bubY:e.h;const s=w2s(e.x,e.y-top-2);if(s[0]<-60||s[0]>CW+60||s[1]<-40||s[1]>CH+60)continue;
@@ -1046,7 +1055,7 @@ function stage1(){
 function stage2(){
   const F=G.f;G.cakeRoute=null;
   const st={name:'パパの おつかい',W:1900,H:1080,t0:900,t1:1080,spm:1.2,song:1,bgCol:'#ead9b4',start:{x:430,y:560,z:1.3},
-    goal:'きょうは ふーたんの 5さいの おたんじょうび。\nしごとがえりの パパに ケーキと ろうそくを かってきて もらう はずだが…\n18:00の パーティーまでに、パパを ケーキ（の かわりに なる もの）と ろうそくを もって かえらせよう。',
+    goal:'きょうは ふーたんの 5さいの おたんじょうび。\nしごとがえりの パパに ケーキと ろうそくを かってきて もらう はずだが…\n18:00の パーティーまでに、パパを ケーキ（の かわりに なる もの）と ろうそくを もって かえらせよう。\n（パパは あおい ジャケットに めがねと ちょびひげ。あしもとの なまえふだが めじるし）',
     routeNames:['A','B','C'],routeTitle:{A:'パンやさんの とくせい ケーキ',B:'ケーキやさん ふっかつ',C:'いちごで かあちゃんの てづくり ケーキ'},failMsg:'18:00 … パパは パーティーに まにあわなかった…'};
   F.r0=false;F.cake=null;F.candle=false;F.power=false;F.cakeOpen=false;F.bakery=true;F.emerg=0;F.grannyAwake=0;F.wakeHow=null;F.knowClosed=false;F.sale=false;
   const crossClosed=()=>{const m=G.min;if(m>=1040&&m<1060)return true;if(F.emerg>m)return true;return m>=930&&(m%30)<2.5;};
@@ -1149,7 +1158,7 @@ function stage2(){
   const lady=wanderer('lady',Object.assign(walkerLook(5),{body:'#c9a8ff',hat:'hat',hatCol:'#fff'}),area,'プードルの おくさん');
   lady.draw=e=>{drawPerson(e,personPose(e));const dx=e.x+(e.dir||1)*-16,dy=e.y;ln(e.x-(e.dir||1)*6,e.y-26,dx,dy-8,.6,'#888');for(let i=0;i<4;i++)dot(dx-4+i*3,dy-6-(i%2)*2,3.4,'#fff');dot(dx+6,dy-10,3.6,'#fff');dot(dx+7,dy-11,.8,INK);};
   lady.talk=['プーちゃん おさんぽ たのしいね','ざあます'];lady.poke=e=>{dex('lady','プードルの おくさん');e.react=1;e.rt='jump';say(e,'まっ！ プーちゃんが ほえたざます');sfx('bark');};
-  const commuters=[];for(let i=0;i<6;i++){const c=wanderer('com'+i,Object.assign({},LK.papa,{body:['#3a3a4a','#4a4a6a','#2a2a3a'][i%3],acc:'tie',hairCol:INK}),area,'かいしゃいん',{hidden:true});c.gk='com';commuters.push(c);c.talk=['ふう、つかれた','きょうは はやく かえれるぞ'];}
+  const commuters=[];for(let i=0;i<6;i++){const c=wanderer('com'+i,Object.assign({},LK.papa,{body:['#3a3a4a','#4a4a6a','#2a2a3a'][i%3],acc:'tie',hairCol:INK,leg:'#2a2a3a',shoe:INK}),area,'かいしゃいん',{hidden:true});c.gk='com';commuters.push(c);c.talk=['ふう、つかれた','きょうは はやく かえれるぞ'];}
   const kids=[];for(let i=0;i<3;i++){const k=wanderer('kid'+i,Object.assign({},i%2?LK.kidB:LK.kidA,{h:48,hat:'cap',hatCol:COL.yel,body:['#fff','#ffb3d1','#8fd0f0'][i],shape:'box',acc:'rando'}),[540,760,1000,1020],'しょうがくせい',{hidden:true});kids.push(k);k.talk=['おにごっこ しよ〜','ランドセル おもい〜'];k.gk='kid';
     k.poke=e=>{dex('kid','しょうがくせい');e.react=1.4;e.rt='flop';say(e,'ランドセルの なかみが ばらばら〜！');sfx('crash');};}
   const sale=[0,1,2].map(i=>P_('sale'+i,Object.assign({},LK.baba,{body:['#ff9a1f','#3ccf6e','#ff7eb6'][i],acc:''}),300+i*30,700,'タイムセールの おばちゃん',{hidden:true,spd:40}));
@@ -1511,7 +1520,7 @@ function stage4(){
   const animals=E({id:'petting',name:'ウサギと ヤギ',x:1700,y:880,w:120,h:40,draw(e){for(let i=0;i<3;i++){const jx=e.react>0?Math.abs(Math.sin(T*8+i))*8:0;ell(e.x-50+i*22,e.y-5-jx,7,5,'#fff');ell(e.x-45+i*22,e.y-11-jx,4,4,'#fff');ell(e.x-46+i*22,e.y-17-jx,1.5,4,'#fff');}ell(e.x+40,e.y-12,14,9,'#eee');ell(e.x+54,e.y-20,6,6,'#eee');ln(e.x+52,e.y-25,e.x+48,e.y-30,1.4,'#aaa');for(const lx of[30,36,44,50])ln(e.x+lx,e.y-6,e.x+lx,e.y,1.6,'#ccc');}});
   // ふーたん たち
   const futan=P_('futan',LK.futanH,990,1140,'ふーたん',{spd:36});
-  const papa=P_('papa',Object.assign({},LK.papa,{body:'#3a8ad8',acc:'glasses',shape:'box'}),1010,1150,'パパ',{spd:36,stroller:true,babyMood:'happy'});
+  const papa=P_('papa',Object.assign({},LK.papa,{body:'#3a8ad8',acc:'glasses mustache',shape:'box'}),1010,1150,'パパ',{spd:36,stroller:true,babyMood:'happy'});
   // つうこうにん
   for(let i=0;i<7;i++){const r=i%3===0?[-10,570,2000,610]:i%3===1?[965,100,1015,1150]:[-10,1010,2000,1045];const w=wanderer('v'+i,walkerLook(i+2),r,'おきゃくさん');w.gk='visitor';w.talk=['ゾウさん おおきい〜','ペンギン ショー たのしみ','ライオン ねてるね'];}
   const photog=P_('photog',Object.assign(walkerLook(3),{hat:'hat',hatCol:'#555'}),1200,500,'カメラマン');photog.talk=['いい えを とるぞ〜'];
@@ -1807,7 +1816,7 @@ function stage6(){
   const plow=E({id:'plow',name:'じょせつしゃ',x:820,y:930,w:70,h:40,spd:60,draw(e){X.save();X.translate(e.x,e.y);shadow(0,-2,38,7);rbox(-34,-36,52,30,5,'#ff9a1f');rbox(-12,-30,22,14,3,'#bfe2f5');poly([[18,-10],[38,-28],[40,-4],[18,-2]],'#e8e8e8');ell(-20,-4,8,8,INK);ell(8,-4,8,8,INK);if(!e.moving&&!F.plowed){drawPerson({look:LK.worker,x:-4,y:-12,t:T,seed:3,dir:1},{sit:1,mood:'sleep'});otxt('Z',6,-60-((T*6)%8),8,'#fff');}X.restore();}});
   const letter=E({id:'letter',name:'ポストに はさまった てがみ',x:1150,y:584,w:7,h:6,tiny:true,zs:620,draw(e){if(e.gone)return;X.save();X.translate(e.x,e.y);X.rotate(e.fly?T*8:-.2);box(-4,-3,8,6,'#fff');ln(-4,-3,0,0,.5,'#c83a2a');ln(4,-3,0,0,.5,'#c83a2a');X.restore();}});
   const dbell=E({id:'dbell',name:'ケーキやの ドアベル',x:1343,y:742,w:6,h:7,tiny:true,zs:790,draw(e){ln(e.x,e.y-8,e.x,e.y-5,.5,'#888');ell(e.x,e.y-3,2.6,2.6,'#ffd23f');}});
-  const papa=P_('papa',Object.assign({},LK.papa,{body:'#5a4a3a',acc:'glasses'}),1320,700,'パパ',{spd:32,st:'shop',zs:700});
+  const papa=P_('papa',Object.assign({},LK.papa,{body:'#5a4a3a',acc:'glasses mustache'}),1320,700,'パパ',{spd:32,st:'shop',zs:700});
   const sandbin=E({id:'sandbin',name:'すなばこ',x:1532,y:850,w:8,h:8,tiny:true,zs:860,draw(){}});
   const latch=E({id:'latch',name:'まどの かぎ',x:1556,y:520,w:6,h:7,tiny:true,zs:530,draw(e){box(e.x-3,e.y-7,6,7,F.latch?'#3ccf6e':'#c83a2a');dot(e.x,e.y-3.5,1.2,'#fff');}});
   const futan=P_('futan',Object.assign({},LK.futanH,{body:'#ffb3d1',shape:'tri'}),1760,480,'ふーたん',{mood:'n'});
@@ -2091,11 +2100,12 @@ function loadStage(i){mode='loading';show('loading');BGM.song=-1;let n=0;const i
 $('bMenu').onclick=()=>{audioInit();sfx('tap');if(mode!=='play')return;mode='pause';const ov=$('ov');
   ov.innerHTML=`<div class="panel"><h2>ポーズ</h2><span class="tag">STAGE ${stIdx+1}</span> <b>${ST.name}</b><div class="goal" style="margin-top:6px">${ST.goal}</div>
    <p style="font-size:12px;color:#666">ドラッグ: いどう／ピンチ・ホイール・＋－: ズーム／タップ: チョッカイ／🕒: はやおくり／✋: ぜんたい・ズーム／♥: みつけた チョッカイ。ちいさな どうぐは さいだい ちかくまで ズームしないと さわれない。</p>
-   <button class="btn p" id="mBack">つづける</button><button class="btn w" id="mRe">さいしょから やりなおす</button><button class="btn w" id="mSnd">${SAVE.mute?'🔇 おと: オフ':'🔊 おと: オン'}</button><button class="btn w" id="mSel">ステージ セレクト</button><button class="btn w" id="mTitle">タイトルへ</button></div>`;
+   <button class="btn p" id="mBack">つづける</button><button class="btn w" id="mRe">さいしょから やりなおす</button><button class="btn w" id="mTag">${SAVE.noTag?'🏷 なまえふだ: オフ':'🏷 なまえふだ: オン'}</button><button class="btn w" id="mSnd">${SAVE.mute?'🔇 おと: オフ':'🔊 おと: オン'}</button><button class="btn w" id="mSel">ステージ セレクト</button><button class="btn w" id="mTitle">タイトルへ</button></div>`;
   ov.classList.add('show');
   $('mBack').onclick=()=>{ov.classList.remove('show');mode='play';};
   $('mRe').onclick=()=>{ov.classList.remove('show');loadStage(stIdx);};
   $('mSnd').onclick=()=>{SAVE.mute=!SAVE.mute;save();if(MG)MG.gain.value=SAVE.mute?0:.85;mode='play';$('bMenu').onclick();};
+  $('mTag').onclick=()=>{SAVE.noTag=!SAVE.noTag;save();mode='play';$('bMenu').onclick();};
   $('mSel').onclick=()=>goSelect();$('mTitle').onclick=()=>goTitle();};
 $('bStart').onclick=()=>{audioInit();sfx('start');bgmPlay(0);goSelect();};
 let endFW=[];

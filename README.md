@@ -22,6 +22,7 @@
 - リモコロン 〜ふーたんと リッキーの ちょっかいタウン〜: https://naoto613.github.io/games/futan-remocolon/
 - ふーモン ルビー: https://naoto613.github.io/games/fumon-ruby/
 - STELLA NOCTIS ─宵星のレガリア─: https://naoto613.github.io/games/stella-noctis/
+- ひとり人狼 〜月影の村〜: https://naoto613.github.io/games/hitori-jinro/
 - ひらめき スープ屋: https://naoto613.github.io/games/hirameki-soup/
 
 ## 構成
@@ -32,6 +33,8 @@
 ├── thumbs/                 # 一覧ページ用サムネイル（<ゲームフォルダ名>.jpg、800×500）
 ├── .nojekyll               # Jekyll 処理を無効化（ファイルをそのまま配信）
 ├── README.md
+├── hitori-jinro/
+│   └── index.html          # ひとり人狼 〜月影の村〜（ひとりで遊ぶ 9 人村の人狼ゲーム。人狼2・占い・霊媒・騎士・狂人・村人3、CPU 8 人は人狼の組み合わせ 36 通りを全列挙して CO・結果・投票・かばい合い（ライン）・印象から推理。性格（論理/感情/直感）・表情・好感度・恨みを持ち、プレイヤーへの質問・弁明・説得・嘘の指摘、人狼の仲間かばい・口すべり・仕草などのボロ、人狼プレイヤーの相棒への作戦指示、終了後の感想戦あり。単一 HTML で完結。`?auto` で自動対戦シミュレーション（`runSim(n)`））
 ├── kossori-treasure/
 │   └── index.html          # こっそりトレジャー（単一 HTML で完結）
 ├── futan-survivor/
