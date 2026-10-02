@@ -324,7 +324,8 @@ async function battleLoop() {
       B.idle = true;
       const m = B.me;
       await say(`${monName(m)}は\nどうする？`, { battle: true, keep: true, noVoice: true });
-      const c = await choose(['たたかう', 'バッグ', 'ふーモン', 'にげる'], { x: 120, y: 114, w: 118, cols: 2, lh: 17, st: WS.menu, cancel: false });
+      const c = await choose(['たたかう', 'バッグ', 'ふーモン', 'にげる'], { x: 120, y: 114, w: 118, cols: 2, lh: 17, st: WS.menu, cancel: false, sel: B.cmdSel || 0 });
+      B.cmdSel = c;
       if (c === 0) {
         const mv = await chooseMove();
         if (mv != null) act = { k: 'move', mv };
@@ -416,7 +417,9 @@ async function chooseMove() {
   });
   closeMsg();
   if (m.moves.every(x => x.pp <= 0)) { popLayer(info); await bsay(`${monName(m)}は だせる わざが ない！`); return { id: 'tackle', pp: 99 }; }
-  const r = await choose(items, { x: 2, y: 114, w: 160, cols: 2, lh: 17, st: WS.menu, onMove: s => sel = s, sz: 10 });
+  sel = m.moveSel && m.moves[m.moveSel] ? m.moveSel : 0;
+  const r = await choose(items, { x: 2, y: 114, w: 160, cols: 2, lh: 17, st: WS.menu, onMove: s => sel = s, sz: 10, sel });
+  if (r >= 0) m.moveSel = r;
   popLayer(info);
   if (r < 0) return null;
   return m.moves[r];
@@ -630,7 +633,7 @@ async function learnMove(m, id, battleStyle) {
   const opt = battleStyle ? { auto: 0 } : {};
   if (m.moves.some(x => x.id === id)) return;
   const nm = MOVES[id].n;
-  if (m.moves.length < 4) { m.moves.push({ id, pp: MOVES[id].pp }); AU.jingle('level'); await s(`${monName(m)}は あたらしく ${nm}を おぼえた！`, opt); return; }
+  if (m.moves.length < 4) { const nw = { id, pp: MOVES[id].pp }; if (MOVES[id].p > (MOVES[m.moves[0].id].p || 0)) m.moves.unshift(nw); else m.moves.push(nw); m.moveSel = 0; AU.jingle('level'); await s(`${monName(m)}は あたらしく ${nm}を おぼえた！`, opt); return; }
   for (; ;) {
     await s(`${monName(m)}は あたらしく ${nm}を おぼえたい……`, opt);
     await s(`でも わざを 4つ おぼえるので せいいっぱいだ！`, opt);
