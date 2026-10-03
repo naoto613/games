@@ -1455,6 +1455,7 @@ function stage3(){
     tags:{futan:['ふーたん','#ff5f9e'],papa:['パパ',COL.blue],mama:['かあちゃん',COL.red],ricky:['リッキー','#f0a000'],sakana:['さかなやの げんさん','#2a6ac8'],demae:['でまえの おにいさん','#e8801a'],yaoya:['やおやさん','#2a9a50'],sushi:['すしやの たいしょう','#5a3a2a'],tokei:['とけいやの おじいさん','#8a5a3a'],taiyaki:['たいやきやさん','#c83a2a'],police:['おまわりさん','#2f4f9a'],karasu:['カラス','#222'],tora:['ねこの トラ','#e8a050'],hana:['はなやさん','#ff7eb6'],chin:['ちんどんや','#ff9a1f']}};
   bandSetup(st,2);bandNav(st,W,[[0,1400],[0,2600]]);
   F.ring='counter';F.lid=false;
+  st.dead=r=>({A:!['counter','ice'].includes(F.ring),B:['crow','nest','tokei','lured'].includes(F.ring),C:['crate','sushi','chef','koban'].includes(F.ring)})[r];
   const oldGround=()=>{
     // アーケード
     box(-400,-600,OW+800,FY+600,'#f4e4b8');for(let x=-400;x<OW+400;x+=200){box(x,0,8,FY,'#c8a870');}box(-400,0,OW+800,30,'#a8885a');box(-400,30,OW+800,8,'#d8b880');
@@ -2282,7 +2283,7 @@ function hintRe(k){return new RegExp(k);}
 // こまっていそうな ときは、つぎに うごく ひとが ヒントを つぶやく（だんだん くわしく）
 function whisper(dt){if(G.over||!HINTS[stIdx]||(window.__RC&&__RC.fast))return;G.whT=(G.whT||0)+dt;const gap=ST.tutorial?(G.whN?9:5):(G.whN?13:10);if(G.whT<gap)return;G.whT=0;
   // おなじ ところで 2かい つまったら、べつの ルートの ヒントに きりかえる
-  const H=HINTS[stIdx];G.whSkip=G.whSkip||{};const okR=k=>H[k][hintProg(k)]&&(k!=='X'||hintProg(k)>0);let rs=Object.keys(H).filter(k=>!G.whSkip[k]&&okR(k));if(!rs.length){G.whSkip={};rs=Object.keys(H).filter(okR);}
+  const H=HINTS[stIdx];G.whSkip=G.whSkip||{};const okR=k=>H[k][hintProg(k)]&&(k!=='X'||hintProg(k)>0)&&!(ST.dead&&ST.dead(k));let rs=Object.keys(H).filter(k=>!G.whSkip[k]&&okR(k));if(!rs.length){G.whSkip={};rs=Object.keys(H).filter(okR);}
   let r=hintRoute();if(!rs.includes(r)){r=rs.sort((a,b)=>hintProg(b)-hintProg(a))[0];}if(!r)return;const L=H[r]||[],h=L[hintProg(r)];if(!h)return;
   const key=r+hintProg(r);if(G.whKey===key){G.whRep=(G.whRep||0)+1;if(G.whRep>=4){G.whSkip[r]=1;G.whRep=0;}}else{G.whKey=key;G.whRep=0;}const e=G.ents.find(x=>x.id===h.id&&!x.hidden)||G.ents.find(x=>x.gk===h.id&&!x.hidden);const e2=G.ents.find(x=>(x.id===h.id2||x.gk===h.id2)&&!x.hidden);
   const lv=G.whN||0;G.whN=lv+1;const det=ST.tutorial||lv%2===1;const txt=det?(h.t+' → '+h.d):h.t;
