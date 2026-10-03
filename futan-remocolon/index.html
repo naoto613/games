@@ -1523,12 +1523,17 @@ function stage2(){
   // ===== C：たいやきの しっぽと カラス =====
   PR('taiyaki','karasu',()=>{if(F.crowReady){say(karasu,'カァ (もぐもぐ)');return;}if(F.th==='caught')return;karasu.st='fly';say(taiyaki,'しっぽ、ここに おいとくよ〜');fly(karasu,260,FY+D-20,1.4,100,()=>{karasu.st='eat';F.crowReady=1;say(karasu,'カァ！ (しっぽ うまい)');step('C','たいやき → カラス（おりて くる）');});});
   // ===== うら：ふくびき 1とう =====
-  st.uraTitle='ふくびきで ハワイ りょこう！';st.uraHint='パパは ふくびきが したい。ガラガラを まわすのは… ちいさな て？';
-  PR('papa','kuji',()=>{if(F.u1){say(kuji,'さあ まわして〜');return;}F.u1=1;lock(papa);walk(papa,[1620,690+D],()=>{say(papa,'ふくびき 1かい おねがいします！');say(kuji,'まいど〜！ さあ、まわして！');step('X','パパ → ふくびき（ふくびきけん）');});});
-  PR('ricky','kuji',()=>{if(!F.u1){say(kuji,'あかちゃん かわいいね〜');return;}if(F.u2)return;F.u2=1;say(papa,'リッキー、まわして ごらん');wait(1,()=>{sfx('ring');pop(1620,FY+D-80,'ガラガラ…',COL.yel,16);wait(1.4,()=>{pop(1620,FY+D-120,'きんいろ！',COL.yel,26);say(kuji,'お、おおあたり〜！ 1とう ハワイ りょこう〜！ カランカラ〜ン！');
-    step('X','リッキー → ふくびき（きんいろの たま）');climax({x:1620,y:FY+D-160,title:'1とう ハワイ りょこう！',sub:'リッキーの ガラガラで おおあたり',cheer:[papa,futan,kuji,...kids],route:'X'});});});});
-  // ===== その ほか =====
-  PR('papa','sakana',()=>{dex('ev_ps','パパ と さかなや');say(sakana,'ごしゅじん、サンマ どうだい！');say(papa,'き、きょうは いいです');});
+  st.uraTitle='ふくびきで ハワイ りょこう！';st.uraHint='ふくびきけんは おかいもの 500えんで 1まい。パパは ふくびきが したい…';
+  // ふくびきけんを もらって、かぞく みんなで ふくびきへ（まわすのは ふーたん）
+  ricky.spd=60;
+  const goKuji=()=>{if(!F.ticket){say(kuji,'ふくびきは おかいもの 500えんで 1かい！ ふくびきけん、もってる？');return;}if(F.u2)return;F.u2=1;
+    for(const p of[papa,futan])lock(p);say(papa,'ふくびきけん もらったぞ！ みんなで ひきに いこう！');walk(papa,[1540,700+D]);go(ricky,[[1470,710+D]]);
+    walk(futan,[1610,705+D],()=>{futan.dir=1;papa.dir=1;say(kuji,'まいど〜！ さあ、まわして！');say(papa,'ふーたん、まわして ごらん');
+      wait(1.2,()=>{futan.act='work';sfx('ring');pop(1620,FY+D-80,'ガラガラ…',COL.yel,16);step('X','ふーたん → ふくびき（かぞくで ガラガラ）');
+        wait(1.4,()=>{futan.act=null;pop(1620,FY+D-120,'きんいろ！',COL.yel,26);say(kuji,'お、おおあたり〜！ 1とう ハワイ りょこう〜！ カランカラ〜ン！');say(ricky,'きゃっきゃ！');sfx('giggle');
+          climax({x:1580,y:600+D,title:'1とう ハワイ りょこう！',sub:'ふーたんの ガラガラで おおあたり',cheer:[papa,futan,kuji,...kids],route:'X'});});});});};
+  PR('futan','kuji',goKuji);PR('papa','kuji',goKuji);
+  PR('papa','sakana',()=>{if(F.ticket){say(sakana,'まいど あり〜！');return;}if(F.psGo)return;F.psGo=1;lock(papa);walk(papa,[sakana.x+70,sakana.y+20],()=>{papa.dir=-1;say(papa,'サンマ、2ひき ください！');say(sakana,'まいど！ 500えん！ はい、ふくびきけんも どうぞ〜');F.ticket=1;sfx('click');step('X','パパ → さかなや（ふくびきけん）');walk(papa,[1060,640],()=>unlock(papa));});});
   PR('futan','taiyaki',()=>{dex('ev_ft','ふーたん と たいやき');say(taiyaki,'しっぽまで あんこ！ どうぞ〜');say(futan,'あまい〜！');});
   PR('tokei','tower',()=>{dex('ev_tt','とけいや と とけいとう');say(tokei,'この とけいとうは わしが まいにち ネジを まいとる');});
   maneki.poke=e=>{dex('maneki','きんの まねきねこ');narr(e,'(ピカピカの きんの まねきねこ。とくしょう！)');};bucket.poke=e=>{dex('bucket','バケツ');narr(e,'(みずが なみなみ。ひしゃく つき)');};
@@ -1550,7 +1555,7 @@ function stage2(){
       H_('まきこまれた','futan','thief','あやしい ひとを みつけたら おおきな こえで','「ふーたん」→「ニャ〜と なる かいものきゃく」')],
     C:[H_('おりて くる','taiyaki','karasu','カラスは たいやきの しっぽで おりて くる。キラキラも だいすき','「たいやきやさん」→「カラス」'),
       H_('こうばんの やね','thief','tora','ドロボウを みやぶれば カラスが…','「ニャ〜と なる かいものきゃく」→「ねこの トラ」')],
-    X:[H_('ふくびきけん','papa','kuji','パパは ふくびきが したい','「パパ」→「ふくびきの おじさん」'),H_('きんいろ','ricky','kuji','まわすのは リッキー','「リッキー」→「ふくびきの おじさん」')]};
+    X:[H_('ふくびきけん','papa','sakana','ふくびきけんは おかいもの 500えんで 1まい。さかなやさんは サンマを すすめて いる','「パパ」→「さかなやの げんさん」'),H_('かぞくで','futan','kuji','ふくびきけんを もって、みんなで ふくびきへ','「ふーたん」→「ふくびきの おじさん」')]};
   return st;
 }
 
@@ -3042,7 +3047,7 @@ function showUra(){const ov=$('ov');const first=!SAVE.ura[stIdx];SAVE.ura[stIdx]
    <p style="font-size:13px;margin-bottom:0">みつけた うらの チョッカイ:</p><ul class="steps">${steps.map(s=>`<li style="color:#241f4a">${s.label}</li>`).join('')}</ul>
    <p style="font-size:13px">⏰ ${hhmm(G.min)} ／ チョッカイ ${G.pokes}かい ／ うらゴール ${n} / ${NS}</p>
    ${stIdx<STAGES.length-1?'<button class="btn p" id="rNext">つぎの ステージへ ▶</button>':'<button class="btn p" id="rEnd">エンディングへ ▶</button>'}
-   <button class="btn" id="rFree" style="color:#241f4a">🌼 このまま のんびり あそぶ</button><button class="btn w" id="rAgain" style="color:#241f4a">もういちど</button><button class="btn w" id="rSel" style="color:#241f4a">ステージ セレクト</button></div>`;
+   <button class="btn w" id="rAgain" style="color:#241f4a">もういちど</button><button class="btn w" id="rSel" style="color:#241f4a">ステージ セレクト</button></div>`;
   ov.classList.add('show');
   const nx=$('rNext');if(nx)nx.onclick=()=>{sfx('start');ov.classList.remove('show');loadStage(stIdx+1);};
   const en=$('rEnd');if(en)en.onclick=()=>{ov.classList.remove('show');goEnding();};
@@ -3061,7 +3066,7 @@ function showResult(){
      <p style="font-size:13px">⏰ ${hhmm(G.min)} クリア ／ チョッカイ ${G.pokes}かい ／ みつけた ${Object.keys(G.dexSet).length}しゅるい</p>
      <p style="font-size:13px">このステージの ルート ${found} / ${ST.routeNames.length}${found<ST.routeNames.length?' … べつの ほうほうでも クリア できるかも？':' コンプリート！'}</p>${extra}
      ${stIdx<STAGES.length-1?'<button class="btn p" id="rNext">つぎの ステージへ ▶</button>':'<button class="btn p" id="rEnd">エンディングへ ▶</button>'}
-     <button class="btn" id="rFree">🌼 このまま まちで のんびり あそぶ<br><small style="font-size:11px">じかん せいげん なし。えがおあつめ・べつの ルート さがしも できる</small></button><button class="btn w" id="rAgain">もういちど（べつの ルートを さがす）</button><button class="btn w" id="rSel">ステージ セレクト</button></div>`;}
+     <button class="btn w" id="rAgain">もういちど（べつの ルートを さがす）</button><button class="btn w" id="rSel">ステージ セレクト</button></div>`;}
   else{ov.innerHTML=`<div class="panel"><div class="stamp f">TIME UP…</div><p style="text-align:center;font-weight:800">${ST.failMsg}</p>
      <p style="font-size:13px">ストーリーを すすめる チョッカイが たりなかった みたい。ふきだし・かんばん・ちいさな どうぐを もういちど よく みてみよう。</p>
      <p style="font-size:13px">チョッカイ ${G.pokes}かい ／ みつけた ${Object.keys(G.dexSet).length}しゅるい</p>${extra}
