@@ -117,35 +117,36 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 .dexl{columns:2;font-size:13px;font-weight:800;margin:8px 0}
 .dexl div{break-inside:avoid;padding:3px 0}
 /* よこむき：そうさボタンは りょうがわに よせて、ゲームの がめんを たかさ いっぱいに */
-@media (orientation:landscape) and (min-aspect-ratio:13/10){
-  :root{--sl:env(safe-area-inset-left);--sr:env(safe-area-inset-right)}
-  #screen{left:calc(var(--sl) + 72px);right:calc(var(--sr) + 72px);top:calc(var(--st) + 6px);bottom:calc(var(--sb) + 6px);border-radius:20px}
-  .cb{width:52px;height:52px}
-  #bMenu{left:calc(var(--sl) + 8px);top:calc(var(--st) + 12px)}
-  #bDex{left:calc(var(--sl) + 8px);bottom:calc(var(--sb) + 12px)}
-  #bFit{right:calc(var(--sr) + 8px);top:calc(var(--st) + 12px)}
-  #bClk{right:calc(var(--sr) + 8px);bottom:calc(var(--sb) + 12px)}
-  #led{display:none}
-  #topbar{left:calc(var(--sl) + 2px);right:auto;width:68px;top:50%;transform:translateY(-50%);height:auto;flex-direction:column;gap:8px}
-  #stName{display:none}
-  #cnt{font-size:12px}
-  #bHint{font-size:11px;padding:9px 2px;width:64px;border-radius:14px;line-height:1.2;white-space:nowrap}
-  #botbar{left:auto;right:calc(var(--sr) + 2px);width:68px;top:calc(var(--st) + 76px);bottom:calc(var(--sb) + 76px);height:auto;flex-direction:column;justify-content:center;gap:10px}
-  #pkc b{width:19px;height:26px;font-size:15px;line-height:24px}#pkc i{display:none}
-  #tgw{flex:none;width:62px;height:40px;max-width:none}#tgw span{display:none}#tgw small{left:0;right:0;justify-content:center;font-size:13px;font-family:var(--dela)}
-  #cap{top:44px;font-size:12.5px}
-  .panel{max-height:calc(100% - 8px)}
-  #select{flex-direction:row;flex-wrap:wrap;justify-content:center;align-content:flex-start;padding:calc(var(--st) + 10px) calc(var(--sr) + 12px) 16px calc(var(--sl) + 12px)}
-  #select h2{width:100%;margin:2px 0 6px;font-size:30px}
-  #select>button,#select>div{margin-left:6px!important;margin-right:6px!important}
-  .stc{width:min(calc(50% - 12px),460px);margin:5px 6px;padding:9px 12px}.stc .no{width:46px;height:46px;line-height:50px;font-size:26px}
-  #select>div:not(.stc){width:100%;text-align:center}
-}
+/* よこむき（.land）：そうさボタンは りょうがわ、ゲームは たかさ いっぱい */
+.land{--sl:env(safe-area-inset-left);--sr:env(safe-area-inset-right)}
+.land #screen{left:calc(var(--sl) + 72px);right:calc(var(--sr) + 72px);top:calc(var(--st) + 6px);bottom:calc(var(--sb) + 6px);border-radius:20px}
+.land .cb{width:52px;height:52px}
+.land #bMenu{left:calc(var(--sl) + 8px);top:calc(var(--st) + 12px)}
+.land #bDex{left:calc(var(--sl) + 8px);bottom:calc(var(--sb) + 12px)}
+.land #bFit{right:calc(var(--sr) + 8px);top:calc(var(--st) + 12px)}
+.land #bClk{right:calc(var(--sr) + 8px);bottom:calc(var(--sb) + 12px)}
+.land #led{display:none}
+.land #topbar{left:calc(var(--sl) + 2px);right:auto;width:68px;top:50%;transform:translateY(-50%);height:auto;flex-direction:column;gap:8px}
+.land #stName{display:none}
+.land #cnt{font-size:12px}
+.land #bHint{font-size:11px;padding:9px 2px;width:64px;border-radius:14px;line-height:1.2;white-space:nowrap}
+.land #botbar{left:auto;right:calc(var(--sr) + 2px);width:68px;top:calc(var(--st) + 76px);bottom:calc(var(--sb) + 76px);height:auto;flex-direction:column;justify-content:center;gap:10px}
+.land #pkc b{width:19px;height:26px;font-size:15px;line-height:24px}.land #pkc i{display:none}
+.land #tgw{flex:none;width:62px;height:40px;max-width:none}.land #tgw span{display:none}.land #tgw small{left:0;right:0;justify-content:center;font-size:13px;font-family:var(--dela)}
+.land #cap{top:44px;font-size:12.5px}
+.land .panel{max-height:calc(100% - 8px)}
+.land #select{flex-direction:row;flex-wrap:wrap;justify-content:center;align-content:flex-start;padding:calc(var(--st) + 10px) calc(var(--sr) + 12px) 16px calc(var(--sl) + 12px)}
+.land #select h2{width:100%;margin:2px 0 6px;font-size:30px}
+.land #select>button,.land #select>div{margin-left:6px!important;margin-right:6px!important}
+.land .stc{width:min(calc(50% - 12px),460px);margin:5px 6px;padding:9px 12px}.land .stc .no{width:46px;height:46px;line-height:50px;font-size:26px}
+.land #select>div:not(.stc){width:100%;text-align:center}
+#app{container-type:size}
+.land .logo{font-size:clamp(40px,11cqw,100px);margin-top:-30cqh}.land .tsub{font-size:clamp(13px,2.4cqw,21px)}.land .press{bottom:8%;font-size:clamp(18px,3.4cqw,30px)}.land .stamp{font-size:clamp(28px,5cqw,48px)}
 /* たてむきの とき：よこむきを すすめる */
 #rot{position:absolute;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(20,18,26,.92);color:#fff;font-weight:800;text-align:center;padding:24px}
 #rot .ph{font-size:64px;animation:rotp 1.6s ease-in-out infinite}@keyframes rotp{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
 #rot p{margin:0;font-size:18px;line-height:1.6}#rot button{border:none;border-radius:99px;background:#e9e4da;color:#262626;font-weight:800;font-size:14px;padding:8px 20px}
-@media (orientation:portrait) and (max-width:900px){#app:not(.rotok) #rot{display:flex}}
+
 </style>
 </head>
 <body>
@@ -516,7 +517,10 @@ const ZMAX=4;
 const cam={x:0,y:0,z:1};let camAnim=null;
 let mode='title',ST=null,stIdx=0;
 const G={caps:[],ents:[],fx:[],min:0,speed:1,f:{},steps:[],tl:[],over:false,pokes:0,endT:0,dexSet:{}};
-function resize(){const r=cv.getBoundingClientRect();DPR=Math.min(2,window.devicePixelRatio||1);cv.width=Math.max(1,Math.round(r.width*DPR));cv.height=Math.max(1,Math.round(r.height*DPR));CW=r.width;CH=r.height;if(ST){cam.z=clamp(cam.z,zMin(),ZMAX);clampCam();}}
+let ROT=false;function evXY(ev){return ROT?[ev.clientY,innerWidth-ev.clientX]:[ev.clientX,ev.clientY];}
+function cvOff(){if(!ROT){const r=cv.getBoundingClientRect();return[r.left,r.top];}let x=0,y=0,e=cv;while(e&&e.id!=='app'){x+=e.offsetLeft;y+=e.offsetTop;e=e.offsetParent;}return[x,y];}
+function applyRot(){const p=innerHeight>innerWidth*1.05;ROT=p;const a=document.getElementById('app');if(p)a.style.cssText=`position:fixed;top:0;left:${innerWidth}px;width:${innerHeight}px;height:${innerWidth}px;transform:rotate(90deg);transform-origin:0 0`;else a.style.cssText='';const w=p?innerHeight:innerWidth,h=p?innerWidth:innerHeight;a.classList.toggle('land',w/h>=1.3);}
+function resize(){applyRot();const r={width:cv.clientWidth,height:cv.clientHeight};DPR=Math.min(2,window.devicePixelRatio||1);cv.width=Math.max(1,Math.round(r.width*DPR));cv.height=Math.max(1,Math.round(r.height*DPR));CW=r.width;CH=r.height;if(ST){cam.z=clamp(cam.z,zMin(),ZMAX);clampCam();}}
 window.addEventListener('resize',()=>{resize();resizeTitle();});
 function fitZ(){return clamp(Math.min(CH/(ST.viewH||ST.H),Math.max(CW/(ST.viewW||ST.W*.5),zMin())),zMin(),ZMAX);}
 function zMin(){return Math.min(CW/ST.W,CH/ST.H);}
@@ -618,21 +622,21 @@ function resetPtrs(){ptrs.clear();gest=null;}
 cv.addEventListener('pointerdown',ev=>{if(mode!=='play')return;audioInit();
   // とりのこされた ゆびの きろく（pointerup が こなかった もの）を すてる
   const now=performance.now();if(ev.isPrimary||ptrs.size>=2)resetPtrs();for(const[k,v]of ptrs)if(now-v.t>2500)ptrs.delete(k);if(ptrs.size===1&&gest&&gest.k!=='pan')resetPtrs();
-  ptrs.set(ev.pointerId,{x:ev.clientX,y:ev.clientY,t:now});try{cv.setPointerCapture(ev.pointerId);}catch(e){}
+  const[ex,ey]=evXY(ev);ptrs.set(ev.pointerId,{x:ex,y:ey,t:now});try{cv.setPointerCapture(ev.pointerId);}catch(e){}
   camAnim=null;G.focus=null;G.capFocus=null;
-  if(ptrs.size===1)gest={k:'pan',sx:ev.clientX,sy:ev.clientY,cx:cam.x,cy:cam.y,moved:false};
+  if(ptrs.size===1)gest={k:'pan',sx:ex,sy:ey,cx:cam.x,cy:cam.y,moved:false};
   else if(ptrs.size===2){const p=[...ptrs.values()];gest={k:'pinch',d0:Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y),z0:cam.z,mx:(p[0].x+p[1].x)/2,my:(p[0].y+p[1].y)/2,cx:cam.x,cy:cam.y};}});
-cv.addEventListener('pointermove',ev=>{if(!ptrs.has(ev.pointerId)||!gest)return;ptrs.set(ev.pointerId,{x:ev.clientX,y:ev.clientY,t:performance.now()});const r=cv.getBoundingClientRect();
-  if(gest.k==='pan'){const dx=ev.clientX-gest.sx,dy=ev.clientY-gest.sy;if(Math.hypot(dx,dy)>8)gest.moved=true;if(gest.moved){cam.x=gest.cx-dx/cam.z;cam.y=gest.cy-dy/cam.z;clampCam();}}
+cv.addEventListener('pointermove',ev=>{if(!ptrs.has(ev.pointerId)||!gest)return;const[ex,ey]=evXY(ev);ptrs.set(ev.pointerId,{x:ex,y:ey,t:performance.now()});const[ol,ot]=cvOff();const r={left:ol,top:ot};
+  if(gest.k==='pan'){const dx=ex-gest.sx,dy=ey-gest.sy;if(Math.hypot(dx,dy)>8)gest.moved=true;if(gest.moved){cam.x=gest.cx-dx/cam.z;cam.y=gest.cy-dy/cam.z;clampCam();}}
   else if(gest.k==='pinch'&&ptrs.size>=2){const p=[...ptrs.values()];const d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);const mx=(p[0].x+p[1].x)/2,my=(p[0].y+p[1].y)/2;
     cam.x=gest.cx-(mx-gest.mx)/cam.z;cam.y=gest.cy-(my-gest.my)/cam.z;zoomAt(mx-r.left,my-r.top,gest.z0*d/Math.max(10,gest.d0));gest.cx=cam.x;gest.cy=cam.y;gest.mx=mx;gest.my=my;gest.z0=cam.z;gest.d0=d;}});
 function endPtr(ev){if(!ptrs.has(ev.pointerId))return;ptrs.delete(ev.pointerId);
-  if(gest&&gest.k==='pan'&&!gest.moved&&ptrs.size===0&&ev.type==='pointerup'){const r=cv.getBoundingClientRect();tap(ev.clientX-r.left,ev.clientY-r.top);}
+  if(gest&&gest.k==='pan'&&!gest.moved&&ptrs.size===0&&ev.type==='pointerup'){const[ol,ot]=cvOff(),[ex,ey]=evXY(ev);tap(ex-ol,ey-ot);}
   if(ptrs.size===0)gest=null;else if(gest&&gest.k==='pinch')gest={k:'none'};}
 cv.addEventListener('pointerup',endPtr);cv.addEventListener('pointercancel',endPtr);
 cv.addEventListener('lostpointercapture',ev=>{if(ptrs.has(ev.pointerId)){ptrs.delete(ev.pointerId);if(ptrs.size===0)gest=null;else if(gest&&gest.k==='pinch')gest={k:'none'};}});
 window.addEventListener('blur',resetPtrs);document.addEventListener('visibilitychange',resetPtrs);
-cv.addEventListener('wheel',ev=>{if(mode!=='play')return;ev.preventDefault();camAnim=null;const r=cv.getBoundingClientRect();zoomAt(ev.clientX-r.left,ev.clientY-r.top,cam.z*Math.exp(-ev.deltaY*.0016));},{passive:false});
+cv.addEventListener('wheel',ev=>{if(mode!=='play')return;ev.preventDefault();camAnim=null;const[ol,ot]=cvOff(),[ex,ey]=evXY(ev);zoomAt(ex-ol,ey-ot,cam.z*Math.exp(-ev.deltaY*.0016));},{passive:false});
 $('bZin').onclick=()=>{if(mode!=='play')return;animZoom(cam.z*1.8);sfx('tap');};
 $('bZout').onclick=()=>{if(mode!=='play')return;animZoom(cam.z/1.8);sfx('tap');};
 $('bFit').onclick=()=>{if(mode!=='play')return;sfx('tap');const fh=fitZ();if(cam.z>fh*1.15)animZoom(fh,cam.x,ST.BH?cam.y:ST.H/2);else if(cam.z>zMin()*1.15)animZoom(zMin(),ST.W/2,ST.H/2);else animZoom(fh*1.8);};
@@ -3097,7 +3101,7 @@ function goEnding(){mode='ending';show('ending');bgmPlay(2);SAVE.fl.ending=1;sav
   $('credits').innerHTML=`<h3>おしまい</h3>ふーたんの まいにちは<br>コロンの チョッカイで<br>ちょっぴり かわった みたい。<br><h3>とうじょう じんぶつ</h3>${CREDITS.join('<br>')}<br><h3>みつけた ルート</h3>${rt} / ${NS*3}<br><h3>みつけた チョッカイ</h3>${dexAll().join(' / ')}<br><h3>ミニコロン</h3>${SI.reduce((a,i)=>a+countMC(i),0)} / ${NS*3}<br><h3>トロフィー</h3>${ACH.filter(x=>SAVE.ach[x.id]).length} / ${ACH.length}<br><h3>THANK YOU<br>FOR PLAYING!</h3>`;
   const c=$('credits');c.style.animation='none';void c.offsetWidth;c.style.animation='';$('endBtn').style.display='none';setTimeout(()=>{if(mode==='ending')$('endBtn').style.display='block';},6000);}
 $('endBtn').onclick=()=>{sfx('tap');goTitle();};
-function renderEnding(dt){const c=$('ecv');const r=c.getBoundingClientRect();if(c.width!==Math.round(r.width*DPR)){c.width=Math.round(r.width*DPR);c.height=Math.round(r.height*DPR);}
+function renderEnding(dt){const c=$('ecv');const r={width:c.clientWidth,height:c.clientHeight};if(c.width!==Math.round(r.width*DPR)){c.width=Math.round(r.width*DPR);c.height=Math.round(r.height*DPR);}
   const g=c.getContext('2d');X=g;g.setTransform(1,0,0,1,0,0);g.fillStyle='rgba(36,31,92,.35)';g.fillRect(0,0,c.width,c.height);LW=3;
   if(Math.random()<dt*2.5){endFW.push({x:Math.random()*r.width,y:r.height*(.1+Math.random()*.4),t:0,c:WCOL[Math.floor(Math.random()*7)]});if(Math.random()<.5)sfx('boom');}
   g.setTransform(DPR,0,0,DPR,0,0);for(const f of endFW){f.t+=dt;const k=f.t/2;X.globalAlpha=Math.max(0,1-k);for(let i=0;i<20;i++){const a=i/20*6.28;dot(f.x+Math.cos(a)*k*110,f.y+Math.sin(a)*k*110+k*k*30,4,f.c);}X.globalAlpha=1;}
@@ -3105,7 +3109,7 @@ function renderEnding(dt){const c=$('ecv');const r=c.getBoundingClientRect();if(
   drawPerson({look:Object.assign({},LK.futanY,{h:108}),x:r.width/s*.3,y:H-30,t:T,seed:1,dir:1},{dx:Math.sin(T*6)*6,jy:-Math.abs(Math.sin(T*6))*10,aL:2.3+Math.sin(T*6)*.5,aR:2.3-Math.sin(T*6)*.5,mood:'happy'});
   X.save();X.translate(r.width/s*.55,H-30);drawBabyBody('happy',T,2);X.restore();drawColon(r.width/s*.75,H-120+Math.sin(T*3)*12,T,{mood:'happy'});}
 const tcv=$('tcv');let tg=null;
-function resizeTitle(){const r=tcv.getBoundingClientRect();tcv.width=Math.max(1,Math.round(r.width*DPR));tcv.height=Math.max(1,Math.round(r.height*DPR));tg=tcv.getContext('2d');}
+function resizeTitle(){applyRot();const r={width:tcv.clientWidth,height:tcv.clientHeight};tcv.width=Math.max(1,Math.round(r.width*DPR));tcv.height=Math.max(1,Math.round(r.height*DPR));tg=tcv.getContext('2d');}
 function renderTitle(){if(!tg)resizeTitle();X=tg;LW=3;const w=tcv.width/DPR,h=tcv.height/DPR;tg.setTransform(DPR,0,0,DPR,0,0);tg.fillStyle='#f6c64a';tg.fillRect(0,0,w,h);
   tg.fillStyle='#f0b83a';for(let i=0;i<14;i++){tg.beginPath();tg.arc((i*137+T*12)%(w+80)-40,(i*91)%h,30+(i%3)*14,0,7);tg.fill();}
   const land=w>h*1.1;const s=land?h/560:Math.min(w/420,h/640)*1.15;tg.setTransform(DPR*s,0,0,DPR*s,DPR*(land?w*.17:w/2),DPR*(land?h*.86:h*.78));
