@@ -1433,7 +1433,7 @@ function stage2(){
 
   // ---- もの ----
   const maneki=thing('maneki','きんの まねきねこ',1620,FY-12+D,40,50,e=>{if(F.mk!=='booth')return;const x=e.x,y=e.y;ell(x,y-20,20,20,'#ffd23f');ell(x,y-44,16,15,'#ffd23f');ell(x-8,y-56,5,6,'#ffd23f');ell(x+8,y-56,5,6,'#ffd23f');ln(x+16,y-30,x+22,y-52,6,'#ffd23f');dot(x-5,y-46,2,INK);dot(x+5,y-46,2,INK);if(Math.sin(T*3)>.6)star(x+18,y-60,6,'#fff');},{zs:FY+50+D,gs:2});
-  const bucket=thing('bucket','バケツと ひしゃく',1040,FY+40,50,44,e=>{rbox(e.x-22,e.y-36,44,36,6,'#7a8a9a');ell(e.x,e.y-36,22,7,'#5ab0e8');ln(e.x+10,e.y-36,e.x+30,e.y-70,3,'#a8784a');},{zs:FY+40});
+  const bucket=thing('bucket','バケツと ひしゃく',1060,FY+275,64,58,e=>{shadow(e.x,e.y+2,32,7);rbox(e.x-29,e.y-48,58,48,8,'#7a8a9a');X.strokeStyle=INK;X.lineWidth=2.5;X.strokeRect(e.x-29,e.y-48,58,48);ell(e.x,e.y-48,29,9,'#5ab0e8');ln(e.x+12,e.y-48,e.x+40,e.y-92,4,'#a8784a');ell(e.x+42,e.y-94,9,6,'#a8784a');},{zs:FY+275});
   const ice=thing('icebox','こおりばこ',1240,FY+40,150,70,e=>{rbox(e.x-75,e.y-70,150,70,8,'#e8f4fb');X.strokeStyle=INK;X.lineWidth=3;X.strokeRect(e.x-75,e.y-70,150,70);box(e.x-75,e.y-74,150,10,'#c8dce8');for(let i=0;i<5;i++)rbox(e.x-60+i*24,e.y-60,18,16,4,'rgba(200,230,255,.8)');},{zs:FY+50});
   const koban=thing('koban','こうばん',2060,FY+D,360,300,()=>{},{zs:-1});
   const tower=thing('tower','とけいとう',790,FY+D,120,FY-40,()=>{},{zs:-1});
@@ -1459,7 +1459,7 @@ function stage2(){
   const thief=who('thief',coatLook,1560,700+D,'サングラスの おとこ',{spd:150});
   const shoppers=[0,1].map(i=>{const s=who('shop'+i,walkerLook(i+3),[1990,1180][i],[700,690+D][i],'かいものきゃく',{spd:30});s.gk='shopper';return s;});
   const karasu=thing('karasu','カラス',1240,26,20,16,e=>{X.save();X.translate(e.x,e.y);X.scale(e.dir||1,1);const fl=!!e.fly||!!e.path;ell(0,-6,9,6,'#1d1d26');ell(7,-11,5,5,'#1d1d26');poly([[11,-11],[17,-10],[11,-8]],'#444');dot(8,-12,1,'#fff');const w=fl?Math.sin(T*24)*6:0;poly([[-3,-8],[-12,-14-w],[-2,-4]],'#2a2a36');if(e.carry){ell(10,-2,5,5,'#ffd23f');}X.restore();},{zs:3000,gs:3.2,st:'roof'});
-  const tora=thing('tora','ねこの トラ',690,FY+110,22,18,e=>{cat(e,{sleep:e.st==='nap',jy:e.react>0?-4:0});},{col:'#e8a050',gs:3.2,spd:320,st:'nap',walker:true,noWalk:true});
+  const tora=thing('tora','ねこの トラ',640,FY+265,22,18,e=>{cat(e,{sleep:e.st==='nap',jy:e.react>0?-4:0});},{col:'#e8a050',gs:3.2,spd:320,st:'nap',walker:true,noWalk:true});
   const carryD=e=>{const H=e.look.h,x=e.x+(e.dir||1)*H*(e.look.kid?.3:.22),y=e.y-H*(e.look.kid?.24:.45);if(e.carry==='maneki'){ell(x,y,14,14,'#ffd23f');ell(x,y-16,11,10,'#ffd23f');}if(e.carry==='cuffs'){X.strokeStyle='#888';X.lineWidth=3;X.beginPath();X.arc(x-6,y,6,0,7);X.arc(x+8,y,6,0,7);X.stroke();}};
   for(const p of[papa,futan,thief,police,sakana])p.draw=e=>{drawPerson(e,personPose(e));if(PROP[e.act]&&!e.moving)PROP[e.act](e);if(e.carry)carryD(e);if(e===thief&&F.th==='hide'&&Math.sin(T*1.7+1)>.93)pop(e.x+20,e.y-e.look.h*.5,'ニャ〜♪',COL.yel,9);if(e.wet)X.globalAlpha=1;};
   // ---- よてい ----
@@ -1516,7 +1516,7 @@ function stage2(){
   PR('police','thief',()=>{if(F.th!=='hide')return false;say(police,'あやしい ひと？ …いや、ふつうの かいものきゃく だな');return true;});
   PR(['tora','futan','police'],['shop0','shop1'],(a,b)=>{const s=a.gk==='shopper'?a:b,o=s===a?b:a;say(o,o.id==='tora'?'ニャ？ (ちがう…)':'…ちがう みたい');say(s,'え？ なにか？');return true;});
   // ===== A：うちみずで つるつる =====
-  PR('bucket','sakana',()=>{if(F.wetUntil>G.min){say(sakana,'みち、つるつる だぜ');return;}lock(sakana);walk(sakana,[1040,640],()=>{sakana.act='sweep';say(sakana,'うちみず うちみず〜 それっ！');sfx('splash');F.wetUntil=G.min+12;pop(1050,700,'バシャー',COL.blue,20);step('A','バケツ → げんさん（うちみず）');wait(2,()=>unlock(sakana));});});
+  PR('bucket','sakana',()=>{if(F.wetUntil>G.min){say(sakana,'みち、つるつる だぜ');return;}lock(sakana);walk(sakana,[1120,FY+250],()=>{sakana.act='sweep';say(sakana,'うちみず うちみず〜 それっ！');sfx('splash');F.wetUntil=G.min+12;pop(1050,700,'バシャー',COL.blue,20);step('A','バケツ → げんさん（うちみず）');wait(2,()=>unlock(sakana));});});
   // ===== B：ちんどんやの パレード =====
   PR('kuji',['chin0','chin1','chin2'],()=>{if(F.parade){say(kuji,'いいぞ〜 ちんどんや！');return;}F.parade=1;say(kuji,'ちんどんやさん！ ふくびきを もりあげて〜！');step('B','ふくびき → ちんどんや（パレード かいし）');
     const pr=()=>{if(!F.parade||F.th==='caught')return;chin.forEach((c,i)=>{lock(c);c.act='dance';walk(c,[(F.pdir?2500:300)+i*90,700+D]);});F.pdir=!F.pdir;wait(9,pr);};sfx('drum');pr();});
@@ -2582,7 +2582,7 @@ function stage8(){
   const dryer=thing('dryer','ブーツの かんそうき',1020,Y2+60,90,90,e=>{rbox(e.x-40,e.y-80,80,80,6,'#888');for(let i=0;i<3;i++)ln(e.x-25+i*25,e.y-80,e.x-25+i*25,e.y-110,8,'#5a3a2a');if(F.dryOn){X.globalAlpha=.5;for(let i=0;i<3;i++)ell(e.x-25+i*25,e.y-120-((T*30+i*10)%30),8,6,'#fff');X.globalAlpha=1;}},{zs:Y2+60});
   const cocoa=thing('cocoa','ココアの きかい',1760,Y2+40,70,90,e=>{rbox(e.x-30,e.y-90,60,90,8,'#7a4a2a');rbox(e.x-20,e.y-80,40,30,4,'#ffd23f');ell(e.x,e.y-20,10,6,'#5a3a2a');},{zs:Y2+40});
   const breaker=thing('breaker','ブレーカー',2040,Y2-150,170,100,e=>{for(let i=0;i<4;i++){rbox(e.x-70+i*36,e.y-20,24,40,4,'#fff');box(e.x-64+i*36,e.y-(i===3&&!F.bk?0:14),12,10,i===3&&!F.bk?COL.red:'#3ccf6e');}},{zs:Y2-150});
-  const snowman=thing('snowman','ゆきだるま',700,Y2+140,100,190,e=>{snowmanD(e.x,e.y,{key:!F.key});if(F.carrot){ell(e.x+8,e.y-104,10,6,'#fff');}},{zs:Y2+140});
+  const snowman=thing('snowman','ゆきだるま',700,Y2+275,100,190,e=>{snowmanD(e.x,e.y,{key:!F.key});if(F.carrot){ell(e.x+8,e.y-104,10,6,'#fff');}},{zs:Y2+275});
   const snowcat=thing('snowcat','あっせつしゃ',3100,Y2+150,340,170,e=>catD(e.x,e.y,e.dir||-1),{zs:Y2+150,walker:true,noWalk:true,spd:200});
   // ---- ひとびと ----
   const santa=who('santa',{h:68,skin:'#ffd9c0',body:'#d82a2a',shape:'bean',bw:.42,hair:'short',hairCol:'#fff',hat:'santa',leg:'#d82a2a',shoe:INK,acc:'beard'},2520,T2+700,'サンタさん',{spd:50});
