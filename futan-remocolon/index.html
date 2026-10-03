@@ -1356,49 +1356,48 @@ function stage2(){
   const salon=thing('salon','びよういんの ドア',2500,FY,120,180,()=>{},{zs:-1});
   const koban=thing('koban','こうばん',2060,FY+D,360,300,()=>{},{zs:-1});
   // ---- ひとびと ----
-  const papa=who('papa',Object.assign({},LK.papa,{body:'#3a6aa8',acc:'',h:66}),1060,640,'パパ',{spd:55,stroller:false});
-  const futan=who('futan',Object.assign({},LK.futanH,{body:'#ff7eb6',shape:'tri'}),980,675,'ふーたん',{spd:60});
-  const ricky=thing('ricky','リッキー',900,665,26,30,e=>{X.save();X.translate(e.x,e.y);X.scale(2.4,2.4);drawStroller({x:-30,y:0,dir:1,t:T,babyMood:'happy'});X.restore();},{zs:660});
+  const papa=who('papa',Object.assign({},LK.papa,{body:'#3a6aa8',acc:'',h:66}),1070,640,'パパ',{spd:55,stroller:false});
+  const futan=who('futan',Object.assign({},LK.futanH,{body:'#ff7eb6',shape:'tri'}),945,680,'ふーたん',{spd:60});
+  const ricky=thing('ricky','リッキー',820,670,26,30,e=>{X.save();X.translate(e.x,e.y);X.scale(2.4,2.4);drawStroller({x:-30,y:0,dir:1,t:T,babyMood:'happy'});X.restore();},{zs:660});
   const mama=who('mama',Object.assign({},LK.mama,{body:'#e8483a'}),2400,470,'かあちゃん',{sit:1,zs:300});
   const stylist=who('stylist',Object.assign({},LK.teacher,{body:'#c86ad8',hair:'bob',acc:''}),2520,470,'びようしさん',{zs:300});
   const sakana=who('sakana',Object.assign({},LK.butcher,{body:'#fff',hat:'hachi',acc:'apron'}),1160,FY+40,'さかなやの げんさん',{zs:FY+30,spd:45});
-  const demae=who('demae',Object.assign(walkerLook(1),{body:COL.org,hat:'cap',hatCol:COL.org,shape:'box'}),1660,640,'でまえの おにいさん',{spd:80});
+  const demae=who('demae',Object.assign(walkerLook(1),{body:COL.org,hat:'cap',hatCol:COL.org,shape:'box'}),1860,700,'でまえの おにいさん',{spd:80});
   const yaoya=who('yaoya',Object.assign({},LK.butcher,{body:'#3a8a3a',hat:'hachi'}),1620,FY+40,'やおやさん',{zs:FY+30});
   const baker=who('baker',LK.baker,2050,FY+40,'パンやさん',{zs:FY+30});
   const taiyaki=who('taiyaki',LK.happiR,170,FY+40+D,'たいやきやさん',{zs:FY+30+D});
-  const tokei=who('tokei',Object.assign({},LK.jiji,{body:'#8a5a3a',acc:'glasses'}),520,630+D,'とけいやの おじいさん',{spd:30});
+  const tokei=who('tokei',Object.assign({},LK.jiji,{body:'#8a5a3a',acc:'glasses'}),620,640+D,'とけいやの おじいさん',{spd:30});
   const sushi=who('sushi',Object.assign({},LK.chef,{body:'#fff',hat:'hachi',acc:'apron'}),1150,FY+40+D,'すしやの たいしょう',{zs:FY+30+D,spd:45});
   const kuji=who('kuji',Object.assign(walkerLook(4),{hat:'hachi'}),1620,FY+40+D,'ふくびきの おじさん',{zs:FY+30+D});
   const police=who('police',LK.officer,2060,620+D,'おまわりさん',{spd:45});
-  const hanaya=who('hana',Object.assign({},LK.teacher,{body:'#ff7eb6',acc:'apron'}),740,620,'はなやさん');
-  const musician=who('musician',LK.musician,300,640,'ストリートの ギターの ひと');
+  const hanaya=who('hana',Object.assign({},LK.teacher,{body:'#ff7eb6',acc:'apron'}),620,610,'はなやさん');
   const chin=[0,1,2].map(i=>who('chin'+i,Object.assign({},i===1?LK.happiR:LK.happi,{hat:i===0?'hat':'hachi',hatCol:'#c83a2a'}),W+100+i*120,680+D,'ちんどんや',{spd:30,hidden:true}));
-  const shoppers=[];for(let i=0;i<8;i++){const s=who('shop'+i,walkerLook(i+2),rnd(200,W-300),rnd(620,760)+(i%2)*D,'かいものきゃく',{spd:rnd(25,36)});s.gk='shopper';shoppers.push(s);}
-  const kids=[0,1,2].map(i=>who('kid'+i,Object.assign({},i%2?LK.kidB:LK.kidA,{h:46,hat:'cap',hatCol:WCOL[i],body:WCOL[i+3],shape:'box'}),100+i*80,700+D,'こどもたち',{spd:60}));
+  const shopSpot=()=>{for(;;){const b=Math.random()<.5?1:0,x=rnd(250,W-300);if(b===0&&x>520&&x<1600)continue;if(b===1&&(x<700||x>950&&x<1350||x>1900&&x<2200))continue;return[x,rnd(720,770)+b*D];}};
+  const shoppers=[];for(let i=0;i<3;i++){const sp=shopSpot();const s=who('shop'+i,walkerLook(i+2),sp[0],sp[1],'かいものきゃく',{spd:rnd(25,36)});s.gk='shopper';shoppers.push(s);}
+  const kids=[0,1].map(i=>who('kid'+i,Object.assign({},i%2?LK.kidB:LK.kidA,{h:46,hat:'cap',hatCol:WCOL[i],body:WCOL[i+3],shape:'box'}),330+i*120,720+D,'こどもたち',{spd:60}));
   const karasu=thing('karasu','カラス',1240,26,20,16,e=>{X.save();X.translate(e.x,e.y);X.scale(e.dir||1,1);const fl=!!e.fly||!!e.path;ell(0,-6,9,6,'#1d1d26');ell(7,-11,5,5,'#1d1d26');poly([[11,-11],[17,-10],[11,-8]],'#444');dot(8,-12,1,'#fff');const w=fl?Math.sin(T*24)*6:0;poly([[-3,-8],[-12,-14-w],[-2,-4]],'#2a2a36');if(e.carry){ell(10,-2,2.5,2,'#ffd23f');}X.restore();},{zs:3000,gs:3.2,st:'roof'});
-  const tora=thing('tora','ねこの トラ',780,FY+90,22,18,e=>{cat(e,{sleep:e.st==='nap',jy:e.react>0?-4:0});},{col:'#e8a050',gs:3.2,spd:260,st:'nap',walker:true,noWalk:true});
+  const tora=thing('tora','ねこの トラ',690,FY+110,22,18,e=>{cat(e,{sleep:e.st==='nap',jy:e.react>0?-4:0});},{col:'#e8a050',gs:3.2,spd:260,st:'nap',walker:true,noWalk:true});
   const pigeons=thing('hato','ハト',420,740,70,22,e=>{for(let i=0;i<5;i++)bird(e.x-30+i*14,e.y-4-Math.abs(Math.sin(T*3+i))*2,T+i,'#9aa0b8',e.fl>T);},{gs:2.6});
   // ---- いちにちの よてい ----
   R(sakana,[[13,0,[1160,FY+40],'sell',['らっしゃい らっしゃい！ タイムセール！','サンマ やすいよ〜！','いきの いい さかな あるよ〜'],{zs:FY+30}],[13,16,[1160,FY+40],'sell',['ふう、セール おわり','さて、すしやの でまえの じゅんび']],[13,20,[1060,FY+40],'drink',['ひとやすみ… (こおりばこ あけっぱなし)'],{zs:FY+30,fn:()=>{F.lid=true;}}],[13,30,[1160,FY+40],'work',['でまえ たのむぞ〜'],{zs:FY+30,fn:()=>{F.lid=false;}}]]);
-  const saleQ=[0,1,2].map(i=>who('sq'+i,Object.assign({},LK.baba,{body:['#ff9a1f','#3ccf6e','#ff7eb6'][i]}),1395+i*62,660,'セールの おばちゃん',{spd:35}));
-  for(const q of saleQ){R(q,[[13,0,[q.x,660],'talk',['サンマ 3びき ちょうだい！','わたしが さき！']],[13,16,[rnd(1600,2600),720],null,['いい かいもの した〜']]]);}
-  R(demae,[[13,0,[1660,640],'drink',['でまえの じかんまで ひま〜']],[13,30,[1240,640],'carry',['よいしょ… さかなと こおり つみこんで…'],{fn:()=>{demae.carryCol='#e8f4fb';}}],[13,32,[1060,680+D],null,['でまえ いってきま〜す！'],{fn:()=>{demae.bike=true;}}],[13,40,[1060,680+D],'drink',['すしや とうちゃく。…たいしょう、ひるね ちゅうだ'],{fn:()=>{demae.bike=false;}}],[14,0,[1350,640],'drink',['もどったよ〜']]]);
+  const saleQ=[0,1].map(i=>who('sq'+i,Object.assign({},LK.baba,{body:['#ff9a1f','#3ccf6e'][i]}),1400+i*130,670+i*20,'セールの おばちゃん',{spd:35}));
+  for(const q of saleQ){R(q,[[13,0,[q.x,q.y],'talk',['サンマ 3びき ちょうだい！','わたしが さき！']],[13,16,[2650+saleQ.indexOf(q)*70,740],null,['いい かいもの した〜','さ、かえりましょ']],[13,24,[2700+saleQ.indexOf(q)*70,740],null,null,{hide:true}]]);}
+  R(demae,[[13,0,[1860,700],'drink',['でまえの じかんまで ひま〜']],[13,30,[1240,640],'carry',['よいしょ… さかなと こおり つみこんで…'],{fn:()=>{demae.carryCol='#e8f4fb';}}],[13,32,[1060,680+D],null,['でまえ いってきま〜す！'],{fn:()=>{demae.bike=true;}}],[13,40,[1060,680+D],'drink',['すしや とうちゃく。…たいしょう、ひるね ちゅうだ'],{fn:()=>{demae.bike=false;}}],[14,0,[1350,640],'drink',['もどったよ〜']]]);
   R(yaoya,[[13,0,[1620,FY+40],'sell',['トマト あかいよ〜！','おくさん、きゅうり 3ぼん 100えん！'],{zs:FY+30}]]);
   R(baker,[[13,0,[2050,FY+40],'sell',['やきたて メロンパン〜','14じに あんパン やけるよ'],{zs:FY+30}]]);
   R(taiyaki,[[13,0,[170,FY+40+D],'cook',['たいやき やけたよ〜','しっぽまで あんこ！'],{zs:FY+30+D}]]);
-  R(tokei,[[13,0,[520,630+D],'work',['とけいの しゅうり しゅうり','とけいとうの ネジまきは 14じじゃ']],[14,0,[900,640+D],'look',['どれ、とけいとうの ネジを まくか… (カラスが いると のぼれん)']]]);
+  R(tokei,[[13,0,[620,640+D],'work',['とけいの しゅうり しゅうり','とけいとうの ネジまきは 14じじゃ']],[14,0,[900,640+D],'look',['どれ、とけいとうの ネジを まくか… (カラスが いると のぼれん)']]]);
   R(sushi,[[13,0,[1150,FY+40+D],'cook',['へい らっしゃい','ひるの しこみ しこみ'],{zs:FY+30+D}],[13,40,[1040,FY+40+D],'sleep',['ぐう… (ひるやすみ)'],{zs:FY+30+D}],[14,10,[1150,FY+40+D],'cook',['さて、とどいた さかなを さばくか'],{zs:FY+30+D}]]);
   R(kuji,[[13,0,[1620,FY+40+D],'sell',['ふくびき 1かい どうぞ〜','1とうは ハワイ！'],{zs:FY+30+D}]]);
   R(police,[[13,0,[2060,620+D],null,['こうばんで おしごと']],[14,0,[2000,700],'look',['パトロール パトロール']],[14,15,[300,700],'look',['えきまえ いじょう なし']],[14,40,[2060,620+D],null,['こうばんに もどりました']]]);
-  R(hanaya,[[13,0,[740,620],'work',['おはな いかが〜','バラの ゆびわも つくれるわよ']]]);
-  R(musician,[[13,0,[300,640],'guitar',['♪ ら〜らら〜','リクエスト どうぞ']]]);
+  R(hanaya,[[13,0,[620,610],'work',['おはな いかが〜','バラの ゆびわも つくれるわよ']]]);
   for(let i=0;i<3;i++)R(chin[i],[[13,0,[W+100+i*120,680+D],null,null,{hide:true}],[14,30,[W-200+i*120,680+D],'dance',['ちんどん ちんどん♪']],[14,31,[200+i*120,700],'dance',['ちんどん ちんどん♪','しょうてんがい、きょうも げんき！'],{spd:30}]]);
   R(mama,[[13,0,[2400,470],'read',['パーマ ちゅう… ざっし よも まりっ','15じには おわる まりっ'],{sit:1,zs:300}]]);
   R(stylist,[[13,0,[2520,470],'work',['くるくる〜','すてきに なりますよ'],{zs:300}]]);
-  R(papa,[[13,0,[1060,640],'work',['てを あらって… (ゆびわを はずして カウンターに)','さかな かったぞ']],[13,8,[1060,640],'look',['あれ!? ゆびわが ない！ かあちゃんに おこられる…！','どこだ… ゆびわ…','さかなやで はずした はずなんだけど…']],[13,20,[1500,660],'look',['ゆびわ〜… (うろうろ)']],[13,40,[1100,650],'look',['ゆびわ… 15じまでに みつけないと…']]]);
-  R(futan,[[13,0,[980,675],null,['おさかな いっぱい！','パパ、なに さがしてるの？','キラキラ すき〜']]]);
-  for(let i=0;i<3;i++)R(kids[i],[[13,0,[100+i*80,700+D],null,['たいやき かって〜','おこづかい 100えん']],[13,50,[210+i*60,700+D],'eat',['あんこ おいし〜']],[14,30,[2460+i*60,700+D],'cheer',['ちんどんや だ〜！']]]);
-  for(const s of shoppers){const rw2=()=>{if(!s.lock&&!s.path)walk(s,[rnd(200,W-300),rnd(620,760)+(Math.random()<.5?D:0)],()=>wait(rnd(3,8),rw2));else wait(4,rw2);};at(13,1,rw2);s.talk=['いい てんき','なに かおうかな','ここの たいやき おいしいのよ'];}
+  R(papa,[[13,0,[1070,640],'work',['てを あらって… (ゆびわを はずして カウンターに)','さかな かったぞ']],[13,8,[1070,640],'look',['あれ!? ゆびわが ない！ かあちゃんに おこられる…！','どこだ… ゆびわ…','さかなやで はずした はずなんだけど…']],[13,20,[1500,660],'look',['ゆびわ〜… (うろうろ)']],[13,40,[1100,650],'look',['ゆびわ… 15じまでに みつけないと…']]]);
+  R(futan,[[13,0,[945,680],null,['おさかな いっぱい！','パパ、なに さがしてるの？','キラキラ すき〜']]]);
+  for(let i=0;i<2;i++)R(kids[i],[[13,0,[330+i*120,720+D],null,['たいやき かって〜','おこづかい 100えん']],[13,50,[120+i*120,730+D],'eat',['あんこ おいし〜']],[14,30,[2420+i*120,720+D],'cheer',['ちんどんや だ〜！']]]);
+  for(const s of shoppers){const rw2=()=>{if(!s.lock&&!s.path)walk(s,shopSpot(),()=>wait(rnd(5,10),rw2));else wait(4,rw2);};at(13,1,rw2);s.talk=['いい てんき','なに かおうかな','ここの たいやき おいしいのよ'];}
   for(const p of[demae])p.draw=e=>{if(e.bike&&e.moving){X.save();X.translate(e.x,e.y);X.scale(2.6,2.6);bikeR({x:0,y:0,bikeCol:'#e8801a'});X.restore();drawPerson(e,Object.assign(personPose(e),{sit:1,aL:1.6,aR:1.6,jy:-36}));rbox(e.x-70,e.y-110,60,40,6,'#e8f4fb');}else{drawPerson(e,personPose(e));if(PROP[e.act]&&!e.moving)PROP[e.act](e);}};
   // ---- ゆびわの ゆくえ ----
   at(13,2,()=>{F.ring='ice';ring.x=1240;ring.y=FY-10;sfx('splash');pop(1240,FY-40,'ポチャ',COL.yel,14);});
@@ -1473,7 +1472,6 @@ function stage2(){
   PR('futan','taiyaki',()=>{dex('ev_ft','ふーたん と たいやき');say(futan,'たいやき ひとつ ください！');tk();});
   PR('kuji','papa',()=>{dex('ev_kp','パパ と ふくびき');sfx('ring');say(kuji,'カランカラン… はずれ〜！ ティッシュ どうぞ');});
   PR('yaoya','sakana',()=>{dex('ev_ys','やおや と さかなや');say(yaoya,'げんさん、きょうも こえ でかいねえ！');say(sakana,'おまえもな！');});
-  PR('musician','futan',()=>{dex('ev_mf','ギターと ふーたん');say(musician,'おじょうちゃんに いっきょく！ ♪');futan.dance=true;wait(3,()=>futan.dance=false);});
   PR('police','futan',()=>{dex('ev_pf','おまわりさん と ふーたん');say(police,'まいごに ならないようにね');});
   miniColon(0,790,40+D,3001);miniColon(1,1110,330);miniColon(2,2380,430+D);
   st.timeUp=()=>{unlock(mama);lock(mama);walk(mama,[2560,660]);say(mama,'おまたせ まりっ！ …あら？ パパ、ゆびわは？');};
