@@ -209,7 +209,7 @@ const LK={
   futanY:{h:44,kid:1,skin:'#ffd9c0',body:'#ff8fb8',shape:'yukata',obi:COL.yel,pat:'#fff',hair:'bob',hairCol:'#2b1d22',leg:'#ffd9c0',shoe:'#c9874a',acc:'flower'},
   mama:{h:62,skin:'#ffd9c0',body:'#e8483a',shape:'tri',hair:'pattsun',eye:'thin',fem:true,hairCol:'#4a2a1a',leg:'#ffd9c0',shoe:'#5a3a6a',acc:'apron'},
   mamaY:{h:62,skin:'#ffd9c0',body:'#4a8ad8',shape:'yukata',obi:COL.pink,pat:'#fff',hair:'pattsun',eye:'thin',fem:true,acc:'flower',hairCol:'#4a2a1a',leg:'#ffd9c0',shoe:'#c9874a'},
-  papa:{h:68,skin:'#f5cfa8',body:'#3a8ad8',shape:'box',hair:'short',hairCol:'#1d1a24',leg:'#c8a878',shoe:'#7a4a2a',acc:'tie glasses mustache'},
+  papa:{h:80,bw:.25,skin:'#f5cfa8',body:'#2f5fa8',shape:'box',hair:'short',hairCol:'#3a2a20',leg:'#d8c4a0',shoe:'#7a4a2a',acc:'glasses scarf',scarf:'#e8a020'},
   teacher:{h:58,skin:'#ffd9c0',body:'#ff8fb8',shape:'tri',hair:'pig',hairCol:'#a8502b',leg:'#ffd9c0',shoe:'#fff',acc:'apron'},
   butcher:{h:64,skin:'#f5c9a0',body:'#fff',shape:'bean',bw:.4,hair:'short',hairCol:'#2b1d22',hat:'hachi',leg:'#2b3a6a',shoe:INK,acc:'apron mustache'},
   worker:{h:64,skin:'#e8b088',body:COL.org,shape:'box',hair:'short',hairCol:INK,hat:'helmet',hatCol:COL.yel,leg:'#3a3a5a',shoe:INK},
@@ -283,7 +283,8 @@ function drawPerson(e,P){
   else if(L.shape==='happi'){RB(-bw*.52,top,bw*1.04,bot-top+H*.04,bw*.1,body);SHD(top,bot);X.fillStyle='#fff';X.fillRect(-bw*.14,top,bw*.08,bot-top);X.fillRect(bw*.06,top,bw*.08,bot-top);RB(-bw*.52,top+tor*.62,bw*1.04,tor*.14,1,'#fff');
     for(let i=0;i<3;i++)E2(-bw*.34,top+tor*.15+i*tor*.16,bw*.04,bw*.04,'#fff');}
   else if(L.shape==='box'){RB(-bw*.52,top,bw*1.04,bot-top+H*.02,bw*.18,body);SHD(top,bot);
-    if(hasA(L,'tie')){PL([[-bw*.2,top],[bw*.2,top],[0,top+tor*.42]],'#fff');PL([[0,top+tor*.06],[bw*.07,top+tor*.14],[bw*.05,top+tor*.55],[0,top+tor*.66],[-bw*.05,top+tor*.55],[-bw*.07,top+tor*.14]],COL.red);
+    if(hasA(L,'scarf')){const sc=L.scarf||'#e8a020';RB(-bw*.38,top-tor*.06,bw*.76,tor*.15,tor*.07,sc);RB(bw*.06,top+tor*.05,bw*.17,tor*.42,2,shade(sc,-.12));X.fillStyle='rgba(255,255,255,.35)';X.fillRect(bw*.08,top+tor*.4,bw*.13,tor*.03);}
+  if(hasA(L,'tie')){PL([[-bw*.2,top],[bw*.2,top],[0,top+tor*.42]],'#fff');PL([[0,top+tor*.06],[bw*.07,top+tor*.14],[bw*.05,top+tor*.55],[0,top+tor*.66],[-bw*.05,top+tor*.55],[-bw*.07,top+tor*.14]],COL.red);
       PL([[-bw*.22,top],[-bw*.02,top+tor*.45],[-bw*.12,top+tor*.47],[-bw*.3,top+1]],shade(body,.12));PL([[bw*.22,top],[bw*.02,top+tor*.45],[bw*.12,top+tor*.47],[bw*.3,top+1]],shade(body,.12));}
     else{SM([[-bw*.26,top],[0,top+tor*.12],[bw*.26,top],[0,top+tor*.02]],shade(body,-.12));for(let i=0;i<3;i++)E2(0,top+tor*.25+i*tor*.22,bw*.035,bw*.035,shade(body,.35));}
     RB(-bw*.38,top+tor*.22,bw*.22,tor*.16,1.5,shade(body,-.06));X.fillStyle='rgba(0,0,0,.25)';X.fillRect(-bw*.52,bot-H*.035,bw*1.04,H*.025);}
@@ -374,11 +375,16 @@ function drawColon(x,y,t,o){
 function bentoIcon(x,y,s){X.save();X.translate(x,y);X.scale(s/14,s/14);rbox(-7,-5,14,10,2,COL.pink);poly([[-2,-5],[0,-8],[2,-5]],COL.pink);ln(-7,0,7,0,1,'#fff');X.restore();}
 function cakeIcon(x,y,s){X.save();X.translate(x,y);X.scale(s/14,s/14);rbox(-7,-7,14,11,2,'#fff');box(-7,-7,14,3,COL.pink);ln(-3,-2,3,-2,1,COL.red);X.restore();}
 function dog(e,P){
-  const x=e.x+(P.dx||0),y=e.y+(P.jy||0);shadow(x,y+1,13,3);
-  X.save();X.translate(x,y-9);X.scale(e.dir||1,1);const lg=e.moving?Math.sin(e.wph*2)*4:0;
-  for(const lx of[-9,-4,5,10])ln(lx,4,lx+(lx>0?lg:-lg),10,3,'#f4f0e8');
-  const wag=Math.sin(e.t*14)*.5;crv([[-14,-2],[-19,-8+wag*6],[-22,-12+wag*8]],3,'#f4f0e8');
-  ell(0,0,15,8,'#f4f0e8');ell(-4,-2,4,3,'#d8945a');ell(14,-9,9,8,'#f4f0e8');ell(10,-13,3.5,6,'#9a6a3a');ell(16,-10,1.4,2,INK);ell(23,-8,2.2,1.8,INK);
+  const x=e.x+(P.dx||0),y=e.y+(P.jy||0);shadow(x,y+1,13,3);const W='#fbfaf6',O='rgba(80,70,60,.45)',S='#e9e4da';
+  X.save();X.translate(x,y-9);X.scale(e.dir||1,1);const lg=e.moving?Math.sin(e.wph*2)*4:0;X.lineWidth=.9;X.strokeStyle=O;
+  for(const lx of[-9,-4,5,10])ln(lx,4,lx+(lx>0?lg:-lg),10,3.2,lx===-4||lx===10?S:W);
+  const wag=Math.sin(e.t*14)*.5;crv([[-14,-2],[-19,-9+wag*6],[-21,-14+wag*8]],3.4,W);
+  X.beginPath();X.ellipse(0,0,15,8,0,0,7);X.fillStyle=W;X.fill();X.stroke();
+  X.beginPath();X.ellipse(14,-9,9,8,0,0,7);X.fillStyle=W;X.fill();X.stroke();
+  X.beginPath();X.moveTo(9,-14);X.lineTo(11,-23);X.lineTo(15,-15);X.closePath();X.fillStyle=W;X.fill();X.stroke();
+  X.beginPath();X.ellipse(17,-14,2.6,5,.6,0,7);X.fillStyle=S;X.fill();X.stroke();
+  ell(16,-10,1.4,2,INK);ell(23,-8,2.2,1.8,INK);crv([[19,-5],[21,-4],[23,-5]],.8,'#7a5a4a');
+  box(7,-4,4,6,COL.red);dot(9,1,1.3,'#ffd23f');
   if(P.carry==='bento')bentoIcon(22,-3,9);
   X.restore();
 }
@@ -550,7 +556,7 @@ $('bDex').onclick=()=>{if(mode!=='play')return;sfx('tap');mode='pause';const ov=
 window.addEventListener('keydown',ev=>{if(mode!=='play')return;if(ev.key==='+'||ev.key===';')animZoom(cam.z*1.8);if(ev.key==='-')animZoom(cam.z/1.8);});
 
 function hitTest(wx,wy){let best=null,ba=1e12,bd=null,bda=1e12;
-  for(const e of G.ents){if(e.hidden||!e.poke)continue;const w=e.w,h=e.h;const ss=Math.min(w,h)*cam.z;
+  for(const e of G.ents){if(e.hidden||!e.poke||(e.nohit&&e.nohit()))continue;const w=e.w,h=e.h;const ss=Math.min(w,h)*cam.z;
     if((e.tiny&&!SAVE.easy)?ss<6:ss<3)continue;
     const pad=e.decoy?2/cam.z:Math.max(6/cam.z,((SAVE.easy?40:30)/cam.z-Math.min(w,h))/2);
     const hx=e.x-w/2-pad,hy=e.y-h-pad;if(wx>=hx&&wx<=hx+w+pad*2&&wy>=hy&&wy<=hy+h+pad*2){const a=w*h;if(e.decoy){if(a<bda){bda=a;bd=e;}}else if(a<ba){ba=a;best=e;}}}
@@ -660,7 +666,7 @@ function render(){
   const vg=C.createRadialGradient(CW/2,CH/2,Math.min(CW,CH)*.38,CW/2,CH/2,Math.max(CW,CH)*.78);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(20,10,30,.24)');C.fillStyle=vg;C.fillRect(0,0,CW,CH);
   drawBubbles();drawSelFx();
 }
-const TAGS={futan:['ふーたん','#ff5f9e'],mama:['かあちゃん',COL.red],papa:['パパ',COL.blue],ricky:['リッキー','#f0a000'],pochi:['ポチ','#c8803a'],penta:['ペンタ','#20a5b5'],santa:['サンタ','#d82a2a'],keeper:['もりさん','#2a9a50'],hachi:['ハチ','#c8803a'],rud:['ルドルフ','#a0522d'],take:['タケシ','#3ccf6e'],gouda:['ごうだ','#4a5a7a'],mc:['しかい','#ff7eb6'],jin:['ジン','#5a6a3a'],mgr:['かんりにん','#2a7a40'],teacher:['せんせい','#ff7eb6']};
+const TAGS={futan:['ふーたん','#ff5f9e'],mama:['かあちゃん',COL.red],papa:['パパ',COL.blue],ricky:['リッキー','#f0a000'],pochi:['ミラ','#c8803a'],penta:['ペンタ','#20a5b5'],santa:['サンタ','#d82a2a'],keeper:['もりさん','#2a9a50'],hachi:['ハチ','#c8803a'],rud:['ルドルフ','#a0522d'],take:['タケシ','#3ccf6e'],gouda:['ごうだ','#4a5a7a'],mc:['しかい','#ff7eb6'],jin:['ジン','#5a6a3a'],mgr:['かんりにん','#2a7a40'],teacher:['せんせい','#ff7eb6']};
 
 function easyGuide(){if(!SAVE.easy||mode!=='play'||G.over||!HINTS[stIdx])return;
   if(!G.eg||T>G.eg.t){const r=hintRoute(),h=(HINTS[stIdx][r]||[])[hintProg(r)];G.eg={t:T+.5,h};}const h=G.eg.h;if(!h)return;
@@ -816,7 +822,7 @@ function stage1(){
   const F=G.f;
   const st={name:'わすれもの おべんとう',W:1800,H:1100,t0:480,t1:720,spm:1,song:0,bgCol:'#9ad66e',start:{x:330,y:330,z:1.2},
     goal:'ようちえんじの ふーたんが おべんとうを わすれて ようちえんバスに のって しまった！\n12:00の おべんとうの じかんまでに、ふーたんの てもとに おべんとうを とどけさせよう。',
-    routeNames:['A','B','C'],routeTitle:{A:'かあちゃんの おとどけ',B:'めいけん ポチの おつかい',C:'カラスと おじいさんの とどけもの'},failMsg:'12:00 … ふーたんは おべんとうを たべられなかった…'};
+    routeNames:['A','B','C'],routeTitle:{A:'かあちゃんの おとどけ',B:'めいけん ミラの おつかい',C:'カラスと おじいさんの とどけもの'},failMsg:'12:00 … ふーたんは おべんとうを たべられなかった…'};
   F.bento='table';F.barrier=false;F.plug=true;F.tv=false;F.outdoor=false;F.red=0;F.alarm=0;F.rock=0;F.bags=true;F.hose=0;
   const poles=[160,560,1000,1240];
   st.ground=()=>{
@@ -842,7 +848,7 @@ function stage1(){
     grass(390,150,130,270,'#8fd468');for(let y=156;y<420;y+=12)rbox(518,y,5,9,1.5,'#fff');box(517,158,7,2,'#fff');box(517,300,7,2,'#fff');
     X.fillStyle='rgba(0,0,0,.16)';X.fillRect(440,214,56,44);
     poly([[428,216],[462,186],[496,216]],'#e8483a');poly([[462,186],[496,216],[480,216]],'#c83a2a');box(434,215,56,40,'#ffe0a0');box(434,215,56,4,'#e8c880');ell(462,244,11,11,'#5a3a2a');
-    rbox(444,198,36,13,2,'#fff');wtxt('おつかい たいかい\nゆうしょう ポチ',462,204.5,3.3,INK);ell(500,282,8,4,'#c0c0c8');ell(500,281,6,2.5,'#d8a060');
+    rbox(444,198,36,13,2,'#fff');wtxt('おつかい たいかい\nゆうしょう ミラ',462,204.5,3.3,INK);ell(500,282,8,4,'#c0c0c8');ell(500,281,6,2.5,'#d8a060');
     for(const[sx,sy]of[[430,310],[445,330],[430,350],[448,372]])ell(sx,sy,8,5,'#d8d0c0');
     ln(410,388,410,338,2.5,'#999');ln(510,388,510,338,2.5,'#999');ln(410,343,510,343,1,'#999');box(422,343,22,18,'#fff');box(468,343,16,14,'#8fd0f0');box(490,343,12,16,'#ffb3d1');box(450,343,12,10,'#ffe066');
     treeR(400,170,18,'#3a9a4a');
@@ -900,7 +906,7 @@ function stage1(){
   const mama=P_('mama',LK.mama,180,205,'まり（かあちゃん）',{st:'sink',inH:true,spd:42});
   const teacher=P_('teacher',LK.teacher,1355,225,'せんせい',{spd:60});
   const kid1=P_('kid1',LK.kidA,1610,262,'まさくん'),kid2=P_('kid2',LK.kidB,1500,262,'ゆいちゃん'),kid3=P_('kid3',Object.assign({},LK.kidA,{hairCol:'#a8502b',shoe:COL.red}),1680,250,'けんたくん');
-  const pochi=E({id:'pochi',name:'ポチ',x:455,y:292,w:34,h:24,spd:85,st:'tied',draw(e){if(e.st==='tied')ln(e.x-6,e.y-8,438,262,1,'#888');dog(e,{carry:e.carry,jy:e.react>0?-Math.abs(Math.sin(e.react*9))*6:0});}});
+  const pochi=E({id:'pochi',name:'ミラ',x:455,y:292,w:34,h:24,spd:85,st:'tied',draw(e){if(e.st==='tied')ln(e.x-6,e.y-8,438,262,1,'#888');dog(e,{carry:e.carry,jy:e.react>0?-Math.abs(Math.sin(e.react*9))*6:0});}});
   const catE=E({id:'cat',name:'ねこ',x:383,y:258,w:24,h:22,st:'sill',spd:70,zs:200,draw(e){cat(e,{sleep:e.st==='sill'&&e.react<=0,jy:e.react>0?-4:0});}});
   const bento=E({id:'bento',name:'おべんとう',x:236,y:262,w:16,h:12,zs:300,draw(e){bentoIcon(e.x,e.y-5,13);dot(e.x+6,e.y-2,1.3,'#ffe066');}});
   const crow=E({id:'crow',name:'でんちゅうの カラス',x:560,y:470,w:20,h:16,zs:2000,spd:200,draw(e){X.save();X.translate(e.x,e.y);X.scale(e.dir||1,1);const fl=e.fly||e.path;
@@ -1003,26 +1009,26 @@ function stage1(){
         sfx('crash');pop(250,240,'バシッ！',COL.yel);wait(.9,()=>go(e,[[383,258]],()=>{e.st='sill';}));});}
     else{e.react=1;say(e,'にゃ〜ん (のび〜)');sfx('meow');dex('cat_g','まどべの ねこ（のび）');}};
   bento.poke=e=>{dex('bento','おべんとう');narr(e,F.bento==='table'?'(ピンクの おべんとうばこ。キラキラの キーホルダーつき。「ひまわり ようちえん ふーたん」)':'(ふーたんの おべんとう。キーホルダーが キラキラ ひかっている)');};
-  // ---------- ポチ ----------
+  // ---------- ミラ ----------
   pochi.talk=()=>({tied:F.bento==='yard'?'くんくん… くーん！ (ふーたんの におい！)':['ふわぁ〜 (ひま)','わふ','(おつかいなら まかせて！)'][Math.floor(T/6)%3],park:'ハト まてまて〜！',home:'くんくん…',drool:'じゅるり… (ソーセージ…)',wkg:'わん！ わん！'}[pochi.st]||'');
-  function pochiGo(){if(F.bento==='yard'){pochi.st='fetch';go(pochi,[[430,326]],()=>{if(F.bento!=='yard'){pochi.st='home';return;}F.bento='pochi';bento.hidden=true;pochi.carry='bento';say(pochi,'わん！ (ふーたんに とどけるぞ！)');sfx('bark');pochi.st='run';cap('ポチが おべんとうを くわえて はしりだした！',515,560);
-        go(pochi,[[515,330],[515,592],[740,592]],()=>{pochi.st='drool';F.bento='butcher';pochi.carry=null;bento.hidden=false;bento.x=748;bento.y=600;bento.zs=600;say(pochi,'じゅるり… (ソーセージ…)');cap('ポチが にくやの まえで とまって しまった…',740,560);},90);});}
+  function pochiGo(){if(F.bento==='yard'){pochi.st='fetch';go(pochi,[[430,326]],()=>{if(F.bento!=='yard'){pochi.st='home';return;}F.bento='pochi';bento.hidden=true;pochi.carry='bento';say(pochi,'わん！ (ふーたんに とどけるぞ！)');sfx('bark');pochi.st='run';cap('ミラが おべんとうを くわえて はしりだした！',515,560);
+        go(pochi,[[515,330],[515,592],[740,592]],()=>{pochi.st='drool';F.bento='butcher';pochi.carry=null;bento.hidden=false;bento.x=748;bento.y=600;bento.zs=600;say(pochi,'じゅるり… (ソーセージ…)');cap('ミラが にくやの まえで とまって しまった…',740,560);},90);});}
     else{pochi.st='park';say(pochi,'わーい！');go(pochi,[[515,330],[515,592],[880,592],[1040,860]],null,90);}}
   pochi.tick=(e,dt)=>{if(e.st==='home'&&!e.path&&F.bento==='yard')pochiGo();if(e.st==='park'&&!e.path&&Math.random()<dt*.6){go(e,[[rnd(1000,1150),rnd(830,900)]]);pigeons.fl=Math.max(pigeons.fl,1.5);}};
   pochi.poke=e=>{e.react=.6;sfx('bark');
-    if(e.st==='tied'){dex('pochi','ポチ');say(e,F.bento==='yard'?'ぐいっ ぐいっ！ (くさりが じゃまで いけない！)':'わん！');}
-    else if(e.st==='park'){dex('pochi_p','こうえんの ポチ');say(e,'わふ？ (おうちに かえろ)');e.st='go';go(e,[[880,592],[515,592],[515,330],[455,300]],()=>{e.st='home';},90);}
-    else if(e.st==='drool'){dex('pochi_d','よだれの ポチ');say(e,'…じゅるり (ソーセージから めが はなれない)');}
-    else{dex('pochi_g','ポチ');say(e,'わん！');}};
+    if(e.st==='tied'){dex('pochi','ミラ');say(e,F.bento==='yard'?'ぐいっ ぐいっ！ (くさりが じゃまで いけない！)':'わん！');}
+    else if(e.st==='park'){dex('pochi_p','こうえんの ミラ');say(e,'わふ？ (おうちに かえろ)');e.st='go';go(e,[[880,592],[515,592],[515,330],[455,300]],()=>{e.st='home';},90);}
+    else if(e.st==='drool'){dex('pochi_d','よだれの ミラ');say(e,'…じゅるり (ソーセージから めが はなれない)');}
+    else{dex('pochi_g','ミラ');say(e,'わん！');}};
   clip.poke=e=>{if(pochi.st!=='tied'){dex('clip2','とめがね');narr(e,'(はずれた とめがね)');return;}
     dex('clip','くさりの とめがね');sfx('click');pop(e.x,e.y-8,'カチャッ',COL.yel,8);pochi.st='free';step('B','くさりの とめがね');say(pochi,'わふっ！ (じゆうだ！)');wait(.7,pochiGo);};
   function pochiRun(label){step('B',label);pochi.st='run';F.bento='pochi';bento.hidden=true;pochi.carry='bento';
-    go(pochi,[[760,592],[1470,592]],()=>{pochi.st='wkg';say(pochi,'わん！ わん！');sfx('bark');cap('ポチが ようちえんの もんの まえに ついた！',1470,560);checkMeet();},95);}
+    go(pochi,[[760,592],[1470,592]],()=>{pochi.st='wkg';say(pochi,'わん！ わん！');sfx('bark');cap('ミラが ようちえんの もんの まえに ついた！',1470,560);checkMeet();},95);}
   butcher.talk=()=>pochi.st==='drool'?'ん？ なんだ あの いぬ…':['コロッケ あげたて〜！','らっしゃい らっしゃい！','ソーセージは つるして ほすのが いちばん'][Math.floor(T/6)%3];
-  butcher.poke=e=>{e.react=1;e.rt='angry';if(pochi.st==='drool'){dex('butcher_d','にくやさん（いぬを おいはらう）');say(e,'こらーっ！ のらいぬ！ あっちいけ！');sfx('bark');pochi.react=1;say(pochi,'キャン！');wait(.6,()=>pochiRun('にくやさん（ポチを おいはらう）'));}
+  butcher.poke=e=>{e.react=1;e.rt='angry';if(pochi.st==='drool'){dex('butcher_d','にくやさん（いぬを おいはらう）');say(e,'こらーっ！ のらいぬ！ あっちいけ！');sfx('bark');pochi.react=1;say(pochi,'キャン！');wait(.6,()=>pochiRun('にくやさん（ミラを おいはらう）'));}
     else{dex('butcher','にくやさん');say(e,'うおっ！？ …あ、いらっしゃい！ コロッケ やすいよ！');}};
-  saus.poke=e=>{if(e.gone)return;if(pochi.st==='drool'){dex('saus_d','ソーセージ（ポチの ごほうび）');e.gone=true;pop(e.x,e.y,'ポトッ',COL.yel,8);say(pochi,'むしゃむしゃ… わん！ (げんき 100ばい！)');say(butcher,'あっ！ うちの ソーセージ！');
-      wait(1.5,()=>pochiRun('つりさげ ソーセージ（ポチの ごほうび）'));}
+  saus.poke=e=>{if(e.gone)return;if(pochi.st==='drool'){dex('saus_d','ソーセージ（ミラの ごほうび）');e.gone=true;pop(e.x,e.y,'ポトッ',COL.yel,8);say(pochi,'むしゃむしゃ… わん！ (げんき 100ばい！)');say(butcher,'あっ！ うちの ソーセージ！');
+      wait(1.5,()=>pochiRun('つりさげ ソーセージ（ミラの ごほうび）'));}
     else{dex('saus','ソーセージ');e.gone=true;pop(e.x,e.y,'ポトッ',COL.yel,8);say(butcher,'おっとっと… (ひろって もどした)');wait(1.5,()=>e.gone=false);}};
   // ---------- カラス と おじいさん ----------
   crow.talk=()=>crow.carry?'':['カァ…','(キラキラ… ないかなァ)','カァ！'][Math.floor(T/6)%3];
@@ -1066,7 +1072,7 @@ function stage1(){
   at(11,30,()=>{cap('のこり 30ぷん！ おべんとうの じかんが せまる',236,262);});
   function who(){return mama.st==='wgate'?'A':pochi.st==='wkg'?'B':oldman.st==='wgate'?'C':null;}
   function checkMeet(){if(G.over)return;const w=who();
-    if(F.outdoor&&w){say(futan,{A:'あっ！ かあちゃんだー！',B:'あっ！ ポチだー！',C:'あれ？ おじいちゃんが ふーたんの おべんとう もってる！'}[w]);step(w,'おそとあそびの じかんに とうちゃく');meet(w);}}
+    if(F.outdoor&&w){say(futan,{A:'あっ！ かあちゃんだー！',B:'あっ！ ミラだー！',C:'あれ？ おじいちゃんが ふーたんの おべんとう もってる！'}[w]);step(w,'おそとあそびの じかんに とうちゃく');meet(w);}}
   function meet(r){if(G.over)return;win(r,4.5);cap('ふーたんに おべんとうが とどいた！',1520,560);go(futan,[[1520,566]],()=>{futan.carry='bento';futan.mood='happy';futan.react=3;futan.rt='joy';hearts(1520,520,12);say(futan,'わーい！ おべんとう！ ありがとう！');});
     if(r==='A'){say(mama,'ふーたん、わすれもの まりっ！ かあちゃん がんばっちゃった〜');mama.carry=null;}else if(r==='B'){pochi.carry=null;say(pochi,'わん！');}else{oldman.carry=null;say(oldman,'ほっほっ、よかったのう');}F.bento='done';}
   intercom.poke=e=>{sfx('ding');pop(e.x,e.y-12,'ピンポーン♪',COL.yel,9);
@@ -1076,7 +1082,7 @@ function stage1(){
     else{dex('intercom_g','インターホン（いたずら）');say(teacher,'はーい？');go(teacher,[[1520,540]],()=>{say(teacher,'あら？ だれも いない… いたずらかしら');wait(1.5,()=>go(teacher,F.outdoor?[[1560,420]]:[[1355,225]]));},90);}};
   win_.poke=e=>{if(!futan.inKG||futan.out){dex('window_g','きょうしつの まど');narr(e,'(きょうしつの まど)');return;}e.open=true;
     go(futan,[[1650,312]],()=>{const w=who();
-      if(w){dex('window','きょうしつの まど（ふーたんが そとを みる）');say(futan,{A:'あっ！ かあちゃんだ！ せんせい〜！',B:'あっ！ ポチだ！ せんせい〜！',C:'あっ、ふーたんの おべんとう！ せんせい〜！'}[w]);step(w,'きょうしつの まど（ふーたんが きづく）');wait(1.2,()=>meet(w));}
+      if(w){dex('window','きょうしつの まど（ふーたんが そとを みる）');say(futan,{A:'あっ！ かあちゃんだ！ せんせい〜！',B:'あっ！ ミラだ！ せんせい〜！',C:'あっ、ふーたんの おべんとう！ せんせい〜！'}[w]);step(w,'きょうしつの まど（ふーたんが きづく）');wait(1.2,()=>meet(w));}
       else{dex('window_n','きょうしつの まど（なにも ない）');say(futan,'？ なんにも ないや');wait(2,()=>{e.open=false;go(futan,[[1560,280]]);});}});};
   board.poke=e=>{dex('board','けいじばん');narr(e,'(けいじばん。ちいさな じで よていが かいてある)');};
   // ---------- その ほか ----------
@@ -1132,7 +1138,7 @@ function stage1(){
 function stage2(){
   const F=G.f;G.cakeRoute=null;
   const st={name:'パパの おつかい',W:1900,H:1080,t0:900,t1:1080,spm:1.2,song:1,bgCol:'#ead9b4',start:{x:430,y:560,z:1.3},
-    goal:'きょうは ふーたんの 5さいの おたんじょうび。\nしごとがえりの パパに ケーキと ろうそくを かってきて もらう はずだが…\n18:00の パーティーまでに、パパを ケーキ（の かわりに なる もの）と ろうそくを もって かえらせよう。\n（パパは あおい ジャケットに めがねと ちょびひげ。あしもとの なまえふだが めじるし）',
+    goal:'きょうは ふーたんの 5さいの おたんじょうび。\nしごとがえりの パパに ケーキと ろうそくを かってきて もらう はずだが…\n18:00の パーティーまでに、パパを ケーキ（の かわりに なる もの）と ろうそくを もって かえらせよう。\n（パパは せが たかくて おしゃれ。あおい ジャケットに めがね。あしもとの なまえふだが めじるし）',
     routeNames:['A','B','C'],routeTitle:{A:'パンやさんの とくせい ケーキ',B:'ケーキやさん ふっかつ',C:'いちごで かあちゃんの てづくり ケーキ'},failMsg:'18:00 … パパは パーティーに まにあわなかった…'};
   F.r0=false;F.cake=null;F.candle=false;F.power=false;F.cakeOpen=false;F.bakery=true;F.emerg=0;F.grannyAwake=0;F.wakeHow=null;F.knowClosed=false;F.sale=false;
   const crossClosed=()=>{const m=G.min;if(m>=1040&&m<1060)return true;if(F.emerg>m)return true;return m>=930&&(m%30)<2.5;};
@@ -1235,7 +1241,7 @@ function stage2(){
   const lady=wanderer('lady',Object.assign(walkerLook(5),{body:'#c9a8ff',hat:'hat',hatCol:'#fff'}),area,'プードルの おくさん');
   lady.draw=e=>{drawPerson(e,personPose(e));const dx=e.x+(e.dir||1)*-16,dy=e.y;ln(e.x-(e.dir||1)*6,e.y-26,dx,dy-8,.6,'#888');for(let i=0;i<4;i++)dot(dx-4+i*3,dy-6-(i%2)*2,3.4,'#fff');dot(dx+6,dy-10,3.6,'#fff');dot(dx+7,dy-11,.8,INK);};
   lady.talk=['プーちゃん おさんぽ たのしいね','ざあます'];lady.poke=e=>{dex('lady','プードルの おくさん');e.react=1;e.rt='jump';say(e,'まっ！ プーちゃんが ほえたざます');sfx('bark');};
-  const commuters=[];for(let i=0;i<6;i++){const c=wanderer('com'+i,Object.assign({},LK.papa,{body:['#3a3a4a','#4a4a6a','#2a2a3a'][i%3],acc:'tie',hairCol:INK,leg:'#2a2a3a',shoe:INK}),area,'かいしゃいん',{hidden:true});c.gk='com';commuters.push(c);c.talk=['ふう、つかれた','きょうは はやく かえれるぞ'];}
+  const commuters=[];for(let i=0;i<6;i++){const c=wanderer('com'+i,Object.assign({},LK.papa,{body:['#3a3a4a','#4a4a6a','#2a2a3a'][i%3],acc:'tie',hairCol:INK,leg:'#2a2a3a',shoe:INK,h:64,bw:.3}),area,'かいしゃいん',{hidden:true});c.gk='com';commuters.push(c);c.talk=['ふう、つかれた','きょうは はやく かえれるぞ'];}
   const kids=[];for(let i=0;i<3;i++){const k=wanderer('kid'+i,Object.assign({},i%2?LK.kidB:LK.kidA,{h:48,hat:'cap',hatCol:COL.yel,body:['#fff','#ffb3d1','#8fd0f0'][i],shape:'box',acc:'rando'}),[540,760,1000,1020],'しょうがくせい',{hidden:true});kids.push(k);k.talk=['おにごっこ しよ〜','ランドセル おもい〜'];k.gk='kid';
     k.poke=e=>{dex('kid','しょうがくせい');e.react=1.4;e.rt='flop';say(e,'ランドセルの なかみが ばらばら〜！');sfx('crash');};}
   const sale=[0,1,2].map(i=>P_('sale'+i,Object.assign({},LK.baba,{body:['#ff9a1f','#3ccf6e','#ff7eb6'][i],acc:''}),300+i*30,700,'タイムセールの おばちゃん',{hidden:true,spd:40}));
@@ -1350,7 +1356,7 @@ function stage3(){
   const F=G.f;
   const st={name:'まいごの なつまつり',W:1900,H:1250,t0:1110,t1:1260,spm:1.4,song:2,bgCol:'#6a4a36',start:{x:700,y:460,z:1.4},
     goal:'なつまつりの ひとごみで、ふーたんが かあちゃんと リッキーと はぐれて しまった！\n21:00の はなびまでに、ふーたんを かあちゃんと あわせて あげよう。',
-    routeNames:['A','B','C'],routeTitle:{A:'まいごの おしらせ',B:'くらやみに ひかる ふーたん',C:'ポチの はなと かたぐるま'},failMsg:'21:00 … はなびが あがった。ふーたんは ひとりぼっちの まま…'};
+    routeNames:['A','B','C'],routeTitle:{A:'まいごの おしらせ',B:'くらやみに ひかる ふーたん',C:'ミラの はなと かたぐるま'},failMsg:'21:00 … はなびが あがった。ふーたんは ひとりぼっちの まま…'};
   F.spk=-1;F.dark=0;F.drumPause=0;F.ring='none';F.annAwake=0;F.lastAnn=0;
   const drumOn=()=>G.min>=1140&&G.min<1200&&F.drumPause<=G.min;
   const lights=[];
@@ -1421,17 +1427,17 @@ function stage3(){
   const mNext=()=>{if(mama.st!=='search')return;mi=(mi+1)%mloop.length;go(mama,[mloop[mi]],()=>wait(.8,mNext));};mNext();
   mama.talk=()=>mama.st==='search'?['ふーたーん！ どこ まり〜！','リッキー、おねえちゃん どこかな… どこかなかな〜','ふーたん、どこ いったの… まいごの まいご まりっ','ひとが おおくて さきが みえない まり〜'][Math.floor(T/6)%4]:'';
   mama.poke=e=>{dex('mama','まり（かあちゃん）');e.react=.8;e.rt='jump';say(e,'ふーたん!? …ちがった まりっ');};
-  // パパ と ポチ（19:30 とうちゃく）
+  // パパ と ミラ（19:30 とうちゃく）
   const papa=P_('papa',LK.papa,950,-40,'パパ',{hidden:true,spd:45,st:'none'});
-  const pochi=E({id:'pochi',name:'ポチ',x:930,y:-40,w:34,h:24,spd:60,hidden:true,st:'none',draw(e){dog(e,{jy:e.react>0?-Math.abs(Math.sin(e.react*9))*6:0});if(!papa.hidden)ln(e.x+(e.dir||1)*20,e.y-14,papa.x,papa.y-papa.look.h*.4,.6,'#c83a2a');}});
+  const pochi=E({id:'pochi',name:'ミラ',x:930,y:-40,w:34,h:24,spd:60,hidden:true,st:'none',draw(e){dog(e,{jy:e.react>0?-Math.abs(Math.sin(e.react*9))*6:0});if(!papa.hidden)ln(e.x+(e.dir||1)*20,e.y-14,papa.x,papa.y-papa.look.h*.4,.6,'#c83a2a');}});
   pochi.tick=(e,dt)=>{if(e.st==='heel'&&!e.path){const tx=papa.x-22,ty=papa.y+4;if(Math.hypot(tx-e.x,ty-e.y)>6)go(e,[[tx,ty]]);}};
-  papa.talk=()=>({wait:['かあちゃんたち どこかな… けいたいの でんちも きれちゃった','ポチの はなは よく きくんだけどなあ'][Math.floor(T/7)%2],withF:['ふーたん、もう だいじょうぶだよ','たかい ところから なら かあちゃんに みつけて もらえるかもな'][Math.floor(T/7)%2]}[papa.st]||'');
-  at(19,30,()=>{papa.hidden=false;pochi.hidden=false;pochi.st='heel';cap('パパと ポチが おまつりに やってきた',950,200);go(papa,[[950,140],[1010,400]],()=>{papa.st='wait';pochi.st='wait';say(papa,'かあちゃんたち どこかな…');});});
+  papa.talk=()=>({wait:['かあちゃんたち どこかな… けいたいの でんちも きれちゃった','ミラの はなは よく きくんだけどなあ'][Math.floor(T/7)%2],withF:['ふーたん、もう だいじょうぶだよ','たかい ところから なら かあちゃんに みつけて もらえるかもな'][Math.floor(T/7)%2]}[papa.st]||'');
+  at(19,30,()=>{papa.hidden=false;pochi.hidden=false;pochi.st='heel';cap('パパと ミラが おまつりに やってきた',950,200);go(papa,[[950,140],[1010,400]],()=>{papa.st='wait';pochi.st='wait';say(papa,'かあちゃんたち どこかな…');});});
   pochi.talk=()=>pochi.st==='wait'?'くんくん… (いろんな においが する！)':'';
   pochi.poke=e=>{e.react=.6;sfx('bark');
-    if(e.st==='wait'&&papa.st==='wait'){dex('pochi','ポチ（においを かぐ）');say(e,'くんくん…！ わん！ (ふーたんの におい！)');step('C','ポチの はな（ふーたんを さがす）');cap('ポチが ふーたんの においを かぎつけた！',e.x,e.y);
+    if(e.st==='wait'&&papa.st==='wait'){dex('pochi','ミラ（においを かぐ）');say(e,'くんくん…！ わん！ (ふーたんの におい！)');step('C','ミラの はな（ふーたんを さがす）');cap('ミラが ふーたんの においを かぎつけた！',e.x,e.y);
       e.st='lead';papa.st='follow';const tx=futan.x+28,ty=futan.y+6;go(e,[[tx+10,ty]],null,55);go(papa,[[tx-4,ty+2]],()=>{papa.st='withF';e.st='heel';say(papa,'ふーたん！ こんな ところに いたのか！');say(futan,'パパ〜！ (でも かあちゃんは…？)');futan.mood='sad';},50);}
-    else{dex('pochi_g','ポチ');say(e,'わん！');}};
+    else{dex('pochi_g','ミラ');say(e,'わん！');}};
   papa.poke=e=>{dex('papa','パパ');e.react=1;e.rt='sneeze';say(e,'はっくしょん！');};
   // おみこし（20:00）
   const mikoshi=E({id:'mikoshi',name:'おみこし',x:950,y:-80,w:120,h:90,hidden:true,spd:42,zs:null,draw(e){const b=Math.abs(Math.sin(T*5))*4+(e.react>0?Math.abs(Math.sin(e.react*12))*10:0);
@@ -1620,7 +1626,7 @@ function stage4(){
   const animals=E({id:'petting',name:'ウサギと ヤギ',x:1700,y:880,w:120,h:40,draw(e){for(let i=0;i<3;i++){const jx=e.react>0?Math.abs(Math.sin(T*8+i))*8:0;ell(e.x-50+i*22,e.y-5-jx,7,5,'#fff');ell(e.x-45+i*22,e.y-11-jx,4,4,'#fff');ell(e.x-46+i*22,e.y-17-jx,1.5,4,'#fff');}ell(e.x+40,e.y-12,14,9,'#eee');ell(e.x+54,e.y-20,6,6,'#eee');ln(e.x+52,e.y-25,e.x+48,e.y-30,1.4,'#aaa');for(const lx of[30,36,44,50])ln(e.x+lx,e.y-6,e.x+lx,e.y,1.6,'#ccc');}});
   // ふーたん たち
   const futan=P_('futan',LK.futanH,990,1140,'ふーたん',{spd:36});
-  const papa=P_('papa',Object.assign({},LK.papa,{body:'#3a8ad8',acc:'glasses mustache',shape:'box'}),1010,1150,'パパ',{spd:36,stroller:true,babyMood:'happy'});
+  const papa=P_('papa',Object.assign({},LK.papa,{body:'#3a8ad8',acc:'glasses scarf',shape:'box'}),1010,1150,'パパ',{spd:36,stroller:true,babyMood:'happy'});
   // つうこうにん
   for(let i=0;i<7;i++){const r=i%3===0?[-10,570,2000,610]:i%3===1?[965,100,1015,1150]:[-10,1010,2000,1045];const w=wanderer('v'+i,walkerLook(i+2),r,'おきゃくさん');w.gk='visitor';w.talk=['ゾウさん おおきい〜','ペンギン ショー たのしみ','ライオン ねてるね'];}
   const photog=P_('photog',Object.assign(walkerLook(3),{hat:'hat',hatCol:'#555'}),1200,500,'カメラマン');photog.talk=['いい えを とるぞ〜'];
@@ -1671,7 +1677,7 @@ function stage4(){
   gull.talk=()=>gull.carry?'':'(さかな… ほしいなあ)';
   gull.poke=e=>{if(e.busy)return;if(F.fish===1&&penta.inF){e.busy=true;dex('gull','カモメ（さかなを くわえる）');sfx('fly');fly(e,1340,915,1,30,()=>{F.fish=2;e.carry='fish';step('B','カモメ（さかなで ペンタを ゆうどう）');
         fly(e,860,850,1.4,50,()=>{say(penta,'ペッ！？ おさかな〜！');penta.inF=false;penta.st='followGull';penta.how='B';cap('ペンタが カモメの さかなを おいかけはじめた！',860,860);
-          go(e,[[990,850],[990,560],[280,560],[280,470]],()=>{e.carry=null;pop(280,400,'ポチャン',COL.yel);fly(e,1400,700,2,60,()=>e.busy=false);},30);
+          go(e,[[990,850],[990,560],[280,560],[280,470]],()=>{e.carry=null;pop(280,400,'ミラャン',COL.yel);fly(e,1400,700,2,60,()=>e.busy=false);},30);
           go(penta,[[990,880],[990,590],[280,590],[280,505]],()=>arriveGate('B',penta),30);});});}
     else if(F.fish===1){dex('gull_f','カモメ');say(e,'クワッ (さかな〜)');}
     else{dex('gull_g','カモメ');sfx('fly');say(e,'クワ〜');}};
@@ -1943,7 +1949,7 @@ function stage6(){
   const plow=E({id:'plow',name:'じょせつしゃ',x:820,y:930,w:70,h:40,spd:60,draw(e){X.save();X.translate(e.x,e.y);shadow(0,-2,38,7);rbox(-34,-36,52,30,5,'#ff9a1f');rbox(-12,-30,22,14,3,'#bfe2f5');poly([[18,-10],[38,-28],[40,-4],[18,-2]],'#e8e8e8');ell(-20,-4,8,8,INK);ell(8,-4,8,8,INK);if(!e.moving&&!F.plowed){drawPerson({look:LK.worker,x:-4,y:-12,t:T,seed:3,dir:1},{sit:1,mood:'sleep'});otxt('Z',6,-60-((T*6)%8),8,'#fff');}X.restore();}});
   const letter=E({id:'letter',name:'ポストに はさまった てがみ',x:1150,y:584,w:7,h:6,tiny:true,zs:620,draw(e){if(e.gone)return;X.save();X.translate(e.x,e.y);X.rotate(e.fly?T*8:-.2);box(-4,-3,8,6,'#fff');ln(-4,-3,0,0,.5,'#c83a2a');ln(4,-3,0,0,.5,'#c83a2a');X.restore();}});
   const dbell=E({id:'dbell',name:'ケーキやの ドアベル',x:1343,y:742,w:6,h:7,tiny:true,zs:790,draw(e){ln(e.x,e.y-8,e.x,e.y-5,.5,'#888');ell(e.x,e.y-3,2.6,2.6,'#ffd23f');}});
-  const papa=P_('papa',Object.assign({},LK.papa,{body:'#5a4a3a',acc:'glasses mustache'}),1320,700,'パパ',{spd:32,st:'shop',zs:700});
+  const papa=P_('papa',Object.assign({},LK.papa,{body:'#5a4a3a',acc:'glasses scarf'}),1320,700,'パパ',{spd:32,st:'shop',zs:700});
   const sandbin=E({id:'sandbin',name:'すなばこ',x:1532,y:850,w:16,h:12,zs:860,draw(e){rbox(e.x-8,e.y-12,16,12,2,'#ffd23f');box(e.x-8,e.y-12,16,3,'#c8a020');otxt('すな',e.x,e.y-5,4,'#7a4a00');}});
   const latch=E({id:'latch',name:'まどの かぎ',x:1556,y:520,w:6,h:7,tiny:true,zs:530,draw(e){box(e.x-3,e.y-7,6,7,F.latch?'#3ccf6e':'#c83a2a');dot(e.x,e.y-3.5,1.2,'#fff');}});
   const futan=P_('futan',Object.assign({},LK.futanH,{body:'#ffb3d1',shape:'tri'}),1760,480,'ふーたん',{mood:'n'});
@@ -2104,7 +2110,7 @@ function stage7(){
   st.over=()=>{if(F.gust>G.min){X.globalAlpha=.5;for(let i=0;i<14;i++){const k=(T*1.4+i/14)%1;crv([[50+k*1600,100+i*60],[90+k*1600,92+i*60],[130+k*1600,100+i*60]],1.4,'#fff');}X.globalAlpha=1;}};
   // とうじょう じんぶつ
   const futan=P_('futan',Object.assign({},LK.futanH,{body:'#ffd23f',shape:'tri'}),438,346,'ふーたん',{sit:1,zs:347,spd:50});
-  const papa=P_('papa',Object.assign({},LK.papa,{body:'#3a8ad8',acc:'glasses mustache'}),990,680,'パパ',{sit:1,zs:681,spd:40,stroller:true,babyMood:'happy',st:'bench'});
+  const papa=P_('papa',Object.assign({},LK.papa,{body:'#3a8ad8',acc:'glasses scarf'}),990,680,'パパ',{sit:1,zs:681,spd:40,stroller:true,babyMood:'happy',st:'bench'});
   const ricky=E({id:'ricky',name:'リッキー',x:1020,y:690,w:26,h:30,draw(){},tick(e){if(papa.stroller){e.x=papa.x+(papa.dir||1)*30;e.y=papa.y+2;}}});
   const pram=E({id:'pram',name:'ベビーカー',x:0,y:0,w:0,h:0,hidden:true,draw(e){drawStroller({x:e.x-30,y:e.y,dir:1,t:T,babyMood:papa.babyMood||'happy'});}});
   const mc=P_('mc',Object.assign({},LK.teacher,{body:'#ff7eb6',hair:'long',hairCol:'#7a4a20',acc:''}),430,230,'しかいの おねえさん',{zs:231,spd:60});
@@ -2290,12 +2296,12 @@ function stage8(){
     hole(625,420,170,.9);hole(1720,250,200,.8);hole(1330,440,110,.8);hole(980,390,120,.7);hole(450,400,110,.6);if(F.fire)hole(560,630,150,1);if(G.min>=1080)hole(1000,720,220,1);
     X.setTransform(1,0,0,1,0,0);X.drawImage(nc,0,0);};
   // じんぶつ
-  const papa=P_('papa',Object.assign({},LK.papa,{body:'#2a9a50',acc:'glasses mustache',leg:'#6a5a3a'}),310,590,'パパ',{zs:600,spd:46,st:'nap',zz:true});
-  const hammock=E({id:'hammock',name:'ハンモック',x:310,y:604,w:130,h:30,zs:599,draw(e){const sw=Math.sin(T*1.5)*3+(e.react>0?Math.sin(e.react*20)*8:0);crv([[236,560],[310,606+sw],[384,560]],2,'#e8483a');crv([[236,566],[310,612+sw],[384,566]],2,'#fff');crv([[236,572],[310,618+sw],[384,572]],2,'#e8483a');}});
+  const papa=P_('papa',Object.assign({},LK.papa,{body:'#2a9a50',acc:'glasses scarf',leg:'#6a5a3a'}),310,590,'パパ',{zs:600,spd:46,st:'nap',zz:true});
+  const hammock=E({id:'hammock',name:'ハンモック',x:310,y:604,w:130,h:30,zs:599,nohit:()=>papa.st!=='nap',draw(e){const sw=Math.sin(T*1.5)*3+(e.react>0?Math.sin(e.react*20)*8:0);crv([[236,560],[310,606+sw],[384,560]],2,'#e8483a');crv([[236,566],[310,612+sw],[384,566]],2,'#fff');crv([[236,572],[310,618+sw],[384,572]],2,'#e8483a');}});
   const mama=P_('mama',Object.assign({},LK.mama,{body:'#ff9a1f',acc:'apron'}),610,470,'まり（かあちゃん）',{zs:471,spd:40});
   const futan=P_('futan',Object.assign({},LK.futanH,{body:'#ff7eb6',shape:'box',hat:'cap',hatCol:'#ffd23f'}),720,560,'ふーたん',{spd:50});
   const ricky=E({id:'ricky',name:'リッキー',x:520,y:490,w:24,h:28,zs:490,draw(e){rbox(e.x-14,e.y-6,28,8,4,'#3a8af0');X.save();X.translate(e.x,e.y);X.scale(.36,.36);drawBabyBody(e.react>0?'happy':'n',T,1);X.restore();}});
-  const pochi=E({id:'pochi',name:'ポチ',x:330,y:470,w:34,h:24,spd:80,draw(e){ln(e.x-6,e.y-8,320,440,.8,'#c83a2a');dog(e,{jy:e.react>0?-Math.abs(Math.sin(e.react*9))*6:0});}});
+  const pochi=E({id:'pochi',name:'ミラ',x:330,y:470,w:34,h:24,spd:80,draw(e){ln(e.x-6,e.y-8,320,440,.8,'#c83a2a');dog(e,{jy:e.react>0?-Math.abs(Math.sin(e.react*9))*6:0});}});
   const teru=E({id:'teru',name:'てるてるぼうず',x:470,y:330,w:7,h:10,tiny:true,zs:2000,draw(e){const sw=Math.sin(T*2)*1.5;ln(e.x,e.y-14,e.x+sw,e.y-9,.5,'#888');ell(e.x+sw,e.y-7,3,3,F.wet&&!F.teru?'#d8dce8':'#fff');poly([[e.x+sw-3,e.y-5],[e.x+sw+3,e.y-5],[e.x+sw+4,e.y],[e.x+sw-4,e.y]],F.wet&&!F.teru?'#d8dce8':'#fff');dot(e.x+sw-1,e.y-7.5,.5,INK);dot(e.x+sw+1,e.y-7.5,.5,INK);if(F.teru)crv([[e.x+sw-1,e.y-6],[e.x+sw,e.y-5.4],[e.x+sw+1,e.y-6]],.4);}});
   const lighter=E({id:'lighter',name:'くさむらの ライター',x:780,y:800,w:6,h:5,tiny:true,draw(e){if(F.lighter)return;rbox(e.x-2,e.y-6,4,6,1,'#e8483a');box(e.x-2,e.y-7,4,1.5,'#ccc');if(Math.sin(T*3)>.8)star(e.x+3,e.y-7,2,'#fff');}});
   const jin=P_('jin',Object.assign(walkerLook(6),{body:'#5a6a3a',shape:'box',hair:'short',hairCol:'#2b1d22',hat:'hat',hatCol:'#7a6a4a',acc:'beard',leg:'#4a4a3a'}),1330,490,'ソロキャンパーの ジンさん',{sit:1,zs:491,spd:42});
@@ -2359,7 +2365,7 @@ function stage8(){
   mama.talk=()=>F.fire?'カレーの いい におい まりっ〜':F.wet?['マッチが しけしけ… でも わたしは しけた かおは しない まりっ！','となりの キャンパーさん、バーナー もってる まりっ…','かんりとうで かわいた まき うってる まりっ'][Math.floor(T/7)%3]:['てるてるぼうず さげたけど… よほうは あめ まりっ','パパ ハンモックで ねてる まりっ… カレーは パパの たんとう まりっ','やさいは きった まりっ！ あとは ひ だけ まりっ'][Math.floor(T/7)%3];
   mama.poke=e=>{dex('mama','まり（かあちゃん）');e.react=1;e.rt='jump';say(e,'ひゃっ！ たまねぎで なみだ まりっ〜');};
   ricky.talk=['あぶー','だー'];ricky.poke=e=>{dex('ricky','リッキー');e.react=1.5;sfx('giggle');say(e,'きゃっきゃ');};
-  pochi.talk=['ワン！','クンクン (カレーの におい？)'];pochi.poke=e=>{dex('pochi','ポチ');e.react=1;sfx('bark');say(e,'ワンワン！');};
+  pochi.talk=['ワン！','クンクン (カレーの におい？)'];pochi.poke=e=>{dex('pochi','ミラ');e.react=1;sfx('bark');say(e,'ワンワン！');};
   for(const s of studs){s.talk=['BBQ さいこう〜','マシュマロ やこう！','キャンプファイヤー 18じ からだって'];s.poke=gagPoke;}
   deer.poke=e=>{dex('deer','シカ');e.react=1;sfx('fly');go(e,[[2100,760]],d=>d.hidden=true,90);};
   fishkid.talk=['つれないなあ'];fishkid.poke=e=>{dex('fishkid','つりを する こ');e.react=1.4;e.rt='flop';sfx('splash');say(e,'わっ、おおもの…と おもったら ながぐつ！');};
@@ -2390,7 +2396,7 @@ function stage9(){
   const F=G.f;
   const st={name:'ようちえんの はっぴょうかい',W:1900,H:1150,t0:540,t1:630,spm:.6,song:8,bgCol:'#e8d4a0',start:{x:640,y:760,z:1.1},
     goal:'きょうは ようちえんの はっぴょうかい。ふーたんは げき「おおきな かぶ」の かぶの やく！\nところが きんちょうで、えんていの どかんに かくれて でてこない…\n10:30の げきまでに、ふーたんを えがおで ステージへ もどそう。',
-    routeNames:['A','B','C'],routeTitle:{A:'かあちゃんの へんがお',B:'リッキーの はじめての ことば',C:'ポチの おむかえ'},failMsg:'かぶの やくが いないまま… げきは「おおきな だいこん」に へんこうに なった'};
+    routeNames:['A','B','C'],routeTitle:{A:'かあちゃんの へんがお',B:'リッキーの はじめての ことば',C:'ミラの おむかえ'},failMsg:'かぶの やくが いないまま… げきは「おおきな だいこん」に へんこうに なった'};
   F.gate=false;F.paci=false;F.out=false;
   st.ground=()=>{
     speckle(-10,-10,1920,1170,'#e8d4a0',['#dcc690','#f0e0b8'],12);
@@ -2431,7 +2437,7 @@ function stage9(){
   const futan=P_('futan',Object.assign({},LK.futan,{body:'#fff',shape:'smock',hat:null,acc:''}),588,926,'ふーたん',{sit:1,zs:926,mood:'sad',spd:56,st:'hide'});
   const mama=P_('mama',Object.assign({},LK.mama,{body:'#a77cff',acc:''}),780,488,'まり（かあちゃん）',{sit:1,zs:489,spd:52,st:'seat'});
   const cam=E({id:'camcorder',name:'かあちゃんの ビデオカメラ',x:796,y:462,w:7,h:5,tiny:true,zs:2000,draw(e){if(mama.st!=='seat')return;rbox(e.x-4,e.y-5,8,5,1,'#333');ell(e.x+4,e.y-2.5,1.5,2,'#555');dot(e.x-2,e.y-4,1,F.batt?'#3ccf6e':(Math.sin(T*6)>0?'#ff3030':'#5a1010'));}});
-  const papa=P_('papa',Object.assign({},LK.papa,{body:'#3a8ad8',acc:'tie glasses mustache'}),880,488,'パパ',{sit:1,zs:489,spd:42,stroller:true,babyMood:'happy',st:'seat'});
+  const papa=P_('papa',Object.assign({},LK.papa,{body:'#3a8ad8',acc:'tie glasses'}),880,488,'パパ',{sit:1,zs:489,spd:42,stroller:true,babyMood:'happy',st:'seat'});
   const ricky=E({id:'ricky',name:'リッキー',x:910,y:490,w:24,h:30,draw(){},tick(e){e.x=papa.x+(papa.dir||1)*30;e.y=papa.y+2;}});
   const paci=E({id:'paci',name:'リッキーの おしゃぶり',x:0,y:0,w:6,h:5,tiny:true,zs:3000,tick(e){e.x=ricky.x+(papa.dir||1)*2;e.y=ricky.y-20;},draw(e){if(F.paci)return;ell(e.x,e.y-2,2.6,2,'#8fd0f0');dot(e.x,e.y-2,1,'#fff');}});
   const teacher=P_('teacher',Object.assign({},LK.teacher,{body:'#ffb3d1'}),700,820,'みき せんせい',{spd:40});
@@ -2442,7 +2448,7 @@ function stage9(){
   const cast=roles.map((r,i)=>P_('cast'+i,Object.assign({},i%2?LK.kidB:LK.kidA,{hat:null,body:r[1],shape:'box',acc:r[2]}),600+i*30,200,r[0]+'の やくの こ',{zs:200+i*.1,spd:40}));
   const babies=[0,1,2].map(i=>P_('nensho'+i,Object.assign({},i%2?LK.kidB:LK.kidA,{h:36,body:WCOL[i+1],shape:'smock'}),620+i*60,290,'ねんしょうさん',{sit:1,zs:291}));
   const parents=[0,1,2,3,4,5].map(i=>P_('par'+i,walkerLook(i+1),480+[0,2,4,7,9,11][i]*60,[400,444,488,400,444,488][i],'ほごしゃ',{sit:1}));
-  const pochi=E({id:'pochi',name:'ポチ',x:1840,y:1060,w:34,h:24,spd:110,st:'out',draw(e){dog(e,{jy:e.react>0?-Math.abs(Math.sin(e.react*9))*6:0});}});
+  const pochi=E({id:'pochi',name:'ミラ',x:1840,y:1060,w:34,h:24,spd:110,st:'out',draw(e){dog(e,{jy:e.react>0?-Math.abs(Math.sin(e.react*9))*6:0});}});
   const latch=E({id:'latch',name:'もんの かけがね',x:1766,y:1050,w:6,h:6,tiny:true,zs:1051,draw(e){rbox(e.x-3,e.y-6,6,6,1,F.gate?'#888':'#ffd23f');}});
   const ball=E({id:'ball',name:'ボール',x:900,y:1010,w:12,h:12,draw(e){ell(e.x,e.y-6,6,6,'#e8483a');crv([[e.x-6,e.y-6],[e.x,e.y-4],[e.x+6,e.y-6]],1,'#fff');}});
   const gkid=P_('gkid',Object.assign({},LK.kidA,{body:'#3ccf6e'}),1640,1000,'もんの ちかくの こ',{spd:30});
@@ -2486,17 +2492,17 @@ function stage9(){
   papa.poke=e=>{dex('papa','パパ');e.react=1;e.rt='jump';say(e,'おっと、しーっ だよ');};
   papa.draw=e=>{drawPerson(e,personPose(e));if(e.stroller)drawStroller(e);};
   // ルート C
-  latch.poke=e=>{if(F.gate)return;F.gate=true;dex('latch','もんの かけがね');sfx('click');step('C','もんの かけがね（ポチが はいってくる）');pochi.st='in';say(pochi,'ワン！');cap('ポチが えんていに はいってきた！',1780,1050);
+  latch.poke=e=>{if(F.gate)return;F.gate=true;dex('latch','もんの かけがね');sfx('click');step('C','もんの かけがね（ミラが はいってくる）');pochi.st='in';say(pochi,'ワン！');cap('ミラが えんていに はいってきた！',1780,1050);
     go(pochi,[[1700,1050],[1400,1000]],d=>{say(d,'クンクン… (すなばの におい)');});say(gkid,'いぬだ〜！ かわいい〜！');};
   ball.poke=e=>{dex('ball','ボール');sfx('boing');
     if(pochi.st==='in'&&futan.st==='hide'&&!e.fly){fly(e,600,916,1.4,40,()=>{pop(600,890,'コロコロ…',COL.yel,8);});pochi.st='chase';say(pochi,'ワンワン！');
-      go(pochi,[[620,920]],d=>{d.react=2;sfx('bark');say(d,'ペロペロ！');step('C','ボール（ポチが どかんへ）');wait(1.6,()=>{sfx('giggle');say(futan,'ポチ〜！ くすぐったい〜！ …ふーたん いってくる！');comeOut('C',d);wait(3,()=>{d.st='done';go(d,[[880,690]]);});});},140);}
+      go(pochi,[[620,920]],d=>{d.react=2;sfx('bark');say(d,'ペロペロ！');step('C','ボール（ミラが どかんへ）');wait(1.6,()=>{sfx('giggle');say(futan,'ミラ〜！ くすぐったい〜！ …ふーたん いってくる！');comeOut('C',d);wait(3,()=>{d.st='done';go(d,[[880,690]]);});});},140);}
     else{const ox=e.x;fly(e,ox+40,e.y,.6,20,()=>fly(e,ox,e.y,.6,10));}};
   pochi.talk=()=>pochi.st==='out'?'クゥ〜ン (ふーたんの におい…)':'';
-  pochi.poke=e=>{dex('pochi','ポチ');e.react=1;sfx('bark');say(e,'ワン！');};
+  pochi.poke=e=>{dex('pochi','ミラ');e.react=1;sfx('bark');say(e,'ワン！');};
   gkid.talk=['もんの そとに いぬが いるよ〜','ボール あそび したいな'];gkid.poke=e=>{dex('gkid','もんの ちかくの こ');e.react=1;e.rt='joy';say(e,'あの いぬ、ボール すきそう！');};
   // その ほか
-  futan.talk=()=>futan.st==='hide'?['かぶの やく… はずかしい…','かあちゃんの へんがお みたら わらっちゃうかも…','ポチに あいたいなあ…','リッキーの こえ ききたいなあ…'][Math.floor(T/6)%4]:'';
+  futan.talk=()=>futan.st==='hide'?['かぶの やく… はずかしい…','かあちゃんの へんがお みたら わらっちゃうかも…','ミラに あいたいなあ…','リッキーの こえ ききたいなあ…'][Math.floor(T/6)%4]:'';
   futan.poke=e=>{if(e.st!=='hide')return;dex('futan','ふーたん（でてこない）');e.react=.8;e.rt='shake';say(e,'やだ… でない…');};
   teacher.talk=['ふーたんちゃん、どかんの なかから でてこないの…','なにか わらえる ことが あれば でてくるかも…','かぶの やくは ふーたんちゃんしか いないのに〜'];
   teacher.poke=e=>{dex('teacher','みき せんせい');e.react=1;e.rt='jump';say(e,'あっ！ びっくりした〜');};
@@ -2524,17 +2530,17 @@ function stage9(){
 }
 
 const STAGES=[stage1,stage2,stage3,stage4,stage5,stage6,stage7,stage8,stage9];
-const STAGE_META=[{name:'わすれもの おべんとう',routes:{A:'かあちゃんの おとどけ',B:'めいけん ポチの おつかい',C:'カラスと おじいさんの とどけもの'},col:'#2a9a50'},{name:'パパの おつかい',routes:{A:'パンやさんの とくせい ケーキ',B:'ケーキやさん ふっかつ',C:'いちごで かあちゃんの てづくり ケーキ'},col:COL.org},{name:'まいごの なつまつり',routes:{A:'まいごの おしらせ',B:'くらやみに ひかる ふーたん',C:'ポチの はなと かたぐるま'},col:COL.pur},{name:'どうぶつえんの だいだっそう',routes:{A:'しいくいんさんの おむかえ',B:'おさかなで ゆうどう',C:'ふーたんと ペンギン ぎょうれつ'},col:'#20b5b5'},{name:'なつの うみと むぎわらぼうし',routes:{A:'ねぼすけ ライフセーバー',B:'カニと カモメと うみいぬ ハチ',C:'サーファーと ビッグウェーブ'},col:COL.blue},{name:'ゆきの クリスマス',routes:{A:'あかはなの ルドルフ',B:'ハスキーの ゆきぞり',C:'パパに たくした プレゼント'},col:COL.red},{name:'デパートの おくじょう ヒーローショー',routes:{A:'ねぼすけ ヒーローの マスク',B:'バケツ ピカリオン（パパ）',C:'しょだい ピカリオン ふっかつ'},col:'#e8483a'},{name:'キャンプの カレーライス',routes:{A:'ひろった ライターと かわいた まき',B:'ソロキャンパーの おすそわけ',C:'てるてるぼうずの おまじない'},col:'#2a7a40'},{name:'ようちえんの はっぴょうかい',routes:{A:'かあちゃんの へんがお',B:'リッキーの はじめての ことば',C:'ポチの おむかえ'},col:'#ff7eb6'}];
+const STAGE_META=[{name:'わすれもの おべんとう',routes:{A:'かあちゃんの おとどけ',B:'めいけん ミラの おつかい',C:'カラスと おじいさんの とどけもの'},col:'#2a9a50'},{name:'パパの おつかい',routes:{A:'パンやさんの とくせい ケーキ',B:'ケーキやさん ふっかつ',C:'いちごで かあちゃんの てづくり ケーキ'},col:COL.org},{name:'まいごの なつまつり',routes:{A:'まいごの おしらせ',B:'くらやみに ひかる ふーたん',C:'ミラの はなと かたぐるま'},col:COL.pur},{name:'どうぶつえんの だいだっそう',routes:{A:'しいくいんさんの おむかえ',B:'おさかなで ゆうどう',C:'ふーたんと ペンギン ぎょうれつ'},col:'#20b5b5'},{name:'なつの うみと むぎわらぼうし',routes:{A:'ねぼすけ ライフセーバー',B:'カニと カモメと うみいぬ ハチ',C:'サーファーと ビッグウェーブ'},col:COL.blue},{name:'ゆきの クリスマス',routes:{A:'あかはなの ルドルフ',B:'ハスキーの ゆきぞり',C:'パパに たくした プレゼント'},col:COL.red},{name:'デパートの おくじょう ヒーローショー',routes:{A:'ねぼすけ ヒーローの マスク',B:'バケツ ピカリオン（パパ）',C:'しょだい ピカリオン ふっかつ'},col:'#e8483a'},{name:'キャンプの カレーライス',routes:{A:'ひろった ライターと かわいた まき',B:'ソロキャンパーの おすそわけ',C:'てるてるぼうずの おまじない'},col:'#2a7a40'},{name:'ようちえんの はっぴょうかい',routes:{A:'かあちゃんの へんがお',B:'リッキーの はじめての ことば',C:'ミラの おむかえ'},col:'#ff7eb6'}];
 // ---------------- ヒント（ふたつ えらぶ） ----------------
 const H_=(k,id,id2,t,d)=>({k,id,id2,t,d});
 const HINTS=[
  {A:[H_('かあちゃんが おべんとうに','ricky','bento','かあちゃんは おべんとうの わすれものに きづいていない。だれかが おしえて くれたら…','「リッキー」→「おべんとう」（そうじきや テレビが うるさいと きこえない）'),
      H_('こうじの おじさん','mama','worker','かあちゃんが こうじげんばで とおれずに こまっている','「かあちゃん」→「ねている こうじの おじさん」'),
      H_('インターホン|おそとあそび|まど','mama','intercom','かあちゃんが ようちえんの もんの まえで まっている','「かあちゃん」→「インターホン」（または「ふーたん」→「かあちゃん」）')],
-  B:[H_('にわへ','cat','bento','おべんとうを ポチに はこんで もらえたら… まずは かあちゃんに みられずに おべんとうを そとへ','かあちゃんが キッチンに いない とき（9:00〜11:30／「かあちゃん」→「テレビ」で むちゅうに させても OK）に「まどべの ねこ」→「おべんとう」'),
-     H_('とめがね','pochi','bento','ポチは くさりで つながれている','「ポチ」→「にわの おべんとう」'),
-     H_('ごほうび|おいはらう','pochi','saus','ポチが にくやの まえで よりみち ちゅう…','「ポチ」→「つりさげ ソーセージ」（または「にくやさん」→「ポチ」）'),
-     H_('まど|インターホン|おそとあそび','futan','pochi','ポチが ようちえんに ついた！ ふーたんに しらせよう','「ふーたん」→「ポチ」（または「ポチ」→「インターホン」）')],
+  B:[H_('にわへ','cat','bento','おべんとうを ミラに はこんで もらえたら… まずは かあちゃんに みられずに おべんとうを そとへ','かあちゃんが キッチンに いない とき（9:00〜11:30／「かあちゃん」→「テレビ」で むちゅうに させても OK）に「まどべの ねこ」→「おべんとう」'),
+     H_('とめがね','pochi','bento','ミラは くさりで つながれている','「ミラ」→「にわの おべんとう」'),
+     H_('ごほうび|おいはらう','pochi','saus','ミラが にくやの まえで よりみち ちゅう…','「ミラ」→「つりさげ ソーセージ」（または「にくやさん」→「ミラ」）'),
+     H_('まど|インターホン|おそとあそび','futan','pochi','ミラが ようちえんに ついた！ ふーたんに しらせよう','「ふーたん」→「ミラ」（または「ミラ」→「インターホン」）')],
   C:[H_('にわへ','cat','bento','かあちゃんに みられずに おべんとうを そとに だして、だれかに はこんで もらおう','かあちゃんが キッチンに いない とき（9:00〜11:30／テレビに むちゅうの とき）に「まどべの ねこ」→「おべんとう」'),
      H_('カラス','crow','bento','にわの キラキラを ねらって いる とりが いる','「でんちゅうの カラス」→「にわの おべんとう」'),
      H_('おしボタン','oldman','light','おべんとうを ひろった おじいさんが おうだんほどうで まっている','「おじいさん」→「しんごうの おしボタン」'),
@@ -2553,7 +2559,7 @@ const HINTS=[
      H_('マイク','ann','mic','アナウンスの おじさんが いねむり ちゅう（19〜20じは たいこも うるさい）','「アナウンスの おじさん」→「マイク」')],
   B:[H_('くしゃみ','glowman','futan','くらやみでも めだつ ものが あれば…','「ひかる おもちゃやさん」→「ふーたん」（ふーたんが やたいの そばに いる とき）'),
      H_('はつでんき','glowman','gen','ふーたんが ひかっても、まわりが あかるいと めだたない','「ひかる おもちゃやさん」→「はつでんき」')],
-  C:[H_('ポチの はな','pochi','futan','パパと ポチが ふーたんを さがしに きた','パパが たちどまった とき、「ポチ」→「ふーたん」'),
+  C:[H_('ミラの はな','pochi','futan','パパと ミラが ふーたんを さがしに きた','パパが たちどまった とき、「ミラ」→「ふーたん」'),
      H_('かたぐるま','papa','futan','ちいさな ふーたんは ひとごみで みえない','「パパ」→「ふーたん」')]},
  {A:[H_('むせんき','keeper','radio','しいくいんさんは ペンタの だっそうに きづいていない','「しいくいんさん」→「むせんき」'),
      H_('アイスや','ice','freezer','しいくいんさんが ペンタを さがして いる','「アイスやの おねえさん」→「れいとうこ」'),
@@ -2587,19 +2593,19 @@ const HINTS=[
      H_('バケツ','papa','bucket','スーツは きたけど ヘルメットが ない','「パパ」→「そうじの バケツ」')],
   C:[H_('ポスター','gouda','poster','けいびいんさんは ピカリオンが なつかしい みたい…','「けいびいんさん」→「しょだいの ポスター」'),
      H_('ごうださん','futan','gouda','ごうださんの ひみつが わかった！ だれかが おねがい すれば…','「ふーたん」→「ごうださん」')]},
- {A:[H_('ハンモック','pochi','papa','カレーの たんとうの パパが ねている（あめの あとでも だいじょうぶ）','「ポチ」（または「ふーたん」）→「パパ」'),
+ {A:[H_('ハンモック','pochi','papa','カレーの たんとうの パパが ねている（あめの あとでも だいじょうぶ）','「ミラ」（または「ふーたん」）→「パパ」'),
      H_('ライター','papa','lighter','マッチが ぬれて ひが つけられない','「パパ」→「くさむらの ライター」'),
      H_('まき','mgr','papa','ライターは あるけど まきが ぬれている','「かんりにんさん」→「パパ」')],
   B:[H_('ケトル','jin','kettle','となりの ソロキャンパーさんは きげんが わるい','「ジンさん」→「ケトル」'),
      H_('ジンさんに','futan','jin','あめで まきが ぬれた あと、ごきげんな ジンさんに たのめば…','あめの あと、「ふーたん」→「ジンさん」')],
   C:[H_('てるてる','futan','teru','16:20ごろ にわかあめの よほう','16:20 より まえに「ふーたん」→「てるてるぼうず」'),
-     H_('ハンモック','pochi','papa','てんきは だいじょうぶ。あとは パパを おこすだけ','「ポチ」（または「ふーたん」）→「パパ」')]},
+     H_('ハンモック','pochi','papa','てんきは だいじょうぶ。あとは パパを おこすだけ','「ミラ」（または「ふーたん」）→「パパ」')]},
  {A:[H_('ビデオカメラ','mama','camcorder','かあちゃんが ゆうぎしつで ビデオの じゅんび ちゅう','「かあちゃん」→「ビデオカメラ」'),
      H_('へんがお','mama','futan','かあちゃんが どかんの ちかくを とおる','かあちゃんが どかんの そばに いる とき、「かあちゃん」→「ふーたん」')],
   B:[H_('おしゃぶり','ricky','paci','パパの となりで リッキーが おしゃぶりを くわえている','「リッキー」→「おしゃぶり」'),
      H_('ことば','ricky','futan','パパと リッキーが えんていに でてきた','「リッキー」→「ふーたん」')],
-  C:[H_('かけがね','pochi','latch','もんの そとに だれかが きている','「ポチ」→「もんの かけがね」'),
-     H_('ボール','pochi','ball','ポチは ボールが だいすき','「ポチ」→「ボール」')]},
+  C:[H_('かけがね','pochi','latch','もんの そとに だれかが きている','「ミラ」→「もんの かけがね」'),
+     H_('ボール','pochi','ball','ミラは ボールが だいすき','「ミラ」→「ボール」')]},
 ];
 function hintRe(k){return new RegExp(k);}
 function hintProg(r){const L=(HINTS[stIdx]||{})[r]||[];const labels=G.steps.filter(s=>s.r===r||s.r==='*').map(s=>s.label);let n=0;for(const h of L){if(labels.some(l=>hintRe(h.k).test(l)))n++;else break;}return n;}
@@ -2662,9 +2668,9 @@ const EXTRAS=[
     go(dr,[[f.x,f.y-10]],()=>{dr.carry=false;dr.up=false;sfx('win');say(f,'そらから おべんとうが ふってきた〜!!');cap('ドローン びんで おべんとう とうちゃく！',f.x,f.y);hearts(f.x,f.y-40,14);win('X',4.5);},140);});
   // ちょっとした イベント
   PR('jogger','fountain',()=>{dex('ev_jog','ジョガー と ふんすい');const j=ent('jogger');j.react=1.5;j.rt='flop';say(j,'あつい！ ザブーン！');sfx('splash');});
-  PR('pochi','pigeons',()=>{dex('ev_pp','ポチ と ハト');ent('pigeons').fl=5;sfx('bark');say(ent('pochi'),'まてまて〜！');});
+  PR('pochi','pigeons',()=>{dex('ev_pp','ミラ と ハト');ent('pigeons').fl=5;sfx('bark');say(ent('pochi'),'まてまて〜！');});
   PR('gran','radio',(a)=>{dex('ev_gr','おばあちゃん と ラジカセ');F.rock=G.min+4;for(const g of G.ents)if(g.gk==='gran'){g.dance=true;wait(4,()=>g.dance=false);}say(a,'ロックで たいそう イェーイ！');});
-  PR('postman','pochi',()=>{dex('ev_pm','ゆうびんやさん と ポチ');sfx('bark');say(ent('postman'),'ひえっ、いぬ にがて〜！');ent('postman').react=1.5;ent('postman').rt='jump';});
+  PR('postman','pochi',()=>{dex('ev_pm','ゆうびんやさん と ミラ');sfx('bark');say(ent('postman'),'ひえっ、いぬ にがて〜！');ent('postman').react=1.5;ent('postman').rt='jump';});
   miniColon(0,487,226,300);miniColon(1,1203,1022,1040);miniColon(2,1702,138,200);
 },
 // ---------------- ステージ2 ----------------
@@ -2863,7 +2869,7 @@ const EXTRAS=[
   PR('stu','mama',(a,b)=>{if(F.uraB!==1||F.fire)return false;F.uraB=2;step('X','だいがくせい → かあちゃん');say(ma,'やさいなら きってある まりっ！ もってく まりっ！');
     go(ma,[[960,440]],()=>{F.uraCook=G.min+30;sfx('boom');cap('バーベキューコンロで カレーづくり！',980,400);say(ma,'じゅうじゅう ぐつぐつ まりっ！');});});
   const ou=st.update;st.update=dt=>{if(ou)ou(dt);if(F.uraCook&&!G.over&&G.min>=F.uraCook){F.uraCook=0;sfx('giggle');hearts(980,400,16);say(fu,'みんなで たべると おいし〜い！');for(const s of G.ents)if(s.id&&String(s.id).startsWith('stu')){s.react=2;s.rt='joy';}cap('バーベキュー カレー パーティー！',980,400);win('X',5);}};
-  PR('pochi','squirrel',()=>{dex('ev_ps','ポチ と リス');ent('squirrel').react=2;sfx('bark');});
+  PR('pochi','squirrel',()=>{dex('ev_ps','ミラ と リス');ent('squirrel').react=2;sfx('bark');});
   PR('fishkid','deer',()=>{if(ent('deer').hidden)return false;dex('ev_fd','つりの こ と シカ');say(ent('fishkid'),'シカだ！ …あっ、さおを くわえた！');});
   PR('jin','owl',()=>{if(G.min<1080)return false;dex('ev_jo','ジンさん と フクロウ');say(ent('jin'),'…いい よるだ。ホー');});
   PR('mama','ricky',()=>{dex('ev_mr','かあちゃん と リッキー');say(ma,'リッキー、もりの においは どう まりっ？');sfx('giggle');});
@@ -2892,7 +2898,7 @@ const EXTRAS=[
   PR('rabbit','hen',()=>{dex('ev_rh','うさぎ と にわとり');ent('hen').react=1.5;say(ent('hen'),'コケッ！');});
   PR('photog','encho',()=>{dex('ev_pe','カメラ と えんちょう');sfx('click');say(en,'(キメ ポーズ)');pop(en.x,en.y-80,'パシャッ',COL.yel);});
   PR('pianist','nensho',(a,b)=>{dex('ev_pn','ピアノ と ねんしょうさん');const k=a.id==='pianist'?b:a;k.dance=true;wait(4,()=>k.dance=false);sfx('ding');});
-  PR('pochi','hen',()=>{if(!G.f.gate)return false;dex('ev_ph','ポチ と にわとり');sfx('bark');say(ent('hen'),'コケーッ！！');});
+  PR('pochi','hen',()=>{if(!G.f.gate)return false;dex('ev_ph','ミラ と にわとり');sfx('bark');say(ent('hen'),'コケーッ！！');});
   miniColon(0,446,898,2000);miniColon(1,1410,960);miniColon(2,300,186);
 },
 ];
@@ -3016,7 +3022,7 @@ $('bStart').onclick=()=>{audioInit();sfx('start');bgmPlay(0);goSelect();};
 let endFW=[];
 function goEnding(){mode='ending';show('ending');bgmPlay(2);SAVE.fl.ending=1;save();setTimeout(checkAch,1500);
   const rt=STAGE_META.map((m,i)=>Object.keys(m.routes).filter(k=>(SAVE.routes[i]||{})[k]).length).reduce((a,b)=>a+b,0);
-  $('credits').innerHTML=`<h3>おしまい</h3>ふーたんの まいにちは<br>コロンの チョッカイで<br>ちょっぴり かわった みたい。<br><h3>とうじょう じんぶつ</h3>コロン<br>ふーたん<br>あかちゃんの リッキー<br>かあちゃん・パパ<br>めいけん ポチ<br>ペンギンの ペンタ<br>うみいぬ ハチ<br>サンタさんと ルドルフ<br>ピカリオン（3にん）<br>ソロキャンパーの ジンさん<br>みき せんせい<br>アイスやさん・たいやきやさん<br>ちんどんや・わなげやさん<br>パンダ・キリン・イルカ<br>やきいもやさん<br>まちの みんな<br><h3>みつけた ルート</h3>${rt} / ${NS*3}<br><h3>みつけた チョッカイ</h3>${dexAll().join(' / ')}<br><h3>ミニコロン</h3>${SI.reduce((a,i)=>a+countMC(i),0)} / ${NS*3}<br><h3>トロフィー</h3>${ACH.filter(x=>SAVE.ach[x.id]).length} / ${ACH.length}<br><h3>THANK YOU<br>FOR PLAYING!</h3>`;
+  $('credits').innerHTML=`<h3>おしまい</h3>ふーたんの まいにちは<br>コロンの チョッカイで<br>ちょっぴり かわった みたい。<br><h3>とうじょう じんぶつ</h3>コロン<br>ふーたん<br>あかちゃんの リッキー<br>かあちゃん・パパ<br>めいけん ミラ<br>ペンギンの ペンタ<br>うみいぬ ハチ<br>サンタさんと ルドルフ<br>ピカリオン（3にん）<br>ソロキャンパーの ジンさん<br>みき せんせい<br>アイスやさん・たいやきやさん<br>ちんどんや・わなげやさん<br>パンダ・キリン・イルカ<br>やきいもやさん<br>まちの みんな<br><h3>みつけた ルート</h3>${rt} / ${NS*3}<br><h3>みつけた チョッカイ</h3>${dexAll().join(' / ')}<br><h3>ミニコロン</h3>${SI.reduce((a,i)=>a+countMC(i),0)} / ${NS*3}<br><h3>トロフィー</h3>${ACH.filter(x=>SAVE.ach[x.id]).length} / ${ACH.length}<br><h3>THANK YOU<br>FOR PLAYING!</h3>`;
   const c=$('credits');c.style.animation='none';void c.offsetWidth;c.style.animation='';$('endBtn').style.display='none';setTimeout(()=>{if(mode==='ending')$('endBtn').style.display='block';},6000);}
 $('endBtn').onclick=()=>{sfx('tap');goTitle();};
 function renderEnding(dt){const c=$('ecv');const r=c.getBoundingClientRect();if(c.width!==Math.round(r.width*DPR)){c.width=Math.round(r.width*DPR);c.height=Math.round(r.height*DPR);}
