@@ -508,7 +508,7 @@ function updCnt(){$('cnt').textContent=`♥ ${Object.keys(G.dexSet||{}).length}`
 function setHud(on){for(const id of['topbar','botbar','bMenu','bFit','bDex','bClk','led','selbar'])$(id).style.visibility=on?'visible':'hidden';}
 
 function startStage(i){
-  stIdx=i;G.caps=[];clearTimeout(nextCap.t);capOn=false;$('cap').classList.remove('on');G.ents=[];G.fx=[];G.f={};G.steps=[];G.tl=[];G.over=false;G.won=null;G.pokes=0;G.dexSet={};G.speed=1;G.hintUsed=false;G.pairs={};G.sel=null;G.hintMark=null;G.lastProg=0;G.lastN=0;G.nudged=false;$('bHint').classList.remove('nudge');$('bClk').classList.remove('ff');BGM.rate=1;
+  stIdx=i;G.caps=[];clearTimeout(nextCap.t);capOn=false;$('cap').classList.remove('on');G.ents=[];G.fx=[];G.f={};G.steps=[];G.tl=[];G.over=false;G.won=null;G.pokes=0;G.dexSet={};G.speed=1;G.hintUsed=false;G.easyUsed=!!SAVE.easy;G.pairs={};G.sel=null;G.hintMark=null;G.lastProg=0;G.lastN=0;G.nudged=false;$('bHint').classList.remove('nudge');$('bClk').classList.remove('ff');BGM.rate=1;
   ST=STAGES[i]();if(EXTRAS[i])EXTRAS[i](ST,G.f);makeDecoys();updSel();G.min=ST.t0;mode='play';setHud(true);resize();
   cam.z=clamp(ST.start.z||1,zMin(),ZMAX);cam.x=ST.start.x;cam.y=ST.start.y;clampCam();
   $('stName').textContent=`${i+1}. ${ST.name}`;updCnt();
@@ -517,7 +517,7 @@ function startStage(i){
 function showIntro(){
   mode='intro';const ov=$('ov');
   ov.innerHTML=`<div class="panel"><span class="tag">STAGE ${stIdx+1}</span><h2>${ST.name}</h2><div class="goal">${ST.goal}</div>
-   <p style="font-size:13px">⏰ ${hhmm(ST.t0)} 〜 ${hhmm(ST.t1)}</p>
+   <p style="font-size:13px">⏰ ${hhmm(ST.t0)} 〜 ${hhmm(ST.t1)}</p>${SAVE.easy?'<p style="background:#e8ffe8;border-radius:10px;padding:6px 8px;font-weight:800;font-size:14px">👶 かんたんモード：<br>きいろの ① を タップ → あおの ② を タップ してね！</p>':''}
    <p style="font-size:12px;color:#666"><b>① タップで えらぶ → ② べつの ものを タップ</b>すると、えらんだ ひとや どうぶつが それに きづいて うごくよ。おなじ ものを もういちど タップすると その ものに チョッカイ。かんけい ない くみあわせは「？」。<br>ふきだし・かんばん・ポスターを よく みて、だれに なにを きづかせるか かんがえよう。ちいさな どうぐは ズームしないと さわれない ことも。<br>🕒 ボタンで はやおくり、✋ ボタンで ぜんたい／ズーム、♥ ボタンで みつけた チョッカイ。</p>
    <button class="btn p" id="bGo">スタート！</button></div>`;ov.classList.add('show');
   $('bGo').onclick=()=>{audioInit();sfx('start');ov.classList.remove('show');mode='play';};
@@ -551,8 +551,8 @@ window.addEventListener('keydown',ev=>{if(mode!=='play')return;if(ev.key==='+'||
 
 function hitTest(wx,wy){let best=null,ba=1e12,bd=null,bda=1e12;
   for(const e of G.ents){if(e.hidden||!e.poke)continue;const w=e.w,h=e.h;const ss=Math.min(w,h)*cam.z;
-    if(e.tiny?ss<6:ss<3)continue;
-    const pad=e.decoy?2/cam.z:Math.max(6/cam.z,(30/cam.z-Math.min(w,h))/2);
+    if((e.tiny&&!SAVE.easy)?ss<6:ss<3)continue;
+    const pad=e.decoy?2/cam.z:Math.max(6/cam.z,((SAVE.easy?40:30)/cam.z-Math.min(w,h))/2);
     const hx=e.x-w/2-pad,hy=e.y-h-pad;if(wx>=hx&&wx<=hx+w+pad*2&&wy>=hy&&wy<=hy+h+pad*2){const a=w*h;if(e.decoy){if(a<bda){bda=a;bd=e;}}else if(a<ba){ba=a;best=e;}}}
   return best||bd;}
 // ---------------- ふたつ えらぶ チョッカイ ----------------
@@ -590,7 +590,7 @@ function update(dt){
   if(mode!=='play')return;
   const gdt=dt*G.speed;
   if(G.over){G.endT-=dt;for(const e of G.ents)tickEnt(e,dt);if(G.endT<=0){G.endT=1e9;showResult();}return;}
-  G.min+=gdt/ST.spm;
+  if(SAVE.easy)G.easyUsed=true;G.min+=gdt/ST.spm*(SAVE.easy?.6:1);
   while(G.tl.length&&G.tl[0].m<=G.min){const ev=G.tl.shift();try{ev.fn();}catch(err){console.error(err);}}
   for(const e of G.ents)tickEnt(e,gdt);
   if(G.sel&&G.sel.hidden)selClear();
@@ -661,6 +661,15 @@ function render(){
   drawBubbles();drawSelFx();
 }
 const TAGS={futan:['ふーたん','#ff5f9e'],mama:['かあちゃん',COL.red],papa:['パパ',COL.blue],ricky:['リッキー','#f0a000'],pochi:['ポチ','#c8803a'],penta:['ペンタ','#20a5b5'],santa:['サンタ','#d82a2a'],keeper:['もりさん','#2a9a50'],hachi:['ハチ','#c8803a'],rud:['ルドルフ','#a0522d'],take:['タケシ','#3ccf6e'],gouda:['ごうだ','#4a5a7a'],mc:['しかい','#ff7eb6'],jin:['ジン','#5a6a3a'],mgr:['かんりにん','#2a7a40'],teacher:['せんせい','#ff7eb6']};
+
+function easyGuide(){if(!SAVE.easy||mode!=='play'||G.over||!HINTS[stIdx])return;
+  if(!G.eg||T>G.eg.t){const r=hintRoute(),h=(HINTS[stIdx][r]||[])[hintProg(r)];G.eg={t:T+.5,h};}const h=G.eg.h;if(!h)return;
+  const a=G.ents.find(x=>x.id===h.id),b=G.ents.find(x=>x.id===h.id2);
+  const mark=(e,n,big)=>{if(!e||e.hidden)return;const s=w2s(e.x,e.y-topOf(e)),f=w2s(e.x,e.y);if(s[0]<-30||s[0]>CW+30||s[1]<-60||s[1]>CH+60)return;const bo=Math.abs(Math.sin(T*5+n))*(big?10:6),sc=big?1.3:1;
+    C.save();C.globalAlpha=.8;C.strokeStyle=n?'#7fd0ff':'#ffd23f';C.lineWidth=4;C.beginPath();C.ellipse(f[0],f[1],Math.max(18,e.w*cam.z*.7),Math.max(7,e.w*cam.z*.25),0,0,7);C.stroke();C.globalAlpha=1;
+    const y=s[1]-30-bo;C.fillStyle=n?'#7fd0ff':'#ffd23f';C.strokeStyle='#3a2a00';C.lineWidth=2.5;C.beginPath();C.moveTo(s[0],y+24*sc);C.lineTo(s[0]-12*sc,y+8*sc);C.lineTo(s[0]+12*sc,y+8*sc);C.closePath();C.fill();C.stroke();
+    C.beginPath();C.arc(s[0],y,13*sc,0,7);C.fill();C.stroke();C.fillStyle='#3a2a00';C.font=`900 ${Math.round(15*sc)}px sans-serif`;C.textAlign='center';C.textBaseline='middle';C.fillText(n?'2':'1',s[0],y+1);C.restore();};
+  if(G.sel===a)mark(b,1,true);else{mark(a,0,!G.sel);mark(b,1,false);}}
 function drawSelFx(){
   // えらんだ もの
   if(G.sel&&!G.sel.hidden){const e=G.sel;const f=w2s(e.x,e.y),h=w2s(e.x,e.y-topOf(e));const rx=Math.max(16,e.w*cam.z*.7),ry=Math.max(6,rx*.32);
@@ -675,7 +684,7 @@ function drawSelFx(){
       C.fillStyle='#3a3a44';C.font='900 16px "M PLUS Rounded 1c",sans-serif';C.textAlign='center';C.textBaseline='middle';C.fillText('？',s[0],y+1);C.restore();}
     else if(f.k==='bang'&&!f.e.hidden){const s=w2s(f.e.x,f.e.y-topOf(f.e));C.save();C.globalAlpha=Math.min(1,f.life*2);C.fillStyle='#ff3b30';C.font='900 20px "M PLUS Rounded 1c",sans-serif';C.textAlign='center';C.textBaseline='middle';C.strokeStyle='#fff';C.lineWidth=4;C.strokeText('！',s[0]+16,s[1]-14-(1-f.life)*10);C.fillText('！',s[0]+16,s[1]-14-(1-f.life)*10);C.restore();}}
 }
-function drawTags(){if(G.hintMark&&T<G.hintMark.until){[G.hintMark.e,G.hintMark.e2].forEach((e,n)=>{if(!e||e.hidden)return;const s=w2s(e.x,e.y-topOf(e));const b=Math.abs(Math.sin(T*5+n))*8;C.save();C.fillStyle=n?'#7fd0ff':'#ffd23f';C.strokeStyle='#3a2a00';C.lineWidth=2;C.beginPath();C.moveTo(s[0],s[1]-6-b);C.lineTo(s[0]-11,s[1]-24-b);C.lineTo(s[0]+11,s[1]-24-b);C.closePath();C.fill();C.stroke();C.fillStyle='#3a2a00';C.font='900 11px sans-serif';C.textAlign='center';C.textBaseline='middle';C.fillText(n?'2':'1',s[0],s[1]-18-b);C.restore();});}
+function drawTags(){easyGuide();if(G.hintMark&&T<G.hintMark.until){[G.hintMark.e,G.hintMark.e2].forEach((e,n)=>{if(!e||e.hidden)return;const s=w2s(e.x,e.y-topOf(e));const b=Math.abs(Math.sin(T*5+n))*8;C.save();C.fillStyle=n?'#7fd0ff':'#ffd23f';C.strokeStyle='#3a2a00';C.lineWidth=2;C.beginPath();C.moveTo(s[0],s[1]-6-b);C.lineTo(s[0]-11,s[1]-24-b);C.lineTo(s[0]+11,s[1]-24-b);C.closePath();C.fill();C.stroke();C.fillStyle='#3a2a00';C.font='900 11px sans-serif';C.textAlign='center';C.textBaseline='middle';C.fillText(n?'2':'1',s[0],s[1]-18-b);C.restore();});}
   if(SAVE.noTag)return;C.font='900 10px "M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif';C.textBaseline='middle';C.textAlign='center';const placed=[];
   for(const e of G.ents){const t=TAGS[e.id];if(!t||e.hidden||e.noTag)continue;const s=w2s(e.x,e.y);if(s[0]<-40||s[0]>CW+40||s[1]<-20||s[1]>CH+30)continue;
     const w=C.measureText(t[0]).width+12,x=s[0];let y=s[1]+5+Math.max(0,4-cam.z*4);for(let k=0;k<4&&placed.some(r=>Math.abs(r[0]-x)<(r[1]+w)/2+2&&Math.abs(r[2]-y)<16);k++)y+=16;placed.push([x,w,y]);
@@ -2603,7 +2612,7 @@ function openHint(r,lv){if(mode!=='play'&&mode!=='pause')return;mode='pause';sfx
    <button class="btn w" id="hBack">もどる</button></div>`;
   ov.classList.add('show');
   ov.querySelectorAll('.htab').forEach(b=>b.onclick=()=>openHint(b.dataset.r,0));
-  const m=$('hMore');if(m)m.onclick=()=>{G.hintUsed=true;openHint(r,1);};
+  const m=$('hMore');if(m)m.onclick=()=>{if(!SAVE.easy)G.hintUsed=true;openHint(r,1);};
   const g=$('hGo');if(g)g.onclick=()=>{ov.classList.remove('show');mode='play';const e=G.ents.find(x=>x.id===h.id),e2=G.ents.find(x=>x.id===h.id2);
     if(e&&!e.hidden){animZoom(Math.max(cam.z,1.6),e.x,e.y-(e.h||20)/2);G.hintMark={e,e2,until:T+7};}else showToast('いまは みえない みたい。すこし まってみよう');};
   $('hBack').onclick=()=>{sfx('tap');ov.classList.remove('show');mode='play';};}
@@ -2827,9 +2836,9 @@ function showResult(){
   if(G.pokes>=100)SAVE.fl.poke100=1;if(!won)SAVE.fl.fail=1;
   const[dn,dt]=dexStat(stIdx);const extra=`<p style="font-size:13px">ミニコロン ${countMC(stIdx)} / 3 ／ ずかん ${dn} / ${dt} ／ ひみつ ${SAVE.sec[stIdx]?'★':'？'}</p>`;
   if(won){const first=!SAVE.routes[stIdx]||!SAVE.routes[stIdx][won];SAVE.routes[stIdx]=SAVE.routes[stIdx]||{};SAVE.routes[stIdx][won]=1;SAVE.cleared=Math.max(SAVE.cleared,stIdx+1);
-    const rr=(ST.t1-G.min)/(ST.t1-ST.t0),rank=(rr>=.6&&!G.hintUsed)?'S':rr>=.4?'A':rr>=.2?'B':'C';const ob=SAVE.best[stIdx];const nb=!ob||RANKS.indexOf(rank)<RANKS.indexOf(ob);if(nb)SAVE.best[stIdx]=rank;save();
+    const rr=(ST.t1-G.min)/(ST.t1-ST.t0),rank=(rr>=.6&&!G.hintUsed)?'S':rr>=.4?'A':rr>=.2?'B':'C';const ob=SAVE.best[stIdx];const nb=!G.easyUsed&&(!ob||RANKS.indexOf(rank)<RANKS.indexOf(ob));if(nb)SAVE.best[stIdx]=rank;save();
     const steps=G.steps.filter(s=>s.r===won||s.r==='*');const found=Object.keys(SAVE.routes[stIdx]).length;
-    ov.innerHTML=`<div class="panel"><div class="stamp">STAGE CLEAR!</div><div class="rank r${rank}">RANK ${rank}${G.hintUsed?' <small style="color:#888">（ヒント しよう）</small>':''}${nb&&ob?' <small>ベスト こうしん！</small>':''}</div><p style="text-align:center"><span class="tag">ルート ${won}</span> <b>${ST.routeTitle[won]}</b>${first?' 🆕':''}</p>
+    ov.innerHTML=`<div class="panel"><div class="stamp">STAGE CLEAR!</div>${G.easyUsed?'<div class="rank" style="color:#2a9a50">👶 かんたんモードで クリア！ <small style="color:#888">（ランクは ふつうモードで きろく）</small></div>':`<div class="rank r${rank}">RANK ${rank}${G.hintUsed?' <small style="color:#888">（ヒント しよう）</small>':''}${nb&&ob?' <small>ベスト こうしん！</small>':''}</div>`}<p style="text-align:center"><span class="tag">ルート ${won}</span> <b>${ST.routeTitle[won]}</b>${first?' 🆕':''}</p>
      <p style="font-size:13px;margin-bottom:0">クリアに ひつようだった チョッカイ:</p><ul class="steps">${steps.map(s=>`<li>${s.label}</li>`).join('')}</ul>
      <p style="font-size:13px">⏰ ${hhmm(G.min)} クリア ／ チョッカイ ${G.pokes}かい ／ みつけた ${Object.keys(G.dexSet).length}しゅるい</p>
      <p style="font-size:13px">このステージの ルート ${found} / ${ST.routeNames.length}${found<ST.routeNames.length?' … べつの ほうほうでも クリア できるかも？':' コンプリート！'}</p>${extra}
@@ -2850,6 +2859,8 @@ function show(id){for(const s of['title','select','loading','ending'])$(s).class
 function goTitle(){mode='title';show('title');$('ov').classList.remove('show');bgmPlay(0);ST=null;resizeTitle();}
 function goSelect(){mode='select';show('select');$('ov').classList.remove('show');
   const el=$('select');el.innerHTML='<h2>STAGE SELECT</h2>';
+  const mt=document.createElement('button');mt.className='btn '+(SAVE.easy?'p':'w');mt.style.cssText='width:min(100%,480px);flex:none;margin-bottom:6px';mt.innerHTML=SAVE.easy?'👶 かんたんモード：オン<br><small style="font-size:11px">やじるしで おしえて くれる・じかんが ゆっくり（タップで ふつうモードへ）</small>':'🧑 ふつうモード<br><small style="font-size:11px">タップで「かんたんモード」（5さいから）に きりかえ</small>';
+  mt.onclick=()=>{SAVE.easy=!SAVE.easy;save();sfx('tap');goSelect();};el.appendChild(mt);
   STAGE_META.forEach((m,i)=>{const lock=i>SAVE.cleared;const got=SAVE.routes[i]||{};
     const b=document.createElement('button');b.className='stc'+(lock?' lock':'');
     b.innerHTML=`<div class="no" style="background:${m.col}">${i+1}</div><div class="tx"><b>${m.name}</b><small>${lock?'まえの ステージを クリアすると あそべる':`ベスト ${SAVE.best[i]||'－'}　ミニコロン ${countMC(i)}/3　ずかん ${Math.floor(dexStat(i)[0]/dexStat(i)[1]*100)}%　ひみつ ${SAVE.sec[i]?'★':'☆'}`}</small>
@@ -2863,12 +2874,13 @@ function loadStage(i){mode='loading';show('loading');BGM.song=-1;let n=0;const i
 $('bMenu').onclick=()=>{audioInit();sfx('tap');if(mode!=='play')return;mode='pause';const ov=$('ov');
   ov.innerHTML=`<div class="panel"><h2>ポーズ</h2><span class="tag">STAGE ${stIdx+1}</span> <b>${ST.name}</b><div class="goal" style="margin-top:6px">${ST.goal}</div>
    <p style="font-size:12px;color:#666">ドラッグ: いどう／ピンチ・ホイール・＋－: ズーム／タップ → べつの もの: きづかせる／おなじ ものを 2かい: チョッカイ／🕒: はやおくり／✋: ぜんたい・ズーム／♥: みつけた チョッカイ／💡: ヒント。なにが なにに はんのう するかは ためして みないと わからない！</p>
-   <button class="btn p" id="mBack">つづける</button><button class="btn w" id="mHint">💡 ヒントを みる</button><button class="btn w" id="mRe">さいしょから やりなおす</button><button class="btn w" id="mTag">${SAVE.noTag?'🏷 なまえふだ: オフ':'🏷 なまえふだ: オン'}</button><button class="btn w" id="mSnd">${SAVE.mute?'🔇 おと: オフ':'🔊 おと: オン'}</button><button class="btn w" id="mSel">ステージ セレクト</button><button class="btn w" id="mTitle">タイトルへ</button></div>`;
+   <button class="btn p" id="mBack">つづける</button><button class="btn w" id="mHint">💡 ヒントを みる</button><button class="btn w" id="mRe">さいしょから やりなおす</button><button class="btn w" id="mEasy">${SAVE.easy?'👶 かんたんモード: オン':'🧑 ふつうモード（かんたんに する）'}</button><button class="btn w" id="mTag">${SAVE.noTag?'🏷 なまえふだ: オフ':'🏷 なまえふだ: オン'}</button><button class="btn w" id="mSnd">${SAVE.mute?'🔇 おと: オフ':'🔊 おと: オン'}</button><button class="btn w" id="mSel">ステージ セレクト</button><button class="btn w" id="mTitle">タイトルへ</button></div>`;
   ov.classList.add('show');
   $('mBack').onclick=()=>{ov.classList.remove('show');mode='play';};
   $('mHint').onclick=()=>{mode='play';openHint();};
   $('mRe').onclick=()=>{ov.classList.remove('show');loadStage(stIdx);};
   $('mSnd').onclick=()=>{SAVE.mute=!SAVE.mute;save();if(MG)MG.gain.value=SAVE.mute?0:.85;mode='play';$('bMenu').onclick();};
+  $('mEasy').onclick=()=>{SAVE.easy=!SAVE.easy;save();G.eg=null;mode='play';$('bMenu').onclick();};
   $('mTag').onclick=()=>{SAVE.noTag=!SAVE.noTag;save();mode='play';$('bMenu').onclick();};
   $('mSel').onclick=()=>goSelect();$('mTitle').onclick=()=>goTitle();};
 $('bStart').onclick=()=>{audioInit();sfx('start');bgmPlay(0);goSelect();};
