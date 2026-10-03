@@ -749,7 +749,7 @@ function update(dt){
 function tickEnt(e,dt){
   e.t+=dt;if(e.react>0)e.react=Math.max(0,e.react-dt);
   if(e.bub){e.bub.t-=dt;if(e.bub.t<=0)e.bub=null;}
-  if(e.talk&&!e.bub&&!e.hidden){e.talkT-=dt;if(e.talkT<=0){const s=typeof e.talk==='function'?e.talk(e):e.talk[(e.ti=(e.ti||0)+1)%e.talk.length];if(s)say(e,s,3.8);else e.talkT=2;}}
+  if(e.talk&&!e.bub&&!e.hidden){e.talkT-=dt;if(e.talkT<=0){const s=typeof e.talk==='function'?e.talk(e):e.talk[(e.ti=(e.ti||0)+1)%e.talk.length];if(s){say(e,s,3.8);e.bub.amb=true;}else e.talkT=2;}}
   if(e.appr&&e.appr.wait>0){e.appr.wait-=dt;e.moving=false;}
   else if(e.appr){const p=e.appr;p.t+=dt;const dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy),st=p.spd*dt;
     if(d>st&&p.t<p.max){if(Math.abs(dx)>.5)e.dir=dx>0?1:-1;e.x+=dx/d*st;e.y+=dy/d*st;e.moving=true;e.wph+=dt*p.spd*.16;}
@@ -860,7 +860,7 @@ function drawTags(){easyGuide();if(G.hintMark&&T<G.hintMark.until){[G.hintMark.e
     C.fillStyle=t[1];C.beginPath();C.roundRect?C.roundRect(x-w/2,y+5,w,15,7.5):C.rect(x-w/2,y+5,w,15);C.fill();
     C.fillStyle='#fff';C.fillText(t[0],x,y+12.8);}
   C.textAlign='left';}
-function drawBubbles(){
+function drawBubbles_old(){
   drawTags();const small=cam.z<.5;drawN++;
   C.font='800 14px "M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif';C.textBaseline='top';C.textAlign='left';
   for(const e of G.ents){if(!e.bub||e.hidden)continue;
@@ -1188,6 +1188,23 @@ function climax(o){if(G.over||(G.climaxing&&!G.free))return;G.climaxing=1;const 
   for(const e of(o.cheer||[])){if(!e||e.hidden)continue;if(e.k==='person'){lock(e);e.sit=false;e.act='cheer';}e.react=3;e.rt='joy';}
   if(o.fx==='fireworks')bursts(8,p.x,p.y);else if(o.fx==='stars'){for(let i=0;i<5;i++)wait(i*.3,()=>sparkle(p.x+rnd(-300,300),p.y-rnd(100,300),20));}else confetti(110);
   hearts(p.x,p.y-200,24);wait(1.2,()=>{confetti(60);});if(o.then)o.then();win(o.route,o.delay||7);}
+// ふきだし：ひいて みていても もじを だす（ストーリーの セリフを ゆうせん、かさなる ざつだんは「…」に）
+function drawBubbles(){
+  drawTags();const far=cam.z<.5;drawN++;const fs=far?13:15,lh=fs+4;
+  C.font=`800 ${fs}px "M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif`;C.textBaseline='top';C.textAlign='left';
+  const list=G.ents.filter(e=>e.bub&&!e.hidden).sort((a,b)=>(a.bub.amb?1:0)-(b.bub.amb?1:0));const used=[];
+  const hit=(x,y,w,h)=>used.some(r=>x<r[0]+r[2]+2&&x+w+2>r[0]&&y<r[1]+r[3]+2&&y+h+2>r[1]);
+  const dots=s=>{C.fillStyle='#fff';C.beginPath();C.ellipse(s[0]+6,s[1]-8,11,8,0,0,7);C.fill();C.fillStyle=INK;for(let i=-1;i<=1;i++){C.beginPath();C.arc(s[0]+6+i*4,s[1]-8,1.4,0,7);C.fill();}};
+  for(const e of list){const top=e.bubY!=null?e.bubY:e.h;const s=w2s(e.x,e.y-top-2);if(s[0]<-60||s[0]>CW+60||s[1]<-40||s[1]>CH+60)continue;
+    const lines=wrap(e.bub.s,Math.min(far?170:200,CW*.6));const w=Math.max(...lines.map(l=>C.measureText(l).width))+16,h=lines.length*lh+10;
+    let bx=clamp(s[0]-w/2+12,4,CW-w-4),by=clamp(s[1]-h-9,4,CH-h-4);
+    if(hit(bx,by,w,h)){if(e.bub.amb){dots(s);continue;}let k=0;while(hit(bx,by,w,h)&&k++<6)by=Math.max(4,by-(h+4));if(hit(bx,by,w,h)){by=clamp(s[1]-h-9,4,CH-h-4);}}
+    used.push([bx,by,w,h]);
+    C.save();C.shadowColor='rgba(0,0,0,.3)';C.shadowOffsetY=2;C.shadowBlur=4;
+    C.fillStyle=e.bub.narr?'#3a3a3a':'#fff';C.beginPath();C.roundRect?C.roundRect(bx,by,w,h,9):C.rect(bx,by,w,h);C.fill();
+    if(!e.bub.narr){const tx=clamp(s[0],bx+8,bx+w-8);C.beginPath();C.moveTo(tx,Math.max(by+h+7,Math.min(s[1],by+h+7)));C.lineTo(tx-5,by+h-1);C.lineTo(tx+6,by+h-1);C.closePath();C.fill();}
+    C.restore();if(!e.bub.narr&&!e.bub.amb){C.strokeStyle='rgba(0,0,0,.18)';C.lineWidth=1;C.beginPath();C.roundRect?C.roundRect(bx+.5,by+.5,w-1,h-1,9):C.rect(bx,by,w,h);C.stroke();}
+    e._br=[bx,by,w,h];e._brT=drawN;C.fillStyle=e.bub.narr?'#fff':INK;lines.forEach((l,i)=>C.fillText(l,bx+8,by+5+i*lh));}}
 
 // =====================================================================
 //  ステージ 1  パパの サプライズ たんじょうび（チュートリアル：いえ と いえの まえ）
