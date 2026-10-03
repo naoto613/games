@@ -1762,8 +1762,8 @@ function stage3(){
 }
 
 // =====================================================================
-//  ステージ 4  なかよし どうぶつえん（3だん：いりぐち・ゾウ ／ サルやま ／ ライオン・ペンギン・ふれあい ひろば）
-//   げんさくの「サルやまの ケンカ（アラシ と アル）→ ははざる／しいくいん／ボスざる」を もとに
+//  ステージ 4  どうぶつえん だいだっそう！（3だん：いりぐち・ゾウ ／ ゴリラの もり ／ ライオン・ペンギン・ふれあい ひろば）
+//   にげだした こゴリラの ゴンタを、じぶんから もりに かえりたく させる おはなし
 // =====================================================================
 function monkeyD(x,y,s,o){o=o||{};X.save();X.translate(x,y);X.scale((o.dir||1)*s,s);const b=o.col||'#8a5a3a';
   crv([[-10,-8],[-20,-14],[-18,-26]],3,b);ell(0,-10,11,10,b);ell(2,-24,10,9,b);ell(4,-23,6,6,'#f2c4a0');dot(2,-25,1.4);dot(6,-25,1.4);ell(-6,-28,3,4,'#f2c4a0');
@@ -1771,18 +1771,21 @@ function monkeyD(x,y,s,o){o=o||{};X.save();X.translate(x,y);X.scale((o.dir||1)*s
   if(o.sleep){X.restore();otxt('z',x+12*s,y-34*s-((T*6)%8),12,'#fff');return;}if(o.hat){ell(2,-33,13,4,'#e8c860');ell(2,-36,8,5,'#e8c860');box(-6,-35,16,2,COL.red);}X.restore();}
 function elephD(x,y,s,trunk){X.save();X.translate(x,y);X.scale(s,s);ell(0,-40,46,32,'#9aa0b0');for(const lx of[-30,-12,12,30])box(lx-7,-14,14,14,'#8a90a0');ell(40,-56,24,22,'#9aa0b0');ell(30,-56,14,18,'#b0b6c4');dot(46,-60,2.5);
   crv([[58,-50],[66,-34+trunk*4],[62,-18-trunk*12]],8,'#9aa0b0');X.restore();}
+function gorillaD(x,y,s,o){o=o||{};X.save();X.translate(x,y);X.scale((o.dir||1)*s,s);const c='#3a3a42',f='#7a6a6a';const k=o.dance?Math.sin(T*8):o.walk?Math.sin(T*10)*.5:0;
+  ln(-12,-14,-20+k*6,2,7,c);ln(12,-14,20-k*6,2,7,c);ell(0,-22,20,18,c);ell(0,-20,11,10,f);ell(0,-46,14,13,c);ell(0,-42,9,7,f);dot(-4,-48,1.8,'#fff');dot(4,-48,1.8,'#fff');dot(-4,-48,1,INK);dot(4,-48,1,INK);
+  ln(-16,-30,-26,-12+k*10,7,c);ln(16,-30,26,-12-k*10,7,c);if(o.hug){ln(16,-30,40,-26,7,c);}X.restore();if(o.sleep)otxt('z',x+16*s,y-60*s-((T*6)%8),12,'#fff');}
 function stage4(){
   const F=G.f;G.ps=3;
   const W=3400;
-  const st={name:'なかよし どうぶつえん',W,viewW:1100,t0:600,t1:720,spm:1.5,song:1,bgCol:'#9ed4f0',start:{x:1700,y:bTop(1)+430,z:'fitH'},
-    short:'おさるに とられた ふーたんの ぼうしを とりもどそう',
-    goal:'にちようびの どうぶつえん。ふーたん いっかは サルやまの まえ。\nところが わかい おさるが ふーたんの むぎわらぼうしを ひょいっと とって、サルやまの てっぺんで ぼうしの とりあいを はじめた！\n12:00に かえる までに、ぼうしを ふーたんの あたまに もどそう。',
-    routeNames:['A','B','C'],routeTitle:{A:'ねぼすけ ははざる しのぶ',B:'しいくいんさんと はしご',C:'バナナと ボスざる'},failMsg:'12:00… ぼうしは サルやまの てっぺんに のこった まま。ふーたん「ぼうし〜…」',
-    tags:{futan:['ふーたん','#ff5f9e'],papa:['パパ',COL.blue],mama:['かあちゃん',COL.red],ricky:['リッキー','#f0a000'],keeper:['しいくいんの オオタさん','#2a7a40'],baiten:['ばいてんの おばちゃん','#ff9a1f'],cam:['カメラマン','#555'],teacher:['みき せんせい','#ff7eb6'],kenka:['ケンカちゅうの おさる','#8a5a3a'],shinobu:['ははざる しのぶ','#a87a5a'],boss:['ボスざる','#5a3a2a'],pao:['ゾウの パオ','#9aa0b0'],mascot:['パオくん（きぐるみ）','#9aa0b0'],sign:['サルやまの かんばん','#8a5a3a'],ladder:['はしご','#c8a060'],banana:['バナナ','#ffd23f'],hat:['ふーたんの ぼうし','#e8c860']}};
+  const st={name:'どうぶつえん だいだっそう！',W,viewW:1100,t0:600,t1:660,spm:2.6,song:1,bgCol:'#9ed4f0',start:{x:1700,y:bTop(1)+430,z:'fitH'},
+    short:'にげだした こゴリラの ゴンタを もりに かえそう',
+    goal:'にちようびの どうぶつえん。ふーたん いっかは ゴリラの もりの まえ。\nところが 10:04、しいくいんさんが とびらを あけた すきに、こゴリラの ゴンタが とびだした！\nおいかけると あそんで もらって いると おもって にげちゃう… 11:00までに ゴンタを もりに かえそう。',
+    routeNames:['A','B','C'],routeTitle:{A:'バナナの みちあんない',B:'ママゴリラの こえ',C:'パオくんの ダンス'},failMsg:'11:00… ゴンタは まだ どうぶつえんの どこかで あそんでいる。きょうは きゅうえんに なった…',
+    tags:{futan:['ふーたん','#ff5f9e'],papa:['パパ',COL.blue],mama:['かあちゃん',COL.red],ricky:['リッキー','#f0a000'],keeper:['しいくいんの オオタさん','#2a7a40'],baiten:['ばいてんの おばちゃん','#ff9a1f'],cam:['カメラマン','#555'],teacher:['みき せんせい','#ff7eb6'],
+      gonta:['こゴリラの ゴンタ','#3a3a42'],momo:['ママゴリラの モモ','#5a5a62'],gate:['もりの とびら','#7a5a3a'],pao:['ゾウの パオ','#9aa0b0'],mascot:['パオくん（きぐるみ）','#9aa0b0'],sign:['もりの かんばん','#8a5a3a'],banana:['バナナ','#ffd23f'],hose:['ホース','#3ccf6e'],lion:['ライオン','#e8a040'],ice:['アイスやさん','#ff9ac0']}};
   bandSetup(st,3);bandNav(st,W,[[0,1050],[0,2450],[1,950],[1,2650]]);
   const T0=bTop(0),T1=bTop(1),T2=bTop(2),Y0=bFY(0),Y1=bFY(1),Y2=bFY(2);
-  const SUM=[1750,T1+210];// てっぺん
-  F.hat='futan';F.shin='sleep';F.wash=true;
+  const SUM=[1750,T1+210];
   const fence=(x0,x1,y)=>{ln(x0,y,x1,y,4,'#7a5a3a');ln(x0,y-30,x1,y-30,4,'#7a5a3a');for(let x=x0;x<=x1;x+=50)ln(x,y+6,x,y-40,4,'#7a5a3a');};
   st.ground=()=>{
     // ---- 1だんめ ----
@@ -1792,7 +1795,7 @@ function stage4(){
     box(600,220,400,Y0-220,'#fff4e0');X.strokeStyle=INK;X.lineWidth=3;X.strokeRect(600,220,400,Y0-220);awning(590,220,420,44,COL.org,'#fff');wtxt('ばいてん',800,300,26,COL.org);rbox(640,Y0-80,320,30,6,'#c8a070');
     box(1150,Y0-260,1200,260,'#c8e0a8');for(let i=0;i<4;i++)ell(1250+i*300,Y0-200,80,50,'#5aa84a');fence(1150,2350,Y0+20);box(1900,Y0-120,200,100,'#6ab0e8');wtxt('ゾウ',1250,Y0-230,26,'#5a5a6a');
     box(2500,Y0-240,700,240,'#e8d8a0');fence(2500,3200,Y0+20);X.save();X.translate(2850,Y0-10);ln(0,0,0,-150,10,'#e8b040');ln(0,-150,30,-230,10,'#e8b040');ell(0,-10,40,30,'#e8b040');ell(36,-236,16,10,'#e8b040');X.restore();wtxt('キリン',2600,Y0-210,24,'#8a6a2a');
-    // ---- 2だんめ：サルやま ----
+    // ---- 2だんめ：ゴリラの もり ----
     bandYard(1,W,'#a8dc84');for(let x=-100;x<W+100;x+=210)if(Math.abs(x-950)>130&&Math.abs(x-2650)>130&&(x<1050||x>2450))bigTree(x,T1+330,60,'#3a9a4a');
     alley(950,1,140,'#e8dcc0');alley(2650,1,140,'#e8dcc0');
     poly([[1080,Y1],[1300,T1+260],[1550,T1+300],[1750,T1+230],[1950,T1+290],[2200,T1+260],[2420,Y1]],'#b8a890');poly([[1200,Y1],[1400,T1+330],[1750,T1+300],[2100,T1+330],[2300,Y1]],'#a89880');
@@ -1809,131 +1812,111 @@ function stage4(){
     box(1900,Y2-180,700,180,'#c8e8a0');fence(1900,2600,Y2+20);for(let i=0;i<3;i++){const gx=2000+i*180;ell(gx,Y2-50,30,18,'#f4f0e8');ell(gx+26,Y2-66,12,10,'#f4f0e8');}wtxt('ふれあい ひろば',2250,Y2-150,22,'#3a7a2a');
     rbox(2850,Y2+100,180,14,4,'#a8784a');
   };
+
   // ---- どうぶつ・もの ----
-  const pao=thing('pao','ゾウの パオ',1700,Y0-20,220,170,e=>{if(F.wash){X.globalAlpha=.6;for(let i=0;i<8;i++){const k=(T*2+i/8)%1;dot(1560+k*140,Y0-60-Math.sin(k*3)*60+k*k*60,6,'#9fdcff');}X.globalAlpha=1;}elephD(e.x,e.y,1.6,Math.sin(T*2));},{zs:Y0-20});
-  const kenka=thing('kenka','ケンカちゅうの おさる',SUM[0],SUM[1],120,80,e=>{if(F.hat!=='summit'){if(F.kenkaOver){monkeyD(e.x-40,e.y,2.4,{col:'#9a6a4a'});monkeyD(e.x+40,e.y,2.4,{col:'#7a5a3a',dir:-1});}return;}
-    monkeyD(e.x-30+Math.sin(T*9)*10,e.y,2.4,{fight:1,col:'#9a6a4a',hat:Math.sin(T*1.3)>0});monkeyD(e.x+30-Math.sin(T*9)*10,e.y,2.4,{fight:1,col:'#7a5a3a',dir:-1,hat:Math.sin(T*1.3)<=0});X.globalAlpha=.4;ell(e.x,e.y-30,70,30,'#fff');X.globalAlpha=1;if(Math.floor(T*4)%2)otxt('キーキー！',e.x,e.y-110,22,'#fff');},{zs:T1+400});
-  const al=thing('al','わかい おさる アル',SUM[0],SUM[1],30,30,e=>{if(F.hat!=='al')return;monkeyD(e.x,e.y,2.4,{col:'#9a6a4a',dir:e.dir,hat:e.carry});},{zs:Y1+60,walker:true,noWalk:true,spd:500});
-  const shinobu=thing('shinobu','ははざる しのぶ',1350,Y1-50,60,50,e=>{monkeyD(e.x,e.y,2.6,{col:'#a87a5a',sleep:F.shin==='sleep'});},{zs:Y1-40});
-  const boss=thing('boss','ボスざる',2160,Y1-120,60,60,e=>{monkeyD(e.x,e.y,3.2,{col:'#5a3a2a',dir:-1});if(F.bossLook&&F.hat==='summit')otxt('！',e.x,e.y-120,30,COL.yel);},{zs:Y1-110});
-  const hatT=thing('hat','ふーたんの ぼうし',1700,Y1+20,40,20,e=>{if(F.hat!=='moat')return;ell(e.x,e.y,22,8,'#e8c860');ell(e.x,e.y-5,13,7,'#e8c860');},{zs:Y1+21,gs:2});
-  const moat=thing('moat','ほり',1750,Y1+46,1340,46,()=>{},{zs:-1});
-  const sign=thing('sign','サルやまの かんばん',2560,Y1+80,140,120,e=>{ln(e.x,e.y,e.x,e.y-60,6,'#7a5a3a');rbox(e.x-70,e.y-150,140,96,8,'#fff4e0');X.strokeStyle=INK;X.lineWidth=2;X.strokeRect(e.x-70,e.y-150,140,96);wtxt('サルやまの',e.x,e.y-130,14,'#5a3a2a');wtxt('なかまたち',e.x,e.y-112,14,'#5a3a2a');for(let i=0;i<3;i++)monkeyD(e.x-40+i*40,e.y-60,.8);},
-    {zs:Y1+80,text:'サルやまの なかまたち\nボス：むれの けんかを しずめる。バナナが だいこうぶつ\nしのぶ：みんなの おかあさん。まぶしいと すぐ めを さます\nアル・アラシ：わかい やんちゃもの'});
-  const ladder=thing('ladder','はしご',640,Y1+10,40,200,e=>{if(F.ladder)return;ln(e.x-14,e.y,e.x-4,e.y-200,5,'#c8a060');ln(e.x+14,e.y,e.x+24,e.y-200,5,'#c8a060');for(let i=1;i<7;i++)ln(e.x-14+i*1.5,e.y-i*28,e.x+14+i*1.5,e.y-i*28,4,'#c8a060');},{zs:Y1+10});
+  const pao=thing('pao','ゾウの パオ',1700,Y0-20,220,170,e=>{if(F.spray){X.globalAlpha=.6;for(let i=0;i<10;i++){const k=(T*2+i/10)%1;dot(1780+k*300,Y0-120-Math.sin(k*3)*120+k*k*80,7,'#9fdcff');}X.globalAlpha=1;}elephD(e.x,e.y,1.6,Math.sin(T*2));
+    if(F.rainbow){X.globalAlpha=.45;for(let i=0;i<6;i++){X.beginPath();X.arc(2000,Y0+200,520-i*22,Math.PI,2*Math.PI);X.strokeStyle=['#ff5a5a','#ff9a3a','#ffd23f','#3ccf6e','#3a8ae8','#a77cff'][i];X.lineWidth=22;X.stroke();}X.globalAlpha=1;}},{zs:Y0-20});
+  const momo=thing('momo','ママゴリラの モモ',1350,Y1-50,90,90,e=>{gorillaD(e.x,e.y,2.2,{sleep:!F.momoUp,hug:F.gonta==='home2'});},{zs:Y1-40});
+  const gonta=thing('gonta','こゴリラの ゴンタ',1450,Y1-40,60,60,e=>{if(F.gonta==='home2')return;gorillaD(e.x,e.y,1.3,{dir:e.dir,walk:!!e.path,dance:F.gdance});},{zs:Y1-30,walker:true,noWalk:true,spd:150});
+  const gate=thing('gate','もりの とびら',2440,Y1+80,90,170,e=>{rbox(e.x-40,e.y-160,80,160,6,F.open?'#5a8a4a':'#7a5a3a');X.strokeStyle=INK;X.lineWidth=3;X.strokeRect(e.x-40,e.y-160,80,160);for(let i=0;i<4;i++)ln(e.x-30+i*20,e.y-150,e.x-30+i*20,e.y-10,3,'#3a2a1a');if(!F.open)rbox(e.x+24,e.y-90,14,18,3,'#ffd23f');},{zs:Y1+80});
+  const sign=thing('sign','もりの かんばん',2580,Y1+80,140,120,e=>{ln(e.x,e.y,e.x,e.y-60,6,'#7a5a3a');rbox(e.x-70,e.y-150,140,96,8,'#fff4e0');X.strokeStyle=INK;X.lineWidth=2;X.strokeRect(e.x-70,e.y-150,140,96);wtxt('ゴリラの もり',e.x,e.y-130,14,'#5a3a2a');gorillaD(e.x-26,e.y-62,.6,{});gorillaD(e.x+26,e.y-62,.4,{});},
+    {zs:Y1+80,text:'ゴリラの もり\nモモ：ゴンタの おかあさん。ひるねが だいすき\nゴンタ：やんちゃな こゴリラ。バナナと ダンスが だいすき'});
   const banana=thing('banana','バナナ',720,Y0-50,60,30,e=>{for(let i=0;i<4;i++)crv([[e.x-24+i*12,e.y],[e.x-18+i*12,e.y-18],[e.x-8+i*12,e.y-22]],6,'#ffd23f');},{zs:Y0-40});
-  const lion=thing('lion','ライオン',520,Y2-30,160,90,e=>{const y=e.y;ell(e.x,y-30,60,30,'#e8a040');ell(e.x+60,y-50,36,34,'#a8601a');ell(e.x+64,y-48,24,22,'#e8a040');if(F.yawn>T){ell(e.x+74,y-40,10,14,'#c83a3a');}else if(!F.lionUp)otxt('z',e.x+90,y-90-((T*6)%10),16,'#fff');},{zs:Y2-30});
+  const hose=thing('hose','ホース',1520,Y0+70,50,30,e=>{X.strokeStyle='#3ccf6e';X.lineWidth=5;X.beginPath();X.ellipse(e.x,e.y-10,20,10,0,0,7);X.stroke();},{zs:Y0+70});
+  const lion=thing('lion','ライオン',520,Y2-30,160,90,e=>{const y=e.y;ell(e.x,y-30,60,30,'#e8a040');ell(e.x+60,y-50,36,34,'#a8601a');ell(e.x+64,y-48,24,22,'#e8a040');if(F.yawn>T){ell(e.x+74,y-40,10,14,'#c83a3a');}else otxt('z',e.x+90,y-90-((T*6)%10),16,'#fff');},{zs:Y2-30});
   // ---- ひとびと ----
-  const futan=who('futan',Object.assign({},LK.futanH,{body:'#ff8fb8',hat:'hat',hatCol:'#e8c860'}),1700,T1+700,'ふーたん',{spd:60});
+  const futan=who('futan',Object.assign({},LK.futanH,{body:'#ff8fb8',hat:'hat',hatCol:'#e8c860'}),1700,T1+700,'ふーたん',{spd:70});
   const papa=who('papa',Object.assign({},LK.papa,{body:'#3a6aa8',acc:'',h:66}),1580,T1+690,'パパ',{spd:55});
   const mama=who('mama',Object.assign({},LK.mama,{body:'#e8483a'}),1880,T1+690,'かあちゃん',{spd:55});
   const ricky=thing('ricky','リッキー',1990,Y1+215,26,30,e=>{X.save();X.translate(e.x,e.y);X.scale(2.4,2.4);drawStroller({x:-30,y:0,dir:1,t:T,babyMood:'happy'});X.restore();},{zs:Y1+215});
-  const keeper=who('keeper',Object.assign({},LK.postman,{body:'#2a7a40',hatCol:'#2a7a40',leg:'#3a5a3a'}),1520,Y0+40,'しいくいんの オオタさん',{zs:Y0+30,spd:60});
+  const keeper=who('keeper',Object.assign({},LK.postman,{body:'#2a7a40',hatCol:'#2a7a40',leg:'#3a5a3a'}),2300,T1+680,'しいくいんの オオタさん',{spd:65});
   const baiten=who('baiten',Object.assign({},LK.baba,{body:COL.org,acc:'apron'}),860,Y0+40,'ばいてんの おばちゃん',{zs:Y0+30,spd:45});
   const cam=who('cam',Object.assign(walkerLook(3),{body:'#555',hat:'cap',hatCol:'#222',acc:'glasses'}),1200,T1+680,'カメラマン',{spd:50});
-  const teacher=who('teacher',Object.assign({},LK.teacher,{body:'#ff7eb6'}),2700,T1+680,'みき せんせい',{spd:50});
-  const kids=[0,1,2,3].map(i=>{const k=who('kid'+i,Object.assign({},i%2?LK.kidB:LK.kidA,{h:46,hat:'yochien',hatCol:COL.yel}),2800+i*90,T1+720+(i%2)*30,'ひまわりぐみの こ',{spd:60});k.gk='ensoku';return k;});
-  const mascot=who('mascot',{h:70,skin:'#9aa0b0',body:'#9aa0b0',shape:'bean',hair:'bald',hairCol:'#9aa0b0',leg:'#9aa0b0',shoe:'#7a8090',acc:'zou'},2300,T2+690,'パオくん（きぐるみ）',{spd:40});
-  const elders=[0,1].map(i=>who('eld'+i,Object.assign({},i?LK.baba:LK.jiji,{body:i?'#c8a0e8':'#6a8ac8'}),2880+i*120,T2+690,'ベンチの ふうふ',{sit:1}));
-  const visitors=[0,1,2,3].map(i=>{const v=who('vis'+i,walkerLook(i+1),rnd(300,3100),bTop(i%3)+rnd(660,760),'おきゃくさん',{spd:rnd(28,38)});v.gk='visitor';return v;});
+  const teacher=who('teacher',Object.assign({},LK.teacher,{body:'#ff7eb6'}),2700,T2+680,'みき せんせい',{spd:50});
+  const kids=[0,1,2].map(i=>{const k=who('kid'+i,Object.assign({},i%2?LK.kidB:LK.kidA,{h:46,hat:'yochien',hatCol:COL.yel}),2800+i*100,T2+720+(i%2)*30,'ひまわりぐみの こ',{spd:60});k.gk='ensoku';return k;});
+  const mascot=who('mascot',{h:70,skin:'#9aa0b0',body:'#9aa0b0',shape:'bean',hair:'bald',hairCol:'#9aa0b0',leg:'#9aa0b0',shoe:'#7a8090',acc:'zou'},2300,T2+690,'パオくん（きぐるみ）',{spd:55});
+  const elders=[0,1].map(i=>who('eld'+i,Object.assign({},i?LK.baba:LK.jiji,{body:i?'#c8a0e8':'#6a8ac8'}),1300+i*120,T2+690,'ベンチの ふうふ',{sit:1}));
+  const visitors=[0,1,2].map(i=>{const v=who('vis'+i,walkerLook(i+1),[600,2600,1000][i],bTop(i===2?2:0)+rnd(680,740),'おきゃくさん',{spd:rnd(30,40)});v.gk='visitor';return v;});
   const icecream=who('ice',Object.assign({},LK.chef,{body:'#fff',hat:'cap',hatCol:'#ff9ac0'}),3100,T2+660,'アイスやさん');
-  const carryD=e=>{const H=e.look.h,x=e.x+(e.dir||1)*H*(e.look.kid?.3:.22),y=e.y-H*(e.look.kid?.24:.45);if(e.carry==='banana')for(let i=0;i<3;i++)crv([[x-10+i*8,y],[x-6+i*8,y-12],[x+i*8,y-14]],5,'#ffd23f');if(e.carry==='ladder'){ln(x-10,y+30,x+10,y-150,5,'#c8a060');ln(x+20,y+30,x+40,y-150,5,'#c8a060');}if(e.carry==='hat'){ell(x,y,20,7,'#e8c860');ell(x,y-5,12,6,'#e8c860');}if(e.carry==='net'){ln(x,y+20,x+60,y-100,3,'#888');ell(x+66,y-110,20,14,'rgba(255,255,255,.5)');}};
-  for(const p of[mama,keeper,cam])p.draw=e=>{drawPerson(e,personPose(e));if(PROP[e.act]&&!e.moving)PROP[e.act](e);if(e.carry)carryD(e);};
+  const carryD=e=>{const H=e.look.h,x=e.x+(e.dir||1)*H*(e.look.kid?.3:.22),y=e.y-H*(e.look.kid?.24:.45);if(e.carry==='banana')for(let i=0;i<3;i++)crv([[x-10+i*8,y],[x-6+i*8,y-12],[x+i*8,y-14]],5,'#ffd23f');if(e.carry==='hose'){X.strokeStyle='#3ccf6e';X.lineWidth=4;X.beginPath();X.moveTo(x,y);X.lineTo(x+40,y-30);X.stroke();}};
+  for(const p of[futan,keeper,cam,mascot])p.draw=e=>{drawPerson(e,personPose(e));if(PROP[e.act]&&!e.moving)PROP[e.act](e);if(e.carry)carryD(e);};
   // ---- よてい ----
-  R(futan,[[10,0,[1700,T1+700],'look',['おさるさん いっぱい！','あの おさる、ふーたんの こと みてる！']]]);
-  R(papa,[[10,0,[1580,T1+690],'photo',['サルやま、いい けしき']]]);
+  R(futan,[[10,0,[1700,T1+700],'look',['ゴリラ さん、どこ〜？','あっ、こゴリラ！ かわいい〜']]]);
+  R(papa,[[10,0,[1580,T1+690],'photo',['ゴリラの もり、いい けしき']]]);
   R(mama,[[10,0,[1880,T1+690],null,['かわいい まりっ']]]);
-  R(keeper,[[10,0,[1520,Y0+40],'work',['パオ〜、みずあび しような','じっと して〜'],{zs:Y0+30}],[10,45,[1640,Y0+60],'look',['ふう、みずあび おわり'],{zs:Y0+50,fn:()=>{if(F.wash){F.wash=false;step('B','10:45 パオの みずあびが おわる');}}}]]);
+  R(keeper,[[10,0,[2300,T1+680],'work',['ゴンタ、ごはんだよ〜','とびらを あけて… よいしょ']]]);
   R(baiten,[[10,0,[860,Y0+40],'sell',['バナナ、ソフトクリーム いかが〜'],{zs:Y0+30}]]);
-  R(cam,[[10,0,[1200,T1+680],'photo',['いい しゃしん とれないかなあ']]]);
-  R(teacher,[[10,0,[2700,T1+680],'talk',['みんな、はなれないでね〜']]]);
-  kids.forEach((k,i)=>R(k,[[10,0,[2800+i*90,T1+720+(i%2)*30],'look',['おさる〜！','ゾウ みたい！']],[11,20,[2450+i*90,T2+700],'look',['ライオン ねてる〜']]]));
-  R(mascot,[[10,0,[2300,T2+690],'wave',['パオ パオ〜♪']],[10,40,[1500,T2+700],'wave',['パオくんだよ〜']],[11,20,[2300,T2+690],'wave',['パオ パオ〜♪']]]);
-  elders.forEach((e2,i)=>R(e2,[[10,0,[2880+i*120,T2+690],'drink',['いい てんき じゃのう','ペンギンは かわいいねえ'],{sit:1}]]));
+  R(cam,[[10,0,[1200,T1+680],'photo',['ねがおの いい しゃしん、とれないかなあ']]]);
+  R(teacher,[[10,0,[2700,T2+680],'talk',['みんな、はなれないでね〜']]]);
+  kids.forEach((k,i)=>R(k,[[10,0,[2800+i*100,T2+720+(i%2)*30],'look',['ペンギン かわいい〜','ライオン ねてる〜']]]));
+  R(mascot,[[10,0,[2300,T2+690],'wave',['パオ パオ〜♪','おどりたい こ、あつまれ〜']]]);
+  elders.forEach((e2,i)=>R(e2,[[10,0,[1300+i*120,T2+690],'drink',['いい てんき じゃのう'],{sit:1}]]));
   R(icecream,[[10,0,[3100,T2+660],'sell',['アイス〜 つめたいよ〜']]]);
-  for(const s of visitors){const rw2=()=>{if(!s.lock&&!s.path){const b=Math.floor(Math.random()*3);walk(s,[rnd(300,3100),bTop(b)+rnd(660,760)],()=>wait(rnd(4,9),rw2));}else wait(4,rw2);};at(10,1,rw2);s.talk=['かわいい〜','つぎ どこ いく？','おなか すいた'];}
-  // ---- ぼうしの ゆくえ ----
-  at(10,4,()=>{say(futan,'おさるさ〜ん！ (さくから みを のりだす)');});
-  at(10,5,()=>{F.hat='al';al.x=SUM[0];al.y=SUM[1];sfx('fly');go(al,[[1700,Y1+50]],()=>{al.carry=1;futan.look.hat='';say(futan,'あっ！ ぼうし〜！');sfx('cry');cap('わかい おさるが ふーたんの むぎわらぼうしを ひょいっ！',1700,T1+500);
-    go(al,[SUM],()=>{F.hat='summit';al.carry=0;sfx('crash');cap('てっぺんで べつの おさるが とびかかった！ ぼうしの とりあい…',SUM[0],SUM[1]-60);});});});
-  function giveHat(r,giver,label){if(G.over)return;F.hat='done';step(r,label);giver.carry=null;say(giver,'はい、ぼうし！');futan.look.hat='hat';futan.react=3;futan.rt='joy';say(futan,'ぼうし〜！ ありがとう！');sfx('win');hearts(futan.x,futan.y-200,14);
-    cap('ぼうしが ふーたんの あたまに もどった！',futan.x,futan.y-180);wait(2,()=>say(papa,'よかったなあ、ふーたん'));win(r,5);}
-  // ---- かいわ ----
-  const keeperFree=()=>!F.wash;
+  for(const s of visitors){s.talk=['かわいい〜','つぎ どこ いく？'];}
+  // ---- だっそう！ ----
+  F.gonta='home';F.momoUp=0;
+  const WP=[[800,Y0+180],[2700,Y0+170],[600,Y2+160],[1600,Y2+170],[2600,Y2+170],[1100,Y0+170]];
+  const wander=()=>{if(F.gonta!=='out'||F.lead)return;const p=WP[Math.floor(Math.random()*WP.length)];goN(gonta,p,()=>{if(F.gonta!=='out'||F.lead)return;gonta.dir=-gonta.dir;
+      for(const v of[...visitors,...elders,baiten,icecream])if(Math.hypot(v.x-gonta.x,v.y-gonta.y)<380&&Math.random()<.6){say(v,['キャー！ ゴリラ！','に、にげろ〜！','ひえ〜！'][Math.floor(Math.random()*3)]);v.react=2;}
+      wait(rnd(4,7),wander);},140);};
+  at(10,4,()=>{F.open=1;lock(keeper);walk(keeper,[2400,T1+680],()=>{say(keeper,'ゴンタ〜 ごはん… あっ!?');F.gonta='out';sfx('crash');cap('こゴリラの ゴンタが とびらから とびだした！ どうぶつえんは おおさわぎ！',2440,Y1-100);
+    go(gonta,[[2440,Y1+150]],()=>{wander();});wait(2,()=>{say(keeper,'たいへんだ… おいかけると よけいに にげちゃう… どうしよう');keeper.act='sad';});});});
+  function goHome(r,label,leader){if(F.gonta!=='out')return;F.gonta='lead';F.lead=1;gonta.path=null;step(r,label);
+    const home=()=>{gonta.zs=Y1-30;go(gonta,[[2380,Y1+60],[1460,Y1-40]],()=>{F.gonta='home2';F.open=0;sfx('honk');
+      beats([[0,momo,()=>{say(momo,'ウホ〜♪');say(keeper,'とびら、しめた！ ゴンタ、おかえり〜！');}],
+        [1.5,momo,()=>climax({x:1450,y:Y1-160,title:'ゴンタ、おかえり！',sub:'ママゴリラの モモと ぎゅ〜',cheer:[keeper,futan,papa,mama,cam,...kids,teacher,mascot,...visitors],route:r})]]);},170);};
+    if(leader){goN(gonta,[leader.x+80,leader.y],()=>{say(gonta,'ウホッ♪');walk(leader,[2500,T1+690],()=>{leader.dir=-1;});goN(gonta,[2460,Y1+150],home,150);},150);}else goN(gonta,[2460,Y1+150],home,230);}
+  // ---- かいわ（てがかり）----
   st.convos=[
-    {who:['futan','papa'],when:()=>F.hat==='summit',pri:2,lines:[[0,'パパ〜、ぼうし とって〜！'],[1,'サルやまの なかには はいれないんだよ… だれか おさるに くわしい ひとが いれば'],[0,'おさる、ケンカ やめて〜']]},
-    {who:['cam','teacher'],when:()=>F.shin==='sleep',clue:'A0',pri:1,lines:[[0,'どうくつで ねてる おさる、いい ねがお だなあ。いちまい とりたい'],[1,'フラッシュは まぶしいから、おさるが おきちゃいますよ'],[0,'それも また いい しゃしんかも…']]},
-    {who:['kid0','kid1'],when:()=>F.shin==='awake'&&F.hat==='summit',clue:'A1',lines:[[0,'どうくつの おさる、おきた！'],[1,'しのぶは みんなの おかあさん なんだって。かんばんに かいてあった'],[0,'おかあさん、ケンカ してるの しらないのかな']]},
-    {who:['futan','papa'],when:()=>F.hat==='moat',clue:'A2',pri:2,lines:[[0,'ぼうし、ほりに おちちゃった！'],[1,'ほりは ふかいから はいれないな… しいくいんさんの あみが あれば']]},
-    {who:['keeper','baiten'],when:()=>F.wash,clue:'B0',pri:1,far:1,lines:[[0,'パオ〜、じっと して〜！ みずあび おわらないぞ〜'],[1,'パオは バナナの においが すると、すぐ こっちに よってくるのよねえ'],[0,'それは こまる… いや、たすかる？']]},
-    {who:['mama','papa'],when:()=>keeperFree()&&F.hat==='summit'&&!F.kNeed,clue:'B1',lines:[[0,'しいくいんさんに ケンカの こと しらせたい まりっ'],[1,'ゾウの ところで しごと してたよ']]},
-    {who:['keeper','baiten'],when:()=>F.kNeed&&!F.ladder,clue:'B2',pri:1,far:1,lines:[[0,'サルやまの てっぺんか… はしごが あれば のぼれるんだが'],[1,'はしごなら どうぐごやの まえに たてかけて あったわよ']]},
-    {who:['mama','ricky'],when:()=>!F.banana,clue:'C0',lines:[[0,'あっ、リッキーの おやつ わすれちゃった まりっ'],[1,'あー… (おなか すいた)'],[0,'ばいてんに なにか うってたかしら まりっ']]},
-    {who:['kid2','kid3'],when:()=>F.banana==='mama'&&!F.bossLook,clue:'C1',lines:[[0,'ボスざるって バナナ みると めの いろが かわるんだって！'],[1,'かんばんに かいてあったね']]},
-    {who:['teacher','kid2'],when:()=>F.bossLook&&F.hat==='summit',clue:'C2',lines:[[1,'ボスざる、こっち みてる！'],[0,'ボスは むれの ケンカを しずめるのよ。でも いまは バナナに むちゅうね…'],[1,'てっぺんの ケンカに きづいて ないのかな']]},
-    {who:['eld0','eld1'],lines:[[0,'わしらが わかい ころも この どうぶつえんに きたのう'],[1,'ゾウの パオは あの ころから いるのよ']]},
-    {who:['mascot','kid0'],when:()=>G.min>=640,far:1,lines:[[0,'パオ パオ〜♪ いっしょに おどろう！'],[1,'パオくん だ〜！']]},
-    {who:['ice','vis0'],far:1,lines:[[1,'ソフトクリーム ひとつ'],[0,'まいど〜']]}];
-  // ===== A：ねぼすけ ははざる しのぶ =====
-  PR('shinobu','cam',()=>{if(F.shin!=='sleep'){say(cam,'しのぶ、おきてるね');return;}if(F.scGo)return;F.scGo=1;lock(cam);walk(cam,[1350,T1+680],()=>{cam.act='photo';cam.dir=-1;say(cam,'ねがお、いただき！ パシャッ！');sfx('click');pop(1350,Y1-120,'ピカッ',COL.yel,26);
-      wait(1,()=>{F.shin='awake';say(shinobu,'キキッ!? (まぶしい！)');step('A','しのぶ → カメラマン（フラッシュで おきる）');unlock(cam);});});});
-  PR('kenka','shinobu',()=>{if(F.hat!=='summit')return false;if(F.shin==='sleep'){say(shinobu,'すぴー…');return;}if(F.skGo)return;F.skGo=1;go(shinobu,[[1560,T1+330],SUM],()=>{say(shinobu,'キーーッ！ (こら〜！)');sfx('crash');
-      F.hat='moat';F.kenkaOver=1;hatT.x=1720;hatT.y=Y1+22;cap('ははざるが しかって ケンカは おしまい。でも ぼうしが ほりに ポチャン！',1720,Y1);step('A','ケンカ → しのぶ（しかる）');go(shinobu,[[1350,Y1-50]]);},300);});
-  PR('hat','keeper',()=>{if(F.hat!=='moat')return false;if(!keeperFree()){say(keeper,'いま パオの みずあび ちゅう！ てが はなせない〜');return;}if(F.hkGo)return;F.hkGo=1;lock(keeper);keeper.carry='net';say(keeper,'ほりに ぼうし？ あみで とろう！');
-    walk(keeper,[1720,T1+650],()=>{keeper.dir=-1;sfx('splash');wait(1.2,()=>{keeper.carry='hat';F.hat='keeper';say(keeper,'とれた！');meet(keeper,futan,()=>giveHat('A',keeper,'ぼうし → しいくいんさん（あみで すくう）'));});});});
-  // ===== B：しいくいんさんと はしご =====
-  PR('banana','pao',()=>{if(!F.wash){say(pao,'パオーン');return;}if(F.bpGo)return;F.bpGo=1;sfx('honk');say(pao,'パオーン！ (バナナの におい！)');pao.x=1900;F.wash=false;step('B','バナナ → ゾウ（みずあびが おわる）');say(keeper,'こら パオ！ …しょうがない、みずあびは おしまい');});
-  PR('kenka','keeper',()=>{if(F.hat!=='summit')return false;if(!keeperFree()){say(keeper,'サルやまで ケンカ？ でも いま パオの みずあび ちゅうで…');return;}if(F.kNeed)return;F.kNeed=1;lock(keeper);
-    walk(keeper,[1750,T1+650],()=>{keeper.dir=-1;say(keeper,'こら〜、アル！ アラシ！ …てっぺんは とどかないな。はしごが いる');step('B','ケンカ → しいくいんさん（はしごが いる）');keeper.lock=true;});});
-  PR('ladder','keeper',()=>{if(!F.kNeed){say(keeper,'はしご？ いまは つかわないよ');return;}if(F.ladder)return;F.ladder=1;lock(keeper);walk(keeper,[640,T1+660],()=>{keeper.carry='ladder';say(keeper,'これで のぼれる！');
-      walk(keeper,[1700,T1+640],()=>{keeper.carry=null;go(keeper,[[1720,SUM[1]+80]],()=>{say(keeper,'ほら、ぼうしを かえしなさい');F.hat='keeper';F.kenkaOver=1;keeper.carry='hat';step('B','はしご → しいくいんさん（てっぺんへ）');
-        go(keeper,[[1700,T1+640]],()=>meet(keeper,futan,()=>giveHat('B',keeper,'しいくいんさんが ぼうしを とどけた')),90);},90);});});});
-  // ===== C：バナナと ボスざる =====
-  PR('banana','mama',()=>{if(F.banana){say(mama,'バナナ、もう かった まりっ');return;}if(F.bmGo)return;F.bmGo=1;lock(mama);walk(mama,[820,660],()=>{say(mama,'バナナ ひとふさ ください まりっ');say(baiten,'まいど〜');F.banana='mama';mama.carry='banana';step('C','バナナ → かあちゃん（かう）');
-      walk(mama,[1900,T1+690],()=>{mama.lock=true;});});});
-  PR('mama','boss',()=>{if(F.banana!=='mama'){say(mama,'ボスざる、えらそう まりっ');return;}if(F.bossLook)return;F.bossLook=1;lock(mama);walk(mama,[2150,T1+660],()=>{mama.dir=-1;say(mama,'ほら リッキー、バナナ まりっ');say(boss,'ウホッ!? (バナナ！)');boss.react=2;step('C','かあちゃん → ボスざる（バナナに きづく）');});});
-  PR('kenka','boss',()=>{if(F.hat!=='summit')return false;if(!F.bossLook){say(boss,'(ゴロン… ねころがっている)');return;}if(F.bkGo)return;F.bkGo=1;sfx('crash');go(boss,[[2000,T1+330],SUM],()=>{say(boss,'ウホーーッ！');F.kenkaOver=1;F.hat='boss';cap('ボスざるの ひと こえで ケンカが ぴたっと とまった！',SUM[0],SUM[1]-60);
-      go(boss,[[2150,Y1-40]],()=>{say(boss,'ウホ (ポイッ)');sfx('fly');F.hat='done0';step('C','ケンカ → ボスざる（ケンカを しずめる）');mama.carry=null;say(mama,'バナナと こうかん まりっ？ あとで しいくいんさんに わたして もらう まりっ');giveHat('C',mama,'ボスざるが ぼうしを なげかえした');});},200);});
-  // ===== うら：どうぶつえん だい ダンス =====
-  st.uraTitle='どうぶつえん だい ダンスたいかい';st.uraHint='パオくんは おどるのが だいすき。ほんものの パオも おんがくが すき らしい…';
-  PR('mascot','kid0',()=>{if(F.u1)return;F.u1=1;for(const k of kids){lock(k);walk(k,[mascot.x+rnd(-200,200),mascot.y+rnd(-20,40)],()=>{k.act='dance';});}mascot.act='dance';say(mascot,'みんなで パオパオ ダンス〜♪');step('X','パオくん → えんそくの こたち（ダンス）');});
-  PR('pao','mascot',()=>{if(!F.u1)return false;if(F.u2)return;F.u2=1;sfx('honk');say(pao,'パオ〜〜ン♪ パオ〜〜ン♪');step('X','ゾウ → パオくん（リズムを とる）');for(const v of visitors){lock(v);v.act='dance';}});
-  PR('boss','mascot',()=>{if(!F.u2)return false;if(F.u3)return;F.u3=1;say(boss,'ウホ ウホ♪');boss.react=4;cap('ボスざるも おさるたちも おどりだした！ どうぶつえんじゅうが ダンス たいかい！',1750,Y1-200);step('X','ボスざる → パオくん（おどりだす）');for(const p of[papa,mama,futan,teacher,cam,keeper]){lock(p);p.act='dance';}win('X',6);});
+    {who:['keeper','papa'],when:()=>F.gonta==='out',pri:2,lines:[[0,'ゴンタは おいかけると あそんで もらってると おもって にげちゃうんです'],[1,'じゃあ どうしたら…'],[0,'ゴンタが じぶんから もりに かえりたく なれば…']]},
+    {who:['baiten','vis0'],when:()=>F.gonta==='out'&&!F.fb,clue:'A0',far:1,pri:1,lines:[[0,'ゴンタは バナナが だいこうぶつ。バナナを もった こに どこまでも ついて いっちゃうのよ'],[1,'え、バナナ かおうかな…']]},
+    {who:['futan','mama'],when:()=>F.fb&&F.gonta==='out',clue:'A1',lines:[[0,'バナナ もらった〜！'],[1,'ゴンタくんに みせて あげたら？ ついて くるかも まりっ']]},
+    {who:['cam','teacher'],when:()=>!F.momoUp,clue:'B0',far:1,pri:1,lines:[[0,'どうくつで ねてる ママゴリラ、いい ねがお だなあ。いちまい とりたい'],[1,'フラッシュは まぶしいから、おきちゃいますよ']]},
+    {who:['keeper','mama'],when:()=>F.gonta==='out'&&!F.momoUp,clue:'B0',far:1,lines:[[0,'ママの モモが ひと こえ よべば、ゴンタは とんで かえって くるのに…'],[1,'モモちゃん、ひるね ちゅう まりっ…']]},
+    {who:['keeper','cam'],when:()=>F.momoUp&&F.gonta==='out',clue:'B1',far:1,pri:2,lines:[[0,'モモが おきた！ モモ、ゴンタを よんで くれ〜！'],[1,'(モモは まだ ねぼけている…)']]},
+    {who:['kid0','kid1'],when:()=>F.gonta==='out'&&!F.dance,clue:'C0',far:1,lines:[[0,'ゴンタって、パオくんの ダンスを みると いっしょに おどるんだって！'],[1,'パオくん、おどって くれないかな〜']]},
+    {who:['mascot','teacher'],when:()=>F.dance&&F.gonta==='out',clue:'C1',far:1,lines:[[1,'パオくんの ダンス、たのしいわね！'],[0,'パオ パオ〜♪ ゴンタも おいで〜']]},
+    {who:['keeper','baiten'],when:()=>!F.rainbow,clue:'X0',far:1,lines:[[0,'パオの みずあびも しないと… ホースは どこだっけ'],[1,'ゾウの まえに あるわよ']]},
+    {who:['eld0','eld1'],lines:[[0,'わしらが わかい ころも この どうぶつえんに きたのう'],[1,'ゴリラの モモも あかちゃん だったわね']]}];
+  // ===== A：バナナの みちあんない =====
+  PR('banana','futan',()=>{if(F.fb){say(futan,'バナナ もってるよ〜');return;}F.fb=1;lock(futan);walk(futan,[820,660],()=>{say(baiten,'はい、じょうちゃん！ バナナ ひとふさ どうぞ');futan.carry='banana';step('A','バナナ → ふーたん（もらう）');unlock(futan);});});
+  PR('futan','gonta',()=>{if(F.gonta!=='out')return false;if(!F.fb){say(futan,'ゴンタ、こっち〜！');say(gonta,'ウホ？ (あそんで くれるの？) ウホホ〜♪ (にげる)');return;}
+    lock(futan);meet(futan,gonta,()=>{say(futan,'ゴンタ、バナナ だよ〜 こっち こっち〜！');say(gonta,'ウホッ!? (バナナ！)');goHome('A','ふーたん → ゴンタ（バナナで みちあんない）',futan);});});
+  // ===== B：ママの こえ =====
+  PR('momo','cam',()=>{if(F.momoUp){say(cam,'モモ、おきてるね');return;}lock(cam);walk(cam,[1350,T1+680],()=>{cam.act='photo';cam.dir=-1;say(cam,'ねがお、いただき！ パシャッ！');sfx('click');pop(1350,Y1-120,'ピカッ',COL.yel,26);wait(1,()=>{F.momoUp=1;say(momo,'ウホッ!? (まぶしい！)');step('B','モモ → カメラマン（フラッシュで おきる）');unlock(cam);});});});
+  PR('gonta','momo',()=>{if(F.gonta!=='out')return false;if(!F.momoUp){say(momo,'ぐう〜… (ひるね ちゅう)');return;}say(momo,'ウホーーーッ！ (ゴンタ〜！ かえって おいで〜！)');sfx('honk');pop(1350,Y1-160,'ウホーッ！',COL.org,26);wait(1,()=>{say(gonta,'ウホッ!? (ママ！)');goHome('B','ゴンタ → モモ（ママの こえ）');});});
+  // ===== C：パオくんの ダンス =====
+  PR('mascot','kid0',()=>{if(F.dance){say(mascot,'パオ パオ〜♪');return;}F.dance=1;mascot.act='dance';for(const k of kids){lock(k);walk(k,[mascot.x+rnd(-200,200),mascot.y+rnd(-20,40)],()=>{k.act='dance';});}say(mascot,'みんなで パオパオ ダンス〜♪');sfx('chime');step('C','パオくん → ひまわりぐみ（ダンス）');});
+  PR('gonta','mascot',()=>{if(F.gonta!=='out')return false;if(!F.dance){say(mascot,'パオ パオ〜♪ (ひとりで おどっても さみしいな)');return;}F.gdance=1;say(gonta,'ウホ ウホ♪ (いっしょに おどる！)');lock(mascot);mascot.act='dance';
+    goHome('C','ゴンタ → パオくん（ダンスの ぎょうれつ）',mascot);for(const k of kids)walk(k,[2380+rnd(-200,100),T1+700+rnd(-20,30)],()=>{k.act='dance';});});
+  // ===== うら：にじの どうぶつえん =====
+  st.uraTitle='にじの かかる どうぶつえん';st.uraHint='パオの みずあびの ホース… おひさまの したで みずを まいたら？';
+  PR('hose','keeper',()=>{if(F.u1){say(keeper,'パオ、みずあび きもちいいか〜');return;}F.u1=1;lock(keeper);walk(keeper,[1520,Y0+110],()=>{keeper.carry='hose';say(keeper,'パオ、みずあび するか〜！');step('X','ホース → オオタさん（みずあび）');});});
+  PR('pao','futan',()=>{if(!F.u1){sfx('honk');say(pao,'パオーン');return;}if(F.u2)return;F.u2=1;F.spray=1;sfx('honk');say(pao,'パオ〜〜ン！ (はなで シャワ〜)');wait(1.4,()=>{F.rainbow=1;step('X','ゾウ → ふーたん（にじ）');
+    climax({x:2000,y:Y0-200,title:'にじが でた〜！',sub:'パオの シャワーで どうぶつえんに おおきな にじ',cheer:[futan,papa,mama,keeper,baiten,...kids,teacher],fx:'stars',route:'X'});});});
   // ===== その ほか =====
-  PRS('futan','pao',()=>{dex('ev_fp','ふーたん と パオ');say(futan,'パオ〜！ おおきい〜！');sfx('honk');say(pao,'パオーン');});
   PR('papa','cam',()=>{dex('ev_pc','パパ と カメラマン');say(cam,'かぞく しゃしん、とりましょうか？');say(papa,'おねがいします！ はい チーズ');sfx('click');});
   PR('futan','ice',()=>{dex('ev_fi','ふーたん と アイス');say(icecream,'いちご あじ どうぞ！');say(futan,'つめた〜い！');});
   PRS('kid1','lion',()=>{dex('ev_kl','こども と ライオン');say(kids[1],'ガオーー！');F.yawn=T+2;say(lion,'ふあぁ〜〜 (おおあくび)');});
-  PRS('ricky','pao',()=>{dex('ev_rp','リッキー と パオ');say(ricky,'ぱお！ ぱお！');sfx('giggle');});
-  PRS('teacher','sign',()=>{dex('ev_ts','せんせい と かんばん');say(teacher,'みんな、かんばんを よもうね。ボスは むれの リーダー、しのぶは みんなの おかあさん');});
-  PRS('baiten','pao',()=>{dex('ev_bp','ばいてん と パオ');say(baiten,'パオちゃん、また バナナの においに つられてる');});
-  pao.poke=e=>{dex('pao','ゾウの パオ');sfx('honk');say(e,'パオーン');};kenka.poke=e=>{dex('kenka','ケンカちゅうの おさる');narr(e,F.hat==='summit'?'(わかい おさる 2ひきが ぼうしを とりあっている)':'(なかなおり したみたい)');};
-  shinobu.poke=e=>{dex('shinobu','ははざる しのぶ');narr(e,F.shin==='sleep'?'(どうくつで すやすや ねている)':'(めを さました)');};boss.poke=e=>{dex('boss','ボスざる');narr(e,'(いわの うえで えらそうに ねころがっている)');};
-  hatT.poke=e=>{dex('hat','ふーたんの ぼうし');narr(e,'(ほりに ぷかぷか)');};ladder.poke=e=>{dex('ladder','はしご');narr(e,'(どうぐごやの はしご)');};banana.poke=e=>{dex('banana','バナナ');narr(e,'(ばいてんの バナナ)');};
-  lion.poke=e=>{dex('lion','ライオン');F.yawn=T+2;narr(e,'(すやすや… ときどき おおあくび)');};moat.poke=e=>{dex('moat','ほり');narr(e,'(ふかい ほり。ひとは はいれない)');};
-  futan.poke=e=>{dex('futan','ふーたん');e.react=1;say(e,F.hat==='done'?'ぼうし もどった〜！':'ぼうし〜…');};ricky.poke=e=>{dex('ricky','リッキー');sfx('giggle');say(e,'あぶ〜');};
-  miniColon(0,1750,SUM[1]-150,T1+500);miniColon(1,2850,Y0-240,Y0);miniColon(2,1400,Y2-60,Y2);
-  st.dead=r=>({A:F.hat==='keeper'||F.hat==='boss',B:F.hat==='moat'||F.hat==='boss',C:F.hat==='moat'||F.hat==='keeper'})[r];
-  st.timeUp=()=>{say(futan,'ぼうし〜…');futan.act='sad';};
-  st.decoys=[{k:'gate',name:'いりぐちの もん',x:310,y:Y0,w:440,h:340},{k:'shed',name:'どうぐごや',x:540,y:Y1,w:320,h:300},{k:'giraffe',name:'キリン',x:2850,y:Y0,w:200,h:260},{k:'penguin',name:'ペンギン',x:1400,y:Y2,w:600,h:200}];
-  HINTS[3]={A:[H_('フラッシュ','shinobu','cam','どうくつで ねている ははざる。カメラマンは ねがおを とりたがっている','「ははざる しのぶ」→「カメラマン」'),
-      H_('しかる','kenka','shinobu','しのぶは みんなの おかあさん','「ケンカちゅうの おさる」→「ははざる しのぶ」'),
-      H_('あみで','hat','keeper','ぼうしが ほりに おちた。しいくいんさんの あみなら…','「ふーたんの ぼうし」→「しいくいんの オオタさん」')],
-    B:[H_('みずあびが おわる','banana','pao','しいくいんさんは ゾウの みずあびで いそがしい。パオは バナナの においが すき','「バナナ」→「ゾウの パオ」'),
-      H_('はしごが いる','kenka','keeper','てが あいた しいくいんさんに ケンカを しらせよう','「ケンカちゅうの おさる」→「しいくいんの オオタさん」'),
-      H_('てっぺんへ','ladder','keeper','てっぺんに のぼるには はしごが いる','「はしご」→「しいくいんの オオタさん」')],
-    C:[H_('かう','banana','mama','かあちゃんは リッキーの おやつを さがしている','「バナナ」→「かあちゃん」'),
-      H_('バナナに きづく','mama','boss','ボスざるは バナナが だいこうぶつ','「かあちゃん」→「ボスざる」'),
-      H_('しずめる','kenka','boss','ボスは むれの ケンカを しずめる','「ケンカちゅうの おさる」→「ボスざる」')],
-    X:[H_('ダンス','mascot','kid0','パオくんは いっしょに おどる こを さがしている','「パオくん」→「えんそくの こ」'),
-      H_('リズム','pao','mascot','ほんものの パオも おんがくが すき？','「ゾウの パオ」→「パオくん」'),
-      H_('おどりだす','boss','mascot','ボスざるは にぎやかなのが すき','「ボスざる」→「パオくん」')]};
+  PRS('teacher','sign',()=>{dex('ev_ts','せんせい と かんばん');say(teacher,'みんな、かんばんを よもうね');});
+  pao.poke=e=>{dex('pao','ゾウの パオ');sfx('honk');say(e,'パオーン');};momo.poke=e=>{dex('momo','ママゴリラの モモ');narr(e,F.momoUp?'(おきて ゴンタを さがしている)':'(どうくつで すやすや ひるね)');};
+  gonta.poke=e=>{dex('gonta','こゴリラの ゴンタ');e.react=1;say(e,F.gonta==='out'?'ウホホ♪ (おいかけっこ？)':'ウホ');};gate.poke=e=>{dex('gate','もりの とびら');narr(e,F.open?'(あいている！)':'(しまっている)');};
+  banana.poke=e=>{dex('banana','バナナ');narr(e,'(ばいてんの バナナ)');};hose.poke=e=>{dex('hose','ホース');narr(e,'(ゾウの みずあび ようの ホース)');};
+  lion.poke=e=>{dex('lion','ライオン');F.yawn=T+2;narr(e,'(すやすや… ときどき おおあくび)');};
+  futan.poke=e=>{dex('futan','ふーたん');e.react=1;say(e,'ゴリラ さん〜！');};ricky.poke=e=>{dex('ricky','リッキー');sfx('giggle');say(e,'あぶ〜');};
   // ---- なやみ と えがお ----
   nayami(icecream,'☀','うれない アイス',['きょうは おきゃくさんが こないなあ…','のどが かわいた ひとは いないかなあ']);
   nayami(mama,'😪','ぐずる リッキー',['リッキー、ねむくて ぐずってる まりっ','なにか おもしろい もの ないかしら まりっ']);
   PR('ice','eld0',()=>{if(icecream.nay.done){say(icecream,'まいど〜');return;}say(elders[0],'のどが かわいたのう… アイスを ふたつ くだされ');say(icecream,'まいど〜！ バニラと いちご！');wait(1.5,()=>{say(elders[1],'つめたくて おいしいねえ');egao(icecream,'ベンチの ふうふに アイス');});});
   PR('mascot','ricky',()=>{if(mama.nay.done){say(ricky,'きゃっきゃ');return;}if(mascot.lock)return false;lock(mascot);walk(mascot,[ricky.x+90,ricky.y-10],()=>{mascot.act='dance';say(mascot,'パオ パオ〜♪ いない いない ばあ〜！');wait(1.4,()=>{sfx('giggle');say(ricky,'きゃっきゃ！');say(mama,'わらった まりっ！ ありがとう パオくん まりっ');egao(mama,'パオくんで ごきげん');unlock(mascot);});});});
-  st.convos.push({who:['futan','teacher'],lines:[[0,'あっ、みき せんせい！'],[1,'ふーたん！ ひまわりぐみは きょう えんそくなの。みんなも いるわよ']]});
+  miniColon(0,1750,SUM[1]-150,T1+500);miniColon(1,2850,Y0-240,Y0);miniColon(2,1400,Y2-60,Y2);
+  st.dead=r=>F.gonta!=='out'&&F.gonta!=='home';
+  st.timeUp=()=>{say(keeper,'ゴンタ〜… どこだ〜');};
+  st.decoys=[{k:'gate0',name:'いりぐちの もん',x:310,y:Y0,w:440,h:340},{k:'shed',name:'どうぐごや',x:540,y:Y1,w:320,h:300},{k:'giraffe',name:'キリン',x:2850,y:Y0,w:200,h:260},{k:'penguin',name:'ペンギン',x:1400,y:Y2,w:600,h:200}];
+  HINTS[3]={A:[H_('もらう','banana','futan','ゴンタは バナナを もった こに ついて いく','「バナナ」→「ふーたん」'),H_('みちあんない','futan','gonta','バナナを ゴンタに みせよう','「ふーたん」→「こゴリラの ゴンタ」')],
+    B:[H_('フラッシュで おきる','momo','cam','ママの モモが よべば ゴンタは かえる。でも ひるね ちゅう','「ママゴリラの モモ」→「カメラマン」'),H_('ママの こえ','gonta','momo','おきた モモに ゴンタを よんで もらおう','「こゴリラの ゴンタ」→「ママゴリラの モモ」')],
+    C:[H_('ダンス','mascot','kid0','ゴンタは パオくんの ダンスが だいすき','「パオくん」→「ひまわりぐみの こ」'),H_('ダンスの ぎょうれつ','gonta','mascot','ゴンタを ダンスに さそおう','「こゴリラの ゴンタ」→「パオくん」')],
+    X:[H_('みずあび','hose','keeper','パオの みずあびの じかん','「ホース」→「しいくいんの オオタさん」'),H_('にじ','pao','futan','パオの シャワーに おひさまが あたると…','「ゾウの パオ」→「ふーたん」')]};
   return st;
 }
 
@@ -2912,7 +2895,7 @@ const META_ALL=[
  {name:'パパの サプライズ たんじょうび',routes:{A:'でんわで おつかい',B:'ミラの おさんぽ',C:'となりの さとうさん'},col:'#c83a4a',ura:'リッキーの はじめての ことば'},
  {name:'しょうてんがいの ドロボウ だいそうさく',routes:{A:'うちみずで つるつる',B:'ちんどんやの パレード',C:'カラスと キラキラ'},col:COL.org,ura:'ふくびきで ハワイ りょこう！'},
  {name:'キャンプの おばけ さわぎ',routes:{A:'ミラの はな',B:'ゆうきと サーチライト',C:'あまい マシュマロ'},col:'#2a7a40',ura:'まっくらの みずうみで ほたる まつり'},
- {name:'なかよし どうぶつえん',routes:{A:'ねぼすけ ははざる しのぶ',B:'しいくいんさんと はしご',C:'バナナと ボスざる'},col:'#8a5a3a',ura:'どうぶつえん だい ダンスたいかい'},
+ {name:'どうぶつえん だいだっそう！',routes:{A:'バナナの みちあんない',B:'ママゴリラの こえ',C:'パオくんの ダンス'},col:'#8a5a3a',ura:'にじの かかる どうぶつえん'},
  {name:'ひまわりえきの おみおくり',routes:{A:'でんしゃ はかせの たっくん',B:'さむがりの かんとくさん',C:'ばあばの めがね'},col:COL.blue,ura:'ホームの おみおくり コンサート'},
  {name:'ひまわりようちえんの うんどうかい',routes:{A:'パパの こしと ゴウせんせい',B:'かあちゃんの スニーカー',C:'いだてんの じいじ'},col:'#ff9a1f',ura:'ようちえんじゅうで ひまわり おんど'},
  {name:'なつの ひまわりビーチ',routes:{A:'カモメと つりの おじいさん',B:'バナナボート',C:'ライフセーバーの ケンタ'},col:'#20b5b5',ura:'すなはまの だい すなの おしろ'},
