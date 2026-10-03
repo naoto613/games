@@ -3307,7 +3307,7 @@ function stage19(){
   const tree=E({id:'bigsakura',name:'おおきな さくらの き',x:700,y:300,w:160,h:160,zs:-1e3,draw(){}});
   const petal=E({id:'petal',name:'さくらの はなびら',x:860,y:470,w:8,h:6,tiny:true,draw(e){dot(e.x,e.y-3,2.4,'#ffc8dc');}});
   at(10,20,()=>{F.sheet='pond';sheet.hidden=false;sheet.x=700;sheet.y=440;sfx('fly');cap('つよい かぜ！ レジャーシートが いけに とんでいった！',700,440);say(papa,'あっ！ シートが〜！');fly(sheet,1000,900,2,120);
-    wait(6,()=>{if(F.sheet==='pond'){go(rival,[[720,450]]);say(rival,'お、ここ あいてる？ いっとこ…');}});});
+    wait(6,()=>{if(F.sheet==='pond'){go(rival,[[790,440]]);say(rival,'お、ここ あいてる？ いっとこ…');}});});
   at(11,30,()=>{if(F.sheet!=='back')cap('かあちゃんが くるまで あと 30ぷん！',720,440);});
   function back(r){if(F.sheet==='back'||G.over)return;F.sheet='back';sheet.hidden=true;go(rival,[[1500,500]]);say(rival,'あ、ここ とってあったんだ… ごめんね');sfx('win');hearts(720,420,12);say(futan,'ばしょ とりもどした〜！');cap('レジャーシート ふっかつ！ おはなみ スタート！',720,420);win(r,4.5);}
   // A
@@ -3834,10 +3834,10 @@ const INTER=[
   upd(st,()=>{if(F.bags===false&&!F.bagStep){F.bagStep=1;step('C','ゴミしゅうしゅう（カラスが ひまに なる）');}});},
 // 2 おつかい
 (st,F)=>{const pp=ent('papa'),tr=ent('train');
-  gate([['granny','furin']],()=>F.wind>G.min||(tr&&!tr.hidden),()=>{narr(ent('furin'),'(かぜが なくて ふうりんが ならない…)');});
-  PR('skater','furin',()=>{F.wind=G.min+2;dex('ev_skf','スケボー と ふうりん');say(ent('skater'),'ビューン！');wait(.5,()=>fire('furin'));});
+  gate([['granny','furin']],()=>F.wind>G.min||(tr&&tr.moving),()=>{narr(ent('furin'),'(かぜが なくて ふうりんが ならない…)');});
+  PR('skater','furin',()=>{if(ent('skater').hidden)return false;F.wind=G.min+2;dex('ev_skf','スケボー と ふうりん');say(ent('skater'),'ビューン！');wait(.5,()=>fire('furin'));});
   gate([['papa','poster']],()=>F.posterLoose,()=>{narr(ent('poster'),'(ポスターは かべに しっかり はってある。かぜで はがれれば…)');});
-  PR('pigeons','poster',()=>{if(F.posterLoose)return false;F.posterLoose=true;step('A','ハト → ポスター');ent('pigeons').fl=5;sfx('fly');cap('ハトの はばたきで ポスターが ぱたぱた！ いまにも はがれそう',ent('poster').x,ent('poster').y);});
+  PR('pigeons','poster',()=>{if(F.posterLoose)return false;F.posterLoose=true;step('A','ハト → ポスター');ent('pigeons').fl=5;sfx('fly');cap('ハトの はばたきで ポスターが ぱたぱた！ いまにも はがれそう',ent('poster').x,ent('poster').y);if(F.r0&&!F.cake&&pp.st==='sulk')wait(.8,()=>fire('poster'));});
   gate([['pat','breaker']],()=>F.boxOpen,()=>{say(ent('pat'),'ブレーカーの はこ、かぎが かかってて… となりの たいしょうが もってるかも');});
   PR('ramen','breaker',()=>{if(F.boxOpen)return false;F.boxOpen=true;step('B','ラーメンやの たいしょう → はこの かぎ');say(ent('ramen'),'ブレーカーの かぎかい？ ほらよ！');sfx('click');});},
 // 3 なつまつり
@@ -3872,6 +3872,7 @@ const INTER=[
 (st,F)=>{
   gate([['mama','latch'],['futan','latch']],()=>F.rSleep,()=>{say(ent('mama'),'リッキーが ぐずってて まどまで いけない まりっ… ねむって くれたら…');});
   PR('car','ricky',(a)=>{if(F.rSleep)return false;F.rSleep=true;step('A','せいかたい → リッキー');step('B','せいかたい → リッキー');say(a,'きよしこのよる〜♪ (こもりうた)');wait(1.5,()=>{say(ent('ricky'),'すや… すや…');});});
+  G.pairs['wcat|ricky']=G.pairs['ricky|wcat']=()=>{if(F.rSleep){say(ent('ricky'),'すや…');return;}F.rSleep=true;step('A','だんろの ねこ → リッキー');step('B','だんろの ねこ → リッキー');say(ent('wcat'),'ゴロゴロ… (リッキーの となりで まるくなった)');wait(1.5,()=>say(ent('ricky'),'すや… すや…'));};
   gate([['papa','sandbin']],()=>F.sandSoft,()=>{say(ent('papa'),'すなが こおって カチカチだ… あったかい もので とかせれば');});
   PR('cocoa','sandbin',()=>{if(F.sandSoft)return false;F.sandSoft=true;step('C','ココアやさん → こおった すな');say(ent('cocoa'),'あったかい おゆ、かけて あげる！ ジュワ〜');});},
 // 7 ヒーローショー
@@ -3985,8 +3986,8 @@ addH(3,'B',1,'カメラマン','photog','gull','カモメは おみやげやの 
 addH(4,'A',0,'みはりだい','ball','d_tower','ふえは みはりだいの うえ…','「ビーチボール」→「みはりだい」');
 addH(4,'B',1,'かきごおり','kakigori','owner','おやじさんは やきそばで てが はなせない','「かきごおりやさん」→「うみのいえの おやじさん」');
 addH(4,'C',0,'かきごおり','kakigori','owner','おやじさんは やきそばで てが はなせない','「かきごおりやさん」→「うみのいえの おやじさん」');
-addH(5,'A',2,'せいかたい','car0','ricky','リッキーが ぐずって かあちゃんが まどへ いけない','「せいかたい」→「リッキー」');
-addH(5,'B',2,'せいかたい','car0','ricky','リッキーが ぐずって かあちゃんが まどへ いけない','「せいかたい」→「リッキー」');
+addH(5,'A',2,'せいかたい|だんろの ねこ','wcat','ricky','リッキーが ぐずって かあちゃんが まどへ いけない','「だんろの ねこ」→「リッキー」（よるの「せいかたい」の こもりうたでも OK）');
+addH(5,'B',2,'せいかたい|だんろの ねこ','wcat','ricky','リッキーが ぐずって かあちゃんが まどへ いけない','「だんろの ねこ」→「リッキー」（よるの「せいかたい」の こもりうたでも OK）');
 addH(5,'C',2,'こおった すな','cocoa','sandbin','すなが こおって カチカチ','「ココアやさん」→「すなばこ」');
 addH(6,'A',1,'おひるやすみ|かんらんしゃの おじさん','soft','oper','かんらんしゃの おじさんは おひるやすみ','「ソフトクリームやさん」→「かんらんしゃの おじさん」（13:40 まで まっても OK）');
 addH(6,'C',1,'こうたい','gouda','gouda','ごうださんは けいびを はなれられない','14:00の こうたいを まつ');
