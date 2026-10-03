@@ -1178,7 +1178,7 @@ function drawNayami(){if(!G.nayAll)return;const k=Math.max(1.3,.75/cam.z);for(co
 //   climax({x,y,title,sub,cheer:[ひと],route,fx:'confetti'|'fireworks'|'stars'}) … だいせいこうの えんしゅつ → クリア
 // =====================================================================
 function beats(list,i){i=i||0;if(i>=list.length)return;const b=list[i];wait(b[0],()=>{if(b[1])G.focus={e:b[1],until:T+6};try{b[2]&&b[2]();}catch(err){console.error(err);}beats(list,i+1);});}
-function banner(s,sub){const el=document.getElementById('banner');if(!el)return;el.innerHTML=s+(sub?'<small>'+sub+'</small>':'');el.classList.remove('on');void el.offsetWidth;el.classList.add('on');clearTimeout(banner.t);banner.t=setTimeout(()=>el.classList.remove('on'),4200);}
+function banner(s,sub){const el=document.getElementById('banner');if(!el)return;el.innerHTML=s+(sub?'<small>'+sub+'</small>':'');el.style.fontSize=s.length>13?'clamp(18px,3.3cqw,38px)':s.length>10?'clamp(20px,3.9cqw,42px)':'';el.classList.remove('on');void el.offsetWidth;el.classList.add('on');clearTimeout(banner.t);banner.t=setTimeout(()=>el.classList.remove('on'),4200);}
 function confetti(n){const w=CW/cam.z,h=CH/cam.z;for(let i=0;i<(n||90);i++)G.fx.push({k:'conf',x:cam.x+rnd(-w/2,w/2),y:cam.y-h/2-rnd(0,h*.6),vx:rnd(-30,30),vy:rnd(40,120),c:WCOL[i%7],a:rnd(0,6),life:rnd(4,6)});}
 function bursts(n,x,y){for(let k=0;k<(n||5);k++){const cx=(x||cam.x)+rnd(-500,500),cy=(y||cam.y)-rnd(150,400),c=WCOL[k%7];wait(k*.35,()=>{sfx('boom');for(let i=0;i<26;i++){const a=i/26*6.283;G.fx.push({k:'spark',x:cx,y:cy,vx:Math.cos(a)*220,vy:Math.sin(a)*220,c,life:1.6});}});}}
 function drawFx2(){for(const f of G.fx){if(f.k==='conf'){X.save();X.translate(f.x,f.y);X.rotate(f.a+T*4);X.globalAlpha=Math.min(1,f.life);box(-6,-3,12,6,f.c);X.restore();f.vy=Math.min(f.vy,140);f.vx*=.99;}
@@ -1542,11 +1542,11 @@ function ovenD(x,y,hot){ln(x-12,y,x-10,y-8,2.5);ln(x+12,y,x+10,y-8,2.5);rbox(x-1
 function stage3(){
   const F=G.f;G.ps=3;
   const W=3400;
-  const st={name:'もりの キャンプじょう',W,viewW:1100,t0:1050,t1:1170,spm:1.5,song:4,bgCol:'#3a5a3a',start:{x:800,y:bTop(1)+430,z:'fitH'},
-    short:'19:30までに キャンプファイヤーに ひを つけよう',
-    goal:'みずうみの ほとりの キャンプじょう。ふーたん いっかも はじめての キャンプ！\n19:30から ボーイスカウトの キャンプファイヤー。でも ひを つける かかりの かんりにんさんが こまった ことに…\nいろんな ひとの ちからで、19:30までに ひろばの キャンプファイヤーに ひを つけよう。',
-    routeNames:['A','B','C'],routeTitle:{A:'たぬきと まつぼっくり',B:'BBQの すみと ダッチオーブン',C:'びしょぬれ かんりにんさん'},failMsg:'19:30… キャンプファイヤーに ひが つかず、セレモニーは ちゅうし… スカウトの こたちが しょんぼり。',
-    tags:{futan:['ふーたん','#ff5f9e'],papa:['パパ',COL.blue],mama:['かあちゃん',COL.red],ricky:['リッキー','#f0a000'],mira:['ミラ','#c8803a'],kanri:['かんりにん','#2a7a40'],tenin:['ばいてんの おねえさん','#ff7eb6'],jin:['ソロキャンの ジンさん','#5a5a8a'],leader:['スカウト リーダー','#8a6a2a'],ken:['スカウトの ケン','#c8a020'],ryo:['だいがくせいの リョウ','#e8483a'],miki:['ギターの サキ',COL.pur],tsuri:['つりの おじいさん','#4a7aa8'],tanuki:['たぬき','#8a6a3a'],makiwari:['まきわりの おじさん','#a8582a']}};
+  const st={name:'キャンプの おばけ さわぎ',W,viewW:1100,t0:1050,t1:1170,spm:1.5,song:4,bgCol:'#3a5a3a',start:{x:800,y:bTop(1)+430,z:'fitH'},
+    short:'もりの おばけの しょうたいを あばいて キャンプファイヤーを しよう',
+    goal:'みずうみの ほとりの キャンプじょう。こんやは スカウトの キャンプファイヤー！\nところが ゆうぐれ、もりに しろい「おばけ」が でた！ みんな こわがって テントに かくれ、キャンプファイヤーは ちゅうしに なりそう…\n19:30までに おばけの しょうたいを あばいて、キャンプファイヤーを はじめよう。',
+    routeNames:['A','B','C'],routeTitle:{A:'ミラの はな',B:'ゆうきと サーチライト',C:'あまい マシュマロ'},failMsg:'19:30… おばけが こわくて、キャンプファイヤーは ちゅうしに なった… ケン「おばけ、なんだったんだろう…」',
+    tags:{obake:['もりの おばけ','#8aa0c0'],mallow:['マシュマロ','#ff9ac0'],searchl:['サーチライト','#888'],futan:['ふーたん','#ff5f9e'],papa:['パパ',COL.blue],mama:['かあちゃん',COL.red],ricky:['リッキー','#f0a000'],mira:['ミラ','#c8803a'],kanri:['かんりにん','#2a7a40'],tenin:['ばいてんの おねえさん','#ff7eb6'],jin:['ソロキャンの ジンさん','#5a5a8a'],leader:['スカウト リーダー','#8a6a2a'],ken:['スカウトの ケン','#c8a020'],ryo:['だいがくせいの リョウ','#e8483a'],miki:['ギターの サキ',COL.pur],tsuri:['つりの おじいさん','#4a7aa8'],tanuki:['たぬき','#8a6a3a'],makiwari:['まきわりの おじさん','#a8582a']}};
   bandSetup(st,3);bandNav(st,W,[[0,1820],[0,3220],[1,940],[1,2620]],{n:{dock:[1240,bTop(0)+600],shore:[1620,bLane(0)]},e:[['dock','shore'],['shore','0_1820']]});
   F.bag='scout';F.wet=0;F.fire=0;F.oven='jin';
   const T0=bTop(0),T1=bTop(1),T2=bTop(2),Y0=bFY(0),Y1=bFY(1),Y2=bFY(2);
@@ -1645,7 +1645,6 @@ function stage3(){
     else if(e.carry==='oven'){X.save();X.translate(x,y+H*.12);X.scale(H/60,H/60);ovenD(0,0,F.oven==='coal');X.restore();}else if(e.carry==='lighter')rbox(x-H*.03,y-H*.06,H*.06,H*.1,2,'#e8483a');};
   for(const p of[mama,ken,leader,ryo,jin,kanri])p.draw=e=>{const P=personPose(e);drawPerson(e,P);if(PROP[e.act]&&!e.moving)PROP[e.act](e);if(e.carry)carryD(e);if(e.wetFx&&Math.sin(T*4)>0)dot(e.x+rnd(-20,20),e.y-e.look.h*.8,4,'#7fd0ff');};
   // ---- いちにちの よてい ----
-  R(kanri,[[17,30,[2150,650],'talk',['キャンプじょうへ ようこそ！','19:30から ひろばで キャンプファイヤー ですよ〜']],[17,40,[2180,T1+650],'look',['キャンプファイヤーの まき、よし。マッチも ポケットに… よし！']],[17,52,[1300,T0+600],'look',['おや、ボートの ロープが ゆるんでる… つなぎなおさないと'],{zs:T0+600}]]);
   R(tenin,[[17,30,[2330,Y0+40],'sell',['まき 1たば 500えん で〜す','アイス ありますよ〜','はなびは ひろば いがいで おねがいします'],{zs:Y0+30}]]);
   R(makiwari,[[17,30,[2740,650],'work',['よいしょ！ (パカーン)','まきは かんそうが だいじ']]]);
   R(papa,[[17,30,[600,T1+650],'work',['テント はり おわり！','ペグ よし、ロープ よし']],[17,50,[780,T1+650],'cook',['カレー まぜまぜ','キャンプの カレーは なんで うまいんだろうな']],[18,40,[800,T1+660],'eat',['カレー うまい！','キャンプファイヤー たのしみだな〜']]]);
@@ -1654,8 +1653,6 @@ function stage3(){
   R(fufu[0],[[17,30,[1430,T1+660],'drink',['コーヒーが うまいのう','わしらは まいとし ここに くるんじゃ'],{sit:1}]]);R(fufu[1],[[17,30,[1560,T1+660],'knit',['ゆうやけ きれいねえ','あみもの あみもの'],{sit:1}]]);
   for(let i=0;i<2;i++)R(mushi[i],[[17,30,[180+i*100,T2+720],'look',['カブトムシ いないかな〜','しげみに なにか いる！']],[18,30,[660+i*90,T1+720],'eat',['おなか すいた〜']]]);
   R(jin,[[17,30,[1250,T2+660],'cook',['ダッチオーブンで カレー… ことこと','ソロキャンは きままで いい']],[18,20,[1180,T2+660],'eat',['カレー、できた。…うまい','(ダッチオーブンは からっぽ)']],[18,35,[1380,T2+620],'sleep',['ハンモックで ひとやすみ… ぐう'],{zs:T2+600,sit:1}]]);
-  R(leader,[[17,30,[2000,T2+650],'talk',['みんな、まつぼっくりは あつめたか？','せいかの ひは ひうちいしで つけるのが でんとうだ！']],[18,0,[1940,T2+650],'work',['ロープの むすびかた れんしゅう！','もやい むすび、ほどけないぞ']],[18,40,[2620,T1+650],'look',['セレモニーの じゅんび…','19:30には ひを つけないと…']]]);
-  R(ken,[[17,30,[2150,T2+700],'carry',['まつぼっくり いっぱい あつめた！','かわいてて よく もえるんだって']],[17,38,[1820,T2+710],'work',['テント はり テント はり']],[18,0,[1980,T2+720],'work',['もやい むすび… むずかしい']],[18,40,[2500,T1+740],'look',['セレモニー まだかな']]]);
   scouts.forEach((s,i)=>R(s,[[17,30,scP[i],i%2?'work':'carry',[['テント たてるぞ〜','ペグ どこ〜？'],['まき はこぶ〜','おもい〜'],['はんごうで ごはん！','ぶくぶく いってる'],['ロープ ほどけた〜'],['ほしが でてきた〜']][i]],[18,0,[1700+i*150,T2+700+(i%2)*45],'work',['もやい むすび！','できた〜','むずかしい〜']],[18,40,[2560+i*120,T1+690+(i%2)*60],'look',['キャンプファイヤー、まだかな','セレモニー たのしみ']]]));
   R(ryo,[[17,30,[2900,T2+660],'work',['BBQ の じゅんび！','すみ おこすぞ〜']],[18,0,[2950,T2+660],'cook',['すみ いい かんじ！','にく やくぞ〜！','やきそばも やるぞ']],[19,0,[1560,T0+700],'look',['ほたる みに いこうぜ〜 (すみは ほったらかし)']]]);
   R(miki,[[17,30,[3200,T2+700],'guitar',['♪ キャンプだ ホイ','リクエスト ある〜？']],[19,0,[1660,T0+720],'look',['ほたる〜？']]]);
@@ -1664,56 +1661,56 @@ function stage3(){
   camc.forEach((c,i)=>R(c,[[17,30,[2000+i*70,T1+720],'photo',['ゆうやけ きれい〜','パシャ！']],[18,15,[1640+i*60,T0+720],'photo',['みずうみ バックに パシャ']],[18,50,[2000+i*70,T1+740],'talk',['キャンプファイヤー みたいね']]]));
   for(const s of hikers){const rw2=()=>{if(!s.lock&&!s.path){const b=Math.floor(Math.random()*3);walk(s,[rnd(b?200:1700,3200),bTop(b)+rnd(680,760)],()=>wait(rnd(3,8),rw2));}else wait(4,rw2);};at(17,31,rw2);s.talk=['いい キャンプじょう','ゆうやけ きれい','おなか すいた〜'];}
   st.chat={papa:['いい キャンプじょう ですね','カレー たべます？'],mama:['ゆうやけ きれい まりっ','かぜ ひかないように まりっ'],futan:['ねえねえ、ほたる みた？','キャンプ はじめて なの！'],jin:['…どうも','ソロキャンは きままで いいよ'],leader:['スカウトの ちかい、しってるか？','そなえよ つねに！'],ken:['もやい むすび できる？','まつぼっくり あつめたんだ'],ryo:['にく くいます？','BBQ さいこう！'],miki:['♪ らら〜','リクエスト ある？'],kanri:['ルールを まもって たのしんでね','ゴミは もちかえり ですよ'],tenin:['アイス ありますよ','まき、たりてます？'],tsuri:['…しずかに','さかなが にげる']};
-  // ---- ものがたり ----
-  at(17,44,()=>{if(F.bag!=='scout')return;go(tanuki,[[2180,Y2+225]],()=>{if(F.bag!=='scout'){go(tanuki,[[470,Y2+215]]);return;}F.bag='tanuki';tanuki.carry=1;sfx('fly');say(tanuki,'キュッ♪ (まつぼっくり だいすき)');cap('たぬきが まつぼっくりの ふくろを もっていった！',2180,Y2+100);
-    go(tanuki,[[470,Y2+215]],()=>{F.bag='burrow';tanuki.carry=0;say(tanuki,'キュ〜 (しげみに かくした)');});});});
-  at(17,52,()=>{if(F.bag==='scout'||F.bag==='ground'||F.bag==='ken'||F.bag==='leader')return;say(ken,'あれ!? まつぼっくりの ふくろが ない！');say(leader,'なに!? かわいた まつぼっくり なしじゃ ひうちいしの ひが つかないぞ…');step('A','17:45 たぬきが ふくろを もちさる');});
-  at(18,0,()=>{if(F.wet)return;F.wet=1;lock(kanri);kanri.x=1300;kanri.y=T0+600;say(kanri,'よいしょ… うわっ!?');sfx('splash');wait(.8,()=>{pop(1300,T0+560,'ドボーン！','#7fd0ff',26);kanri.wetFx=1;cap('かんりにんさんが みずうみに おちた！ ポケットの マッチも びしょぬれ…',1300,T0+500);
-    walk(kanri,[1640,T0+750],()=>{kanri.cold=true;kanri.dir=-1;say(kanri,'さ、さむい… マッチが びしょぬれだ… これじゃ キャンプファイヤーに ひが つけられない…');kanri.talk=['ハ…ハクション！','さむい…','マッチが…'];});});});
-  at(19,10,()=>{if(F.fire||F.oven==='coal'||F.oven==='ryo')return;F.coalDead=1;cap('BBQの すみが きえちゃった…',2950,Y2+100);});
-  function lightFire(r,who,label){if(G.over)return;F.fire=1;step(r,label);sfx('boom');pop(2300,Y1-60,'ボッ！','#ff9a1f',30);cap('キャンプファイヤーに ひが ついた！ キャンプじょうの みんなが あつまってくる！',2300,Y1-100);
-    const all=[papa,mama,futan,ken,...scouts,...fufu,...mushi,ryo,miki,...stu,...camc,jin,tenin,makiwari];all.forEach((p,i)=>{if(p===who)return;lock(p);walk(p,[2300+((i%2)?1:-1)*(250+(i*53)%420),T1+690+(i*29)%80],()=>{p.act=i%3?'cheer':'dance';p.dir=p.x<2300?1:-1;});});
-    futan.talk=['あったか〜い！','きれ〜い！'];wait(3,()=>{say(leader,'それでは、キャンプファイヤーを はじめます！');say(futan,'あったか〜い！ きれ〜い！');});win(r,7);}
-  // ---- キャンプじょうの かいわ（てがかり）----
+  // ---- ものがたり：もりの おばけ ----
+  const obake=thing('obake','もりの おばけ',900,Y2-30,90,120,e=>{if(F.ghost==='none')return;const x=e.x,y=e.y+Math.sin(T*2)*10;if(F.ghost==='reveal'){tanukiD({x,y:y+30,dir:e.dir||1,path:null});return;}
+      X.globalAlpha=.92;blob([[x-44,y],[x-40,y-90],[x,y-120],[x+40,y-90],[x+44,y],[x+28,y-10],[x+14,y+2],[x,y-10],[x-14,y+2],[x-28,y-10]],'#f4f8ff');X.globalAlpha=1;dot(x-14,y-80,6,INK);dot(x+14,y-80,6,INK);ell(x,y-58,8,10,INK);
+      if(Math.sin(T*1.3)>.6)ell(x+44,y+8,10,6,'#8a6a3a');if(Math.floor(T*2)%3===0)otxt('ひゅ〜',x+60,y-130,16,'#cfe6ff');},{zs:Y2+60,walker:true,noWalk:true,spd:160});
+  F.ghost='none';
+  const mallow=thing('mallow','マシュマロ',2860,Y2+120,36,24,e=>{if(F.sweet)return;rbox(e.x-18,e.y-20,36,20,6,'#fff');for(let i=0;i<3;i++)rbox(e.x-14+i*10,e.y-30,9,10,3,'#ffe8f0');},{zs:Y2+125,gs:2});
+  const searchl=thing('searchl','サーチライト',2420,170,70,60,e=>{rbox(e.x-30,e.y-30,60,40,10,'#888');ell(e.x+28,e.y-10,14,20,F.beam?'#fff6a0':'#bbb');if(F.beam){X.globalAlpha=.35;poly([[e.x+30,e.y-24],[600,Y2+80],[1300,Y2+80],[e.x+30,e.y+4]],'#fff6a0');X.globalAlpha=1;}},{zs:170});
+  R(kanri,[[17,30,[2150,650],'talk',['キャンプじょうへ ようこそ！','19:30から ひろばで キャンプファイヤー ですよ〜']]]);
+  R(leader,[[17,30,[2000,T2+650],'talk',['みんな、テントは はれたか？','こんやは キャンプファイヤーだ！']]]);
+  R(ken,[[17,30,[2150,T2+700],'work',['テント はり テント はり','もやい むすび、ほどけないぞ']]]);
+  // 17:46 かぜで タオルが とぶ → 17:50 おばけ しゅつげん
+  at(17,46,()=>{F.towel='gone';sfx('fly');cap('ビュ〜！ つよい かぜで、せんたくひもの しろい タオルが もりの ほうへ とんで いった…',1130,Y1-120);say(mama,'あっ、タオルが… まあ いいか まりっ');});
+  at(17,50,()=>{F.ghost='walk';tanuki.hidden=true;obake.x=600;obake.y=Y2-30;sfx('cry');cap('もりに しろい おばけ!? キャンプじょうは おおさわぎ！',900,Y2-150);
+    say(sc(1),'お、おばけ〜〜！');say(leader,'み、みんな テントに もどれ！ おばけが でるなら キャンプファイヤーは ちゅうしだ…');
+    for(const p of[...scouts,ken,...mushi]){lock(p);p.act='shiver';walk(p,[rnd(1700,2400),T2+700+rnd(-20,30)]);}lock(kanri);walk(kanri,[2210,T0+640],()=>{kanri.act='shiver';kanri.talk=['お、おばけは にがて なんです…','かんりとうから でられない…'];});
+    const wander=()=>{if(F.ghost!=='walk'||F.lure)return;go(obake,[[rnd(300,1500),Y2-30+rnd(-20,30)]],()=>wait(rnd(3,6),wander));};wander();});
+  function sc(i){return scouts[i-1];}
+  function reveal(r,label){if(F.ghost!=='walk')return;F.ghost='reveal';obake.path=null;step(r,label);sfx('crash');F.towel='found';
+    beats([[0,obake,()=>{obake.hidden=true;tanuki.hidden=false;tanuki.x=obake.x;tanuki.y=obake.y+40;tanuki.zs=null;pop(obake.x,obake.y-120,'ポロッ',COL.yel,22);cap('しろい タオルが ずり おちて… おばけの しょうたいは たぬき！',obake.x,obake.y-160);say(tanuki,'キュ〜？ (みつかっちゃった)');}],
+      [2,leader,()=>{say(leader,'な、なあんだ！ たぬき だったのか〜！');for(const p of[...scouts,ken,...mushi,kanri]){unlock(p);p.act='cheer';}say(sc(2),'あはは！ タオル かぶってた〜！');}],
+      [2.2,fire,()=>{lock(leader);walk(leader,[2150,T1+700],()=>{leader.act='work';say(leader,'それでは、キャンプファイヤー てんか！');sfx('boom');F.fire=1;pop(2300,Y1-60,'ボッ！','#ff9a1f',30);
+        const all=[papa,mama,futan,ken,...scouts,...fufu,...mushi,ryo,miki,...stu,jin,tenin,makiwari];all.forEach((p,i)=>{lock(p);walk(p,[2300+((i%2)?1:-1)*(250+(i*53)%420),T1+690+(i*29)%80],()=>{p.act=i%3?'cheer':'dance';p.dir=p.x<2300?1:-1;});});
+        go(tanuki,[[2440,Y1+230]],()=>{tanuki.dir=-1;});
+        climax({x:2300,y:Y1-60,title:'キャンプファイヤー だいせいこう！',sub:'おばけの しょうたいは タオルを かぶった たぬき',cheer:[leader,futan,ken],fx:'stars',route:r});});}]]);}
+  // ---- かいわ（てがかり）----
   st.convos=[
-    {who:['ken','leader'],when:()=>F.bag==='tanuki'||F.bag==='burrow',clue:'A1',pri:2,lines:[[0,'リーダー、まつぼっくりの ふくろが ない！'],[1,'さっき もりの ほうへ たぬきが なにか くわえて いったぞ'],[1,'しげみに もぐられたら、ひとの てでは だせんなあ']]},
-    {who:['futan','papa'],when:()=>F.bag==='burrow',clue:'A1',lines:[[0,'ミラって たぬき みると すぐ ほえるよね'],[1,'ミラの はなは すごいからな。もりの においも すぐ わかる']]},
-    {who:['mushi0','mushi1'],when:()=>F.bag==='ground',clue:'A2',pri:1,far:1,lines:[[0,'しげみの まえに ふくろが おちてる！'],[1,'まつぼっくり いっぱい… スカウトの ひとの かな？']]},
-    {who:['ken','sc1'],when:()=>F.bag==='ken',clue:'A3',lines:[[1,'ケン、ふくろ みつかったの？'],[0,'うん！ でも ひうちいしは リーダーが もってるんだ']]},
-    {who:['leader','sc2'],when:()=>F.bag==='leader',clue:'A4',lines:[[0,'てんかは 18:30 から。まつぼっくりと ひうちいしで ばっちりだ'],[1,'はやく みたい！']]},
-    {who:['mama','papa'],when:()=>!F.fire&&F.wet&&G.min>=1080&&!F.ask,clue:'B0',lines:[[0,'キャンプファイヤーの ひ、だいじょうぶかしら まりっ'],[1,'となりの サイトの だいがくせい、BBQの すみが まっかだったなあ']]},
-    {who:['ryo','stu2'],when:()=>F.ask&&F.oven==='jin'&&!F.coalDead,clue:'B1',pri:1,lines:[[0,'すみ わけてって たのまれたけど、あつくて はこべないよなあ'],[1,'てつの なべ とか あれば いれて はこべるのに']]},
-    {who:['jin','fufu0'],when:()=>G.min>=1100&&F.oven==='jin',clue:'B1',far:1,lines:[[1,'その くろい なべ、りっぱじゃのう'],[0,'…ダッチオーブン。てつ だから ひの ついた すみも へいき']]},
-    {who:['ryo','stu3'],when:()=>F.oven==='coal',clue:'B2',lines:[[0,'すみ はいった！ これ ひろばまで もっていこう'],[1,'リョウ、はこんで！']]},
-    {who:['kanri','tsuri'],when:()=>F.wet===1,clue:'C0,C1',pri:2,far:1,lines:[[0,'さ、さむい… マッチも びしょぬれだ…'],[1,'ふく ものが あれば いいんじゃがのう']]},
-    {who:['mama','futan'],when:()=>F.wet===1&&!F.towel,clue:'C0',lines:[[1,'かんりにんさん、みずうみに おちたって！'],[0,'まあ たいへん。せんたくひもに ほした タオル、もう かわいてる まりっ']]},
-    {who:['kanri','tenin'],when:()=>F.wet===2&&!F.lighter,clue:'C2',far:1,lines:[[0,'あったまった… でも マッチが しけってて ひが つけられない'],[1,'かんりとうの ひきだしに よびの ライター ありましたよね？']]},
-    {who:['kanri','leader'],when:()=>F.lighter&&!F.fire,clue:'C3',far:1,lines:[[1,'かんりにんさん、ひろばの ひは だいじょうぶ ですか？'],[0,'よびの ライターが ある！ まかせて ください']]},
+    {who:['mama','papa'],when:()=>F.ghost==='walk',clue:'A0',pri:2,lines:[[0,'そういえば さっき とんで いった うちの タオル、どこに いったのかしら まりっ'],[1,'ミラなら うちの においは どこまでも おいかけて みつけるぞ'],[0,'でも ミラ、リードで つないだ まま まりっ']]},
+    {who:['futan','papa'],when:()=>F.ghost==='walk'&&!F.miraFree,clue:'A0',lines:[[0,'おばけ こわい〜'],[1,'ミラが いれば こわくないぞ。ミラは ゆうかん だからな']]},
+    {who:['tenin','kanri'],when:()=>F.ghost==='walk'&&!F.brave,clue:'B0',pri:1,far:1,lines:[[0,'かんりにんさん、かんりとうの サーチライトなら もりの おくまで てらせますよ！'],[1,'む、むりむり！ おばけは にがて なんだ… だれか いっしょに いて くれたら…']]},
+    {who:['leader','sc1'],when:()=>F.ghost==='walk',clue:'B0',far:1,lines:[[1,'リーダー、こわいよ〜'],[0,'おちつけ。…ケンを みろ、ひとりだけ ふるえて ない。スカウトいちの ゆうきが ある やつだ']]},
+    {who:['kanri','ken'],when:()=>F.brave&&!F.beam,clue:'B1',far:1,lines:[[1,'かんりにんさん、サーチライトで てらしましょう！'],[0,'よ、よし… ケンくんが いれば できる きが する']]},
+    {who:['tsuri','jin'],when:()=>F.ghost==='walk',clue:'C0',pri:1,far:1,lines:[[0,'この もりの たぬきは、あまい においが すると すぐ でて くるんじゃ'],[1,'…さっきの おばけ、うしろに ふさふさの しっぽが みえた きが する']]},
+    {who:['ryo','stu2'],when:()=>F.ghost==='walk'&&!F.sweet,clue:'C0',far:1,lines:[[0,'デザートの マシュマロ、まだ やいて ないな'],[1,'やくと あま〜い においが するよね〜']]},
+    {who:['ryo','miki'],when:()=>F.sweet&&F.ghost==='walk',clue:'C1',far:1,lines:[[0,'マシュマロ、いい におい〜！ もりまで におい そうだ'],[1,'おばけも つられて きたり して']]},
     {who:['fufu0','fufu1'],lines:[[0,'まいとし ここの ゆうやけは きれいじゃのう'],[1,'ほたるも でるかしらねえ']]},
     {who:['makiwari','tenin'],lines:[[0,'まき、もう 10たば できたぞ'],[1,'キャンプファイヤーの ぶんも おねがいします']]},
-    {who:['ryo','miki'],lines:[[0,'サキ、なんか いっきょく！'],[1,'じゃあ BBQの うた〜♪']]},
     {who:['tsuri','futan'],when:()=>G.min>=1105,far:1,lines:[[0,'ほたるは まっくらな よるが すきなんじゃ'],[1,'まっくら？ がいとう ついてるよ？']]}];
-  // ===== ルートA：たぬきと まつぼっくり =====
-  PR('mira','tanuki',()=>{if(F.bag!=='burrow'){if(F.bag==='scout'){say(tanuki,'キュ？');return false;}return false;}if(F.mtGo)return;F.mtGo=1;mira.st='free';sfx('bark');say(mira,'ワン！ (リードを ひっぱって とびだした！)');
-    goN(mira,[380,Y2+215],()=>{sfx('bark');say(mira,'ワンワン！');tanuki.dir=1;say(tanuki,'キュッ!? (ふくろを おとして にげた)');F.bag='ground';bag.x=430;bag.y=Y2+235;go(tanuki,[[700,Y2+230]]);step('A','ミラ → たぬき（ふくろを おとす）');
-      wait(2.5,()=>goN(mira,[330,Y1+215],()=>{mira.st='tied';}));});});
-  PR('ken','bag',()=>{if(F.bag==='scout'){say(ken,'まつぼっくりは ここに おいとくんだ');return;}if(F.bag!=='ground'){say(ken,'ふくろ、どこに いったんだろう…');return;}if(F.kbGo)return;F.kbGo=1;lock(ken);walk(ken,[470,T2+720],()=>{F.bag='ken';ken.carry='bag';ken.act=null;say(ken,'あった！ まつぼっくりの ふくろ！');step('A','スカウトの ケン → まつぼっくり（ひろう）');wait(1.5,()=>{ken.lock=true;});});});
-  PR('ken','leader',()=>{if(F.bag!=='ken'){say(ken,'リーダー、もやい むすび できました！');return;}if(F.klGo)return;F.klGo=1;meet(ken,leader,()=>{say(ken,'リーダー！ まつぼっくり、みつけました！');say(leader,'でかした ケン！');F.bag='leader';ken.carry=null;leader.carry='bag';step('A','ケン → リーダー（ふくろを わたす）');part(ken,null,1.5);leader.lock=true;});});
-  PR('leader','fire',()=>{if(F.bag!=='leader'){say(leader,F.bag==='scout'?'セレモニーの ひは ひうちいしで つけるぞ':'まつぼっくりが ないと ひうちいしの ひが つかない…');return;}if(G.min<1110){say(leader,'てんかは 18:30 から。セレモニーの じゅんびが まだだ');return;}if(F.lfGo)return;F.lfGo=1;lock(leader);
-    walk(leader,[2100,T1+700],()=>{leader.dir=1;leader.act='work';say(leader,'まつぼっくりを しいて… ひうちいしで… カチッ、カチッ！');sfx('click');wait(2,()=>{leader.carry=null;lightFire('A',leader,'リーダー → キャンプファイヤー（ひうちいし）');});});});
-  // ===== ルートB：BBQの すみと ダッチオーブン =====
-  PR('papa','ryo',()=>{if(F.coalDead){say(ryo,'すみ、きえちゃったんすよ…');return;}if(G.min<1080){say(ryo,'まだ すみに ひが ついてないっす！');return;}if(F.ask){say(ryo,'すみ、いつでも どうぞ〜');return;}if(F.prGo)return;F.prGo=1;
-    meet(papa,ryo,()=>{say(papa,'こんばんは！ キャンプファイヤーの ひが ないらしくて… その すみ、わけて もらえませんか？');wait(2,()=>{say(ryo,'いいっすよ！ でも あつくて はこぶ ものが ないんすよね…');F.ask=1;step('B','パパ → だいがくせい（すみを たのむ）');part(papa,ryo,1.5);});});});
-  PR('jin','ryo',()=>{if(!F.ask||F.coalDead){say(jin,'…BBQ、にぎやかだな (ひとみしり)');return;}if(G.min<1100){say(jin,'いま ダッチオーブンで カレー にこんでる ところ…');return;}if(F.oven!=='jin')return;if(F.jrGo)return;F.jrGo=1;lock(jin);
-    walk(jin,[1400,T2+690],()=>{F.oven='carry';jin.carry='oven';say(jin,'…すみを はこぶなら、これを つかって');walk(jin,[3060,T2+690],()=>{F.oven='coal';jin.carry=null;oven.x=3040;oven.y=Y2+214;jin.dir=-1;say(jin,'てつの ダッチオーブンなら、あつい すみも はこべるよ');say(ryo,'すげ〜！ じゃあ すみ いれます！');step('B','ジンさん → だいがくせい（ダッチオーブンに すみ）');wait(2,()=>walk(jin,[1250,T2+660],()=>unlock(jin)));});});});
-  PR('ryo','fire',()=>{if(F.oven!=='coal'){say(ryo,'キャンプファイヤー？ いいっすね〜');return;}if(F.rfGo)return;F.rfGo=1;lock(ryo);walk(ryo,[3020,T2+680],()=>{F.oven='ryo';ryo.carry='oven';say(ryo,'よっしゃ、はこぶぞ〜！ あちち…');
-    walk(ryo,[2500,T1+700],()=>{ryo.dir=-1;say(ryo,'すみを まきの したに… ザザーッ！');F.oven='fire';ryo.carry=null;wait(1.5,()=>lightFire('B',ryo,'だいがくせい → キャンプファイヤー（すみで てんか）'));});});});
-  // ===== ルートC：びしょぬれ かんりにんさん =====
-  PR('mama','towel',()=>{if(F.towel)return;if(F.mtwGo)return;F.mtwGo=1;lock(mama);walk(mama,[1130,T1+660],()=>{F.towel='mama';mama.carry='towel';say(mama,F.wet?'タオル、もう かわいてる まりっ':'せんたくもの、とりこむ まりっ');step('C','かあちゃん → タオル（とりこむ）');wait(1.5,()=>{mama.lock=true;mama.act=null;});});});
-  PR('mama','kanri',()=>{if(F.wet!==1){say(mama,F.wet?'かぜ ひかないで まりっ':'キャンプファイヤー、たのしみに してます まりっ');return;}if(F.towel!=='mama'){say(mama,'まあ、びしょぬれ！ なにか ふく ものが あれば… まりっ');return;}if(F.mkGo)return;F.mkGo=1;
-    meet(mama,kanri,()=>{say(mama,'これで ふいて まりっ！ かぜ ひいちゃう まりっ');mama.carry=null;F.towel='kanri';wait(2,()=>{kanri.cold=false;kanri.wetFx=0;F.wet=2;say(kanri,'ありがとう ございます… あったまった！ そうだ、かんりとうに よびの ライターが あった はず！ いそがなきゃ！');kanri.talk=['よびの ライター…','あったまった〜'];step('C','かあちゃん → かんりにん（あたためる）');unlock(mama);kanri.lock=true;});});});
-  PR('kanri','office',()=>{if(F.wet===1){say(kanri,'さ、さむくて うごけない…');return;}if(F.wet!==2){say(kanri,F.wet?'…':'かんりとうで おしごと ちゅう');return;}if(F.koGo)return;F.koGo=1;lock(kanri);walk(kanri,[2300,640],()=>{kanri.hidden=true;wait(1.5,()=>{kanri.hidden=false;F.lighter=1;kanri.carry='lighter';say(kanri,'あった！ よびの ライター！');step('C','かんりにん → かんりとう（よびの ライター）');kanri.lock=true;});},180);});
-  PR('kanri','fire',()=>{if(!F.lighter){say(kanri,F.wet===1?'マッチが しけって つかない…':(F.wet?'ひを つける ものが ない…':'てんかは わたしの しごと。19:15に マッチで つけますよ'));return;}if(F.kfGo)return;F.kfGo=1;lock(kanri);walk(kanri,[2120,T1+700],()=>{kanri.dir=1;kanri.act='work';say(kanri,'それでは… てんか！ カチッ');wait(1.5,()=>{kanri.carry=null;lightFire('C',kanri,'かんりにん → キャンプファイヤー（ライターで てんか）');});},180);});
+  // ===== A：ミラの はな =====
+  PR('futan','mira',()=>{if(F.ghost!=='walk'){say(futan,'ミラ〜 いいこ いいこ');sfx('bark');return;}if(F.miraFree){say(mira,'ワン！');return;}F.miraFree=1;lock(futan);walk(futan,[380,T1+700],()=>{say(futan,'ミラ、いっしょに おばけ たいじ しよ！');mira.st='free';sfx('bark');say(mira,'ワン！ ワン！');mira.st='free';step('A','ふーたん → ミラ（リードを はずす）');unlock(futan);});});
+  PR('mira','obake',()=>{if(F.ghost!=='walk')return false;if(!F.miraFree){sfx('bark');say(mira,'ワン！ ワン！ (リードで つながれて いけない)');return;}if(F.maGo)return;F.maGo=1;sfx('bark');say(mira,'ワンワン！ (この におい… うちの タオル！)');
+    goN(mira,[obake.x-60,obake.y+40],()=>{say(mira,'ガウッ！ (タオルを ひっぱる)');reveal('A','ミラ → おばけ（タオルを ひっぱる）');},360);});
+  // ===== B：サーチライト =====
+  PR('ken','kanri',()=>{if(F.ghost!=='walk'){say(ken,'かんりにんさん、こんばんは！');return;}if(F.brave)return;F.brave=1;lock(ken);walk(ken,[2150,T0+660],()=>{say(ken,'かんりにんさん、ぼくが いっしょに いきます！ スカウトは ゆうき！');wait(1.4,()=>{say(kanri,'ケ、ケンくん… よし！ いっしょに サーチライトだ！');kanri.act=null;step('B','ケン → かんりにん（ゆうきを だす）');});});});
+  PR('kanri','searchl',()=>{if(F.ghost!=='walk'){say(kanri,'サーチライトは いざと いう ときの ため');return;}if(!F.brave){say(kanri,'お、おばけ こわい… ひとりじゃ むり…');return;}if(F.beam)return;F.beam=1;lock(kanri);walk(kanri,[2420,T0+640],()=>{sfx('click');say(kanri,'てらせ〜〜！');pop(2420,120,'ピカーッ',COL.yel,24);
+    go(obake,[[900,Y2-30]],()=>{say(obake,'キュッ!? (まぶしい〜)');reveal('B','かんりにん → サーチライト（もりを てらす）');},300);});});
+  // ===== C：あまい マシュマロ =====
+  PR('mallow','ryo',()=>{if(F.sweet){say(ryo,'マシュマロ、うまいっす');return;}F.sweet=1;lock(ryo);walk(ryo,[2950,T2+660],()=>{ryo.act='cook';say(ryo,'デザートの マシュマロ やくぞ〜！ …あま〜い におい！');pop(2950,Y2-80,'あま〜い','#ff9ac0',18);step('C','マシュマロ → リョウ（やく）');unlock(ryo);});});
+  PR('obake','grill',()=>{if(F.ghost!=='walk')return false;if(!F.sweet){say(obake,'ひゅ〜…');return false;}if(F.lure)return;F.lure=1;say(obake,'… (くんくん… あまい におい？)');
+    go(obake,[[2000,Y2+40],[2850,Y2+110]],()=>{say(ryo,'う、うわっ おばけ!? …って、マシュマロ たべてる？');reveal('C','おばけ → グリル（あまい においに つられる）');},220);});
+  PR('obake','ryo',()=>{const f=G.pairs['obake|grill'];return f?f():false;});
   // ===== うらゴール：ほたるの みずうみ =====
   st.uraTitle='まっくらの みずうみで ほたる まつり';st.uraHint='つりの おじいさんは ほたるの ことを よく しっている。キャンプじょうの あかりは かんりとうの スイッチで けせる らしい';
   PR('tsuri','futan',()=>{if(G.min<1110){say(tsuri,'くらく なったら また おいで');return false;}if(F.u1)return;F.u1=1;lock(futan);walk(futan,[1600,T0+720],()=>{futan.dir=-1;say(tsuri,'じょうちゃん、ほたるは まっくらに なると いっぱい でてくるんじゃ。あかりが まぶしいと でてこん');say(futan,'まっくら？');step('X','つりの おじいさん → ふーたん（ほたるの はなし）');wait(2,()=>unlock(futan));});});
@@ -1745,20 +1742,14 @@ function stage3(){
   PR('ryo','miki',()=>{dex('ev_rm','リョウ と サキ');say(ryo,'サキ、なんか いっきょく！');say(miki,'じゃあ BBQの うた〜♪');});
   PR('jin','tanuki',()=>{dex('ev_jt','ジンさん と たぬき');say(jin,'…おまえも ひとり？');say(tanuki,'キュ');});
   miniColon(0,620,T2+200,T2+300);miniColon(1,700,T0+620);miniColon(2,2740,Y0-60);
-  st.timeUp=()=>{say(leader,'…ひが つかなかった。セレモニーは ちゅうしだ');say(ken,'えー…');};
+  st.timeUp=()=>{say(leader,'…おばけが でる よるは ちゅうしだ');say(ken,'えー…');};
   st.decoys=[{k:'camper',name:'キャンピングカー',x:1510,y:Y1+70,w:380,h:240},{k:'shed',name:'まきごや',x:2740,y:Y0,w:240,h:200},{k:'boat',name:'ボート',x:700,y:T0+640,w:180,h:40},{k:'hammock',name:'ハンモック',x:1380,y:Y2-40,w:160,h:60}];
-  HINTS[2]={A:[H_('もちさる','ken','bag','17:45、たぬきが スカウトの まつぼっくりの ふくろを もりの しげみへ もっていく','17:45を まとう'),
-      H_('おとす','mira','tanuki','たぬきは もりの しげみに ふくろを かくした。ミラの はなと こえで おどかせば…','17:50いこう「ミラ」→「たぬき」'),
-      H_('ひろう','ken','bag','しげみの まえに ふくろが おちた！','「スカウトの ケン」→「まつぼっくりの ふくろ」'),
-      H_('わたす','ken','leader','ふくろを リーダーへ','「スカウトの ケン」→「スカウト リーダー」'),
-      H_('ひうちいし','leader','fire','リーダーは 18:30から てんかの じゅんび','18:30いこう「スカウト リーダー」→「キャンプファイヤー」')],
-    B:[H_('たのむ','papa','ryo','だいがくせいの BBQは 18:00から すみが まっか。でも 19:10には きえる','18:00いこう「パパ」→「だいがくせいの リョウ」'),
-      H_('ダッチオーブン','jin','ryo','あつい すみを はこぶには… ジンさんの てつの おなべ（18:20に カレーを たべおわる）','18:20いこう「ソロキャンの ジンさん」→「だいがくせいの リョウ」'),
-      H_('すみで','ryo','fire','すみの はいった ダッチオーブンを ひろばへ','「だいがくせいの リョウ」→「キャンプファイヤー」')],
-    C:[H_('とりこむ','mama','towel','18:00に かんりにんさんが みずうみに おちる。ふくものが いる','「かあちゃん」→「タオル」'),
-      H_('あたためる','mama','kanri','びしょぬれの かんりにんさんに タオルを','18:00いこう「かあちゃん」→「かんりにんさん」'),
-      H_('よびの','kanri','office','あったまった かんりにんさんは なにかを おもいだした','「かんりにんさん」→「かんりとう」'),
-      H_('ライターで','kanri','fire','よびの ライターで てんか！','「かんりにんさん」→「キャンプファイヤー」')],
+  HINTS[2]={A:[H_('リードを はずす','futan','mira','とんで いった しろい タオル… ミラは うちの においを どこまでも おいかける','「ふーたん」→「ミラ」'),
+      H_('タオルを ひっぱる','mira','obake','おばけから うちの タオルの におい？','「ミラ」→「もりの おばけ」')],
+    B:[H_('ゆうきを だす','ken','kanri','かんりにんさんは おばけが にがて。ゆうきの ある スカウトが いっしょなら…','「スカウトの ケン」→「かんりにんさん」'),
+      H_('もりを てらす','kanri','searchl','かんりとうの サーチライトで もりの おくまで','「かんりにんさん」→「サーチライト」')],
+    C:[H_('やく','mallow','ryo','もりの たぬきは あまい においに めが ない','「マシュマロ」→「だいがくせいの リョウ」'),
+      H_('あまい においに つられる','obake','grill','おばけを あまい においの ほうへ','「もりの おばけ」→「BBQ の グリル」')],
     X:[H_('ほたるの はなし','tsuri','futan','つりの おじいさんは ほたるに くわしい','18:30いこう「つりの おじいさん」→「ふーたん」'),
       H_('あかりを けす','tenin','switch','まっくらに すれば…','18:45いこう「ばいてんの おねえさん」→「がいとうの スイッチ」'),
       H_('ふーたん → ほたる','futan','hotaru','みずうみへ','「ふーたん」→「ほたる」')]};
@@ -2920,7 +2911,7 @@ const STAGES=[stage1,stage2,stage3,stage4,stage5,stage6,stage7,stage8,stage9];
 const META_ALL=[
  {name:'パパの サプライズ たんじょうび',routes:{A:'でんわで おつかい',B:'ミラの おさんぽ',C:'となりの さとうさん'},col:'#c83a4a',ura:'リッキーの はじめての ことば'},
  {name:'しょうてんがいの ドロボウ だいそうさく',routes:{A:'うちみずで つるつる',B:'ちんどんやの パレード',C:'カラスと キラキラ'},col:COL.org,ura:'ふくびきで ハワイ りょこう！'},
- {name:'もりの キャンプじょう',routes:{A:'たぬきと まつぼっくり',B:'BBQの すみと ダッチオーブン',C:'びしょぬれ かんりにんさん'},col:'#2a7a40',ura:'まっくらの みずうみで ほたる まつり'},
+ {name:'キャンプの おばけ さわぎ',routes:{A:'ミラの はな',B:'ゆうきと サーチライト',C:'あまい マシュマロ'},col:'#2a7a40',ura:'まっくらの みずうみで ほたる まつり'},
  {name:'なかよし どうぶつえん',routes:{A:'ねぼすけ ははざる しのぶ',B:'しいくいんさんと はしご',C:'バナナと ボスざる'},col:'#8a5a3a',ura:'どうぶつえん だい ダンスたいかい'},
  {name:'ひまわりえきの おみおくり',routes:{A:'でんしゃ はかせの たっくん',B:'さむがりの かんとくさん',C:'ばあばの めがね'},col:COL.blue,ura:'ホームの おみおくり コンサート'},
  {name:'ひまわりようちえんの うんどうかい',routes:{A:'パパの こしと ゴウせんせい',B:'かあちゃんの スニーカー',C:'いだてんの じいじ'},col:'#ff9a1f',ura:'ようちえんじゅうで ひまわり おんど'},
