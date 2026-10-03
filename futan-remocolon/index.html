@@ -3446,7 +3446,7 @@ function stage20(){
   const mira=E({id:'pochi',name:'ミラ',x:300,y:600,w:34,h:24,spd:70,draw(e){dog(e,{jy:e.react>0?-Math.abs(Math.sin(e.react*9))*6:0});}});
   const tofu=P_('tofuya',Object.assign({},LK.jiji,{body:'#fff',hat:'hachi',hatCol:'#3a8af0',acc:'apron'}),1900,760,'とうふやさん',{spd:40,zs:761});
   tofu.draw=e=>{drawPerson(e,personPose(e));rbox(e.x+16,e.y-30,40,22,4,'#3a8af0');ell(e.x+22,e.y-4,6,6,INK);ell(e.x+50,e.y-4,6,6,INK);};
-  const horn=E({id:'horn',name:'とうふやの ラッパ',x:1900,y:730,w:12,h:8,tiny:true,zs:3000,draw(e){e.x=tofu.x+(tofu.dir||1)*-14;e.y=tofu.y-30;poly([[e.x-6,e.y-3],[e.x+6,e.y-6],[e.x+6,e.y],[e.x-6,e.y-1]],'#ffd23f');}});
+  const horn=E({id:'horn',name:'とうふやの ラッパ',x:1900,y:730,w:12,h:8,tiny:true,zs:3000,tick(e){e.x=tofu.x+(tofu.dir||1)*-14;e.y=tofu.y-30;e.hidden=tofu.hidden;},draw(e){poly([[e.x-6,e.y-3],[e.x+6,e.y-6],[e.x+6,e.y],[e.x-6,e.y-1]],'#ffd23f');}});
   const shop=P_('shopk',Object.assign({},LK.butcher,{body:'#fff',hat:'hachi',hatCol:'#3a8af0'}),1660,560,'とうふやの おみせの ひと',{zs:561});
   const ice=P_('icem',Object.assign({},LK.teacher,{body:COL.pink,acc:'apron'}),1180,880,'アイスやさん',{zs:881});
   const cat20=E({id:'cat20',name:'のらねこ',x:640,y:700,w:20,h:16,spd:50,col:'#c8803a',draw(e){cat(e,{});}});
