@@ -532,7 +532,7 @@ function updCnt(){$('cnt').textContent=`♥ ${Object.keys(G.dexSet||{}).length}`
 function setHud(on){for(const id of['topbar','botbar','bMenu','bFit','bDex','bClk','led','selbar'])$(id).style.visibility=on?'visible':'hidden';}
 
 function startStage(i){
-  stIdx=i;G.caps=[];clearTimeout(nextCap.t);capOn=false;$('cap').classList.remove('on');G.ents=[];G.fx=[];G.f={};G.steps=[];G.tl=[];G.over=false;G.won=null;G.pokes=0;G.dexSet={};G.speed=1;G.hintUsed=false;G.easyUsed=!!SAVE.easy;G.pairs={};G.sel=null;G.hintMark=null;G.lastProg=0;G.lastN=0;G.nudged=false;G.focus=null;G.capFocus=null;G.alert=null;CAUSE=null;$('bHint').classList.remove('nudge');$('bClk').classList.remove('ff');BGM.rate=1;
+  stIdx=i;G.caps=[];clearTimeout(nextCap.t);capOn=false;$('cap').classList.remove('on');G.ents=[];G.fx=[];G.f={};G.steps=[];G.tl=[];G.over=false;G.won=null;G.pokes=0;G.dexSet={};G.speed=1;G.hintUsed=false;G.easyUsed=!!SAVE.easy;G.pairs={};G.sel=null;G.hintMark=null;G.lastProg=0;G.lastN=0;G.nudged=false;G.focus=null;G.capFocus=null;G.alert=null;CAUSE=null;G.pq=[];G.pbusy=false;$('bHint').classList.remove('nudge');$('bClk').classList.remove('ff');BGM.rate=1;
   ST=STAGES[i]();if(EXTRAS[i])EXTRAS[i](ST,G.f);makeDecoys();if(INTER[i])INTER[i](ST,G.f);updSel();G.min=ST.t0;mode='play';setHud(true);resize();
   cam.z=clamp(ST.start.z||1,zMin(),ZMAX);cam.x=ST.start.x;cam.y=ST.start.y;clampCam();
   $('stName').textContent=`${i+1}. ${ST.name}`;updCnt();
@@ -633,9 +633,13 @@ function tap(sx,sy){
 // えらんだ ひと（どうぶつ）が あいてに きづいて ちかよってから うごく
 const WALKERS=['pochi','sniff','bcat','cat','cat20','gcat','scat','wcat'];
 function canWalk(e){return e&&!e.hidden&&!e.decoy&&!e.sit&&!e.fly&&!e.noWalk&&e.st!=='tied'&&e.spd>0&&(e.k==='person'||WALKERS.includes(e.id));}
-function approach(a,b,run){
+// くみあわせは タップした じゅんばんに ひとつずつ かたづける
+function approach(a,b,run){G.pq.push([a,b,run]);if(!G.pbusy)pumpPair();}
+function pumpPair(){const q=G.pq.shift();if(!q){G.pbusy=false;return;}G.pbusy=true;doApproach(q[0],q[1],()=>{try{q[2]();}finally{pumpPair();}});}
+function doApproach(a,b,run){
+  for(const q of[a,b])if(q.appr&&q.appr.ret)q.appr=null;
   let w=canWalk(a)?a:canWalk(b)?b:null;const o=w===a?b:a;
-  if(window.__RC&&__RC.fast||!w||w.appr){if(w)w.dir=o.x>w.x?1:-1;run();return;}
+  if(window.__RC&&__RC.fast||!w||w.appr||G.over){if(w)w.dir=o.x>w.x?1:-1;run();return;}
   G.fx.push({k:'bang',e:w,life:.8});G.focus={e:w,until:T+2.5};
   const dx=o.x-w.x,dy=o.y-w.y,d=Math.hypot(dx,dy);const lim=w.rect?80:40;let k=d>1?Math.min(lim,Math.max(0,d-46))/d:0;
   let tx=w.x+dx*k,ty=w.y+dy*k;if(w.rect){tx=clamp(tx,w.rect[0],w.rect[2]);ty=clamp(ty,w.rect[1],w.rect[3]);}
