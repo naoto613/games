@@ -3896,7 +3896,12 @@ const INTER=[
   at(8,40,()=>{bus.hidden=false;F.busBlock=true;cap('ようちえんバスが もんの まえに とまった。うんてんしゅさんは ひるね…',bus.x,bus.y-40);});
   bus.poke=e=>{narr(e,'(バスが もんの まえを ふさいでいる。うんてんしゅさんは ぐっすり)');};
   gate([['intercom','mama'],['intercom','pochi'],['intercom','oldman']],()=>!F.busBlock,(a,b)=>{const w=a.id==='intercom'?b:a;say(w,w.id==='pochi'?'ワン… (バスが じゃまで とどかない)':'バスが じゃまで インターホンに とどかない…');});
-  PR('pigeons','kgbus',()=>{if(!F.busBlock)return false;F.busBlock=false;step('A','ハト → ようちえんバス');step('C','ハト → ようちえんバス');sfx('fly');pig.fl=5;cap('ハトが バスの まどに バサバサ！ うんてんしゅさんが おきた！',bus.x,bus.y-40);bus.go=true;sfx('honk');go(bus,[[bus.x+700,bus.y]],e=>e.hidden=true,90);});
+  // ようちえんの せんせいが もんの まえの バスに きづいて、うんてんしゅさんを おこしに いく
+  PR('teacher','kgbus',()=>{if(!F.busBlock||F.busKnock)return false;F.busKnock=true;const te=ent('teacher');say(te,'あら？ もんの まえに バスが とまってる…');
+    go(te,[[bus.x-72,bus.y-6]],()=>{te.dir=1;sfx('ding');pop(bus.x-50,bus.y-50,'コンコン',COL.yel,9);say(te,'うんてんしゅさ〜ん！ もんの まえは あけて くださ〜い',3);
+      wait(1.6,()=>{F.busBlock=false;step('A','せんせい → ようちえんバス');step('C','せんせい → ようちえんバス');bus.go=true;sfx('honk');pop(bus.x+30,bus.y-70,'はっ！ すみません〜',COL.yel,9);
+        cap('うんてんしゅさんが おきて、バスを ちゅうしゃじょうへ うごかした！',bus.x,bus.y-40);go(bus,[[bus.x+700,bus.y]],e=>e.hidden=true,90);
+        wait(1.2,()=>go(te,F.outdoor?[[1560,420]]:[[1355,225]]));});});});
   gate([['crow','bento']],()=>F.bags===false||F.crowFree,()=>{say(crow,'カァ… (いまは ゴミすてばの ほうが きになる)');});
   PR('neighbor','gcrows',()=>{if(F.crowFree)return false;F.crowFree=true;step('C','おとなりさん → ゴミすてばの カラス');F.hose=T+3;sfx('splash');say(ent('neighbor'),'こら〜 カラス！ ホースで シャーッ！');cap('ゴミすてばの カラスが にげた！ でんちゅうの カラスも ひまそう…',600,520);});
   upd(st,()=>{if(F.bags===false&&!F.bagStep){F.bagStep=1;step('C','ゴミしゅうしゅう（カラスが ひまに なる）');}});},
@@ -4041,9 +4046,9 @@ const INTER=[
   PR('mama','pen',()=>{if(F.wrote)return false;pen.got=true;F.wrote=true;step('B','かあちゃん → ペン');say(ma,'(さらさら…「おとうふ 1ちょう」 よし まりっ)');});},
 ];
 // ヒントにも はんえい
-addH(0,'A',2,'バス','pigeons','kgbus','もんの まえに バスが とまって インターホンが ふさがれている','「ハト」→「ようちえんバス」');
+addH(0,'A',2,'バス','teacher','kgbus','もんの まえに バスが とまって インターホンが ふさがれている。ようちえんの ひとが きづけば…','「せんせい」→「ようちえんバス」');
 addH(0,'C',1,'ゴミ','neighbor','gcrows','でんちゅうの カラスは ゴミすてばに むちゅう… ゴミが なくなれば','9:30の ゴミしゅうしゅうを まつか、「おとなりさん」→「ゴミすてばの カラス」');
-addH(0,'C',4,'バス','pigeons','kgbus','もんの まえに バスが とまって インターホンが ふさがれている','「ハト」→「ようちえんバス」');
+addH(0,'C',4,'バス','teacher','kgbus','もんの まえに バスが とまって インターホンが ふさがれている。ようちえんの ひとが きづけば…','「せんせい」→「ようちえんバス」');
 addH(1,'A',1,'ハト → ポスター','pigeons','poster','ポスターが かべに はりついていて とばない','「ハト」→「ポスター」');
 addH(1,'B',0,'はこの かぎ','ramen','breaker','ブレーカーの はこに かぎが かかっている','「ラーメンやの たいしょう」→「ブレーカー」');
 addH(2,'A',0,'ほろよい','drunk','officer','おまわりさんは たこやきに むちゅう','「ほろよいの おじさん」→「おまわりさん」');
