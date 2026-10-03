@@ -116,6 +116,36 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 #endBtn{position:absolute;bottom:calc(var(--sb) + 20px);left:50%;transform:translateX(-50%);width:auto;padding:10px 26px;display:none}
 .dexl{columns:2;font-size:13px;font-weight:800;margin:8px 0}
 .dexl div{break-inside:avoid;padding:3px 0}
+/* よこむき：そうさボタンは りょうがわに よせて、ゲームの がめんを たかさ いっぱいに */
+@media (orientation:landscape) and (min-aspect-ratio:13/10){
+  :root{--sl:env(safe-area-inset-left);--sr:env(safe-area-inset-right)}
+  #screen{left:calc(var(--sl) + 72px);right:calc(var(--sr) + 72px);top:calc(var(--st) + 6px);bottom:calc(var(--sb) + 6px);border-radius:20px}
+  .cb{width:52px;height:52px}
+  #bMenu{left:calc(var(--sl) + 8px);top:calc(var(--st) + 12px)}
+  #bDex{left:calc(var(--sl) + 8px);bottom:calc(var(--sb) + 12px)}
+  #bFit{right:calc(var(--sr) + 8px);top:calc(var(--st) + 12px)}
+  #bClk{right:calc(var(--sr) + 8px);bottom:calc(var(--sb) + 12px)}
+  #led{display:none}
+  #topbar{left:calc(var(--sl) + 2px);right:auto;width:68px;top:50%;transform:translateY(-50%);height:auto;flex-direction:column;gap:8px}
+  #stName{display:none}
+  #cnt{font-size:12px}
+  #bHint{font-size:11px;padding:9px 2px;width:64px;border-radius:14px;line-height:1.2;white-space:nowrap}
+  #botbar{left:auto;right:calc(var(--sr) + 2px);width:68px;top:calc(var(--st) + 76px);bottom:calc(var(--sb) + 76px);height:auto;flex-direction:column;justify-content:center;gap:10px}
+  #pkc b{width:19px;height:26px;font-size:15px;line-height:24px}#pkc i{display:none}
+  #tgw{flex:none;width:62px;height:40px;max-width:none}#tgw span{display:none}#tgw small{left:0;right:0;justify-content:center;font-size:13px;font-family:var(--dela)}
+  #cap{top:44px;font-size:12.5px}
+  .panel{max-height:calc(100% - 8px)}
+  #select{flex-direction:row;flex-wrap:wrap;justify-content:center;align-content:flex-start;padding:calc(var(--st) + 10px) calc(var(--sr) + 12px) 16px calc(var(--sl) + 12px)}
+  #select h2{width:100%;margin:2px 0 6px;font-size:30px}
+  #select>button,#select>div{margin-left:6px!important;margin-right:6px!important}
+  .stc{width:min(calc(50% - 12px),460px);margin:5px 6px;padding:9px 12px}.stc .no{width:46px;height:46px;line-height:50px;font-size:26px}
+  #select>div:not(.stc){width:100%;text-align:center}
+}
+/* たてむきの とき：よこむきを すすめる */
+#rot{position:absolute;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(20,18,26,.92);color:#fff;font-weight:800;text-align:center;padding:24px}
+#rot .ph{font-size:64px;animation:rotp 1.6s ease-in-out infinite}@keyframes rotp{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
+#rot p{margin:0;font-size:18px;line-height:1.6}#rot button{border:none;border-radius:99px;background:#e9e4da;color:#262626;font-weight:800;font-size:14px;padding:8px 20px}
+@media (orientation:portrait) and (max-width:900px){#app:not(.rotok) #rot{display:flex}}
 </style>
 </head>
 <body>
@@ -129,6 +159,7 @@ button{font-family:inherit;color:inherit;cursor:pointer}
   <button class="cb" id="bDex" aria-label="みつけた チョッカイ"><svg viewBox="0 0 24 24"><path d="M12 20.5s-8-5-8-10.6A4.4 4.4 0 0 1 12 7.2a4.4 4.4 0 0 1 8 2.7c0 5.6-8 10.6-8 10.6z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg></button>
   <button class="cb" id="bClk" aria-label="はやおくり"><svg viewBox="0 0 24 24"><rect x="2.5" y="2.5" width="19" height="19" rx="2" fill="none" stroke="#000" stroke-width="2.4"/><path d="M11 5.5v8h7" stroke="#000" stroke-width="3" fill="none"/></svg></button>
   <div id="ov"></div>
+  <div id="rot"><div class="ph">📱</div><p>よこむきに すると<br>おおきな がめんで あそべるよ！</p><button id="rotOk">このまま あそぶ</button></div>
   <div id="title" class="scr show">
     <canvas id="tcv"></canvas>
     <div class="logo"><span>リ</span><span>モ</span><span>コ</span><span>ロ</span><span>ン</span></div>
@@ -2991,7 +3022,10 @@ $('bMenu').onclick=()=>{audioInit();sfx('tap');if(mode!=='play')return;mode='pau
   $('mEasy').onclick=()=>{SAVE.easy=!SAVE.easy;save();G.eg=null;mode='play';$('bMenu').onclick();};
   $('mTag').onclick=()=>{SAVE.noTag=!SAVE.noTag;save();mode='play';$('bMenu').onclick();};
   $('mSel').onclick=()=>goSelect();$('mTitle').onclick=()=>goTitle();};
-$('bStart').onclick=()=>{audioInit();sfx('start');bgmPlay(0);goSelect();};
+$('bStart').onclick=()=>{audioInit();sfx('start');bgmPlay(0);goSelect();
+  // スマホでは ぜんがめんに して よこむきに こてい（できる きしゅだけ）
+  try{if(matchMedia('(pointer:coarse)').matches&&document.documentElement.requestFullscreen&&!document.fullscreenElement){document.documentElement.requestFullscreen({navigationUI:'hide'}).then(()=>{if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(()=>{});}).catch(()=>{});}}catch(e){}};
+$('rotOk').onclick=()=>{$('app').classList.add('rotok');};
 let endFW=[];
 function goEnding(){mode='ending';show('ending');bgmPlay(2);SAVE.fl.ending=1;save();setTimeout(checkAch,1500);
   const rt=STAGE_META.map((m,i)=>Object.keys(m.routes).filter(k=>(SAVE.routes[i]||{})[k]).length).reduce((a,b)=>a+b,0);
