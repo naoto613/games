@@ -532,7 +532,7 @@ function updCnt(){$('cnt').textContent=`♥ ${Object.keys(G.dexSet||{}).length}`
 function setHud(on){for(const id of['topbar','botbar','bMenu','bFit','bDex','bClk','led','selbar'])$(id).style.visibility=on?'visible':'hidden';}
 
 function startStage(i){
-  stIdx=i;G.caps=[];clearTimeout(nextCap.t);capOn=false;$('cap').classList.remove('on');G.ents=[];G.fx=[];G.f={};G.steps=[];G.tl=[];G.over=false;G.won=null;G.pokes=0;G.dexSet={};G.speed=1;G.hintUsed=false;G.easyUsed=!!SAVE.easy;G.pairs={};G.sel=null;G.hintMark=null;G.lastProg=0;G.lastN=0;G.nudged=false;G.focus=null;G.capFocus=null;G.alert=null;CAUSE=null;G.pq=[];G.pbusy=false;$('bHint').classList.remove('nudge');$('bClk').classList.remove('ff');BGM.rate=1;
+  stIdx=i;G.caps=[];clearTimeout(nextCap.t);capOn=false;$('cap').classList.remove('on');G.ents=[];G.fx=[];G.f={};G.steps=[];G.tl=[];G.over=false;G.won=null;G.pokes=0;G.dexSet={};G.speed=1;G.hintUsed=false;G.easyUsed=!!SAVE.easy;G.pairs={};G.sel=null;G.hintMark=null;G.lastProg=0;G.lastN=0;G.nudged=false;G.focus=null;G.capFocus=null;G.alert=null;CAUSE=null;G.pq=[];G.pbusy=false;G.pdelay=null;$('bHint').classList.remove('nudge');$('bClk').classList.remove('ff');BGM.rate=1;
   ST=STAGES[i]();if(EXTRAS[i])EXTRAS[i](ST,G.f);makeDecoys();if(INTER[i])INTER[i](ST,G.f);updSel();G.min=ST.t0;mode='play';setHud(true);resize();
   cam.z=clamp(ST.start.z||1,zMin(),ZMAX);cam.x=ST.start.x;cam.y=ST.start.y;clampCam();
   $('stName').textContent=`${i+1}. ${ST.name}`;updCnt();
@@ -631,7 +631,7 @@ function tap(sx,sy){
   updCnt();
 }
 // えらんだ ひと（どうぶつ）が あいてに きづいて ちかよってから うごく
-const WALKERS=['pochi','sniff','bcat','cat','cat20','gcat','scat','wcat'];
+const WALKERS=['pochi','sniff','bcat','cat','cat20','gcat','scat','wcat','deer','goat','gull','crow','hachi','hen','husky','penta','rud','shishi'];
 function canWalk(e){return e&&!e.hidden&&!e.decoy&&!e.sit&&!e.fly&&!e.noWalk&&e.st!=='tied'&&e.spd>0&&(e.k==='person'||WALKERS.includes(e.id));}
 // くみあわせは タップした じゅんばんに ひとつずつ かたづける
 function approach(a,b,run){G.pq.push([a,b,run]);if(!G.pbusy)pumpPair();}
@@ -639,13 +639,17 @@ function pumpPair(){const q=G.pq.shift();if(!q){G.pbusy=false;return;}G.pbusy=tr
 function doApproach(a,b,run){
   for(const q of[a,b])if(q.appr&&q.appr.ret)q.appr=null;
   let w=canWalk(a)?a:canWalk(b)?b:null;const o=w===a?b:a;
-  if(window.__RC&&__RC.fast||!w||w.appr||G.over){if(w)w.dir=o.x>w.x?1:-1;run();return;}
-  G.fx.push({k:'bang',e:w,life:.8});G.focus={e:w,until:T+2.5};
-  const dx=o.x-w.x,dy=o.y-w.y,d=Math.hypot(dx,dy);const lim=w.rect?80:40;let k=d>1?Math.min(lim,Math.max(0,d-46))/d:0;
-  let tx=w.x+dx*k,ty=w.y+dy*k;if(w.rect){tx=clamp(tx,w.rect[0],w.rect[2]);ty=clamp(ty,w.rect[1],w.rect[3]);}
-  const ox=w.x,oy=w.y,p0=w.path;
-  w.appr={x:tx,y:ty,face:dx>=0?1:-1,spd:Math.max(90,w.spd*1.6),hold:.35,max:1.6,t:0,cb:()=>{const pB=w.path,hid=w.hidden;run();
-    if(!w.hidden&&!hid&&w.path===pB&&pB===p0&&!w.appr&&Math.hypot(w.x-tx,w.y-ty)<2&&Math.hypot(ox-tx,oy-ty)>3)w.appr={x:ox,y:oy,spd:Math.max(70,w.spd*1.2),hold:0,max:2,t:0,ret:1};}};
+  if(window.__RC&&__RC.fast||G.over){run();return;}
+  // うごけない もの どうし：きづきの ひかりが とどいてから おきる
+  if(!w||w.appr){if(w)w.dir=o.x>w.x?1:-1;G.fx.push({k:'travel',a,b,life:.6});G.pdelay={t:.6,cb:run};return;}
+  G.fx.push({k:'bang',e:w,life:.8});G.focus={e:w,until:T+6};
+  // あいての すぐ そばまで あるいて いって から アクション
+  const dx=o.x-w.x,dy=o.y-w.y,d=Math.hypot(dx,dy);const stop=24+Math.min(o.w||20,90)/2+(w.w||20)/2;
+  let k=d>1?Math.max(0,d-stop)/d:0;if(d>900)k=Math.min(k,140/d);
+  const tx=w.x+dx*k,ty=w.y+dy*k;if(d>900)say(w,'おーい！',2);
+  const ox=w.x,oy=w.y,p0=w.path,sp=Math.max(130,w.spd*2);
+  w.appr={x:tx,y:ty,face:dx>=0?1:-1,spd:sp,hold:.4,max:Math.min(7,Math.hypot(tx-ox,ty-oy)/sp+.8),t:0,cb:()=>{const pB=w.path,hid=w.hidden;run();
+    if(!w.hidden&&!hid&&w.path===pB&&pB===p0&&!w.appr&&Math.hypot(w.x-tx,w.y-ty)<2&&Math.hypot(ox-tx,oy-ty)>3)w.appr={x:ox,y:oy,spd:Math.max(90,w.spd*1.4),hold:0,max:Math.hypot(tx-ox,ty-oy)/Math.max(90,w.spd*1.4)+1,t:0,ret:1,wait:1.4};}};
 }
 function findPair(a,b){for(const ka of pkeys(a))for(const kb of pkeys(b)){const key=ka+'|'+kb;if(G.pairs[key])return()=>{const f=G.pairs[key];return f?f(a,b)!==false:false;};}
   const sg=a.text?a:b.text?b:null,o=sg===a?b:a;if(sg&&o.k==='person'&&!o.decoy)return()=>{say(o,'えーと…「'+sg.text.replace(/\n/g,' ')+'」だって',5);return true;};return null;}
@@ -660,7 +664,8 @@ function update(dt){
   followCam(dt);watchPoof();
   const gdt=dt*G.speed;
   if(G.over){G.endT-=dt;for(const e of G.ents)tickEnt(e,dt);if(G.endT<=0){G.endT=1e9;showResult();}return;}
-  if(SAVE.easy)G.easyUsed=true;G.min+=gdt/ST.spm*(SAVE.easy?.6:1);
+  if(SAVE.easy)G.easyUsed=true;G.min+=gdt/ST.spm*(SAVE.easy?.6:1)*(G.pbusy?.2:1);
+  if(G.pdelay){G.pdelay.t-=dt;if(G.pdelay.t<=0){const c=G.pdelay.cb;G.pdelay=null;c();}}
   while(G.tl.length&&G.tl[0].m<=G.min){const ev=G.tl.shift();try{ev.fn();}catch(err){console.error(err);}}
   for(const e of G.ents)tickEnt(e,gdt);
   if(G.sel&&G.sel.hidden)selClear();
@@ -672,7 +677,8 @@ function tickEnt(e,dt){
   e.t+=dt;if(e.react>0)e.react=Math.max(0,e.react-dt);
   if(e.bub){e.bub.t-=dt;if(e.bub.t<=0)e.bub=null;}
   if(e.talk&&!e.bub&&!e.hidden){e.talkT-=dt;if(e.talkT<=0){const s=typeof e.talk==='function'?e.talk(e):e.talk[(e.ti=(e.ti||0)+1)%e.talk.length];if(s)say(e,s,3.8);else e.talkT=2;}}
-  if(e.appr){const p=e.appr;p.t+=dt;const dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy),st=p.spd*dt;
+  if(e.appr&&e.appr.wait>0){e.appr.wait-=dt;e.moving=false;}
+  else if(e.appr){const p=e.appr;p.t+=dt;const dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy),st=p.spd*dt;
     if(d>st&&p.t<p.max){if(Math.abs(dx)>.5)e.dir=dx>0?1:-1;e.x+=dx/d*st;e.y+=dy/d*st;e.moving=true;e.wph+=dt*p.spd*.16;}
     else{if(d<=st){e.x=p.x;e.y=p.y;}e.moving=false;if(p.face)e.dir=p.face;p.hold-=dt;if(p.hold<=0){e.appr=null;if(p.cb)p.cb(e);}}}
   else if(e.path&&e.path.length){const p=e.path[0],dx=p[0]-e.x,dy=p[1]-e.y,d=Math.hypot(dx,dy),st=e.spd*dt;
@@ -760,6 +766,8 @@ function drawSelFx(){drawAlerts();
   for(const f of G.fx){
     if(f.k==='link'){const a=w2s(f.a.x,f.a.y-topOf(f.a)*.6),b=w2s(f.b.x,f.b.y-topOf(f.b)*.6);C.save();C.globalAlpha=Math.min(1,f.life*1.5);C.setLineDash([7,5]);C.lineDashOffset=-T*60;C.lineWidth=3;C.strokeStyle='#ff5a4a';
       const mx=(a[0]+b[0])/2,my=Math.min(a[1],b[1])-40;C.beginPath();C.moveTo(a[0],a[1]);C.quadraticCurveTo(mx,my,b[0],b[1]);C.stroke();C.setLineDash([]);C.fillStyle='#ff5a4a';C.beginPath();C.arc(b[0],b[1],5,0,7);C.fill();C.restore();}
+    else if(f.k==='travel'){const a=w2s(f.a.x,f.a.y-topOf(f.a)*.6),b=w2s(f.b.x,f.b.y-topOf(f.b)*.6),k=1-f.life/.6,mx=(a[0]+b[0])/2,my=Math.min(a[1],b[1])-40;
+      const x=(1-k)*(1-k)*a[0]+2*(1-k)*k*mx+k*k*b[0],y=(1-k)*(1-k)*a[1]+2*(1-k)*k*my+k*k*b[1];C.save();C.fillStyle='#ffd23f';C.strokeStyle='#fff';C.lineWidth=3;C.beginPath();C.arc(x,y,9,0,7);C.fill();C.stroke();C.restore();}
     else if(f.k==='q'&&!f.e.hidden){const s=w2s(f.e.x,f.e.y-topOf(f.e));const y=s[1]-26-Math.sin(f.life*6)*3;C.save();C.globalAlpha=Math.min(1,f.life*2);C.fillStyle='#fff';C.strokeStyle='#3a3a44';C.lineWidth=2.5;C.beginPath();C.arc(s[0],y,12,0,7);C.fill();C.stroke();
       C.fillStyle='#3a3a44';C.font='900 16px "M PLUS Rounded 1c",sans-serif';C.textAlign='center';C.textBaseline='middle';C.fillText('？',s[0],y+1);C.restore();}
     else if(f.k==='bang'&&!f.e.hidden){const s=w2s(f.e.x,f.e.y-topOf(f.e));C.save();C.globalAlpha=Math.min(1,f.life*2);C.fillStyle='#ff3b30';C.font='900 20px "M PLUS Rounded 1c",sans-serif';C.textAlign='center';C.textBaseline='middle';C.strokeStyle='#fff';C.lineWidth=4;C.strokeText('！',s[0]+16,s[1]-14-(1-f.life)*10);C.fillText('！',s[0]+16,s[1]-14-(1-f.life)*10);C.restore();}}
