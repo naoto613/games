@@ -1112,8 +1112,7 @@ function cvOk(c){const es=c.who.map(cvEnt);if(es.some(e=>!e||e.hidden))return nu
 function playConvo(c,es,mirror){G.cv.cur={c,es,i:0,t:T,mirror};c.n=(c.n||0)+1;c.last=T;}
 function tickConvos(){if(!ST||!ST.convos||G.over)return;const cv=G.cv||(G.cv={cur:null,next:T+2});
   if(cv.cur){const k=cv.cur;if(T<k.t)return;const ln=k.c.lines[k.i];if(!ln){cv.cur=null;cv.next=T+rnd(2.5,5);return;}
-    const e=k.es[ln[0]],s=typeof ln[1]==='function'?ln[1]():ln[1];if(e&&!e.hidden&&s){say(e,s,Math.max(2.8,s.length*.13));e.talkT=Math.max(e.talkT,8);
-      if(k.mirror)cap(e.name.replace(/（.*$/,'')+'「'+s.replace(/[（(][^）)]*[）)]/g,'')+'」',e.x,e.y-(e.h||40));}
+    const e=k.es[ln[0]],s=typeof ln[1]==='function'?ln[1]():ln[1];if(e&&!e.hidden&&s){say(e,s,Math.max(2.8,s.length*.13));e.talkT=Math.max(e.talkT,8);}
     k.i++;k.t=T+Math.max(2.2,(s||'').length*.12+1.2);return;}
   if(T<cv.next)return;cv.next=T+1.5;
   let best=null,bd=1e9;for(const c of ST.convos){if(c.once&&c.n)continue;if(c.n&&T-c.last<(c.cool||40))continue;const es=cvOk(c);if(!es)continue;
