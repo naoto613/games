@@ -853,7 +853,7 @@ function drawSelFx(){drawAlerts();
 }
 function drawTags(){easyGuide();if(G.hintMark&&T<G.hintMark.until){[G.hintMark.e,G.hintMark.e2].forEach((e,n)=>{if(!e||e.hidden)return;const s=w2s(e.x,e.y-topOf(e));const b=Math.abs(Math.sin(T*5+n))*8;C.save();C.fillStyle=n?'#7fd0ff':'#ffd23f';C.strokeStyle='#3a2a00';C.lineWidth=2;C.beginPath();C.moveTo(s[0],s[1]-6-b);C.lineTo(s[0]-11,s[1]-24-b);C.lineTo(s[0]+11,s[1]-24-b);C.closePath();C.fill();C.stroke();C.fillStyle='#3a2a00';C.font='900 11px sans-serif';C.textAlign='center';C.textBaseline='middle';C.fillText(n?'2':'1',s[0],s[1]-18-b);C.restore();});}
   if(SAVE.noTag)return;C.font='900 11.5px "M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif';C.textBaseline='middle';C.textAlign='center';const placed=[];
-  const TG=tagsOf();for(const e of G.ents){const t=TG[e.id];if(!t||e.hidden||e.noTag)continue;const s=w2s(e.x,e.y);if(s[0]<-40||s[0]>CW+40||s[1]<-20||s[1]>CH+30)continue;
+  const TG=tagsOf();for(const e of G.ents){const t=TG[e.id];if(!t||e.hidden||e.noTag||e.k==='person'||e.walker||e.id==='ricky')continue;const s=w2s(e.x,e.y);if(s[0]<-40||s[0]>CW+40||s[1]<-20||s[1]>CH+30)continue;
     const w=C.measureText(t[0]).width+12,x=s[0];let y=s[1]+5+Math.max(0,4-cam.z*4);for(let k=0;k<4&&placed.some(r=>Math.abs(r[0]-x)<(r[1]+w)/2+2&&Math.abs(r[2]-y)<16);k++)y+=16;placed.push([x,w,y]);
     C.fillStyle='#fff';C.beginPath();C.moveTo(x,y-1);C.lineTo(x-5,y+5);C.lineTo(x+5,y+5);C.fill();
     C.beginPath();C.roundRect?C.roundRect(x-w/2-1.5,y+3.5,w+3,18,9):C.rect(x-w/2-1.5,y+3.5,w+3,18);C.fill();
