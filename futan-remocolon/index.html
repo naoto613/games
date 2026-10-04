@@ -1457,7 +1457,7 @@ function stage2(){
   const thLook=Object.assign(walkerLook(5),{acc:''}),coatLook=Object.assign({},LK.papa,{body:'#4a3a2a',h:64,hat:'hat',hatCol:'#2a2a2a',acc:'glasses mustache',leg:'#2a2a2a'});
   const thief=who('thief',coatLook,1560,700+D,'サングラスの おとこ',{spd:150});
   const shoppers=[0,1].map(i=>{const s=who('shop'+i,walkerLook(i+3),[1990,1180][i],[700,690+D][i],'かいものきゃく',{spd:30});s.gk='shopper';return s;});
-  const karasu=thing('karasu','カラス',1240,26,20,16,e=>{X.save();X.translate(e.x,e.y);X.scale(e.dir||1,1);const fl=!!e.fly||!!e.path;ell(0,-6,9,6,'#1d1d26');ell(7,-11,5,5,'#1d1d26');poly([[11,-11],[17,-10],[11,-8]],'#444');dot(8,-12,1,'#fff');const w=fl?Math.sin(T*24)*6:0;poly([[-3,-8],[-12,-14-w],[-2,-4]],'#2a2a36');if(e.carry){ell(10,-2,5,5,'#ffd23f');}X.restore();},{zs:3000,gs:3.2,st:'roof'});
+  const karasu=thing('karasu','カラス',1310,138,34,28,e=>{X.save();X.translate(e.x,e.y);X.scale((e.dir||1)*1.7,1.7);const fl=!!e.fly||!!e.path;ell(0,-6,9,6,'#1d1d26');ell(7,-11,5,5,'#1d1d26');poly([[11,-11],[17,-10],[11,-8]],'#444');dot(8,-12,1,'#fff');const w=fl?Math.sin(T*24)*6:0;poly([[-3,-8],[-12,-14-w],[-2,-4]],'#2a2a36');if(e.carry){ell(10,-2,5,5,'#ffd23f');}X.restore();},{zs:3000,gs:2.2,st:'roof'});
   const tora=thing('tora','ねこの トラ',640,FY+265,22,18,e=>{cat(e,{sleep:e.st==='nap',jy:e.react>0?-4:0});},{col:'#e8a050',gs:3.2,spd:320,st:'nap',walker:true,noWalk:true});
   const carryD=e=>{const H=e.look.h,x=e.x+(e.dir||1)*H*(e.look.kid?.3:.22),y=e.y-H*(e.look.kid?.24:.45);if(e.carry==='maneki'){ell(x,y,14,14,'#ffd23f');ell(x,y-16,11,10,'#ffd23f');}if(e.carry==='cuffs'){X.strokeStyle='#888';X.lineWidth=3;X.beginPath();X.arc(x-6,y,6,0,7);X.arc(x+8,y,6,0,7);X.stroke();}};
   for(const p of[papa,futan,thief,police,sakana])p.draw=e=>{drawPerson(e,personPose(e));if(PROP[e.act]&&!e.moving)PROP[e.act](e);if(e.carry)carryD(e);if(e===thief&&F.th==='hide'&&Math.sin(T*1.7+1)>.93)pop(e.x+20,e.y-e.look.h*.5,'ニャ〜♪',COL.yel,9);if(e.wet)X.globalAlpha=1;};
@@ -1537,7 +1537,8 @@ function stage2(){
   PR('tokei','tower',()=>{dex('ev_tt','とけいや と とけいとう');say(tokei,'この とけいとうは わしが まいにち ネジを まいとる');});
   maneki.poke=e=>{dex('maneki','きんの まねきねこ');narr(e,'(ピカピカの きんの まねきねこ。とくしょう！)');};bucket.poke=e=>{dex('bucket','バケツ');narr(e,'(みずが なみなみ。ひしゃく つき)');};
   ice.poke=e=>{dex('icebox','こおりばこ');narr(e,'(つめたい こおりと さかな)');};tora.poke=e=>{dex('tora','トラ');sfx('meow');narr(e,tora.st==='nap'?'(すやすや… みみだけ ぴくぴく)':'(ニャ〜)');};
-  karasu.poke=e=>{dex('karasu','カラス');narr(e,'(やねの うえから キラキラを さがしている)');};ricky.poke=e=>{dex('ricky','リッキー');sfx('giggle');say(e,'あーぶ');};
+  karasu.talk=()=>karasu.st==='roof'?'カァ〜 (キラキラ ないかな)':'カァ';karasu.talkT=4;
+  karasu.poke=e=>{dex('karasu','カラス');narr(e,'(さかなやの やねの うえから キラキラを さがしている)');};ricky.poke=e=>{dex('ricky','リッキー');sfx('giggle');say(e,'あーぶ');};
   thief.poke=e=>{dex('thief_p','あやしい ひと？');e.react=1;say(e,F.th==='hide'?'な、なにか？ (コートを ぎゅっ)':'ひえ〜');};
   // ---- なやみ と えがお ----
   nayami(police,'🎁','おまわりさんの きねんび',['きょうは けっこん きねんび… かえりに なにか かって かえらないと','かみさん、はなが すきなんだよなあ']);
