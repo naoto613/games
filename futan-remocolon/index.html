@@ -52,7 +52,7 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 #toast{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:50;background:rgba(0,0,0,.8);color:#fff;font-weight:800;padding:5px 14px;border-radius:99px;font-size:12px;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 #toast.on{opacity:1}
 #selbar{position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:6px;max-width:calc(100% - 20px);background:rgba(20,18,26,.62);color:#fff;font-weight:800;font-size:11px;line-height:1.3;padding:4px 12px;border-radius:99px;pointer-events:none;transition:background .2s}
-#selbar:not(.on){display:none}#selbar small{display:block;font-size:9.5px;opacity:.75}
+#selbar:not(.on){display:none}.memo{background:#fff8e0;border-radius:12px;padding:6px 10px;margin:0 0 8px;font-size:12px;text-align:left;max-height:34vh;overflow:auto}.memo>b{display:block;margin-bottom:2px}.memo p{margin:2px 0;line-height:1.45}.memo .mm{border-top:1px dashed #e0c890;padding:3px 0}.memo span{font-weight:900;color:#7a5a20;margin-right:2px}.memo .kw{color:#c8402a;text-decoration:underline}#selbar small{display:block;font-size:9.5px;opacity:.75}
 #selbar button{display:none;pointer-events:auto;border:0;border-radius:50%;width:24px;height:24px;background:#3a2a00;color:#ffd23f;font-weight:900;font-size:13px;padding:0;flex:none}
 #selbar.on{background:#ffd23f;color:#3a2a00;font-size:12.5px;padding:5px 6px 5px 14px;box-shadow:0 3px 0 #b8901a;animation:sbp 1s ease-in-out infinite}#selbar.on button{display:block}
 @keyframes sbp{50%{transform:translateX(-50%) scale(1.04)}}
@@ -666,7 +666,7 @@ function pkeys(e){return[e.id,String(e.id).replace(/\d+$/,''),e.gk].filter(Boole
 function selSet(e){G.sel=e;sfx('tap');G.fx.push({k:'bang',e,life:.7});updSel();}
 function selClear(){G.sel=null;updSel();}
 function updSel(){const s=G.sel;$('screen').classList.toggle('sel',!!s);$('selbar').classList.toggle('on',!!s);
-  $('selTx').innerHTML=s?`✋ <b>${s.name}</b> → なにに きづかせる？<small>「！」の ついた あいてを タップ ／ おなじ ものを もういちど で チョッカイ</small>`:'👆 きになる ものを タップして えらぼう';}
+  $('selTx').innerHTML=s?`✋ <b>${s.name}</b> → なにに きづかせる？<small>べつの ものを タップ ／ おなじ ものを もういちど で チョッカイ</small>`:'👆 きになる ものを タップして えらぼう';}
 function topOf(e){return e.k==='person'?e.look.h*(e.sit?.8:1.02):(e.bubY!=null?e.bubY:(e.h||20));}
 // セリフを よみあげる（タップした ひとの ふきだし）
 let JAV=null;function jaVoice(){if(JAV)return JAV;const vs=(window.speechSynthesis&&speechSynthesis.getVoices())||[];JAV=vs.find(v=>/ja/i.test(v.lang))||null;return JAV;}
@@ -1109,7 +1109,11 @@ const walkG=(...a)=>walk(...a),goG=(...a)=>go(...a),flyG=(...a)=>fly(...a),capG=
 function cvEnt(id){return G.ents.find(e=>e.id===id);}
 function cvOk(c){const es=c.who.map(cvEnt);if(es.some(e=>!e||e.hidden))return null;if(c.when&&!c.when())return null;
   if(!c.far){for(const e of es)if(Math.hypot(e.x-es[0].x,e.y-es[0].y)>900)return null;}return es;}
-function playConvo(c,es,mirror){G.cv.cur={c,es,i:0,t:T,mirror};c.n=(c.n||0)+1;c.last=T;}
+function playConvo(c,es,mirror){G.cv.cur={c,es,i:0,t:T,mirror};c.n=(c.n||0)+1;c.last=T;if(c.clue)memoAdd(c,es);}
+function memoAdd(c,es){G.memo=G.memo||[];const i=G.memo.findIndex(m=>m.c===c);if(i>=0)G.memo.splice(i,1);const L=c.lines.map(l=>{const e=es[l[0]],t=typeof l[1]==='function'?l[1]():l[1];return{n:shortNm(e),t:String(t||'')};}).filter(l=>l.t);G.memo.unshift({c,L,m:G.min});if(G.memo.length>8)G.memo.length=8;}
+function kwList(){if(ST._kw)return ST._kw;const o=[];for(const[k,v]of Object.entries(ST.tags||{})){const n=v[0];if(!n)continue;const add=w=>{w=w.trim();if(w.length>=2&&!o.some(x=>x.w===w))o.push({w,c:v[1]});};const n2=n.replace(/（.*?）/g,'');add(n2);if(n2.includes('の '))add(n2.split('の ').pop());if(n2.includes('と '))add(n2.split('と ')[0]);}o.sort((a,b)=>b.w.length-a.w.length);return ST._kw=o;}
+function kwHTML(t){let h=String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));for(const k of kwList())h=h.split(k.w).join('\u0001'+k.w+'\u0002');return h.replace(/\u0001([^\u0002]*)\u0002/g,'<b class="kw">$1</b>').replace(/\u0001|\u0002/g,'');}
+function memoHTML(){const M=G.memo||[];if(!M.length)return '<div class="memo"><b>📝 きいた はなし</b><p>まだ ないよ。まちの ひとの かいわに みみを すまそう</p></div>';return '<div class="memo"><b>📝 きいた はなし</b>'+M.map(m=>'<div class="mm">'+m.L.map(l=>'<p><span>'+l.n+'</span>「'+kwHTML(l.t)+'」</p>').join('')+'</div>').join('')+'</div>';}
 function tickConvos(){if(!ST||!ST.convos||G.over)return;const cv=G.cv||(G.cv={cur:null,next:T+2});
   if(cv.cur){const k=cv.cur;if(T<k.t)return;const ln=k.c.lines[k.i];if(!ln){cv.cur=null;cv.next=T+rnd(2.5,5);return;}
     const e=k.es[ln[0]],s=typeof ln[1]==='function'?ln[1]():ln[1];if(e&&!e.hidden&&s){say(e,s,Math.max(2.8,s.length*.13));e.talkT=Math.max(e.talkT,8);}
@@ -1189,7 +1193,7 @@ function climax(o){if(G.over||(G.climaxing&&!G.free))return;G.climaxing=1;const 
   hearts(p.x,p.y-200,24);wait(1.2,()=>{confetti(60);});if(o.then)o.then();win(o.route,o.delay||7);}
 // ふきだし：ひいて みていても もじを だす（ストーリーの セリフを ゆうせん、かさなる ざつだんは「…」に）
 function drawBubbles(){
-  drawTags();try{linkGuide();}catch(err){}const far=cam.z<.5;drawN++;const fs=far?13:15,lh=fs+4;
+  drawTags();const far=cam.z<.5;drawN++;const fs=far?13:15,lh=fs+4;
   C.font=`800 ${fs}px "M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif`;C.textBaseline='top';C.textAlign='left';
   const list=G.ents.filter(e=>e.bub&&!e.hidden).sort((a,b)=>(a.bub.amb?1:0)-(b.bub.amb?1:0));const used=[];
   const hit=(x,y,w,h)=>used.some(r=>x<r[0]+r[2]+2&&x+w+2>r[0]&&y<r[1]+r[3]+2&&y+h+2>r[1]);
@@ -1203,7 +1207,10 @@ function drawBubbles(){
     C.fillStyle=e.bub.narr?'#3a3a3a':'#fff';C.beginPath();C.roundRect?C.roundRect(bx,by,w,h,9):C.rect(bx,by,w,h);C.fill();
     if(!e.bub.narr){const tx=clamp(s[0],bx+8,bx+w-8);C.beginPath();C.moveTo(tx,Math.max(by+h+7,Math.min(s[1],by+h+7)));C.lineTo(tx-5,by+h-1);C.lineTo(tx+6,by+h-1);C.closePath();C.fill();}
     C.restore();if(!e.bub.narr&&!e.bub.amb){C.strokeStyle='rgba(0,0,0,.18)';C.lineWidth=1;C.beginPath();C.roundRect?C.roundRect(bx+.5,by+.5,w-1,h-1,9):C.rect(bx,by,w,h);C.stroke();}
-    e._br=[bx,by,w,h];e._brT=drawN;C.fillStyle=e.bub.narr?'#fff':INK;lines.forEach((l,i)=>C.fillText(l,bx+8,by+5+i*lh));}}
+    e._br=[bx,by,w,h];e._brT=drawN;C.fillStyle=e.bub.narr?'#fff':INK;lines.forEach((l,i)=>C.fillText(l,bx+8,by+5+i*lh));
+    if(!e.bub.amb){const K=kwList();lines.forEach((l,i)=>{const done=[];for(const k of K){let at=l.indexOf(k.w);while(at>=0){if(!done.some(d=>at<d[1]&&at+k.w.length>d[0])){done.push([at,at+k.w.length]);const x=bx+8+C.measureText(l.slice(0,at)).width,ww=C.measureText(k.w).width,y=by+5+i*lh;
+      C.fillStyle=e.bub.narr?'#ffe066':kwCol(k.c);C.fillText(k.w,x,y);C.fillRect(x,y+fs+1,ww,2);}at=l.indexOf(k.w,at+1);}}});}}}
+function kwCol(c){const m=/^#(..)(..)(..)$/.exec(c||'');if(!m)return '#c84a3a';const v=[1,2,3].map(i=>parseInt(m[i],16));const L=.3*v[0]+.59*v[1]+.11*v[2];return L>150?'#c84a3a':c;}
 // つながりガイド：えらんだ ものと「つぎに かんけいする あいて」を てんせんで むすぶ。
 //   しばらく すすまないと、つぎに つかう ものが キラッと ひかる
 function linkGuide(){if(SAVE.easy||mode!=='play'||G.over||!HINTS[stIdx])return;
@@ -1326,6 +1333,9 @@ function stage1(){
   at(17,40,()=>{if(G.over||!F.stall)return;const t={A:'そのころ パパは… えきまえで「ろうそく、なんぼん だっけ…？ ぜんぶ かっちゃえ！」',B:'そのころ パパは… ミラに ひっぱられて こうえんを 3しゅう！「ミ、ミラ〜 まって〜」',C:'さとうさんの はなしは まだまだ つづく…「それでね、その いとこの ねこがね〜」'}[F.stall];if(t)cap(t,2400,300);});
   // ---- かいわ ----
   st.convos=[
+    {who:['futan','baa'],when:()=>hintProg('B')===1,clue:'B1',pri:2,far:1,lines:[[0,'ミラに リード つけたよ！'],[1,'ミラは パパの かおを みたら はなさないわよ。パパが かえって きたら…']]},
+    {who:['mama','baa'],when:()=>hintProg('C')===0,clue:'C0',far:1,lines:[[0,'ねこの タマ、さとうさんの まどの まえを とおったら たいへん まりっ'],[1,'さとうさん、タマちゃん だいすき だものねえ']]},
+    {who:['mama','futan'],when:()=>hintProg('C')===1,clue:'C1',pri:2,far:1,lines:[[0,'さとうさんが そとに でて きた まりっ！'],[1,'パパが さとうさんに つかまったら、ずーっと おはなし だね']]},
     {who:['mama','baa'],when:()=>G.min>=1051&&!F.stall,clue:'A0',pri:2,lines:[[0,'あっ！ ケーキの ろうそく、かいわすれた まりっ！'],[1,'パパに かえりに かって きて もらったら？ ろうそくなら えきまえの おみせに あるわよ'],[0,'でも てが はなせない まりっ… ふーたん、でんわ できる？']]},
     {who:['futan','baa'],when:()=>!F.stall,clue:'B0',lines:[[0,'ミラ、パパの こと だいすき だよね'],[1,'そうよ。パパの かおを みたら「さんぽ！ さんぽ！」って はなさないの'],[0,'リードが ないと おさんぽ いけないね']]},
     {who:['mama','futan'],when:()=>!F.stall,clue:'C0',lines:[[0,'となりの さとうさんに つかまると、30ぷんは はなしが おわらない まりっ'],[1,'さとうさん、ネコ だいすき だよね'],[0,'そう。ネコを みると すぐ そとに とんで くる まりっ']]},
@@ -1520,6 +1530,11 @@ function stage2(){
       climax({x,y:y-150,title:'ドロボウ たいほ！',sub:'きんの まねきねこ、とりもどした！',cheer:[kuji,futan,papa,yaoya,sakana,sushi,taiyaki,tokei,baker,hanaya,...kids,...shoppers],route:r});}]]);}
   // ---- かいわ ----
   st.convos=[
+    {who:['yaoya','sakana'],when:()=>hintProg('A')===0,clue:'A0',far:1,lines:[[0,'げんさん、きょうは うちみず まだ？ バケツ、みせの まえに でてるよ'],[1,'おっと わすれてた。うちみずの あとは みちが つるつるで、はしったら すってんころりん だぜ']]},
+    {who:['hana','sakana'],when:()=>hintProg('A')===1||hintProg('C')===1,clue:'A1,C1',pri:1,far:1,lines:[[0,'ねこの トラは、ネコの なきごえが すると とんで いくのよ'],[1,'そういや さっきの サングラスの おとこ、コートから「ニャ〜」って きこえたような…']]},
+    {who:['papa','futan'],when:()=>hintProg('B')===1,clue:'B1',far:1,lines:[[0,'パレードで みんな みちに でて きたなあ'],[1,'パパ、あの サングラスの おとこの ひと、コートが「ニャ〜」って いってる…']]},
+    {who:['sakana','kuji'],when:()=>hintProg('X')===0,clue:'X0',far:1,lines:[[0,'サンマ 2ひきで 500えん！ おかいもの したら ふくびきけん も つけるよ〜！'],[1,'げんさんの ところで かえば ふくびき できるよ〜']]},
+    {who:['papa','futan'],when:()=>hintProg('X')===1,clue:'X1',pri:2,far:1,lines:[[0,'ふくびきけん、もらったぞ！ ふくびきの おじさんの ところへ みんなで いこう'],[1,'ふーたんが ガラガラ まわしたい！']]},
     {who:['kuji','police'],when:()=>F.th==='hide',clue:'A0,B0,C0',pri:2,far:1,lines:[[0,'あの まねきねこ、ゆらすと「ニャ〜♪」って なる オルゴール つき なんだ！'],[1,'ふむ… ドロボウは かいものきゃくに まぎれて いるかも しれん']]},
     {who:['shop0','shop1'],when:()=>F.th==='hide',clue:'A1,C1',far:1,lines:[[0,'いま、だれかの コートが「ニャ〜」って ないた きが…'],[1,'ネコでも はいってるの？']]},
     {who:['hana','tora'],when:()=>F.th==='hide',clue:'A1,C1',lines:[[0,'トラは ネコの なきごえが すると、すぐ とんで いくのよね'],[1,'すぴー… (みみが ぴくぴく)']]},
@@ -1739,6 +1754,9 @@ function stage3(){
         climax({x:2300,y:Y1-60,title:'キャンプファイヤー だいせいこう！',sub:'おばけの しょうたいは タオルを かぶった たぬき',cheer:[leader,futan,ken],fx:'stars',route:r});});}]]);}
   // ---- かいわ（てがかり）----
   st.convos=[
+    {who:['papa','mama'],when:()=>hintProg('A')===1,clue:'A1',pri:2,far:1,lines:[[0,'ミラの リード、はずしたぞ！'],[1,'ミラなら おばけが かぶってる うちの タオルの においにも きづく かも まりっ']]},
+    {who:['ryo','miki'],when:()=>hintProg('C')===1,clue:'C1',pri:1,far:1,lines:[[0,'グリルの マシュマロ、いい におい〜'],[1,'もりの おばけも、この あまい においに つられて グリルに きたり して']]},
+    {who:['tsuri','futan'],when:()=>hintProg('X')<3,clue:'X0,X1,X2',far:1,lines:[[0,'じょうちゃん、ほたるは まっくらが すきなんじゃ'],[1,'がいとうの スイッチ、ばいてんの おねえさんが もってるよ！ ほたる、ふーたんも みたい！']]},
     {who:['mama','papa'],when:()=>F.ghost==='walk',clue:'A0',pri:2,lines:[[0,'そういえば さっき とんで いった うちの タオル、どこに いったのかしら まりっ'],[1,'ミラなら うちの においは どこまでも おいかけて みつけるぞ'],[0,'でも ミラ、リードで つないだ まま まりっ']]},
     {who:['futan','papa'],when:()=>F.ghost==='walk'&&!F.miraFree,clue:'A0',lines:[[0,'おばけ こわい〜'],[1,'ミラが いれば こわくないぞ。ミラは ゆうかん だからな']]},
     {who:['tenin','kanri'],when:()=>F.ghost==='walk'&&!F.brave,clue:'B0',pri:1,far:1,lines:[[0,'かんりにんさん、かんりとうの サーチライトなら もりの おくまで てらせますよ！'],[1,'む、むりむり！ おばけは にがて なんだ… だれか いっしょに いて くれたら…']]},
@@ -1920,6 +1938,9 @@ function stage4(){
     if(leader){goN(gonta,[leader.x+80,leader.y],()=>{say(gonta,'ウホッ♪');walk(leader,[2500,T1+690],()=>{leader.dir=-1;});goN(gonta,[2460,Y1+150],home,150);},150);}else goN(gonta,[2460,Y1+150],home,230);}
   // ---- かいわ（てがかり）----
   st.convos=[
+    {who:['keeper','teacher'],when:()=>hintProg('A')===0,clue:'A0',far:1,lines:[[0,'ゴンタは バナナに めが ないんです。バナナを もった こに ついて いっちゃう'],[1,'ふーたんちゃんなら こわくないし、バナナ もって あるけるかしら']]},
+    {who:['teacher','kid0'],when:()=>hintProg('C')===0,clue:'C0',far:1,lines:[[0,'ひまわりぐみの みんなは、パオくんと おどるのが だいすき だものね'],[1,'パオくんと ダンス したい〜！']]},
+    {who:['keeper','baiten'],when:()=>hintProg('X')===1,clue:'X1',far:1,lines:[[0,'ゾウの パオは みずあびの あと、ちいさい こに シャワーを かけたがるんです'],[1,'ふーたんちゃんが まえに いたら、にじが できちゃうかもね']]},
     {who:['keeper','papa'],when:()=>F.gonta==='out',pri:2,lines:[[0,'ゴンタは おいかけると あそんで もらってると おもって にげちゃうんです'],[1,'じゃあ どうしたら…'],[0,'ゴンタが じぶんから もりに かえりたく なれば…']]},
     {who:['baiten','vis0'],when:()=>F.gonta==='out'&&!F.fb,clue:'A0',far:1,pri:1,lines:[[0,'ゴンタは バナナが だいこうぶつ。バナナを もった こに どこまでも ついて いっちゃうのよ'],[1,'え、バナナ かおうかな…']]},
     {who:['futan','mama'],when:()=>F.fb&&F.gonta==='out',clue:'A1',lines:[[0,'バナナ もらった〜！'],[1,'ゴンタくんに みせて あげたら？ ついて くるかも まりっ']]},
@@ -2080,6 +2101,12 @@ function stage5(){
         climax({x:1500,y:T1+420,title:'まにあった〜！',sub:'ばあばに おまもりが とどいた',cheer:[futan,papa,mama,ekicho,ekiin,tak,takmama,kiosk],route:r,then:()=>{wait(2.4,()=>{baaba.hidden=true;F.exArr=3;sfx('train');say(futan,'ばあば〜 またね〜！');});}});}]]);}
   // ---- かいわ（てがかり）----
   st.convos=[
+    {who:['tak','takmama'],when:()=>hintProg('A')===0,clue:'A0',far:1,lines:[[0,'ぼくの ラジコン、ふーたんの おまもり くらいなら のせられるよ！'],[1,'たっくん、えらいわね']]},
+    {who:['tak','mokei'],when:()=>hintProg('A')===1,clue:'A1',pri:2,far:1,lines:[[0,'おまもり、ラジコン でんしゃに のせた！ どこを はしらせよう…'],[1,'かいさつの したなら くぐれるぞ。ホームまで いける']]},
+    {who:['papa','mama'],when:()=>hintProg('B')===0,clue:'B0',far:1,lines:[[0,'ハトの おじいさんの ポッポって、でんしょばと らしいぞ'],[1,'ふーたんの おまもり、ポッポに たのめないか まりっ？']]},
+    {who:['hatojii','papa'],when:()=>hintProg('B')===1,clue:'B1',pri:2,far:1,lines:[[0,'ポッポに とどけさきを おしえて やって くれんか'],[1,'ホームに いる むらさきの ふくの ばあばです！']]},
+    {who:['mama','papa'],when:()=>hintProg('C')===1,clue:'C1',far:1,lines:[[0,'かいさつの えきいんさん、てが あいた みたい まりっ'],[1,'えきいんさんに おまもりを たのめば、ホームまで とどけて くれるかも']]},
+    {who:['bs0','bs1'],when:()=>hintProg('X')===0||hintProg('X')===2,clue:'X0,X2',far:1,lines:[[0,'せんせい、だれかの ために ふきたいって いってたよね'],[1,'ふーたんって こ、ばあばの おみおくり なんだって。ばあばが せんせいの まえに きて くれたら…']]},
     {who:['papa','mama'],when:()=>F.om==='counter'&&G.min>=936,pri:2,lines:[[0,'かいさつの なかには はいれない… どう やって とどけよう'],[1,'とっきゅうは 16:00 はっしゃ まりっ…']]},
     {who:['takmama','mokei'],when:()=>F.om==='counter',clue:'A0',pri:1,far:1,lines:[[1,'たっくんの ラジコン でんしゃは どこまでも はしるぞ。にもつも のせられる'],[0,'こないだなんか、かいさつの したを くぐって ホームまで いっちゃって…']]},
     {who:['ekiin','soba'],when:()=>F.om==='counter',clue:'A1,C1',far:1,lines:[[0,'かいさつは きっぷが ないと とおれません。…ちいさな おもちゃなら したを くぐれちゃう けどね'],[1,'えきいんさん、まいごの こ みてて たいへんそう だな']]},
@@ -2272,6 +2299,10 @@ function stage6(){
     else{sfx('nope');cap('ゴール！ ばらぐみの かち…',CX,Y1-60);say(hayate,'よし！ ばらぐみ ゆうしょう！');roses.forEach(p=>{p.act='cheer';});wait(1.5,()=>{say(futan,'くやしい〜…');futan.act='sad';});if(!G.free)wait(4,()=>{if(!G.over)lose();});}}
   // ---- かいわ（てがかり）----
   st.convos=[
+    {who:['baba','mama'],when:()=>hintProg('B')===0,clue:'B0',far:1,lines:[[0,'えんちょう せんせい、さっきから リッキーを だっこ したそうに みてたわよ'],[1,'リッキーを あずけられたら かあちゃん はしれる まりっ']]},
+    {who:['baba','mama'],when:()=>hintProg('B')===1,clue:'B1',pri:1,far:1,lines:[[0,'みき せんせいが スニーカーを もう いっそく もってたわ'],[1,'かあちゃんの サイズ、あうかしら まりっ']]},
+    {who:['baba','papa'],when:()=>hintProg('C')===0,clue:'C0',far:1,lines:[[0,'じいじを おこすなら、ゴウせんせいの ピストルの「よーい ドン」が いちばんよ'],[1,'あの パーンって やつですね']]},
+    {who:['kid0','kid1'],when:()=>hintProg('X')===1||hintProg('X')===2,clue:'X1,X2',far:1,lines:[[0,'えんちょう せんせいが スピーカーで ひまわり おんど ながして くれたら いいのに'],[1,'ばあばたちも スピーカーの まえで おどって くれたら たのしいね']]},
     {who:['papa','mama'],when:()=>!F.race&&F.anchor==='papa',pri:2,lines:[[0,'アンカーが パパで だいじょうぶかなあ… かけっこ いつも びり だったんだ'],[1,'ハヤテさん、もと りくじょう せんしゅ まりっ…']]},
     {who:['baba','mama'],when:()=>!F.ball,clue:'A0',pri:1,lines:[[0,'ミラはね、ボールを もってる ひとを みると どこまでも おいかけて いくのよ'],[1,'リッキーが さっき ミラの ボール なげちゃった まりっ。あそこに ころがってる まりっ']]},
     {who:['futan','kid1'],when:()=>!F.ball,clue:'A0',far:1,lines:[[0,'パパね、ミラに おいかけられた とき だけ すっごく はやいの！'],[1,'へえ〜！']]},
@@ -2461,6 +2492,9 @@ function stage7(){
         climax({x:MOM[0]-60,y:MOM[1]-10,title:'おかあさんに あえたね！',sub:'サメの しょうたいは まいごの イルカの あかちゃん',cheer:[kenta,tsuri,boat,umi],fx:'stars',route:r,delay:8,then:()=>{wait(2,()=>{iruka.jt=T;mom.jt=T+.1;});}});}]]);}
   // ---- かいわ（てがかり）----
   st.convos=[
+    {who:['girl0','girl1'],when:()=>hintProg('A')===1,clue:'A1',pri:1,far:1,lines:[[0,'バナナボートの おにいさん、あと ひとり まってるって'],[1,'あそこの パパさん、のりたそうに みてたよ']]},
+    {who:['ikaya','umi'],when:()=>hintProg('B')===1,clue:'B1',pri:1,far:1,lines:[[0,'つりの おじいさんの つった さかなで、あの ヒレの あかちゃんを おかあさんの ほうへ みちびけないかね'],[1,'おなか すかせてる みたい だものねえ']]},
+    {who:['bk0','bk1'],when:()=>hintProg('X')===1||hintProg('X')===2,clue:'X1,X2',far:1,lines:[[0,'カニさんって、すなの おしろの トンネル ほるの じょうず なんだよ'],[1,'さいごは パパの ほんきで すなの おしろを しあげて ほしいな〜']]},
     {who:['futan','papa'],when:()=>F.fin===1,pri:2,lines:[[0,'パパ、あの ヒレ「キュイ キュイ」って ないてるよ？'],[1,'サメって なくのかなあ…？']]},
     {who:['umi','baba'],when:()=>F.fin===1&&!F.ride,clue:'A0',far:1,pri:1,lines:[[0,'うちの ひとが りょうしだった ころ、イルカは よく ふねの なみに のって あそんでたわ'],[1,'まあ、ふねに ついて くるの？']]},
     {who:['boat','girl0'],when:()=>!F.g2,clue:'A0',far:1,pri:1,lines:[[0,'バナナボート、3にん そろったら しゅっぱつ だよ〜！ ブイの そとまで ぐるっと！'],[1,'のりたい けど ふたりじゃ たりないね…']]},
@@ -2644,6 +2678,9 @@ function stage8(){
       climax({x:1700,y:T0+230,title:'メリー クリスマス！',sub:'サンタさんの そりが よぞらへ とびたった',cheer:[futan],fx:'fireworks',route:r,delay:8,then:()=>{G.focus={e:sori,until:T+12};for(let i=0;i<14;i++)wait(.3+i*.25,()=>sparkle(sori.x+rnd(-60,60),sori.y+rnd(-20,40),6));}});});}
   // ---- かいわ（てがかり）----
   st.convos=[
+    {who:['baba','futan'],when:()=>hintProg('A')===0,clue:'A0',far:1,lines:[[0,'ゆきだるまを つくったのは ゆきあそびの ケンタくん たちよ'],[1,'ケンタくんに たのんだら、にんじん かして くれるかな？']]},
+    {who:['santa','smkid0'],when:()=>hintProg('A')===1,clue:'A1',pri:2,far:1,lines:[[0,'その にんじん、ルドルフに たべさせて やって くれんか'],[1,'ルドルフって トナカイさん？']]},
+    {who:['skikid0','skikid1'],when:()=>hintProg('X')<3,clue:'X0,X1,X2',far:1,lines:[[0,'ゆきあそびの ユウくんたちと ゆきがっせん したいな〜'],[1,'ゴウせんせいが OK して くれて、パパたちも まざったら さいこう！']]},
     {who:['santa','futan'],when:()=>F.crash&&!F.gone,pri:2,lines:[[0,'そりは いきおいよく はしりだせば そらへ とべるんじゃ。でも ルドルフが へとへとでのう…'],[1,'サンタさん、がんばって〜！']]},
     {who:['santa','papa'],when:()=>F.crash&&!F.nose&&!F.gone,clue:'A0',pri:1,far:1,lines:[[0,'ルドルフは にんじんが だいこうぶつ。ひとくち たべれば はなが ピカッと ひかって げんき ひゃくばいじゃ'],[1,'にんじん… ロッジに ないかなあ']]},
     {who:['chef','mama'],when:()=>F.crash&&!F.carrot,clue:'A0',far:1,lines:[[1,'コックさん、にんじん ありません か まりっ？'],[0,'ごめん！ にんじんは ぜんぶ カレーに いれちゃった… のこってるのは、ゆきだるまの はな くらい かな？']]},
@@ -2891,6 +2928,11 @@ function stage9(){
   // ---- かいわ ----
   const lost=()=>F.radio!=='iincho'&&F.radio!=='ok'&&!F.hanabi;
   st.convos=[
+    {who:['ana','iincho'],when:()=>hintProg('C')===0&&F.radio!=='iincho'&&F.radio!=='ok',clue:'C0',far:1,lines:[[0,'パレードカーに のってる タケルくん、たしか はなびしの でし ですよ'],[1,'なに!? パレードを とめて きいて みるか…']]},
+    {who:['iincho','takeru'],when:()=>hintProg('C')===2,clue:'C2',pri:1,far:1,lines:[[0,'タケルくん、19:30に なったら はなびの ふねへ たのむ！'],[1,'ししょうに ちょくせつ つなぎます！']]},
+    {who:['ana','tetsu'],when:()=>hintProg('B')===2,clue:'B2',far:1,lines:[[0,'てつさん、19:30に なったら おおだいこ ですね'],[1,'おう、おおだいこで ドン ドン ドドン！ だ']]},
+    {who:['futan','mama'],when:()=>hintProg('X')===0&&!F.rain,clue:'X0',far:1,lines:[[0,'ステージの まえの ダンスの わ、たのしそう〜'],[1,'ふーたんも はいって おいで まりっ']]},
+    {who:['tetsu','ana'],when:()=>hintProg('X')===1||hintProg('X')===2,clue:'X1,X2',far:1,lines:[[0,'パレードカーが ステージを まわって くれたら、いちばん もりあがるんだが'],[1,'そしたら てつさん、ふーたんちゃんにも たいこを たたかせて あげて']]},
     {who:['iincho','ana'],when:()=>F.radio==='iincho',pri:1,lines:[[0,'19:30に なったら、この むせんきで ドンさんに「うちあげ」の あいずを おくる'],[1,'ドンさん、ほんぶの あいずが ないと ぜったいに うたない ひと ですもんね'],[0,'みずうみの ボートが ぜんぶ もどったか、ここで たしかめて からだからね']]},
     {who:['iincho','ana'],when:()=>lost()&&G.min>=1130,pri:2,lines:[[0,'むせんきが ない！ どこで おとした!?'],[1,'あめの とき、えんちょうさん ふんすいの まえを はしって ましたよね'],[0,'あの ときは むちゅうで…']]},
     {who:['clean','popcorn'],when:()=>F.radio==='pool'&&!F.rain,clue:'A0',pri:1,far:1,lines:[[0,'あめの とき、だれかが ふんすいの まえで「ポチャン」って させてったんだよなあ'],[1,'コインでも おとしたんじゃない？'],[0,'コインに しては おおきな おと だったけど… まあ そうじは あしただ']]},
@@ -2996,7 +3038,7 @@ function hintRoute(){const H=HINTS[stIdx]||{};const rs=Object.keys(H);let best=n
   for(const r of rs){const p=hintProg(r);const nw=!(SAVE.routes[stIdx]||{})[r];if(p>bp||(p===bp&&nw&&best&&(SAVE.routes[stIdx]||{})[best])){bp=p;best=r;}}return best||'A';}
 function openHint(r,lv){if(mode!=='play'&&mode!=='pause')return;mode='pause';sfx('tap');selClear();const ov=$('ov');const H=HINTS[stIdx]||{};r=r||hintRoute();const L=H[r]||[];const p=hintProg(r);const h=L[p];
   const got=SAVE.routes[stIdx]||{};
-  ov.innerHTML=`<div class="panel"><h2>💡 ヒント</h2><div class="htabs">${Object.keys(H).map(k=>`<button class="htab${k===r?' on':''}" data-r="${k}">ルート${k}${got[k]?' ★':''}<small>${hintProg(k)}/${H[k].length}</small></button>`).join('')}</div>
+  ov.innerHTML=`<div class="panel"><h2>💡 ヒント</h2>${memoHTML()}<div class="htabs">${Object.keys(H).map(k=>`<button class="htab${k===r?' on':''}" data-r="${k}">ルート${k}${got[k]?' ★':''}<small>${hintProg(k)}/${H[k].length}</small></button>`).join('')}</div>
    <ul class="steps hl">${L.map((x,i)=>i<p?`<li>${x.d.replace(/（.*?）/g,'')}</li>`:i===p?`<li class="nx">${lv?x.d:x.t}</li>`:`<li class="lk">？？？</li>`).join('')}</ul>
    ${h?(lv?`<button class="btn p" id="hGo">📍 ばしょを みる</button>`:`<button class="btn p" id="hMore">もっと くわしく</button><p style="font-size:11px;color:#888;margin:4px 0 0">※ くわしい ヒントを みると、この プレイの クリア ランクは A まで</p>`):`<p style="font-weight:800">この ルートの チョッカイは ぜんぶ できているよ！ あとは まつだけ。🕒で はやおくり してみよう</p>`}
    ${ST.uraHint?`<p style="font-size:12px;background:#241f4a;color:#ffe066;border-radius:10px;padding:6px 10px;margin:6px 0">🌙 うわさ：${ST.uraHint}${SAVE.ura[stIdx]?' （みつけた！）':''}</p>`:''}
