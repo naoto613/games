@@ -1728,7 +1728,7 @@ function stage3(){
   at(17,50,()=>{F.ghost='walk';tanuki.hidden=true;obake.x=600;obake.y=Y2-30;sfx('cry');cap('もりに しろい おばけ!? キャンプじょうは おおさわぎ！',900,Y2-150);
     say(sc(1),'お、おばけ〜〜！');say(leader,'み、みんな テントに もどれ！ おばけが でるなら キャンプファイヤーは ちゅうしだ…');
     for(const p of[...scouts,ken,...mushi]){if(p.lock)continue;lock(p);p.act='shiver';walk(p,[rnd(1700,2400),T2+700+rnd(-20,30)]);}lock(kanri);walk(kanri,[2210,T0+640],()=>{kanri.act='shiver';kanri.talk=['お、おばけは にがて なんです…','かんりとうから でられない…'];});
-    const wander=()=>{if(F.ghost!=='walk'||F.lure)return;go(obake,[[rnd(300,1500),Y2-30+rnd(-20,30)]],()=>wait(rnd(3,6),wander));};wander();});
+    const wander=()=>{if(F.ghost!=='walk'||F.lure||F.beam)return;go(obake,[[rnd(300,1500),Y2-30+rnd(-20,30)]],()=>wait(rnd(3,6),wander));};wander();});
   function sc(i){return scouts[i-1];}
   function reveal(r,label){if(F.ghost!=='walk')return;F.ghost='reveal';obake.path=null;step(r,label);sfx('crash');F.towel='found';
     beats([[0,obake,()=>{obake.hidden=true;tanuki.hidden=false;tanuki.x=obake.x;tanuki.y=obake.y+40;tanuki.zs=null;pop(obake.x,obake.y-120,'ポロッ',COL.yel,22);cap('しろい タオルが ずり おちて… おばけの しょうたいは たぬき！',obake.x,obake.y-160);say(tanuki,'キュ〜？ (みつかっちゃった)');}],
@@ -1755,8 +1755,8 @@ function stage3(){
   PR('mira','obake',()=>{if(F.ghost!=='walk')return false;if(!F.miraFree){sfx('bark');say(mira,'ワン！ ワン！ (リードで つながれて いけない)');return;}if(F.maGo)return;F.maGo=1;sfx('bark');say(mira,'ワンワン！ (この におい… うちの タオル！)');
     goN(mira,[obake.x-60,obake.y+40],()=>{say(mira,'ガウッ！ (タオルを ひっぱる)');reveal('A','ミラ → おばけ（タオルを ひっぱる）');},360);});
   // ===== B：サーチライト =====
-  PR('ken','kanri',()=>{if(F.ghost!=='walk'){say(ken,'かんりにんさん、こんばんは！');return;}if(F.brave)return;F.brave=1;lock(ken);walk(ken,[2150,T0+660],()=>{say(ken,'かんりにんさん、ぼくが いっしょに いきます！ スカウトは ゆうき！');wait(1.4,()=>{say(kanri,'ケ、ケンくん… よし！ いっしょに サーチライトだ！');kanri.act=null;step('B','ケン → かんりにん（ゆうきを だす）');});});});
-  PR('kanri','searchl',()=>{if(F.ghost!=='walk'){say(kanri,'サーチライトは いざと いう ときの ため');return;}if(!F.brave){say(kanri,'お、おばけ こわい… ひとりじゃ むり…');return;}if(F.beam)return;F.beam=1;lock(kanri);walk(kanri,[2420,T0+640],()=>{sfx('click');say(kanri,'てらせ〜〜！');pop(2420,120,'ピカーッ',COL.yel,24);
+  PR('ken','kanri',()=>{if(F.ghost!=='walk'){say(ken,'かんりにんさん、こんばんは！');return;}if(F.brave||F.kkGo)return;F.kkGo=1;lock(ken);walk(ken,[2150,T0+660],()=>{F.brave=1;say(ken,'かんりにんさん、ぼくが いっしょに いきます！ スカウトは ゆうき！');wait(1.4,()=>{say(kanri,'ケ、ケンくん… よし！ いっしょに サーチライトだ！');kanri.act=null;step('B','ケン → かんりにん（ゆうきを だす）');});});});
+  PR('kanri','searchl',()=>{if(F.ghost!=='walk'){say(kanri,'サーチライトは いざと いう ときの ため');return;}if(!F.brave){say(kanri,'お、おばけ こわい… ひとりじゃ むり…');return;}if(F.beam)return;F.beam=1;lock(kanri);walk(kanri,[2420,T0+640],()=>{lock(kanri);sfx('click');say(kanri,'てらせ〜〜！');pop(2420,120,'ピカーッ',COL.yel,24);
     go(obake,[[900,Y2-30]],()=>{say(obake,'キュッ!? (まぶしい〜)');reveal('B','かんりにん → サーチライト（もりを てらす）');},300);});});
   // ===== C：あまい マシュマロ =====
   PR('mallow','ryo',()=>{if(F.sweet){say(ryo,'マシュマロ、うまいっす');return;}F.sweet=1;lock(ryo);walk(ryo,[2950,T2+660],()=>{ryo.act='cook';say(ryo,'デザートの マシュマロ やくぞ〜！ …あま〜い におい！');pop(2950,Y2-80,'あま〜い','#ff9ac0',18);step('C','マシュマロ → リョウ（やく）');unlock(ryo);});});
