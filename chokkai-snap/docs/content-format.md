@@ -7,13 +7,20 @@
 検証: `node tools/validate.mjs S2`（構文・参照・循環・到達可能性。終端に到達できないとエラー）
 単体ファイル検証: `node tools/validate-file.mjs js/content/s2.js`
 
-## 座標系
+## 座標系とサイズ感（参考：俯瞰で全体が一望でき、寄ると人物の表情が見える）
 
 - 単位は「ワールド px」。`world.width × world.height`。左上が (0,0)。
+- **世界は横 2:1 前後**（例 6400×3200）。開始時は世界全体が一画面に収まる「俯瞰」になり、ピンチで寄って観察する。
+  黒い余白を出さないため最小ズームは画面を覆う倍率（端が少し切れる）。
+- 広いステージは「横に長い 1 本の道」ではなく、**上下に何段も帯を重ねた 1 枚の地図**にする
+  （空と山 → 湖や広場 → 道 → 店の列 → 道 → 店の列 … のように、上ほど奥）。人や店を画面いっぱいに密に置く。
 - **actor / object の (x, y) は「足もと（下端中央）」**。y が大きいほど手前に描かれる（y ソート）。
-- scenery の `emoji` / `text` は中心座標、`rect` / `sign` / `building` は左上（building は下端 y）。
-- 等倍ズーム 1.0 で画面の縦にだいたい 900 ワールド px が映る。大人は高さ約 150。
-  小物（emoji size 26〜40）はズームしないと見つけにくい。`minZoom: 1.3` などで「近づかないと撮れない」物を作れる。
+  `z: 数値` を付けると重なり順だけ y の代わりにその値を使う（机の上の小物を机より手前に描く、など）。
+- scenery の `emoji` / `text` は中心座標、`rect` / `sign` は左上、`building` / `prop` は下端。
+- 人物は頭の大きいイラスト調。大人 `h: 170` 前後、子ども `h: 125` 前後（屋内の近景ステージは 300 以上）。
+  俯瞰では小さく見え、ピンチで寄ると表情が分かる。小物（size 26〜40）は寄らないと見つけにくい。`minZoom: 1.3` で「近づかないと撮れない」物を作れる。
+- 見た目の確認：`npx http-server -p 8123 -s . &` のあと `NODE_PATH=$(npm root -g) node tools/shot.mjs S2 /tmp/s2 "Pixel 7 landscape" x y zoom`
+  （`/tmp/s2-a.png` が開始時の俯瞰、`-b.png` が (x,y) に寄った画面）。
 
 ## トップレベル
 
@@ -43,11 +50,24 @@ export default {
 | text | text, x,y(中心), s, fill, bold? |
 | stripes | x,y,w,h, dir:'h'/'v', n, c1, c2 |
 | sign | x,y(左上), w,h, text, fill, color, s |
-| building | x, y(下端), w, h, fill, roof?:色, sign?:'店名', signFill?, signColor?, door?:true, windows?:true, awning?:色 |
+| building | x, y(下端), w, h, fill, roof?:色, roofStyle?:'gable'(既定)/'flat'/'tile'(瓦), sign?:'店名', signFill?, signColor?, signSize?, awning?:色（店先の縞の日よけ＋ショーウィンドウ）, shop?:true（日よけなしの店先）, goods?:[色...], windowColor?, door?, windows?, unit?:全体の拡大率(既定1) |
+| prop | kind, x, y(下端), s(高さの目安), flip?, color? ほか種類ごとの項目（下表） |
+| sky | x,y,w,h, c1(上の色), c2(下の色) — グラデーションの空 |
 | water | x,y,w,h, fill?（波線つき） |
 | road | x,y,w,h, fill?（中央線つき） |
 | rail | x,y(レール位置), w |
 | fence | x,y(下端), w, h?, fill? |
+
+### prop の種類（絵文字よりこちらを優先。フラットなイラスト調で描かれる）
+
+屋外：tree(color, fruit) / pine / palm / bush(color, flower) / flower(color) / tulip / pot / cactus / grass / mountain(color, snow, wide) / hill(color, wide) / cloud / sun /
+house(color, roof) / car(color, police) / bus(color) / truck / bike / tent(color) / dome(color) / bench / lamp / signpost(text) / table(cloth) / parasol(color) /
+rock / logs / campfire / vending(color) / trash / mailbox / fountain / ferris / boat(color) / fence
+屋内：chabudai(w) / tvset(w, on, text) / roomwindow(w, open) / cabinet(w) / hanglamp / fusuma(w, n, art) / wallclock / cushion(color) / calendar(text) / stove
+動物：cat(color) / dog(color) / bird(color)
+
+よく使う絵文字（🌳🌲🚗🚌⛺🏠☁️⛰️🐈🐕🐦 など）は自動でこの prop に置き換えて描かれる。
+object にも `prop: 'tvset', propOpts: {...}, size, w, h` で使える（OBJECT_APPEARANCE の look.propOpts で見た目を変更できる）。
 
 ## actors（人・動物。全員ちょっかいの「相手」にできる。capturable: true なら画像としても撮れる）
 

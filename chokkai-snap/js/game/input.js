@@ -20,17 +20,20 @@ export class TouchInput {
     el.addEventListener('pointercancel', e => this.up(e, true));
     el.addEventListener('contextmenu', e => e.preventDefault());
   }
+  // 画面（canvas）基準の座標に変換
+  loc(e) { const r = this.el.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
   down(e) {
     e.preventDefault();
     try { this.el.setPointerCapture(e.pointerId); } catch { /* noop */ }
-    this.pts.set(e.pointerId, { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY });
+    const q = this.loc(e);
+    this.pts.set(e.pointerId, { x: q.x, y: q.y, sx: q.x, sy: q.y });
     this.vel = { x: 0, y: 0, t: performance.now() };
     this.inertia = null;
     if (this.pts.size === 1) {
       this.mode = 'tap';
       this.downAt = performance.now();
       clearTimeout(this.longTimer);
-      if (this.opts.longPress) this.longTimer = setTimeout(() => { if (this.mode === 'tap') { this.mode = 'long'; this.h.longPress(e.clientX, e.clientY); } }, LONG_PRESS_MS);
+      if (this.opts.longPress) this.longTimer = setTimeout(() => { if (this.mode === 'tap') { this.mode = 'long'; this.h.longPress(q.x, q.y); } }, LONG_PRESS_MS);
     } else if (this.pts.size === 2) {
       clearTimeout(this.longTimer);
       this.mode = 'pinch';
@@ -43,7 +46,8 @@ export class TouchInput {
     if (!p) return;
     e.preventDefault();
     const px = p.x, py = p.y;
-    p.x = e.clientX; p.y = e.clientY;
+    const q = this.loc(e);
+    p.x = q.x; p.y = q.y;
     if (this.mode === 'tap' && Math.hypot(p.x - p.sx, p.y - p.sy) > TAP_SLOP_PX) { this.mode = 'pan'; clearTimeout(this.longTimer); this.h.release?.(); }
     if (this.mode === 'pan') {
       const k = this.opts.sensitivity;

@@ -105,16 +105,17 @@ class Game {
     document.addEventListener('dblclick', e => e.preventDefault());
   }
   resize() {
-    const vv = window.visualViewport;
-    const w = Math.round(vv ? vv.width : window.innerWidth), h = Math.round(vv ? vv.height : window.innerHeight);
-    this.renderer.resize(w, h, window.devicePixelRatio || 1);
+    const r = $('#view').getBoundingClientRect();
+    this.renderer.resize(Math.max(1, Math.round(r.width)), Math.max(1, Math.round(r.height)), window.devicePixelRatio || 1);
   }
+  viewRect() { return $('#view').getBoundingClientRect(); }
 
   bindUi() {
     $('#pauseBtn').addEventListener('click', () => { this.audio.unlock(); this.pause('menu'); });
     $('#hintBtn').addEventListener('click', () => this.useHint());
     $('#cardDiscard').addEventListener('click', e => { e.stopPropagation(); if (this.rt) { this.rt.discard(); this.updateCard(); } });
     $('#debugBtn').addEventListener('click', () => UI.showDebug(this));
+    $('#zoomBtn').addEventListener('click', () => this.toggleOverview());
     document.addEventListener('pointerdown', () => this.audio.unlock(), { capture: true });
   }
 
@@ -129,7 +130,6 @@ class Game {
     const rt = new StageRuntime(stage, { timeLimitMs: Math.round(stage.timeLimitMs * timeMul), seed });
     rt.state.seed = seed;
     this.rt = rt;
-    this.renderer.setStage(stage, rt);
     this.wire(rt);
     if (opts.resume) { rt.restore(opts.resume.state); }
     this.replay = opts.replay || null;
@@ -140,6 +140,10 @@ class Game {
     UI.hideScreen();
     $('#hud').classList.remove('hidden');
     $('#stageName').textContent = (id === 'T0' ? '' : id.replace('S', 'STAGE ') + '  ') + stage.title;
+    this.resize();
+    this.renderer.setStage(stage, rt);
+    if (opts.resume) this.renderer.cam = { ...this.renderer.cam, ...opts.resume.state.camera };
+    this.lastCloseCam = null;
     $('#hintBtn').classList.toggle('hidden', !this.diff.hint || this.settings.hintLevel === 0 || !!this.replay);
     this.updateCard();
     this.updateTutorial();
@@ -148,7 +152,8 @@ class Game {
     this.audio.startBgm(stage.bgm);
     this.audio.duck(false);
     if (!opts.resume && !this.replay) {
-      if (stage.intro) this.toast(stage.intro, 4200);
+      this.banner(id === 'T0' ? 'れんしゅう' : 'スタート', stage.title);
+      if (stage.intro) setTimeout(() => { if (this.rt === rt) this.toast(stage.intro, 4200); }, 1900);
       this.saves.saveRun(id, rt.serialize());
     }
     if (this.replay) this.toast('リプレイ再生中', 2500);
@@ -220,13 +225,13 @@ class Game {
   }
   sendTo(targetId) {
     const rt = this.rt;
-    const card = $('#card').getBoundingClientRect();
+    const card = $('#cardBtn').getBoundingClientRect(), vr = this.viewRect();
     const src = rt.state.capturedSourceId;
     const res = rt.send(targetId);
     if (res.type === 'INPUT_CONSUMED') { this.toast('いまは手がはなせないみたい'); return; }
     if (res.type === 'NOT_TARGET' || res.type === 'NO_CARD' || res.type === 'ENDED') return;
     this.audio.play('send');
-    this.renderer.flyCard({ x: card.left + 30, y: card.top + 30 }, targetId, null, src);
+    this.renderer.flyCard({ x: card.left + card.width / 2 - vr.left, y: card.top + card.height / 2 - vr.top }, targetId, null, src);
     this.updateCard();
   }
   onDoubleTap(x, y) {
@@ -345,10 +350,13 @@ class Game {
     const ms = rt.remainingMs;
     const t = $('#timer');
     const txt = fmtTime(ms);
-    if (t.textContent !== txt) t.textContent = txt;
+    const em = t.querySelector('em');
+    if (em.textContent !== txt) em.textContent = txt;
+    t.querySelector('i').style.width = (this.stage.id === 'T0' ? 100 : Math.max(0, ms / rt.state.timeLimitMs * 100)) + '%';
     t.classList.toggle('low', ms < 30000 && rt.playing && this.stage.id !== 'T0');
-    t.classList.toggle('hidden', this.stage.id === 'T0');
-    const sc = 'Score ' + rt.state.score;
+    const n = String(Math.min(999, [...rt.state.completedEvents].filter(id => id !== this.stage.timeoutEventId).length)).padStart(3, '0');
+    if (this._digits !== n) { this._digits = n; $('#count').querySelectorAll('b').forEach((b, i) => { b.textContent = n[i]; }); }
+    const sc = rt.state.score + '点';
     if ($('#score').textContent !== sc) $('#score').textContent = sc;
     const ready = performance.now() >= this.hintReadyAt;
     $('#hintBtn').disabled = !ready;
@@ -367,14 +375,38 @@ class Game {
     $('#cardDiscard').classList.toggle('hidden', !id);
     if (id) {
       this.renderer.drawThumbInto(ctx, id, cv.width / 2, cv.height / 2, cv.width * 0.92);
-      $('#cardLabel').innerHTML = `<small>取りこんだ画像</small>${esc(rt.entity(id).name)}`;
+      $('#cardLabel').textContent = rt.entity(id).name;
       if (pop) { card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop'); }
-    } else $('#cardLabel').innerHTML = '<small>画像</small>なし';
+    } else $('#cardLabel').textContent = '';
+  }
+  // 全体を見る ⇄ さっきの場所にもどる
+  toggleOverview() {
+    const r = this.renderer;
+    if (!this.rt) return;
+    const minZ = r.minZoom();
+    if (r.cam.zoom > minZ * 1.15) {
+      this.lastCloseCam = { ...r.cam };
+      r.focus(this.stage.world.width / 2, this.stage.world.height / 2, minZ, 500);
+    } else if (this.lastCloseCam) {
+      r.focus(this.lastCloseCam.x, this.lastCloseCam.y, this.lastCloseCam.zoom, 500);
+    } else {
+      const sc = this.stage.world.spawnCamera;
+      r.focus(sc.x, sc.y, Math.max(minZ * 2.5, sc.zoom || 1), 500);
+    }
+  }
+  banner(big, sub) {
+    const b = $('#banner');
+    b.innerHTML = `<div class="big1">${esc(big)}</div>${sub ? `<div class="sub1">${esc(sub)}</div>` : ''}`;
+    b.classList.remove('hidden');
+    clearTimeout(this._bannerT);
+    this._bannerT = setTimeout(() => b.classList.add('hidden'), 1800);
   }
   scorePop(ev) {
     const p = this.rt.pos(ev.targetId);
     if (!p) return;
-    const s = this.renderer.worldToScreen(p.x, p.y - 160);
+    const vr = this.viewRect();
+    const s0 = this.renderer.worldToScreen(p.x, p.y - 160);
+    const s = { x: s0.x + vr.left, y: s0.y + vr.top };
     const el = document.createElement('div');
     el.className = 'scorepop';
     el.textContent = '+' + ev.points;

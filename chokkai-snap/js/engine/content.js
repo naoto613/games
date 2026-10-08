@@ -34,7 +34,7 @@ export function normalizeStage(raw) {
       capturable: a.capturable !== false, targetable: a.targetable !== false,
       hidden: !!a.hidden, facing: a.facing || 'RIGHT',
       wander: a.wander ?? (a.path ? 0 : 40), path: a.path || null, speed: a.speed || 60,
-      minZoom: a.minZoom || 0, layer: a.layer || 0,
+      minZoom: a.minZoom || 0, layer: a.layer || 0, z: a.z ?? null,
       idle: (a.idle || []).map((l, i) => {
         const line = typeof l === 'string' ? { text: l } : l;
         return { speechId: addSpeech(`${id}.${aid}.idle${i}`, aid, line.text, { bubble: line.bubble }), when: line.when || [], once: !!line.once };
@@ -52,6 +52,7 @@ export function normalizeStage(raw) {
       capturable: o.capturable !== false, targetable: !!o.targetable,
       initialState: o.hidden ? 'HIDDEN' : 'VISIBLE', minZoom: o.minZoom || 0, layer: o.layer || 0,
       variants: o.variants || null, rot: o.rot || 0,
+      prop: o.prop || null, propOpts: o.propOpts || {}, z: o.z ?? null,
     };
   }
 
