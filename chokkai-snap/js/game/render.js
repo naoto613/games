@@ -467,7 +467,9 @@ export class Renderer {
     const cx = this.w / 2, cy = this.h / 2;
     // 小さく見える人物は「…」の小さな吹き出しだけ（近づくと読める）
     for (const e of list) e.small = this.entityBox(e.id).h * this.scale < 40;
-    for (const e of list) if (e.small && e.p.x > -20 && e.p.x < this.w + 20 && e.p.y > -20 && e.p.y < this.h + 20) {
+    const smalls = list.filter(e => e.small && e.p.x > -20 && e.p.x < this.w + 20 && e.p.y > -20 && e.p.y < this.h + 20);
+    const smallIdle = smalls.filter(e => e.b.idle).sort((u, v) => v.b.t0 - u.b.t0).slice(0, 5);
+    for (const e of [...smalls.filter(e => !e.b.idle), ...smallIdle]) {
       const pw = 26, ph = 15, x = e.p.x - pw / 2, y = e.p.y - ph - 7;
       ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.strokeStyle = 'rgba(60,50,60,.6)'; ctx.lineWidth = 1.2;
       rr(ctx, x, y, pw, ph, 7); ctx.fill(); ctx.stroke();
