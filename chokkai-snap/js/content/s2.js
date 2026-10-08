@@ -18,43 +18,43 @@ const scenery = [
   PR('sun', 4620, 130, 170),
   PR('mountain', 330, 300, 250, { color: '#5f8fc0', snow: true, wide: 1.3 }), PR('mountain', 880, 300, 190, { color: '#6c9cca' }), PR('mountain', 1420, 300, 150, { color: '#7aaad2' }),
   PR('hill', 2150, 320, 80, { color: '#86c46e', wide: 4 }),
-  { t: 'water', x: 3900, y: 95, w: 2100, h: 110, fill: '#4aa6de', shore: '#f0e2b8' },
+  { t: 'water', x: 3900, y: 215, w: 2100, h: 110, fill: '#4aa6de', shore: '#f0e2b8' },
   PR('boat', 4300, 275, 34, { color: '#fff' }), PR('boat', 5000, 300, 26, { color: '#e2463c' }),
   // 北の並びの裏手（店と店のすき間に見える路地）
-  { t: 'rect', x: 0, y: 180, w: 2380, h: 420, fill: '#c9b38e' },
-  { t: 'rect', x: 4110, y: 180, w: 1890, h: 420, fill: '#c9b38e' },
+  { t: 'rect', x: 0, y: 300, w: 2380, h: 420, fill: '#c9b38e' },
+  { t: 'rect', x: 4110, y: 300, w: 1890, h: 420, fill: '#c9b38e' },
   // 一番街（歩道＋石だたみ）。中の並びの下までしいておく
   { t: 'rect', x: 0, y: R1, w: W, h: 70, fill: '#d6c6a8' },
   { t: 'stripes', x: 0, y: R1, w: W, h: 70, dir: 'v', n: 100, c1: 'rgba(0,0,0,0)', c2: 'rgba(110,90,60,.12)' },
   { t: 'rect', x: 0, y: 773, w: W, h: R2 - 773, fill: '#f2e5c8' },
-  { t: 'stripes', x: 0, y: 653, w: W, h: 255, dir: 'h', n: 8, c1: 'rgba(0,0,0,0)', c2: 'rgba(170,130,80,.08)' },
-  { t: 'rect', x: 0, y: 754, w: W, h: 33, fill: 'rgba(214,112,72,.2)' },
+  { t: 'stripes', x: 0, y: 773, w: W, h: 255, dir: 'h', n: 8, c1: 'rgba(0,0,0,0)', c2: 'rgba(170,130,80,.08)' },
+  { t: 'rect', x: 0, y: 885, w: W, h: 33, fill: 'rgba(214,112,72,.2)' },
   // 二番街
   { t: 'rect', x: 0, y: R2, w: W, h: 60, fill: '#d6c6a8' },
   { t: 'stripes', x: 0, y: R2, w: W, h: 60, dir: 'v', n: 100, c1: 'rgba(0,0,0,0)', c2: 'rgba(110,90,60,.12)' },
-  { t: 'rect', x: 0, y: 1530, w: W, h: R3 - 1780, fill: '#ead8b4' },
-  { t: 'stripes', x: 0, y: 1295, w: W, h: 255, dir: 'h', n: 8, c1: 'rgba(0,0,0,0)', c2: 'rgba(170,130,80,.08)' },
-  { t: 'rect', x: 0, y: 1419, w: W, h: 30, fill: 'rgba(90,140,200,.16)' },
+  { t: 'rect', x: 0, y: 1530, w: W, h: R3 - 1530, fill: '#ead8b4' },
+  { t: 'stripes', x: 0, y: 1530, w: W, h: 255, dir: 'h', n: 8, c1: 'rgba(0,0,0,0)', c2: 'rgba(170,130,80,.08)' },
+  { t: 'rect', x: 0, y: 1654, w: W, h: 30, fill: 'rgba(90,140,200,.16)' },
   // 中の並び・南の並びの路地
-  { t: 'rect', x: 130, y: 926, w: 5660, h: 370, fill: '#bfa985' },
-  { t: 'rect', x: 0, y: 1601, w: W, h: 350, fill: '#bba682' },
+  { t: 'rect', x: 130, y: 1115, w: 5660, h: 370, fill: '#bfa985' },
+  { t: 'rect', x: 0, y: 1875, w: W, h: 350, fill: '#bba682' },
   // 南の車道と川
   { t: 'rect', x: 0, y: R3, w: W, h: 70, fill: '#d6c6a8' },
   { t: 'stripes', x: 0, y: R3, w: W, h: 70, dir: 'v', n: 100, c1: 'rgba(0,0,0,0)', c2: 'rgba(110,90,60,.12)' },
-  { t: 'road', x: 0, y: 1940, w: W, h: 230 },
-  { t: 'water', x: 0, y: 2195, w: W, h: 95, fill: '#5ab4e6', shore: '#9ccc7a' },
+  { t: 'road', x: 0, y: 2295, w: W, h: 230 },
+  { t: 'water', x: 0, y: 2550, w: W, h: 95, fill: '#5ab4e6', shore: '#9ccc7a' },
 
   // ── ひだまり公園（北の並びの中ほど） ──
-  { t: 'rect', x: 2380, y: 190, w: 1730, h: 463, fill: '#93cf6c' },
+  { t: 'rect', x: 2380, y: 310, w: 1730, h: 463, fill: '#93cf6c' },
   { t: 'ellipse', x: 3250, y: 750, rx: 860, ry: 40, fill: '#a9db82' },
   PR('bush', 2440, 350, 70, { color: '#5aa845' }), PR('tree', 2620, 400, 190), PR('pine', 2780, 360, 170),
   PR('bush', 3020, 330, 60, { color: '#5aa845', flower: '#fff' }), PR('tree', 3330, 350, 170, { color: '#4aa040' }),
   PR('pine', 3640, 370, 200), PR('tree', 3990, 380, 210, { fruit: '#ff6f61' }), PR('bush', 3800, 350, 60, { color: '#5aa845', flower: '#ff8ab0' }),
-  { t: 'sign', x: 2400, y: 400, w: 210, h: 56, text: 'ひだまり公園', fill: '#4a8a3a', color: '#fff', s: 24 },
-  { t: 'rect', x: 2420, y: 456, w: 10, h: 120, fill: '#6a4a2a' }, { t: 'rect', x: 2580, y: 456, w: 10, h: 120, fill: '#6a4a2a' },
+  { t: 'sign', x: 2400, y: 520, w: 210, h: 56, text: 'ひだまり公園', fill: '#4a8a3a', color: '#fff', s: 24 },
+  { t: 'rect', x: 2420, y: 576, w: 10, h: 120, fill: '#6a4a2a' }, { t: 'rect', x: 2580, y: 576, w: 10, h: 120, fill: '#6a4a2a' },
   // 野球のグラウンド（奥）
   { t: 'ellipse', x: 3070, y: 455, rx: 240, ry: 62, fill: '#e2c48e' },
-  { t: 'rect', x: 3062, y: 280, w: 16, h: 16, fill: '#fff' }, { t: 'rect', x: 2900, y: 328, w: 16, h: 16, fill: '#fff' }, { t: 'rect', x: 3226, y: 328, w: 16, h: 16, fill: '#fff' },
+  { t: 'rect', x: 3062, y: 400, w: 16, h: 16, fill: '#fff' }, { t: 'rect', x: 2900, y: 448, w: 16, h: 16, fill: '#fff' }, { t: 'rect', x: 3226, y: 448, w: 16, h: 16, fill: '#fff' },
   PR('fountain', 3480, 530, 110),
   // 大きな木（西：コソ泥がひそむ／東：チョロ吉が登る）
   { t: 'ellipse', x: 2500, y: 660, rx: 190, ry: 36, fill: 'rgba(30,70,30,.3)' },
@@ -66,11 +66,11 @@ const scenery = [
   { t: 'line', pts: [2732, 490,2732, 680], stroke: '#f2c14e', w: 7 }, { t: 'line', pts: [2788, 490,2788, 680], stroke: '#f2c14e', w: 7 },
   { t: 'ellipse', x: 2965, y: 718, rx: 75, ry: 22, fill: '#ead49c' },
   // 時計の柱
-  { t: 'rect', x: 3260, y: 360, w: 10, h: 240, fill: '#666' },
+  { t: 'rect', x: 3260, y: 480, w: 10, h: 240, fill: '#666' },
   PR('flower', 2620, 728, 34, { color: '#ffe066' }), PR('tulip', 2650, 732, 34, { color: '#ff4d6d' }), PR('flower', 3180, 729, 32, { color: '#ffa8c8' }),
   PR('tulip', 3320, 734, 34, { color: '#ffcc22' }), PR('flower', 3690, 729, 32, { color: '#ffe066' }), PR('tulip', 3730, 734, 34, { color: '#ff4d6d' }),
   PR('bird', 2990, 744, 30, { color: '#c8ccd2' }), PR('bird', 3025, 750, 26, { color: '#c8ccd2', flip: true }), PR('bird', 3110, 747, 28, { color: '#b8bcc4' }),
-  { t: 'fence', x: 2620, y: 649, w: 200, h: 25, fill: '#fff' }, { t: 'fence', x: 3640, y: 649, w: 150, h: 25, fill: '#fff' }, { t: 'fence', x: 4000, y: 649, w: 110, h: 25, fill: '#fff' },
+  { t: 'fence', x: 2620, y: 769, w: 200, h: 25, fill: '#fff' }, { t: 'fence', x: 3640, y: 769, w: 150, h: 25, fill: '#fff' }, { t: 'fence', x: 4000, y: 769, w: 110, h: 25, fill: '#fff' },
 
   // ── 北の店並び（下端 R1） ──
   B(40, R1, 320, 430, '#f9dbe6', '#d0708f', { awning: '#ee8fb5', goods: ['#ff9fc8', '#fff', '#c76b8a', '#ffd23f'] }),
@@ -79,7 +79,7 @@ const scenery = [
   B(660, R1, 300, 430, '#c8a27a', '#6b4426', { sign: '純喫茶 ポプラ', signFill: '#3a2414', signColor: '#f4d9a0', signSize: 26, awning: '#2f6b4a', goods: ['#7a4a2a', '#fff6e0', '#c8a27a'] }),
   PR('table', 900, 769, 70, { cloth: '#fff' }), PR('parasol', 900, 769, 150, { color: '#2f8a5a' }), PR('pot', 690, 769, 60),
   B(980, R1, 420, 440, '#e9edf2', '#2a4a8a', { roofStyle: 'flat', awning: '#f2c14e', goods: ['#333', '#555', '#3a8ad8', '#ddd'] }),
-  { t: 'rect', x: 1296, y: 142, w: 8, h: 20, fill: '#555' },
+  { t: 'rect', x: 1296, y: 262, w: 8, h: 20, fill: '#555' },
   B(1420, R1, 320, 430, '#e4f3e8', '#2e8a5a', { awning: '#4caf7a', goods: ['#fff', '#5bb03b', '#ff6f61', '#3a8ad8'] }),
   B(1760, R1, 250, 500, '#f4f6f8', '#6aa0c8', { sign: 'しろくま歯科 2F', signFill: '#6aa0c8', signColor: '#fff', signSize: 24 }),
   B(2030, R1, 340, 430, '#d9c9a8', '#7a3a2a', { sign: '本の森書店', signFill: '#2a4a2a', signColor: '#f4f0d0', signSize: 28, awning: '#7a3a2a', goods: ['#c33', '#3a6ab0', '#5a8a3a', '#e8b52a', '#6a4a8a'] }),
@@ -91,10 +91,10 @@ const scenery = [
   B(4800, R1, 280, 420, '#f0fff0', '#4a9a5a', { awning: '#9ad07a', goods: ['#ff6fa8', '#ffd23f', '#ff4d6d', '#fff', '#c86ad8'] }),
   PR('bush', 5010, 769, 40, { color: '#4fa33a', flower: '#ff6fa8' }), PR('tulip', 4830, 769, 34, { color: '#ffcc22' }),
   // さくら湯（瓦屋根）と煙突・釜場
-  { t: 'rect', x: 5730, y: -110, w: 60, h: 710, fill: '#8b4a3a' },
-  { t: 'stripes', x: 5730, y: -110, w: 60, h: 710, dir: 'h', n: 16, c1: 'rgba(0,0,0,0)', c2: 'rgba(0,0,0,.14)' },
+  { t: 'rect', x: 5730, y: 10, w: 60, h: 710, fill: '#8b4a3a' },
+  { t: 'stripes', x: 5730, y: 10, w: 60, h: 710, dir: 'h', n: 16, c1: 'rgba(0,0,0,0)', c2: 'rgba(0,0,0,.14)' },
   B(5100, R1, 600, 470, '#f3ead8', '#3a3a5a', { roofStyle: 'tile', door: false, windowColor: '#ffe6b0' }),
-  { t: 'rect', x: 5800, y: 500, w: 110, h: 100, fill: '#555', r: 8 }, EM('🔥', 5855, 685, 34),
+  { t: 'rect', x: 5800, y: 620, w: 110, h: 100, fill: '#555', r: 8 }, EM('🔥', 5855, 685, 34),
   PR('logs', 5820, 773, 46),
 
   // ── 中の店並び（下端 R2）と店先の小物 ──
@@ -103,11 +103,11 @@ const scenery = [
   B(440, R2, 320, 380, '#2a2a4a', '#111', { sign: 'ゲームセンター', signFill: '#f0f', signColor: '#fff', shop: true, goods: ['#f0f', '#0ff', '#ff0', '#f44'], windowColor: '#7a5ac8' }),
   B(780, R2, 290, 380, '#d6cbb4', '#3a2a1a', { awning: '#4a3a2a', goods: ['#c8a23a', '#8a3a6a', '#ddd'] }),
   B(1090, R2, 290, 380, '#d8e8ff', '#2a5aa8', { sign: 'スポーツ ダッシュ', signSize: 24, awning: '#2a5aa8' }),
-  { t: 'rect', x: 1110, y: 1280, w: 240, h: 20, fill: '#8a6a4a', r: 4 },
+  { t: 'rect', x: 1110, y: 1515, w: 240, h: 20, fill: '#8a6a4a', r: 4 },
   B(1460, R2, 290, 380, '#f6e6d6', '#6a3a2a', { sign: '和菓子 つきみ堂', signFill: '#fff', signColor: '#6a3a2a', signSize: 24, awning: '#b05a4a', goods: ['#ffb0c0', '#fff', '#8ac85a', '#6a3a2a'] }),
   B(1770, R2, 420, 380, '#dff0f7', '#1d5b8a', { door: false, windows: false, awning: '#3a8ac8', goods: ['#9ab', '#c8d8e8', '#e86a5a'] }),
-  { t: 'rect', x: 1790, y: 1128, w: 92, h: 80, fill: '#8fd3f0', stroke: '#456', lw: 4 },
-  { t: 'rect', x: 1900, y: 1220, w: 270, h: 32, fill: '#a8bccb', r: 4 }, EM('🧊', 2165, 1453, 26),
+  { t: 'rect', x: 1790, y: 1363, w: 92, h: 80, fill: '#8fd3f0', stroke: '#456', lw: 4 },
+  { t: 'rect', x: 1900, y: 1455, w: 270, h: 32, fill: '#a8bccb', r: 4 }, EM('🧊', 2165, 1453, 26),
   B(2210, R2, 290, 380, '#f6e0d6', '#a33', { awning: '#d65a4a', goods: ['#e86a5a', '#c8642a', '#ffd8a8'] }),
   B(2520, R2, 320, 380, '#fff1c9', '#e2702a', { roofStyle: 'flat', awning: '#e8b52a', goods: ['#e2702a', '#ffd23f', '#a0522d', '#e2343c'] }),
   B(2860, R2, 270, 380, '#f3d2a0', '#8a3a1a', { awning: '#c84a1a', goods: ['#c84a1a', '#ffd23f', '#7a3a1a'] }),
@@ -115,7 +115,7 @@ const scenery = [
   B(3150, R2, 300, 380, '#f2e0b0', '#a33', { sign: 'ラーメン 大盛軒', signFill: '#a33', signColor: '#fff', signSize: 24, awning: '#d33' }),
   B(3470, R2, 270, 380, '#eef6ff', '#5a7a9a', { sign: 'クリーニング', signSize: 24, shop: true, goods: ['#fff', '#cde', '#9ab'] }),
   B(3760, R2, 520, 380, '#f6f0d8', '#3a7a2a', { sign: '八百屋 みどり', signFill: '#3a7a2a', signColor: '#fff', awning: '#5aa83a', door: false, goods: ['#5bb03b', '#ff8a2a', '#ffd23f', '#e2343c', '#8ac85a'] }),
-  { t: 'rect', x: 3790, y: 1230, w: 470, h: 23, fill: '#a8703c', r: 4 },
+  { t: 'rect', x: 3790, y: 1465, w: 470, h: 23, fill: '#a8703c', r: 4 },
   EM('🥬', 3940, 1459, 36), EM('🥕', 4010, 1459, 34), EM('🍌', 4080, 1459, 34), EM('🍊', 4140, 1461, 30),
   B(4300, R2, 260, 380, '#f4f4f4', '#2a3a6a', { roofStyle: 'flat', windows: false }),
   { t: 'ellipse', x: 4430, y: 1165, rx: 18, ry: 18, fill: '#e2343c' },
@@ -138,15 +138,15 @@ const scenery = [
   // 小さな神社
   PR('pine', 1730, 2085, 190), PR('pine', 2060, 2095, 170),
   B(1820, 2145, 200, 220, '#f4e6d0', '#5a4a3a', { roofStyle: 'tile', windows: false }),
-  { t: 'rect', x: 1700, y: 1744, w: 16, h: 160, fill: '#d8382a' }, { t: 'rect', x: 1800, y: 1744, w: 16, h: 160, fill: '#d8382a' },
-  { t: 'rect', x: 1680, y: 1732, w: 156, h: 20, fill: '#d8382a', r: 4 }, { t: 'rect', x: 1692, y: 1759, w: 132, h: 12, fill: '#d8382a' },
-  { t: 'rect', x: 1680, y: 1804, w: 420, h: 80, fill: '#d9ccb0' },
+  { t: 'rect', x: 1700, y: 2065, w: 16, h: 160, fill: '#d8382a' }, { t: 'rect', x: 1800, y: 2065, w: 16, h: 160, fill: '#d8382a' },
+  { t: 'rect', x: 1680, y: 2049, w: 156, h: 20, fill: '#d8382a', r: 4 }, { t: 'rect', x: 1692, y: 2085, w: 132, h: 12, fill: '#d8382a' },
+  { t: 'rect', x: 1680, y: 2145, w: 420, h: 80, fill: '#d9ccb0' },
   // 駐車場
-  { t: 'rect', x: 2120, y: 1714, w: 580, h: 200, fill: '#b4b6ba' },
-  { t: 'stripes', x: 2120, y: 1714, w: 580, h: 200, dir: 'v', n: 6, c1: 'rgba(0,0,0,0)', c2: 'rgba(255,255,255,.25)' },
+  { t: 'rect', x: 2120, y: 2025, w: 580, h: 200, fill: '#b4b6ba' },
+  { t: 'stripes', x: 2120, y: 2025, w: 580, h: 200, dir: 'v', n: 6, c1: 'rgba(0,0,0,0)', c2: 'rgba(255,255,255,.25)' },
   PR('house', 2250, 2025, 160, { color: '#f2e2c4', roof: '#3a7ac8' }), PR('house', 2560, 2025, 150, { color: '#fff0d8', roof: '#c9503c' }),
   PR('car', 2230, 2205, 64, { color: '#3a7ad8' }), PR('car', 2420, 2205, 64, { color: '#f2c43a', flip: true }), PR('truck', 2610, 2205, 56),
-  { t: 'sign', x: 2130, y: 1721, w: 54, h: 54, text: 'P', fill: '#2a5ab0', color: '#fff', s: 36 },
+  { t: 'sign', x: 2130, y: 2035, w: 54, h: 54, text: 'P', fill: '#2a5ab0', color: '#fff', s: 36 },
   B(2720, R3, 280, 340, '#fff0f0', '#e86a8a', { sign: 'たいやき', signSize: 26, awning: '#e86a8a' }),
   B(3020, R3, 300, 350, '#eef2f6', '#3a4a6a', { sign: 'メガネの光堂', signSize: 22, shop: true }),
   B(3340, R3, 320, 350, '#f2e6d0', '#3a3a3a', { sign: 'そば 更科', roofStyle: 'tile', awning: '#3a3a3a', signFill: '#3a2a1a', signColor: '#fff', signSize: 26 }),
@@ -164,6 +164,19 @@ const scenery = [
   PR('car', 4800, 2395, 66, { color: '#f2c43a', flip: true }), PR('car', 5600, 2515, 66, { color: '#fff' }),
   PR('boat', 2300, 2620, 40, { color: '#c8643c' }), PR('boat', 5000, 2630, 34),
 ];
+// 通りのにぎわい（屋台・ベンチ・横断歩道・自転車・鳥）
+scenery.push(
+  PR('bench', 540, 975, 58, { color: '#3a8ad8' }), PR('pot', 470, 975, 50), PR('pot', 610, 975, 50),
+  PR('table', 1850, 975, 52, { cloth: '#e2463c' }), PR('parasol', 1850, 975, 120, { color: '#e2463c' }), EM('🍡', 1830, 925, 26),
+  PR('bike', 2960, 975, 56, { color: '#e2463c' }), PR('bike', 3030, 975, 56, { color: '#2a7ad8' }),
+  PR('bench', 4560, 975, 58, { color: '#5aa83a' }), PR('bush', 4480, 975, 44, { color: '#4fa33a', flower: '#ffd23f' }),
+  PR('pot', 5560, 975, 54), PR('cat', 5640, 975, 46, { color: '#f0a040' }), PR('bird', 1600, 960, 26, { color: '#c8ccd2' }), PR('bird', 3550, 950, 24, { color: '#c8ccd2', flip: true }),
+  PR('table', 660, 1735, 52, { cloth: '#ffd23f' }), PR('parasol', 660, 1735, 120, { color: '#ff9a3a' }), EM('🍠', 645, 1685, 26),
+  PR('bench', 2200, 1735, 58), PR('pot', 2120, 1735, 50),
+  PR('bike', 3600, 1735, 56), PR('bike', 3670, 1735, 56, { color: '#5bb03b' }), PR('trash', 3740, 1735, 44),
+  PR('table', 4950, 1735, 52, { cloth: '#fff' }), PR('parasol', 4950, 1735, 120, { color: '#3a8ad8' }), EM('🐟', 4935, 1686, 26),
+  PR('bush', 5650, 1735, 50, { color: '#4fa33a', flower: '#ff6fa8' }), PR('dog', 1250, 1735, 44, { color: '#f4f0ea' }), PR('bird', 2800, 1720, 24, { color: '#b8bcc4' }),
+);
 // 街灯・のぼり・植えこみ（ループ）
 for (const x of [20, 650, 1410, 2370, 4110, 4790, 5090]) scenery.push(PR('lamp', x, 774, 170));
 for (const x of [430, 1380, 2200, 3000, 3780, 4600, 5300]) scenery.push(PR('lamp', x, 1535, 160));
