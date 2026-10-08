@@ -30,8 +30,8 @@ const platform = (y, h) => [
 // 駅名標（柱つき）
 const ekimei = (x, y) => [
   { t: 'rect', x: x + 14, y: y - 30, w: 8, h: 30, fill: '#666' }, { t: 'rect', x: x + 198, y: y - 30, w: 8, h: 30, fill: '#666' },
-  { t: 'sign', x, y: y - 90, w: 220, h: 62, text: 'ひなただい\nHINATADAI', fill: '#fff', color: '#1d3a6a', s: 20 },
-  { t: 'rect', x: x + 4, y: y - 46, w: 212, h: 8, fill: '#2a8a4a' },
+  { t: 'sign', x, y: y - 100, w: 220, h: 72, text: 'ひなただい\nHINATADAI', fill: '#fff', color: '#1d3a6a', s: 18 },
+  { t: 'rect', x: x + 4, y: y - 36, w: 212, h: 6, fill: '#2a8a4a' },
 ];
 const gateUnit = (x, y) => [
   { t: 'rect', x, y: y - 86, w: 80, h: 86, fill: '#e2e6ea', stroke: '#8a95a5', lw: 3, r: 6 },
@@ -92,7 +92,7 @@ const rawScenery = [
   // 3番線の向こう：植えこみと柵
   { t: 'rect', x: TRACK_X, y: 1520, w: W - TRACK_X, h: 62, fill: '#93a77f' },
   { t: 'fence', x: TRACK_X, y: 1582, w: W - TRACK_X, h: 40, fill: '#6a6a6a' },
-  ...[900, 1900, 2900, 3900, 4900, 5800].map((x, i) => ({ t: 'prop', kind: i % 2 ? 'flower' : 'bush', x, y: 1560, s: 46, color: ['#ff8fb0', '#ffd23f', '#ff8fb0'][i % 3], flower: true })),
+  ...[900, 1900, 2900, 3900, 4900, 5800].map((x, i) => ({ t: 'prop', kind: i % 2 ? 'flower' : 'bush', x, y: 1560, s: 46, color: i % 2 ? ['#ff8fb0', '#ffd23f', '#ff8fb0'][i % 3] : '#5aa04a', flower: true })),
   { t: 'text', text: 'ここから先 立入禁止', x: 6150, y: 1548, s: 20, fill: '#fff', bold: true },
   // ホームの柱・広告・灯り（にぎやかし）
   ...[800, 1950, 3100, 4250, 5300].flatMap(x => [700, 1170].map(y => ({ t: 'rect', x, y: y - 6, w: 18, h: 96, fill: '#7a8590' }))),
@@ -334,7 +334,7 @@ export default {
       ],
     },
     rikiya: {
-      name: 'こわもてのリキヤ', x: 4500, y: 2511, wander: 80,
+      name: 'こわもてのリキヤ', x: 5550, y: 2511, wander: 80,
       look: { hair: 'spiky', hairColor: '#111', shirt: '#2a2a2a', pants: '#2a2a2a', acc: ['sunglasses'], muscle: true, wide: true, h: 180 },
       idle: [
         '……なに見てんだ',
@@ -455,7 +455,7 @@ export default {
       ],
     },
     ume: {
-      name: 'トイレをさがすウメばあちゃん', x: 4800, y: 2068, wander: 130,
+      name: 'トイレをさがすウメばあちゃん', x: 5400, y: 2068, wander: 130,
       look: { hair: 'bun', hairColor: '#ddd', shirt: '#9a6a8a', pants: '#5a4a5a', skirt: true, acc: ['bag'], old: true, h: 150 },
       idle: [
         { text: 'おトイレは どこかしらねえ……', when: [notDone('S5-E47')] },
@@ -582,7 +582,7 @@ export default {
       ],
     },
     comm1: {
-      name: '通勤客', x: 1200, y: 2068, path: [[1200, 2068], [480, 2023], [190, 1805], [130, 1385], [130, 710], [2600, 701], [130, 729], [130, 1385], [190, 1805], [480, 2068], [1200, 2114]], speed: 100,
+      name: '通勤客', x: 6000, y: 2000, path: [[6000, 2000], [1200, 2068], [480, 2023], [190, 1805], [130, 1385], [130, 710], [2600, 701], [130, 729], [130, 1385], [190, 1805], [480, 2068], [1200, 2114], [6000, 2100]], speed: 100,
       look: { hair: 'short', hairColor: '#222', shirt: '#56708a', pants: '#2a2a2a', acc: ['tie', 'bag'], h: 170 },
       idle: ['すみません、通ります', '2番線の快速、いつも 満員なんだよな'],
     },
@@ -735,9 +735,9 @@ export default {
   },
   objects: {
     // 列車（timeline で出入りする）
-    train1: { name: '1番線の普通電車', sign: { text: '🪟🚪🪟🪟🚪🪟🪟🚪🪟　普通 みなと行　🪟🚪🪟🪟🚪🪟🪟🚪🪟', fill: '#3b8a5a', color: '#fff', s: 46 }, w: 3600, h: 170, x: 2700, y: 542 },
-    train2: { name: '2番線の快速（ドアがたくさん）', sign: { text: '🚪🪟🚪🪟🚪🪟🚪🪟🚪　快速 そらの台行　🚪🪟🚪🪟🚪🪟🚪🪟🚪', fill: '#d0682a', color: '#fff', s: 46 }, w: 3600, h: 170, x: 8500, y: 973, hidden: true },
-    ytrain: { name: '黄色い点検車', sign: { text: '🪟🪟🪟　★ 点検車 イエローライナー ★　🪟🪟🪟', fill: '#f2d22e', color: '#333', s: 44 }, w: 3000, h: 160, x: 8500, y: 1404, hidden: true },
+    train1: { name: '1番線の普通電車', sign: { text: '🪟🚪🪟🪟🚪🪟🪟🚪🪟🪟🚪🪟🪟🚪🪟🪟🚪🪟🪟🚪🪟🪟🚪🪟🪟🚪🪟　普通 みなと行　🪟🚪🪟🪟🚪🪟🪟🚪🪟🪟🚪🪟🪟🚪🪟🪟🚪🪟🪟🚪🪟🪟🚪🪟🪟🚪🪟', fill: '#3b8a5a', color: '#fff', s: 46 }, w: 3600, h: 170, x: 2700, y: 542 },
+    train2: { name: '2番線の快速（ドアがたくさん）', sign: { text: '🚪🪟🚪🪟🚪🪟🚪🪟🚪🚪🪟🚪🪟🚪🪟🚪🪟🚪🚪🪟🚪🪟🚪🪟🚪🪟🚪　快速 そらの台行　🚪🪟🚪🪟🚪🪟🚪🪟🚪🚪🪟🚪🪟🚪🪟🚪🪟🚪🚪🪟🚪🪟🚪🪟🚪🪟🚪', fill: '#d0682a', color: '#fff', s: 46 }, w: 3600, h: 170, x: 8500, y: 973, hidden: true },
+    ytrain: { name: '黄色い点検車', sign: { text: '🪟🪟🪟🪟🪟🪟🪟🪟🪟🪟🪟🪟🪟🪟🪟🪟　★ 点検車 イエローライナー ★　🪟🪟🪟🪟🪟🪟🪟🪟🪟🪟🪟🪟🪟🪟🪟🪟', fill: '#f2d22e', color: '#333', s: 44 }, w: 3000, h: 160, x: 8500, y: 1404, hidden: true },
     // 広場
     stall: { name: 'あやしい露店', sign: { text: '何でも100円', fill: '#d8783a', color: '#fff', s: 22 }, w: 240, h: 120, x: 1500, y: 2545 },
     guide: { name: '駅周辺案内図', sign: { text: '案内図 🏥→', fill: '#2a5a8a', color: '#fff', s: 22 }, w: 190, h: 180, x: 1500, y: 2468 },
@@ -766,7 +766,7 @@ export default {
     lotto: { name: '自販機の当たりルーレット', sign: { text: '0 0 0 0', fill: '#111', color: '#7cff7c', s: 18 }, w: 84, h: 26, x: 3200, y: 1634, z: 1760, minZoom: 1.2 },
     tomatocan: { name: 'トマトジュースの空き缶', emoji: '🥫', size: 30, x: 3360, y: 2023, minZoom: 1.1 },
     bento: { name: 'ハラダの手作り弁当', emoji: '🍱', size: 34, x: 2690, y: 1982 },
-    zipper: { name: 'ノブオのズボンのファスナー', emoji: '🤐', size: 22, x: 1980, y: 2050, minZoom: 1.6, layer: 1 },
+    zipper: { name: 'ノブオのズボンのファスナー', emoji: '🤐', size: 22, x: 1980, y: 2069, minZoom: 1.6, layer: 1 },
     letter: { name: '落ちていたラブレター', emoji: '💌', size: 30, x: 3650, y: 2204, minZoom: 1.2 },
     kasa: { name: 'だれかの傘', emoji: '🌂', size: 40, x: 560, y: 2114, rot: 0.6 },
     guitarcase: { name: 'ギターケース（投げ銭）', emoji: '🪙', size: 34, x: 4020, y: 2191 },
