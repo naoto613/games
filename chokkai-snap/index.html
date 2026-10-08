@@ -54,7 +54,7 @@
   #timer span em{font-style:normal;font-variant-numeric:tabular-nums;letter-spacing:0}
   #timer.low i{background:linear-gradient(#ff8a8a,#e04848);animation:blink 1s infinite}
   @keyframes blink{50%{opacity:.65}}
-  #toast{position:absolute;left:50%;bottom:calc(var(--sb) + var(--barh) + 74px);transform:translateX(-50%);background:rgba(40,36,44,.88);color:#fff;padding:8px 16px;border-radius:12px;font-weight:800;font-size:15px;opacity:0;transition:opacity .25s;pointer-events:none;max-width:80vw;text-align:center;z-index:8;border:2px solid rgba(255,255,255,.25)}
+  #toast{position:absolute;left:50%;bottom:calc(var(--sb) + var(--barh) + 74px);transform:translateX(-50%);background:rgba(40,36,44,.88);color:#fff;padding:6px 14px;border-radius:12px;font-weight:800;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;max-width:min(64vw,560px);text-align:center;z-index:8;border:2px solid rgba(255,255,255,.25)}
   #toast.show{opacity:1}
   #tutorialBar{position:absolute;left:50%;top:calc(var(--st) + 10px);transform:translateX(-50%);width:min(70vw,620px);background:#fff8d6;border:3px solid var(--yellow2);border-radius:14px;padding:8px 14px;font-weight:800;font-size:15px;text-align:center;box-shadow:0 4px 0 rgba(0,0,0,.25);pointer-events:none;z-index:6}
   .scorepop{position:absolute;font-weight:900;color:#fff;font-size:22px;text-shadow:0 2px 0 #c2185b,0 0 6px #c2185b;pointer-events:none;animation:up 1.1s forwards;z-index:7}
