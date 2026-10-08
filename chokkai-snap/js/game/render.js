@@ -83,7 +83,8 @@ export class Renderer {
     this.fx = []; this.bubbles.clear(); this.reacts.clear(); this.flights = []; this.overlays = []; this.hint = null;
     this.sceneryBoxes = stage.scenery.map(boxOf);
     // 開始時はステージ全体を一望する（俯瞰）
-    this.cam = { x: stage.world.width / 2, y: stage.world.height / 2, zoom: 0.01 };
+    this.cam = { x: stage.world.width / 2, y: stage.world.height / 2, zoom: 1 };
+    this.cam.zoom = this.coverZoom();
     this.clampCam();
   }
 
@@ -92,7 +93,11 @@ export class Renderer {
   minZoom() {
     // 世界全体が画面に収まる倍率（contain）まで引ける
     const wd = this.stage.world;
-    // 画面いっぱいに世界が映る倍率（cover）。黒い余白を出さない
+    // 世界全体が入る倍率（contain）まで引ける。開始時は画面いっぱい（cover）
+    return Math.min(this.w / (wd.width * this.base), this.h / (wd.height * this.base));
+  }
+  coverZoom() {
+    const wd = this.stage.world;
     return Math.max(this.w / (wd.width * this.base), this.h / (wd.height * this.base));
   }
   maxZoom(cap) { return Math.min(this.stage.world.maxZoom, cap || 99); }
@@ -253,7 +258,7 @@ export class Renderer {
     const st = this.stage, rt = this.rt;
     this._stepCam(now);
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    ctx.fillStyle = '#1b1b22';
+    ctx.fillStyle = '#3a3a40';
     ctx.fillRect(0, 0, this.w, this.h);
     if (!st) return;
     const s = this.scale;
