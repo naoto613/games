@@ -1,0 +1,45 @@
+// チュートリアル（52章）。本編 6 ステージの集計には入れない。
+export const TUTORIAL = {
+  id: 'T0', title: 'はじめての ちょっかい', subtitle: 'チュートリアル', theme: '庭',
+  timeLimitMs: 600000,
+  world: { width: 1800, height: 1000, minZoom: 0.75, maxZoom: 4, bg: '#bfe3a5', spawnCamera: { x: 700, y: 560, zoom: 1 } },
+  bgm: { tempo: 90, key: 5, mood: 'major' },
+  clearEventId: 'T0-E03', timeoutEventId: null,
+  routes: { 'T0.route': 'チュートリアル' },
+  tutorial: [
+    { id: 'pan', text: '1本指でドラッグして、まわりを見まわしてみよう', done: 'pan' },
+    { id: 'zoom', text: '2本指でピンチして、ズームしてみよう（ダブルタップでも寄れるよ）', done: 'zoom' },
+    { id: 'capture', text: '気になる物をタップすると、画像として取りこめる。ジョウロをタップしよう', done: 'capture' },
+    { id: 'send', text: '画像を持ったまま人をタップすると「ちょっかい」。おじいさんにジョウロを送ろう', done: 'event' },
+    { id: 'observe', text: '反応を見て、次に何が起きそうか考えよう。花の様子を見て、もう一度ちょっかいを出してみよう', done: 'clear' },
+  ],
+  scenery: [
+    { t: 'rect', x: 0, y: 0, w: 1800, h: 420, fill: '#cfeaff' },
+    { t: 'emoji', e: '☁️', x: 300, y: 120, s: 120 }, { t: 'emoji', e: '☀️', x: 1550, y: 120, s: 120 },
+    { t: 'rect', x: 0, y: 380, w: 1800, h: 60, fill: '#a07850' },
+    { t: 'stripes', x: 0, y: 380, w: 1800, h: 60, dir: 'v', n: 30, c1: 'rgba(0,0,0,0)', c2: 'rgba(0,0,0,.15)' },
+    { t: 'emoji', e: '🏠', x: 1500, y: 360, s: 260 }, { t: 'emoji', e: '🌳', x: 200, y: 400, s: 220 },
+    { t: 'rect', x: 600, y: 700, w: 500, h: 160, fill: '#8a5a33', r: 20 },
+    { t: 'emoji', e: '🪨', x: 1200, y: 900, s: 50 }, { t: 'emoji', e: '🌼', x: 400, y: 820, s: 40 },
+  ],
+  actors: {
+    gramps: { name: 'おじいさん', x: 980, y: 760, wander: 40, look: { hair: 'bald', shirt: '#6a8a5a', pants: '#4a4a3a', acc: ['beard', 'hat'], old: true, h: 150 },
+      idle: [{ text: 'はて、花がしおれておるのう', when: [{ eventNotDone: 'T0-E01' }] }, { text: 'ふう、ひと休みじゃ', when: [{ eventDone: 'T0-E01' }] }] },
+    girl: { name: '女の子', x: 1300, y: 820, wander: 60, look: { hair: 'twin', hairColor: '#7a3a1a', shirt: '#f6a', pants: '#58c', kid: true, h: 110 },
+      idle: [{ text: 'お花、まだ咲かないのかなあ', when: [{ eventNotDone: 'T0-E03' }] }] },
+  },
+  objects: {
+    can: { name: 'ジョウロ', emoji: '🚿', size: 50, x: 520, y: 880 },
+    flower: { name: 'しおれた花', emoji: '🥀', size: 54, x: 850, y: 690 },
+    bloom: { name: '咲いた花', emoji: '🌷', size: 64, x: 850, y: 690, hidden: true },
+    ball: { name: 'ボール', emoji: '⚽', size: 36, x: 260, y: 930 },
+  },
+  events: [
+    { id: 'T0-E01', s: 'can', t: 'gramps', cat: 'PROGRESSION', title: 'おじいさん、花に水をやる', say: 'おお、水をやらんとな', anim: 'react.think', route: 'T0.route',
+      fx: [{ type: 'ACTOR_MOVE', actorId: 'gramps', to: [900, 720], speed: 160 }, { type: 'HIDE_OBJECT', objectId: 'flower', delayMs: 1800 }, { type: 'SPAWN_OBJECT', objectId: 'bloom', delayMs: 1800 }, { type: 'FX', kind: 'sparkle', at: 'bloom', delayMs: 1800 }],
+      after: [{ actor: 'girl', text: 'わあ！ お花が咲いた！ 見せてほしいな', delay: 3000 }] },
+    { id: 'T0-E02', s: 'ball', t: 'gramps', cat: 'FLAVOR', title: 'おじいさん、ボールをける', say: 'それっ……あいたた、腰が', anim: 'react.fall', route: 'T0.route' },
+    { id: 'T0-E03', s: 'bloom', t: 'girl', cat: 'TERMINAL', requires: ['T0-E01'], title: '女の子、花に大よろこび', say: 'きれい！ おじいさん、ありがとう！', anim: 'react.love', route: 'T0.route',
+      fx: [{ type: 'FX', kind: 'confetti', at: 'girl' }, { type: 'WAIT', durationMs: 1200 }] },
+  ],
+};

@@ -1,0 +1,19 @@
+name: chokkai-snap content check
+on:
+  push:
+    paths: ['chokkai-snap/**']
+  pull_request:
+    paths: ['chokkai-snap/**']
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: chokkai-snap
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/validate.mjs
+      - run: node tests/run.mjs
