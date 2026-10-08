@@ -448,6 +448,11 @@ export class Renderer {
       const p = this.worldToScreen(a.x, head);
       list.push({ id, b, p, a });
     }
+    // 引きの画面では小さく見える人物の雑談は出さず、雑談は画面中央に近い 4 人までにする（吹き出しの洪水を防ぐ）
+    const cx = this.w / 2, cy = this.h / 2;
+    const idle = list.filter(e => e.b.idle && this.entityBox(e.id).h * this.scale >= 38)
+      .sort((u, v) => Math.hypot(u.p.x - cx, u.p.y - cy) - Math.hypot(v.p.x - cx, v.p.y - cy)).slice(0, 4);
+    list.splice(0, list.length, ...list.filter(e => !e.b.idle), ...idle);
     list.sort((u, v) => u.p.x - v.p.x);
     const offscreen = [];
     for (const { id, b, p } of list) {
@@ -465,7 +470,7 @@ export class Renderer {
         if (!hit) break;
         by = hit.y - bh - 4;
       }
-      by = Math.max(4, by);
+      by = Math.max(58, by);
       placed.push({ x: bx, y: by, w: bw, h: bh });
       const pop = Math.min(1, (now - b.t0) / 120);
       const fade = Math.min(1, (b.until - now) / 300);
