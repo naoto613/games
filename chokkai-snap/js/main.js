@@ -349,7 +349,7 @@ class Game {
     const rt = this.rt;
     const ms = rt.remainingMs;
     const t = $('#timer');
-    const txt = fmtTime(ms);
+    const txt = this.stage.id === 'T0' ? 'れんしゅう' : fmtTime(ms);
     const em = t.querySelector('em');
     if (em.textContent !== txt) em.textContent = txt;
     t.querySelector('i').style.width = (this.stage.id === 'T0' ? 100 : Math.max(0, ms / rt.state.timeLimitMs * 100)) + '%';

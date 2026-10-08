@@ -1,7 +1,8 @@
 // 画面 UI：タイトル / ステージ選択 / 図鑑（28,51,65,94章）/ 設定（96章）/ 結果（50章）/ 一時停止（99章）
 // デバッグ：Runtime Inspector（45）/ Condition Debugger（46）/ Event Graph（43）/ イベントブラウザ＋Play Event（44）/ チート（100）
 import { esc, fmtTime } from './util.js';
-import { Renderer } from './render.js';
+import { Renderer, drawPerson } from './render.js';
+import { PROPS } from './props.js';
 import { eventGraph, validateStage, solveFor, replay as replayPath } from '../engine/validator.js';
 import { ANIMATIONS } from '../engine/animations.js';
 
@@ -32,7 +33,7 @@ export function showTitle(g) {
   const resume = g.pendingRun;
   const errs = g.contentErrors.length && g.settings.debug ? `<p class="note" style="color:#c33">Content Validator: ${g.contentErrors.length} 件のエラー（コンソール参照）</p>` : '';
   show(`<div class="panel" style="text-align:center;max-width:560px">
-    <div style="font-size:54px;margin-top:4px">📸👀✨</div>
+    <canvas class="titleart" id="tArt" width="1040" height="520"></canvas>
     <h1>ちょっかいスナップ</h1>
     <p class="lead">見て、撮って、ちょっかい。<br>勝手に暮らす人たちを観察して、気になる物を「画像」に取りこみ、だれかに送ってみよう。思いもよらない出来事が、つぎの出来事を呼ぶ……。</p>
     <div class="grid">
@@ -47,6 +48,7 @@ export function showTitle(g) {
     ${errs}
     <p class="note" style="margin-top:14px">スマートフォン／タブレットの Chrome 向け（タッチ操作）。横向き推奨。<br>登場人物・台詞・絵・音はすべてこのゲームのオリジナルです。 v${g.version}</p>
   </div>`);
+  drawTitleArt(scr().querySelector('#tArt'));
   on('#tPlay', () => { if (!p.tutorialDone) return showTutorialAsk(g); showStageSelect(g); });
   on('#tTut', () => g.startStage('T0'));
   on('#tGallery', () => showGallery(g, null, () => showTitle(g)));
@@ -439,4 +441,31 @@ function showGraph(g, back) {
     on('#grBack', back);
   };
   render();
+}
+
+// タイトルのイラスト（ゲーム内と同じ描画部品で描く）
+function drawTitleArt(cv) {
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const g = ctx.createLinearGradient(0, 0, 0, 300);
+  g.addColorStop(0, '#5aaee6'); g.addColorStop(1, '#cdeaff');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 1040, 520);
+  PROPS.cloud(ctx, 180, 110, 70, {}); PROPS.cloud(ctx, 760, 80, 55, {}); PROPS.sun(ctx, 930, 150, 120, {});
+  PROPS.mountain(ctx, 330, 300, 190, { color: '#3d6fa3', wide: 1.3, snow: true }); PROPS.mountain(ctx, 640, 300, 140, { color: '#4f8a5a', wide: 1.4 });
+  ctx.fillStyle = '#8fd060'; ctx.fillRect(0, 300, 1040, 220);
+  ctx.fillStyle = '#b0b4ba'; ctx.fillRect(0, 380, 1040, 70); ctx.fillStyle = 'rgba(255,255,255,.8)'; for (let x = 20; x < 1040; x += 120) ctx.fillRect(x, 412, 60, 6);
+  PROPS.house(ctx, 820, 330, 150, { color: '#fff2dc', roof: '#d8503c' }); PROPS.tree(ctx, 90, 340, 190, {}); PROPS.pine(ctx, 990, 330, 130, {});
+  PROPS.car(ctx, 560, 450, 60, { color: '#f2c43a' }); PROPS.bench(ctx, 330, 360, 45, {}); PROPS.lamp(ctx, 690, 380, 120, {});
+  PROPS.cat(ctx, 960, 505, 70, { color: '#2a2a2a', stripes: false });
+  const people = [
+    [200, 500, { hair: 'spiky', hairColor: '#222', shirt: '#3ab0a0', pants: '#2a5ab0', kid: true, h: 170 }, 'RIGHT', 'happy', 'jump'],
+    [430, 500, { hair: 'long', hairColor: '#7a3a1a', shirt: '#f2a8c8', pants: '#555', acc: ['ribbon'], h: 210, skirt: true }, 'RIGHT', 'surprised', 'none'],
+    [650, 505, { hair: 'short', hairColor: '#2a2a2a', shirt: '#4a6a9a', pants: '#3a3a44', acc: ['glasses', 'camera'], h: 220 }, 'LEFT', 'normal', 'none'],
+    [850, 500, { hair: 'bald', hairColor: '#e8e8e8', shirt: '#8a7a5a', pants: '#4a4a3a', acc: ['beard'], old: true, h: 200 }, 'LEFT', 'angry', 'none'],
+  ];
+  for (const [x, y, L, f, face, body] of people) { ctx.save(); ctx.translate(x, y); ctx.fillStyle = 'rgba(0,0,0,.15)'; ctx.beginPath(); ctx.ellipse(0, 0, L.h * 0.2, L.h * 0.05, 0, 0, Math.PI * 2); ctx.fill(); drawPerson(ctx, L, f, face, null, body, 0.5, 2); ctx.restore(); }
+  // カメラのフレーム（「撮る」）
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 7; ctx.lineCap = 'round';
+  const fx = 560, fy = 150, fw = 160, fh = 120;
+  for (const [x, y, dx, dy] of [[fx, fy, 1, 1], [fx + fw, fy, -1, 1], [fx, fy + fh, 1, -1], [fx + fw, fy + fh, -1, -1]]) { ctx.beginPath(); ctx.moveTo(x + dx * 34, y); ctx.lineTo(x, y); ctx.lineTo(x, y + dy * 34); ctx.stroke(); }
 }
