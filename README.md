@@ -24,6 +24,7 @@
 - STELLA NOCTIS ─宵星のレガリア─: https://naoto613.github.io/games/stella-noctis/
 - ひとり人狼 〜月影の村〜: https://naoto613.github.io/games/hitori-jinro/
 - ひらめき スープ屋: https://naoto613.github.io/games/hirameki-soup/
+- ちょっかいスナップ: https://naoto613.github.io/games/chokkai-snap/
 
 ## 構成
 
@@ -33,6 +34,13 @@
 ├── thumbs/                 # 一覧ページ用サムネイル（<ゲームフォルダ名>.jpg、800×500）
 ├── .nojekyll               # Jekyll 処理を無効化（ファイルをそのまま配信）
 ├── README.md
+├── chokkai-snap/
+│   ├── index.html          # ちょっかいスナップ（PS2『リモココロン』型の「観察→画像を取り込む→ちょっかい→連鎖」ゲームを詳細設計書どおりに再構築。スマホ／タブレットの Chrome 向けタッチ操作。6ステージ・全323イベントをデータ駆動で定義し、条件エンジン・排他分岐・連鎖・時間切れ終端・図鑑・リプレイ・IndexedDB セーブ・ヒント・難易度・アクセシビリティ設定・デバッグツール（Inspector／Condition Debugger／イベントグラフ／Play Event）つき。ビルド不要の ES Modules）
+│   ├── js/engine/          # DOM 非依存のエンジン（条件・ランタイム・正規化・検証／到達可能性ソルバー）
+│   ├── js/game/            # 描画・入力・音・セーブ・UI
+│   ├── js/content/         # ステージデータ s1〜s6・チュートリアル（書き方は docs/content-format.md）
+│   ├── tools/validate.mjs  # 全ステージの検証＋全イベント到達可能性（node tools/validate.mjs）
+│   └── tests/              # node tests/run.mjs（ユニット・S1 テストケース・全終端）、tests/e2e.mjs（Playwright）
 ├── hitori-jinro/
 │   └── index.html          # ひとり人狼 〜月影の村〜（ひとりで遊ぶ 9 人村の人狼ゲーム。人狼2・占い・霊媒・騎士・狂人・村人3、CPU 8 人は人狼の組み合わせ 36 通りを全列挙して CO・結果・投票・かばい合い（ライン）・印象から推理。性格（論理/感情/直感）・表情・好感度・恨みを持ち、プレイヤーへの質問・弁明・説得・嘘の指摘、人狼の仲間かばい・口すべり・仕草などのボロ、人狼プレイヤーの相棒への作戦指示、終了後の感想戦あり。単一 HTML で完結。`?auto` で自動対戦シミュレーション（`runSim(n)`））
 ├── kossori-treasure/
