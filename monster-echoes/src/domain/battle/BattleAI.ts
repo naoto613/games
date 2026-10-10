@@ -5,6 +5,8 @@ import { BALANCE } from '../../data/balance';
 import { elementMultiplier, rawDamage, statusMultiplier } from './DamageCalculator';
 import type { BattleState, Combatant } from './types';
 
+const ENEMY_HEAL = BALANCE.battle.enemyHeal;
+
 export type AiChoice = { skillId: string; target?: string; score: number; reason: string };
 
 const WEIGHTS: Record<Tactic, { damage: number; heal: number; support: number; mpPenalty: number }> = {
@@ -34,6 +36,8 @@ export function chooseAction(s: BattleState, actor: Combatant, tactic: Tactic, r
   const friends = friendsOf(s, actor);
   const living = alive(friends);
   const options: AiChoice[] = [];
+  // 敵チーム全体で この戦闘に回復した回数
+  const teamHeals = friends.reduce((a, c) => a + c.healsUsed, 0);
   const ids = ['attack', ...actor.skills];
   for (const id of ids) {
     const sk = getSkill(id);
@@ -60,23 +64,27 @@ export function chooseAction(s: BattleState, actor: Combatant, tactic: Tactic, r
         break;
       }
       case 'heal': {
-        const targets = sk.target === 'allAllies' ? living : living;
+        // 敵は ひんしに なるまで回復せず、回復するたびに 回復したがらなくなる（戦闘が終わらなくなるのを防ぐ）
+        const isEnemy = actor.side === 'enemy';
+        const limit = isEnemy ? ENEMY_HEAL.threshold : 0.6;
+        const damp = isEnemy ? ENEMY_HEAL.weight * Math.pow(ENEMY_HEAL.decay, teamHeals) : 1;
         if (sk.target === 'allAllies') {
-          const v = targets.reduce((a, t) => a + (t.hp / t.maxHp < 0.75 ? Math.min(sk.power, t.maxHp - t.hp) : 0), 0);
-          if (v > 0) options.push({ skillId: id, score: v * W.heal * 1.1 - pen, reason: `全体回復 ${v}` });
+          const v = living.reduce((a, t) => a + (t.hp / t.maxHp < limit + 0.15 ? Math.min(sk.power, t.maxHp - t.hp) : 0), 0);
+          if (v > 0) options.push({ skillId: id, score: v * W.heal * 1.1 * damp - pen, reason: `全体回復 ${v}` });
         } else {
-          for (const t of targets) {
+          for (const t of living) {
             const ratio = t.hp / t.maxHp;
-            if (ratio >= 0.6) continue;
+            if (ratio >= limit) continue;
             const v = Math.min(sk.power, t.maxHp - t.hp) * (1.6 - ratio);
-            options.push({ skillId: id, target: t.key, score: v * W.heal - pen, reason: `${t.name}回復 ${v.toFixed(0)}` });
+            options.push({ skillId: id, target: t.key, score: v * W.heal * damp - pen, reason: `${t.name}回復 ${v.toFixed(0)}` });
           }
         }
         break;
       }
       case 'revive': {
         const dead = friends.filter((c) => c.hp <= 0);
-        for (const t of dead) options.push({ skillId: id, target: t.key, score: (t.maxHp * 0.6 + 12) * W.heal - pen, reason: `${t.name}蘇生` });
+        const damp = actor.side === 'enemy' ? ENEMY_HEAL.weight * Math.pow(ENEMY_HEAL.decay, teamHeals) : 1;
+        for (const t of dead) options.push({ skillId: id, target: t.key, score: (t.maxHp * 0.6 + 12) * W.heal * damp - pen, reason: `${t.name}蘇生` });
         break;
       }
       case 'cure': {
@@ -131,12 +139,18 @@ export function chooseAction(s: BattleState, actor: Combatant, tactic: Tactic, r
       }
     }
   }
+  // 敵は同じ補助・状態異常の特技を続けて使いにくい
+  if (actor.side === 'enemy')
+    for (const o of options) {
+      const cat = getSkill(o.skillId).category;
+      if (['buff', 'debuff', 'status', 'cure'].includes(cat)) o.score *= Math.pow(BALANCE.battle.enemyRepeatFactor, actor.used[o.skillId] ?? 0);
+    }
   if (!options.length) return { skillId: 'attack', target: foes[0]?.key, score: 0, reason: 'こうげきのみ' };
   for (const o of options) o.score += rng.next() * noise;
   options.sort((a, b) => b.score - a.score);
   if (whim > 0 && rng.next() < whim) {
     // 気まぐれ: 点数がプラスの行動から ランダムに選ぶ
-    const ok = options.filter((o) => o.score > 0);
+    const ok = options.filter((o) => o.score > 0 && !['heal', 'revive'].includes(getSkill(o.skillId).category));
     if (ok.length) {
       const c = ok[Math.floor(rng.next() * ok.length)];
       return { ...c, reason: `きまぐれ(${c.reason})` };

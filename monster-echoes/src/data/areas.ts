@@ -76,7 +76,7 @@ export const BOSSES: Record<string, BossDefinition> = {
     id: 'boss_forest', name: 'ゆがみの マドイダケ',
     intro: ['もりの おくで くろい もやが うずまいている…！', 'ゆがみに とりつかれた マドイダケが おそいかかってきた！'],
     enemies: [
-      { speciesId: 'madoidake', level: 10, hpScale: 3.2, statScale: 1.35, skills: ['poisonmist', 'dazzle', 'heal', 'bite'], name: 'ゆがみマドイダケ', distorted: true, recruitable: false },
+      { speciesId: 'madoidake', level: 12, hpScale: 3.0, statScale: 1.55, skills: ['poisonmist', 'dazzle', 'heal', 'bite'], name: 'ゆがみマドイダケ', distorted: true, recruitable: false },
       { speciesId: 'mossglow', level: 7, recruitable: false },
     ],
     defeatText: ['くろい もやが はれていく…。', 'あとには あたたかく ひかる かけらが のこっていた。', 'ひかりのかけらを てにいれた！'],
@@ -124,9 +124,9 @@ export const ARENA_RANKS: ArenaRankDefinition[] = [
     id: 'arenaE', name: 'Eランク', description: 'うでに おぼえの ある ちょうりつしが あつまる。3れんせん、あいだに すこし かいふく。',
     entryConditions: [{ type: 'arena', id: 'arenaF' }, { type: 'boss', id: 'boss_cave' }], betweenBattleRecovery: 'partial',
     battles: [
-      { trainer: 'つりびと カイ', enemies: [{ speciesId: 'tsukipon', level: 14 }, { speciesId: 'haganegame', level: 13 }] },
+      { trainer: 'つりびと カイ', enemies: [{ speciesId: 'tsukipon', level: 15 }, { speciesId: 'haganegame', level: 14 }, { speciesId: 'lumipon', level: 15 }] },
       { trainer: 'きのこはかせ', enemies: [{ speciesId: 'madoidake', level: 14 }, { speciesId: 'madoidake', level: 14 }, { speciesId: 'mossglow', level: 15 }] },
-      { trainer: 'けんじゃの たまご リオ', enemies: [{ speciesId: 'homurawolf', level: 15 }, { speciesId: 'tsukipon', level: 15 }, { speciesId: 'haganegame', level: 14 }], tactic: 'skill' },
+      { trainer: 'けんじゃの たまご リオ', enemies: [{ speciesId: 'homurawolf', level: 16 }, { speciesId: 'tsukipon', level: 16 }, { speciesId: 'haganegame', level: 15 }], tactic: 'skill' },
     ],
     rewards: [{ type: 'gold', amount: 800 }, { type: 'capacity', amount: 10 }, { type: 'item', itemId: 'primemeat', count: 1 }],
     setFlags: [],

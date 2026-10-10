@@ -1,4 +1,4 @@
-import type { Resistances, Stats } from '../../data/types';
+import type { Resistances, Stats, Tactic } from '../../data/types';
 
 export type Sex = 'A' | 'B' | 'unknown';
 
@@ -27,4 +27,6 @@ export type MonsterInstance = {
   favorite: boolean;
   /** 特技枠がいっぱいで覚えられなかった特技（プレイヤーが選ぶまで保留） */
   pendingSkills: string[];
+  /** このモンスターだけの作戦（未設定ならパーティ全体の作戦） */
+  tactic?: Tactic;
 };

@@ -166,3 +166,30 @@ describe('ゲームループ（探索→戦闘→仲間化→配合→保存→�
     expect(g.state.inventory.bonemeat).toBe(2);
   });
 });
+
+describe('フィードバック対応', () => {
+  it('モンスターごとの作戦が戦闘に反映され、戦闘中にも変えられる', () => {
+    const g = new Game(newGameState('テスト', createRng(1), 0), { rng: createRng(2) });
+    const [a, b] = g.party;
+    g.setMonsterTactic(a.id, 'support');
+    g.setMonsterTactic(b.id, 'save');
+    g.startExpedition('forest');
+    g.startWildBattle([{ speciesId: 'mossglow', level: 1 }]);
+    expect(g.battle!.state.allies.map((c) => c.tactic)).toEqual(['support', 'save']);
+    g.setMonsterTactic(b.id, 'attack');
+    expect(g.battle!.state.allies[1].tactic).toBe('attack');
+    g.setTactic('skill');
+    expect(g.battle!.state.allies.map((c) => c.tactic)).toEqual(['skill', 'skill']);
+  });
+  it('仲間にしたモンスターをパーティの誰かと入れかえられる', () => {
+    const g = new Game(newGameState('テスト', createRng(1), 0), { rng: createRng(2) });
+    g.acceptRecruit('mossglow', 3);
+    const r = g.acceptRecruit('yorufukuro', 3);
+    if (!r.ok) throw new Error(r.error);
+    expect(g.state.partyIds).not.toContain(r.value.id);
+    const out = g.state.partyIds[0];
+    expect(g.swapIntoParty(r.value.id, out).ok).toBe(true);
+    expect(g.state.partyIds[0]).toBe(r.value.id);
+    expect(g.state.storageIds).toContain(out);
+  });
+});

@@ -27,6 +27,7 @@ export function allyFromInstance(m: MonsterInstance, slot: number): Combatant {
     stages: { attack: 0, defense: 0, speed: 0 }, status: emptyStatus(), charged: false, defending: false,
     skills: [...m.skills], resist: { ...m.resistances }, wildness: m.wildness, affection: 0, recruitable: false,
     recruitBase: 0, expYield: sp.expYield, goldYield: sp.goldYield, distorted: false,
+    tactic: m.tactic, healsUsed: 0, used: {}, statusHits: 0,
   };
 }
 
@@ -50,6 +51,7 @@ export function enemyFromSpec(spec: EnemySpec, slot: number): Combatant {
     skills, resist, wildness: 0, affection: 0, recruitable: spec.recruitable ?? true, recruitBase: sp.recruitBaseChance,
     expYield: Math.round(sp.expYield * Math.max(1, spec.hpScale ?? 1)), goldYield: Math.round(sp.goldYield * Math.max(1, spec.hpScale ?? 1)),
     distorted: !!spec.distorted,
+    healsUsed: 0, used: {}, statusHits: 0,
   };
 }
 
@@ -186,7 +188,7 @@ function allyAct(s: BattleState, a: Combatant, c: AllyCommand, ev: BattleEvent[]
     ev.push({ t: 'msg', text: pick(rng, [`${a.name}は そっぽを むいている。`, `${a.name}は いうことを きかない！`, `${a.name}は あくびを している。`]) });
     return;
   }
-  if (c.kind === 'auto') return monsterAct(s, a, autoChoice(s, a, s.tactic, rng), ev, rng);
+  if (c.kind === 'auto') return monsterAct(s, a, autoChoice(s, a, a.tactic ?? s.tactic, rng), ev, rng);
   if (c.kind === 'attack') return monsterAct(s, a, { skillId: 'attack', target: c.target }, ev, rng);
   if (c.kind === 'skill') {
     const sk = getSkill(c.skillId);
@@ -254,6 +256,8 @@ function monsterAct(s: BattleState, a: Combatant, choice: { skillId: string; tar
   const ts = targets();
   if (!ts.length) { ev.push({ t: 'msg', text: 'しかし だれも いなかった。' }); return; }
 
+  if (sk.category === 'heal' || sk.category === 'revive') a.healsUsed += 1;
+  a.used[sk.id] = (a.used[sk.id] ?? 0) + 1;
   switch (sk.category) {
     case 'physical': return doPhysical(s, a, sk, ts, ev, rng, false);
     case 'magic':
@@ -366,8 +370,10 @@ function changeStage(t: Combatant, stat: 'attack' | 'defense' | 'speed', delta: 
 export function applyStatus(t: Combatant, st: StatusId, base: number, ev: BattleEvent[], rng: Rng) {
   const already = st === 'poison' ? t.status.poison : t.status[st] > 0;
   if (already) { ev.push({ t: 'msg', text: `${t.name}は すでに ${STATUS_NAME[st]}に なっている。` }); return; }
-  const p = base * statusMultiplier(t, st);
+  // 状態異常は かかるたびに かかりにくくなる（はめ殺しを防ぐ）
+  const p = base * statusMultiplier(t, st) * Math.pow(B.statusRepeatFactor, t.statusHits);
   if (!chance(rng, p)) { ev.push({ t: 'miss', target: t.key, text: `${t.name}には きかなかった！` }); return; }
+  t.statusHits += 1;
   if (st === 'poison') t.status.poison = true;
   else {
     const [lo, hi] = st === 'sleep' ? B.sleepTurns : st === 'paralysis' ? B.paralysisTurns : B.confusionTurns;

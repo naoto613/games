@@ -216,22 +216,43 @@ class BattleScreen implements Screen {
     const st = this.st;
     const hasMeat = ITEM_LIST.some((i) => i.category === 'meat' && (this.game.state.inventory[i.id] ?? 0) > 0);
     const hasItem = ITEM_LIST.some((i) => i.battle && i.category !== 'meat' && (this.game.state.inventory[i.id] ?? 0) > 0);
-    const tac = TACTICS.find((t) => t.id === this.game.state.player.tactic)!;
+    const tset = new Set(this.st.allies.map((c) => c.tactic ?? this.st.tactic));
+    const tacLabel = tset.size === 1 ? TACTICS.find((t) => t.id === [...tset][0])!.short : 'こべつ';
     this.setCmds([
       btn('たたかう', () => this.run({ mode: 'auto', player: { kind: 'none' } }), 'primary'),
       btn('めいれい', () => this.orderPhase([], 0)),
       btn('どうぐ', () => this.itemPhase(), st.canUseItems && hasItem ? '' : 'off'),
       btn('にく', () => this.meatPhase(), st.canRecruit && hasMeat ? '' : 'off'),
-      btn(h('span', { class: 'small' }, 'さくせん', h('br'), h('span', { class: 'hl' }, tac.short)), () => this.tacticPhase()),
+      btn(h('span', { class: 'small' }, 'さくせん', h('br'), h('span', { class: 'hl' }, tacLabel)), () => this.tacticPhase()),
       btn('にげる', () => this.run({ mode: 'auto', player: { kind: 'escape' } }), st.canEscape ? '' : 'off'),
     ]);
     for (const b of this.cmds.querySelectorAll('.off')) (b as HTMLButtonElement).disabled = true;
   }
 
+  /** さくせん: みんなまとめて、または 1体ずつ */
   private tacticPhase() {
+    const allies = this.st.allies;
+    const short = (c: Combatant) => TACTICS.find((t) => t.id === (c.tactic ?? this.st.tactic))!.short;
     this.setCmds([
-      ...TACTICS.map((t) => btn(h('span', { class: 'small' }, t.name), () => { this.game.setTactic(t.id); this.st = { ...this.st, tactic: t.id }; this.game.battle!.state.tactic = t.id; sfx('ok'); this.log(`さくせんを「${t.name}」に した。`); this.commandPhase(); }, this.game.state.player.tactic === t.id ? 'primary' : '')),
+      btn(h('span', { class: 'small' }, 'みんな'), () => this.tacticPick(null)),
+      ...allies.map((c, i) => btn(h('span', { class: 'small' }, c.name, h('br'), h('span', { class: 'hl' }, short(c))), () => this.tacticPick(i))),
       btn('もどる', () => this.commandPhase()),
+    ], 'two');
+  }
+  private tacticPick(i: number | null) {
+    const c = i === null ? null : this.st.allies[i];
+    const cur = c ? (c.tactic ?? this.st.tactic) : null;
+    this.log(c ? `${c.name}の さくせんは？` : 'みんなの さくせんは？');
+    this.setCmds([
+      ...TACTICS.map((t) => btn(h('span', { class: 'small' }, t.name), () => {
+        if (c?.instanceId) this.game.setMonsterTactic(c.instanceId, t.id);
+        else this.game.setTactic(t.id);
+        this.st = this.game.battle!.state;
+        sfx('ok');
+        this.log(`${c ? c.name + 'の ' : 'みんなの '}さくせんを「${t.name}」に した。`);
+        this.tacticPhase();
+      }, cur === t.id ? 'primary' : '')),
+      btn('もどる', () => this.tacticPhase()),
     ], 'two');
   }
 
@@ -385,6 +406,18 @@ class BattleScreen implements Screen {
     await sleep(ev.t === 'act' ? this.delay * 0.6 : this.delay);
   }
 
+  /** パーティが いっぱいのとき、だれと 入れかえるか えらぶ */
+  private async offerSwap(newId: string, name: string) {
+    const party = this.game.party;
+    const c = await this.app.ask(`パーティは いっぱいだ。${name}を つれていきますか？`, [...party.map((m) => `${m.nickname || getSpecies(m.speciesId).name} と いれかえる`), `${name}は ぼくじょうへ おくる`], { cancel: false });
+    if (c < 0 || c >= party.length) return this.app.say(`${name}は ぼくじょうへ おくられた。`);
+    const out = party[c];
+    const r = this.game.swapIntoParty(newId, out.id);
+    if (!r.ok) return this.app.say(r.error);
+    sfx('ok');
+    await this.app.say(`${name}が パーティに くわわった！\n${out.nickname || getSpecies(out.speciesId).name}は ぼくじょうへ おくられた。`);
+  }
+
   // ---------------------------------------------------------------- 戦闘のおわり
   private async end() {
     const outcome = this.st.outcome!;
@@ -424,7 +457,8 @@ class BattleScreen implements Screen {
           if (r.ok) {
             sfx('recruit');
             const inParty = this.game.state.partyIds.includes(r.value.id);
-            await say(`${rc.name}が なかまに なった！${inParty ? '' : '\n（ぼくじょうに おくられた）'}`);
+            await say(`${rc.name}が なかまに なった！`);
+            if (!inParty) await this.offerSwap(r.value.id, rc.name);
           } else await say(r.error);
         } else await say(`${rc.name}は さびしそうに さっていった…。`);
       }

@@ -155,9 +155,42 @@ export class Game {
   setTownPos(pos: Pos, dir: Dir) {
     this.state = { ...this.state, player: { ...this.state.player, townPos: pos, townDir: dir } };
   }
+  /** みんなの作戦をまとめて変える（個別の作戦も上書きする） */
   setTactic(t: Tactic) {
-    this.update((s) => (s.player.tactic = t));
+    this.update((s) => {
+      s.player.tactic = t;
+      s.monsters = s.monsters.map((m) => (s.partyIds.includes(m.id) ? { ...m, tactic: t } : m));
+    });
+    this.syncBattleTactics();
     this.autosave();
+  }
+  /** 1体ごとの作戦 */
+  setMonsterTactic(monsterId: string, t: Tactic) {
+    const m = this.monster(monsterId);
+    if (!m) return;
+    this.update((s) => this.replaceMonster(s, { ...m, tactic: t }));
+    this.syncBattleTactics();
+    this.autosave();
+  }
+  tacticOf(m: MonsterInstance): Tactic {
+    return m.tactic ?? this.state.player.tactic;
+  }
+  /** 戦闘中なら、戦っているモンスターの作戦も合わせる */
+  private syncBattleTactics() {
+    if (!this.battle) return;
+    const st = structuredClone(this.battle.state);
+    st.tactic = this.state.player.tactic;
+    for (const c of st.allies) {
+      const m = c.instanceId ? this.monster(c.instanceId) : undefined;
+      if (m) c.tactic = this.tacticOf(m);
+    }
+    this.battle = { ...this.battle, state: st };
+  }
+  /** なかまになったモンスターを、パーティの誰かと入れかえる（outId の個体は牧場へ） */
+  swapIntoParty(inId: string, outId: string): Result<void> {
+    const ids = this.state.partyIds.map((id) => (id === outId ? inId : id));
+    if (!this.state.partyIds.includes(outId)) return err('いれかえる あいてが パーティに いません。');
+    return this.setParty(ids);
   }
   setSettings(patch: Partial<SaveData['settings']>) {
     this.update((s) => Object.assign(s.settings, patch));
