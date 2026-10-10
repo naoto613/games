@@ -31,5 +31,5 @@ function ink(c,w){c.strokeStyle=LN;c.lineWidth=w||1.6;c.lineJoin='round';c.lineC
 const COLS={red:'#e8504a',blue:'#3f7bd6',green:'#4cad62',yellow:'#f6c63a',orange:'#f28b2f',purple:'#8d5cc8',pink:'#f28fb7',sky:'#7cc8ec',white:'#f7f4ee',black:'#3b3533',brown:'#a8703f',gray:'#9fa4ab',navy:'#2f4078',mint:'#7fd6b4',cream:'#f3e1b5'};
 const CLIST=Object.values(COLS);
 // colours that would look like ふーたん's smock or hat are kept rare for the crowd (set per stage as decoys)
-const FUTAN_SMOCK='#8fd0f0',FUTAN_HAT='#ffd23f';
-const SAFE_TOPS=['#e8504a','#3f7bd6','#4cad62','#f28b2f','#8d5cc8','#f28fb7','#f7f4ee','#3b3533','#a8703f','#9fa4ab','#2f4078','#7fd6b4','#f3e1b5','#c44a6a','#5a8a6a','#e0a040'];
+const FUTAN_PINK='#ff8cc0',FUTAN_SMOCK=FUTAN_PINK,FUTAN_BAG='#ffd23f';
+const SAFE_TOPS=['#e8504a','#3f7bd6','#4cad62','#f28b2f','#8d5cc8','#7cc8ec','#f7f4ee','#3b3533','#a8703f','#9fa4ab','#2f4078','#7fd6b4','#f3e1b5','#c44a6a','#5a8a6a','#e0a040'];

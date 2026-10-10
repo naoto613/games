@@ -50,9 +50,11 @@ function buildWorld(st,seed,diff){
   // decoys: kids who share one or two things with ふーたん
   const kids=w.items.filter(it=>it.kind==='mob'&&it.look.age==='kid'&&!it.look.swim);shuffle(kids);
   for(let i=0;i<Math.min(Math.round(st.decoys*diff.decoys),kids.length);i++){const it=kids[i],o=it.look;const v=i%3;
-    if(v===0){o.hat='yochien';o.hatCol=FUTAN_HAT;if(o.topCol===FUTAN_SMOCK)o.topCol='#f28fb7'}
-    else if(v===1){o.top='smock';o.topCol=FUTAN_SMOCK;o.hat=pick(['cap','beret','bow','straw']);o.hatCol=pick(SAFE_TOPS)}
-    else{o.fem=true;o.hair='bob';o.top='smock';o.topCol=pick(['#f28fb7','#f6c63a','#7fd6b4','#f7f4ee']);o.hat='yochien';o.hatCol=pick(['#e8504a','#f28fb7','#7cc8ec','#f7f4ee'])}
+    // みつあみだけ同じ／ピンクの みずたまだけ同じ／みつあみ＋ピンク（みずたま なし）
+    if(v===0){o.fem=true;o.hair='braid';o.hairCol=pick(HAIRCOLS);o.ribbon=pick(['#3f7bd6','#4cad62','#f6c63a','#fff']);if(o.topCol===FUTAN_PINK)o.topCol='#7cc8ec';o.hat=null}
+    else if(v===1){o.top='dress';o.fem=true;o.topCol=FUTAN_PINK;o.dots='#fff';o.hair=pick(['bob','pony','short','curly']);o.hat=null}
+    else{o.fem=true;o.hair='braid';o.top='dress';o.topCol=pick([FUTAN_PINK,'#f7a8c8','#e86a9a']);o.dots=null;o.hat=null;o.ribbon=pick(['#e8504a','#fff'])}
+    o.acc=Object.assign({},o.acc);delete o.acc.pochette;
     if(st.decoyFix)st.decoyFix(o);
     it.spr=personSprite(o)}
   // animals

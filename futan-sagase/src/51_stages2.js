@@ -28,8 +28,8 @@ STAGES.push({id:'beach',name:'なつの うみ',intro:'あおい うみと し�
     for(const x of[60,2340])for(let i=0;i<3;i++)L.prop('palm',x+rnd(-20,20),900+i*260,{flip:x>1000});
     L.prop('stall',700,1500,{col:'#3f7bd6',sign:'かきごおり',goods:['#e8504a','#7cc8ec','#f6c63a']});L.prop('stall',1800,1480,{col:'#f28b2f',sign:'やきそば'})},
   look(){return mobLook({tops:[['swim',5],['shirt',1]],hats:[[null,4],['sunhat',1],['straw',1],['cap',1],['goggle',.4]],acc:[['ice',.06],['parasol',.03]],fix:o=>{o.short=true;if(o.top==='swim'&&o.age==='kid'&&chance(.4))o.acc.ring=pick(['#f6c63a','#e8504a','#f28fb7','#7fd6b4'])}})},
-  family:{futan:{top:'swim',topCol:FUTAN_SMOCK},mama:{hat:'sunhat',hatCol:'#f7f4ee'},papa:{hat:'straw',hatCol:'#3f7bd6',short:true,acc:{glasses:true}}},
-  decoyFix:o=>{if(o.top==='smock')o.top='swim'},
+  family:{futan:{top:'swim',topCol:FUTAN_PINK},mama:{hat:'sunhat',hatCol:'#f7f4ee'},papa:{hat:'straw',hatCol:'#3f7bd6',short:true,acc:{glasses:true}}},
+  decoyFix:o=>{if(o.top==='dress')o.top='swim'},
   animals:[['crab',10],['bird',8]],hide:{p:.4,props:['sandcastle','parasol']},lines:['うみ きもちいい〜','かにさん いたよ！']
 });
 // 3 ----------------------------------------------------------------
@@ -79,8 +79,8 @@ STAGES.push({id:'snow',name:'ゆきやまの スキーじょう',intro:'まっ�
   layout(L,w){scatter(L,w,'pine',22,[40,340,2360,1580],()=>({snow:true,s:rnd(.8,1.2)}),170);scatter(L,w,'snowman',7,[100,500,2300,1550],()=>({col:pick(['#e8504a','#3f7bd6','#4cad62']),scarf:pick(['#f6c63a','#f28fb7','#e8504a'])}),220);
     L.prop('igloo',900,620);L.prop('igloo',2200,1500);scatter(L,w,'sled',7,[100,500,2300,1550],()=>({col:pick(['#e8504a','#3f7bd6','#f6c63a'])}),200);scatter(L,w,'flag',4,[200,500,2200,1300],()=>({col:pick(['#e8504a','#3f7bd6'])}),400)},
   look(){return mobLook({tops:[['ski',4],['coat',1]],hats:[['beanie',3],['goggle',1.4],[null,.5]],acc:[['scarf',.4]]})},
-  family:{futan:{top:'ski',topCol:FUTAN_SMOCK,botCol:'#f28fb7'},mama:{top:'coat',topCol:'#e8483a',acc:{scarf:'#fff'}},papa:{top:'coat',topCol:'#2f5fa8',botCol:'#3b3533'}},
-  decoyFix:o=>{if(o.top==='smock')o.top='ski'},
+  family:{futan:{top:'ski',topCol:FUTAN_PINK,botCol:'#f7f4ee'},mama:{top:'coat',topCol:'#e8483a',acc:{scarf:'#fff'}},papa:{top:'coat',topCol:'#2f5fa8',botCol:'#3b3533'}},
+  decoyFix:o=>{if(o.top==='dress')o.top='ski'},
   animals:[['rabbit',6],['bird',4]],hide:{p:.5,props:['snowman','sled','pine']},hideOpts:{},lines:['さむ〜い！','ゆきがっせん しよう！']
 });
 // 5 ----------------------------------------------------------------
@@ -101,8 +101,8 @@ STAGES.push({id:'matsuri',name:'よるの なつまつり',intro:'ちょうち�
     for(let i=0;i<8;i++){const x=200+(i%4)*660+(i<4?0:300),y=i<4?560:1520;L.prop('stall',x,y,{col:pick(['#e8504a','#3f7bd6','#f6c63a','#4cad62','#f28fb7']),sign:names[i]});w.lan.push({x,y:y-110})}
     for(let i=0;i<8;i++){const x=150+i*300,y=i%2?1150:780;L.prop('lanternpole',x,y,{lit:true});w.lan.push({x:x-20,y:y-114},{x:x+20,y:y-114})}},
   look(){return mobLook({tops:[['yukata',5],['shirt',1]],hats:[[null,5],['hachimaki',.8],['flower',1]],acc:[['fan',.2],['cotton',.1],['flag',.03]],fix:o=>{if(o.hat==='flower'&&!o.fem)o.hat=null}})},
-  family:{futan:{top:'yukata',topCol:FUTAN_SMOCK,obi:'#ffd23f'},mama:{top:'yukata',topCol:'#e8483a',obi:'#fff',apron:false},papa:{top:'happi',topCol:'#2f5fa8',botCol:'#3b3533'}},
-  decoyFix:o=>{if(o.top==='smock')o.top='yukata'},
+  family:{futan:{top:'yukata',topCol:FUTAN_PINK,obi:'#ffd23f'},mama:{top:'yukata',topCol:'#e8483a',obi:'#fff',apron:false},papa:{top:'happi',topCol:'#2f5fa8',botCol:'#3b3533'}},
+  decoyFix:o=>{if(o.top==='dress')o.top='yukata'},
   animals:[['cat',3]],hide:{p:.4,props:['taiko','barrel']},lines:['たこやき おいしい！','はなび まだかな？']
 });
 // 6 ----------------------------------------------------------------
