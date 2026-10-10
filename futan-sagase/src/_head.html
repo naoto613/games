@@ -70,6 +70,7 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
 #toast.show{animation:toast 1.6s ease forwards}
 @keyframes toast{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}28%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-62%)}}
 #wipe{position:fixed;inset:0;pointer-events:none;z-index:20}
+.tstats{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}.tstats span{font-size:13px;font-weight:900;padding:4px 12px;border-radius:999px;background:var(--paper2);border:1.5px solid var(--line);color:var(--soft)}
 .links{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
 .link{background:none;border:0;font-weight:900;font-size:15px;padding:8px 10px;text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--line)}
 @media (max-width:640px){
@@ -93,6 +94,7 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
     <div class="logo">ふーたんを<br><em>さがせ！</em></div>
     <div class="cast" id="cast"></div>
     <p class="lede">ひとが いっぱいの まちの どこかに ふーたんが かくれているよ。<br>みつけたら つぎの ばしょへ ワープ！<br>ままや パパや リッキーを みつけると いいことが あるよ。</p>
+    <div class="tstats" id="titleStats"></div>
     <button class="btn main" id="playBtn">あそぶ</button>
     <div class="links"><button class="link" id="albumBtn">ステージ えらび</button><button class="link snd" id="sndBtn">おと：オン</button></div>
   </div>

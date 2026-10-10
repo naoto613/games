@@ -32,6 +32,10 @@ function frame(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;NOW=now/1000;
   if(W){
     if(G.state==='play'||G.state==='hunt'){G.t+=dt;if(Math.floor(G.t)!==Math.floor(G.t-dt))updateHintBtn()}
+    if(G.state==='play'&&G.diff&&G.diff.assist){
+      if(G.t>45){G.assistT-=dt;if(G.assistT<=0){G.assistT=5;const f=W.fam.futan;f.hop=1;addFx({k:'ring',x:f.x,y:f.y-20,r:8,grow:26,d:.6,col:'#ffd23f',w:3})}}
+      if(G.t>75&&!G.autoHint&&G.hints===0){G.autoHint=true;toast('ヒントだよ！');useHint()}
+    }
     for(const it of W.items){if(it.hop>0)it.hop-=dt*1.8;it.walking=false}
     if(G.state!=='paused')stepWalkers(dt);
     const r=W.fam.ricky;if(r){r.x=r.hx+Math.sin(NOW*.35)*70;r.y=r.hy+Math.sin(NOW*.6)*24}

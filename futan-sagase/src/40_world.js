@@ -1,5 +1,5 @@
 // ================= world: sprites, building a stage, rendering =================
-const RS=2,BGS=1.25;
+const RS=1.6,BGS=1.25;
 const sprCache=new Map();
 function makeSprite(key,w,h,draw,res){
   if(key&&sprCache.has(key))return sprCache.get(key);
@@ -11,7 +11,8 @@ function personSprite(look){return makeSprite(null,84,130,x=>drawPerson(x,look))
 function personHit(look){const B=BODY[look.age||'adult'],s=look.s||1;return{hw:12*s,hh:(-B.hy+B.hr+5)*s}}
 
 let W=null; // current world
-function buildWorld(st,seed){
+function buildWorld(st,seed,diff){
+  diff=diff||{people:1,decoys:1,hide:0};
   R=rng(seed);
   const w={st,seed,items:[],fx:[],foot:[],fam:{},found:{},t:0};
   // background
@@ -37,18 +38,18 @@ function buildWorld(st,seed){
   if(!fp)fp=spot('land',10)||{x:WW/2,y:WH/2,k:'land'};
   const fLook=familyLook(LOOK_FUTAN,st,'futan');if(fp.k==='swim')fLook.swim=true;
   w.fam.futan=addPerson(w,fLook,fp.x,fp.y,'futan');
-  if(st.hide&&chance(st.hide.p)){const k=pick(st.hide.props);const it=L.prop(k,fp.x+rnd(-8,8),fp.y+rnd(7,12),Object.assign({noFoot:true},st.hide.opts&&st.hide.opts[k]||{}));it.hider=true}
+  if(st.hide&&chance(Math.min(.95,st.hide.p+diff.hide))){const k=pick(st.hide.props);const it=L.prop(k,fp.x+rnd(-8,8),fp.y+rnd(7,12),Object.assign({noFoot:true},st.hide.opts&&st.hide.opts[k]||{}));it.hider=true}
   const far=(want)=>{for(let i=0;i<80;i++){const s=spot(want,16);if(!s)continue;if(Math.hypot(s.x-fp.x,s.y-fp.y)>520&&margin(s.x,s.y))return s;pts.pop()}return spot(want,8)||{x:200,y:WH-200,k:'land'}};
   const mp=far('land');w.fam.mama=addPerson(w,familyLook(LOOK_MAMA,st,'mama'),mp.x,mp.y,'mama');
   const pp=far('land');w.fam.papa=addPerson(w,familyLook(LOOK_PAPA,st,'papa'),pp.x,pp.y,'papa');
   const rp={x:rnd(200,WW-200),y:rnd(300,WH-150)};
   w.fam.ricky={kind:'ricky',x:rp.x,y:rp.y,hx:rp.x,hy:rp.y,ph:0,live:true,hit:{hw:16,hh:62},hop:0};w.items.push(w.fam.ricky);
   // crowd
-  const n=st.people;let made=0;
+  const n=Math.round(st.people*diff.people);let made=0;
   for(let i=0;i<n*3&&made<n;i++){const s=spot('crowd',st.gap||15,1);if(!s)continue;const look=st.look(s.k);if(s.k==='swim')look.swim=true;addPerson(w,look,s.x,s.y,'mob');made++}
   // decoys: kids who share one or two things with ふーたん
   const kids=w.items.filter(it=>it.kind==='mob'&&it.look.age==='kid'&&!it.look.swim);shuffle(kids);
-  for(let i=0;i<Math.min(st.decoys,kids.length);i++){const it=kids[i],o=it.look;const v=i%3;
+  for(let i=0;i<Math.min(Math.round(st.decoys*diff.decoys),kids.length);i++){const it=kids[i],o=it.look;const v=i%3;
     if(v===0){o.hat='yochien';o.hatCol=FUTAN_HAT;if(o.topCol===FUTAN_SMOCK)o.topCol='#f28fb7'}
     else if(v===1){o.top='smock';o.topCol=FUTAN_SMOCK;o.hat=pick(['cap','beret','bow','straw']);o.hatCol=pick(SAFE_TOPS)}
     else{o.fem=true;o.hair='bob';o.top='smock';o.topCol=pick(['#f28fb7','#f6c63a','#7fd6b4','#f7f4ee']);o.hat='yochien';o.hatCol=pick(['#e8504a','#f28fb7','#7cc8ec','#f7f4ee'])}

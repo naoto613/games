@@ -1,6 +1,12 @@
 // ================= game flow =================
 const G={state:'title',si:0,t:0,hints:0,subs:{},lastHintReady:false};
-let PROG=load('fs_prog',{stages:{},next:0,max:-1});
+let PROG=load('fs_prog',{stages:{},next:0,max:-1});if(!PROG.round)PROG.round=1;
+// difficulty: the first lap starts gentle and ramps up; every later lap is busier and trickier
+function diffFor(i){const k=i/(STAGES.length-1),r=PROG.round;
+  if(r<=1)return{people:.6+.4*k,decoys:.4+.6*k,hide:-.25+.25*k,assist:true};
+  if(r===2)return{people:1.1,decoys:1.6,hide:.2,assist:false};
+  return{people:1.2,decoys:2.2,hide:.35,assist:false}}
+const roundName=r=>r<=1?'':r===2?'2しゅうめ':r+'しゅうめ';
 const SUBS=[['mama','まま'],['papa','パパ'],['ricky','リッキー']];
 function saveProg(){save('fs_prog',PROG)}
 function stageRec(id){return PROG.stages[id]||(PROG.stages[id]={clear:0,subs:{},best:0,photo:null})}
@@ -14,10 +20,10 @@ function headOf(who,cv2){const x=cv2.getContext('2d'),S=cv2.width;x.clearRect(0,
 
 function startStage(i){
   G.si=i;const st=STAGES[i];clearBubbles();
-  W=buildWorld(st,(Math.random()*4294967296)>>>0);
+  G.diff=diffFor(i);W=buildWorld(st,(Math.random()*4294967296)>>>0,G.diff);G.assistT=0;G.autoHint=false;
   cam.anim=null;cam.z=zMin();cam.x=(WW-VW/cam.z)/2;cam.y=(WH-VH/cam.z)/2;clampCam();
   G.state='intro';G.t=0;G.hints=0;G.subs={};G.lastHintReady=false;
-  $('introNum').textContent='ステージ '+(i+1)+' / '+STAGES.length;$('introName').textContent=st.name;$('introText').textContent=st.intro;
+  $('introNum').textContent='ステージ '+(i+1)+' / '+STAGES.length+(PROG.round>1?'　★'+roundName(PROG.round):'');$('introName').textContent=st.name;$('introText').textContent=st.intro;
   const ic=$('introPic'),ix=ic.getContext('2d');ix.drawImage(snapshot(600,400),0,0);
   $('title').hidden=true;$('album').hidden=true;$('clear').hidden=true;$('pause').hidden=true;$('hud').hidden=true;$('intro').hidden=false;
   $('hudStage').textContent=(i+1)+'. '+st.name;
@@ -70,7 +76,7 @@ function foundFutan(it){
   SFX.found();bgmStop();
   lookAt(it.x,it.y-30,Math.max(2,zMin()*2.5),1);
   setTimeout(()=>{bubble(it,'みーつけた！',3,true);say('みーつけた！');burst(it.x,it.y-30,40,['#ff6f9f','#f6c63a','#7cc8ec','#7fd6b4','#fff'],200);addFx({k:'ring',x:it.x,y:it.y-25,r:20,grow:70,d:.9,col:'#ff6f9f',w:6})},700);
-  const rec=stageRec(W.st.id);rec.clear++;if(!rec.best||t<rec.best)rec.best=t;PROG.max=Math.max(PROG.max,G.si);PROG.next=(G.si+1)%STAGES.length;saveProg();
+  const rec=stageRec(W.st.id);rec.clear++;if(!rec.best||t<rec.best)rec.best=t;PROG.max=Math.max(PROG.max,G.si);PROG.next=(G.si+1)%STAGES.length;if(G.si===STAGES.length-1){PROG.round++;G.lapDone=true}else G.lapDone=false;saveProg();
   G.foundAt=t;setTimeout(showClear,2700);
 }
 function foundSub(it){
@@ -93,7 +99,7 @@ function showClear(){
   let h=`<h2>みーつけた！</h2><div class="cast" id="clearCast"></div><p class="lede">${st.name}で ふーたんを みつけたよ<br>タイム ${fmtT(G.foundAt)}${G.hints?'':'　ヒントなし！'}</p>`;
   h+=`<div class="got-row">${SUBS.map(([k,n])=>`<span class="${G.subs[k]?'on':''}">${G.subs[k]?'★':'☆'} ${n}</span>`).join('')}</div>`;
   if(rec.photo)h+=`<img src="${rec.photo}" alt="パパの しゃしん" style="width:100%;border-radius:16px;border:2.5px solid var(--line)">`;
-  if(last)h+=`<p class="lede" style="color:var(--accent)">ぜんぶの ばしょを まわったよ！ すごい！</p>`;
+  if(last&&G.lapDone)h+=`<p class="lede" style="color:var(--accent)">ぜんぶの ばしょを まわったよ！ すごい！<br>つぎは ${roundName(PROG.round)}。ひとが ふえて もっと むずかしく なるよ</p>`;
   h+=`<button class="btn main" id="nextBtn">${last?'さいしょの ばしょへ':'つぎの ばしょへ'} ▶</button>`;
   if(got<3)h+=`<button class="btn" id="huntBtn">まま・パパ・リッキーも さがす</button>`;
   h+=`<div class="links"><button class="link" id="clearAlbum">ステージ えらび</button></div>`;
@@ -142,7 +148,9 @@ function showTitle(){
   G.state='title';$('hud').hidden=true;$('intro').hidden=true;$('clear').hidden=true;$('pause').hidden=true;$('title').hidden=false;clearBubbles();
   if(!W){W=buildWorld(STAGES[Math.floor(Math.random()*STAGES.length)],(Math.random()*1e9)>>>0);cam.z=zMin()*1.6;cam.x=WW/2-VW/2/cam.z;cam.y=WH/2-VH/2/cam.z;clampCam()}
   const cc=$('cast');if(!cc.children.length)for(const[k,n]of[['futan','ふーたん'],['mama','まま'],['papa','パパ'],['ricky','リッキー']]){const f=document.createElement('figure');f.appendChild(portraitOf(k,84));const cap=document.createElement('figcaption');cap.textContent=n;f.appendChild(cap);cc.appendChild(f)}
-  $('playBtn').textContent=PROG.max>=0?'つづきから（'+(PROG.next+1)+'）':'あそぶ';
+  $('playBtn').textContent=PROG.max>=0?'つづきから（'+(PROG.round>1?roundName(PROG.round)+' ':'')+'ステージ '+(PROG.next+1)+'）':'あそぶ';
+  const recs=Object.values(PROG.stages),cl=recs.filter(r=>r.clear).length,subs=recs.reduce((n,r)=>n+Object.keys(r.subs||{}).length,0);
+  $('titleStats').innerHTML=PROG.max>=0?`<span>クリア ${cl} / ${STAGES.length}</span><span>みつけた なかま ${subs} / ${STAGES.length*3}</span><span>しゃしん ${recs.filter(r=>r.photo).length}まい</span>`:'';
 }
 function pauseGame(){if(G.state!=='play'&&G.state!=='hunt')return;G.paused=G.state;G.state='paused';$('pause').hidden=false;bgmStop()}
 function resumeGame(){if(G.state!=='paused')return;G.state=G.paused;$('pause').hidden=true;bgmStart()}
