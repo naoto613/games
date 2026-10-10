@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 750" preserveAspectRatio="none">
+  <defs>
+    <pattern id="g" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M50 0H0V50" fill="none" stroke="#F3DCE8" stroke-width="2"/></pattern>
+  </defs>
+  <rect width="1000" height="750" fill="#FFF8FB"/>
+  <rect width="1000" height="750" fill="url(#g)"/>
+  <rect x="12" y="12" width="976" height="726" rx="28" fill="none" stroke="#F0C4DA" stroke-width="6" stroke-dasharray="18 14"/>
+  <g font-family="sans-serif" text-anchor="middle" fill="#B83E78">
+    <text x="500" y="350" font-size="40" font-weight="700">園内マップ（模式図）</text>
+    <text x="500" y="410" font-size="26" fill="#776C74">施設の位置は、根拠となる資料で確認できたものだけ表示します</text>
+    <text x="500" y="450" font-size="26" fill="#776C74">（この図の配置は実際の園内の位置関係を表していません）</text>
+  </g>
+</svg>
