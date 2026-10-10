@@ -60,7 +60,7 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
 .got-row span.on{color:var(--accent);border-color:#ffc2d6;background:#fff1f6}
 #intro .panel{align-items:center;text-align:center}
 #intro .where{font-family:var(--display);font-size:clamp(30px,8vw,44px);line-height:1.2}
-#intro canvas{width:min(100%,420px);aspect-ratio:3/2;border-radius:18px;border:2.5px solid var(--line)}
+#intro canvas{width:140px;height:133px;border-radius:18px;background:#fff1f6;border:2.5px solid #ffc2d6}
 .bubble{position:absolute;transform:translate(-50%,-100%);background:#fff;border:2.5px solid var(--ink);border-radius:16px;padding:6px 12px;font-weight:900;font-size:15px;white-space:nowrap;box-shadow:0 3px 0 rgba(0,0,0,.12)}
 .bubble::after{content:"";position:absolute;left:50%;bottom:-9px;margin-left:-7px;border:7px solid transparent;border-top-color:var(--ink);border-bottom:0}
 .bubble.big{font-size:18px;padding:8px 16px;border-color:var(--accent);color:#d2386e}
@@ -99,11 +99,12 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
     <div class="links"><button class="link" id="albumBtn">ステージ えらび</button><button class="link snd" id="sndBtn">おと：オン</button></div>
   </div>
 </div>
-<div id="intro" class="overlay" hidden>
+<div id="intro" class="overlay" hidden style="background:rgba(255,246,236,.15)">
   <div class="panel">
     <small id="introNum" style="font-weight:900;color:var(--soft)">ステージ 1</small>
     <div class="where" id="introName">こうえん</div>
-    <canvas id="introPic" width="600" height="400"></canvas>
+    <canvas id="introPic" width="200" height="190"></canvas>
+    <p class="lede" style="color:#d2386e;margin-top:-6px">みつあみ・ピンクの みずたま・きいろい ハートの ポシェット<br>きらきらの め と にっこり おくち</p>
     <p class="lede" id="introText"></p>
     <button class="btn main" id="introGo">さがす！</button>
   </div>

@@ -35,5 +35,5 @@ function bgmTick(){
 function bgmStart(st){audio();if(!AC)return;BGM.st=st||BGM.st;if(!BGM.st)return;BGM.pat=bgmPattern(BGM.st.music.seed||7);if(BGM.on)return;BGM.on=true;BGM.next=AC.currentTime+.1;BGM.step=0;BGM.timer=setInterval(bgmTick,120)}
 function bgmStop(){BGM.on=false;clearInterval(BGM.timer)}
 let jaVoice=null;
-function say(text){if(!SOUND||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text.replace(/[〜！？]/g,m=>m==='〜'?'ー':m));u.lang='ja-JP';u.rate=1.02;u.pitch=1.25;
+function say(text){return;if(!SOUND||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text.replace(/[〜！？]/g,m=>m==='〜'?'ー':m));u.lang='ja-JP';u.rate=1.02;u.pitch=1.25;
   if(!jaVoice){const vs=speechSynthesis.getVoices();jaVoice=vs.find(v=>/ja/i.test(v.lang))||null}if(jaVoice)u.voice=jaVoice;speechSynthesis.speak(u)}catch(e){}}

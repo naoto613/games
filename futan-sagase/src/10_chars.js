@@ -96,11 +96,20 @@ function drawPerson(c,o){
   // face
   const ey=hy+2.5;
   if(top==='diver'||o.mask){rr(c,-hr+1,ey-6,2*hr-2,9,4);FS(c,'#bfe6f5');c.lineWidth=2.2;line(c,hr-1,ey-2,hr+4,hy-hr-2);ink(c)}
-  if(o.age==='elder'&&!o.openEyes){c.lineWidth=1.5;for(const k of[-1,1]){c.beginPath();c.arc(k*4.6,ey+.5,2.2,Math.PI*1.1,Math.PI*1.9);c.stroke()}c.lineWidth=1.6}
+  if(o.face==='futan'){
+    // ふうか: きらきらの おおきな め（まつげ・ほしの ひかり）と、おおきく あけた にっこり くち
+    if(o.happy){c.lineWidth=2.2;for(const k of[-1,1]){c.beginPath();c.arc(k*4.9,ey+1.2,2.9,Math.PI*1.08,Math.PI*1.92);c.stroke()}c.lineWidth=1.6}
+    else for(const k of[-1,1]){ell(c,k*4.9,ey,3,3.7);F(c,'#2a1c1c');ell(c,k*4.9,ey+1.3,2.1,2);F(c,'#c2386e');circ(c,k*4.9-1,ey-1.3,1.15);F(c,'#fff');circ(c,k*4.9+1.1,ey+1.5,.6);F(c,'#fff');
+      c.lineWidth=1.2;line(c,k*7.4,ey-2.2,k*9.2,ey-3.6);line(c,k*7.9,ey-.6,k*9.8,ey-1.2);c.lineWidth=1.6}
+    ell(c,-8.3,ey+4.6,2.9,1.8);F(c,'rgba(255,90,130,.6)');ell(c,8.3,ey+4.6,2.9,1.8);F(c,'rgba(255,90,130,.6)');
+    c.lineWidth=1.3;c.beginPath();c.moveTo(-3.6,ey+4.6);c.quadraticCurveTo(0,ey+5.4,3.6,ey+4.6);c.quadraticCurveTo(3.2,ey+10,0,ey+10);c.quadraticCurveTo(-3.2,ey+10,-3.6,ey+4.6);c.closePath();FS(c,'#e0405a');
+    ell(c,0,ey+8.6,2,1.2);F(c,'#ff9ab0');c.fillStyle='#fff';c.fillRect(-2.4,ey+4.9,4.8,1.1);c.lineWidth=1.6;
+  }
+  else if(o.age==='elder'&&!o.openEyes){c.lineWidth=1.5;for(const k of[-1,1]){c.beginPath();c.arc(k*4.6,ey+.5,2.2,Math.PI*1.1,Math.PI*1.9);c.stroke()}c.lineWidth=1.6}
   else if(o.happy){c.lineWidth=1.7;for(const k of[-1,1]){c.beginPath();c.arc(k*4.6,ey+1,2.4,Math.PI*1.1,Math.PI*1.9);c.stroke()}c.lineWidth=1.6}
   else{for(const k of[-1,1]){ell(c,k*4.6,ey,1.9,2.4);F(c,'#2a1c1c');circ(c,k*4.6-.6,ey-.9,.7);F(c,'#fff')}}
-  ell(c,-8,ey+4,2.3,1.4);F(c,'rgba(255,110,140,.4)');ell(c,8,ey+4,2.3,1.4);F(c,'rgba(255,110,140,.4)');
-  c.lineWidth=1.3;c.beginPath();c.arc(0,ey+4.2,2.2,Math.PI*.15,Math.PI*.85);c.stroke();c.lineWidth=1.6;
+  if(o.face!=='futan'){ell(c,-8,ey+4,2.3,1.4);F(c,'rgba(255,110,140,.4)');ell(c,8,ey+4,2.3,1.4);F(c,'rgba(255,110,140,.4)');
+  c.lineWidth=1.3;c.beginPath();c.arc(0,ey+4.2,2.2,Math.PI*.15,Math.PI*.85);c.stroke();c.lineWidth=1.6}
   if(A.mustache){ell(c,-2.5,ey+3.5,3,1.4,.2);F(c,hc);ell(c,2.5,ey+3.5,3,1.4,-.2);F(c,hc)}
   if(A.glasses){c.lineWidth=1.2;circ(c,-4.6,ey,3.4);c.stroke();circ(c,4.6,ey,3.4);c.stroke();line(c,-1.2,ey,1.2,ey);c.lineWidth=1.6}
   // front hair
@@ -146,7 +155,7 @@ function drawPerson(c,o){
 
 // ---- the family ----
 // ふーたん: みつあみ・ピンクの みずたまの ワンピース・きいろい ハートの ポシェット（ポシェットは ふーたん だけ）
-const LOOK_FUTAN={age:'kid',fem:true,skin:SKIN,hair:'braid',hairCol:HAIR,ribbon:'#e8504a',top:'dress',topCol:FUTAN_PINK,dots:'#fff',shoe:'#e8483a',legCol:SKIN,acc:{pochette:FUTAN_BAG}};
+const LOOK_FUTAN={face:'futan',age:'kid',fem:true,skin:SKIN,hair:'braid',hairCol:HAIR,ribbon:'#e8504a',top:'dress',topCol:FUTAN_PINK,dots:'#fff',shoe:'#e8483a',legCol:SKIN,acc:{pochette:FUTAN_BAG}};
 const LOOK_MAMA={age:'adult',fem:true,hair:'pattsun',hairCol:'#4a2a1a',top:'dress',topCol:'#e8483a',apron:true,shoe:'#5a3a6a'};
 const LOOK_PAPA={age:'adult',hair:'short',hairCol:'#3a2a20',top:'shirt',topCol:'#2f5fa8',botCol:'#d8c4a0',shoe:'#7a4a2a',acc:{scarf:'#e8a020',glasses:true},s:1.08};
 // stage outfits keep the family recognisable
