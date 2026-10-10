@@ -89,6 +89,7 @@ export class Game {
   private uiT = 0;
   private fpsLow = 0;
   private npcInteractables: Interactable[] = [];
+  private playerLight!: THREE.PointLight;
 
   constructor() {
     this.loop = new GameLoop((dt) => this.frame(dt));
@@ -121,6 +122,10 @@ export class Game {
     await step('キャンプの ひとたちが あつまっています…');
     this.player = new Player();
     this.renderer.scene.add(this.player.obj, this.player.blob);
+    // 夜でも主人公が見えるように、ほんのり照らす
+    this.playerLight = new THREE.PointLight('#ffd9a0', 0, 5, 1.5);
+    this.playerLight.position.set(0, 1.4, 0.6);
+    this.player.obj.add(this.playerLight);
     for (const d of NPCS) {
       const n = new NPC(d);
       this.npcs.push(n);
@@ -432,6 +437,7 @@ export class Game {
     (r.scene.fog as THREE.Fog).color.copy(t.fog);
     r.warm = t.warm;
     glowMat.color.setScalar(t.glow);
+    this.playerLight.intensity = t.night * 2.2;
     this.world.fireLightBase = 2.2 + t.night * 9;
     this.world.fireLight.distance = 9 + t.night * 7;
     const wm = this.world.water.mat.uniforms;
@@ -450,6 +456,7 @@ export class Game {
     shared.uSeeRadius.value = Math.min(this.w, this.h) * pr * 0.16;
     shared.uSeeDepth.value = -camSpace.z;
     shared.uSeeOn.value = this.ui.get().screen === 'game' ? 1 : 0;
+    shared.uSeeMargin.value = this.player.hidden && !this.player.underTable ? -0.6 : 1.2;
     this.renderer.focusY = THREE.MathUtils.clamp(v.y * 0.5 + 0.5, 0.3, 0.7);
   }
 

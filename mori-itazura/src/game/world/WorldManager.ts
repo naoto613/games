@@ -15,7 +15,7 @@ interface Placed { geo: THREE.BufferGeometry; m: THREE.Matrix4; kind: MatKind; s
 
 export interface HideSpot { id: string; x: number; z: number; r: number; kind: 'bush' | 'table'; obj?: THREE.Object3D; rustle: number }
 
-const CHUNK = 20;
+const CHUNK = 12;
 
 export class WorldManager {
   readonly group = new THREE.Group();
@@ -460,7 +460,7 @@ export class WorldManager {
       if (!ok) continue;
       const s = 0.9 + r() * 0.55;
       const pine = r() < 0.6;
-      this.place(pine ? P.pineTree(3000 + i, s, d > 50 ? 1 : 0) : P.broadTree(3000 + i, s), x, z, r() * 6, 1, 'world', d < 52);
+      this.place(pine ? P.pineTree(3000 + i, s, d > 46 ? 1 : 0) : P.broadTree(3000 + i, s, false, d > 42 ? 1 : 0), x, z, r() * 6, 1, 'world', d < 50);
       if (d < 44) col.addCircle('tree', x, z, 0.3 * s, MASK_ALL, 3);
       this.treePts.push({ x, z, r: 2.2 * s });
     }
@@ -529,7 +529,7 @@ export class WorldManager {
   };
 
   private buildGround() {
-    const size = 136, seg = 230;
+    const size = 136, seg = 180;
     const geo = new THREE.PlaneGeometry(size, size, seg, seg);
     geo.rotateX(-Math.PI / 2);
     const pos = geo.attributes.position as THREE.BufferAttribute;
@@ -560,8 +560,8 @@ export class WorldManager {
   private buildGrass() {
     const blade = new GeoBuilder();
     const r0 = rand(5);
-    for (let i = 0; i < 6; i++) {
-      const a = (i / 6) * Math.PI * 2 + r0();
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2 + r0();
       const h = 0.16 + r0() * 0.14;
       const g = new THREE.ConeGeometry(0.025, h, 3, 1, true);
       g.translate(0, h / 2, 0);
@@ -576,7 +576,7 @@ export class WorldManager {
     const r = rand(99);
     const mats: THREE.Matrix4[] = [];
     const cols: THREE.Color[] = [];
-    for (let i = 0; i < 26000 && mats.length < 7000; i++) {
+    for (let i = 0; i < 26000 && mats.length < 4800; i++) {
       const x = (r() - 0.5) * 100, z = (r() - 0.5) * 100;
       if (Math.hypot(x, z) > 47) continue;
       const pf = pathFactor(x, z);
@@ -603,13 +603,13 @@ export class WorldManager {
     // 花
     const fl = new GeoBuilder();
     fl.cyl(0.008, 0.008, 0.2, '#5c8f3a', { pos: [0, 0.1, 0], sway: 1.5 }, 3);
-    for (let k = 0; k < 5; k++) fl.sphere(0.022, '#ffffff', { pos: [Math.cos(k * 1.256) * 0.025, 0.21, Math.sin(k * 1.256) * 0.025], sway: 1.5 }, 5, 4);
-    fl.sphere(0.018, '#f7d35a', { pos: [0, 0.215, 0], sway: 1.5 }, 5, 4);
+    fl.ico(0.05, '#ffffff', { pos: [0, 0.21, 0], scale: [1, 0.45, 1], sway: 1.5 }, 0);
+    fl.ico(0.02, '#f7d35a', { pos: [0, 0.232, 0], sway: 1.5 }, 0);
     const fgeo = fl.build();
     const fm: THREE.Matrix4[] = [];
     const fc: THREE.Color[] = [];
     const palette = ['#ffffff', '#f7a8c4', '#f7d35a', '#b9a2ef', '#ff8a6a'];
-    for (let i = 0; i < 4000 && fm.length < 900; i++) {
+    for (let i = 0; i < 4000 && fm.length < 700; i++) {
       const cx = (r() - 0.5) * 84, cz = (r() - 0.5) * 84;
       if (!this.free(cx, cz, 0.3, 1.3)) continue;
       const pc = new THREE.Color(palette[Math.floor(r() * palette.length)]);

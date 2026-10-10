@@ -72,16 +72,11 @@ export class CampsiteObjects {
 
   // ───────── ピクニックの食べ物 ─────────
   private buildFood(ctx: GameContext) {
-    const st = ctx.state;
-    if (!st.obj('basket')) st.setObj('basket', { sandwich: 2, apple: 2, cookie: 2 });
-    if (st.obj('plate') === undefined) st.setObj('plate', 2);
-    if (st.obj('blanketApples') === undefined) st.setObj('blanketApples', 3);
-    if (st.obj('cooler') === undefined) st.setObj('cooler', 2);
-    if (st.obj('cooler2') === undefined) st.setObj('cooler2', { marshmallow: 2, corn: 1 });
+    this.defaults(ctx);
 
     // バスケット
     const t1 = L.picnic.table1.pos;
-    const bx = t1[0] + 0.3, bz = t1[1] + 0.0, by = height(t1[0], t1[1]) + 0.79;
+    const bx = t1[0] + 0.62, bz = t1[1] + 0.0, by = height(t1[0], t1[1]) + 0.79;
     const b = new GeoBuilder();
     const wicker = (p: THREE.Vector3) => new THREE.Color(((Math.floor(p.y * 40) + Math.floor(Math.atan2(p.z, p.x) * 6)) & 1) ? '#c99256' : '#a8743f');
     b.lathe([[0, 0], [0.17, 0], [0.2, 0.06], [0.21, 0.15], [0.19, 0.15], [0.18, 0.06], [0.0, 0.03]], wicker, { scale: [1.25, 1, 0.9] }, 22);
@@ -177,6 +172,16 @@ export class CampsiteObjects {
         return { ok: true, anim: 'interact', animTime: 0.8, theftItem: id, owner: ['camper'], noise: 3 };
       },
     }));
+  }
+
+  /** 新しいゲーム・古いセーブで足りない状態を補う */
+  defaults(ctx: GameContext) {
+    const st = ctx.state;
+    if (!st.obj('basket')) st.setObj('basket', { sandwich: 2, apple: 2, cookie: 2 });
+    if (st.obj('plate') === undefined) st.setObj('plate', 2);
+    if (st.obj('blanketApples') === undefined) st.setObj('blanketApples', 3);
+    if (st.obj('cooler') === undefined) st.setObj('cooler', 2);
+    if (st.obj('cooler2') === undefined) st.setObj('cooler2', { marshmallow: 2, corn: 1 });
   }
 
   syncFood(ctx: GameContext) {
@@ -538,6 +543,7 @@ export class CampsiteObjects {
 
   // ───────── 状態の反映・毎フレーム ─────────
   syncAll(ctx: GameContext) {
+    this.defaults(ctx);
     this.syncFood(ctx);
     for (const p of this.pickups) {
       if (!p.persist) continue;

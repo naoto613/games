@@ -18,6 +18,8 @@ export class CameraController {
 
   resize(w: number, h: number) {
     this.camera.aspect = w / h;
+    // 縦持ちでは少し広角にして、主人公が小さくなりすぎないようにする
+    this.camera.fov = w < h ? 46 : 40;
     this.camera.updateProjectionMatrix();
   }
 
@@ -26,11 +28,11 @@ export class CameraController {
     const a = this.camera.aspect;
     const vf = THREE.MathUtils.degToRad(this.camera.fov) / 2;
     const hf = Math.atan(Math.tan(vf) * a);
-    const needW = 5.2;     // 左右に見せたい半幅（m）
+    const needW = this.camera.aspect < 1 ? 3.9 : 5.2;     // 左右に見せたい半幅（m）
     const needH = 3.6;     // 上下に見せたい半高さ（m）
     const dW = needW / Math.tan(hf);
     const dH = needH / Math.tan(vf);
-    return THREE.MathUtils.clamp(Math.max(dW, dH, 10.5), 10.5, 22);
+    return THREE.MathUtils.clamp(Math.max(dW, dH, 10.5), 10.5, this.camera.aspect < 1 ? 17 : 20);
   }
 
   snap(p: THREE.Vector3) {

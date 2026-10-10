@@ -67,7 +67,7 @@ export const CAMPSITE = {
   // NPC の主な地点
   spots: {
     dadSeat: [-10.4, 12.35] as P2,
-    momSeat: [-9.6, 13.65] as P2,
+    momSeat: [-10.7, 13.65] as P2,
     lakeView: [-11.5, -1.0] as P2,
     shopFront: [5.2, 22.0] as P2,
     shopInside: [7.4, 22.0] as P2,

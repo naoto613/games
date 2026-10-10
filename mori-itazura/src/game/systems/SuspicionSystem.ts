@@ -25,11 +25,11 @@ export interface VisionInput {
 export function canSee(v: VisionInput, los: (ax: number, az: number, eyeH: number, bx: number, bz: number, th: number) => boolean) {
   const dx = v.px - v.npcX, dz = v.pz - v.npcZ;
   const d = Math.hypot(dx, dz);
-  if (v.hidden && !(v.underTable && d < 1.4)) return { seen: false, d };
+  if (v.hidden && !(v.underTable && d < 0.8)) return { seen: false, d };
   let range = v.range * (v.sneaking ? 0.62 : 1) * (1 - v.night * 0.3);
   if (v.chasing) range *= 1.35;
   if (d > range) return { seen: false, d };
-  if (d > 1.3) {
+  if (d > 1.0) {
     const fx = Math.sin(v.facing), fz = Math.cos(v.facing);
     const cos = (dx * fx + dz * fz) / (d || 1);
     const half = ((v.chasing ? Math.max(v.fov, 160) : v.fov) / 2) * (Math.PI / 180);

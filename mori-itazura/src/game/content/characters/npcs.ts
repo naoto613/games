@@ -53,7 +53,7 @@ export const NPCS: NpcDef[] = [
       { do: 'sit', at: S.momSeat, face: Math.PI, anim: 'read', dur: [30, 40] },
       { do: 'goto', to: S.shopFront },
       { do: 'idle', anim: 'talk', dur: [6, 8], face: Math.PI / 2 },
-      { do: 'goto', to: [-9.6, 14.6] },
+      { do: 'goto', to: [-10.7, 14.6] },
     ],
   },
   {

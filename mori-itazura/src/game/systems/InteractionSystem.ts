@@ -24,6 +24,8 @@ export class InteractionSystem {
     scene.add(this.marker);
     this.ring = new THREE.Mesh(new THREE.RingGeometry(0.42, 0.5, 40).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#fff3b8', transparent: true, opacity: 0.75, depthWrite: false, toneMapped: false }));
     this.ring.renderOrder = 3;
+    this.ring.visible = false;
+    this.marker.visible = false;
     scene.add(this.ring);
   }
 
@@ -47,7 +49,7 @@ export class InteractionSystem {
       // 正面にあるものを少し優先
       const fx = Math.sin(p.facing), fz = Math.cos(p.facing);
       const dot = ((i.position.x - p.pos.x) * fx + (i.position.z - p.pos.z) * fz) / (d || 1);
-      const score = d - dot * 0.25;
+      const score = d - dot * 0.25 + (i.type === 'npc' ? 0.7 : 0);
       if (score < bd) { bd = score; best = i; }
     }
     this.focus = best;

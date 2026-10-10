@@ -8,6 +8,7 @@ export const shared = {
   uSeeRadius: { value: 120 },
   uSeeDepth: { value: 0 },
   uSeeOn: { value: 1 },
+  uSeeMargin: { value: 1.2 },
 };
 
 const BAYER = /* glsl */`
@@ -27,6 +28,7 @@ function patch(mat: THREE.Material, opts: { wind?: boolean; see?: boolean }) {
     sh.uniforms.uSeeRadius = shared.uSeeRadius;
     sh.uniforms.uSeeDepth = shared.uSeeDepth;
     sh.uniforms.uSeeOn = shared.uSeeOn;
+    sh.uniforms.uSeeMargin = shared.uSeeMargin;
     sh.vertexShader = sh.vertexShader
       .replace('#include <common>', `#include <common>
         attribute float aSway;
@@ -45,7 +47,7 @@ function patch(mat: THREE.Material, opts: { wind?: boolean; see?: boolean }) {
         vViewZ = -mvPosition.z;`);
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', `#include <common>
-        uniform vec2 uSeeCenter; uniform float uSeeRadius; uniform float uSeeDepth; uniform float uSeeOn;
+        uniform vec2 uSeeCenter; uniform float uSeeRadius; uniform float uSeeDepth; uniform float uSeeOn; uniform float uSeeMargin;
         varying float vViewZ;
         ${BAYER}`)
       .replace('void main() {', `void main() {
@@ -54,7 +56,7 @@ function patch(mat: THREE.Material, opts: { wind?: boolean; see?: boolean }) {
           vec2 d = (gl_FragCoord.xy - uSeeCenter) / uSeeRadius;
           d.y *= 0.8;
           float r = length(d);
-          if (r < 1.0 && vViewZ < uSeeDepth - 1.2) {
+          if (r < 1.0 && vViewZ < uSeeDepth - uSeeMargin) {
             float a = smoothstep(1.0, 0.45, r);
             if (a * 0.9 > bayer4(gl_FragCoord.xy)) discard;
           }

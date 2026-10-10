@@ -197,9 +197,9 @@ function segHit(c: Collider, ax: number, az: number, bx: number, bz: number): nu
     if (disc < 0) return null;
     const sq = Math.sqrt(disc);
     const t1 = (-b - sq) / (2 * a), t2 = (-b + sq) / (2 * a);
-    if (t1 >= 0 && t1 <= 1) return t1;
-    if (t2 >= 0 && t2 <= 1) return 0.5 * (Math.max(0, t1) + t2);
-    return null;
+    // 視線は下向きに進むので、遮蔽物を抜ける側（いちばん低い所）で判定する
+    if (t2 < 0 || t1 > 1) return null;
+    return Math.min(1, t2);
   }
   const A = toLocal(c, ax, az), B = toLocal(c, bx, bz);
   const dx = B.lx - A.lx, dz = B.lz - A.lz;
@@ -211,6 +211,6 @@ function segHit(c: Collider, ax: number, az: number, bx: number, bz: number): nu
     else { if (r < t0) return false; if (r < t1) t1 = r; }
     return true;
   };
-  if (clip(-dx, A.lx + c.hw) && clip(dx, c.hw - A.lx) && clip(-dz, A.lz + c.hd) && clip(dz, c.hd - A.lz)) return (t0 + t1) / 2;
+  if (clip(-dx, A.lx + c.hw) && clip(dx, c.hw - A.lx) && clip(-dz, A.lz + c.hd) && clip(dz, c.hd - A.lz)) return t1;
   return null;
 }

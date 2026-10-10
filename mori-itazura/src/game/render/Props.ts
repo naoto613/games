@@ -36,13 +36,14 @@ function woodGrain(base: string, k = 0.12): ColorFn {
 }
 
 // ───────── 植物・岩 ─────────
-export function broadTree(seed: number, s = 1, apples = false) {
+export function broadTree(seed: number, s = 1, apples = false, lod = 0) {
+  const det = lod ? 1 : 2;
   const r = rand(seed);
   const b = new GeoBuilder({ ao: 0.35, aoHeight: 1.2 });
   const th = (2.0 + r() * 0.6) * s;
   b.cyl(0.16 * s, 0.26 * s, th, gradient(PAL.barkDark, PAL.bark, 0, th), { pos: [0, th / 2, 0], jitter: 0.08, seed }, 9);
   // 根元の張り出し
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < (lod ? 0 : 4); i++) {
     const a = (i / 4) * Math.PI * 2 + r();
     b.cone(0.13 * s, 0.5 * s, PAL.barkDark, { pos: [Math.cos(a) * 0.18 * s, 0.15 * s, Math.sin(a) * 0.18 * s], rot: [Math.sin(a) * 1.1, 0, -Math.cos(a) * 1.1] }, 6);
   }
@@ -53,15 +54,15 @@ export function broadTree(seed: number, s = 1, apples = false) {
   }
   const cy = th + 1.05 * s;
   const leaf = foliage(PAL.leafDark, PAL.leafLight, th - 0.4 * s, th + 2.6 * s, seed);
-  b.ico(1.45 * s, leaf, { pos: [0, cy, 0], sway: 0.35, jitter: 0.18, seed }, 2);
+  b.ico(1.45 * s, leaf, { pos: [0, cy, 0], sway: 0.35, jitter: 0.18, seed }, det);
   const n = 5 + Math.floor(r() * 3);
   for (let i = 0; i < n; i++) {
     const a = (i / n) * Math.PI * 2 + r() * 0.5;
     const rr = (0.75 + r() * 0.35) * s;
     const d = (1.0 + r() * 0.35) * s;
-    b.ico(rr, leaf, { pos: [Math.cos(a) * d, cy - 0.35 * s + r() * 0.7 * s, Math.sin(a) * d], sway: 0.35, jitter: 0.2, seed: seed + i * 7 }, 2);
+    b.ico(rr, leaf, { pos: [Math.cos(a) * d, cy - 0.35 * s + r() * 0.7 * s, Math.sin(a) * d], sway: 0.35, jitter: 0.2, seed: seed + i * 7 }, lod ? 1 : i % 2 ? 1 : 2);
   }
-  b.ico(0.95 * s, leaf, { pos: [r() * 0.4 - 0.2, cy + 0.95 * s, r() * 0.4 - 0.2], sway: 0.4, jitter: 0.2, seed: seed + 99 }, 2);
+  b.ico(0.95 * s, leaf, { pos: [r() * 0.4 - 0.2, cy + 0.95 * s, r() * 0.4 - 0.2], sway: 0.4, jitter: 0.2, seed: seed + 99 }, det);
   if (apples) {
     for (let i = 0; i < 9; i++) {
       const a = r() * Math.PI * 2, el = r() * 0.9 - 0.2;

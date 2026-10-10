@@ -125,7 +125,6 @@ export class AIBehaviorSystem {
       const dx = n.pos.x - L.cabin.pos[0], dz = n.pos.z - (L.cabin.pos[1] + L.cabin.d / 2);
       if (Math.abs(dx) < 0.9 && Math.abs(dz) < 1.1 && !this.objects.isDoorOpen(c)) {
         this.objects.openDoorFor(c);
-        c.noise(n.pos.x, n.pos.z, 3);
       }
     }
 

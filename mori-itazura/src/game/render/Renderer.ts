@@ -119,7 +119,7 @@ export class Renderer {
   resize(w: number, h: number) {
     this.w = w; this.h = h;
     const dpr = window.devicePixelRatio || 1;
-    this.pixelRatio = this.quality === 'high' ? Math.min(dpr, 2) : this.quality === 'medium' ? Math.min(dpr, 1.5) : Math.min(dpr, 1);
+    this.pixelRatio = this.quality === 'high' ? Math.min(dpr, 1.75) : this.quality === 'medium' ? Math.min(dpr, 1.3) : Math.min(dpr, 1);
     const r = this.renderer;
     r.setPixelRatio(this.pixelRatio);
     r.setSize(w, h, false);

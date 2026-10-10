@@ -3,6 +3,7 @@
 ブラウザで遊べるゲームを GitHub Pages で公開するリポジトリです。
 
 - 一覧ページ: https://naoto613.github.io/games/
+- もりのいたずら日和: https://naoto613.github.io/games/mori-itazura/
 - こっそりトレジャー: https://naoto613.github.io/games/kossori-treasure/
 - ふーちゃんのまち: https://naoto613.github.io/games/fuchan-town/
 - キュアふーたん サバイバー: https://naoto613.github.io/games/futan-survivor/
@@ -33,6 +34,13 @@
 ├── thumbs/                 # 一覧ページ用サムネイル（<ゲームフォルダ名>.jpg、800×500）
 ├── .nojekyll               # Jekyll 処理を無効化（ファイルをそのまま配信）
 ├── README.md
+├── mori-itazura/
+│   ├── index.html          # もりのいたずら日和（企画・詳細設計書どおりの 3D 探索アドベンチャー。スマホ／タブレットの Chrome 向け。森の小動物「コロ」でキャンプ場を自由に歩き、食べ物集め・いたずら・変装・買い物・アルバイト・つり・ボート・たき火料理・宝さがし。NPC 7 人は日常ルーチンと視界（距離・視野角・遮蔽物の高さ）・警戒度 0〜100（?→!）で 警戒→調査→追跡→帰還 し、つかまると持ち物を 1 つ失っておうちへ戻る。茂み・テーブルの下に隠れられる。昼夜の変化、データ駆動のクエスト 10 本・図鑑・実績、IndexedDB セーブ（バージョン移行つき）。three.js：区画ごとに結合した頂点カラーのモデル、やわらかい影、主人公の手前を透かすディザ、チルトシフト風ぼかし、画質の自動調整）
+│   ├── game.js             # ビルド済み成果物（src から esbuild で生成）
+│   ├── src/                # TypeScript＋React のソース（設計書 14.2 の構成：app・components/game-ui・game/{core,world,entities,systems,render,content}）
+│   ├── tests/              # Vitest（当たり判定・経路・視界と警戒度・クエスト・会話・経済・セーブ）
+│   ├── tools/shot.mjs      # 実ブラウザ（Playwright）でのスクリーンショット確認
+│   └── package.json        # npm install → npm run build / npm test / npm run typecheck
 ├── hitori-jinro/
 │   └── index.html          # ひとり人狼 〜月影の村〜（ひとりで遊ぶ 9 人村の人狼ゲーム。人狼2・占い・霊媒・騎士・狂人・村人3、CPU 8 人は人狼の組み合わせ 36 通りを全列挙して CO・結果・投票・かばい合い（ライン）・印象から推理。性格（論理/感情/直感）・表情・好感度・恨みを持ち、プレイヤーへの質問・弁明・説得・嘘の指摘、人狼の仲間かばい・口すべり・仕草などのボロ、人狼プレイヤーの相棒への作戦指示、終了後の感想戦あり。単一 HTML で完結。`?auto` で自動対戦シミュレーション（`runSim(n)`））
 ├── kossori-treasure/
@@ -104,6 +112,7 @@
 
 各ゲームは `<ゲーム名>/index.html` の 1 フォルダ 1 ゲーム構成で、置いた HTML がそのまま配信されます。
 `fuchan-town`・`fuchan-hospital`・`cure-tantei`・`chibikko-auto`・`futan-quest`・`futan-takuto`・`futan-kitchen`・`fumon-ruby`・`stella-noctis` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
+`mori-itazura` は TypeScript なので、`cd mori-itazura && npm install && npm run build` で `game.js` を再生成してからコミットしてください（`npm test` でテスト）。
 
 ## ゲームの追加方法
 

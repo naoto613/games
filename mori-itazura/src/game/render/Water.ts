@@ -51,11 +51,11 @@ export function buildWater(timeU: { value: number }) {
         // 波打ちぎわ（岸に寄せる白い帯）
         float band = sin(vShore * 7.0 - uTime * 1.8 + n(vW.xz*1.2)*3.0);
         float foam = smoothstep(0.75, 1.0, band) * (1.0 - smoothstep(0.1, 1.3, vShore));
-        foam += 1.0 - smoothstep(0.0, 0.22, vShore + n(vW.xz*3.0+uTime*0.3)*0.12);
+        foam += 1.0 - smoothstep(0.0, 0.22, vShore + n(vW.xz*1.5+uTime*0.3)*0.12);
         col = mix(col, uFoam, clamp(foam, 0.0, 1.0) * 0.9);
         // きらめき
         float sp = n(vW.xz*6.0 + vec2(uTime*0.6, -uTime*0.4));
-        col += vec3(1.0) * smoothstep(0.86, 0.97, sp) * 0.45 * (1.0 - uNight*0.7);
+        col += vec3(1.0) * smoothstep(0.94, 0.995, sp) * 0.3 * (1.0 - uNight*0.7);
         col *= uLight;
         float a = mix(0.82, 0.95, d);
         gl_FragColor = vec4(col, a);
