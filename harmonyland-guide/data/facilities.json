@@ -1,0 +1,364 @@
+[
+  {
+    "id": "fun-studio",
+    "name": "キャラクターグリーティング ファンスタジオ",
+    "kana": "",
+    "category": "greeting",
+    "area": null,
+    "description": "キャラクターと交流できるグリーティング施設。",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionSource": null
+    },
+    "operation": {
+      "status": "unconfirmed",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed"
+    },
+    "requirements": {
+      "ticketRequired": true,
+      "reservationRequired": "unknown",
+      "ageRestriction": null,
+      "heightRestriction": null,
+      "price": null,
+      "note": null
+    },
+    "admission": {
+      "type": "整理券",
+      "required": true,
+      "requiredNote": "公式FAQで整理券が必要と案内（前回調査）。2026年6月15日の公式Xで、6月22日から「デジタル整理券」に変わると告知。",
+      "method": "デジタル整理券（2026年6月22日〜と告知）",
+      "methodStatus": "scheduled",
+      "distributionLocation": null,
+      "distributionStartTime": null,
+      "endCondition": null,
+      "capacity": null,
+      "eligibility": null,
+      "status": "unconfirmed",
+      "statusNote": "取得手順・開始時刻・受付終了条件・対象日の運用は未確認。"
+    },
+    "tags": [
+      "グリーティング",
+      "整理券"
+    ],
+    "notes": [
+      "対象日の出演キャラクターと時間はファンスタジオ キャラクタースケジュール（公式）で確認してください。",
+      "紙の整理券時代の取得方法（ブースでの配布など）は対象日の情報として扱いません。"
+    ],
+    "sources": [
+      "source-faq",
+      "source-x-digital-ticket",
+      "source-digital-ticket-news",
+      "source-funstudio-schedule"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "kitty-castle",
+    "name": "キティキャッスル",
+    "kana": "",
+    "category": "attraction",
+    "area": null,
+    "description": "アトラクション一覧に掲載されている施設。",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionSource": null
+    },
+    "operation": {
+      "status": "unconfirmed",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed"
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "ageRestriction": null,
+      "heightRestriction": null,
+      "price": null,
+      "note": "公式アトラクション一覧の検索結果の抜粋による（ページの掲載日・更新日は未確認）。"
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [],
+    "sources": [
+      "source-attraction"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "harmony-train",
+    "name": "ハーモニートレイン",
+    "kana": "",
+    "category": "attraction",
+    "area": null,
+    "description": "アトラクション一覧に掲載されている乗り物。",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionSource": null
+    },
+    "operation": {
+      "status": "unconfirmed",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed"
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "ageRestriction": null,
+      "heightRestriction": null,
+      "price": null,
+      "note": "公式アトラクション一覧の検索結果の抜粋による（ページの掲載日・更新日は未確認）。"
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [],
+    "sources": [
+      "source-attraction"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "sanrio-boat-ride",
+    "name": "サンリオキャラクターボートライド",
+    "kana": "",
+    "category": "attraction",
+    "area": null,
+    "description": "アトラクション一覧に掲載されている乗り物。",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionSource": null
+    },
+    "operation": {
+      "status": "unconfirmed",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed"
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "ageRestriction": null,
+      "heightRestriction": null,
+      "price": null,
+      "note": "公式アトラクション一覧の検索結果の抜粋による（ページの掲載日・更新日は未確認）。"
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [],
+    "sources": [
+      "source-attraction"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "sky-jet",
+    "name": "スカイジェット",
+    "kana": "",
+    "category": "attraction",
+    "area": null,
+    "description": "アトラクション一覧に掲載されている乗り物。",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionSource": null
+    },
+    "operation": {
+      "status": "unconfirmed",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed"
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "ageRestriction": "10歳未満は保護者同伴",
+      "heightRestriction": null,
+      "price": null,
+      "note": "公式アトラクション一覧の検索結果の抜粋による（ページの掲載日・更新日は未確認）。"
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [],
+    "sources": [
+      "source-attraction"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "water-shot",
+    "name": "ウォーターショット",
+    "kana": "",
+    "category": "attraction",
+    "area": null,
+    "description": "アトラクション一覧に掲載されている乗り物。",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionSource": null
+    },
+    "operation": {
+      "status": "unconfirmed",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed"
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "ageRestriction": "4歳未満は保護者同伴",
+      "heightRestriction": null,
+      "price": null,
+      "note": "公式アトラクション一覧の検索結果の抜粋による（ページの掲載日・更新日は未確認）。"
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [],
+    "sources": [
+      "source-attraction"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "strawberry-cafe",
+    "name": "ストロベリーカフェ",
+    "kana": "",
+    "category": "attraction",
+    "area": null,
+    "description": "アトラクション一覧に掲載されている乗り物（飲食店ではありません）。",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionSource": null
+    },
+    "operation": {
+      "status": "unconfirmed",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed"
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "ageRestriction": "6歳未満は保護者同伴",
+      "heightRestriction": null,
+      "price": null,
+      "note": "公式アトラクション一覧の検索結果の抜粋による（ページの掲載日・更新日は未確認）。"
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [],
+    "sources": [
+      "source-attraction"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "fairy-kitty-carousel",
+    "name": "フェアリーキティカルーセル",
+    "kana": "",
+    "category": "attraction",
+    "area": null,
+    "description": "アトラクション一覧に掲載されている乗り物。",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionSource": null
+    },
+    "operation": {
+      "status": "unconfirmed",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed"
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "ageRestriction": "4歳未満は保護者同伴",
+      "heightRestriction": null,
+      "price": null,
+      "note": "公式アトラクション一覧の検索結果の抜粋による（ページの掲載日・更新日は未確認）。"
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [],
+    "sources": [
+      "source-attraction"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "harmony-village",
+    "name": "ハーモニービレッジ",
+    "kana": "",
+    "category": "show",
+    "area": "ハーモニービレッジ",
+    "description": "ハロウィーンイベント期間のパレード・ショーの会場として案内されている場所。",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionSource": null
+    },
+    "operation": {
+      "status": "unconfirmed",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed"
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "ageRestriction": null,
+      "heightRestriction": null,
+      "price": null,
+      "note": null
+    },
+    "admission": null,
+    "tags": [
+      "ショー会場",
+      "パレード"
+    ],
+    "notes": [
+      "パレードパラレル〜ハロウィーンver.〜、Magical Masquerade〜EXCITE！〜の会場として案内されています。",
+      "ハロウィーンDEダイコウシン★の受付は「ハーモニービレッジ・パレードゲート付近」と案内されています。"
+    ],
+    "sources": [
+      "source-halloween-2026",
+      "source-prtimes-halloween-2026"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  }
+]

@@ -3,6 +3,7 @@
 ブラウザで遊べるゲームを GitHub Pages で公開するリポジトリです。
 
 - 一覧ページ: https://naoto613.github.io/games/
+- ハーモニーランド攻略ナビ（非公式）: https://naoto613.github.io/games/harmonyland-guide/
 - みつけたタウン: https://naoto613.github.io/games/mitsuketa-town/
 - もりのいたずら日和: https://naoto613.github.io/games/mori-itazura/
 - こっそりトレジャー: https://naoto613.github.io/games/kossori-treasure/
@@ -38,6 +39,11 @@
 ├── thumbs/                 # 一覧ページ用サムネイル（<ゲームフォルダ名>.jpg、800×500）
 ├── .nojekyll               # Jekyll 処理を無効化（ファイルをそのまま配信）
 ├── README.md
+├── harmonyland-guide/
+│   ├── index.html          # ハーモニーランド攻略ナビ（詳細設計書どおりの 非公式の 来園当日ナビ。対象日 2026年10月13日。ホーム・園内マップ（独自の模式図、位置が確認できた施設だけマーカー、ピンチ／ボタンで拡大縮小）・施設詳細・一覧検索・整理券攻略・ショー（確認済みと参考時刻を区別したタイムライン）・回り方プラン・情報と出典。データは data/*.json、確認できない情報は推測せず「未確認」表示。localStorage 保存、Service Worker でオフライン参照。ビルド不要、file:// でも動く）
+│   ├── css/ js/ data/ assets/  # js: app・map・schedule・planner・storage、data-fallback.js は build.py の生成物
+│   ├── build.py            # data/*.json を編集したら python3 build.py（data-fallback.js と配布用 harmonyland-guide.zip を再生成）
+│   └── tests/e2e.mjs       # node tests/e2e.mjs（Playwright で全画面・保存・マップ・オフライン・file:// を確認）
 ├── mitsuketa-town/
 │   ├── index.html          # みつけたタウン（企画書どおりの ウォーリーをさがせ型の 探しものタイムアタック。3D の町（角丸の模型・噴水の広場・屋台・商店）に 紙の切り抜き風の 2D の人・物・動物が立つ。お題カード・残り時間（正解 +3秒、おしい −1秒、まちがい −2秒）・れんぞく（3秒以内、音が上がり 町の人が手を振る）・ヒント2回（ミニマップと地面の区画が光る、未使用で★）・住人図鑑（名前と一言プロフィール）。モードは どんどんさがし（3分）／きょうの一枚（日付シードで全員同じ町、5つの時間を共有）／のんびりさがし。お題ごとに 色違い・形違い・組み合わせ違いの「おしい」候補を混ぜ、町レベルで難しさが上がる。参考実装からの改善：人の密度アップと引きのカメラ、町レベルごとに ガーランド・ふうせん屋さん・花だん・りんごの木・クレープ屋台・メリーゴーランド・キラキラ噴水・ちょうちん・ステージ・お祭り と町が育つ、歩く住人・ねこ・いぬ・ハト、オルゴール風 BGM（残り30秒で速く）と残り10秒のカウント音、あそびかた画面、重なった正解や小さな物も拾いやすいタップ判定。単一 HTML＋three.js、記録は localStorage。デバッグ用に `window.MT`）
 │   └── three.min.js        # three.js r149（obake-rusuban と同じもの）

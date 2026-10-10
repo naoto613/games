@@ -1,0 +1,201 @@
+[
+  {
+    "id": "parade-parallel-halloween-2026",
+    "name": "パレードパラレル〜ハロウィーンver.〜",
+    "category": "parade",
+    "description": "約10年続いたパレードの集大成「パレードパラレル the FINAL」のハロウィーン版。",
+    "eventPeriod": {
+      "startDate": "2026-09-18",
+      "endDate": "2026-11-10"
+    },
+    "days": "all",
+    "announcedTimes": [
+      {
+        "dayType": "all",
+        "startTime": "12:30",
+        "endTime": "12:55",
+        "note": "期間中の通常の上演時刻として案内（10月31日・11月1日は12:45開始と案内）"
+      }
+    ],
+    "schedule": [
+      {
+        "date": "2026-10-13",
+        "startTime": null,
+        "endTime": null,
+        "status": "unconfirmed"
+      }
+    ],
+    "venue": {
+      "name": "ハーモニービレッジ",
+      "facilityId": "harmony-village"
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "viewingConditions": null
+    },
+    "admission": null,
+    "weatherPolicy": "unconfirmed",
+    "sources": [
+      "source-halloween-2026",
+      "source-prtimes-parade-final"
+    ],
+    "lastVerifiedAt": null
+  },
+  {
+    "id": "magical-masquerade-excite-2026",
+    "name": "Magical Masquerade〜EXCITE！〜",
+    "category": "show",
+    "description": "ハロウィーンイベントの参加型ライブショー。",
+    "eventPeriod": {
+      "startDate": "2026-09-18",
+      "endDate": "2026-11-10"
+    },
+    "days": "all",
+    "announcedTimes": [
+      {
+        "dayType": "weekday",
+        "startTime": "16:00",
+        "endTime": "16:20",
+        "note": "平日の上演時刻として案内"
+      },
+      {
+        "dayType": "holiday",
+        "startTime": "15:15",
+        "endTime": "15:35",
+        "note": "土日祝の上演時刻として案内（10月31日・11月1日は別時刻の案内あり）"
+      }
+    ],
+    "schedule": [
+      {
+        "date": "2026-10-13",
+        "startTime": null,
+        "endTime": null,
+        "status": "unconfirmed"
+      }
+    ],
+    "venue": {
+      "name": "ハーモニービレッジ",
+      "facilityId": "harmony-village"
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "viewingConditions": null
+    },
+    "admission": null,
+    "weatherPolicy": "unconfirmed",
+    "sources": [
+      "source-prtimes-halloween-2026",
+      "source-halloween-2026"
+    ],
+    "lastVerifiedAt": null
+  },
+  {
+    "id": "halloween-de-daikoushin-2026",
+    "name": "ハロウィーンDEダイコウシン★",
+    "category": "show",
+    "description": "キャラクターと一緒に大行進する平日限定の参加型ライブショー。出演キャラクターは日替わりと案内。",
+    "eventPeriod": {
+      "startDate": "2026-09-18",
+      "endDate": "2026-11-10"
+    },
+    "days": "weekday",
+    "announcedTimes": [
+      {
+        "dayType": "weekday",
+        "startTime": "11:00",
+        "endTime": "11:20",
+        "note": "平日のみの上演時刻として案内"
+      }
+    ],
+    "schedule": [
+      {
+        "date": "2026-10-13",
+        "startTime": null,
+        "endTime": null,
+        "status": "unconfirmed"
+      }
+    ],
+    "venue": {
+      "name": "未確認（受付はハーモニービレッジ・パレードゲート付近）",
+      "facilityId": "harmony-village"
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": false,
+      "price": null,
+      "viewingConditions": null
+    },
+    "admission": {
+      "type": "当日受付",
+      "required": true,
+      "requiredNote": "参加には受付が必要と公式特設ページで案内（検索結果の要約で確認）。",
+      "method": "事前予約なし",
+      "methodStatus": "scheduled",
+      "distributionLocation": "ハーモニービレッジ・パレードゲート付近",
+      "distributionStartTime": null,
+      "endCondition": "定員になり次第受付終了",
+      "capacity": null,
+      "eligibility": null,
+      "status": "unconfirmed",
+      "statusNote": "受付開始時刻・定員・対象日の実施は未確認。"
+    },
+    "weatherPolicy": "unconfirmed",
+    "sources": [
+      "source-halloween-2026"
+    ],
+    "lastVerifiedAt": null
+  },
+  {
+    "id": "parade-final-special-greeting-2026",
+    "name": "パレードパラレル the FINAL スペシャルグリーティング",
+    "category": "greeting",
+    "description": "シーズン限定衣装のキャラクターと会える有料のグリーティング。",
+    "eventPeriod": {
+      "startDate": "2026-09-18",
+      "endDate": "2027-05-09"
+    },
+    "days": "unknown",
+    "announcedTimes": [],
+    "schedule": [
+      {
+        "date": "2026-10-13",
+        "startTime": null,
+        "endTime": null,
+        "status": "unconfirmed"
+      }
+    ],
+    "venue": {
+      "name": "未確認",
+      "facilityId": null
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": true,
+      "price": "有料（金額未確認）",
+      "viewingConditions": null
+    },
+    "admission": {
+      "type": "事前予約",
+      "required": true,
+      "requiredNote": "有料・事前予約制と案内（検索結果の要約で確認）。",
+      "method": null,
+      "methodStatus": null,
+      "distributionLocation": null,
+      "distributionStartTime": null,
+      "endCondition": null,
+      "capacity": null,
+      "eligibility": null,
+      "status": "unconfirmed",
+      "statusNote": "予約方法・料金・対象日の実施有無は未確認。"
+    },
+    "weatherPolicy": "unconfirmed",
+    "sources": [
+      "source-prtimes-parade-final"
+    ],
+    "lastVerifiedAt": null
+  }
+]
