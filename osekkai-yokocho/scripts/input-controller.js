@@ -78,6 +78,12 @@
     }
 
     function onKey(e) {
+      // SVG の場所（role=button）は Enter / Space でも選べる
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.closest && e.target.closest('[data-loc][role=button]')) {
+        e.preventDefault();
+        onClick({ target: e.target });
+        return;
+      }
       if (e.key !== 'Escape') return;
       if (!document.getElementById('ov-confirm').hidden) return actions['confirm-no']();
       if (!document.getElementById('ov-goal').hidden) return actions['close-goal']();

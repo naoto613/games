@@ -33,41 +33,25 @@
       }
     ],
 
-    // 背景の飾り（タップ不可）
-    decor: [
-      { type: 'sky', x: 0, y: 0, w: 100, h: 36 },
-      { type: 'ground', x: 0, y: 33, w: 100, h: 67 },
-      { type: 'shop', x: 54, y: 7, w: 43, h: 25, label: '古道具 ふくろう' },
-      { type: 'bunting', x: 0, y: 4, w: 100, h: 6 },
-      { type: 'tree', x: 1, y: 56, w: 15, h: 17 },
-      { type: 'tree', x: 84, y: 76, w: 15, h: 17 },
-      { type: 'lamp', x: 47, y: 25, w: 4, h: 16 },
-      { type: 'lamp', x: 47, y: 72, w: 4, h: 16 },
-      { type: 'stand', x: 77, y: 40, w: 8, h: 11 },
-      { type: 'table', x: 36, y: 39, w: 13, h: 6 },
-      { type: 'flowers', x: 60, y: 86, w: 20, h: 6 }
-    ],
+    // 町の絵は art.js（同じ画風の SVG）で描く。座標は町のグリッド（gx, gy）
+    scene: 's1',
 
     locations: [
       {
         id: 'LOC-01',
         name: 'パン屋',
-        zone: { x: 3, y: 6, w: 44, h: 28 },
         art: 'bakery',
-        sign: 'マルのパン',
         description: '焼きたての香りがする小さなパン屋。店先には「本日 新作」の札が出ている。'
       },
       {
         id: 'LOC-02',
         name: 'ベンチ',
-        zone: { x: 5, y: 78, w: 36, h: 12 },
         art: 'bench',
         description: '木陰のベンチ。風船売りが置いていった風船が一つ、結んである。'
       },
       {
         id: 'LOC-03',
         name: '広場',
-        zone: { x: 26, y: 38, w: 70, h: 33 },
         art: 'square',
         description: '横丁の真ん中の石畳の広場。小さな舞台もあるのに、今日はがらんとしている。'
       }
@@ -78,33 +62,29 @@
         id: 'CH-01',
         name: 'マル',
         role: 'パン屋の店主',
-        avatar: '👨‍🍳',
         locationId: 'LOC-01',
         state: 'waiting',
         goal: '新作パンを誰かに知ってもらいたい',
         personality: '真面目だが宣伝が苦手',
-        slots: { 'LOC-01': { x: 21, y: 40 }, 'LOC-03': { x: 82, y: 61 } },
+        slots: { 'LOC-01': { gx: 3.95, gy: 3.0 }, 'LOC-03': { gx: 8.9, gy: 7.9 } },
+        facing: 'right',
         states: {
           waiting: {
-            mood: '😔',
             label: 'しょんぼり',
             observe: '店の前で新作パンを並べている。でも、通りには誰もいない。',
             lines: ['新作なんだけどなあ……見てもらえないなあ', '呼びこみ？ む、無理無理……']
           },
           interested: {
-            mood: '❗',
             label: '気になる',
             observe: '広場のほうを、しきりに気にしている。',
             lines: ['おや？ 広場から音が……']
           },
           at_square: {
-            mood: '😳',
             label: 'そわそわ',
             observe: '広場に来たものの、手ぶらでそわそわしている。新作パンは店に置いてきてしまったらしい。',
             lines: ['しまった、パンを店に置いてきちゃった……', '人は集まってるのに、見せるパンがない……']
           },
           showing_bread: {
-            mood: '😄',
             label: 'にこにこ',
             observe: '新作パンを高く掲げて、みんなに紹介している。',
             lines: ['焼きたての「横丁クロワッサン」、いかがですか！']
@@ -115,33 +95,29 @@
         id: 'CH-02',
         name: 'ココ',
         role: '子ども',
-        avatar: '🧒',
         locationId: 'LOC-02',
         state: 'bored',
         goal: '退屈を解消したい',
         personality: '好奇心旺盛で気が散りやすい',
-        slots: { 'LOC-02': { x: 33, y: 77 }, 'LOC-03': { x: 40, y: 58 } },
+        slots: { 'LOC-02': { gx: 5.3, gy: 9.9 }, 'LOC-03': { gx: 6.3, gy: 8.4 } },
+        facing: 'left',
         states: {
           bored: {
-            mood: '😑',
             label: 'たいくつ',
             observe: 'ベンチで足をぶらぶらさせている。すぐそばに風船が結んであるのに、気づいていないようだ。',
             lines: ['なにか面白いことないかな', 'ひまだなあ……']
           },
           curious: {
-            mood: '✨',
             label: 'わくわく',
             observe: '風船を握りしめて、目を輝かせている。',
             lines: ['もっと広いところで飛ばしたい！']
           },
           moving_to_square: {
-            mood: '💨',
             label: 'かけあし',
             observe: '風船を持って走っている。',
             lines: ['広場まで競争だー！']
           },
           playing: {
-            mood: '😆',
             label: 'あそび中',
             observe: '広場で風船を追いかけて、けらけら笑っている。',
             lines: ['見て見て！ 風船、高く上がった！', 'あはは、まてまてー！']
@@ -152,28 +128,24 @@
         id: 'CH-03',
         name: 'ネネ',
         role: '演奏家',
-        avatar: '👩‍🎤',
-        prop: '🎻',
         locationId: 'LOC-03',
         state: 'discouraged',
         goal: '演奏を誰かに聴いてほしい',
         personality: '音楽好きだが少し自信がない',
-        slots: { 'LOC-03': { x: 63, y: 46 } },
+        slots: { 'LOC-03': { gx: 7.6, gy: 5.0 } },
+        facing: 'left',
         states: {
           discouraged: {
-            mood: '😞',
             label: 'しょんぼり',
             observe: 'バイオリンを抱えたまま、うつむいている。譜面台の楽譜は風で落ちてしまったようだ。',
             lines: ['誰も聴いていないし、今日はもう帰ろうかな', '……弾いても、ね']
           },
           encouraged: {
-            mood: '🙂',
             label: 'やる気',
             observe: 'ココの笑い声に顔を上げた。弾きたい曲の楽譜を探して、きょろきょろしている。',
             lines: ['あの子のために一曲……あれ、楽譜どこだっけ？']
           },
           playing_music: {
-            mood: '🎶',
             label: '演奏中',
             observe: '楽しそうにワルツを弾いている。音が横丁じゅうに響く。',
             lines: ['♪ラララ〜 横丁のワルツ〜', '聴いてくれて、ありがとう！']
@@ -186,27 +158,24 @@
       {
         id: 'IT-01',
         name: '風船',
-        icon: '🎈',
         locationId: 'LOC-02',
-        pos: { x: 10, y: 69 },
+        pos: { gx: 4.55, gy: 10.75 },
         used: false,
         description: 'ベンチに結ばれた赤い風船。ふわふわ揺れている。'
       },
       {
         id: 'IT-02',
         name: '楽譜',
-        icon: '🎼',
         locationId: 'LOC-03',
-        pos: { x: 89, y: 47 },
+        pos: { gx: 9.4, gy: 4.85 },
         used: false,
         description: '譜面台から落ちた楽譜。「横丁のワルツ」と書いてある。'
       },
       {
         id: 'IT-03',
         name: '新作パン',
-        icon: '🥐',
         locationId: 'LOC-01',
-        pos: { x: 41, y: 40 },
+        pos: { gx: 3.75, gy: 5.2 },
         used: false,
         description: '店先に並んだ新作「横丁クロワッサン」。甘くて香ばしい匂いがする。'
       }

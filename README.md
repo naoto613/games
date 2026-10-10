@@ -36,9 +36,9 @@
 ├── .nojekyll               # Jekyll 処理を無効化（ファイルをそのまま配信）
 ├── README.md
 ├── osekkai-yokocho/
-│   ├── index.html          # おせっかい横丁（詳細設計書どおりのモバイル Chrome 縦向けの観察型アドベンチャー。住人3人・アイテム3つ・1ステージ「商店街の小さな演奏会」。タップでアイテム→対象を選ぶと、状態遷移とイベントキューで連鎖が1件ずつ再生される。パン紹介は4ルートで結末が変化、空振りにも反応（見つけた反応を結果画面に表示）。ポーズ・リトライ確認・戻る操作対策・タブ切替で一時停止・エラー表示つき。ビルド不要、file:// でも動く通常の script 読み込み）
+│   ├── index.html          # おせっかい横丁（詳細設計書どおりのモバイル Chrome 縦向けの観察型アドベンチャー。住人3人・アイテム3つ・1ステージ「商店街の小さな演奏会」。タップでアイテム→対象を選ぶと、状態遷移とイベントキューで連鎖が1件ずつ再生される。パン紹介は4ルートで結末が変化、空振りにも反応。絵はすべて art.js の SVG（アイソメトリックのジオラマ風の町・全身の住人の状態別ポーズ・アイテム）で、絵文字は使わない。ビルド不要、file:// でも動く通常の script 読み込み）
 │   ├── styles/main.css
-│   └── scripts/            # stage-data（ステージ定義・イベント・反応）、game-state、game-rules、event-engine、input-controller、ui-renderer、main
+│   └── scripts/            # stage-data（ステージ定義・イベント・反応）、art（SVG イラスト：町・建物・植栽・住人・アイテム）、game-state、game-rules、event-engine、input-controller、ui-renderer、main
 ├── chokkai-snap/
 │   ├── index.html          # ちょっかいスナップ（PS2『リモココロン』型の「観察→画像を取り込む→ちょっかい→連鎖」ゲームを詳細設計書どおりに再構築。スマホ／タブレットの Chrome 向けタッチ操作。6ステージ・全323イベントをデータ駆動で定義し、条件エンジン・排他分岐・連鎖・時間切れ終端・図鑑・リプレイ・IndexedDB セーブ・ヒント・難易度・アクセシビリティ設定・デバッグツール（Inspector／Condition Debugger／イベントグラフ／Play Event）つき。ビルド不要の ES Modules）
 │   ├── js/engine/          # DOM 非依存のエンジン（条件・ランタイム・正規化・検証／到達可能性ソルバー）
