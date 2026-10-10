@@ -8,7 +8,7 @@ import { monsterSprite } from '../gfx/monsters';
 import { mkCanvas } from '../gfx/Pix';
 import { personSprite } from '../gfx/tiles';
 import { FieldScreen } from './field';
-import { askName, openSettings } from './menus';
+import { openSettings, welcomeMonster } from './menus';
 
 const TW = 352, TH = 340, OFF = 40;
 
@@ -180,8 +180,7 @@ export class TitleScreen implements Screen {
     await app.say(['よく きた、' + name + '。', 'ゆがみは たびのとびらの むこうで モンスターたちを くるしめておる。', 'これは わしが そだてた ルミポンと、リリィが そだてた コゲマルじゃ。いっしょに つれていきなさい。'], { speaker: 'モンスターはかせ' });
     sfx('recruit');
     await app.say('ルミポン と コゲマル が なかまに なった！');
-    if (await app.confirm('なかまに なまえを つけますか？\n（あとから メニューの「つよさ」でも つけられます）', 'つける', 'あとで'))
-      for (const m of game.party) await askName(app, m.id);
+    for (const m of game.party) await welcomeMonster(app, m.id, 'なかまの なまえ');
     await app.say(['やせいの モンスターに にくを なげてから たおすと、なかまに なってくれることが ある。', 'なかまを ふやし、そだて、配合して…ひかりの かけらを 3つ あつめてくるのじゃ！', 'まずは まちの きたの「たびのとびら」から はじまりのもりへ いってみなさい。'], { speaker: 'モンスターはかせ' });
     await app.saveNow();
     app.show(new FieldScreen(app));

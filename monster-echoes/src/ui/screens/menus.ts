@@ -3,6 +3,7 @@ import { getSkill } from '../../data/skills';
 import type { Tactic } from '../../data/types';
 import { displayName } from '../../domain/monster/MonsterFactory';
 import { isFieldSkill } from '../../domain/monster/FieldSkills';
+import { randomName } from '../../data/names';
 import type { MonsterInstance } from '../../domain/monster/types';
 import { setSoundEnabled, sfx } from '../../infrastructure/audio/Sound';
 import { migrate } from '../../infrastructure/save/SaveMigration';
@@ -225,12 +226,15 @@ export function welcomeMonster(app: App, id: string, title: string): Promise<voi
   const g = app.game!;
   const m = g.monster(id);
   if (!m) return Promise.resolve();
-  const input = h('input', { class: 'name', maxlength: 8, value: m.nickname ?? '', placeholder: `${displayName(m)}（そのまま）` }) as HTMLInputElement;
-  const nameBox = h('div', { class: 'win' }, h('h3', null, 'なまえを つける'), input, h('div', { class: 'small muted' }, '8もじまで。からっぽなら しゅぞくの なまえの まま。あとから「つよさ」でも かえられます。'));
+  const initial = m.nickname || randomName(Math.random, g.state.monsters.map((x) => x.nickname ?? ''));
+  const input = h('input', { class: 'name', maxlength: 8, value: initial, placeholder: displayName(m) }) as HTMLInputElement;
+  const reroll = btn('🎲 べつの なまえ', () => { input.value = randomName(Math.random, [input.value, ...g.state.monsters.map((x) => x.nickname ?? '')]); });
+  const nameBox = h('div', { class: 'win' }, h('h3', null, 'なまえ'), input, h('div', { class: 'row', style: 'margin-top:6px;gap:6px' }, reroll, btn('しゅぞくめいに する', () => { input.value = ''; })),
+    h('div', { class: 'small muted' }, '8もじまで。「けってい」で このまま すすみます。あとから「つよさ」でも かえられます。'));
   return new Promise((resolve) => {
     const p = app.panel(title, (body, foot) => {
       body.append(nameBox, monsterDetailBody(g.monster(id) ?? m));
-      foot.append(btn('けってい', () => { if (input.value.trim()) g.rename(id, input.value); sfx('ok'); p.close(); }, 'primary grow'));
+      foot.append(btn('けってい', () => { g.rename(id, input.value); sfx('ok'); p.close(); }, 'primary grow'));
     }, { onClose: () => resolve(), noBack: true });
   });
 }
