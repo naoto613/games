@@ -2,6 +2,7 @@ import { getItem, ITEM_LIST } from '../../data/items';
 import { getSkill } from '../../data/skills';
 import type { Tactic } from '../../data/types';
 import { displayName } from '../../domain/monster/MonsterFactory';
+import { isFieldSkill } from '../../domain/monster/FieldSkills';
 import type { MonsterInstance } from '../../domain/monster/types';
 import { setSoundEnabled, sfx } from '../../infrastructure/audio/Sound';
 import { migrate } from '../../infrastructure/save/SaveMigration';
@@ -14,6 +15,7 @@ export const TACTICS: { id: Tactic; name: string; short: string; desc: string }[
   { id: 'skill', name: 'とくぎ かつよう', short: 'とくぎ', desc: 'とくぎや じゅもんを どんどん つかう' },
   { id: 'support', name: 'かいふく・しえん', short: 'しえん', desc: 'みかたの かいふくと ほじょを だいじに する' },
   { id: 'save', name: 'MP せつやく', short: 'せつやく', desc: 'MPを つかう とくぎを ひかえる' },
+  { id: 'nomagic', name: 'じゅもん つかうな', short: 'じゅもんなし', desc: 'MPを つかう じゅもん・とくぎを いっさい つかわない' },
 ];
 
 // ---------------------------------------------------------------- フィールドメニュー
@@ -25,6 +27,7 @@ export function openFieldMenu(app: App, onClose: () => void) {
       h('div', { class: 'win small' }, h('div', null, `${g.state.player.name}  ${g.state.player.gold} G`), h('div', { class: 'muted' }, `さくせん: ${TACTICS.find((t) => t.id === g.state.player.tactic)!.name}`)),
       h('div', { class: 'win list' },
         item('つよさ', () => openParty(app, () => {}, { viewOnly: inDungeon })),
+        item('じゅもん', () => openFieldSkills(app)),
         item('どうぐ', () => openItems(app)),
         item('さくせん', () => openTactic(app)),
         inDungeon ? item('まちへ かえる（かえりのはね）', () => returnHome(app), { disabled: !(g.state.inventory.returnwing > 0), meta: `のこり ${g.state.inventory.returnwing ?? 0}` }) : null,
@@ -94,7 +97,8 @@ export function openDetail(app: App, id: string, opts: { viewOnly?: boolean } = 
     if (!m) return p.close();
     body.append(monsterDetailBody(m));
     if (m.pendingSkills.length) body.prepend(h('div', { class: 'win' }, h('div', { class: 'hl' }, 'あたらしい とくぎを おぼえようとしている！'), btn('とくぎを えらぶ', () => resolvePending(app, m))));
-    if (opts.viewOnly) return;
+    const nameBtn = btn('なまえ', async () => { await askName(app, m.id); app.refreshPanels(); });
+    if (opts.viewOnly) { foot.append(nameBtn); return; }
     const inParty = g.state.partyIds.includes(m.id);
     const meat = ITEM_LIST.filter((i) => i.category === 'meat' && (g.state.inventory[i.id] ?? 0) > 0);
     foot.append(
@@ -116,11 +120,11 @@ export function openDetail(app: App, id: string, opts: { viewOnly?: boolean } = 
         await app.say(r.value);
         app.refreshPanels();
       }, 'grow'),
+      nameBtn,
       btn('…', async () => {
-        const c = await app.ask('どうする？', [m.favorite ? 'おきにいりを はずす' : 'おきにいりに する', 'なまえを つける', 'にがす']);
+        const c = await app.ask('どうする？', [m.favorite ? 'おきにいりを はずす' : 'おきにいりに する', 'にがす']);
         if (c === 0) { g.toggleFavorite(m.id); app.refreshPanels(); }
-        if (c === 1) renameMonster(app, m);
-        if (c === 2) {
+        if (c === 1) {
           if (m.favorite) return app.toast('おきにいりの モンスターは にがせません。');
           if (!(await app.confirm(`ほんとうに ${displayName(m)}を にがしますか？\nもう もどってきません。`, 'にがす', 'やめる'))) return;
           const r = g.release(m.id);
@@ -134,14 +138,20 @@ export function openDetail(app: App, id: string, opts: { viewOnly?: boolean } = 
   });
 }
 
-function renameMonster(app: App, m: MonsterInstance) {
+/** なまえを つける（パネルを閉じるまで待つ） */
+export function askName(app: App, id: string): Promise<void> {
   const g = app.game!;
+  const m = g.monster(id);
+  if (!m) return Promise.resolve();
   const input = h('input', { class: 'name', maxlength: 8, value: m.nickname ?? '', placeholder: displayName(m) }) as HTMLInputElement;
-  const p = app.panel('なまえを つける', (body, foot) => {
-    body.append(h('div', null, 'あたらしい なまえ（8もじまで。からっぽで もとに もどる）'), input);
-    foot.append(btn('けってい', () => { g.rename(m.id, input.value); p.close(); app.refreshPanels(); }, 'primary grow'));
+  return new Promise((resolve) => {
+    const p = app.panel(`${displayName(m)}の なまえ`, (body, foot) => {
+      body.append(monIcon(m.speciesId, 'icon big'), h('div', null, 'あたらしい なまえ（8もじまで。からっぽで しゅぞくめいに もどる）'), input,
+        h('div', { class: 'small muted' }, 'なまえを つけると、せんとうで てきと みわけやすく なります。'));
+      foot.append(btn('けってい', () => { g.rename(id, input.value); sfx('ok'); p.close(); }, 'primary grow'));
+    }, { onClose: () => resolve() });
+    setTimeout(() => input.focus(), 50);
   });
-  setTimeout(() => input.focus(), 50);
 }
 
 /** おぼえきれなかった とくぎ を、どれと入れかえるか えらぶ */
@@ -163,29 +173,75 @@ export function openItems(app: App) {
   const g = app.game!;
   app.panel('どうぐ', (body) => {
     const inv = Object.entries(g.state.inventory).filter(([, n]) => n > 0);
-    const list = h('div', { class: 'win list' });
+    const list = h('div', { class: 'list' });
     if (!inv.length) list.append(h('div', { class: 'muted' }, 'なにも もっていない。'));
     for (const [id, n] of inv) {
       const it = getItem(id);
-      list.append(item(it.name, async () => {
-        await app.say(it.description);
-        if (it.category === 'key' || it.category === 'cure') return;
-        if (it.category === 'escape') {
-          if (!g.state.expedition) return app.toast('いまは つかえません。');
-          return returnHome(app);
-        }
-        const targets = it.category === 'meat' ? g.state.monsters : g.party;
-        const c = await app.ask(`${it.name}を だれに つかう？`, targets.map((m) => `${displayName(m)}  ${m.hp <= 0 ? 'たおれている' : `HP${m.hp}/${m.stats.hp} MP${m.mp}/${m.stats.mp}`}`));
-        if (c < 0) return;
-        const r = g.useFieldItem(id, targets[c].id);
-        if (!r.ok) return app.toast(r.error);
-        sfx('heal');
-        await app.say(r.value);
-        app.refreshPanels();
-      }, { meta: `×${n}` }));
+      const usable = it.field && it.category !== 'key' && it.category !== 'cure' && (it.category !== 'escape' || !!g.state.expedition);
+      const row = h('div', { class: 'win' },
+        h('div', { class: 'row' }, h('span', { class: 'grow' }, it.name, h('span', { class: 'muted' }, ` ×${n}`)),
+          usable ? btn('つかう', () => useItemFlow(app, id), 'primary') : h('span', { class: 'small muted' }, it.category === 'key' ? 'だいじなもの' : it.category === 'escape' ? 'たんけんちゅうに つかう' : 'せんとうで つかう')),
+        h('div', { class: 'small muted' }, it.description));
+      list.append(row);
     }
     body.append(list);
   });
+}
+
+async function useItemFlow(app: App, id: string) {
+  const g = app.game!;
+  const it = getItem(id);
+  if (it.category === 'escape') return returnHome(app);
+  const targets = it.category === 'meat' ? g.state.monsters : g.party;
+  const c = await app.ask(`${it.name}を だれに つかう？`, targets.map((m) => `${displayName(m)}  ${m.hp <= 0 ? 'たおれている' : `HP${m.hp}/${m.stats.hp} MP${m.mp}/${m.stats.mp}`}`));
+  if (c < 0) return;
+  const r = g.useFieldItem(id, targets[c].id);
+  if (!r.ok) return app.toast(r.error);
+  sfx('heal');
+  await app.say(r.value);
+  app.refreshPanels();
+}
+
+// ---------------------------------------------------------------- じゅもん（回復・蘇生）
+export function openFieldSkills(app: App) {
+  const g = app.game!;
+  app.panel('じゅもん', (body) => {
+    body.append(h('div', { class: 'small muted' }, 'かいふく・いきかえらせる・どくけしの とくぎを つかえます。'));
+    for (const m of g.party) {
+      const sks = m.skills.filter(isFieldSkill);
+      const box = h('div', { class: 'win' }, h('div', { class: 'row' }, monIcon(m.speciesId), h('span', { class: 'grow' }, displayName(m), h('div', { class: 'small muted' }, `HP ${m.hp}/${m.stats.hp}  MP ${m.mp}/${m.stats.mp}`))));
+      if (!sks.length) box.append(h('div', { class: 'small muted' }, 'つかえる じゅもんは ない。'));
+      else {
+        const row = h('div', { class: 'row wrap', style: 'gap:6px;margin-top:6px' });
+        for (const id of sks) {
+          const sk = getSkill(id);
+          const b = btn(h('span', null, sk.name, h('span', { class: 'small muted' }, ` MP${sk.mpCost}`)), () => castFlow(app, m.id, id));
+          b.disabled = m.hp <= 0 || m.mp < sk.mpCost;
+          row.append(b);
+        }
+        box.append(row);
+      }
+      body.append(box);
+    }
+  });
+}
+
+async function castFlow(app: App, casterId: string, skillId: string) {
+  const g = app.game!;
+  const sk = getSkill(skillId);
+  let target: string | null = null;
+  if (sk.target !== 'allAllies') {
+    const pool = sk.category === 'revive' ? g.party.filter((m) => m.hp <= 0) : g.party.filter((m) => m.hp > 0);
+    if (!pool.length) return app.toast(sk.category === 'revive' ? 'たおれている モンスターは いません。' : 'つかえる あいてが いません。');
+    const c = await app.ask(`${sk.name}を だれに つかう？`, pool.map((m) => `${displayName(m)}  ${m.hp <= 0 ? 'たおれている' : `HP${m.hp}/${m.stats.hp}`}`));
+    if (c < 0) return;
+    target = pool[c].id;
+  }
+  const r = g.useFieldSkill(casterId, skillId, target);
+  if (!r.ok) return app.toast(r.error);
+  sfx('heal');
+  await app.say(r.value);
+  app.refreshPanels();
 }
 
 // ---------------------------------------------------------------- さくせん

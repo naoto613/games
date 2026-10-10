@@ -23,7 +23,7 @@ let n = 0;
 const shot = async (name) => p.screenshot({ path: path.join(out, `${String(n++).padStart(2, '0')}-${name}.png`) });
 const wait = (ms) => p.waitForTimeout(ms);
 /** メッセージが出ているあいだ タップし続ける */
-const skip = async (max = 80) => { await wait(350); for (let i = 0; i < max; i++) { const has = await p.$('.msgbox:not(:has(+ .choices))'); const ch = await p.$('.choices'); if (ch) return 'choice'; if (!has) { await wait(120); if (!(await p.$('.msgbox'))) return; continue; } await has.click(); await wait(60); } };
+const skip = async (max = 80) => { await wait(350); for (let i = 0; i < max; i++) { const has = await p.$('.msgbox:not(:has(+ .choices))'); const ch = await p.$('.choices'); if (ch) { const later = p.locator('.choices .item', { hasText: 'あとで' }); if (await later.count()) { await later.click(); await wait(100); continue; } return 'choice'; } if (!has) { await wait(120); if (!(await p.$('.msgbox'))) return; continue; } await has.click(); await wait(60); } };
 const click = async (text) => { const el = p.locator('button', { hasText: text }).first(); await el.click(); await wait(150); };
 const hold = async (dir, ms) => { await p.evaluate((d) => window.app.dispatch(d, true), dir); await wait(ms); await p.evaluate((d) => window.app.screen.key(d, false), dir); await wait(200); };
 

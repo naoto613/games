@@ -193,3 +193,32 @@ describe('フィードバック対応', () => {
     expect(g.state.storageIds).toContain(out);
   });
 });
+
+describe('フィードバック対応 2', () => {
+  it('メニューで回復のじゅもんを使える（MPが減ってHPが回復する）', () => {
+    const g = new Game(newGameState('テスト', createRng(1), 0), { rng: createRng(2) });
+    const lumi = g.party.find((m) => m.speciesId === 'lumipon')!;
+    const koge = g.party.find((m) => m.speciesId === 'kogemaru')!;
+    g.state.monsters = g.state.monsters.map((m) => (m.id === koge.id ? { ...m, hp: 3 } : m));
+    const r = g.useFieldSkill(lumi.id, 'heal', koge.id);
+    if (!r.ok) throw new Error(r.error);
+    expect(g.monster(koge.id)!.hp).toBeGreaterThan(3);
+    expect(g.monster(lumi.id)!.mp).toBe(lumi.mp - 3);
+    expect(g.useFieldSkill(lumi.id, 'heal', lumi.id).ok).toBe(false); // まんたん
+    expect(g.useFieldSkill(koge.id, 'bite', lumi.id).ok).toBe(false); // 攻撃の特技は使えない
+  });
+  it('じゅもんつかうな: MPを使う特技を選ばない', async () => {
+    const { chooseAction } = await import('../../src/domain/battle/BattleAI');
+    const { createBattle } = await import('../../src/domain/battle/BattleEngine');
+    const party = [createMonster('kogemaru', createRng(3), { level: 12 }), createMonster('lumipon', createRng(4), { level: 12 })];
+    const s = createBattle('wild', party, [{ speciesId: 'mossglow', level: 10 }, { speciesId: 'mossglow', level: 10 }], 'nomagic');
+    s.allies[0].hp = 1;
+    for (let i = 0; i < 50; i++) for (const a of s.allies) expect(chooseAction(s, a, 'nomagic', createRng(i), 3).skillId).toBe('attack');
+  });
+  it('味方と同じ名前の敵には A がつく', async () => {
+    const { createBattle } = await import('../../src/domain/battle/BattleEngine');
+    const s = createBattle('wild', [createMonster('lumipon', createRng(3), { level: 3 })], [{ speciesId: 'lumipon', level: 2 }], 'attack');
+    expect(s.allies[0].name).toBe('ルミポン');
+    expect(s.enemies[0].name).toBe('ルミポンA');
+  });
+});

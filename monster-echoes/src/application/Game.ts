@@ -12,6 +12,8 @@ import { DIRS, encounterChance, findTile, isPassable, loadMap, rollEncounter, ti
 import { gainExperience, resolvePendingSkill, type LevelUpEvent } from '../domain/monster/Growth';
 import { createMonster, displayName } from '../domain/monster/MonsterFactory';
 import type { MonsterInstance } from '../domain/monster/types';
+import { useFieldSkill as useFieldSkillDomain } from '../domain/monster/FieldSkills';
+import { getSkill } from '../data/skills';
 import { allMet, initialProgress, refreshUnlocks } from '../domain/progression/ProgressionEngine';
 import { recruitChance, rollRecruit } from '../domain/recruitment/RecruitmentEngine';
 import { weightedPick } from '../core/Random';
@@ -291,6 +293,21 @@ export class Game {
     });
     this.autosave();
     return ok(msg);
+  }
+
+  /** メニューで回復・蘇生の特技を使う（パーティのモンスターが使い手・対象） */
+  useFieldSkill(casterId: string, skillId: string, targetId: string | null): Result<string> {
+    const r = useFieldSkillDomain(this.party, casterId, skillId, targetId);
+    if (!r.ok) return r;
+    const caster = this.monster(casterId)!;
+    const sk = getSkill(skillId);
+    this.update((s) => { for (const m of r.value.party) this.replaceMonster(s, m); });
+    const lines = r.value.healed.map(({ id, amount, revived }) => {
+      const n = displayName(this.monster(id)!);
+      return revived ? `${n}は いきかえった！` : sk.category === 'cure' ? `${n}の からだが もとに もどった！` : `${n}の HPが ${amount} かいふくした！`;
+    });
+    this.autosave();
+    return ok(`${displayName(caster)}は ${sk.name}を つかった！\n${lines.join('\n')}`);
   }
 
   release(monsterId: string): Result<void> {

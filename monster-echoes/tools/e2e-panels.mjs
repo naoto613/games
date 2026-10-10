@@ -18,7 +18,7 @@ await p.goto(`http://localhost:${srv.address().port}/index.html`);
 await p.evaluate(() => localStorage.setItem('me-settings', JSON.stringify({ textSpeed: 'fast', battleSpeed: 'instant', reduceMotion: true, sound: false })));
 await p.reload();
 const wait = (ms) => p.waitForTimeout(ms);
-const skip = async () => { await wait(300); for (let i = 0; i < 40; i++) { if (await p.$('.choices')) return 'choice'; const m = await p.$('.msgbox'); if (!m) { await wait(150); if (!(await p.$('.msgbox'))) return; continue; } await m.click(); await wait(50); } };
+const skip = async () => { await wait(300); for (let i = 0; i < 40; i++) { if (await p.$('.choices')) { const later = p.locator('.choices .item', { hasText: 'あとで' }); if (await later.count()) { await later.click(); await wait(100); continue; } return 'choice'; } const m = await p.$('.msgbox'); if (!m) { await wait(150); if (!(await p.$('.msgbox'))) return; continue; } await m.click(); await wait(50); } };
 await p.locator('button', { hasText: 'はじめから' }).click(); await wait(200);
 await p.locator('button', { hasText: 'けってい' }).click();
 await skip();

@@ -14,6 +14,7 @@ const WEIGHTS: Record<Tactic, { damage: number; heal: number; support: number; m
   skill: { damage: 1, heal: 1, support: 1, mpPenalty: 0 },
   support: { damage: 0.6, heal: 1.6, support: 1.3, mpPenalty: 0.05 },
   save: { damage: 1, heal: 0.9, support: 0.4, mpPenalty: 3 },
+  nomagic: { damage: 1.2, heal: 0, support: 0, mpPenalty: 0 },
 };
 
 export const alive = (cs: Combatant[]) => cs.filter((c) => c.hp > 0);
@@ -42,6 +43,8 @@ export function chooseAction(s: BattleState, actor: Combatant, tactic: Tactic, r
   for (const id of ids) {
     const sk = getSkill(id);
     if (sk.mpCost > actor.mp) continue;
+    // じゅもん つかうな: MPを使う特技は いっさい使わない
+    if (tactic === 'nomagic' && sk.mpCost > 0) continue;
     const pen = sk.mpCost * W.mpPenalty;
     switch (sk.category) {
       case 'physical':
