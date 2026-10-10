@@ -1,95 +1,93 @@
 [
   {
-    "id": "fun-studio",
-    "name": "キャラクターグリーティング ファンスタジオ",
+    "id": "kitty-castle",
+    "name": "キティキャッスル",
     "kana": "",
-    "category": "greeting",
-    "area": null,
-    "description": "キャラクターと交流できるグリーティング施設。",
+    "category": "attraction",
+    "area": "ハーモニーパーク",
+    "description": "ハーモニーパークにあるお城の施設（地図の1番）。",
+    "infoStatus": "reference",
     "location": {
       "mapType": "relative",
-      "x": null,
-      "y": null,
-      "positionSource": null
+      "x": 0.725,
+      "y": 0.38,
+      "positionStatus": "reference",
+      "positionSource": "利用者提供の園内マップ画像（2026年10月10日受領）",
+      "positionNote": "地図上の番号と公式アトラクション一覧の掲載順が一致すると仮定した推定（1・3・7番は絵柄・駅名と一致）"
     },
     "operation": {
-      "status": "unconfirmed",
+      "status": "day_of_check",
       "openingTime": null,
       "closingTime": null,
-      "weatherPolicy": "unconfirmed"
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
     },
     "requirements": {
-      "ticketRequired": true,
+      "ticketRequired": "unknown",
       "reservationRequired": "unknown",
-      "ageRestriction": null,
-      "heightRestriction": null,
       "price": null,
-      "note": null
+      "ageMin": null,
+      "guardianUnder": 7,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": "公式アトラクション一覧の掲載内容（利用者提供資料による）。当日の運行・料金は要確認。"
     },
-    "admission": {
-      "type": "整理券",
-      "required": true,
-      "requiredNote": "公式FAQで整理券が必要と案内（前回調査）。2026年6月15日の公式Xで、6月22日から「デジタル整理券」に変わると告知。",
-      "method": "デジタル整理券（2026年6月22日〜と告知）",
-      "methodStatus": "scheduled",
-      "distributionLocation": null,
-      "distributionStartTime": null,
-      "endCondition": null,
-      "capacity": null,
-      "eligibility": null,
-      "status": "unconfirmed",
-      "statusNote": "取得手順・開始時刻・受付終了条件・対象日の運用は未確認。"
-    },
-    "tags": [
-      "グリーティング",
-      "整理券"
-    ],
-    "notes": [
-      "対象日の出演キャラクターと時間はファンスタジオ キャラクタースケジュール（公式）で確認してください。",
-      "紙の整理券時代の取得方法（ブースでの配布など）は対象日の情報として扱いません。"
-    ],
+    "admission": null,
+    "tags": [],
+    "notes": [],
     "sources": [
-      "source-faq",
-      "source-x-digital-ticket",
-      "source-digital-ticket-news",
-      "source-funstudio-schedule"
+      "source-attraction",
+      "source-user-doc-20261010"
     ],
     "lastVerifiedAt": null,
     "validFrom": null,
     "validUntil": null
   },
   {
-    "id": "kitty-castle",
-    "name": "キティキャッスル",
+    "id": "rhythmic-coaster",
+    "name": "リズミックコースター",
     "kana": "",
     "category": "attraction",
-    "area": null,
-    "description": "アトラクション一覧に掲載されている施設。",
+    "area": "ハーモニーパーク（推定）",
+    "description": "コースター（地図の2番と推定）。",
+    "infoStatus": "reference",
     "location": {
       "mapType": "relative",
-      "x": null,
-      "y": null,
-      "positionSource": null
+      "x": 0.828,
+      "y": 0.465,
+      "positionStatus": "reference",
+      "positionSource": "利用者提供の園内マップ画像（2026年10月10日受領）",
+      "positionNote": "地図上の番号と公式アトラクション一覧の掲載順が一致すると仮定した推定（1・3・7番は絵柄・駅名と一致）"
     },
     "operation": {
-      "status": "unconfirmed",
+      "status": "day_of_check",
       "openingTime": null,
       "closingTime": null,
-      "weatherPolicy": "unconfirmed"
+      "weatherPolicy": "雨天運休",
+      "weatherSuspend": [
+        "rain"
+      ]
     },
     "requirements": {
       "ticketRequired": "unknown",
       "reservationRequired": "unknown",
-      "ageRestriction": null,
-      "heightRestriction": null,
       "price": null,
-      "note": "公式アトラクション一覧の検索結果の抜粋による（ページの掲載日・更新日は未確認）。"
+      "ageMin": 4,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": true,
+      "otherConditions": null,
+      "note": "公式アトラクション一覧の掲載内容（利用者提供資料による）。当日の運行・料金は要確認。"
     },
     "admission": null,
     "tags": [],
     "notes": [],
     "sources": [
-      "source-attraction"
+      "source-attraction",
+      "source-user-doc-20261010"
     ],
     "lastVerifiedAt": null,
     "validFrom": null,
@@ -100,70 +98,314 @@
     "name": "ハーモニートレイン",
     "kana": "",
     "category": "attraction",
-    "area": null,
-    "description": "アトラクション一覧に掲載されている乗り物。",
+    "area": "ハーモニーパーク駅／カーニバルスクエア駅",
+    "description": "園内を走る列車。ハーモニーパーク駅とカーニバルスクエア駅がある（地図の3番）。",
+    "infoStatus": "reference",
     "location": {
       "mapType": "relative",
-      "x": null,
-      "y": null,
-      "positionSource": null
+      "x": 0.648,
+      "y": 0.478,
+      "positionStatus": "confirmed",
+      "positionSource": "利用者提供の園内マップ画像（2026年10月10日受領）",
+      "positionNote": "地図上の「ハーモニーパーク駅」の表記位置",
+      "extraPoints": [
+        {
+          "x": 0.228,
+          "y": 0.405,
+          "label": "カーニバルスクエア駅",
+          "positionStatus": "confirmed"
+        }
+      ]
     },
     "operation": {
-      "status": "unconfirmed",
+      "status": "day_of_check",
       "openingTime": null,
       "closingTime": null,
-      "weatherPolicy": "unconfirmed"
+      "weatherPolicy": "雨天運休",
+      "weatherSuspend": [
+        "rain"
+      ]
     },
     "requirements": {
       "ticketRequired": "unknown",
       "reservationRequired": "unknown",
-      "ageRestriction": null,
-      "heightRestriction": null,
       "price": null,
-      "note": "公式アトラクション一覧の検索結果の抜粋による（ページの掲載日・更新日は未確認）。"
+      "ageMin": null,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": true,
+      "otherConditions": null,
+      "note": "公式アトラクション一覧の掲載内容（利用者提供資料による）。当日の運行・料金は要確認。"
     },
     "admission": null,
     "tags": [],
     "notes": [],
     "sources": [
-      "source-attraction"
+      "source-attraction",
+      "source-user-doc-20261010",
+      "source-faq"
     ],
     "lastVerifiedAt": null,
     "validFrom": null,
     "validUntil": null
   },
   {
-    "id": "sanrio-boat-ride",
-    "name": "サンリオキャラクターボートライド",
+    "id": "sky-pal-collection",
+    "name": "Sky Pal Collection",
     "kana": "",
     "category": "attraction",
-    "area": null,
-    "description": "アトラクション一覧に掲載されている乗り物。",
+    "area": "ネイチャーエリア付近（推定）",
+    "description": "地図の4番と推定。",
+    "infoStatus": "reference",
     "location": {
       "mapType": "relative",
-      "x": null,
-      "y": null,
-      "positionSource": null
+      "x": 0.573,
+      "y": 0.335,
+      "positionStatus": "reference",
+      "positionSource": "利用者提供の園内マップ画像（2026年10月10日受領）",
+      "positionNote": "地図上の番号と公式アトラクション一覧の掲載順が一致すると仮定した推定（1・3・7番は絵柄・駅名と一致）"
     },
     "operation": {
-      "status": "unconfirmed",
+      "status": "day_of_check",
       "openingTime": null,
       "closingTime": null,
-      "weatherPolicy": "unconfirmed"
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
     },
     "requirements": {
       "ticketRequired": "unknown",
       "reservationRequired": "unknown",
-      "ageRestriction": null,
+      "price": "1回500円",
+      "ageMin": 5,
+      "guardianUnder": null,
       "heightRestriction": null,
-      "price": null,
-      "note": "公式アトラクション一覧の検索結果の抜粋による（ページの掲載日・更新日は未確認）。"
+      "weightRestriction": "110kg以下",
+      "pregnancyNotAllowed": null,
+      "otherConditions": "ほかにも条件あり（公式の最新案内で確認）",
+      "note": "公式アトラクション一覧の掲載内容（利用者提供資料による）。当日の運行・料金は要確認。"
     },
     "admission": null,
     "tags": [],
     "notes": [],
     "sources": [
-      "source-attraction"
+      "source-attraction",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "fun-studio",
+    "name": "キャラクターグリーティング ファンスタジオ",
+    "kana": "",
+    "category": "greeting",
+    "area": "ハーモニーパーク（推定）",
+    "description": "キャラクターと交流できるグリーティング施設（地図の5番と推定）。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": 0.803,
+      "y": 0.518,
+      "positionStatus": "reference",
+      "positionSource": "利用者提供の園内マップ画像（2026年10月10日受領）",
+      "positionNote": "地図上の番号と公式アトラクション一覧の掲載順が一致すると仮定した推定（1・3・7番は絵柄・駅名と一致）"
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
+    },
+    "requirements": {
+      "ticketRequired": true,
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": null,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": "整理券が必要（公式FAQ）。"
+    },
+    "admission": {
+      "type": "整理券",
+      "required": true,
+      "requiredNote": "公式FAQで整理券が必要と案内。2026年6月15日の公式Xで、6月22日から「デジタル整理券」に変わると告知。",
+      "method": "デジタル整理券（2026年6月22日〜と告知）",
+      "methodStatus": "scheduled",
+      "distributionLocation": null,
+      "distributionStartTime": null,
+      "participationTime": null,
+      "fee": null,
+      "endCondition": null,
+      "capacity": null,
+      "eligibility": null,
+      "pastInfo": "公式の過去資料には「ファンスタジオ前特設ブース」で配布した例がある（デジタル化前・当日の情報ではない）。",
+      "status": "day_of_check",
+      "statusNote": "取得方法・開始時刻・受付終了条件はイベントや当日の運営で変わる。当日の公式案内で確認。"
+    },
+    "tags": [
+      "グリーティング",
+      "整理券"
+    ],
+    "notes": [
+      "有料・事前予約制のイベント（ウィッシュミーメル15周年、ハロウィーン関連）も行われる。整理券とは別の手続き。",
+      "対象日の出演キャラクターと時間はファンスタジオ キャラクタースケジュール（公式）で確認。"
+    ],
+    "sources": [
+      "source-faq",
+      "source-x-digital-ticket",
+      "source-digital-ticket-news",
+      "source-funstudio-schedule",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "ev-go-kart",
+    "name": "サンリオEVゴーカート",
+    "kana": "",
+    "category": "attraction",
+    "area": "ホワイトバーズスクエア（推定）",
+    "description": "地図の6番と推定。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": 0.793,
+      "y": 0.285,
+      "positionStatus": "reference",
+      "positionSource": "利用者提供の園内マップ画像（2026年10月10日受領）",
+      "positionNote": "地図上の番号と公式アトラクション一覧の掲載順が一致すると仮定した推定（1・3・7番は絵柄・駅名と一致）"
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": "1台500円",
+      "ageMin": null,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": "定員2名",
+      "note": "公式アトラクション一覧の掲載内容（利用者提供資料による）。当日の運行・料金は要確認。"
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [],
+    "sources": [
+      "source-attraction",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "wonder-panorama",
+    "name": "大観覧車 ワンダーパノラマ",
+    "kana": "",
+    "category": "attraction",
+    "area": "ホワイトバーズスクエア",
+    "description": "大観覧車（地図の7番・観覧車の絵）。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": 0.825,
+      "y": 0.11,
+      "positionStatus": "reference",
+      "positionSource": "利用者提供の園内マップ画像（2026年10月10日受領）",
+      "positionNote": "地図の7番の観覧車の絵の位置。地図上の番号と公式アトラクション一覧の掲載順が一致すると仮定した推定（1・3・7番は絵柄・駅名と一致）"
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "強風時運休",
+      "weatherSuspend": [
+        "wind"
+      ]
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": null,
+      "guardianUnder": 7,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": "公式アトラクション一覧の掲載内容（利用者提供資料による）。当日の運行・料金は要確認。"
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [],
+    "sources": [
+      "source-attraction",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "angel-coaster",
+    "name": "ハローキティのエンジェルコースター",
+    "kana": "",
+    "category": "attraction",
+    "area": "ホワイトバーズスクエア（推定）",
+    "description": "コースター。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "雨天運休",
+      "weatherSuspend": [
+        "rain"
+      ]
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": 3,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": true,
+      "otherConditions": null,
+      "note": "公式アトラクション一覧の掲載内容（利用者提供資料による）。当日の運行・料金は要確認。"
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [
+      "地図の8〜14番のどれかと推定されるが、番号との対応は未確認のためマップには表示していない。"
+    ],
+    "sources": [
+      "source-attraction",
+      "source-user-doc-20261010"
     ],
     "lastVerifiedAt": null,
     "validFrom": null,
@@ -174,33 +416,45 @@
     "name": "スカイジェット",
     "kana": "",
     "category": "attraction",
-    "area": null,
-    "description": "アトラクション一覧に掲載されている乗り物。",
+    "area": "ホワイトバーズスクエア（推定）",
+    "description": "乗り物。",
+    "infoStatus": "reference",
     "location": {
       "mapType": "relative",
       "x": null,
       "y": null,
-      "positionSource": null
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
     },
     "operation": {
-      "status": "unconfirmed",
+      "status": "day_of_check",
       "openingTime": null,
       "closingTime": null,
-      "weatherPolicy": "unconfirmed"
+      "weatherPolicy": "雨天でも利用できる場合があるが、濡れる可能性がある（公式FAQ）",
+      "weatherSuspend": []
     },
     "requirements": {
       "ticketRequired": "unknown",
       "reservationRequired": "unknown",
-      "ageRestriction": "10歳未満は保護者同伴",
-      "heightRestriction": null,
       "price": null,
-      "note": "公式アトラクション一覧の検索結果の抜粋による（ページの掲載日・更新日は未確認）。"
+      "ageMin": null,
+      "guardianUnder": 10,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": "公式アトラクション一覧の掲載内容（利用者提供資料による）。当日の運行・料金は要確認。"
     },
     "admission": null,
     "tags": [],
-    "notes": [],
+    "notes": [
+      "地図の8〜14番のどれかと推定されるが、番号との対応は未確認。"
+    ],
     "sources": [
-      "source-attraction"
+      "source-attraction",
+      "source-user-doc-20261010",
+      "source-faq"
     ],
     "lastVerifiedAt": null,
     "validFrom": null,
@@ -211,33 +465,47 @@
     "name": "ウォーターショット",
     "kana": "",
     "category": "attraction",
-    "area": null,
-    "description": "アトラクション一覧に掲載されている乗り物。",
+    "area": "ホワイトバーズスクエア（推定）",
+    "description": "乗り物。",
+    "infoStatus": "reference",
     "location": {
       "mapType": "relative",
       "x": null,
       "y": null,
-      "positionSource": null
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
     },
     "operation": {
-      "status": "unconfirmed",
+      "status": "day_of_check",
       "openingTime": null,
       "closingTime": null,
-      "weatherPolicy": "unconfirmed"
+      "weatherPolicy": "雨天運休",
+      "weatherSuspend": [
+        "rain"
+      ]
     },
     "requirements": {
       "ticketRequired": "unknown",
       "reservationRequired": "unknown",
-      "ageRestriction": "4歳未満は保護者同伴",
-      "heightRestriction": null,
       "price": null,
-      "note": "公式アトラクション一覧の検索結果の抜粋による（ページの掲載日・更新日は未確認）。"
+      "ageMin": null,
+      "guardianUnder": 4,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": "公式アトラクション一覧の掲載内容（利用者提供資料による）。当日の運行・料金は要確認。"
     },
     "admission": null,
     "tags": [],
-    "notes": [],
+    "notes": [
+      "地図の8〜14番のどれかと推定されるが、番号との対応は未確認。"
+    ],
     "sources": [
-      "source-attraction"
+      "source-attraction",
+      "source-user-doc-20261010",
+      "source-faq"
     ],
     "lastVerifiedAt": null,
     "validFrom": null,
@@ -248,33 +516,44 @@
     "name": "ストロベリーカフェ",
     "kana": "",
     "category": "attraction",
-    "area": null,
-    "description": "アトラクション一覧に掲載されている乗り物（飲食店ではありません）。",
+    "area": "ホワイトバーズスクエア（推定）",
+    "description": "乗り物（飲食店ではありません）。",
+    "infoStatus": "reference",
     "location": {
       "mapType": "relative",
       "x": null,
       "y": null,
-      "positionSource": null
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
     },
     "operation": {
-      "status": "unconfirmed",
+      "status": "day_of_check",
       "openingTime": null,
       "closingTime": null,
-      "weatherPolicy": "unconfirmed"
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
     },
     "requirements": {
       "ticketRequired": "unknown",
       "reservationRequired": "unknown",
-      "ageRestriction": "6歳未満は保護者同伴",
-      "heightRestriction": null,
       "price": null,
-      "note": "公式アトラクション一覧の検索結果の抜粋による（ページの掲載日・更新日は未確認）。"
+      "ageMin": null,
+      "guardianUnder": 6,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": "公式アトラクション一覧の掲載内容（利用者提供資料による）。当日の運行・料金は要確認。"
     },
     "admission": null,
     "tags": [],
-    "notes": [],
+    "notes": [
+      "地図の8〜14番のどれかと推定されるが、番号との対応は未確認。"
+    ],
     "sources": [
-      "source-attraction"
+      "source-attraction",
+      "source-user-doc-20261010"
     ],
     "lastVerifiedAt": null,
     "validFrom": null,
@@ -285,33 +564,138 @@
     "name": "フェアリーキティカルーセル",
     "kana": "",
     "category": "attraction",
-    "area": null,
-    "description": "アトラクション一覧に掲載されている乗り物。",
+    "area": "ホワイトバーズスクエア（推定）",
+    "description": "メリーゴーラウンド。",
+    "infoStatus": "reference",
     "location": {
       "mapType": "relative",
       "x": null,
       "y": null,
-      "positionSource": null
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
     },
     "operation": {
-      "status": "unconfirmed",
+      "status": "day_of_check",
       "openingTime": null,
       "closingTime": null,
-      "weatherPolicy": "unconfirmed"
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
     },
     "requirements": {
       "ticketRequired": "unknown",
       "reservationRequired": "unknown",
-      "ageRestriction": "4歳未満は保護者同伴",
-      "heightRestriction": null,
       "price": null,
-      "note": "公式アトラクション一覧の検索結果の抜粋による（ページの掲載日・更新日は未確認）。"
+      "ageMin": null,
+      "guardianUnder": 4,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": "公式アトラクション一覧の掲載内容（利用者提供資料による）。当日の運行・料金は要確認。"
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [
+      "地図の8〜14番のどれかと推定されるが、番号との対応は未確認。"
+    ],
+    "sources": [
+      "source-attraction",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "popn-smile",
+    "name": "ポップンスマイル",
+    "kana": "",
+    "category": "attraction",
+    "area": "ホワイトバーズスクエア（推定）",
+    "description": "乗り物。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": null,
+      "guardianUnder": 6,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": "公式アトラクション一覧の掲載内容（利用者提供資料による）。当日の運行・料金は要確認。"
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [
+      "地図の8〜14番のどれかと推定されるが、番号との対応は未確認。"
+    ],
+    "sources": [
+      "source-attraction",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "sanrio-boat-ride",
+    "name": "サンリオキャラクターボートライド",
+    "kana": "",
+    "category": "attraction",
+    "area": "カーニバルスクエア",
+    "description": "ボートの乗り物。のりばはカーニバルスクエア。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": 0.27,
+      "y": 0.555,
+      "positionStatus": "confirmed",
+      "positionSource": "利用者提供の園内マップ画像（2026年10月10日受領）",
+      "positionNote": "地図上の「サンリオキャラクターボートライドのりば」の表記位置"
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": null,
+      "guardianUnder": 7,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": "公式アトラクション一覧の掲載内容（利用者提供資料による）。当日の運行・料金は要確認。"
     },
     "admission": null,
     "tags": [],
     "notes": [],
     "sources": [
-      "source-attraction"
+      "source-attraction",
+      "source-user-doc-20261010"
     ],
     "lastVerifiedAt": null,
     "validFrom": null,
@@ -323,25 +707,33 @@
     "kana": "",
     "category": "show",
     "area": "ハーモニービレッジ",
-    "description": "ハロウィーンイベント期間のパレード・ショーの会場として案内されている場所。",
+    "description": "ハロウィーンのパレード・Magical Masquerade・ゴーストキティグリーティングの会場として案内されている場所。",
+    "infoStatus": "reference",
     "location": {
       "mapType": "relative",
-      "x": null,
-      "y": null,
-      "positionSource": null
+      "x": 0.66,
+      "y": 0.7,
+      "positionStatus": "confirmed",
+      "positionSource": "利用者提供の園内マップ画像（2026年10月10日受領）",
+      "positionNote": "地図上の「ハーモニービレッジ」エリア（ドーム付近）。会場の正確な範囲は未確認"
     },
     "operation": {
-      "status": "unconfirmed",
+      "status": "day_of_check",
       "openingTime": null,
       "closingTime": null,
-      "weatherPolicy": "unconfirmed"
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
     },
     "requirements": {
       "ticketRequired": "unknown",
       "reservationRequired": "unknown",
-      "ageRestriction": null,
-      "heightRestriction": null,
       "price": null,
+      "ageMin": null,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
       "note": null
     },
     "admission": null,
@@ -350,12 +742,654 @@
       "パレード"
     ],
     "notes": [
-      "パレードパラレル〜ハロウィーンver.〜、Magical Masquerade〜EXCITE！〜の会場として案内されています。",
-      "ハロウィーンDEダイコウシン★の受付は「ハーモニービレッジ・パレードゲート付近」と案内されています。"
+      "ハロウィーンDEダイコウシン★の受付は「ハーモニービレッジ・パレードゲート付近」（パレードゲートの位置は未確認）。"
     ],
     "sources": [
       "source-halloween-2026",
       "source-prtimes-halloween-2026"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "festival-stage",
+    "name": "フェスティバルステージ",
+    "kana": "",
+    "category": "show",
+    "area": "ハーモニーガーデン",
+    "description": "ハーモニーガーデンにあるステージ。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": 0.315,
+      "y": 0.7,
+      "positionStatus": "confirmed",
+      "positionSource": "利用者提供の園内マップ画像（2026年10月10日受領）",
+      "positionNote": "地図上の「フェスティバルステージ」の表記付近"
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": null,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": null
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [
+      "対象日のショーの会場として案内されている情報はない。"
+    ],
+    "sources": [
+      "source-user-map"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "plaza-stage",
+    "name": "プラザステージ",
+    "kana": "",
+    "category": "show",
+    "area": null,
+    "description": "ハロウィーン関連ショーの会場として案内されているステージ。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": null,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": null
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [
+      "マップ上の位置は未確認。"
+    ],
+    "sources": [
+      "source-halloween-2026",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "harvest-table",
+    "name": "ハーベストテーブル",
+    "kana": "",
+    "category": "restaurant",
+    "area": null,
+    "description": "レストラン。子ども用イスあり（公式FAQ）。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": null,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": null
+    },
+    "admission": null,
+    "tags": [
+      "子ども用イス",
+      "離乳食持ち込み可"
+    ],
+    "notes": [
+      "公式FAQの子ども用イスの記載：「ハーベストテーブル、のみに子ども用イスあり」（資料の表記のまま。ほかの店名が抜けている可能性あり）。",
+      "レストランへの離乳食の持ち込みは可能（公式FAQ）。",
+      "地図の「森の国ハーベストハウス」と同じ建物かは未確認。"
+    ],
+    "sources": [
+      "source-faq",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "country-market",
+    "name": "カントリーマーケット",
+    "kana": "",
+    "category": "shop",
+    "area": null,
+    "description": "ショップ。ハロウィーンの参加グッズ（マスク・リングライト）の販売場所として案内。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": null,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": null
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [],
+    "sources": [
+      "source-halloween-2026"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "sanrio-character-collection",
+    "name": "サンリオキャラクターコレクション",
+    "kana": "",
+    "category": "shop",
+    "area": null,
+    "description": "ショップ。ハロウィーンの参加グッズの販売場所として案内。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": null,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": null
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [],
+    "sources": [
+      "source-halloween-2026"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "sanrio-nakayoku-shop",
+    "name": "サンリオnakayokuショップ",
+    "kana": "",
+    "category": "shop",
+    "area": null,
+    "description": "ショップ。ハロウィーンの参加グッズの販売場所として案内。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": null,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": null
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [],
+    "sources": [
+      "source-halloween-2026"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "information",
+    "name": "インフォメーション",
+    "kana": "",
+    "category": "service",
+    "area": null,
+    "description": "迷子・困りごとの相談、ベビーカー・車いすの貸し出し、紙おむつの販売。横にベビーセンターがある。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": null,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": null
+    },
+    "admission": null,
+    "tags": [
+      "迷子",
+      "ベビーカー",
+      "車いす",
+      "紙おむつ",
+      "キーワード探し"
+    ],
+    "notes": [
+      "A型ベビーカー貸し出し：生後2か月〜3歳・15kg以下、1日500円、台数限り・予約不可。",
+      "車いす貸し出し：1台300円、台数限り・予約不可。",
+      "紙おむつ販売：Lサイズ4枚入り350円（掲載価格）。粉ミルクの販売はなし。",
+      "SCREAM!!フォトスポットとキーワード探しの場所のひとつ（ハロウィーン期間）。"
+    ],
+    "sources": [
+      "source-faq",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "game-plaza",
+    "name": "ゲームプラザ",
+    "kana": "",
+    "category": "service",
+    "area": "ホワイトバーズスクエア",
+    "description": "ホワイトバーズスクエアにある施設。横に授乳室（ベビーセンター）があり、紙おむつも販売。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": null,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": null
+    },
+    "admission": null,
+    "tags": [
+      "紙おむつ"
+    ],
+    "notes": [],
+    "sources": [
+      "source-faq",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "coin-locker",
+    "name": "コインロッカー",
+    "kana": "",
+    "category": "service",
+    "area": null,
+    "description": "荷物の保管。数に限りがある。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": null,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": null
+    },
+    "admission": null,
+    "tags": [],
+    "notes": [],
+    "sources": [
+      "source-faq",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "baby-center-information",
+    "name": "ベビーセンター（インフォメーション横）",
+    "kana": "",
+    "category": "family",
+    "area": null,
+    "description": "授乳室・おむつ交換用ベビーベッド・給湯器あり。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": null,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": null
+    },
+    "admission": null,
+    "tags": [
+      "授乳室",
+      "おむつ替え",
+      "お湯",
+      "ベビー"
+    ],
+    "notes": [
+      "男性は入室できない（公式FAQ）。",
+      "給湯器あり（粉ミルクの販売はなし）。"
+    ],
+    "sources": [
+      "source-faq",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "baby-center-gameplaza",
+    "name": "授乳室・ベビーセンター（ゲームプラザ横）",
+    "kana": "",
+    "category": "family",
+    "area": "ホワイトバーズスクエア",
+    "description": "ホワイトバーズスクエアのゲームプラザ横。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": null,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": null
+    },
+    "admission": null,
+    "tags": [
+      "授乳室",
+      "おむつ替え",
+      "ベビー"
+    ],
+    "notes": [
+      "男性の入室可否・設備の詳細はインフォメーション横のベビーセンターと同じかは未確認。"
+    ],
+    "sources": [
+      "source-faq",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "restrooms",
+    "name": "トイレ（各エリア）",
+    "kana": "",
+    "category": "family",
+    "area": "各エリア",
+    "description": "各エリアの女性用・身障者用トイレにベビーベッドあり（公式FAQ）。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": null,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": null
+    },
+    "admission": null,
+    "tags": [
+      "トイレ",
+      "おむつ替え",
+      "ベビーベッド"
+    ],
+    "notes": [
+      "個々のトイレの位置は未確認。園内の案内表示や公式マップで確認してください。"
+    ],
+    "sources": [
+      "source-faq",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null,
+    "validFrom": null,
+    "validUntil": null
+  },
+  {
+    "id": "scream-photo-spot",
+    "name": "SCREAM!!フォトスポット",
+    "kana": "",
+    "category": "photo",
+    "area": "ハーモニーパーク／インフォメーション前など",
+    "description": "ハロウィーン期間のフォトスポット。ハーモニーパーク、インフォメーション前など。",
+    "infoStatus": "reference",
+    "location": {
+      "mapType": "relative",
+      "x": null,
+      "y": null,
+      "positionStatus": "unverified",
+      "positionSource": null,
+      "positionNote": null
+    },
+    "operation": {
+      "status": "day_of_check",
+      "openingTime": null,
+      "closingTime": null,
+      "weatherPolicy": "unconfirmed",
+      "weatherSuspend": []
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "ageMin": null,
+      "guardianUnder": null,
+      "heightRestriction": null,
+      "weightRestriction": null,
+      "pregnancyNotAllowed": null,
+      "otherConditions": null,
+      "note": null
+    },
+    "admission": null,
+    "tags": [
+      "ハロウィーン",
+      "フォトスポット"
+    ],
+    "notes": [
+      "開催期間：2026年9月18日〜11月10日（ハロウィーンイベント期間）。"
+    ],
+    "sources": [
+      "source-halloween-2026",
+      "source-user-doc-20261010"
     ],
     "lastVerifiedAt": null,
     "validFrom": null,

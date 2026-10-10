@@ -4,7 +4,7 @@
   'use strict';
   var h = HL.h;
   var MAP_IMAGE = './assets/map-base.svg';
-  var MAP_RATIO = 0.75; // 画像の 縦/横
+  var MAP_RATIO = 0.674; // 画像の 縦/横（assets/map-base.svg の viewBox 1000×674）
   var MIN_S = 1, MAX_S = 4;
 
   // 画面をまたいで保つ表示状態
@@ -39,12 +39,12 @@
     /* --- マップ --- */
     var viewport = h('div', { class: 'map-viewport', role: 'application', 'aria-label': '園内マップ。ドラッグで移動、ピンチやボタンで拡大縮小' });
     var stage = h('div', { class: 'map-stage' });
-    var img = h('img', { src: MAP_IMAGE, alt: '園内の模式図（施設の位置関係は確認できたものだけマーカーで表示）', draggable: 'false' });
+    var img = h('img', { src: MAP_IMAGE, alt: '園内の略図（独自に作図。エリアと施設のおおよその位置関係）', draggable: 'false' });
     var markerLayer = h('div', { style: { position: 'absolute', inset: '0' } });
     stage.appendChild(img); stage.appendChild(markerLayer);
     viewport.appendChild(stage);
     var popup = h('div', { class: 'map-popup', hidden: true });
-    var msg = h('div', { class: 'map-overlay-msg', hidden: true });
+    var msg = h('div', { class: 'map-overlay-msg', hidden: true, role: 'status', title: 'タップで閉じる', onclick: function () { msg.hidden = true; } });
     var tools = h('div', { class: 'map-tools' },
       h('button', { type: 'button', 'aria-label': '拡大', text: '＋', onclick: function () { zoomAt(view.s * 1.4); } }),
       h('button', { type: 'button', 'aria-label': '縮小', text: '－', onclick: function () { zoomAt(view.s / 1.4); } }),
@@ -57,7 +57,13 @@
     });
 
     var legend = h('div', { class: 'legend' },
-      h('span', null, '🎫 整理券・受付が必要'), h('span', null, '⏰ 開催時刻のあるイベント会場'), h('span', null, '？ 当日の営業未確認'), h('span', null, '休止 = 休止・中止'));
+      h('span', null, '🎫 整理券・受付'), h('span', null, '⏰ ショー会場'), h('span', null, '☔ 雨天運休'), h('span', null, '🌬 強風時運休'),
+      h('span', null, '推定 = 番号からの推定位置（点線）'), h('span', null, '灰色の番号 = 施設名と未対応'), h('span', null, '休止 = 休止・中止'));
+    var quickFind = h('div', { class: 'chips', 'aria-label': 'すぐ探す' },
+      h('a', { class: 'chip', href: '#list?f=family', text: '🚻 トイレ・授乳室' }),
+      h('a', { class: 'chip', href: '#info', text: 'ℹ️ 貸し出し・迷子' }),
+      h('a', { class: 'chip', href: '#tickets', text: '🎫 整理券の受付場所' }),
+      h('a', { class: 'chip', href: '#list?f=rain', text: '☔ 雨天運休' }));
 
     var listBox = h('div');
 
@@ -65,9 +71,10 @@
     main.appendChild(chips);
     main.appendChild(wrap);
     main.appendChild(legend);
+    main.appendChild(quickFind);
     var src = HL.source('source-digital-map');
     main.appendChild(h('div', { class: 'card note small' },
-      'このマップは独自の模式図です。公式マップの画像は複製していません。施設の位置は根拠となる資料で確認できたものだけをマーカーで表示します。',
+      'このマップは、利用者提供の園内マップ画像からエリアと施設のおおよその位置を読み取って独自に作図した略図です（元の画像は掲載していません）。地図上に名前が書かれていた施設は実線、番号と公式一覧の順番から推定した施設は点線の「推定」で表示します。トイレ・授乳室など位置が分からない施設は下の一覧から探せます。現在地からの経路案内には対応していません。',
       src ? HL.extLink(src.url, '園内の位置は外部のデジタルマップで確認（公式提供かは未確認）', { block: true, official: false }) : null));
     main.appendChild(listBox);
 
@@ -102,7 +109,7 @@
       var z = size();
       view.s = Math.max(view.s, 2);
       view.tx = z.vw / 2 - f.location.x * z.w * view.s;
-      view.ty = z.vh / 2 - f.location.y * z.h * view.s;
+      view.ty = z.vh * 0.3 - f.location.y * z.h * view.s; // 下のポップアップに隠れないよう上寄せ
       apply();
     }
     HL.mapView = { zoomAt: zoomAt, fit: fit, view: view, apply: function () { if (document.body.contains(viewport)) apply(); } };
@@ -158,7 +165,11 @@
       popup.replaceChildren(h('div', { class: 'card' },
         h('h3', { text: c.icon + ' ' + f.name }),
         h('div', { class: 'badges' }, HL.statusBadge(st, '当日：' + HL.STATUS[st].label),
-          HL.needsAdmission(f) ? h('span', { class: 'badge req', text: '🎫 整理券・受付が必要' }) : null),
+          f.location.positionStatus === 'reference' ? h('span', { class: 'badge st-unconfirmed', text: '📍 推定位置' }) : null,
+          HL.needsAdmission(f) ? h('span', { class: 'badge req', text: '🎫 整理券・受付が必要' }) : null,
+          HL.rainSuspended(f) ? h('span', { class: 'badge st-unconfirmed', text: '☔ 雨天運休' }) : null,
+          HL.windSuspended(f) ? h('span', { class: 'badge st-unconfirmed', text: '🌬 強風時運休' }) : null,
+          HL.eligibilityBadges(f)),
         h('p', { class: 'small', style: { margin: '4px 0' }, text: f.description || '' }),
         h('div', { class: 'btn-row' }, h('a', { class: 'btn small', href: '#facility/' + f.id, text: '詳細を見る' }),
           h('button', { class: 'btn small ghost', type: 'button', text: '閉じる', onclick: function () { popup.hidden = true; select(null); } }))));
@@ -169,16 +180,21 @@
       selected = id;
       Array.prototype.forEach.call(markerLayer.children, function (m) { m.classList.toggle('active', m.getAttribute('data-id') === id); });
     }
-    function marker(f) {
+    function marker(f, pt) {
       var c = HL.cat(f.category), st = HL.facilityStatus(f);
+      pt = pt || f.location;
+      var est = pt.positionStatus === 'reference';
       var flags = [];
+      if (est) flags.push('推定');
+      if (pt.label) flags.push(pt.label);
       if (HL.needsAdmission(f)) flags.push('🎫');
       if (hasTimedShow(f)) flags.push('⏰');
+      if (HL.rainSuspended(f)) flags.push('☔');
+      if (HL.windSuspended(f)) flags.push('🌬');
       if (st === 'changed' || st === 'expired') flags.push('休止');
-      else if (st === 'unconfirmed') flags.push('？');
-      var m = h('button', { class: 'map-marker' + (selected === f.id ? ' active' : ''), type: 'button', 'data-id': f.id,
-        'aria-label': f.name + '（' + c.label + '、当日' + HL.STATUS[st].label + (HL.needsAdmission(f) ? '、整理券・受付が必要' : '') + '）',
-        style: { left: (f.location.x * 100) + '%', top: (f.location.y * 100) + '%' },
+      var m = h('button', { class: 'map-marker' + (est ? ' est' : '') + (selected === f.id ? ' active' : ''), type: 'button', 'data-id': f.id,
+        'aria-label': f.name + (pt.label ? '・' + pt.label : '') + '（' + c.label + (est ? '、推定位置' : '') + '、当日' + HL.STATUS[st].label + (HL.needsAdmission(f) ? '、整理券・受付が必要' : '') + '）',
+        style: { left: (pt.x * 100) + '%', top: (pt.y * 100) + '%' },
         onclick: function (e) { if (moved > 8) { e.preventDefault(); return; } select(f.id); showPopup(f); } },
         h('span', { class: 'pin', style: { background: c.color } }, h('span', { 'aria-hidden': 'true', text: c.icon })),
         h('span', { class: 'flags', 'aria-hidden': 'true' }, flags.map(function (x) { return h('b', { text: x }); })));
@@ -188,7 +204,12 @@
 
     function refresh() {
       var placed = HL.data.facilities.filter(hasPos);
-      markerLayer.replaceChildren.apply(markerLayer, placed.filter(visible).map(marker));
+      var ms = [];
+      placed.filter(visible).forEach(function (f) {
+        ms.push(marker(f));
+        (f.location.extraPoints || []).forEach(function (p) { ms.push(marker(f, p)); });
+      });
+      markerLayer.replaceChildren.apply(markerLayer, ms);
       var unplaced = HL.data.facilities.filter(function (f) { return !hasPos(f) && visible(f); });
 
       if (!placed.length) {

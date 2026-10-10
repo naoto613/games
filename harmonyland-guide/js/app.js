@@ -5,9 +5,9 @@ window.HL = window.HL || {};
 (function () {
   'use strict';
 
-  var DATA_FILES = ['app-config', 'facilities', 'shows', 'sources', 'opening-info'];
+  var DATA_FILES = ['app-config', 'facilities', 'shows', 'sources', 'opening-info', 'park-info'];
 
-  HL.data = { config: null, facilities: [], shows: [], sources: [], opening: null };
+  HL.data = { config: null, facilities: [], shows: [], sources: [], opening: null, park: null };
   HL.errors = {};          // データファイルごとの読み込みエラー
   HL.dataOrigin = {};      // 'network' | 'bundled'
   HL.screens = {};
@@ -21,14 +21,18 @@ window.HL = window.HL || {};
     { id: 'restaurant', label: '飲食店', icon: '🍽️', color: '#3FA37A' },
     { id: 'shop', label: 'ショップ', icon: '🛍️', color: '#3E8FD6' },
     { id: 'service', label: 'サービス', icon: 'ℹ️', color: '#6B7A8F' },
-    { id: 'family', label: '子ども向け設備', icon: '🍼', color: '#D9A400' }
+    { id: 'family', label: '子ども向け設備', icon: '🍼', color: '#D9A400' },
+    { id: 'photo', label: 'フォトスポット', icon: '📸', color: '#C2558F' }
   ];
   HL.SHOW_CATEGORIES = { parade: 'パレード', show: 'ショー', greeting: 'グリーティング', event: 'イベント' };
 
   HL.STATUS = {
     confirmed: { label: '確認済み', icon: '✓' },
     scheduled: { label: '開催予定', icon: '◆' },
+    reference: { label: '参考情報', icon: 'ⓘ' },
+    day_of_check: { label: '当日要確認', icon: '⏱' },
     unconfirmed: { label: '未確認', icon: '？' },
+    unverified: { label: '未確認', icon: '？' },
     changed: { label: '変更あり', icon: '！' },
     expired: { label: '期限切れ', icon: '×' }
   };
@@ -37,9 +41,9 @@ window.HL = window.HL || {};
 
   HL.SCREEN_TITLES = {
     home: 'ホーム', map: '園内マップ', facility: '施設詳細', show: 'ショー・イベント詳細', list: '施設一覧・検索',
-    tickets: '整理券攻略', shows: 'ショー・イベント', plan: '回り方プラン', sources: '情報・出典'
+    tickets: '整理券攻略', shows: 'ショー・イベント', plan: '回り方プラン', sources: '情報・出典', info: '園内サービス・子ども連れ'
   };
-  var NAV_OF = { facility: null, show: 'shows', list: null, sources: null };
+  var NAV_OF = { facility: null, show: 'shows', list: null, sources: null, info: null };
 
   /* ---------- DOM ヘルパー（文字列は常に textContent で入れる） ---------- */
   function h(tag, attrs) {
@@ -176,6 +180,46 @@ window.HL = window.HL || {};
     return (s && s.status) || 'unconfirmed';
   };
 
+  /* ---------- 利用条件と子どもの年齢 ---------- */
+  HL.restrictionLines = function (rq) {
+    rq = rq || {};
+    var out = [];
+    if (rq.ageMin != null) out.push(rq.ageMin + '歳未満は利用不可');
+    if (rq.guardianUnder != null) out.push(rq.guardianUnder + '歳未満は保護者同伴');
+    if (rq.pregnancyNotAllowed) out.push('妊娠中の方は利用不可');
+    if (rq.weightRestriction) out.push('体重：' + rq.weightRestriction);
+    if (rq.heightRestriction) out.push('身長：' + rq.heightRestriction);
+    if (rq.otherConditions) out.push(rq.otherConditions);
+    return out;
+  };
+  HL.hasRestrictionData = function (f) {
+    var rq = f.requirements || {};
+    return f.category === 'attraction' && (rq.ageMin != null || rq.guardianUnder != null || rq.pregnancyNotAllowed != null || !!rq.note);
+  };
+  // 子どもの年齢から見た利用可否。公式の条件が不明なら「乗れる」とは判定しない
+  HL.eligibility = function (f, age) {
+    if (f.category !== 'attraction' || age == null || age === '') return null;
+    var rq = f.requirements || {};
+    if (!HL.hasRestrictionData(f)) return { level: 'unknown', text: age + '歳：利用条件は未確認' };
+    if (rq.ageMin != null && age < rq.ageMin) return { level: 'ng', text: age + '歳：利用不可（' + rq.ageMin + '歳未満）' };
+    if (rq.guardianUnder != null && age < rq.guardianUnder) return { level: 'guardian', text: age + '歳：保護者同伴が必要' };
+    var extra = rq.weightRestriction || rq.heightRestriction || rq.otherConditions;
+    return { level: 'ok', text: age + '歳：掲載の年齢条件に該当なし' + (extra ? '（ほかの条件あり）' : '') };
+  };
+  HL.childAges = function () { return ((HL.state.profile && HL.state.profile.childAges) || []).filter(function (a) { return a !== '' && a != null; }); };
+  HL.eligibilityBadges = function (f) {
+    return HL.childAges().map(function (age) {
+      var e = HL.eligibility(f, age);
+      if (!e) return null;
+      var cls = { ng: 'st-changed', guardian: 'st-unconfirmed', ok: 'st-confirmed', unknown: 'plain' }[e.level];
+      var ico = { ng: '✕ ', guardian: '👪 ', ok: '○ ', unknown: '？ ' }[e.level];
+      return h('span', { class: 'badge ' + cls, text: ico + e.text });
+    });
+  };
+  HL.rainSuspended = function (f) { return ((f.operation && f.operation.weatherSuspend) || []).indexOf('rain') >= 0; };
+  HL.windSuspended = function (f) { return ((f.operation && f.operation.weatherSuspend) || []).indexOf('wind') >= 0; };
+  HL.isOptionalTicket = function (o) { return !!(o.admission && o.admission.required === 'optional'); };
+
   /* ---------- 保存 ---------- */
   HL.persist = function () {
     var ok = HL.storage.save(HL.state);
@@ -228,7 +272,7 @@ window.HL = window.HL || {};
       var s = HL.source(id);
       if (!s) { wrap.appendChild(h('div', null, HL.unknown('出典データが見つかりません：' + id))); return; }
       wrap.appendChild(h('div', { style: { marginBottom: '6px' } },
-        HL.extLink(s.url, s.title, { official: s.official }),
+        s.url ? HL.extLink(s.url, s.title, { official: s.official }) : h('a', { class: 'inlink', href: '#sources', text: s.title + '（アプリ外の資料）' }),
         h('div', { class: 'small muted' },
           '公開日：' + (HL.fmtDate(s.publishedAt) || '未確認') + '　確認日：' + (s.checkedAt ? HL.fmtDate(s.checkedAt) : '本文未確認') +
           (s.searchedAt ? '（' + HL.fmtDate(s.searchedAt) + ' 検索で概要を確認）' : ''))));
@@ -253,14 +297,19 @@ window.HL = window.HL || {};
         : (rq.ticketRequired === false && rq.reservationRequired === false ? h('span', { class: 'badge plain', text: '整理券・予約 不要' })
           : h('span', { class: 'badge plain', text: '整理券 要否未確認' })),
       HL.statusBadge(HL.facilityStatus(f), '当日：' + HL.STATUS[HL.facilityStatus(f)].label),
+      HL.rainSuspended(f) ? h('span', { class: 'badge st-unconfirmed', text: '☔ 雨天運休' }) : null,
+      HL.windSuspended(f) ? h('span', { class: 'badge st-unconfirmed', text: '🌬 強風時運休' }) : null,
       HL.isVisited('facility', f.id) ? h('span', { class: 'badge st-confirmed', text: '✔ 訪問済み' }) : null,
-      HL.planItem('facility', f.id) ? h('span', { class: 'badge cat', text: '♥ 行きたい' }) : null);
+      HL.planItem('facility', f.id) ? h('span', { class: 'badge cat', text: '♥ 行きたい' }) : null,
+      HL.eligibilityBadges(f));
+    var lines = HL.restrictionLines(rq);
     return h('div', { class: 'item' + (opts.highlight ? ' highlight' : ''), id: opts.anchor ? 'fac-' + f.id : null },
       h('div', { class: 'item-head' },
         h('div', { class: 'item-ico', 'aria-hidden': 'true', text: c.icon }),
         h('div', { style: { minWidth: 0, flex: 1 } },
           h('a', { class: 'item-name', href: '#facility/' + f.id, text: f.name }),
-          h('div', { class: 'item-meta', text: 'エリア：' + (f.area || '未確認') }),
+          h('div', { class: 'item-meta', text: 'エリア：' + (f.area || '未確認') + (rq.price ? '／' + rq.price : '') }),
+          lines.length ? h('div', { class: 'item-meta', text: '条件：' + lines.join('・') }) : null,
           badges,
           opts.extra || null)));
   };
@@ -340,6 +389,7 @@ window.HL = window.HL || {};
         if (e) { HL.errors[n] = (e && e.message) || '読み込み失敗'; return; }
         if (n === 'app-config') HL.data.config = d;
         else if (n === 'opening-info') HL.data.opening = d;
+        else if (n === 'park-info') HL.data.park = d;
         else if (Array.isArray(d)) HL.data[n] = d;
         else HL.errors[n] = '形式が正しくありません';
       });
@@ -410,12 +460,30 @@ window.HL = window.HL || {};
         h('span', { 'aria-hidden': 'true', text: checked ? '☑' : '☐' }),
         h('div', { style: { flex: 1 } },
           h('a', { class: 'inlink', href: (x.kind === 'show' ? '#show/' : '#facility/') + x.o.id, text: x.o.name }),
-          h('div', { class: 'small' }, (a.type || '整理券・予約') + '：' + (a.method || '方法は未確認')),
+          h('div', { class: 'small' }, (a.type || '整理券・予約') + '：' + (a.method || '方法は未確認') +
+            (a.distributionStartTime ? '／受付 ' + a.distributionStartTime : '') + (a.participationTime ? '／参加 ' + a.participationTime : '') + (a.fee ? '／' + a.fee : '')),
           h('div', { class: 'badges' }, HL.statusBadge(a.status || 'unconfirmed', '受付条件：' + HL.STATUS[a.status || 'unconfirmed'].label),
             checked ? h('span', { class: 'badge st-confirmed', text: '自分で確認済み' }) : null))));
     });
     tCard.appendChild(h('div', { class: 'btn-row' }, h('a', { class: 'btn', href: '#tickets', text: '整理券を確認' })));
     main.appendChild(tCard);
+
+    // 次のショー（参考時刻を含む）
+    if (HL.schedule && !HL.errors.shows) {
+      var now = new Date(), todayIso = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);
+      var hhmm = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+      var timed = HL.schedule.dayRows(HL.data.shows.filter(HL.inPeriod)).filter(function (r) { return r.start; });
+      var isToday = todayIso === HL.targetDate();
+      var next = isToday ? timed.filter(function (r) { return r.start >= hhmm; })[0] : timed[0];
+      var nCard0 = h('section', { class: 'card' }, h('h2', null, '⏭ 次のショー' + (isToday ? '' : '（当日の最初）')));
+      if (next) {
+        nCard0.appendChild(h('div', null,
+          h('span', { class: next.ref ? 'time-ref' : 'time-big', text: (next.ref ? '参考 ' : '') + next.start + (next.end ? '〜' + next.end : '') }), ' ',
+          h('a', { class: 'inlink', href: '#show/' + next.show.id, text: next.show.name })));
+        nCard0.appendChild(h('div', { class: 'small muted', text: '会場：' + ((next.show.venue && next.show.venue.name) || '未確認') + (next.ref ? '。公式に案内された通常の時刻です。当日の開催・時刻は要確認。' : '') }));
+      } else nCard0.appendChild(h('p', { class: 'empty', text: isToday ? 'このあと予定されているショーは登録されていません。' : '時刻のあるショーは登録されていません。' }));
+      main.appendChild(nCard0);
+    }
 
     // 3. 当日のショー・イベント
     var sCard = h('section', { class: 'card' }, h('h2', null, '🎪 当日のショー・イベント'));
@@ -468,11 +536,38 @@ window.HL = window.HL || {};
       h('p', { style: { margin: 0 } }, '行きたい・予定：', h('b', { text: wants + '件' }), '　訪問済み：', h('b', { text: visited + '件' })),
       h('div', { class: 'btn-row' }, h('a', { class: 'btn sub', href: '#plan', text: '回り方プラン' }))));
 
+    // 確認チェックリスト
+    var park = HL.data.park;
+    if (park && park.checklists) {
+      var clCard = h('section', { class: 'card' }, h('h2', null, '☑ 確認チェックリスト'));
+      park.checklists.forEach(function (cl) {
+        var done = cl.items.filter(function (it) { return HL.state.checked.indexOf('cl:' + cl.id + ':' + it[0]) >= 0; }).length;
+        var det = h('details', { class: 'fold', open: cl.id === 'before' && done < cl.items.length },
+          h('summary', { text: cl.title + '（' + done + '／' + cl.items.length + '）' }));
+        cl.items.forEach(function (it) {
+          var key = 'cl:' + cl.id + ':' + it[0];
+          var cb = h('input', { type: 'checkbox', checked: HL.state.checked.indexOf(key) >= 0, onchange: function () {
+            var i = HL.state.checked.indexOf(key);
+            if (cb.checked && i < 0) HL.state.checked.push(key);
+            if (!cb.checked && i >= 0) HL.state.checked.splice(i, 1);
+            HL.persist();
+            var n = cl.items.filter(function (x) { return HL.state.checked.indexOf('cl:' + cl.id + ':' + x[0]) >= 0; }).length;
+            det.firstChild.textContent = cl.title + '（' + n + '／' + cl.items.length + '）';
+          } });
+          det.appendChild(h('label', { class: 'check', style: { display: 'flex' } }, cb, it[1]));
+        });
+        clCard.appendChild(det);
+      });
+      clCard.appendChild(h('p', { class: 'small muted', style: { margin: '6px 0 0' }, text: 'チェックは自分で確認したことのメモです（この端末に保存）。' }));
+      main.appendChild(clCard);
+    }
+
     // 7. 主要機能
     main.appendChild(h('h2', { class: 'section-title', text: 'さがす・しらべる' }));
     var quick = h('nav', { class: 'quick', 'aria-label': '主要機能へのリンク' });
     [['#map', '🗺️', '園内マップ', '場所を確認'], ['#list', '🔎', '施設一覧・検索', '名前やカテゴリで'], ['#tickets', '🎫', '整理券を確認', '受付が必要なもの'],
-      ['#shows', '🎪', 'ショーを見る', '時間順に'], ['#plan', '📝', '回り方プラン', '行きたい・訪問済み'], ['#sources', '📚', '情報・出典', '確認日と未確認項目']]
+      ['#shows', '🎪', 'ショーを見る', '時間順に'], ['#plan', '📝', '回り方プラン', '行きたい・訪問済み'], ['#info', '🍼', '子ども連れ・サービス', '授乳室・貸し出し'],
+      ['#list?f=family', '🚻', 'トイレ・授乳室', 'すぐ探す'], ['#list?f=rain', '☔', '雨天運休の施設', '雨の日の確認'], ['#sources', '📚', '情報・出典', '確認日と未確認項目']]
       .forEach(function (q) { quick.appendChild(h('a', { href: q[0] }, h('span', { class: 'qi', 'aria-hidden': 'true', text: q[1] }), h('span', null, q[2], h('small', { text: q[3] })))); });
     main.appendChild(quick);
 
@@ -532,7 +627,10 @@ window.HL = window.HL || {};
     var desc = f.description || '';
     var descNode = desc.length > 80 ? h('details', { class: 'fold' }, h('summary', { text: desc.slice(0, 60) + '…（続きを読む）' }), h('p', { text: desc })) : (desc || HL.unknown());
 
-    var posNode = loc.x != null && loc.y != null ? h('span', null, 'マップに登録済み', loc.positionSource ? h('span', { class: 'small muted', text: '（根拠：' + loc.positionSource + '）' }) : null)
+    var posNode = loc.x != null && loc.y != null ? h('span', null,
+        loc.positionStatus === 'reference' ? h('b', { style: { color: 'var(--color-warning-text)' }, text: '推定位置としてマップに表示' }) : 'マップに表示（地図上の表記で確認）',
+        loc.positionNote ? h('div', { class: 'small muted', text: loc.positionNote }) : null,
+        loc.positionSource ? h('div', { class: 'small muted', text: '根拠：' + loc.positionSource }) : null)
       : HL.unknown('位置は未確認（マップに表示していません）');
 
     var hours = op.openingTime ? op.openingTime + '〜' + (op.closingTime || '？') : HL.unknown('公式情報を確認してください');
@@ -545,7 +643,8 @@ window.HL = window.HL || {};
       h('div', { class: 'small' }, '配布・受付場所：', HL.val(a.distributionLocation)),
       h('div', { class: 'small' }, '開始時刻：', HL.val(a.distributionStartTime)),
       h('div', { class: 'small' }, '受付終了条件：', HL.val(a.endCondition)),
-      a.statusNote ? h('div', { class: 'small muted', text: a.statusNote }) : null);
+      a.statusNote ? h('div', { class: 'small muted', text: a.statusNote }) : null,
+      a.pastInfo ? h('div', { class: 'small muted', text: '過去の情報（当日の情報ではありません）：' + a.pastInfo }) : null);
 
     var kv = h('dl', { class: 'kv' });
     function row(k, v) { kv.appendChild(h('dt', { text: k })); kv.appendChild(h('dd', null, v)); }
@@ -554,10 +653,18 @@ window.HL = window.HL || {};
     row('園内エリア', HL.val(f.area));
     row('マップ上の位置', posNode);
     row('概要', descNode);
-    row('利用条件', rq.note ? h('span', null, HL.unknown('対象日の条件は未確認'), h('div', { class: 'small muted', text: rq.note })) : HL.unknown('公式情報を確認してください'));
-    row('年齢・身長制限', h('div', null,
-      h('div', null, '年齢：', rq.ageRestriction ? h('span', null, rq.ageRestriction, h('span', { class: 'small muted', text: '（掲載日未確認の公式情報）' })) : HL.unknown()),
-      h('div', null, '身長：', HL.val(rq.heightRestriction))));
+    var lines = HL.restrictionLines(rq);
+    row('利用条件', h('div', null,
+      lines.length ? lines.map(function (l) { return h('div', { text: '・' + l }); })
+        : (HL.hasRestrictionData(f) ? h('div', { text: '公式一覧に年齢・妊娠中などの制限の掲載なし' }) : HL.unknown('公式情報を確認してください')),
+      rq.note ? h('div', { class: 'small muted', text: rq.note }) : null));
+    var ages = HL.childAges();
+    if (f.category === 'attraction') {
+      row('子どもの年齢で確認', ages.length ? h('div', { class: 'badges' }, HL.eligibilityBadges(f))
+        : h('span', null, '未設定　', h('a', { class: 'inlink small', href: '#plan', text: 'プランで年齢を設定 →' })));
+      if (ages.length) kv.lastChild.appendChild(h('div', { class: 'small muted', text: '身長・体重・当日の運行は判定に含めていません。条件が不明な場合は「乗れる」と判定しません。' }));
+    }
+    row('身長・体重', h('div', null, h('div', null, '身長：', HL.val(rq.heightRestriction)), h('div', null, '体重：', HL.val(rq.weightRestriction))));
     row('料金', HL.val(rq.price, '公式情報を確認してください'));
     row('営業時間', hours);
     row('整理券の要否', HL.requiredNode(a ? a.required : rq.ticketRequired));
@@ -565,7 +672,7 @@ window.HL = window.HL || {};
     row('予約の要否', HL.requiredNode(rq.reservationRequired));
     row('受付方法', admNode);
     row('雨天時の扱い', op.weatherPolicy && op.weatherPolicy !== 'unconfirmed' ? op.weatherPolicy : HL.unknown());
-    row('営業・休止状況', st === 'unconfirmed' ? HL.unknown('対象日の営業状況は未確認です') : HL.statusBadge(st));
+    row('営業・休止状況', st === 'unconfirmed' || st === 'day_of_check' ? h('span', null, HL.statusBadge(st), ' ', HL.unknown('対象日の営業状況は未確認です')) : HL.statusBadge(st));
     row('情報の確認日', HL.lastVerified(f.lastVerifiedAt));
     row('情報の出典', HL.sourcesBlock(f.sources));
     main.appendChild(h('section', { class: 'card' }, kv));
@@ -594,7 +701,11 @@ window.HL = window.HL || {};
     { id: 'restaurant', label: '飲食店' },
     { id: 'shop', label: 'ショップ' },
     { id: 'family', label: '子ども向け設備' },
+    { id: 'service', label: 'サービス' },
+    { id: 'photo', label: 'フォトスポット' },
     { id: 'ticket', label: '整理券・予約が必要' },
+    { id: 'rain', label: '雨天・強風で運休' },
+    { id: 'kids', label: '子どもの年齢で利用できる' },
     { id: 'unconfirmed', label: '未確認情報がある施設' }
   ];
   HL.screens.list = function (main, r) {
@@ -620,6 +731,8 @@ window.HL = window.HL || {};
       switch (state.f) {
         case 'all': return true;
         case 'ticket': return HL.needsAdmission(f);
+        case 'rain': return HL.rainSuspended(f) || HL.windSuspended(f);
+        case 'kids': return HL.childAges().length > 0 && HL.childAges().every(function (a) { var e = HL.eligibility(f, a); return e && (e.level === 'ok' || e.level === 'guardian'); });
         case 'unconfirmed': return HL.hasUnconfirmed(f);
         default: return f.category === state.f;
       }
@@ -627,7 +740,7 @@ window.HL = window.HL || {};
     function matchText(f) {
       if (!state.q.trim()) return true;
       var q = HL.norm(state.q), c = HL.cat(f.category);
-      return [f.name, f.kana, f.area, c.label].concat(f.tags || []).some(function (t) { return t && HL.norm(t).indexOf(q) >= 0; });
+      return [f.name, f.kana, f.area, c.label, f.description].concat(f.tags || []).some(function (t) { return t && HL.norm(t).indexOf(q) >= 0; });
     }
     function draw() {
       out.textContent = '';
@@ -642,6 +755,11 @@ window.HL = window.HL || {};
           return !state.q.trim() || [s.name, s.venue && s.venue.name, HL.SHOW_CATEGORIES[s.category]].some(function (t) { return t && HL.norm(t).indexOf(HL.norm(state.q)) >= 0; });
         }) : [];
       out.appendChild(h('p', { class: 'small muted', text: '施設 ' + list.length + '件' + (shows.length ? '／ショー・イベント ' + shows.length + '件' : '') }));
+      if (state.f === 'kids' && !HL.childAges().length) {
+        out.appendChild(h('div', { class: 'card warn small' }, '子どもの年齢が未設定です。', h('a', { class: 'inlink', href: '#plan', text: 'プランで年齢を設定 →' })));
+      } else if (state.f === 'kids') {
+        out.appendChild(h('p', { class: 'small muted', text: '公式一覧の年齢条件に該当しない（保護者同伴を含む）アトラクションです。身長・体重・当日の運行は含みません。条件が未確認の施設は表示しません。' }));
+      }
       if (!list.length && !shows.length) {
         out.appendChild(h('p', { class: 'card', text: '該当する施設はありません' }));
         if (['restaurant', 'shop', 'family', 'service'].indexOf(state.f) >= 0) {
@@ -676,10 +794,11 @@ window.HL = window.HL || {};
 
     var all = HL.data.facilities.map(function (f) { return { kind: 'facility', o: f }; })
       .concat(HL.data.shows.filter(HL.inPeriod).map(function (s) { return { kind: 'show', o: s }; }));
-    var g1 = [], g2 = [], g3 = [], g4 = [], notNeeded = [];
+    var g1 = [], g2 = [], g3 = [], g4 = [], notNeeded = [], optional = [];
     all.forEach(function (x) {
       var a = x.o.admission;
       if (a && a.status === 'expired') g4.push(x);
+      else if (HL.isOptionalTicket(x.o)) optional.push(x);
       else if (HL.needsAdmission(x.o)) (a && a.status === 'confirmed' ? g1 : g2).push(x);
       else if (HL.admissionUnknown(x.o)) g3.push(x);
       else notNeeded.push(x);
@@ -694,9 +813,12 @@ window.HL = window.HL || {};
       row('方法', a.method ? h('span', null, a.method, ' ', HL.statusBadge(a.methodStatus || 'unconfirmed')) : HL.unknown());
       row('取得場所', HL.val(a.distributionLocation));
       row('取得開始時刻', HL.val(a.distributionStartTime));
+      row('参加時間', HL.val(a.participationTime));
+      row('料金', HL.val(a.fee));
       row('受付終了条件', HL.val(a.endCondition));
       row('定員', HL.val(a.capacity));
       row('参加条件', HL.val(a.eligibility));
+      if (a.pastInfo) row('過去の情報', h('span', { class: 'small muted', text: a.pastInfo }));
       if (x.kind === 'show') {
         var ref = HL.refTimes(o);
         row('開催時刻', ref.length ? h('span', null, HL.unknown('対象日は未確認'), h('div', { class: 'small muted', text: '参考：期間中の通常時刻 ' + ref.map(function (t) { return t.startTime + '〜' + (t.endTime || ''); }).join('、') })) : HL.unknown());
@@ -724,13 +846,47 @@ window.HL = window.HL || {};
     function shortCard(x) {
       return HL.facilityCard(x.o, { extra: h('div', { class: 'small' }, HL.unknown('整理券・予約の要否は未確認'), ' ', HL.officialButton(x.o.sources, '公式で確認')) });
     }
+    // 早く動く必要があるもの（受付開始・参加時刻が早いもの）から並べる
+    function firstTime(x) {
+      var a = x.o.admission || {}, m = /(\d{1,2}):(\d{2})/.exec((a.distributionStartTime || '') + ' ' + (a.participationTime || ''));
+      return m ? ('0' + m[1]).slice(-2) + ':' + m[2] : '99:99';
+    }
+    [g1, g2].forEach(function (g) { g.sort(function (x, y) { return firstTime(x) < firstTime(y) ? -1 : firstTime(x) > firstTime(y) ? 1 : 0; }); });
     group('① 必要性と受付条件を確認済み', '対象日の必要性と受付条件まで公式情報で確認できたもの。', g1, admCard);
     group('② 必要と案内あり・受付条件は未確認', '整理券・予約・受付が必要と公式に案内されているが、対象日の取得方法や時刻は確認できていないもの。', g2, admCard);
     group('③ 整理券・予約の要否が未確認', '必要とも不要とも確認できていない施設です。現地や公式情報で確認してください。', g3.filter(function (x) { return x.kind === 'facility'; }).concat(g3.filter(function (x) { return x.kind === 'show'; })), function (x) {
       return x.kind === 'facility' ? shortCard(x) : h('div', { class: 'item' }, h('a', { class: 'item-name', href: '#show/' + x.o.id, text: '🎪 ' + x.o.name }), h('div', { class: 'small' }, HL.unknown('整理券・予約の要否は未確認')));
     });
     group('④ 過去の情報のみ', '過去の配布方法などしか確認できていないもの。当日の情報としては使えません。', g4, admCard);
+    if (optional.length) group('任意の有料券（なくても観覧できるもの）', '最前列などで見たい場合に必要な券。観覧自体の条件は各ショーで確認してください。', optional, admCard);
+    var park = HL.data.park;
+    if (park && park.priorityTicketChecks) {
+      main.appendChild(h('h2', { class: 'section-title', text: '優先券・有料券（当日確認）' }));
+      main.appendChild(h('section', { class: 'card' },
+        h('p', { class: 'small', style: { margin: '0 0 6px' } }, HL.statusBadge('day_of_check'), ' 販売条件は固定値にせず、当日の公式案内（公式トップページ）を優先します。確認する項目：'),
+        h('div', { class: 'badges' }, park.priorityTicketChecks.map(function (t) { return h('span', { class: 'badge plain', text: t }); })),
+        HL.extLink('https://www.harmonyland.jp/', '公式トップページで優先券・有料券を確認', { block: true })));
+    }
     if (notNeeded.length) group('整理券・予約が不要と確認済み', null, notNeeded, function (x) { return HL.facilityCard(x.o); });
+  };
+
+  /* =====================================================================
+     園内サービス・子ども連れ（公式FAQの恒久情報）
+     ===================================================================== */
+  HL.screens.info = function (main) {
+    var park = HL.data.park;
+    append(main, HL.dataError(['park-info', 'facilities']));
+    if (park) {
+      main.appendChild(h('div', { class: 'card note small' }, HL.statusBadge(park.status || 'reference'), ' ', park.statusNote || ''));
+      park.parkInfo.forEach(function (sec) {
+        main.appendChild(h('section', { class: 'card' }, h('h2', null, sec.title),
+          sec.items.map(function (t) { return h('div', { class: 'notice-line small' }, '・', t); })));
+      });
+    }
+    main.appendChild(h('h2', { class: 'section-title', text: '子ども向け設備・サービスの施設' }));
+    HL.data.facilities.filter(function (f) { return f.category === 'family' || f.category === 'service'; })
+      .forEach(function (f) { main.appendChild(HL.facilityCard(f)); });
+    main.appendChild(HL.extLink('https://www.harmonyland.jp/faq', '公式FAQで最新の内容を確認', { block: true }));
   };
 
   /* =====================================================================
@@ -755,7 +911,7 @@ window.HL = window.HL || {};
       var kv = h('dl', { class: 'kv' });
       function row(k, v) { kv.appendChild(h('dt', { text: k })); kv.appendChild(h('dd', null, v)); }
       row('情報の対象', HL.val(s.target));
-      row('出典URL', HL.extLink(s.url, s.url, { official: s.official }));
+      row('出典URL', s.url ? HL.extLink(s.url, s.url, { official: s.official }) : h('span', { class: 'muted', text: 'URLなし（アプリ外の資料。内容は公開していません）' }));
       row('発行元', h('span', null, HL.val(s.publisher), s.official ? '' : h('span', { class: 'small muted', text: '（公式かどうか未確認）' })));
       row('公開日', HL.val(HL.fmtDate(s.publishedAt)));
       row('更新日', HL.val(HL.fmtDate(s.updatedAt)));

@@ -3,9 +3,12 @@
   'use strict';
   var h = HL.h;
 
+  // 「開園から約20分」のような相対表記は開園直後として先頭に並べる
+  function key(r) { return r.start || (r.label ? '00:00' : null); }
   function cmpTime(a, b) {
-    if (a.start && b.start) return a.start < b.start ? -1 : a.start > b.start ? 1 : 0;
-    return a.start ? -1 : b.start ? 1 : 0;
+    var x = key(a), y = key(b);
+    if (x && y) return x < y ? -1 : x > y ? 1 : 0;
+    return x ? -1 : y ? 1 : 0;
   }
 
   // 指定日の表示行。対象日の公式スケジュールで時刻が確定したものだけ ref:false。
@@ -19,7 +22,7 @@
         return;
       }
       var refs = date === HL.targetDate() ? HL.refTimes(s) : [];
-      if (refs.length) refs.forEach(function (r) { rows.push({ show: s, start: r.startTime, end: r.endTime, note: r.note, status: (sc && sc.status) || 'unconfirmed', ref: true }); });
+      if (refs.length) refs.forEach(function (r) { rows.push({ show: s, start: r.startTime, end: r.endTime, label: r.label, note: r.note, status: (sc && sc.status) || 'unconfirmed', ref: true }); });
       else rows.push({ show: s, start: null, end: null, status: (sc && sc.status) || 'unconfirmed', ref: true });
     });
     return rows.sort(cmpTime);
@@ -47,7 +50,8 @@
   function reqLine(s) {
     var rq = s.requirements || {};
     return h('div', { class: 'small' },
-      '整理券・参加券：', HL.needsAdmission(s) && s.admission ? h('b', { text: s.admission.type + 'が必要' }) : HL.requiredNode(rq.ticketRequired),
+      '整理券・参加券：', HL.needsAdmission(s) && s.admission ? h('b', { text: s.admission.type + 'が必要' + (s.admission.fee ? '（' + s.admission.fee + '）' : '') })
+        : HL.isOptionalTicket(s) ? h('span', { text: s.admission.type + ' ' + (s.admission.fee || '') }) : HL.requiredNode(rq.ticketRequired),
       '／料金：', HL.val(rq.price));
   }
 
@@ -55,8 +59,8 @@
     var s = row.show;
     var timeNode = row.ref
       ? h('div', null,
-        h('div', { class: 'time-ref', text: row.start ? '参考 ' + row.start + (row.end ? '〜' + row.end : '') : '時刻未確認' }),
-        h('div', { class: 'small', style: { color: 'var(--color-warning-text)' } }, row.start ? '期間中の通常時刻として公式に案内（対象日の開催・時刻は未確認）' : '時刻は公式スケジュールで確認してください'))
+        h('div', { class: 'time-ref', text: row.start ? '参考 ' + row.start + (row.end ? '〜' + row.end : '') : row.label ? '参考 ' + row.label : '時刻未確認' }),
+        h('div', { class: 'small', style: { color: 'var(--color-warning-text)' } }, row.start || row.label ? '公式に案内された時刻（' + (row.note || '期間中の通常時刻') + '）。対象日の開催・時刻は要確認' : '時刻は公式スケジュールで確認してください'))
       : h('div', { class: 'time-big', text: row.start + (row.end ? '〜' + row.end : '') });
     return h('li', { class: row.ref ? 'ref' : '' }, h('div', { class: 'item' },
       timeNode,
@@ -64,6 +68,7 @@
       h('div', { class: 'item-meta', text: (HL.SHOW_CATEGORIES[s.category] || 'イベント') + '／会場：' + ((s.venue && s.venue.name) || '未確認') }),
       h('div', { class: 'badges' }, HL.statusBadge(row.status, '当日：' + HL.STATUS[row.status].label),
         HL.needsAdmission(s) ? h('span', { class: 'badge req', text: '🎫 ' + ((s.admission && s.admission.type) || '受付') + 'が必要' }) : null),
+      s.characters && s.characters.length ? h('div', { class: 'small', text: '出演：' + s.characters.join('、') }) : null,
       reqLine(s),
       h('div', { class: 'btn-row' }, planButton(s, row), venueButton(s))));
   }
@@ -129,19 +134,25 @@
     add('開催日', s.days === 'weekday' ? '期間中の平日のみと案内' : s.days === 'all' ? '期間中と案内（休園日・個別日は未確認）' : HL.unknown());
     var refs = HL.refTimes(s);
     add('開始・終了時刻（対象日）', row ? row.start + '〜' + (row.end || '？') : h('div', null, HL.unknown('対象日の時刻は未確認'),
-      (s.announcedTimes || []).map(function (t) { return h('div', { class: 'small muted', text: '参考：' + ({ all: '期間中', weekday: '平日', holiday: '土日祝' }[t.dayType] || '') + ' ' + t.startTime + '〜' + (t.endTime || '') + (t.note ? '（' + t.note + '）' : '') }); }),
-      refs.length ? h('div', { class: 'small', text: '対象日は' + (HL.dayType() === 'weekday' ? '平日' : '土日祝') + 'のため、参考時刻は ' + refs.map(function (t) { return t.startTime; }).join('、') + ' です。' }) : null));
+      (s.announcedTimes || []).map(function (t) { return h('div', { class: 'small muted', text: '参考：' + ({ all: '期間中', weekday: '平日', holiday: '土日祝' }[t.dayType] || '') + ' ' + (t.startTime ? t.startTime + '〜' + (t.endTime || '') : (t.label || '')) + (t.note ? '（' + t.note + '）' : '') }); }),
+      refs.length ? h('div', { class: 'small', text: '対象日は' + (HL.dayType() === 'weekday' ? '平日' : '土日祝') + 'のため、参考時刻は ' + refs.map(function (t) { return t.startTime || t.label; }).join('、') + ' です。' }) : null));
+    add('出演キャラクター', s.characters && s.characters.length ? s.characters.join('、') : HL.unknown());
     add('会場', h('span', null, HL.val(s.venue && s.venue.name), s.venue && s.venue.facilityId ? h('div', null, h('a', { class: 'inlink small', href: '#facility/' + s.venue.facilityId, text: '会場の施設情報 →' })) : null));
     add('開催状態', HL.statusBadge(st));
-    add('観覧条件', HL.val(rq.viewingConditions));
+    add('観覧条件・ルール', s.viewingRules && s.viewingRules.length ? h('div', null, s.viewingRules.map(function (t) { return h('div', { class: 'small', text: '・' + t }); })) : HL.val(rq.viewingConditions));
+    if (s.goods && s.goods.length) add('参加グッズ', h('div', null, s.goods.map(function (g) { return h('div', { class: 'small', text: g.name + '：' + g.price }); })));
     add('料金', HL.val(rq.price));
     add('整理券・参加券', a ? h('div', null, h('b', { text: a.type + '：' }), a.method || HL.unknown(),
       h('div', { class: 'small' }, '受付場所：', HL.val(a.distributionLocation)),
       h('div', { class: 'small' }, '受付開始：', HL.val(a.distributionStartTime)),
+      h('div', { class: 'small' }, '参加時間：', HL.val(a.participationTime)),
+      h('div', { class: 'small' }, '料金：', HL.val(a.fee)),
+      h('div', { class: 'small' }, '定員：', HL.val(a.capacity)),
       h('div', { class: 'small' }, '受付終了：', HL.val(a.endCondition)),
       a.statusNote ? h('div', { class: 'small muted', text: a.statusNote }) : null) : HL.requiredNode(rq.ticketRequired));
     add('予約', HL.requiredNode(rq.reservationRequired));
     add('雨天時の扱い', s.weatherPolicy && s.weatherPolicy !== 'unconfirmed' ? s.weatherPolicy : HL.unknown());
+    if (s.notes && s.notes.length) add('メモ', h('div', null, s.notes.map(function (t) { return h('div', { class: 'small', text: '・' + t }); })));
     add('出典', HL.sourcesBlock(s.sources));
     add('最終確認日時', HL.lastVerified(s.lastVerifiedAt));
     main.appendChild(h('section', { class: 'card' }, kv));

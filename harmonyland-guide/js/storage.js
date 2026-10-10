@@ -14,7 +14,9 @@ HL.storage = (function () {
       plan: [],      // 行きたい施設・予定 { id, kind:'facility'|'show', refId, startTime, endTime, priority, memo, createdAt }
       visited: [],   // 訪問済みの施設・ショーの ID（kind:refId）
       checked: [],   // 利用者が「公式情報で確認した」とチェックした整理券項目の ID
-      memo: ''       // 全体メモ
+      memo: '',      // 全体メモ
+      profile: { childAges: [] }, // 子どもの年齢（利用条件の確認用。個人を特定しない数値のみ）
+      rainMode: false             // 雨の日モード
     };
   }
 
@@ -58,6 +60,10 @@ HL.storage = (function () {
     if (Array.isArray(raw.visited)) d.visited = raw.visited.filter(isStr);
     if (Array.isArray(raw.checked)) d.checked = raw.checked.filter(isStr);
     if (isStr(raw.memo)) d.memo = raw.memo;
+    if (raw.profile && Array.isArray(raw.profile.childAges)) {
+      d.profile.childAges = raw.profile.childAges.filter(function (a) { return typeof a === 'number' && a >= 0 && a < 100; }).slice(0, 6);
+    }
+    d.rainMode = raw.rainMode === true;
     return d;
   }
 
@@ -80,7 +86,8 @@ HL.storage = (function () {
     if (!status.available) { status.lastSaveFailed = true; return false; }
     try {
       var out = {
-        version: VERSION, plan: state.plan, visited: state.visited, checked: state.checked, memo: state.memo
+        version: VERSION, plan: state.plan, visited: state.visited, checked: state.checked, memo: state.memo,
+        profile: state.profile, rainMode: state.rainMode
       };
       window.localStorage.setItem(KEY, JSON.stringify(out));
       status.lastSaveFailed = false;
