@@ -12,18 +12,33 @@ function personBox(o){const B=BODY[o.age||'adult'],A=o.acc||{},s=o.s||1;let up=-
   if(A.balloon)up=Math.max(up,-B.hy+64);if(A.parasol)up=Math.max(up,-B.hy+B.hr+28);if(A.flag||A.net)up=Math.max(up,-B.sy+34);
   if(A.balloon||A.flag||A.net)half=Math.max(half,28);if(A.parasol)half=36;if(A.ice||A.cotton||A.fan)half=Math.max(half,24);if(A.ring)half=Math.max(half,22);
   return[half*2*s,up*s]}
-function personSprite(look){const[w,h]=personBox(look);return makeSprite(null,w,h,x=>drawPerson(x,look))}
-const CROWD=2.3; // ウォーリーなみの 人ごみ
+// people are packed into a few big sheet canvases (hundreds of separate small canvases make browsers slow)
+const ATLAS={S:2048,pages:[],p:0,x:0,y:0,row:0};
+function atlasReset(){ATLAS.p=0;ATLAS.x=0;ATLAS.y=0;ATLAS.row=0;for(const pg of ATLAS.pages)pg.getContext('2d').clearRect(0,0,ATLAS.S,ATLAS.S)}
+function atlasSprite(w,h,draw){
+  const res=RS,pad=4,pw=Math.ceil((w+pad*2)*res)+1,ph=Math.ceil((h+pad*2)*res)+1,A=ATLAS;
+  if(A.x+pw>A.S){A.x=0;A.y+=A.row;A.row=0}
+  if(A.y+ph>A.S){A.p++;A.x=0;A.y=0;A.row=0}
+  if(!A.pages[A.p])A.pages[A.p]=mk(A.S,A.S);
+  const c=A.pages[A.p],x=c.getContext('2d');
+  x.save();x.translate(A.x,A.y);x.beginPath();x.rect(0,0,pw,ph);x.clip();x.clearRect(0,0,pw,ph);x.scale(res,res);x.translate(w/2+pad,h+pad);draw(x);x.restore();
+  const s={c,sx:A.x,sy:A.y,sw:pw,sh:ph,ax:w/2+pad,ay:h+pad,w:pw/res,h:ph/res};
+  A.x+=pw;A.row=Math.max(A.row,ph);return s;
+}
+function personSprite(look){const[w,h]=personBox(look);return atlasSprite(w,h,x=>drawPerson(x,look))}
+const CROWD=3.4; // ウォーリーなみの 人ごみ
 function personHit(look){const B=BODY[look.age||'adult'],s=look.s||1;return{hw:12*s,hh:(-B.hy+B.hr+5)*s}}
 
-let W=null; // current world
+let W=null,BGCV=null; // current world
 function buildWorld(st,seed,diff){
+  atlasReset();
   diff=diff||{people:1,decoys:1,hide:0};
   R=rng(seed);
   const w={st,seed,items:[],fx:[],foot:[],fam:{},found:{},t:0};
   // background
   if(st.geo)st.geo(w);
-  const bg=mk(WW*BGS,WH*BGS),bx=bg.getContext('2d');bx.scale(BGS,BGS);ink(bx);st.bg(bx,w);w.bg=bg;
+  // one big background canvas is reused for every stage (allocating a new 3000×2000 one each time is slow on phones)
+  const bg=BGCV||(BGCV=mk(WW*BGS,WH*BGS)),bx=bg.getContext('2d');bx.setTransform(1,0,0,1,0,0);bx.clearRect(0,0,bg.width,bg.height);bx.scale(BGS,BGS);ink(bx);st.bg(bx,w);w.bg=bg;
   // props
   const L={
     prop(k,x,y,o){o=o||{};const P=PROPS[k];const s=o.s||1;
@@ -34,8 +49,11 @@ function buildWorld(st,seed,diff){
   };
   st.layout(L,w);
   // crowd
-  const pts=[];
-  const free=(x,y,d)=>{for(const f of w.foot)if(x>f.x0&&x<f.x1&&y>f.y0&&y<f.y1)return false;for(const p of pts){const dx=p.x-x,dy=(p.y-y)*1.6;if(dx*dx+dy*dy<d*d)return false}return true};
+  // placed points kept in a grid so checking for room stays fast with hundreds of people
+  const CS=24,grid=new Map(),gk=(x,y)=>(Math.floor(x/CS)*4096+Math.floor(y/CS));
+  const pts={list:[],push(p){this.list.push(p);const k=gk(p.x,p.y);(grid.get(k)||grid.set(k,[]).get(k)).push(p)},pop(){const p=this.list.pop();if(p){const a=grid.get(gk(p.x,p.y));a.splice(a.indexOf(p),1)}return p}};
+  const free=(x,y,d)=>{for(const f of w.foot)if(x>f.x0&&x<f.x1&&y>f.y0&&y<f.y1)return false;const cx=Math.floor(x/CS),cy=Math.floor(y/CS);
+    for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const a=grid.get((cx+i)*4096+cy+j);if(a)for(const p of a){const dx=p.x-x,dy=(p.y-y)*1.6;if(dx*dx+dy*dy<d*d)return false}}return true};
   const spot=(want,d,tries)=>{for(let i=0;i<(tries||400);i++){const x=rnd(40,WW-40),y=rnd(60,WH-20),k=st.walk(x,y,w);if(!k)continue;if(want==='crowd'?!(st.peopleOn||['land']).includes(k):want==='any'?!(st.peopleOn||['land']).includes(k):want&&k!==want)continue;if(free(x,y,d)){pts.push({x,y});return{x,y,k}}}return null};
   w.spot=spot;
   // family first so they get good places
@@ -52,7 +70,7 @@ function buildWorld(st,seed,diff){
   w.fam.ricky={kind:'ricky',x:rp.x,y:rp.y,hx:rp.x,hy:rp.y,ph:0,live:true,hit:{hw:16,hh:62},hop:0};w.items.push(w.fam.ricky);
   // crowd
   const n=Math.round(st.people*diff.people*CROWD);let made=0;
-  for(let i=0;i<n*10&&made<n;i++){const s=spot('crowd',st.gap||12,2);if(!s)continue;const look=st.look(s.k);if(s.k==='swim')look.swim=true;addPerson(w,look,s.x,s.y,'mob');made++}
+  for(let i=0;i<n*10&&made<n;i++){const s=spot('crowd',st.gap||10,2);if(!s)continue;const look=st.look(s.k);if(s.k==='swim')look.swim=true;addPerson(w,look,s.x,s.y,'mob');made++}
   // decoys: kids who share one or two things with ふーたん
   const kids=w.items.filter(it=>it.kind==='mob'&&it.look.age==='kid'&&!it.look.swim);shuffle(kids);
   for(let i=0;i<Math.min(Math.round(st.decoys*diff.decoys*1.6),kids.length);i++){const it=kids[i],o=it.look;const v=i%3;
@@ -105,6 +123,7 @@ function drawItem(c,it,t){
   if(it.kind==='ricky'){c.save();c.translate(it.x,it.y);drawRicky(c,t,{hop:-B,happy:it.happy});c.restore();return}
   if(it.liveLook){c.save();c.translate(it.x,y+B);c.scale(it.scale||1,it.scale||1);drawPerson(c,it.liveLook);c.restore();return}
   const s=it.spr;if(!s)return;
+  if(s.sx!=null){if(it.flip){c.save();c.translate(it.x,y+B+bob);c.scale(-1,1);c.drawImage(s.c,s.sx,s.sy,s.sw,s.sh,-s.ax,-s.ay,s.w,s.h);c.restore()}else c.drawImage(s.c,s.sx,s.sy,s.sw,s.sh,it.x-s.ax,y+B+bob-s.ay,s.w,s.h);return}
   if(it.flip){c.save();c.translate(it.x,y+B+bob);c.scale(-1,1);c.drawImage(s.c,-s.ax,-s.ay,s.w,s.h);c.restore()}
   else c.drawImage(s.c,it.x-s.ax,y+B+bob-s.ay,s.w,s.h);
 }
@@ -124,4 +143,5 @@ function render(t){
   drawFx(ctx,t);
 }
 // a whole-stage picture for the intro card and the album
+function snapshotInto(x,w,h){const z=Math.max(w/WW,h/WH);renderWorld(x,0,(WW-w/z)/2,(WH-h/z)/2,z,w/z,h/z)}
 function snapshot(w,h){const c=mk(w,h),x=c.getContext('2d');const z=Math.max(w/WW,h/WH);renderWorld(x,0,(WW-w/z)/2,(WH-h/z)/2,z,w/z,h/z);return c}

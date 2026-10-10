@@ -20,11 +20,13 @@ function headOf(who,cv2){const x=cv2.getContext('2d'),S=cv2.width;x.clearRect(0,
 
 function startStage(i){
   G.si=i;const st=STAGES[i];clearBubbles();
+  W=null;
   G.diff=diffFor(i);W=buildWorld(st,(Math.random()*4294967296)>>>0,G.diff);G.assistT=0;G.autoHint=false;
   cam.anim=null;cam.z=zMin();cam.x=(WW-VW/cam.z)/2;cam.y=(WH-VH/cam.z)/2;clampCam();
   G.state='intro';G.t=0;G.hints=0;G.subs={};G.lastHintReady=false;
   $('introNum').textContent='ステージ '+(i+1)+' / '+STAGES.length+(PROG.round>1?'　★'+roundName(PROG.round):'');$('introName').textContent=st.name;$('introText').textContent=st.intro;
-  const ic=$('introPic'),ix=ic.getContext('2d');ix.drawImage(snapshot(600,400),0,0);
+  // the town itself shows through behind the card; the card shows ふうか in this stage's clothes
+  const ic=$('introPic'),ix=ic.getContext('2d');ix.setTransform(1,0,0,1,0,0);ix.clearRect(0,0,ic.width,ic.height);ix.translate(ic.width/2,ic.height-8);ix.scale(2.6,2.6);drawPerson(ix,familyLook(LOOK_FUTAN,st,'futan'));
   $('title').hidden=true;$('album').hidden=true;$('clear').hidden=true;$('pause').hidden=true;$('hud').hidden=true;$('intro').hidden=false;
   $('hudStage').textContent=(i+1)+'. '+st.name;
   headOf('futan',$('hudFutan'));renderSlots();bgmStart(st);
@@ -91,7 +93,7 @@ function foundSub(it){
     toast('リッキー みっけ！<br><span style="font-size:.5em">まほうで まちが おおさわぎ</span>')}
   if(G.state==='hunt'&&SUBS.every(([s])=>G.subs[s]))setTimeout(()=>{toast('みんな みつけた！');setTimeout(showClear,1600)},1800);
 }
-function photoOfView(){const c=mk(300,200),x=c.getContext('2d'),v=viewRect(),z=Math.max(300/v.w,200/v.h);renderWorld(x,NOW,v.x+(v.w-300/z)/2,v.y+(v.h-200/z)/2,z,300/z,200/z);try{return c.toDataURL('image/jpeg',.72)}catch(e){return null}}
+function photoOfView(){const c=mk(300,200),x=c.getContext('2d'),k=Math.max(300/cv.width,200/cv.height),sw=300/k,sh=200/k;x.drawImage(cv,(cv.width-sw)/2,(cv.height-sh)/2,sw,sh,0,0,300,200);try{return c.toDataURL('image/jpeg',.72)}catch(e){return null}}
 function fmtT(t){const m=Math.floor(t/60),s=Math.floor(t%60);return m+':'+String(s).padStart(2,'0')}
 function showClear(){
   G.state='clear';$('hud').hidden=true;const st=W.st,rec=stageRec(st.id),last=G.si===STAGES.length-1;
