@@ -192,10 +192,15 @@ export function openItems(app: App) {
 export function openTactic(app: App) {
   const g = app.game!;
   const p = app.panel('さくせん', (body) => {
-    body.append(h('div', { class: 'small muted' }, '「たたかう」を えらんだ とき、モンスターたちは この さくせんで うごきます。'));
-    const list = h('div', { class: 'win list' });
-    for (const t of TACTICS) list.append(item(h('span', null, t.name, h('br'), h('span', { class: 'small muted' }, t.desc)), () => { g.setTactic(t.id); sfx('ok'); p.refresh(); }, { sel: g.state.player.tactic === t.id }));
-    body.append(list);
+    body.append(h('div', { class: 'small muted' }, '「たたかう」を えらんだ とき、モンスターは それぞれの さくせんで うごきます。'));
+    const row = (label: HTMLElement | string, cur: Tactic | null, set: (t: Tactic) => void) =>
+      h('div', { class: 'win' }, h('h3', null, label), h('div', { class: 'row wrap', style: 'gap:6px' },
+        TACTICS.map((t) => btn(t.short, () => { set(t.id); sfx('ok'); p.refresh(); }, cur === t.id ? 'primary' : ''))));
+    const party = g.party;
+    const all = new Set(party.map((m) => g.tacticOf(m)));
+    body.append(row('みんな', all.size === 1 ? [...all][0] : null, (t) => g.setTactic(t)));
+    for (const m of party) body.append(row(h('span', { class: 'row' }, monIcon(m.speciesId), displayName(m)), g.tacticOf(m), (t) => g.setMonsterTactic(m.id, t)));
+    body.append(h('div', { class: 'win small' }, TACTICS.map((t) => h('div', null, h('span', { class: 'hl' }, t.short), ` … ${t.desc}`))));
   });
 }
 

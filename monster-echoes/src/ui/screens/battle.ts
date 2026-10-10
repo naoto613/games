@@ -9,11 +9,12 @@ import type { App, Key, Screen } from '../App';
 import { btn, clear, h, sleep } from '../dom';
 import { monsterSprite } from '../gfx/monsters';
 import { mkCanvas } from '../gfx/Pix';
+import { BD_H, BD_W, backdrop } from '../gfx/backdrops';
 import { TACTICS, resolvePending } from './menus';
 import { FieldScreen, rewardText } from './field';
 import { STAT_LABEL } from '../components/monster';
 
-const BW = 176, BH = 104;
+const BW = BD_W, BH = BD_H;
 type Pop = { key: string; text: string; color: string; t0: number };
 type View = { hp: number; mp: number; maxHp: number; maxMp: number; dead: boolean; status: string[]; hitT: number; deadT: number };
 
@@ -104,8 +105,9 @@ class BattleScreen implements Screen {
     for (const l of text.split('\n')) this.lines.push(l);
     if (this.lines.length > 40) this.lines.splice(0, this.lines.length - 40);
     clear(this.logEl);
-    const show = this.lines.slice(-4);
-    show.forEach((l, i) => this.logEl.append(h('p', { class: i < show.length - 2 ? 'old' : '' }, l)));
+    const max = Math.max(4, Math.floor((this.logEl.clientHeight - 16) / 24));
+    const show = this.lines.slice(-max);
+    show.forEach((l, i) => this.logEl.append(h('p', { class: i < show.length - 3 ? 'old' : '' }, l)));
   }
 
   private renderParty() {
@@ -127,59 +129,51 @@ class BattleScreen implements Screen {
 
   private enemyPos(c: Combatant) {
     const n = this.st.enemies.length;
-    const big = c.distorted ? 1.5 : 1;
-    return { x: (BW * (c.slot + 1)) / (n + 1), y: 72, s: big };
+    const big = (c.distorted ? 1.3 : 1) * (n === 1 ? 1.3 : n === 2 ? 1.15 : 1);
+    const spread = n === 1 ? 0 : n === 2 ? 90 : 112;
+    return { x: BW / 2 + (n === 1 ? 0 : (c.slot / (n - 1) - 0.5) * 2 * spread), y: 190, s: big };
   }
 
   private draw() {
     const g = this.g;
     const theme = this.session.context.kind === 'arena' ? 'arena' : this.game.state.expedition ? getArea(this.game.state.expedition.areaId).theme : 'forest';
-    const sky = { forest: ['#5a9ad8', '#9ad0f0'], cave: ['#1a1a2a', '#3a3040'], highland: ['#f0a060', '#f8d898'], arena: ['#2a2a5a', '#5a5a9a'] }[theme] ?? ['#5a9ad8', '#9ad0f0'];
-    const ground = { forest: '#4a8a3a', cave: '#5a4a4a', highland: '#9a8a50', arena: '#b8945a' }[theme] ?? '#4a8a3a';
-    const grd = g.createLinearGradient(0, 0, 0, 60);
-    grd.addColorStop(0, sky[0]);
-    grd.addColorStop(1, sky[1]);
-    g.fillStyle = grd;
-    g.fillRect(0, 0, BW, 60);
-    g.fillStyle = ground;
-    g.fillRect(0, 56, BW, BH - 56);
-    g.fillStyle = 'rgba(0,0,0,.15)';
-    for (let x = 0; x < BW; x += 8) g.fillRect(x + ((x / 8) % 2) * 4, 62 + ((x * 7) % 30), 3, 1);
-    if (theme === 'arena') {
-      g.fillStyle = '#3a3a6a';
-      for (let x = 0; x < BW; x += 12) g.fillRect(x, 40, 10, 16);
-    }
+    g.drawImage(backdrop(theme), 0, 0);
     const now = this.frame;
-    for (const e of this.st.enemies) {
+    const order = [...this.st.enemies].sort((a, b) => (a.slot === 1 ? 1 : 0) - (b.slot === 1 ? 1 : 0));
+    for (const e of order) {
       const v = this.views.get(e.key)!;
       if (v.dead && v.deadT >= 0 && now - v.deadT > 24) continue;
       if (v.deadT === -999) continue;
       const p = this.enemyPos(e);
       const sp = monsterSprite(e.speciesId, { distorted: e.distorted });
-      const w = 40 * p.s, hgt = 40 * p.s;
-      const bob = this.app.settings.reduceMotion ? 0 : Math.round(Math.sin((now + e.slot * 20) / 14) * 1.2);
+      const w = 96 * p.s, hgt = 96 * p.s;
+      const bob = this.app.settings.reduceMotion ? 0 : Math.round(Math.sin((now + e.slot * 20) / 14) * 2);
       g.save();
       if (v.dead) g.globalAlpha = Math.max(0, 1 - (now - v.deadT) / 24);
+      g.fillStyle = 'rgba(0,0,0,.28)';
+      g.beginPath();
+      g.ellipse(p.x, p.y - 2, w * 0.32, 7 * p.s, 0, 0, Math.PI * 2);
+      g.fill();
       const hit = now - v.hitT < 16 && Math.floor((now - v.hitT) / 3) % 2 === 0;
-      if (!hit) g.drawImage(sp, Math.round(p.x - w / 2), Math.round(p.y - hgt + 6) + bob, w, hgt);
+      if (!hit) g.drawImage(sp, Math.round(p.x - w / 2), Math.round(p.y - hgt + 4) + bob, w, hgt);
       g.restore();
+      const top = p.y - hgt + 6;
       // なつき（にく）
       const c = this.st.enemies.find((x) => x.key === e.key)!;
       if (c.affection > 0 && !v.dead) {
         const hearts = Math.min(3, Math.ceil(c.affection / 0.2));
-        g.fillStyle = '#ff6a9a';
-        for (let i = 0; i < hearts; i++) {
-          const hx = Math.round(p.x - 8 + i * 6), hy = Math.round(p.y - hgt);
-          g.fillRect(hx, hy, 2, 2); g.fillRect(hx + 3, hy, 2, 2); g.fillRect(hx, hy + 1, 5, 2); g.fillRect(hx + 1, hy + 3, 3, 1); g.fillRect(hx + 2, hy + 4, 1, 1);
-        }
+        for (let i = 0; i < hearts; i++) heart(g, p.x - (hearts - 1) * 9 + i * 18, top - 4 + Math.sin((now + i * 9) / 8) * 1.5);
       }
       if (v.status.length && !v.dead) {
-        g.fillStyle = 'rgba(0,0,0,.6)';
-        g.fillRect(Math.round(p.x - 16), Math.round(p.y + 6), 32, 9);
-        g.fillStyle = '#ffe070';
-        g.font = '8px monospace';
+        g.font = 'bold 12px "DotGothic16", monospace';
         g.textAlign = 'center';
-        g.fillText(v.status[0].slice(0, 4), p.x, p.y + 13);
+        const tw = g.measureText(v.status[0]).width + 10;
+        g.fillStyle = 'rgba(16,18,30,.85)';
+        g.fillRect(Math.round(p.x - tw / 2), Math.round(p.y + 6), Math.round(tw), 16);
+        g.strokeStyle = '#ffe070'; g.lineWidth = 1;
+        g.strokeRect(Math.round(p.x - tw / 2) + 0.5, Math.round(p.y + 6) + 0.5, Math.round(tw) - 1, 15);
+        g.fillStyle = '#ffe070';
+        g.fillText(v.status[0], p.x, p.y + 18);
       }
     }
     // ダメージの数字
@@ -188,12 +182,14 @@ class BattleScreen implements Screen {
       const e = this.st.enemies.find((x) => x.key === pp.key);
       if (!e) continue;
       const p = this.enemyPos(e);
-      g.font = 'bold 10px monospace';
+      const y = p.y - 60 * p.s - Math.min(12, (now - pp.t0) * 1.2);
+      g.font = 'bold 22px "DotGothic16", monospace';
       g.textAlign = 'center';
-      g.fillStyle = '#000';
-      g.fillText(pp.text, p.x + 1, p.y - 22 - (now - pp.t0) / 3 + 1);
+      g.lineWidth = 4;
+      g.strokeStyle = '#140c1c';
+      g.strokeText(pp.text, p.x, y);
       g.fillStyle = pp.color;
-      g.fillText(pp.text, p.x, p.y - 22 - (now - pp.t0) / 3);
+      g.fillText(pp.text, p.x, y);
     }
   }
 
@@ -216,22 +212,43 @@ class BattleScreen implements Screen {
     const st = this.st;
     const hasMeat = ITEM_LIST.some((i) => i.category === 'meat' && (this.game.state.inventory[i.id] ?? 0) > 0);
     const hasItem = ITEM_LIST.some((i) => i.battle && i.category !== 'meat' && (this.game.state.inventory[i.id] ?? 0) > 0);
-    const tac = TACTICS.find((t) => t.id === this.game.state.player.tactic)!;
+    const tset = new Set(this.st.allies.map((c) => c.tactic ?? this.st.tactic));
+    const tacLabel = tset.size === 1 ? TACTICS.find((t) => t.id === [...tset][0])!.short : 'こべつ';
     this.setCmds([
       btn('たたかう', () => this.run({ mode: 'auto', player: { kind: 'none' } }), 'primary'),
       btn('めいれい', () => this.orderPhase([], 0)),
       btn('どうぐ', () => this.itemPhase(), st.canUseItems && hasItem ? '' : 'off'),
       btn('にく', () => this.meatPhase(), st.canRecruit && hasMeat ? '' : 'off'),
-      btn(h('span', { class: 'small' }, 'さくせん', h('br'), h('span', { class: 'hl' }, tac.short)), () => this.tacticPhase()),
+      btn(h('span', { class: 'small' }, 'さくせん', h('br'), h('span', { class: 'hl' }, tacLabel)), () => this.tacticPhase()),
       btn('にげる', () => this.run({ mode: 'auto', player: { kind: 'escape' } }), st.canEscape ? '' : 'off'),
     ]);
     for (const b of this.cmds.querySelectorAll('.off')) (b as HTMLButtonElement).disabled = true;
   }
 
+  /** さくせん: みんなまとめて、または 1体ずつ */
   private tacticPhase() {
+    const allies = this.st.allies;
+    const short = (c: Combatant) => TACTICS.find((t) => t.id === (c.tactic ?? this.st.tactic))!.short;
     this.setCmds([
-      ...TACTICS.map((t) => btn(h('span', { class: 'small' }, t.name), () => { this.game.setTactic(t.id); this.st = { ...this.st, tactic: t.id }; this.game.battle!.state.tactic = t.id; sfx('ok'); this.log(`さくせんを「${t.name}」に した。`); this.commandPhase(); }, this.game.state.player.tactic === t.id ? 'primary' : '')),
+      btn(h('span', { class: 'small' }, 'みんな'), () => this.tacticPick(null)),
+      ...allies.map((c, i) => btn(h('span', { class: 'small' }, c.name, h('br'), h('span', { class: 'hl' }, short(c))), () => this.tacticPick(i))),
       btn('もどる', () => this.commandPhase()),
+    ], 'two');
+  }
+  private tacticPick(i: number | null) {
+    const c = i === null ? null : this.st.allies[i];
+    const cur = c ? (c.tactic ?? this.st.tactic) : null;
+    this.log(c ? `${c.name}の さくせんは？` : 'みんなの さくせんは？');
+    this.setCmds([
+      ...TACTICS.map((t) => btn(h('span', { class: 'small' }, t.name), () => {
+        if (c?.instanceId) this.game.setMonsterTactic(c.instanceId, t.id);
+        else this.game.setTactic(t.id);
+        this.st = this.game.battle!.state;
+        sfx('ok');
+        this.log(`${c ? c.name + 'の ' : 'みんなの '}さくせんを「${t.name}」に した。`);
+        this.tacticPhase();
+      }, cur === t.id ? 'primary' : '')),
+      btn('もどる', () => this.tacticPhase()),
     ], 'two');
   }
 
@@ -385,6 +402,18 @@ class BattleScreen implements Screen {
     await sleep(ev.t === 'act' ? this.delay * 0.6 : this.delay);
   }
 
+  /** パーティが いっぱいのとき、だれと 入れかえるか えらぶ */
+  private async offerSwap(newId: string, name: string) {
+    const party = this.game.party;
+    const c = await this.app.ask(`パーティは いっぱいだ。${name}を つれていきますか？`, [...party.map((m) => `${m.nickname || getSpecies(m.speciesId).name} と いれかえる`), `${name}は ぼくじょうへ おくる`], { cancel: false });
+    if (c < 0 || c >= party.length) return this.app.say(`${name}は ぼくじょうへ おくられた。`);
+    const out = party[c];
+    const r = this.game.swapIntoParty(newId, out.id);
+    if (!r.ok) return this.app.say(r.error);
+    sfx('ok');
+    await this.app.say(`${name}が パーティに くわわった！\n${out.nickname || getSpecies(out.speciesId).name}は ぼくじょうへ おくられた。`);
+  }
+
   // ---------------------------------------------------------------- 戦闘のおわり
   private async end() {
     const outcome = this.st.outcome!;
@@ -424,7 +453,8 @@ class BattleScreen implements Screen {
           if (r.ok) {
             sfx('recruit');
             const inParty = this.game.state.partyIds.includes(r.value.id);
-            await say(`${rc.name}が なかまに なった！${inParty ? '' : '\n（ぼくじょうに おくられた）'}`);
+            await say(`${rc.name}が なかまに なった！`);
+            if (!inParty) await this.offerSwap(r.value.id, rc.name);
           } else await say(r.error);
         } else await say(`${rc.name}は さびしそうに さっていった…。`);
       }
@@ -444,6 +474,14 @@ class BattleScreen implements Screen {
     if (this.after) return this.after(sum);
     this.app.show(new FieldScreen(this.app));
   }
+}
+
+function heart(g: CanvasRenderingContext2D, x: number, y: number) {
+  g.fillStyle = '#1a0a14';
+  g.beginPath(); g.arc(x - 3.5, y - 1, 5, 0, Math.PI * 2); g.arc(x + 3.5, y - 1, 5, 0, Math.PI * 2); g.moveTo(x - 8.5, y); g.lineTo(x, y + 9); g.lineTo(x + 8.5, y); g.fill();
+  g.fillStyle = '#ff5a8a';
+  g.beginPath(); g.arc(x - 3.5, y - 1, 3.6, 0, Math.PI * 2); g.arc(x + 3.5, y - 1, 3.6, 0, Math.PI * 2); g.moveTo(x - 7, y); g.lineTo(x, y + 7); g.lineTo(x + 7, y); g.fill();
+  g.fillStyle = '#ffd0e0'; g.fillRect(x - 5, y - 3, 2, 2);
 }
 
 export const itemName = (id: string) => getItem(id).name;

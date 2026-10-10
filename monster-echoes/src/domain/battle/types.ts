@@ -34,6 +34,14 @@ export type Combatant = {
   expYield: number;
   goldYield: number;
   distorted: boolean;
+  /** このモンスターの作戦（未設定ならパーティ全体の作戦） */
+  tactic?: Tactic;
+  /** この戦闘で回復・蘇生を使った回数（敵の回復しすぎを防ぐ） */
+  healsUsed: number;
+  /** 特技ごとの使用回数（敵が同じ補助特技を連発しないように） */
+  used: Record<string, number>;
+  /** 状態異常にかかった回数（かかるほど耐性がつく） */
+  statusHits: number;
 };
 
 export type BattleKind = 'wild' | 'boss' | 'arena';

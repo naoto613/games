@@ -45,7 +45,7 @@ export const BALANCE = {
     speedVarianceMin: 0.8,
     poisonDamageRate: 1 / 10,
     sleepTurns: [2, 4] as [number, number],
-    paralysisTurns: [2, 4] as [number, number],
+    paralysisTurns: [1, 3] as [number, number],
     confusionTurns: [2, 4] as [number, number],
     /** 耐性レベル → ダメージ倍率 */
     elementMultiplier: { '-1': 1.5, '0': 1, '1': 0.6, '2': 0.3, '3': 0 } as Record<string, number>,
@@ -55,6 +55,12 @@ export const BALANCE = {
     disobeyPerWildness: 0.006,
     maxDisobey: 0.5,
     /** 敵が「いちばん良い行動」ではなく気まぐれに行動する確率 */
+    /** 敵の回復: HPがこの割合を下回るまで回復しない／回復の重み／1回使うごとの減衰 */
+    enemyHeal: { threshold: 0.35, weight: 0.6, decay: 0.4 },
+    /** 同じ戦闘で状態異常にかかるたびに、次にかかる確率に掛ける値 */
+    statusRepeatFactor: 0.6,
+    /** 敵が同じ補助・状態異常の特技を使うたびに評価に掛ける値 */
+    enemyRepeatFactor: 0.6,
     enemyWhim: { wild: 0.35, boss: 0.15, arena: 0.2 } as Record<string, number>,
   },
   /** 野生のモンスターは育てたモンスターより少し弱い */
