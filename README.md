@@ -3,6 +3,7 @@
 ブラウザで遊べるゲームを GitHub Pages で公開するリポジトリです。
 
 - 一覧ページ: https://naoto613.github.io/games/
+- もりのいたずら日和: https://naoto613.github.io/games/mori-itazura/
 - こっそりトレジャー: https://naoto613.github.io/games/kossori-treasure/
 - ふーちゃんのまち: https://naoto613.github.io/games/fuchan-town/
 - キュアふーたん サバイバー: https://naoto613.github.io/games/futan-survivor/
@@ -36,6 +37,13 @@
 ├── thumbs/                 # 一覧ページ用サムネイル（<ゲームフォルダ名>.jpg、800×500）
 ├── .nojekyll               # Jekyll 処理を無効化（ファイルをそのまま配信）
 ├── README.md
+├── mori-itazura/
+│   ├── index.html          # もりのいたずら日和（企画・詳細設計書どおりの 3D 探索アドベンチャー。スマホ／タブレットの Chrome 向け。森の小動物「コロ」でキャンプ場を自由に歩き、食べ物集め・いたずら・変装・買い物・アルバイト・つり・ボート・たき火料理・宝さがし。NPC 7 人は日常ルーチンと視界（距離・視野角・遮蔽物の高さ）・警戒度 0〜100（?→!）で 警戒→調査→追跡→帰還 し、つかまると持ち物を 1 つ失っておうちへ戻る。茂み・テーブルの下に隠れられる。昼夜の変化、BGM（ひる・ゆうがた・よる・おいかけっこで切り替わり、警戒されるとこもる）と効果音・環境音（鳥・虫・たき火・水辺）・セリフのおしゃべり声はすべて Web Audio で合成、データ駆動のクエスト 10 本・図鑑・実績、IndexedDB セーブ（バージョン移行つき）。three.js：区画ごとに結合した頂点カラーのモデル、やわらかい影、主人公の手前を透かすディザ、チルトシフト風ぼかし、画質の自動調整）
+│   ├── game.js             # ビルド済み成果物（src から esbuild で生成）
+│   ├── src/                # TypeScript＋React のソース（設計書 14.2 の構成：app・components/game-ui・game/{core,world,entities,systems,render,content}）
+│   ├── tests/              # Vitest（当たり判定・経路・視界と警戒度・クエスト・会話・経済・セーブ）
+│   ├── tools/shot.mjs      # 実ブラウザ（Playwright）でのスクリーンショット確認
+│   └── package.json        # npm install → npm run build / npm test / npm run typecheck
 ├── obake-rusuban/
 │   ├── index.html          # おばけのるすばん（新しい企画書どおりの、加減を楽しむ ほのぼのおどかしアクション。3D ドールハウスの家に 放課後 遊びに来た 子どもたちを、物に乗り移った ぽわが「ちょうどいいドキドキ」で驚かせる。1回の訪問 約5分（15:30→17時のチャイム）、四季×4回＝全16回。操作は 乗り移る（白い○をタップ）・驚かせる（軽く押す＝小、長押し＝大）。子どもの頭上のドキドキメーターの緑の帯にいる時間で★1〜3、振り切れると泣いて帰り、低いままだと退屈して別の部屋へ。見られている物を動かすと「あやしい」、3回で 60秒の おばけさがし（触られる・目の前で移ると捕まる、押し入れやこたつは見つかりにくいが入り口をふさがれる、猫のもなかで1回ごまかせる）。子ども4人（怖がりのそうた・強がりのひなた・好奇心のみお・よく寝るけんと）、季節ごとの模様替え（ひな人形/こいのぼり、扇風機/風鈴/すだれ/停電、ハロウィン/本棚/明かり、こたつ/ツリー/雪だるま/ダブル）、各季節の 模様替えの日・かくれんぼの日・おばけ屋敷ごっこの日、★3で次回は友だちが増える、びっくりアルバムと ぽわの部屋（忘れもの）、冬の最後に みかんのエンディング。ビルド済み成果物。`?headless` と `DBG.botRun(回)` で自動プレイ）
 │   ├── build.py            # src/*.js を連結して index.html を生成
@@ -123,6 +131,7 @@
 
 各ゲームは `<ゲーム名>/index.html` の 1 フォルダ 1 ゲーム構成で、置いた HTML がそのまま配信されます。
 `fuchan-town`・`fuchan-hospital`・`cure-tantei`・`chibikko-auto`・`futan-quest`・`futan-takuto`・`futan-kitchen`・`fumon-ruby`・`stella-noctis`・`obake-rusuban` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
+`mori-itazura` は TypeScript なので、`cd mori-itazura && npm install && npm run build` で `game.js` を再生成してからコミットしてください（`npm test` でテスト）。
 
 ## ゲームの追加方法
 
