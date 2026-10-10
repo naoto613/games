@@ -138,6 +138,21 @@ export function openDetail(app: App, id: string, opts: { viewOnly?: boolean } = 
   });
 }
 
+/** あたらしい なかま: ステータス・せいべつを みながら、その場で なまえを つける（閉じるまで待つ） */
+export function welcomeMonster(app: App, id: string, title: string): Promise<void> {
+  const g = app.game!;
+  const m = g.monster(id);
+  if (!m) return Promise.resolve();
+  const input = h('input', { class: 'name', maxlength: 8, value: m.nickname ?? '', placeholder: `${displayName(m)}（そのまま）` }) as HTMLInputElement;
+  const nameBox = h('div', { class: 'win' }, h('h3', null, 'なまえを つける'), input, h('div', { class: 'small muted' }, '8もじまで。からっぽなら しゅぞくの なまえの まま。あとから「つよさ」でも かえられます。'));
+  return new Promise((resolve) => {
+    const p = app.panel(title, (body, foot) => {
+      body.append(nameBox, monsterDetailBody(g.monster(id) ?? m));
+      foot.append(btn('けってい', () => { if (input.value.trim()) g.rename(id, input.value); sfx('ok'); p.close(); }, 'primary grow'));
+    }, { onClose: () => resolve(), noBack: true });
+  });
+}
+
 /** なまえを つける（パネルを閉じるまで待つ） */
 export function askName(app: App, id: string): Promise<void> {
   const g = app.game!;

@@ -10,7 +10,7 @@ import { btn, clear, h, sleep } from '../dom';
 import { monsterSprite } from '../gfx/monsters';
 import { mkCanvas } from '../gfx/Pix';
 import { BD_H, BD_W, backdrop } from '../gfx/backdrops';
-import { TACTICS, askName, resolvePending } from './menus';
+import { TACTICS, welcomeMonster, resolvePending } from './menus';
 import { FieldScreen, rewardText } from './field';
 import { STAT_LABEL } from '../components/monster';
 
@@ -454,8 +454,9 @@ class BattleScreen implements Screen {
             sfx('recruit');
             const inParty = this.game.state.partyIds.includes(r.value.id);
             await say(`${rc.name}が なかまに なった！`);
-            if (await this.app.confirm(`${rc.name}に なまえを つけますか？`, 'つける', 'あとで')) await askName(this.app, r.value.id);
-            if (!inParty) await this.offerSwap(r.value.id, rc.name);
+            await welcomeMonster(this.app, r.value.id, 'あたらしい なかま');
+            const nm = this.game.monster(r.value.id)?.nickname || rc.name;
+            if (!inParty) await this.offerSwap(r.value.id, nm);
           } else await say(r.error);
         } else await say(`${rc.name}は さびしそうに さっていった…。`);
       }

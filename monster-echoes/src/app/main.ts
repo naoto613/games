@@ -3,6 +3,7 @@ import css from '../ui/styles.css';
 import { IndexedDbSaveRepository } from '../infrastructure/save/IndexedDbSaveRepository';
 import { MemorySaveRepository, type SaveRepository } from '../infrastructure/save/SaveRepository';
 import { TitleScreen } from '../ui/screens/title';
+import { startBattle } from '../ui/screens/battle';
 import { setSoundEnabled } from '../infrastructure/audio/Sound';
 
 async function boot() {
@@ -31,6 +32,8 @@ async function boot() {
   } catch { /* ignore */ }
   if (save) setSoundEnabled(save.settings.sound);
   app.show(new TitleScreen(app, save, error));
-  (window as unknown as { app: App }).app = app;
+  // 開発・自動テスト用
+  (window as unknown as { app: App; __debug: unknown }).app = app;
+  (window as unknown as { __debug: unknown }).__debug = { startBattle };
 }
 boot();
