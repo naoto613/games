@@ -1,5 +1,5 @@
-/* map.js — マップ（模式図）表示・施設マーカー・カテゴリフィルター・選択と強調・拡大縮小と移動
-   位置は相対座標（0〜1）。位置が確認できない施設（x/y が null）はマップに置かず、下の一覧から詳細へ進める。 */
+/* map.js — 「マップ」タブ：検索・しぼりこみ・園内の略図（拡大縮小と移動）・その下に施設の一覧
+   位置は相対座標（0〜1）。位置が分からない施設（x/y が null）は地図に置かず、一覧にだけ出す。 */
 (function () {
   'use strict';
   var h = HL.h;
@@ -7,8 +7,20 @@
   var MAP_RATIO = 0.674; // 画像の 縦/横（assets/map-base.svg の viewBox 1000×674）
   var MIN_S = 1, MAX_S = 4;
 
+  // しぼりこみ（カテゴリをまとめて 5 つに）
+  var GROUPS = [
+    { id: 'all', label: 'すべて', test: function () { return true; } },
+    { id: 'ride', label: '🎡 のりもの', test: function (f) { return f.category === 'attraction'; } },
+    { id: 'chara', label: '🎪 ショー・キャラ', test: function (f) { return f.category === 'show' || f.category === 'greeting' || f.category === 'photo'; } },
+    { id: 'food', label: '🍽️ 食べる・買う', test: function (f) { return f.category === 'restaurant' || f.category === 'shop'; } },
+    { id: 'baby', label: '🍼 赤ちゃん・トイレ・サービス', test: function (f) { return f.category === 'family' || f.category === 'service'; } },
+    { id: 'rain', label: '☔ 雨・風で運休', test: function (f) { return HL.rainSuspended(f) || HL.windSuspended(f); } },
+    { id: 'kids', label: '👧 年齢でOK', test: function (f) {
+      return f.category === 'attraction' && HL.childAges().every(function (a) { var e = HL.eligibility(f, a); return e && (e.level === 'ok' || e.level === 'guardian'); });
+    } }
+  ];
   // 画面をまたいで保つ表示状態
-  var view = { hidden: {}, q: '' };
+  var view = { g: 'all', q: '' };
 
   function hasPos(f) { return f.location && typeof f.location.x === 'number' && typeof f.location.y === 'number'; }
   function hasTimedShow(f) {
@@ -20,18 +32,19 @@
     if (err) main.appendChild(err);
     var focusId = r.params.focus || '';
     var focus = focusId ? HL.facility(focusId) : null;
+    if (r.params.f) view.g = r.params.f;
+    if (r.params.q != null) view.q = r.params.q;
+    if (focus) { view.g = 'all'; view.q = ''; }
 
-    /* --- 検索・カテゴリ --- */
-    var input = h('input', { class: 'search', type: 'search', placeholder: '施設名で検索', 'aria-label': 'マップの施設を検索', value: view.q, autocomplete: 'off' });
-    var chips = h('div', { class: 'chips', role: 'group', 'aria-label': '表示するカテゴリ' });
-    HL.CATEGORIES.forEach(function (c) {
-      var n = HL.data.facilities.filter(function (f) { return f.category === c.id; }).length;
-      chips.appendChild(h('button', { class: 'chip', type: 'button', 'aria-pressed': String(!view.hidden[c.id]), 'data-c': c.id,
-        style: { borderColor: view.hidden[c.id] ? '' : c.color },
-        text: c.icon + ' ' + c.label + '（' + n + '）',
-        onclick: function (e) {
-          view.hidden[c.id] = !view.hidden[c.id];
-          e.currentTarget.setAttribute('aria-pressed', String(!view.hidden[c.id]));
+    /* --- 検索・しぼりこみ --- */
+    var input = h('input', { class: 'search', type: 'search', placeholder: '🔎 名前でさがす（例：トイレ、ファンスタジオ）', 'aria-label': '施設をさがす', value: view.q, autocomplete: 'off' });
+    var chips = h('div', { class: 'chips', role: 'group', 'aria-label': 'しぼりこみ' });
+    GROUPS.forEach(function (g) {
+      if (g.id === 'kids' && !HL.childAges().length) return;
+      chips.appendChild(h('button', { class: 'chip', type: 'button', 'aria-pressed': String(view.g === g.id), 'data-g': g.id, text: g.label,
+        onclick: function () {
+          view.g = g.id;
+          Array.prototype.forEach.call(chips.children, function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-g') === view.g)); });
           refresh();
         } }));
     });
@@ -53,29 +66,21 @@
 
     img.addEventListener('error', function () {
       wrap.replaceChildren(h('div', { class: 'card warn' }, 'マップ画像を読み込めませんでした。',
-        h('div', { class: 'btn-row' }, h('a', { class: 'btn', href: '#list', text: '施設一覧から探す' }))));
+        h('div', { class: 'small', text: '下の一覧から探せます。' })));
     });
 
-    var legend = h('div', { class: 'legend' },
-      h('span', null, '🎫 整理券・受付'), h('span', null, '⏰ ショー会場'), h('span', null, '☔ 雨天運休'), h('span', null, '🌬 強風時運休'),
-      h('span', null, '推定 = 番号からの推定位置（点線）'), h('span', null, '灰色の番号 = 施設名と未対応'), h('span', null, '休止 = 休止・中止'));
-    var quickFind = h('div', { class: 'chips', 'aria-label': 'すぐ探す' },
-      h('a', { class: 'chip', href: '#list?f=family', text: '🚻 トイレ・授乳室' }),
-      h('a', { class: 'chip', href: '#info', text: 'ℹ️ 貸し出し・迷子' }),
-      h('a', { class: 'chip', href: '#tickets', text: '🎫 整理券の受付場所' }),
-      h('a', { class: 'chip', href: '#list?f=rain', text: '☔ 雨天運休' }));
+    var legend = h('details', { class: 'legend-fold' }, h('summary', { text: '地図の見かた' }),
+      h('p', { class: 'small', text: '利用者提供の園内マップ画像から位置を読み取って独自に描いた略図です（縮尺・道は正確ではありません。元の画像は載せていません）。' }),
+      h('p', { class: 'small', text: '点線のピン「推定」＝地図の番号から推定した位置。灰色の番号＝施設名が分からない番号。🎫 整理券・受付　⏰ ショー会場　☔ 雨天運休　🌬 強風時運休。' }));
 
-    var listBox = h('div');
+    var listBox = h('div', { class: 'list' });
+    var countLine = h('h2', { class: 'section-title' });
 
     main.appendChild(input);
     main.appendChild(chips);
     main.appendChild(wrap);
     main.appendChild(legend);
-    main.appendChild(quickFind);
-    var src = HL.source('source-digital-map');
-    main.appendChild(h('div', { class: 'card note small' },
-      'このマップは、利用者提供の園内マップ画像からエリアと施設のおおよその位置を読み取って独自に作図した略図です（元の画像は掲載していません）。地図上に名前が書かれていた施設は実線、番号と公式一覧の順番から推定した施設は点線の「推定」で表示します。トイレ・授乳室など位置が分からない施設は下の一覧から探せます。現在地からの経路案内には対応していません。',
-      src ? HL.extLink(src.url, '園内の位置は外部のデジタルマップで確認（公式提供かは未確認）', { block: true, official: false }) : null));
+    main.appendChild(countLine);
     main.appendChild(listBox);
 
     /* --- 変換（パン・ズーム） --- */
@@ -156,23 +161,19 @@
 
     /* --- マーカーとポップアップ --- */
     function visible(f) {
-      if (view.hidden[f.category]) return false;
-      if (view.q.trim() && HL.norm(f.name).indexOf(HL.norm(view.q)) < 0 && HL.norm(f.area || '').indexOf(HL.norm(view.q)) < 0) return false;
+      var g = GROUPS.filter(function (x) { return x.id === view.g; })[0] || GROUPS[0];
+      if (g.id === 'kids' && !HL.childAges().length) g = GROUPS[0];
+      if (!g.test(f)) return false;
+      if (view.q.trim()) {
+        var q = HL.norm(view.q);
+        return [f.name, f.area, f.description, HL.cat(f.category).label].concat(f.tags || []).some(function (t) { return t && HL.norm(t).indexOf(q) >= 0; });
+      }
       return true;
     }
     function showPopup(f) {
-      var c = HL.cat(f.category), st = HL.facilityStatus(f);
-      popup.replaceChildren(h('div', { class: 'card' },
-        h('h3', { text: c.icon + ' ' + f.name }),
-        h('div', { class: 'badges' }, HL.statusBadge(st, '当日：' + HL.STATUS[st].label),
-          f.location.positionStatus === 'reference' ? h('span', { class: 'badge st-unconfirmed', text: '📍 推定位置' }) : null,
-          HL.needsAdmission(f) ? h('span', { class: 'badge req', text: '🎫 整理券・受付が必要' }) : null,
-          HL.rainSuspended(f) ? h('span', { class: 'badge st-unconfirmed', text: '☔ 雨天運休' }) : null,
-          HL.windSuspended(f) ? h('span', { class: 'badge st-unconfirmed', text: '🌬 強風時運休' }) : null,
-          HL.eligibilityBadges(f)),
-        h('p', { class: 'small', style: { margin: '4px 0' }, text: f.description || '' }),
-        h('div', { class: 'btn-row' }, h('a', { class: 'btn small', href: '#facility/' + f.id, text: '詳細を見る' }),
-          h('button', { class: 'btn small ghost', type: 'button', text: '閉じる', onclick: function () { popup.hidden = true; select(null); } }))));
+      popup.replaceChildren(h('div', { class: 'card popup-card' },
+        HL.row({ kind: 'facility', o: f }, { sub: h('span', { class: 'row-sub', text: (f.location.positionStatus === 'reference' ? '📍推定位置・' : '') + (f.area || '') }) }),
+        h('button', { class: 'popup-close', type: 'button', 'aria-label': '閉じる', text: '×', onclick: function () { popup.hidden = true; select(null); } })));
       popup.hidden = false;
     }
     var selected = null;
@@ -210,18 +211,19 @@
         (f.location.extraPoints || []).forEach(function (p) { ms.push(marker(f, p)); });
       });
       markerLayer.replaceChildren.apply(markerLayer, ms);
-      var unplaced = HL.data.facilities.filter(function (f) { return !hasPos(f) && visible(f); });
-
-      if (!placed.length) {
-        msg.hidden = false;
-        msg.textContent = '位置が確認できた施設はまだありません。施設は下の一覧から探せます。';
-      } else msg.hidden = true;
-
-      listBox.replaceChildren(
-        h('h2', { class: 'section-title', text: '位置未確認の施設（' + unplaced.length + '件）' }),
-        h('p', { class: 'small muted', style: { margin: '-4px 4px 8px' }, text: '位置が確認できないため、マップには表示していません。詳細は各施設から確認できます。' }));
-      if (!unplaced.length) listBox.appendChild(h('p', { class: 'empty', text: '該当する施設はありません' }));
-      unplaced.forEach(function (f) { listBox.appendChild(HL.facilityCard(f, { highlight: focus && focus.id === f.id, anchor: true })); });
+      var all = HL.data.facilities.filter(visible);
+      countLine.textContent = '一覧（' + all.length + '件）';
+      listBox.replaceChildren();
+      if (!all.length) listBox.appendChild(h('p', { class: 'empty', text: '該当する施設はありません' }));
+      all.forEach(function (f) {
+        var pin = hasPos(f)
+          ? h('button', { class: 'pin-btn', type: 'button', 'aria-label': f.name + 'を地図で見る', text: '📍', onclick: function () {
+            centerOn(f); select(f.id); showPopup(f); wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } })
+          : h('span', { class: 'pin-btn none', title: '地図の位置は未確認', text: '－' });
+        listBox.appendChild(HL.row({ kind: 'facility', o: f }, { highlight: focus && focus.id === f.id, anchor: true, extra: pin }));
+      });
+      if (view.g === 'kids') listBox.appendChild(h('p', { class: 'small muted hint', text: '公式一覧の年齢条件に当てはまらないのりもの（保護者同伴を含む）。身長・体重・当日の運行は含みません。' }));
     }
 
     input.addEventListener('input', function () { view.q = input.value; refresh(); });
@@ -233,8 +235,8 @@
         if (focus && hasPos(focus) && visible(focus)) { centerOn(focus); select(focus.id); showPopup(focus); }
         else {
           msg.hidden = false;
-          msg.textContent = focus ? '「' + focus.name + '」の位置は未確認のため、マップに表示できません。下の一覧で強調しています。' : 'この場所の位置は未確認です。';
-          var el = document.getElementById('fac-' + focusId);
+          msg.textContent = focus ? '「' + focus.name + '」の地図の位置は分かっていません。下の一覧で強調しています。' : 'この場所の位置は分かっていません。';
+          var el = document.getElementById('row-' + focusId);
           if (el) setTimeout(function () { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300);
         }
       }
