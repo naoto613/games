@@ -25,6 +25,9 @@
 - STELLA NOCTIS ─宵星のレガリア─: https://naoto613.github.io/games/stella-noctis/
 - ひとり人狼 〜月影の村〜: https://naoto613.github.io/games/hitori-jinro/
 - ひらめき スープ屋: https://naoto613.github.io/games/hirameki-soup/
+- ちょっかいスナップ: https://naoto613.github.io/games/chokkai-snap/
+- おせっかい横丁: https://naoto613.github.io/games/osekkai-yokocho/
+- おばけのるすばん: https://naoto613.github.io/games/obake-rusuban/
 
 ## 構成
 
@@ -41,6 +44,22 @@
 │   ├── tests/              # Vitest（当たり判定・経路・視界と警戒度・クエスト・会話・経済・セーブ）
 │   ├── tools/shot.mjs      # 実ブラウザ（Playwright）でのスクリーンショット確認
 │   └── package.json        # npm install → npm run build / npm test / npm run typecheck
+├── obake-rusuban/
+│   ├── index.html          # おばけのるすばん（企画書どおりの 3D 連鎖イベント×かくれんぼ アクションパズル。手前の壁と屋根を取り払った 3D ドールハウス（2階建て・庭・物置）を斜め上から見下ろし、視点は 90度ずつ回転・1F/2F/全体（2階を後ろに持ち上げた分解表示）・壁を透かす・部屋ダブルタップでズーム。1日は 朝のお題（家族の会話）→ 仕込み（留守中、家具・家電に乗り移って異変を仕込む。ふしぎ力の上限あり）→ 連鎖（家族5人＋猫が generator で書いた習慣どおりに動き、異変×習慣×反応で出来事がつながる。途中で異変を足して誘導できる）→ かくれんぼ（疑いゲージ＝頭上の「？」、満タンで「！」の捜索モード。父=しつこく1つずつ調べる、母=片付けながら、姉=スマホのカメラの円錐、弟=懐中電灯、祖母=触って温かさ。乗り移りは ぬいぐるみ/カーテン/掃除ロボット/急須などで隠れやすさが違い、押し入れ・冷蔵庫など中に入ると足音だけになる。猫に乗り移って「猫のしわざ」1日1回）→ 夜の振り返り（夕食の会話・家全体を引いた連鎖リプレイ・お題/かくれんぼ/連鎖の3評価・隠しお題・おばあちゃんの異変日記に挿絵つきで記録）。家族は視界（壁で切れる扇形）と音（隣室・真下の部屋に届く、ドアで減衰）で反応し、出来事は部屋の間を点線でつなぎ 5つ以上で金色。全14日（1〜3日目 1階、4〜7日目 2階、8〜10日目 模様替え＋庭と物置、11〜13日目 すれ違い、14日目 家族全員を和室に集めるとエンディング）＋クリア後の「自由な日」。見つかったら 帰宅から／仕込みから やりなおし。BGM・効果音は合成、セーブは localStorage。ビルド済み成果物。`?headless` と `DBG.simRun(day, plan)` で 1日を高速シミュレーション）
+│   ├── build.py            # src/*.js を連結して index.html を生成
+│   ├── three.min.js        # three.js r149（futan-kitchen と同じもの）
+│   └── src/                # ソース（00 描画基盤・角丸ボックス・テクスチャ、05 おと、10 間取り・ドア・動線・視線、12 家と家具の 3D、15 乗り移れる物と異変、20 家族・猫・ぽわのモデル、30 世界の状態・連鎖（点線）・知覚・音、35 家族の行動（generator）と捜索、40 ぽわ（乗り移り・異変・見つかり判定）と猫、45/46 習慣と各日の連鎖ルール、50 14日分のお題・会話・日記、55 カメラ・光の時間帯・視界の扇形、60 HUD・吹き出し・入力、65 会話・ふりかえり・日記、70 進行・メインループ）
+├── osekkai-yokocho/
+│   ├── index.html          # おせっかい横丁（詳細設計書どおりのモバイル Chrome 縦向けの観察型アドベンチャー。住人3人・アイテム3つ・1ステージ「商店街の小さな演奏会」。タップでアイテム→対象を選ぶと、状態遷移とイベントキューで連鎖が1件ずつ再生される。パン紹介は4ルートで結末が変化、空振りにも反応。絵はすべて art.js の SVG（アイソメトリックのジオラマ風の町・全身の住人の状態別ポーズ・アイテム）で、絵文字は使わない。イベントでは アイテムの手渡し・振り向き・反応のしるし・音符が流れる演出があり、演奏会では見物人（喫茶のマスター・おばあさん・ねこ）が集まる。できごとは下のパネルに重ね、セリフは話し手の近くの小さな吹き出しに出す。ビルド不要、file:// でも動く通常の script 読み込み）
+│   ├── styles/main.css
+│   └── scripts/            # stage-data（ステージ定義・イベント・反応）、art（SVG イラスト：町・建物・植栽・住人・アイテム）、game-state、game-rules、event-engine、input-controller、ui-renderer、main
+├── chokkai-snap/
+│   ├── index.html          # ちょっかいスナップ（PS2『リモココロン』型の「観察→画像を取り込む→ちょっかい→連鎖」ゲームを詳細設計書どおりに再構築。スマホ／タブレットの Chrome 向けタッチ操作。6ステージ・全323イベントをデータ駆動で定義し、条件エンジン・排他分岐・連鎖・時間切れ終端・図鑑・リプレイ・IndexedDB セーブ・ヒント・難易度・アクセシビリティ設定・デバッグツール（Inspector／Condition Debugger／イベントグラフ／Play Event）つき。ビルド不要の ES Modules）
+│   ├── js/engine/          # DOM 非依存のエンジン（条件・ランタイム・正規化・検証／到達可能性ソルバー）
+│   ├── js/game/            # 描画・入力・音・セーブ・UI
+│   ├── js/content/         # ステージデータ s1〜s6・チュートリアル（書き方は docs/content-format.md）
+│   ├── tools/validate.mjs  # 全ステージの検証＋全イベント到達可能性（node tools/validate.mjs）
+│   └── tests/              # node tests/run.mjs（ユニット・S1 テストケース・全終端）、tests/e2e.mjs（Playwright）
 ├── hitori-jinro/
 │   └── index.html          # ひとり人狼 〜月影の村〜（ひとりで遊ぶ 9 人村の人狼ゲーム。人狼2・占い・霊媒・騎士・狂人・村人3、CPU 8 人は人狼の組み合わせ 36 通りを全列挙して CO・結果・投票・かばい合い（ライン）・印象から推理。性格（論理/感情/直感）・表情・好感度・恨みを持ち、プレイヤーへの質問・弁明・説得・嘘の指摘、人狼の仲間かばい・口すべり・仕草などのボロ、人狼プレイヤーの相棒への作戦指示、終了後の感想戦あり。単一 HTML で完結。`?auto` で自動対戦シミュレーション（`runSim(n)`））
 ├── kossori-treasure/
@@ -111,7 +130,7 @@
 ```
 
 各ゲームは `<ゲーム名>/index.html` の 1 フォルダ 1 ゲーム構成で、置いた HTML がそのまま配信されます。
-`fuchan-town`・`fuchan-hospital`・`cure-tantei`・`chibikko-auto`・`futan-quest`・`futan-takuto`・`futan-kitchen`・`fumon-ruby`・`stella-noctis` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
+`fuchan-town`・`fuchan-hospital`・`cure-tantei`・`chibikko-auto`・`futan-quest`・`futan-takuto`・`futan-kitchen`・`fumon-ruby`・`stella-noctis`・`obake-rusuban` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
 `mori-itazura` は TypeScript なので、`cd mori-itazura && npm install && npm run build` で `game.js` を再生成してからコミットしてください（`npm test` でテスト）。
 
 ## ゲームの追加方法
