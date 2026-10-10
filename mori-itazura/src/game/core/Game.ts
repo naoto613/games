@@ -33,6 +33,8 @@ import { AIBehaviorSystem } from '../systems/AIBehaviorSystem';
 import { DialogueSystem } from '../systems/DialogueSystem';
 import { FishingSystem, Catch } from '../systems/FishingSystem';
 import { TimeOfDay } from '../systems/TimeOfDay';
+import { AudioSystem, Mood, Surface } from '../systems/AudioSystem';
+import { onDock, pathFactor, lakeSdf } from '../world/Terrain';
 import { CondCtx } from '../systems/Conditions';
 import { NPCS, canTalk } from '../content/characters/npcs';
 import { QUESTS, ACHIEVEMENTS } from '../content/quests/quests';
@@ -65,6 +67,12 @@ export class Game {
   dialogue!: DialogueSystem;
   fishing = new FishingSystem();
   tod = new TimeOfDay();
+  audio = new AudioSystem();
+  private lastInd = new Map<string, string>();
+  private lastPhase = 0;
+  private wasAir = false;
+  private lastFishPhase = '';
+  private paddleT = 0;
   saveSys = new SaveSystem(createStorage());
   bubbles!: Bubbles;
   icons: Record<string, string> = {};
@@ -100,6 +108,10 @@ export class Game {
     const step = (t: string) => new Promise<void>((r) => { this.ui.set({ loadingText: t }); setTimeout(r, 30); });
     this.renderer = new Renderer(canvas);
     this.input = new Input(canvas);
+    // スマホは操作のあとでないと音が出せないので、最初のタッチで音を有効にする
+    const unlock = () => this.audio.unlock();
+    window.addEventListener('pointerdown', unlock, true);
+    window.addEventListener('keydown', unlock, true);
     this.bubbles = new Bubbles(overlay);
     this.fadeEl = document.createElement('div');
     this.fadeEl.className = 'fade';
@@ -148,6 +160,7 @@ export class Game {
     this.move = new MovementSystem(this.world.col, this.navPlayer, this.world.hideSpots, (x, z) => this.world.isInsideCabin(x, z));
     this.interact = new InteractionSystem(() => [...this.world.interactables, ...this.npcInteractables], this.move, this.renderer.scene);
     this.interact.onResult = (i, r) => this.onInteraction(i, r);
+    this.move.onRustle = () => this.audio.play('rustle');
     this.sus = new SuspicionSystem(this.world.col);
     this.ai = new AIBehaviorSystem(this.navNpc, this.sus, () => this.ctx, this.objects);
     this.ai.onCatch = (n) => this.onCaught(n);
@@ -191,7 +204,7 @@ export class Game {
       get state() { return g.state; }, get bus() { return g.bus; }, get inv() { return g.inv; }, get eco() { return g.eco; }, get quests() { return g.quests; },
       get player() { return g.player; }, get world() { return g.world; }, get npcs() { return g.npcs; }, get time() { return g.time; },
       toast: (t, k) => g.toast(t, k),
-      say: (who, text, sec = 2.4, kind = 'say') => g.bubbles.say(() => who.bubbleAnchor(), text, sec, g.time, kind),
+      say: (who, text, sec = 2.4, kind = 'say') => { g.bubbles.say(() => who.bubbleAnchor(), text, sec, g.time, kind); g.voice(who, text, kind === 'shout'); },
       openDialogue: (id) => g.openDialogue(id),
       openShop: (m) => g.ui.set({ shop: m }),
       startFishing: () => g.startFishing(),
@@ -201,6 +214,15 @@ export class Game {
       sleep: () => g.sleep(),
       save: (r) => g.save(r),
     };
+  }
+
+  /** 吹き出しに合わせた声（距離で小さくなる） */
+  private voice(who: unknown, text: string, shout: boolean) {
+    const n = who instanceof NPC ? who : null;
+    const pitch = n ? ({ dad: 170, mom: 260, kid: 420, ranger: 140, shop: 300, fisher: 150, camper: 200 } as Record<string, number>)[n.id] ?? 220 : 520;
+    const pos = n ? n.pos : this.player.pos;
+    const d = pos.distanceTo(this.player.pos);
+    this.audio.babble(text, pitch, Math.max(0, 1 - d / 16), shout);
   }
 
   private buildNpcInteractables() {
@@ -252,6 +274,17 @@ export class Game {
   private wireEvents() {
     const b = this.bus;
     b.on('toast', (t) => this.toast(t.text, t.kind ?? 'info'));
+    const A = this.audio;
+    b.on('item:obtained', (e) => { if (e.source === 'treasure') A.play('treasure'); else if (e.source !== 'shop' && e.source !== 'quest') A.play('pickup'); });
+    b.on('money:changed', (e) => { if (e.delta > 0) A.play('coin'); });
+    b.on('quest:completed', () => A.play('quest'));
+    b.on('quest:started', () => { if (this.ui.get().screen === 'game') A.play('questStart'); });
+    b.on('achievement', (e) => { if (!this.state.progress.achievements.includes(e.id)) setTimeout(() => A.play('achieve'), 500); });
+    b.on('player:caught', () => A.play('caught'));
+    b.on('shop:bought', () => A.play('buy'));
+    b.on('shop:sold', () => A.play('coin'));
+    b.on('outfit:changed', () => A.play('equip'));
+    b.on('item:used', (e) => { if (e.action === 'eat') A.play('eat'); });
     b.on('item:obtained', (e) => {
       const def = ITEMS[e.itemId];
       if (e.source !== 'shop') this.toast(`${def.name}${e.count > 1 ? ' ×' + e.count : ''} を てにいれた！`, 'good', e.itemId);
@@ -284,6 +317,7 @@ export class Game {
     b.on('player:escaped', () => {
       if (!this.ai || this.npcs.some((n) => n.state === 'Chasing')) return;
       this.toast('にげきった！', 'good');
+      this.audio.play('escape');
       this.bus.emit('achievement', { id: 'escape_artist' });
     });
     b.on('shop:bought', (e) => {
@@ -321,7 +355,7 @@ export class Game {
     this.bumpInv();
     if (!data) {
       this.banner('もりの いたずらびより');
-      setTimeout(() => this.bubbles.say(() => this.player.bubbleAnchor(), 'おなか すいたなぁ…', 2.6, this.time, 'think'), 1200);
+      setTimeout(() => this.ctx.say(this.player, 'おなか すいたなぁ…', 2.6, 'think'), 1200);
     } else this.banner(`${this.tod.day}にちめ`);
   }
 
@@ -390,6 +424,7 @@ export class Game {
     this.updateSeeThrough();
     this.renderer.followShadow(screen === 'game' ? p.pos : new THREE.Vector3(-6, 0, 8), this.tod.sunDir);
     this.bubbles.update(this.time, this.cam.camera, this.w, this.h);
+    this.updateAudio(dt);
     this.renderer.render(this.cam.camera);
     this.adaptQuality(dt);
   }
@@ -424,6 +459,59 @@ export class Game {
     if (this.autosaveT > 60) { this.autosaveT = 0; this.save('auto'); }
     this.uiT += dt;
     if (this.uiT > 0.1) { this.uiT = 0; this.syncUI(); }
+  }
+
+  private updateAudio(dt: number) {
+    const A = this.audio;
+    const ui = this.ui.get();
+    const inGame = ui.screen === 'game';
+    const p = this.player;
+    const chased = inGame && this.npcs.some((n) => n.state === 'Chasing');
+    const h = this.tod.clock;
+    const mood: Mood = !inGame ? 'title' : chased ? 'chase' : this.tod.night > 0.6 ? 'night' : h >= 16.3 && h < 19.5 ? 'evening' : 'day';
+    let alert = 0;
+    if (inGame) for (const n of this.npcs) if (n.def.role !== 'kid') alert = Math.max(alert, n.suspicion);
+    const cf = L.campfire.pos;
+    const ref = inGame ? p.pos : new THREE.Vector3(-6, 0, 8);
+    A.update(dt, {
+      mood, alert, night: this.tod.night, inGame,
+      fireDist: Math.hypot(ref.x - cf[0], ref.z - cf[1]),
+      waterDist: Math.max(0, lakeSdf(ref.x, ref.z)),
+    });
+    if (!inGame) return;
+    // 足音（足の運びの位相に合わせる）
+    const step = Math.floor(p.phase / Math.PI);
+    if (step !== this.lastPhase) {
+      this.lastPhase = step;
+      if (p.speed > 0.4 && p.lift <= 0 && !p.inBoat) {
+        const surf: Surface = onDock(p.pos.x, p.pos.z) || p.insideCabin ? 'wood' : pathFactor(p.pos.x, p.pos.z) < 1.1 ? 'dirt' : 'grass';
+        A.footstep(surf, p.sneaking ? 0.35 : p.running ? 1.2 : 0.8);
+      }
+    }
+    // 着地
+    const air = p.lift > 0;
+    if (this.wasAir && !air) A.play('land');
+    this.wasAir = air;
+    // ボートをこぐ音
+    if (p.inBoat && p.speed > 0.3) { this.paddleT -= dt; if (this.paddleT <= 0) { this.paddleT = 0.55; A.play('paddle'); } }
+    // NPC の「?」「!」
+    for (const n of this.npcs) {
+      const prev = this.lastInd.get(n.id) ?? '';
+      if (n.indKind !== prev) {
+        const near = n.pos.distanceTo(p.pos) < 18;
+        if (near && n.indKind === '!' && prev !== '!') A.play('alarm');
+        else if (near && n.indKind === '?' && prev === '') A.play('question');
+        this.lastInd.set(n.id, n.indKind);
+      }
+    }
+    // つり
+    const fp = this.fishing.active ? this.fishing.phase : '';
+    if (fp !== this.lastFishPhase) {
+      if (fp === 'cast') A.play('cast');
+      else if (fp === 'bite') A.play('plop');
+      else if (fp === 'result') A.play('splash');
+      this.lastFishPhase = fp;
+    }
   }
 
   private applyLighting() {
@@ -520,6 +608,15 @@ export class Game {
   private onInteraction(i: Interactable, r: InteractionResult) {
     const p = this.player;
     if (r.anim) p.playAction(r.anim, r.animTime ?? 0.6);
+    const A = this.audio;
+    if (i.id === 'door') A.play('door');
+    else if (i.id.startsWith('trash') && r.ok) A.play('rummage');
+    else if (i.id === 'appletree') { A.play('shake'); if (r.ok) setTimeout(() => A.play('thud'), 700); }
+    else if (i.id === 'treasure' && r.ok) A.play('dig');
+    else if (i.id === 'campfire' && r.anim === 'interact') A.play('sizzle');
+    else if (i.id === 'boat') A.play('splash');
+    else if (i.type === 'container' && r.ok) A.play('open');
+    else if (!r.ok && r.message) A.play('warn');
     if (r.message) this.toast(r.message, r.ok ? 'info' : 'warn');
     if (r.noise) this.ctx.noise(p.pos.x, p.pos.z, r.noise);
     if (r.theftItem) {
@@ -546,7 +643,7 @@ export class Game {
     this.move.stop();
     this.fishing.stop();
     n.anim.play('grab', 0.1);
-    this.bubbles.say(() => n.bubbleAnchor(), 'つかまえたぞ！', 2, this.time, 'shout');
+    this.ctx.say(n, 'つかまえたぞ！', 2, 'shout');
     p.playAction('fall', 1.6);
     this.cam.shake = 0.4;
     this.bus.emit('player:caught', { npcId: n.id });
@@ -576,6 +673,7 @@ export class Game {
   private fadeTo(v: number) { this.fadeEl.style.opacity = String(v); }
 
   sleep() {
+    this.audio.play('sleep');
     this.fadeTo(1);
     this.caught = true;
     setTimeout(() => {
@@ -617,10 +715,12 @@ export class Game {
       choices: this.dialogue.choices().map((c) => c.text), mood: node.mood,
       portrait: this.portraits[id] ?? (id === 'den' ? this.portraits.player : undefined),
     };
+    if (this.ui.get().dialogue?.text !== v.text) this.audio.babble(v.text, ({ dad: 170, mom: 260, kid: 420, ranger: 140, shop: 300, fisher: 150, camper: 200 } as Record<string, number>)[id] ?? 330, 1);
     this.ui.set({ dialogue: v });
   }
 
   chooseDialogue(i: number) {
+    this.audio.play('click');
     const ch = this.dialogue.choices()[i];
     if (!ch) return;
     this.dialogue.choose(ch.idx);
@@ -662,7 +762,7 @@ export class Game {
         p.hunger = Math.min(100, p.hunger + (def.hunger ?? 10));
         p.playAction('eat', 1.7);
         this.bus.emit('item:used', { itemId: id, action: 'eat' });
-        this.bubbles.say(() => p.bubbleAnchor(), ['もぐもぐ…', 'おいしい！', 'しあわせ〜'][Math.floor(Math.random() * 3)], 1.8, this.time);
+        this.ctx.say(p, ['もぐもぐ…', 'おいしい！', 'しあわせ〜'][Math.floor(Math.random() * 3)], 1.8);
         this.ui.set({ panel: null });
         return null;
       }
@@ -696,9 +796,9 @@ export class Game {
   sell(id: string) { const r = this.eco.sell(id); if (!r.ok) this.toast(r.reason!, 'warn'); return r.ok; }
 
   toggleSneak() { const p = this.player; if (p.inBoat) return; p.sneaking = !p.sneaking; this.syncUI(); }
-  jump() { this.move.jump(this.player); }
+  jump() { const air = this.player.lift > 0; this.move.jump(this.player); if (!air && this.player.lift > 0) this.audio.play('jump'); }
   act() { this.interact.act(this.ctx); }
-  openPanel(p: 'inventory' | 'map' | 'menu' | 'quests' | null) { this.move.stop(); this.ui.set({ panel: p }); }
+  openPanel(p: 'inventory' | 'map' | 'menu' | 'quests' | null) { this.move.stop(); this.audio.play(p ? 'open' : 'close'); this.ui.set({ panel: p }); }
   closeShop() { this.ui.set({ shop: null }); const n = this.npcs.find((m) => m.id === 'shop'); if (n) n.talking = false; }
 
   // ───────── つり ─────────
@@ -711,7 +811,7 @@ export class Game {
     this.fishing.start();
     this.move.stop();
   }
-  fishingTap() { this.fishing.tap(); }
+  fishingTap() { const ph = this.fishing.phase; this.fishing.tap(); if (ph === 'reel') this.audio.play('reel'); }
   stopFishing() {
     this.fishing.stop();
     this.bobber.visible = false; this.line.visible = false;

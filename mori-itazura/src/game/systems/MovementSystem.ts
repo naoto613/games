@@ -21,6 +21,7 @@ export class MovementSystem {
   onArrive: (() => void) | null = null;
   arriveDist = 0.3;
   private lastHide: string | null = null;
+  onRustle: (() => void) | null = null;
 
   constructor(private col: CollisionSystem, private nav: NavGrid, private hideSpots: HideSpot[], private insideCabin: (x: number, z: number) => boolean) {}
 
@@ -110,7 +111,7 @@ export class MovementSystem {
     p.hidden = !!spot && p.speed < 3.6;
     p.underTable = !!spot && spot.kind === 'table';
     p.hideSpot = spot?.id ?? null;
-    if (spot && spot.id !== this.lastHide && spot.kind === 'bush') spot.rustle = 0.8;
+    if (spot && spot.id !== this.lastHide && spot.kind === 'bush') { spot.rustle = 0.8; this.onRustle?.(); }
     this.lastHide = spot?.id ?? null;
 
     // アニメーション

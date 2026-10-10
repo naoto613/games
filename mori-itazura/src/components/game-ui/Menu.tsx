@@ -1,4 +1,5 @@
 // メニュー・クエスト一覧・つりのミニゲーム・タイトル
+import { useState } from 'react';
 import { useGame, useUI } from './hooks';
 import { Panel } from './Inventory';
 
@@ -10,6 +11,7 @@ export function Menu() {
       <div className="menu">
         <button onClick={() => g.openPanel('quests')}>📜 クエスト</button>
         <button onClick={() => { g.save('manual'); g.openPanel(null); }}>💾 きろくする（セーブ）</button>
+        <Volume />
         <div className="qrow">がしつ：
           {(['high', 'medium', 'low'] as const).map((q) => <button key={q} className={s.quality === q ? 'on' : ''} onClick={() => g.setQuality(q)}>{q === 'high' ? 'きれい' : q === 'medium' ? 'ふつう' : 'かるい'}</button>)}
         </div>
@@ -23,6 +25,25 @@ export function Menu() {
         <small className="fps">{s.fps} fps</small>
       </div>
     </Panel>
+  );
+}
+
+const LEVELS: [string, number][] = [['なし', 0], ['小', 0.35], ['中', 0.7], ['大', 1]];
+
+function Volume() {
+  const g = useGame();
+  const [bgm, setBgm] = useState(g.audio.bgmVol);
+  const [sfx, setSfx] = useState(g.audio.sfxVol);
+  const near = (v: number, x: number) => Math.abs(v - x) < 0.05;
+  return (
+    <>
+      <div className="qrow">おんがく：
+        {LEVELS.map(([l, v]) => <button key={l} className={near(bgm, v) ? 'on' : ''} onClick={() => { setBgm(v); g.audio.setVolumes(v, sfx); }}>{l}</button>)}
+      </div>
+      <div className="qrow">こうかおん：
+        {LEVELS.map(([l, v]) => <button key={l} className={near(sfx, v) ? 'on' : ''} onClick={() => { setSfx(v); g.audio.setVolumes(bgm, v); g.audio.play('pickup'); }}>{l}</button>)}
+      </div>
+    </>
   );
 }
 
@@ -81,7 +102,7 @@ export function Title() {
         {s.hasSave && <button className="primary" onClick={() => g.start(true)}>つづきから</button>}
         <button className={s.hasSave ? '' : 'primary'} onClick={() => g.start(false)}>はじめから</button>
       </div>
-      <small className="note">スマホ・タブレットの Chrome むけ／がめんの どこでも ドラッグで いどう</small>
+      <small className="note">スマホ・タブレットの Chrome むけ／おとが でます🔊／がめんの どこでも ドラッグで いどう</small>
     </div>
   );
 }

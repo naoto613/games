@@ -25,6 +25,7 @@ export class NPC extends Character<HumanAnim> {
   callCooldown = 0;
   alertCooldown = 0;
   lookAt: number | null = null;
+  indKind = '';
   knownFood = -1;
   readonly indicator: THREE.Sprite;
   private indCanvas: HTMLCanvasElement;
@@ -84,6 +85,7 @@ export class NPC extends Character<HumanAnim> {
   /** 頭上のマーク（? や !）と警戒ゲージ */
   updateIndicator(kind: '' | '?' | '!' | '♪' | '…' | 'heart') {
     const lvl = Math.round(this.suspicion / 10);
+    this.indKind = kind;
     const key = kind + lvl;
     if (key === this.indKey) return;
     this.indKey = key;
