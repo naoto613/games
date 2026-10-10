@@ -60,7 +60,7 @@ function buildWorld(st,seed,diff){
   const margin=(x,y)=>x>160&&x<WW-160&&y>220&&y<WH-120;
   let fp=null;for(let i=0;i<60&&!fp;i++){const s=spot(st.futanSwim?'any':'land',16);if(s&&margin(s.x,s.y))fp=s;else if(s)pts.pop()}
   if(!fp)fp=spot('land',10)||{x:WW/2,y:WH/2,k:'land'};
-  const fLook=familyLook(LOOK_FUTAN,st,'futan');if(fp.k==='swim')fLook.swim=true;
+  const fLook=futanLook(st);if(fp.k==='swim')fLook.swim=true;
   w.fam.futan=addPerson(w,fLook,fp.x,fp.y,'futan');
   if(st.hide&&chance(Math.min(.95,st.hide.p+diff.hide))){const k=pick(st.hide.props);const it=L.prop(k,fp.x+rnd(-8,8),fp.y+rnd(7,12),Object.assign({noFoot:true},st.hide.opts&&st.hide.opts[k]||{}));it.hider=true}
   const far=(want)=>{for(let i=0;i<80;i++){const s=spot(want,16);if(!s)continue;if(Math.hypot(s.x-fp.x,s.y-fp.y)>520&&margin(s.x,s.y))return s;pts.pop()}return spot(want,8)||{x:200,y:WH-200,k:'land'}};
@@ -84,9 +84,12 @@ function buildWorld(st,seed,diff){
     it.spr=personSprite(o)}
   // animals
   for(const[k,cnt,where]of st.animals||[])for(let i=0;i<cnt;i++){const s=spot(where||'land',12,60);if(!s)continue;
-    const col=k==='cat'?pick(['#3b3533','#f7f4ee','#e8a050']):k==='dog'?pick(['#e8c8a0','#f7f4ee','#a8703f']):k==='fish'?pick(['#f28b2f','#f6c63a','#7cc8ec','#f28fb7']):undefined;
+    const col=k==='rabbit'?pick(RABBIT_COLS):k==='cat'?pick(['#3b3533','#f7f4ee','#e8a050']):k==='dog'?pick(['#e8c8a0','#f7f4ee','#a8703f']):k==='fish'?pick(['#f28b2f','#f6c63a','#7cc8ec','#f28fb7']):undefined;
     const it={kind:'animal',k,x:s.x,y:s.y,spr:makeSprite('a'+k+col,40,40,c=>drawAnimal(c,k,col)),hit:{hw:13,hh:22},ph:rnd(6.28),hop:0,flip:chance(.5),where:where||'land'};
     if(chance(.5))it.walk={tx:s.x,ty:s.y,wait:rnd(3),sp:k==='fish'?14:18};w.items.push(it)}
+  // ガチャで あてた かくれキャラが まちの どこかに ひそむ
+  for(const id in (PROG.gacha&&PROG.gacha.owned)||{}){const p=PRIZE_BY[id];if(!p||p.kind!=='secret')continue;const s=spot(st.peopleOn&&st.peopleOn.includes('land')?'land':'land',12,200);if(!s)continue;
+    w.items.push({kind:'secret',sid:p.sid,x:s.x,y:s.y,spr:secretSprite(p.sid),hit:{hw:13,hh:40},ph:rnd(6.28),hop:0,flip:chance(.5)})}
   w.items.sort((a,b)=>a.y-b.y);
   return w;
 }

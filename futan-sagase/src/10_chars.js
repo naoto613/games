@@ -18,6 +18,10 @@ function drawPerson(c,o){
   if(A.balloon){c.lineWidth=1;line(c,9,sy+6,16,hy-34);c.lineWidth=1.6;ell(c,16,hy-42,8,9.5);FS(c,A.balloon);ell(c,13.5,hy-45,2,3,-.4);F(c,'rgba(255,255,255,.7)')}
   if(top==='astro'||top==='diver'){rr(c,-11,sy-1,22,hip-sy+4,5);FS(c,top==='astro'?'#d8dde4':'#f2b233')}
   if(A.backpack){rr(c,-10,sy,20,hip-sy+1,5);FS(c,A.backpack)}
+  if(A.cape){c.beginPath();c.moveTo(-9,sy);c.lineTo(9,sy);c.lineTo(15,-2);c.quadraticCurveTo(0,2,-15,-2);c.closePath();FS(c,A.cape);rr(c,-10,sy-2,20,4,2);FS(c,'#f6c63a')}
+  if(A.wings){for(const k of[-1,1]){ell(c,k*15,sy+3,11,6.5,k*-.5);FS(c,A.wings);ell(c,k*12,sy+10,7,4.5,k*-.2);FS(c,A.wings)}}
+  if(top==='dinosuit'){c.beginPath();c.moveTo(6,hip-2);c.quadraticCurveTo(22,hip+2,26,-2);c.quadraticCurveTo(16,-2,6,hip+4);c.closePath();FS(c,tc);for(let i=0;i<3;i++){poly(c,[[10+i*5,hip-1+i*2],[13+i*5,hip-6+i*2],[15+i*5,hip+i*2]]);FS(c,'#f6c63a')}}
+  if(top==='usagisuit'){circ(c,0,hip+1,5);FS(c,'#fff')}
   if(top==='princess'||top==='knight'){c.beginPath();c.moveTo(-8,sy);c.lineTo(8,sy);c.lineTo(13,-3);c.lineTo(-13,-3);c.closePath();FS(c,top==='knight'?'#c9433a':shade(tc,-.15))}
   // back hair
   const hc=o.hairCol||HAIR,hs=o.hair||'short';
@@ -68,6 +72,18 @@ function drawPerson(c,o){
     rr(c,-sw,sy,2*sw,hip-sy+9,5);FS(c,tc);c.lineWidth=1;line(c,0,sy+1,0,hip+8);for(let i=0;i<3;i++){circ(c,2.5,sy+5+i*5,.9);F(c,LN)}c.lineWidth=1.6;break;
   case 'safari':
     rr(c,-8.5,hip-3,17,7,2);FS(c,'#c8b07a');rr(c,-sw,sy,2*sw,hip-sy+2,4);FS(c,tc);c.lineWidth=1;line(c,0,sy+1,0,hip-1);rr(c,-7,sy+4,5,4,1);c.stroke();c.lineWidth=1.6;break;
+  case 'sailor':
+    c.beginPath();c.moveTo(-8,hip-3);c.lineTo(8,hip-3);c.lineTo(11,hip+5);c.lineTo(-11,hip+5);c.closePath();FS(c,'#2f4078');
+    rr(c,-sw,sy,2*sw,hip-sy+1,5);FS(c,'#fff');poly(c,[[-sw+1,sy],[sw-1,sy],[sw-2,sy+6],[0,sy+10],[-sw+2,sy+6]]);FS(c,'#2f4078');
+    poly(c,[[-3,sy+7],[3,sy+7],[0,sy+13]]);FS(c,'#e8504a');break;
+  case 'ninja':case 'dinosuit':case 'usagisuit':
+    rr(c,-8.5,hip-3,17,7,2);FS(c,top==='usagisuit'?'#fff':tc);rr(c,-sw,sy,2*sw,hip-sy+2,6);FS(c,tc);
+    if(top==='ninja'){c.lineWidth=1.1;line(c,-5,sy,2,sy+9);line(c,5,sy,-2,sy+9);c.lineWidth=1.6;rr(c,-sw,hip-6,2*sw,3.6,1);FS(c,'#e8504a')}
+    if(top==='dinosuit'){ell(c,0,(sy+hip)/2+2,6,(hip-sy)/2-1);FS(c,'#f6e6a0')}
+    if(top==='usagisuit'){ell(c,0,(sy+hip)/2+2,5.5,(hip-sy)/2-1);FS(c,'#ffd3e6')}break;
+  case 'robe':
+    c.beginPath();c.moveTo(-8,sy);c.lineTo(8,sy);c.lineTo(12,-3);c.lineTo(-12,-3);c.closePath();FS(c,tc);
+    c.fillStyle='#f6e27a';for(const[x,y]of[[-5,sy+8],[4,sy+14],[-3,-10],[6,-6]]){star(c,x,y,2.6,1.1);c.fill()}rr(c,-8,hip-5,16,3,1);FS(c,'#f6c63a');break;
   case 'suit':
     rr(c,-8.5,hip-3,17,7,2);FS(c,bc);rr(c,-sw,sy,2*sw,hip-sy+3,4);FS(c,tc);poly(c,[[-4.5,sy],[4.5,sy],[0,sy+11]]);FS(c,'#fff');
     poly(c,[[-1.4,sy+1],[1.4,sy+1],[2,sy+9],[0,sy+12],[-2,sy+9]]);FS(c,o.tie||'#e8a020');c.lineWidth=1.1;line(c,-4.5,sy,-1,hip+2);line(c,4.5,sy,1,hip+2);c.lineWidth=1.6;break;
@@ -83,7 +99,7 @@ function drawPerson(c,o){
   if(A.negi){const bx=-sw-5,by=hip-1;c.lineWidth=2.4;c.strokeStyle='#4cad62';line(c,bx-2,by-6,bx-6,by-24);line(c,bx+2,by-6,bx+3,by-22);c.lineWidth=1.6;c.strokeStyle='#f7f4ee';line(c,bx-2,by-6,bx-4,by-14);ink(c);rr(c,bx-6,by-8,12,11,3);FS(c,'#f3e1b5');c.lineWidth=1.1;c.beginPath();c.arc(bx,by-8,4,Math.PI,0);c.stroke();c.lineWidth=1.6}
   if(A.bag){c.lineWidth=1.2;line(c,-6,sy,8,hip-2);c.lineWidth=1.6;rr(c,5,hip-5,9,8,2);FS(c,A.bag)}
   // ---- arms ----
-  const armC=top==='swim'?sk:top==='astro'?'#f4f6fa':top==='diver'?'#2c3a4e':top==='knight'?'#c3c8cf':top==='yukata'||top==='happi'||top==='smock'||top==='ski'||top==='coat'||top==='princess'?tc:(o.short?sk:tc);
+  const armC=top==='swim'?sk:top==='astro'?'#f4f6fa':top==='diver'?'#2c3a4e':top==='knight'?'#c3c8cf':top==='yukata'||top==='happi'||top==='smock'||top==='ski'||top==='coat'||top==='princess'||top==='ninja'||top==='robe'||top==='dinosuit'||top==='usagisuit'?tc:top==='sailor'?'#fff':(o.short?sk:tc);
   const arm=(k,hx,hy2)=>{c.lineWidth=5.2;c.strokeStyle=LN;line(c,k*(sw-2),sy+3,hx,hy2);c.lineWidth=3;c.strokeStyle=armC;line(c,k*(sw-2),sy+3,hx,hy2);ink(c);circ(c,hx,hy2,2.4);FS(c,top==='astro'||top==='ski'?'#f4f6fa':top==='knight'?'#aab1bb':sk)};
   const ay=sy+B.arm;
   if(o.pose==='wave'||A.balloon||A.flag)arm(1,sw+5,sy-9);else arm(1,sw+2,ay);
@@ -131,6 +147,7 @@ function drawPerson(c,o){
   if(!o.face){ell(c,-8,ey+4,2.3,1.4);F(c,'rgba(255,110,140,.4)');ell(c,8,ey+4,2.3,1.4);F(c,'rgba(255,110,140,.4)');
   c.lineWidth=1.3;c.beginPath();c.arc(0,ey+4.2,2.2,Math.PI*.15,Math.PI*.85);c.stroke();c.lineWidth=1.6}
   if(A.mustache){ell(c,-2.5,ey+3.5,3,1.4,.2);F(c,hc);ell(c,2.5,ey+3.5,3,1.4,-.2);F(c,hc)}
+  if(A.sunglasses){c.lineWidth=1.2;rr(c,-8.6,ey-2.8,7,5.4,2.4);FS(c,A.sunglasses);rr(c,1.6,ey-2.8,7,5.4,2.4);FS(c,A.sunglasses);line(c,-1.6,ey-1.4,1.6,ey-1.4);c.strokeStyle='rgba(255,255,255,.8)';line(c,-7,ey-1.6,-5.4,ey);line(c,3.2,ey-1.6,4.8,ey);ink(c)}
   if(A.glasses){c.lineWidth=1.2;circ(c,-4.6,ey,3.4);c.stroke();circ(c,4.6,ey,3.4);c.stroke();line(c,-1.2,ey,1.2,ey);c.lineWidth=1.6}
   // front hair
   c.fillStyle=hc;
@@ -161,6 +178,12 @@ function drawPerson(c,o){
   case 'party':poly(c,[[-6,hy-hr+3],[6,hy-hr+3],[1,hy-hr-12]]);FS(c,hcol);circ(c,1,hy-hr-12,2);FS(c,'#fff');break;
   case 'safari':ell(c,0,hy-5,hr+6,3.6);FS(c,'#d9c08a');c.beginPath();c.arc(0,hy-6,hr-1,Math.PI,0);c.closePath();FS(c,'#d9c08a');rr(c,-hr+1,hy-8,2*hr-2,2.5,1);F(c,'#8a6a3a');break;
   case 'knight':c.beginPath();c.arc(0,hy-1,hr+1.5,Math.PI*.9,Math.PI*2.1);c.closePath();FS(c,'#c3c8cf');rr(c,-hr+2,hy-2,2*hr-4,3,1);F(c,'#3b3533');ell(c,0,hy-hr-6,3,6,.3);FS(c,hcol);break;
+  case 'nekomimi':for(const k of[-1,1]){poly(c,[[k*4,hy-hr+1],[k*11,hy-hr-9],[k*12,hy-hr+4]]);FS(c,hcol);poly(c,[[k*6.5,hy-hr+.5],[k*10.5,hy-hr-5],[k*10.5,hy-hr+2]]);F(c,'#ffb3cf')}break;
+  case 'usamimi':for(const k of[-1,1]){ell(c,k*5,hy-hr-11,3.6,11,k*.18);FS(c,hcol);ell(c,k*5,hy-hr-10,1.7,8,k*.18);F(c,'#ffb3cf')}rr(c,-hr+1,hy-hr+1,2*hr-2,3,1.5);FS(c,hcol);break;
+  case 'flowercrown':for(let i=0;i<7;i++){const a=Math.PI*(1.1+i*.13);circ(c,Math.cos(a)*(hr-.5),hy-2+Math.sin(a)*(hr-1),2.6);FS(c,['#f28fb7','#f6c63a','#fff','#c79bff'][i%4])}break;
+  case 'bigribbon':c.save();c.translate(0,hy-hr-1);poly(c,[[0,0],[-11,-7],[-11,6]]);FS(c,hcol);poly(c,[[0,0],[11,-7],[11,6]]);FS(c,hcol);circ(c,0,0,3);FS(c,hcol);c.restore();break;
+  case 'dinohood':c.beginPath();c.arc(0,hy-1,hr+2.5,Math.PI*.92,Math.PI*2.08);c.lineTo(hr-1,hy+1);c.quadraticCurveTo(0,hy-6,-hr+1,hy+1);c.closePath();FS(c,hcol);for(let i=0;i<4;i++){const a=Math.PI*(1.25+i*.17);poly(c,[[Math.cos(a-.12)*(hr+2),hy-1+Math.sin(a-.12)*(hr+2)],[Math.cos(a)*(hr+8),hy-1+Math.sin(a)*(hr+8)],[Math.cos(a+.12)*(hr+2),hy-1+Math.sin(a+.12)*(hr+2)]]);FS(c,'#f6c63a')}circ(c,-5,hy-hr+1,1.6);F(c,LN);circ(c,5,hy-hr+1,1.6);F(c,LN);break;
+  case 'usahood':for(const k of[-1,1]){ell(c,k*6,hy-hr-10,4,12,k*.25);FS(c,hcol);ell(c,k*6,hy-hr-9,2,9,k*.25);F(c,'#ffb3cf')}c.beginPath();c.arc(0,hy-1,hr+2.5,Math.PI*.92,Math.PI*2.08);c.lineTo(hr-1,hy+1);c.quadraticCurveTo(0,hy-6,-hr+1,hy+1);c.closePath();FS(c,hcol);break;
   case 'witch':ell(c,0,hy-6,hr+8,3.6);FS(c,hcol);poly(c,[[-hr+1,hy-7],[hr-1,hy-7],[5,hy-hr-18]]);FS(c,hcol);break;
   case 'chef':rr(c,-hr+2,hy-hr-9,2*hr-4,12,5);FS(c,'#fff');break;
   case 'beret':ell(c,-2,hy-hr+1,hr+1,4.5,-.15);FS(c,hcol);break;

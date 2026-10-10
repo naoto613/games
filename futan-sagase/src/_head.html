@@ -71,6 +71,26 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
 @keyframes toast{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}28%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-62%)}}
 #wipe{position:fixed;inset:0;pointer-events:none;z-index:20}
 .tstats{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}.tstats span{font-size:13px;font-weight:900;padding:4px 12px;border-radius:999px;background:var(--paper2);border:1.5px solid var(--line);color:var(--soft)}
+.trow{display:flex;gap:8px}.trow .btn{flex:1;padding:12px 8px;font-size:15px}
+.gachaBtn{background:#fff3c4;border-color:#f2cf5a;color:#b8571a}
+.gpanel{width:min(420px,100%);align-items:center;gap:8px;padding:16px}
+.ginfo{font-weight:900;font-size:15px}.ginfo b{font-family:var(--display);font-weight:400;font-size:24px;color:var(--accent)}.ginfo span{margin-left:8px;color:#e0a400;font-size:14px}
+.gwrap{position:relative;height:min(560px,62vh,calc((100vw - 60px)*1.556));aspect-ratio:360/560}
+.gpanel .row .btn{white-space:nowrap}
+#gcv{width:100%;height:100%;display:block;touch-action:none}
+.gprize{position:absolute;left:6px;right:6px;bottom:6px;background:rgba(255,250,242,.96);border:2.5px solid var(--line);border-radius:18px;padding:10px 12px;text-align:center;display:flex;flex-direction:column;gap:6px}
+.gprize .rar{font-weight:900;font-size:14px}.gprize .rar b{color:#e8487a}
+.r-n{color:#6aa0c0}.r-r{color:#d99a00}.r-k{background:linear-gradient(90deg,#ff6f9f,#f6c63a,#7fd6b4,#7cc8ec,#c79bff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.gprize .pname{font-family:var(--display);font-size:20px}.gprize p{margin:0;font-weight:900;font-size:13px;color:var(--soft)}
+.closet{display:flex;gap:12px;align-items:flex-start}.closet canvas{width:150px;height:173px;flex:none;border-radius:18px;background:#fff1f6;border:2.5px solid #ffc2d6}
+.cgrid{flex:1;max-height:min(52vh,480px);overflow-y:auto;min-width:0}
+.cgrid h3{margin:8px 0 4px;font-size:14px;color:var(--soft)}
+.crow{display:flex;flex-wrap:wrap;gap:6px}
+.citem{width:92px;border-radius:14px;border:2px solid var(--line);background:var(--paper2);padding:2px 2px 6px;display:flex;flex-direction:column;align-items:center;font-size:11px;font-weight:900;text-align:center;line-height:1.3}
+.citem canvas{width:76px;height:76px}.citem.on{border-color:var(--accent);background:#fff1f6}.citem.lock{opacity:.55}.citem small{font-size:10px;color:var(--soft)}
+.citem .q{width:76px;height:76px;display:grid;place-items:center;font-family:var(--display);font-size:30px;color:#cdb9a0}
+.citem>span:only-child{padding:30px 0}
+@media (max-width:560px){.closet{flex-direction:column;align-items:center}}
 .links{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
 .link{background:none;border:0;font-weight:900;font-size:15px;padding:8px 10px;text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--line)}
 @media (max-width:640px){
@@ -96,6 +116,7 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
     <p class="lede">ひとが いっぱいの まちの どこかに ふーたんが かくれているよ。<br><span style="color:#d2386e">めじるしは みつあみと ピンクの みずたまの ふく、<br>きいろい ハートの ポシェット！</span><br>みつけたら つぎの ばしょへ ワープ！<br>ままや パパを みつけると ふーたんが みつけやすく なるよ。<br>リッキーを みつけると ステージに たのしい へんかが おこるよ！</p>
     <div class="tstats" id="titleStats"></div>
     <button class="btn main" id="playBtn">あそぶ</button>
+    <div class="trow"><button class="btn gachaBtn" id="titleGacha">ガチャガチャ</button><button class="btn" id="titleCloset">きせかえ</button><button class="btn" id="titleZukan">ずかん</button></div>
     <div class="links"><button class="link" id="albumBtn">ステージ えらび</button><button class="link snd" id="sndBtn">おと：オン</button></div>
   </div>
 </div>
@@ -126,6 +147,29 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
 </div>
 <div id="clear" class="overlay" hidden>
   <div class="panel" id="clearPanel"></div>
+</div>
+<div id="gacha" class="overlay" hidden>
+  <div class="panel gpanel">
+    <div class="ginfo" id="gachaInfo"></div>
+    <div class="gwrap"><canvas id="gcv"></canvas><div class="gprize" id="gachaPrize" hidden></div></div>
+    <p class="lede" id="gachaHint" style="font-size:13px"></p>
+    <div class="row"><button class="btn" id="gachaCloset">きせかえ</button><button class="btn" id="gachaClose">とじる</button></div>
+  </div>
+</div>
+<div id="closet" class="overlay" hidden>
+  <div class="panel" style="width:min(720px,100%)">
+    <h2>きせかえ</h2>
+    <div class="closet"><canvas id="closetPrev" width="260" height="300"></canvas><div class="cgrid" id="closetGrid"></div></div>
+    <p class="lede" style="font-size:12px">みつあみと ハートの ポシェットは いつも いっしょ。きせた ふくで ステージに かくれるよ</p>
+    <button class="btn main" id="closetClose">これで いく！</button>
+  </div>
+</div>
+<div id="zukan" class="overlay" hidden>
+  <div class="panel" style="width:min(820px,100%)">
+    <h2>ずかん</h2><p class="lede" id="zukanCount"></p>
+    <div class="cgrid" id="zukanGrid" style="max-height:min(62vh,560px)"></div>
+    <button class="btn" id="zukanClose">とじる</button>
+  </div>
 </div>
 <canvas id="wipe"></canvas>
 <div id="toast"></div>

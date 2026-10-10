@@ -18,7 +18,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseGame()
 window.addEventListener('keydown',e=>{if(e.key==='Escape'){if(G.state==='paused')resumeGame();else pauseGame()}});
 
 $('playBtn').onclick=()=>{audio();startStage(PROG.max>=0?PROG.next:0)};
-$('albumBtn').onclick=openAlbum;$('albumClose').onclick=()=>{$('album').hidden=true};
+$('albumBtn').onclick=openAlbum;$('albumClose').onclick=()=>{$('album').hidden=true;if(G.state==='clear')$('clear').hidden=false};
 $('introGo').onclick=go;
 $('hintBtn').onclick=useHint;
 $('zoomBtn').onclick=()=>{const v=viewRect(),cx=v.x+v.w/2,cy=v.y+v.h/2;if(cam.z>zMin()*1.3)lookAt(cx,cy,zMin(),.6);else lookAt(cx,cy,zMin()*2.6,.6)};
