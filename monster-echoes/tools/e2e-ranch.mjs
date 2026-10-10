@@ -17,20 +17,20 @@ await p.locator('button', { hasText: 'はじめから' }).click(); await wait(20
 await p.locator('button', { hasText: 'けってい' }).click(); await wait(300);
 await msgs(); await p.waitForSelector('.pad-area');
 await shot('01-field-strip');
-await p.evaluate(() => { const g = window.app.game; for (const s of ['mossglow', 'yorufukuro', 'iwatokage', 'tsukipon']) g.acceptRecruit(s, 4); });
+await p.evaluate(() => { const g = window.app.game; for (const s of ['leafant', 'frostbird', 'stonegolem', 'darkeye']) g.acceptRecruit(s, 4); });
 // まちメニュー → ぼくじょう
 await p.evaluate(() => window.app.dispatch('menu', true)); await wait(200);
 await shot('02-menu');
 await p.locator('.panel .item', { hasText: 'ぼくじょう' }).click(); await wait(200);
 console.log('party before', await party());
 await shot('03-ranch');
-// パーティ1番 → 牧場の ヨルフクロ で いれかえ
+// パーティ1番 → 牧場の フロストバード で いれかえ
 await p.locator('.panel').last().locator('.mcard').nth(0).click(); await wait(150);
 await shot('04-ranch-selected');
-await p.locator('.panel').last().locator('.mcard', { hasText: 'ヨルフクロ' }).click(); await wait(200);
+await p.locator('.panel').last().locator('.mcard', { hasText: 'フロストバード' }).click(); await wait(200);
 console.log('after swap', await party());
-// 牧場の イワトカゲ → パーティ2番
-await p.locator('.panel').last().locator('.mcard', { hasText: 'イワトカゲ' }).click(); await wait(150);
+// 牧場の ストーンゴーレム → パーティ2番
+await p.locator('.panel').last().locator('.mcard', { hasText: 'ストーンゴーレム' }).click(); await wait(150);
 await p.locator('.panel').last().locator('.mcard').nth(1).click(); await wait(200);
 console.log('after box->party', await party());
 // パーティどうし ならびかえ（1と3）

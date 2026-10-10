@@ -23,7 +23,7 @@ await p.evaluate(() => { const g = window.app.game; g.state.monsters = g.state.m
 await p.evaluate(() => window.app.dispatch('menu', true)); await wait(200);
 await p.locator('.panel .item', { hasText: 'じゅもん' }).click(); await wait(200);
 await shot('03-spells');
-await p.locator('.panel').last().locator('button', { hasText: 'いやしのしずく' }).click(); await wait(200);
+await p.locator('.panel').last().locator('button', { hasText: 'ヒール' }).click(); await wait(200);
 await shot('04-spell-target');
 await p.locator('.choices .item').first().click(); await wait(300);
 await shot('05-spell-result');

@@ -29,7 +29,7 @@ console.log('map', await p.evaluate(() => window.app.game.state.player.townMap))
 // 鍵のかかった階段
 await go('shrine1', 8, 4, 'right', '04-shrine-stairs'); await step('right'); await shot('05-locked'); await msgs();
 // やかた・ぼくじょう・みせ・とうぎじょう
-await p.evaluate(() => { const g = window.app.game; for (const s of ['mossglow', 'yorufukuro', 'iwatokage', 'tsukipon', 'madoidake']) g.acceptRecruit(s, 4); });
+await p.evaluate(() => { const g = window.app.game; for (const s of ['leafant', 'frostbird', 'stonegolem', 'darkeye', 'kinoborg']) g.acceptRecruit(s, 4); });
 await go('lab1', 5, 4, 'up', '06-lab1');
 await go('ranch1', 6, 4, 'down', '07-ranch1');
 await go('shop', 4, 3, 'up', '08-shop');

@@ -45,20 +45,21 @@ function rate(f: (rng: Rng) => boolean, seed: number) {
 
 const report: string[] = [];
 const STAGES: { name: string; party: P; table?: string; boss?: string; arena?: string; expect: [number, number] }[] = [
-  { name: 'もり1F 6連戦', party: [['lumipon', 3], ['kogemaru', 3]], table: 'forest1', expect: [0.85, 1] },
-  { name: 'もり2F 6連戦', party: [['lumipon', 5], ['kogemaru', 5], ['mossglow', 4]], table: 'forest2', expect: [0.75, 1] },
-  { name: 'もり3F 6連戦', party: [['lumipon', 7], ['kogemaru', 7], ['mossglow', 6]], table: 'forest3', expect: [0.45, 1] },
-  { name: 'ボス: ゆがみマドイダケ', party: [['lumipon', 9], ['kogemaru', 9], ['mossglow', 8]], boss: 'boss_forest', expect: [0.55, 0.97] },
-  { name: '闘技場F', party: [['tsukipon', 9, 1], ['kogemaru', 11], ['mossglow', 10]], arena: 'arenaF', expect: [0.4, 0.97] },
-  { name: 'どうくつB1 6連戦', party: [['tsukipon', 10, 1], ['kogemaru', 11], ['mossglow', 10]], table: 'cave1', expect: [0.6, 1] },
-  { name: 'どうくつB3 6連戦', party: [['tsukipon', 13, 1], ['homurawolf', 12, 1], ['haganegame', 12]], table: 'cave3', expect: [0.3, 1] },
-  { name: 'ボス: ゆがみハガネガメ', party: [['tsukipon', 15, 1], ['homurawolf', 15, 1], ['haganegame', 14]], boss: 'boss_cave', expect: [0.12, 0.7] },
-  { name: '闘技場E', party: [['tsukipon', 16, 1], ['homurawolf', 16, 1], ['haganegame', 15]], arena: 'arenaE', expect: [0.3, 0.95] },
-  { name: 'こうげん ふもと 6連戦', party: [['auroran', 13, 2], ['homurawolf', 16, 1], ['haganegame', 16]], table: 'highland1', expect: [0.5, 1] },
-  { name: 'ボス: ゆがみホムラウルフ', party: [['auroran', 19, 2], ['homurawolf', 20, 1], ['haganegame', 19]], boss: 'boss_highland', expect: [0.4, 0.97] },
-  { name: 'ルナフィアたいかい', party: [['auroran', 22, 2], ['mitsugashira', 21, 2], ['suishoryu', 21, 2]], arena: 'arenaD', expect: [0.25, 0.95] },
-  { name: '(参考)配合なし R1 Lv20 でルナフィアたいかい', party: [['lumipon', 20], ['kogemaru', 20], ['iwatokage', 20]], arena: 'arenaD', expect: [0, 0.4] },
+  { name: 'もり1F 6連戦', party: [['lunaslime', 3], ['magmadog', 3]], table: 'forest1', expect: [0.85, 1] },
+  { name: 'もり2F 6連戦', party: [['lunaslime', 5], ['magmadog', 5], ['leafant', 4]], table: 'forest2', expect: [0.7, 1] },
+  { name: 'もり3F 6連戦', party: [['lunaslime', 7], ['magmadog', 7], ['leafant', 6]], table: 'forest3', expect: [0.45, 1] },
+  { name: 'ボス: ゆがみキノコボーグ', party: [['lunaslime', 9], ['magmadog', 9], ['leafant', 8]], boss: 'boss_forest', expect: [0.5, 0.95] },
+  { name: '闘技場F', party: [['windcat', 9, 1], ['magmadog', 11], ['leafant', 10]], arena: 'arenaF', expect: [0.4, 0.97] },
+  { name: 'どうくつB1 6連戦', party: [['windcat', 10, 1], ['magmadog', 11], ['leafant', 10]], table: 'cave1', expect: [0.6, 1] },
+  { name: 'どうくつB3 6連戦', party: [['windcat', 13, 1], ['lightningleo', 12, 1], ['stonegolem', 12]], table: 'cave3', expect: [0.3, 1] },
+  { name: 'ボス: ゆがみアイスクリル', party: [['windcat', 15, 1], ['lightningleo', 15, 1], ['stonegolem', 14]], boss: 'boss_cave', expect: [0.12, 0.7] },
+  { name: '闘技場E', party: [['windcat', 16, 1], ['lightningleo', 16, 1], ['stonegolem', 15]], arena: 'arenaE', expect: [0.3, 0.95] },
+  { name: 'こうげん ふもと 6連戦', party: [['firedragon', 14, 1], ['lightningleo', 16, 1], ['icekrill', 16]], table: 'highland1', expect: [0.5, 1] },
+  { name: 'ボス: ゆがみファイアドラゴン', party: [['firedragon', 19, 1], ['lightningleo', 20, 1], ['icekrill', 19]], boss: 'boss_highland', expect: [0.3, 0.97] },
+  { name: 'ルナフィアたいかい', party: [['darkdragon', 22, 2], ['metalspirit', 21, 2], ['greensprite', 22, 2]], arena: 'arenaD', expect: [0.25, 0.95] },
+  { name: '(参考)配合なし R1 Lv20 でルナフィアたいかい', party: [['lunaslime', 20], ['magmadog', 20], ['stonegolem', 20]], arena: 'arenaD', expect: [0, 0.4] },
 ];
+
 
 describe('難易度曲線', () => {
   for (const [i, st] of STAGES.entries()) {

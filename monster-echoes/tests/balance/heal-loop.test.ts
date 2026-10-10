@@ -11,7 +11,7 @@ function stats(enemies: EnemySpec[], kind: 'wild' | 'arena', lv: number, seed: n
   const turns: number[] = [];
   let heals = 0, acts = 0;
   for (let i = 0; i < 200; i++) {
-    const party = [createMonster('kogemaru', rng, { level: lv }), createMonster('yorufukuro', rng, { level: lv }), createMonster('iwatokage', rng, { level: lv })];
+    const party = [createMonster('magmadog', rng, { level: lv }), createMonster('frostbird', rng, { level: lv }), createMonster('stonegolem', rng, { level: lv })];
     let s = createBattle(kind, party, enemies, 'attack');
     if (kind === 'arena') s.enemyTactic = 'support';
     while (!s.outcome && s.turn < 40) {
@@ -27,9 +27,9 @@ function stats(enemies: EnemySpec[], kind: 'wild' | 'arena', lv: number, seed: n
 
 describe('敵の回復しすぎ', () => {
   const cases: [string, EnemySpec[], 'wild' | 'arena', number][] = [
-    ['野生 モスグロウ×3', [{ speciesId: 'mossglow', level: 6 }, { speciesId: 'mossglow', level: 6 }, { speciesId: 'mossglow', level: 6 }], 'wild', 6],
-    ['闘技場F ミモザ（回復・支援）', [{ speciesId: 'mossglow', level: 11 }, { speciesId: 'lumipon', level: 11 }, { speciesId: 'mossglow', level: 11 }], 'arena', 11],
-    ['ルミポン×2＋ツキポン', [{ speciesId: 'lumipon', level: 12 }, { speciesId: 'lumipon', level: 12 }, { speciesId: 'tsukipon', level: 12 }], 'wild', 11],
+    ['野生 リーファント×3', [{ speciesId: 'leafant', level: 6 }, { speciesId: 'leafant', level: 6 }, { speciesId: 'leafant', level: 6 }], 'wild', 6],
+    ['闘技場F ミモザ（回復・支援）', [{ speciesId: 'leafant', level: 11 }, { speciesId: 'lunaslime', level: 11 }, { speciesId: 'leafant', level: 11 }], 'arena', 11],
+    ['ルナスライム×2＋ゴーストビル', [{ speciesId: 'lunaslime', level: 12 }, { speciesId: 'lunaslime', level: 12 }, { speciesId: 'darkeye', level: 12 }], 'wild', 11],
   ];
   for (const [name, es, kind, lv] of cases)
     it(name, () => {

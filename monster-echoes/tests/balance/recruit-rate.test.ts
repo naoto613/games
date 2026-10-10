@@ -5,9 +5,9 @@ import { createBattle, enemyFromSpec } from '../../src/domain/battle/BattleEngin
 import { rollRecruit } from '../../src/domain/recruitment/RecruitmentEngine';
 import { createMonster } from '../../src/domain/monster/MonsterFactory';
 
-function rate(group: number, meat: number, speciesId = 'yorufukuro') {
+function rate(group: number, meat: number, speciesId = 'frostbird') {
   const rng = createRng(11);
-  const party = [createMonster('kogemaru', rng, { level: 4 })];
+  const party = [createMonster('magmadog', rng, { level: 4 })];
   let n = 0;
   const N = 4000;
   for (let i = 0; i < N; i++) {
@@ -33,7 +33,7 @@ describe('なかま化率（1戦あたり）', () => {
     expect(b).toBeGreaterThan(0.35);
   });
   it('中ランクの種族は にくなしだと さらに まれ', () => {
-    expect(rate(1, 0, 'tsukipon')).toBeLessThan(0.02);
+    expect(rate(1, 0, 'darkeye')).toBeLessThan(0.02);
     void enemyFromSpec;
   });
 });

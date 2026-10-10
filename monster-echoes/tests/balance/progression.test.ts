@@ -23,12 +23,12 @@ const heal = (p: MonsterInstance[]) => p.map((m) => ({ ...m, hp: m.stats.hp, mp:
 
 function run(seed: number, verbose: boolean) {
   const rng = createRng(seed);
-  let party = [createMonster('lumipon', rng, { level: 3, sex: 'B' }), createMonster('kogemaru', rng, { level: 3, sex: 'A' }), createMonster('mossglow', rng, { level: 3, sex: 'A' })];
+  let party = [createMonster('lunaslime', rng, { level: 3, sex: 'B' }), createMonster('magmadog', rng, { level: 3, sex: 'A' }), createMonster('leafant', rng, { level: 3, sex: 'A' })];
   const log = (t: string) => verbose && console.log(t, party.map((m) => `${m.speciesId}${m.level}+${m.plusValue} a${m.stats.attack} d${m.stats.defense} h${m.stats.hp}`).join(' | '));
   let battles = 0;
   for (const fl of ['forest1', 'forest2', 'forest3']) { for (let i = 0; i < 8; i++) { const r = fight(party, rollEncounter(fl, rng), rng); party = heal(r.party); battles++; } log(fl); }
   const b1 = fight(heal(party), BOSSES.boss_forest.enemies, rng, 'boss'); const lv1 = party.map((m) => m.level).join('/');
-  // 配合: lumipon × kogemaru → tsukipon（まだLv10未満ならレベル上げ）
+  // 配合: lunaslime × magmadog → lunaslime（まだLv10未満ならレベル上げ）
   while (party[0].level < 10 || party[1].level < 10) { const r = fight(party, rollEncounter('forest3', rng), rng); party = heal(r.party); battles++; }
   log('before breed (battles ' + battles + ')');
   const w = { monsters: party, partyIds: party.map((m) => m.id), capacity: 20, flags: {} };
@@ -36,7 +36,7 @@ function run(seed: number, verbose: boolean) {
   const br = executeBreeding(w, party[0].id, party[1].id, pv.skills.recommended, rng);
   if (!br.ok) throw new Error(br.error);
   party = br.value.world.partyIds.map((id) => br.value.world.monsters.find((m) => m.id === id)!);
-  party.push(createMonster('kogemaru', rng, { level: 8 }));
+  party.push(createMonster('magmadog', rng, { level: 8 }));
   log('after breed');
   let b = 0;
   for (const fl of ['cave1', 'cave2', 'cave3']) { let turns = 0, wins = 0; for (let i = 0; i < 8; i++) { const r = fight(party, rollEncounter(fl, rng), rng); turns += r.turns; wins += r.win ? 1 : 0; party = heal(r.party); b++; } log(`${fl} win${wins}/8 turns${(turns / 8).toFixed(1)}`); }

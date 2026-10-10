@@ -8,6 +8,7 @@ import { err, ok, type Result } from '../core/Result';
 import { battleRewards, createBattle, expForMember, resolveTurn } from '../domain/battle/BattleEngine';
 import type { BattleState, TurnInput, TurnResult } from '../domain/battle/types';
 import { BREEDING_ERROR_TEXT, checkBreedable, executeBreeding, previewBreeding, type BreedingPreview } from '../domain/breeding/BreedingEngine';
+import { generateFloor } from '../domain/dungeon/FloorGen';
 import { DIRS, encounterChance, findTile, isPassable, loadMap, rollEncounter, tileAt, type Dir, type Pos, type TileMap } from '../domain/dungeon/DungeonEngine';
 import { gainExperience, resolvePendingSkill, type LevelUpEvent } from '../domain/monster/Growth';
 import { createMonster, displayName } from '../domain/monster/MonsterFactory';
@@ -61,6 +62,14 @@ export interface SaveSink {
 }
 
 /** 店に並ぶ品物（進行で増える） */
+/** エリアの n かいめの フロア（シードから 自動生成） */
+export function floorMap(areaId: string, floorIndex: number, seed: number): TileMap {
+  const area = getArea(areaId);
+  const f = area.floors[floorIndex];
+  const last = floorIndex === area.floors.length - 1;
+  return generateFloor({ id: f.id, theme: area.theme, first: floorIndex === 0, last, spring: floorIndex === 1 && !last }, seed);
+}
+
 export function shopItems(s: SaveData): string[] {
   const list = ['herb', 'curegrass', 'jerky', 'returnwing', 'bonemeat', 'mpdrop'];
   if (s.progress.defeatedBossIds.includes('boss_forest')) list.push('bigherb', 'lifeleaf');
@@ -70,9 +79,9 @@ export function shopItems(s: SaveData): string[] {
 
 export function newGameState(name: string, rng: Rng, now = Date.now()): SaveData {
   const ids = new Set<string>();
-  const a = createMonster('lumipon', rng, { level: 3, sex: 'B', obtainedFrom: 'gift', existingIds: ids, now });
+  const a = createMonster('lunaslime', rng, { level: 3, sex: 'B', obtainedFrom: 'gift', existingIds: ids, now });
   ids.add(a.id);
-  const b = createMonster('kogemaru', rng, { level: 3, sex: 'A', obtainedFrom: 'gift', existingIds: ids, now });
+  const b = createMonster('magmadog', rng, { level: 3, sex: 'A', obtainedFrom: 'gift', existingIds: ids, now });
   const town = loadMap('town');
   return {
     schemaVersion: SCHEMA_VERSION,
@@ -85,8 +94,8 @@ export function newGameState(name: string, rng: Rng, now = Date.now()): SaveData
     capacity: BALANCE.storageCapacityStart,
     inventory: { herb: 5, jerky: 3, returnwing: 2 },
     progress: initialProgress(),
-    discoveredSpeciesIds: ['lumipon', 'kogemaru'],
-    ownedSpeciesIds: ['lumipon', 'kogemaru'],
+    discoveredSpeciesIds: ['lunaslime', 'magmadog'],
+    ownedSpeciesIds: ['lunaslime', 'magmadog'],
     breedingHistory: [],
     expedition: null,
     settings: defaultSettings(),
@@ -111,6 +120,11 @@ export class Game {
     this.state = { ...state, storageIds: state.monsters.map((m) => m.id).filter((id) => !state.partyIds.includes(id)) };
     this.rng = opts.rng ?? createRng((Date.now() ^ (Math.random() * 1e9)) >>> 0);
     this.sink = opts.sink ?? null;
+    // 自動生成マップに なる まえの セーブ: フロアの スタートから やりなおす
+    const ex = this.state.expedition;
+    if (ex && (ex.pos.x < 0 || !isPassable(floorMap(ex.areaId, ex.floorIndex, ex.mapSeed), ex.pos.x, ex.pos.y))) {
+      this.state.expedition = { ...ex, pos: findTile(floorMap(ex.areaId, ex.floorIndex, ex.mapSeed), 'S')!, openedChests: ex.openedChests.filter((k) => !k.startsWith(`${ex.floorIndex}:`)) };
+    }
   }
 
   // ---------------------------------------------------------------- 保存
@@ -445,7 +459,7 @@ export class Game {
     const lv = Math.max(2, Math.round(this.party.reduce((a, m) => a + m.level, 0) / this.party.length));
     const maxRarity = this.state.progress.storyFlags.champion ? 3 : this.state.progress.defeatedBossIds.includes('boss_cave') ? 2 : 1;
     const pool = SPECIES_LIST.filter((sp) => sp.rarity <= maxRarity && this.state.discoveredSpeciesIds.includes(sp.id));
-    const pickOne = () => pool[Math.floor(this.rng.next() * pool.length)]?.id ?? 'lumipon';
+    const pickOne = () => pool[Math.floor(this.rng.next() * pool.length)]?.id ?? 'lunaslime';
     const enemies = [0, 1, 2].map(() => ({ speciesId: pickOne(), level: lv, recruitable: false }));
     return ok(this.beginBattle('arena', enemies, { kind: 'practice' }));
   }
@@ -483,10 +497,11 @@ export class Game {
   startExpedition(areaId: string): Result<void> {
     const c = this.canStartExpedition(areaId);
     if (!c.ok) return c;
-    const area = getArea(areaId);
-    const map = loadMap(area.floors[0].mapTemplateId);
+    // はいるたびに ちがう シード → フロアの 形・たからばこの ばしょが かわる
+    const mapSeed = Math.floor(this.rng.next() * 0x7fffffff);
+    const map = floorMap(areaId, 0, mapSeed);
     this.update((s) => (s.progress.storyFlags.ranchGift = true));
-    this.update((s) => (s.expedition = { areaId, floorIndex: 0, pos: findTile(map, 'S')!, dir: 'down', openedChests: [], springUsed: false, stepsSinceBattle: 0 }));
+    this.update((s) => (s.expedition = { areaId, floorIndex: 0, mapSeed, pos: findTile(map, 'S')!, dir: 'down', openedChests: [], springUsed: false, stepsSinceBattle: 0 }));
     this.autosave();
     return ok(undefined);
   }
@@ -497,8 +512,8 @@ export class Game {
     return { area, floor: area.floors[ex.floorIndex], index: ex.floorIndex };
   }
   currentMap(): TileMap | null {
-    const f = this.floor;
-    return f ? loadMap(f.floor.mapTemplateId) : null;
+    const ex = this.state.expedition;
+    return ex ? floorMap(ex.areaId, ex.floorIndex, ex.mapSeed) : null;
   }
   leaveExpedition() {
     this.update((s) => (s.expedition = null));
@@ -574,7 +589,7 @@ export class Game {
     if (!ex) return false;
     const area = getArea(ex.areaId);
     if (ex.floorIndex + 1 >= area.floors.length) return false;
-    const map = loadMap(area.floors[ex.floorIndex + 1].mapTemplateId);
+    const map = floorMap(ex.areaId, ex.floorIndex + 1, ex.mapSeed);
     this.update((s) => {
       s.expedition = { ...s.expedition!, floorIndex: ex.floorIndex + 1, pos: findTile(map, 'S')!, dir: 'down', springUsed: false, stepsSinceBattle: 0 };
     });

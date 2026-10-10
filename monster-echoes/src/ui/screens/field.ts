@@ -6,7 +6,7 @@ import type { Reward } from '../../data/types';
 import { playBgm, sfx } from '../../infrastructure/audio/Sound';
 import type { App, Key, Screen } from '../App';
 import { clear, h } from '../dom';
-import { monsterSprite } from '../gfx/monsters';
+import { monsterSprite, needFlip } from '../gfx/monsters';
 import { mkCanvas } from '../gfx/Pix';
 import { personSprite, TILE, tileSprite, type Theme } from '../gfx/tiles';
 import { startBattle } from './battle';
@@ -41,7 +41,7 @@ export class FieldScreen implements Screen {
   private raf = 0;
   private frame = 0;
   private paused = false;
-  private map: TileMap;
+  private map!: TileMap;
   private stepAnim = 0;
   private dpadKeys: Record<Dir, HTMLElement> = {} as Record<Dir, HTMLElement>;
 
@@ -53,7 +53,7 @@ export class FieldScreen implements Screen {
     this.strip.addEventListener('click', (e) => { e.stopPropagation(); if (this.busy || this.moving) return; sfx('ok'); openParty(this.app, () => this.afterMenu(), { viewOnly: !this.inTown }); });
     const view = h('div', { class: 'view' }, this.cv, this.hudL, this.hudR, this.strip);
     view.addEventListener('click', (e) => this.tapMap(e));
-    this.map = this.loadCurrentMap();
+    this.reloadMap();
     this.el = h('div', { class: 'layer' }, view, this.buildPad());
   }
 
@@ -124,7 +124,7 @@ export class FieldScreen implements Screen {
 
   enter() {
     this.fit();
-    this.map = this.loadCurrentMap();
+    this.reloadMap();
     playBgm(this.inTown ? 'town' : 'field');
     this.updateHud();
     const loop = () => {
@@ -161,7 +161,7 @@ export class FieldScreen implements Screen {
 
   /** メニューから戻ったとき（かえりのはね などで場所が変わることがある） */
   afterMenu() {
-    this.map = this.loadCurrentMap();
+    this.reloadMap();
     playBgm(this.inTown ? 'town' : 'field');
     this.updateHud();
   }
@@ -225,12 +225,24 @@ export class FieldScreen implements Screen {
     else this.pathGoal = null;
   }
 
+  // 主人公の うしろを ついてくる なかま（ドラクエ式）
+  private trail: { x: number; y: number }[] = [];
+  private prevTrail: { x: number; y: number }[] = [];
+  private reloadMap() {
+    this.map = this.loadCurrentMap();
+    this.trail = [0, 1, 2].map(() => ({ ...this.pos }));
+    this.prevTrail = this.trail.map((p) => ({ ...p }));
+  }
+
   private pendingResult: MoveResult | null = null;
   private step(dir: Dir) {
     const from = { ...this.pos };
     const r = this.inTown ? this.game.townMove(dir) : this.game.move(dir);
     if (r.kind === 'moved' || r.kind === 'stairs' || r.kind === 'exit') {
       this.stepAnim++;
+      if (this.trail.length !== 3) this.trail = [0, 1, 2].map(() => ({ ...from }));
+      this.prevTrail = this.trail.map((p) => ({ ...p }));
+      this.trail = [from, ...this.trail].slice(0, 3);
       this.moving = { from, t0: performance.now(), dur: this.app.settings.reduceMotion ? 1 : 150 };
       this.pendingResult = r;
       return;
@@ -269,7 +281,7 @@ export class FieldScreen implements Screen {
           break;
         case 'warp':
           sfx('stairs');
-          await this.fade(() => { this.map = this.loadCurrentMap(); });
+          await this.fade(() => { this.reloadMap(); });
           break;
         case 'locked':
           sfx('bump');
@@ -283,7 +295,7 @@ export class FieldScreen implements Screen {
           if (this.game.state.monsters.length >= this.game.state.capacity) await this.app.say('ぼくじょうが いっぱいだ。なかまが ふえても つれて かえれない。');
           if (!(await this.app.confirm(`「${area.name}」への たびのとびらだ。\nとびこみますか？`))) break;
           sfx('stairs');
-          await this.fade(() => { this.game.startExpedition(r.areaId); this.map = this.loadCurrentMap(); });
+          await this.fade(() => { this.game.startExpedition(r.areaId); this.reloadMap(); });
           playBgm('field');
           this.app.toast(this.game.floor!.floor.name);
           break;
@@ -314,7 +326,7 @@ export class FieldScreen implements Screen {
           sfx('stairs');
           await this.fade(() => {
             this.game.descend();
-            this.map = this.loadCurrentMap();
+            this.reloadMap();
           });
           this.app.toast(this.game.floor!.floor.name);
           break;
@@ -322,7 +334,7 @@ export class FieldScreen implements Screen {
           if (await this.app.confirm('まちへ もどりますか？')) {
             await this.fade(() => {
               this.game.leaveExpedition();
-              this.map = this.loadCurrentMap();
+              this.reloadMap();
             });
             playBgm('town');
           }
@@ -390,9 +402,9 @@ export class FieldScreen implements Screen {
       const hop = Math.abs(dx) + Math.abs(dy) > 0.01 ? Math.abs(Math.sin(r.t / 5)) * 3 : 0;
       g.fillStyle = 'rgba(0,0,0,.25)';
       g.beginPath(); g.ellipse(sx + 16, sy + 29, 11, 4, 0, 0, Math.PI * 2); g.fill();
-      const sp = monsterSprite(m.speciesId);
+      const sp = monsterSprite(m.speciesId, { small: true });
       g.save();
-      if (r.flip) { g.translate(sx + 34, 0); g.scale(-1, 1); g.drawImage(sp, 0, sy - 10 - hop, 36, 36); }
+      if (needFlip(m.speciesId, r.flip)) { g.translate(sx + 34, 0); g.scale(-1, 1); g.drawImage(sp, 0, sy - 10 - hop, 36, 36); }
       else g.drawImage(sp, sx - 2, sy - 10 - hop, 36, 36);
       g.restore();
     });
@@ -433,11 +445,13 @@ export class FieldScreen implements Screen {
     for (const b of findAll(this.map, 'B')) {
       const bossId = this.game.floor?.floor.bossId;
       if (!bossId) continue;
-      const sp = monsterSprite(BOSSES[bossId].enemies.find((e) => e.distorted)?.speciesId ?? 'madoidake', { distorted: true });
+      const sp = monsterSprite(BOSSES[bossId].enemies.find((e) => e.distorted)?.speciesId ?? 'kinoborg', { distorted: true });
       const bob = Math.round(Math.sin(this.frame / 12) * 1.5);
       const bx = Math.round((b.x - camX) * TILE), by = Math.round((b.y - camY) * TILE);
       shadow(bx, by, 16);
+      g.imageSmoothingEnabled = true;
       g.drawImage(sp, bx - 12, by - 22 + bob, 56, 56);
+      g.imageSmoothingEnabled = false;
     }
     // まちの人
     if (!ex) {
@@ -456,11 +470,29 @@ export class FieldScreen implements Screen {
       const gx = Math.round((this.pathGoal.x - camX) * TILE), gy = Math.round((this.pathGoal.y - camY) * TILE);
       g.strokeStyle = '#ffe070'; g.lineWidth = 2; g.strokeRect(gx + 3, gy + 3, TILE - 6, TILE - 6);
     }
-    // しゅじんこう
+    // しゅじんこう と ついてくる なかま（うしろから じゅんに 描く）
     const walk = this.moving ? Math.floor(this.frame / 6) : 0;
     const hx = Math.round((px - camX) * TILE), hy = Math.round((py - camY) * TILE);
-    shadow(hx, hy);
-    g.drawImage(personSprite('hero', this.dir, walk), hx, hy - 10);
+    const t = this.moving ? Math.min(1, (performance.now() - this.moving.t0) / this.moving.dur) : 1;
+    const followers = this.game.party.filter((m) => m.hp > 0).slice(0, 3);
+    const actors: { y: number; draw: () => void }[] = [{ y: py, draw: () => { shadow(hx, hy); g.drawImage(personSprite('hero', this.dir, walk), hx, hy - 10); } }];
+    followers.forEach((m, i) => {
+      const to = this.trail[i] ?? this.pos, fr = this.moving ? (this.prevTrail[i] ?? to) : to;
+      const fx = fr.x + (to.x - fr.x) * t, fy = fr.y + (to.y - fr.y) * t;
+      const mx = Math.round((fx - camX) * TILE), my = Math.round((fy - camY) * TILE);
+      const movingNow = this.moving && (fr.x !== to.x || fr.y !== to.y);
+      const hop = movingNow && !this.app.settings.reduceMotion ? Math.round(Math.abs(Math.sin(t * Math.PI)) * 3) : 0;
+      const faceRight = (to.x > fr.x) || (!movingNow && this.dir === 'right');
+      actors.push({ y: fy - 0.01 * (i + 1), draw: () => {
+        shadow(mx, my, 10);
+        const sp = monsterSprite(m.speciesId, { small: true });
+        g.save();
+        if (needFlip(m.speciesId, faceRight)) { g.translate(mx + TILE, 0); g.scale(-1, 1); g.drawImage(sp, -2, my - 8 - hop, 36, 36); }
+        else g.drawImage(sp, mx - 2, my - 8 - hop, 36, 36);
+        g.restore();
+      } });
+    });
+    actors.sort((a, b) => a.y - b.y).forEach((a) => a.draw());
     // どうくつは 暗く、まわりだけ明るく
     if (th === 'cave') {
       const cx = hx + TILE / 2, cy = hy + TILE / 2;
