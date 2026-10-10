@@ -1,20 +1,21 @@
 [
   {
-    "id": "parade-parallel-halloween-2026",
-    "name": "パレードパラレル〜ハロウィーンver.〜",
-    "category": "parade",
-    "description": "約10年続いたパレードの集大成「パレードパラレル the FINAL」のハロウィーン版。",
+    "id": "ghost-kitty-greeting-2026",
+    "name": "ゴーストキティグリーティング",
+    "category": "greeting",
+    "description": "ハロウィーン期間のグリーティング。撮影エリアの外周から撮影する方式。",
     "eventPeriod": {
       "startDate": "2026-09-18",
       "endDate": "2026-11-10"
     },
-    "days": "all",
+    "days": "unknown",
     "announcedTimes": [
       {
         "dayType": "all",
-        "startTime": "12:30",
-        "endTime": "12:55",
-        "note": "期間中の通常の上演時刻として案内（10月31日・11月1日は12:45開始と案内）"
+        "startTime": null,
+        "endTime": null,
+        "label": "開園から約20分",
+        "note": "開園直後に実施と案内（開園時刻は当日確認）"
       }
     ],
     "schedule": [
@@ -22,7 +23,7 @@
         "date": "2026-10-13",
         "startTime": null,
         "endTime": null,
-        "status": "unconfirmed"
+        "status": "day_of_check"
       }
     ],
     "venue": {
@@ -36,35 +37,39 @@
       "viewingConditions": null
     },
     "admission": null,
+    "characters": [],
+    "viewingRules": [
+      "キャラクターと並んでの撮影は不可",
+      "撮影エリアの外周から撮影する",
+      "撮影後は他のゲストに場所を譲る"
+    ],
+    "goods": [],
+    "notes": [
+      "10月13日の開催・出演内容は当日情報で確認。"
+    ],
     "weatherPolicy": "unconfirmed",
     "sources": [
       "source-halloween-2026",
-      "source-prtimes-parade-final"
+      "source-user-doc-20261010"
     ],
     "lastVerifiedAt": null
   },
   {
-    "id": "magical-masquerade-excite-2026",
-    "name": "Magical Masquerade〜EXCITE！〜",
-    "category": "show",
-    "description": "ハロウィーンイベントの参加型ライブショー。",
+    "id": "wishmemell-15th-special-greeting",
+    "name": "ウィッシュミーメル15周年 スペシャルグリーティング",
+    "category": "greeting",
+    "description": "ウィッシュミーメル15周年の有料グリーティング。参加券1枚につき約1分間の写真・動画撮影、ノベルティあり。",
     "eventPeriod": {
       "startDate": "2026-09-18",
-      "endDate": "2026-11-10"
+      "endDate": "2026-10-13"
     },
-    "days": "all",
+    "days": "unknown",
     "announcedTimes": [
       {
-        "dayType": "weekday",
-        "startTime": "16:00",
-        "endTime": "16:20",
-        "note": "平日の上演時刻として案内"
-      },
-      {
-        "dayType": "holiday",
-        "startTime": "15:15",
-        "endTime": "15:35",
-        "note": "土日祝の上演時刻として案内（10月31日・11月1日は別時刻の案内あり）"
+        "dayType": "all",
+        "startTime": "10:30",
+        "endTime": "10:50",
+        "note": "公式ページの掲載時間"
       }
     ],
     "schedule": [
@@ -72,24 +77,48 @@
         "date": "2026-10-13",
         "startTime": null,
         "endTime": null,
-        "status": "unconfirmed"
+        "status": "day_of_check"
       }
     ],
     "venue": {
-      "name": "ハーモニービレッジ",
-      "facilityId": "harmony-village"
+      "name": "キャラクターグリーティング ファンスタジオ",
+      "facilityId": "fun-studio"
     },
     "requirements": {
       "ticketRequired": "unknown",
-      "reservationRequired": "unknown",
-      "price": null,
+      "reservationRequired": true,
+      "price": "3,500円",
       "viewingConditions": null
     },
-    "admission": null,
+    "admission": {
+      "type": "事前予約（有料）",
+      "required": true,
+      "requiredNote": "有料・事前予約制と公式ページで案内。",
+      "method": "有料・事前予約制",
+      "methodStatus": "scheduled",
+      "distributionLocation": null,
+      "distributionStartTime": null,
+      "participationTime": "10:30〜10:50（掲載時間）",
+      "fee": "3,500円",
+      "endCondition": null,
+      "capacity": null,
+      "eligibility": null,
+      "pastInfo": null,
+      "status": "day_of_check",
+      "statusNote": "10月13日は掲載期間の最終日。予約の可否・空き状況を確認。予約がない場合に参加できるとは限らない。"
+    },
+    "characters": [
+      "ウィッシュミーメル"
+    ],
+    "viewingRules": [],
+    "goods": [],
+    "notes": [
+      "10月13日は掲載期間の最終日。"
+    ],
     "weatherPolicy": "unconfirmed",
     "sources": [
-      "source-prtimes-halloween-2026",
-      "source-halloween-2026"
+      "source-wi15th",
+      "source-user-doc-20261010"
     ],
     "lastVerifiedAt": null
   },
@@ -97,7 +126,7 @@
     "id": "halloween-de-daikoushin-2026",
     "name": "ハロウィーンDEダイコウシン★",
     "category": "show",
-    "description": "キャラクターと一緒に大行進する平日限定の参加型ライブショー。出演キャラクターは日替わりと案内。",
+    "description": "ハロウィーン衣装のキャラクターたちと一緒に大行進する、平日限定の参加型ショー。出演キャラクターは日替わりと案内。",
     "eventPeriod": {
       "startDate": "2026-09-18",
       "endDate": "2026-11-10"
@@ -108,7 +137,7 @@
         "dayType": "weekday",
         "startTime": "11:00",
         "endTime": "11:20",
-        "note": "平日のみの上演時刻として案内"
+        "note": "平日の開催時間として案内"
       }
     ],
     "schedule": [
@@ -116,7 +145,7 @@
         "date": "2026-10-13",
         "startTime": null,
         "endTime": null,
-        "status": "unconfirmed"
+        "status": "day_of_check"
       }
     ],
     "venue": {
@@ -132,20 +161,343 @@
     "admission": {
       "type": "当日受付",
       "required": true,
-      "requiredNote": "参加には受付が必要と公式特設ページで案内（検索結果の要約で確認）。",
-      "method": "事前予約なし",
+      "requiredNote": "参加には当日の受付が必要と公式ページで案内。",
+      "method": "当日先着受付（事前予約なし）",
       "methodStatus": "scheduled",
       "distributionLocation": "ハーモニービレッジ・パレードゲート付近",
-      "distributionStartTime": null,
-      "endCondition": "定員になり次第受付終了",
-      "capacity": null,
+      "distributionStartTime": "10:30〜（掲載時刻）",
+      "participationTime": "11:00〜（平日の掲載時刻）",
+      "fee": null,
+      "endCondition": "定員に達した時点で受付終了",
+      "capacity": "約90名",
       "eligibility": null,
-      "status": "unconfirmed",
-      "statusNote": "受付開始時刻・定員・対象日の実施は未確認。"
+      "pastInfo": null,
+      "status": "day_of_check",
+      "statusNote": "10月13日の開催有無・受付時刻は当日の公式スケジュールで確認。"
     },
+    "characters": [],
+    "viewingRules": [
+      "参加しながらの撮影は不可"
+    ],
+    "goods": [],
+    "notes": [],
     "weatherPolicy": "unconfirmed",
     "sources": [
-      "source-halloween-2026"
+      "source-halloween-2026",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null
+  },
+  {
+    "id": "parade-parallel-halloween-2026",
+    "name": "パレードパラレル〜ハロウィーンver.〜",
+    "category": "parade",
+    "description": "約10年続いたパレードの集大成「パレードパラレル the FINAL」のハロウィーン版。",
+    "eventPeriod": {
+      "startDate": "2026-09-18",
+      "endDate": "2026-11-10"
+    },
+    "days": "all",
+    "announcedTimes": [
+      {
+        "dayType": "all",
+        "startTime": "12:30",
+        "endTime": "12:55",
+        "note": "通常の開催時間（10月31日・11月1日は12:45〜）"
+      }
+    ],
+    "schedule": [
+      {
+        "date": "2026-10-13",
+        "startTime": null,
+        "endTime": null,
+        "status": "day_of_check"
+      }
+    ],
+    "venue": {
+      "name": "ハーモニービレッジ",
+      "facilityId": "harmony-village"
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "viewingConditions": null
+    },
+    "admission": null,
+    "characters": [],
+    "viewingRules": [],
+    "goods": [],
+    "notes": [],
+    "weatherPolicy": "unconfirmed",
+    "sources": [
+      "source-halloween-2026",
+      "source-user-doc-20261010",
+      "source-prtimes-parade-final"
+    ],
+    "lastVerifiedAt": null
+  },
+  {
+    "id": "fun-studio-halloween-2026",
+    "name": "ファンスタジオのハロウィーン有料グリーティング（正式名称未確認）",
+    "category": "greeting",
+    "description": "ファンスタジオで行われる、別枠の有料・事前予約制のハロウィーン関連イベント。",
+    "eventPeriod": {
+      "startDate": "2026-09-18",
+      "endDate": "2026-11-10"
+    },
+    "days": "unknown",
+    "announcedTimes": [
+      {
+        "dayType": "all",
+        "startTime": "13:30",
+        "endTime": "13:50",
+        "note": "公式ページの掲載例（対象日の実施は未確認）"
+      }
+    ],
+    "schedule": [
+      {
+        "date": "2026-10-13",
+        "startTime": null,
+        "endTime": null,
+        "status": "day_of_check"
+      }
+    ],
+    "venue": {
+      "name": "キャラクターグリーティング ファンスタジオ",
+      "facilityId": "fun-studio"
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": true,
+      "price": "3,500円",
+      "viewingConditions": null
+    },
+    "admission": {
+      "type": "事前予約（有料）",
+      "required": true,
+      "requiredNote": "有料・事前予約制の別枠イベントとして公式ページで案内。",
+      "method": "有料・事前予約制",
+      "methodStatus": "scheduled",
+      "distributionLocation": null,
+      "distributionStartTime": null,
+      "participationTime": "13:30〜13:50（掲載例）",
+      "fee": "3,500円",
+      "endCondition": null,
+      "capacity": null,
+      "eligibility": null,
+      "pastInfo": null,
+      "status": "day_of_check",
+      "statusNote": "予約対象日・空き状況・参加条件を確認。"
+    },
+    "characters": [],
+    "viewingRules": [],
+    "goods": [],
+    "notes": [
+      "PR TIMESで告知された「パレードパラレル the FINAL」のシーズン衣装の有料スペシャルグリーティングと同じものかは未確認。"
+    ],
+    "weatherPolicy": "unconfirmed",
+    "sources": [
+      "source-halloween-2026",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null
+  },
+  {
+    "id": "plaza-stage-halloween-2026",
+    "name": "プラザステージのハロウィーンショー（正式名称未確認）",
+    "category": "show",
+    "description": "プラザステージで行われるハロウィーン関連ショー。",
+    "eventPeriod": {
+      "startDate": "2026-09-18",
+      "endDate": "2026-11-10"
+    },
+    "days": "all",
+    "announcedTimes": [
+      {
+        "dayType": "weekday",
+        "startTime": "15:00",
+        "endTime": null,
+        "note": "平日の掲載時刻"
+      },
+      {
+        "dayType": "holiday",
+        "startTime": "11:00",
+        "endTime": null,
+        "note": "土日祝の掲載時刻"
+      }
+    ],
+    "schedule": [
+      {
+        "date": "2026-10-13",
+        "startTime": null,
+        "endTime": null,
+        "status": "day_of_check"
+      }
+    ],
+    "venue": {
+      "name": "プラザステージ",
+      "facilityId": "plaza-stage"
+    },
+    "requirements": {
+      "ticketRequired": false,
+      "reservationRequired": "unknown",
+      "price": "観覧は無料かは未確認。最前列は有料券1,000円",
+      "viewingConditions": null
+    },
+    "admission": {
+      "type": "最前列有料券（任意）",
+      "required": "optional",
+      "requiredNote": "最前列で見たい場合のみ。",
+      "method": "ショー開始30分前から会場付近で数量限定販売",
+      "methodStatus": "scheduled",
+      "distributionLocation": "会場付近",
+      "distributionStartTime": "ショー開始の30分前から",
+      "participationTime": null,
+      "fee": "1,000円",
+      "endCondition": "数量限定",
+      "capacity": null,
+      "eligibility": null,
+      "pastInfo": null,
+      "status": "day_of_check",
+      "statusNote": "10月13日の実施・販売の有無は当日確認。"
+    },
+    "characters": [],
+    "viewingRules": [],
+    "goods": [],
+    "notes": [
+      "10月31日・11月1日は実施なし。"
+    ],
+    "weatherPolicy": "unconfirmed",
+    "sources": [
+      "source-halloween-2026",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null
+  },
+  {
+    "id": "magical-masquerade-excite-2026",
+    "name": "Magical Masquerade〜EXCITE！〜",
+    "category": "show",
+    "description": "コール＆レスポンスやダンスで参加するハロウィーンのライブショー。",
+    "eventPeriod": {
+      "startDate": "2026-09-18",
+      "endDate": "2026-11-10"
+    },
+    "days": "all",
+    "announcedTimes": [
+      {
+        "dayType": "weekday",
+        "startTime": "16:00",
+        "endTime": "16:20",
+        "note": "平日の上演時刻"
+      },
+      {
+        "dayType": "holiday",
+        "startTime": "15:15",
+        "endTime": "15:35",
+        "note": "土日祝の上演時刻（10月31日・11月1日は別時刻の案内あり）"
+      }
+    ],
+    "schedule": [
+      {
+        "date": "2026-10-13",
+        "startTime": null,
+        "endTime": null,
+        "status": "day_of_check"
+      }
+    ],
+    "venue": {
+      "name": "ハーモニービレッジ",
+      "facilityId": "harmony-village"
+    },
+    "requirements": {
+      "ticketRequired": false,
+      "reservationRequired": false,
+      "price": null,
+      "viewingConditions": null
+    },
+    "admission": null,
+    "characters": [
+      "ハローキティ",
+      "マイメロディ",
+      "クロミ",
+      "シナモロール",
+      "ポムポムプリン",
+      "ウィッシュミーメル"
+    ],
+    "viewingRules": [
+      "前方の指定エリアではダンスや移動への参加が必要",
+      "前方エリアでは一眼レフ・ビデオカメラの使用は禁止",
+      "スマートフォンでの撮影は可能。三脚・伸ばした自撮り棒は使用不可",
+      "ベビーカーは後方の指定エリアで使用",
+      "手荷物は小さくまとめる",
+      "荷物だけで場所取りをしない",
+      "現場スタッフの案内に従う"
+    ],
+    "goods": [
+      {
+        "name": "マジカルマスカレードマスク",
+        "price": "1,320円"
+      },
+      {
+        "name": "リングライト",
+        "price": "1,760円"
+      },
+      {
+        "name": "販売場所",
+        "price": "カントリーマーケット、サンリオキャラクターコレクション、サンリオnakayokuショップ"
+      }
+    ],
+    "notes": [],
+    "weatherPolicy": "unconfirmed",
+    "sources": [
+      "source-halloween-2026",
+      "source-prtimes-halloween-2026",
+      "source-user-doc-20261010"
+    ],
+    "lastVerifiedAt": null
+  },
+  {
+    "id": "halloween-keyword-hunt-2026",
+    "name": "ハロウィーン キーワード探し",
+    "category": "event",
+    "description": "園内のキーワードを探す参加型の企画。移動の合間に参加できる。",
+    "eventPeriod": {
+      "startDate": "2026-09-18",
+      "endDate": "2026-11-10"
+    },
+    "days": "all",
+    "announcedTimes": [],
+    "schedule": [
+      {
+        "date": "2026-10-13",
+        "startTime": null,
+        "endTime": null,
+        "status": "day_of_check"
+      }
+    ],
+    "venue": {
+      "name": "改札ゲートラック、インフォメーション、園内ショップ3店舗",
+      "facilityId": "information"
+    },
+    "requirements": {
+      "ticketRequired": "unknown",
+      "reservationRequired": "unknown",
+      "price": null,
+      "viewingConditions": null
+    },
+    "admission": null,
+    "characters": [],
+    "viewingRules": [],
+    "goods": [],
+    "notes": [
+      "時間指定はない企画として扱っている（実施時間は未確認）。"
+    ],
+    "weatherPolicy": "unconfirmed",
+    "sources": [
+      "source-halloween-2026",
+      "source-user-doc-20261010"
     ],
     "lastVerifiedAt": null
   },
@@ -165,7 +517,7 @@
         "date": "2026-10-13",
         "startTime": null,
         "endTime": null,
-        "status": "unconfirmed"
+        "status": "day_of_check"
       }
     ],
     "venue": {
@@ -179,19 +531,28 @@
       "viewingConditions": null
     },
     "admission": {
-      "type": "事前予約",
+      "type": "事前予約（有料）",
       "required": true,
-      "requiredNote": "有料・事前予約制と案内（検索結果の要約で確認）。",
+      "requiredNote": "有料・事前予約制と案内。",
       "method": null,
       "methodStatus": null,
       "distributionLocation": null,
       "distributionStartTime": null,
+      "participationTime": null,
+      "fee": null,
       "endCondition": null,
       "capacity": null,
       "eligibility": null,
-      "status": "unconfirmed",
-      "statusNote": "予約方法・料金・対象日の実施有無は未確認。"
+      "pastInfo": null,
+      "status": "day_of_check",
+      "statusNote": "予約方法・料金・対象日の実施は未確認。"
     },
+    "characters": [],
+    "viewingRules": [],
+    "goods": [],
+    "notes": [
+      "上の「ファンスタジオのハロウィーン有料グリーティング」と同じものかは未確認。"
+    ],
     "weatherPolicy": "unconfirmed",
     "sources": [
       "source-prtimes-parade-final"

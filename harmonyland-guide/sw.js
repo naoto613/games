@@ -1,9 +1,9 @@
 /* sw.js — 一度開いたあとは通信できなくても基本情報を見られるようにする（HTTPS / localhost のみ） */
-var CACHE = 'harmonyland-guide-v1';
+var CACHE = 'harmonyland-guide-v2';
 var FILES = [
   './', './index.html', './css/style.css', './manifest.webmanifest',
   './js/data-fallback.js', './js/storage.js', './js/app.js', './js/map.js', './js/schedule.js', './js/planner.js',
-  './data/app-config.json', './data/facilities.json', './data/shows.json', './data/sources.json', './data/opening-info.json',
+  './data/app-config.json', './data/facilities.json', './data/shows.json', './data/sources.json', './data/opening-info.json', './data/park-info.json',
   './assets/icon.svg', './assets/map-base.svg'
 ];
 self.addEventListener('install', function (e) {

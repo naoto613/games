@@ -48,6 +48,9 @@
       else if (refs.length) hint = h('div', { class: 'small', style: { color: 'var(--color-warning-text)' }, text: '？ 対象日の時刻は未確認（期間中の通常時刻：' + refs.map(function (r) { return r.startTime; }).join('、') + '）' });
     }
     var adm = o && HL.needsAdmission(o) ? h('span', { class: 'badge req', text: '🎫 ' + ((o.admission && o.admission.type) || '整理券・予約') + 'が必要' }) : null;
+    var weather = p.kind === 'facility' && o && (HL.rainSuspended(o) || HL.windSuspended(o))
+      ? h('span', { class: 'badge ' + (HL.state.rainMode ? 'st-changed' : 'st-unconfirmed'), text: HL.rainSuspended(o) ? '☔ 雨天運休' : '🌬 強風時運休' }) : null;
+    var elig = p.kind === 'facility' && o ? HL.eligibilityBadges(o) : null;
 
     return h('div', { class: 'item' + (done ? ' done' : '') },
       h('div', { class: 'item-head' },
@@ -55,7 +58,7 @@
         h('div', { style: { flex: 1, minWidth: 0 } },
           href ? h('a', { class: 'item-name', href: href, text: name }) : h('span', { class: 'item-name', text: name }),
           h('div', { class: 'badges' }, h('span', { class: 'badge plain', text: p.kind === 'show' ? 'ショー・イベント' : '施設' }),
-            h('span', { class: 'badge cat', text: '優先度 ' + PRIORITY[p.priority] }), adm),
+            h('span', { class: 'badge cat', text: '優先度 ' + PRIORITY[p.priority] }), adm, weather, elig),
           hint)),
       h('div', { class: 'plan-grid' },
         h('label', { class: 'field' }, '開始（任意）', start),
@@ -72,6 +75,86 @@
         } })));
   }
 
+  /* 子どもの年齢（利用条件の確認用） */
+  function profileCard() {
+    var ages = HL.state.profile.childAges;
+    var box = h('section', { class: 'card' }, h('h2', null, '👧 子どもの年齢'),
+      h('p', { class: 'small muted', style: { margin: '0 0 6px' }, text: '公式一覧の年齢条件（利用不可・保護者同伴）と照らし合わせます。身長・体重・当日の運行は判定しません。' }));
+    var row = h('div', { class: 'btn-row', style: { marginTop: 0 } });
+    ages.forEach(function (a, i) {
+      row.appendChild(h('span', { class: 'chip', style: { display: 'inline-flex', alignItems: 'center', gap: '6px' } }, a + '歳',
+        h('button', { type: 'button', class: 'btn small ghost', style: { minHeight: '28px', padding: '0 8px' }, 'aria-label': a + '歳を削除', text: '×',
+          onclick: function () { ages.splice(i, 1); HL.persist(); HL.render(); } })));
+    });
+    if (ages.length < 6) {
+      var sel = h('select', { 'aria-label': '子どもの年齢を追加', style: { minHeight: '40px', borderRadius: '10px', border: '2px solid var(--color-border)', padding: '0 8px' } },
+        h('option', { value: '', text: '＋ 年齢を追加' }),
+        Array.apply(null, Array(16)).map(function (_, n) { return h('option', { value: String(n), text: n + '歳' }); }));
+      sel.addEventListener('change', function () {
+        if (sel.value === '') return;
+        ages.push(Number(sel.value)); HL.persist(); HL.render();
+      });
+      row.appendChild(sel);
+    }
+    box.appendChild(row);
+    if (ages.length) box.appendChild(h('div', { class: 'btn-row' }, h('a', { class: 'btn small sub', href: '#list?f=kids', text: '利用できるアトラクションを見る' })));
+    return box;
+  }
+
+  /* 雨の日モード：雨天・強風で運休する予定と、代わりの候補 */
+  function rainCard() {
+    var on = HL.state.rainMode;
+    var cb = h('input', { type: 'checkbox', checked: on, onchange: function () { HL.state.rainMode = cb.checked; HL.persist(); HL.render(); } });
+    var box = h('section', { class: 'card' + (on ? ' warn' : '') }, h('h2', null, '☔ 雨の日モード'),
+      h('label', { class: 'check' }, cb, '雨・強風のときの代わりのプランを表示'));
+    if (!on) return box;
+    var affected = HL.state.plan.filter(function (p) { var o = p.kind === 'facility' && HL.facility(p.refId); return o && (HL.rainSuspended(o) || HL.windSuspended(o)); });
+    box.appendChild(h('p', { class: 'small', style: { margin: '4px 0' }, text: (HL.data.opening && HL.data.opening.weather && HL.data.opening.weather.text) || '' }));
+    box.appendChild(h('div', { class: 'small' }, h('b', { text: 'プランのうち運休の可能性があるもの：' }),
+      affected.length ? affected.map(function (p) { var o = HL.facility(p.refId); return h('div', { text: '・' + o.name + (HL.rainSuspended(o) ? '（雨天運休）' : '（強風時運休）') }); }) : h('div', { text: 'なし' })));
+    var ages = HL.childAges();
+    var alt = HL.data.facilities.filter(function (f) {
+      if (f.category !== 'attraction' && f.category !== 'greeting') return false;
+      if (HL.rainSuspended(f) || HL.windSuspended(f)) return false;
+      if (HL.planItem('facility', f.id)) return false;
+      return ages.every(function (a) { var e = HL.eligibility(f, a); return !e || e.level === 'ok' || e.level === 'guardian'; });
+    });
+    box.appendChild(h('div', { class: 'small', style: { marginTop: '6px' } }, h('b', { text: '代わりの候補（雨天運休の掲載がない施設）：' })));
+    alt.forEach(function (f) {
+      box.appendChild(h('div', { class: 'notice-line' }, h('a', { class: 'inlink', style: { flex: 1 }, href: '#facility/' + f.id, text: HL.cat(f.category).icon + ' ' + f.name }),
+        h('button', { class: 'btn small sub', type: 'button', text: '＋ 追加', onclick: function () { HL.addToPlan('facility', f.id); HL.toast('プランに追加しました'); HL.render(); } })));
+    });
+    box.appendChild(h('p', { class: 'small', style: { margin: '6px 0 0' }, text: '？ 屋内かどうか・当日運行するかは未確認です。運休は雨・強風以外の理由でも起こるため、当日の運行状況を確認してください。' }));
+    return box;
+  }
+
+  /* ショーを軸にした時間割：自分の予定（時刻あり）＋ 参考時刻のショー */
+  function timetableCard() {
+    var rows = [];
+    HL.state.plan.forEach(function (p) {
+      if (!p.startTime) return;
+      var o = refOf(p);
+      rows.push({ t: p.startTime, end: p.endTime, name: o ? o.name : p.refId, href: o ? (p.kind === 'show' ? '#show/' : '#facility/') + p.refId : null, mine: true });
+    });
+    if (HL.schedule) HL.schedule.dayRows(HL.data.shows.filter(HL.inPeriod)).forEach(function (r) {
+      if (!r.start) return;
+      var mine = HL.planItem('show', r.show.id);
+      if (mine && mine.startTime) return;
+      rows.push({ t: r.start, end: r.end, name: r.show.name, href: '#show/' + r.show.id, ref: r.ref, inPlan: !!mine });
+    });
+    rows.sort(function (a, b) { return a.t < b.t ? -1 : a.t > b.t ? 1 : 0; });
+    var ul = h('ul', { class: 'mini-tl' });
+    rows.forEach(function (r) {
+      ul.appendChild(h('li', null,
+        h('span', { class: 't' + (r.ref ? ' ref' : ''), text: (r.ref ? '参考 ' : '') + r.t }),
+        h('span', null, r.href ? h('a', { class: 'inlink', href: r.href, text: r.name }) : r.name,
+          r.mine ? h('span', { class: 'badge cat', style: { marginLeft: '6px' }, text: '自分の予定' }) : r.inPlan ? h('span', { class: 'badge cat', style: { marginLeft: '6px' }, text: '予定に追加済み' }) : null)));
+    });
+    return h('section', { class: 'card' }, h('h2', null, '🕒 時間割（ショーを軸に）'),
+      rows.length ? ul : h('p', { class: 'empty', text: '時刻のある予定はまだありません。' }),
+      h('p', { class: 'small muted', style: { margin: '6px 0 0' }, text: '「参考」は公式に案内された通常の時刻で、10月13日の開催は要確認です。自分で時刻を入れた予定は「自分の予定」と表示します。移動時間は含みません。' }));
+  }
+
   HL.screens.plan = function (main) {
     var warn = HL.storageWarning();
     if (warn) main.appendChild(warn);
@@ -82,16 +165,19 @@
     main.appendChild(h('section', { class: 'card hero' },
       h('p', { class: 'hero-title', text: '回り方プラン' }),
       h('p', { class: 'hero-sub', text: '登録 ' + plan.length + '件／訪問済み ' + visitedCount + '件' }),
-      h('details', { class: 'fold' }, h('summary', { text: '回り方の考え方' }),
-        h('ol', { class: 'steps small' },
-          h('li', { text: '受付時間や整理券など、先に対応が必要なものを確認する（整理券タブ）' }),
-          h('li', { text: '開催時刻が決まっているショーを予定に入れる（ショータブ）' }),
-          h('li', { text: 'ショーの前後に行きたい施設を登録する' }),
-          h('li', { text: '食事や休憩を適宜組み込む（メモ欄を活用）' }),
-          h('li', { text: '移動中はマップから施設を選ぶ' }),
-          h('li', { text: '行った施設は「訪問済み」にチェック' }),
-          h('li', { text: '営業状況やイベントの変更を確認して予定を調整する' })),
-        h('p', { class: 'small muted', style: { margin: 0 }, text: '最適ルートの自動作成は行いません。時刻が未確認のものに時刻を自動で入れることもしません。' }))));
+      h('details', { class: 'fold' }, h('summary', { text: '回り方の考え方（優先順位）' }),
+        h('ol', { class: 'steps small' }, ((HL.data.park && HL.data.park.planPriority) || []).map(function (t) { return h('li', { text: t }); })),
+        h('p', { class: 'small muted', style: { margin: 0 }, text: '最適ルートの自動作成は行いません。時刻が未確認のものに時刻を自動で入れることもしません。' })),
+      HL.data.park && HL.data.park.modelPlan ? h('details', { class: 'fold' }, h('summary', { text: 'モデルプラン（時間の目安）' }),
+        HL.data.park.modelPlan.map(function (ph) {
+          return h('div', { style: { marginTop: '6px' } }, h('b', { class: 'small', text: ph.phase }),
+            h('ul', { class: 'small', style: { margin: '2px 0', paddingLeft: '1.3em' } }, ph.items.map(function (t) { return h('li', { text: t }); })));
+        }),
+        h('p', { class: 'small', style: { color: 'var(--color-warning-text)', margin: '4px 0 0' }, text: '？ ' + (HL.data.park.modelPlanNote || '') })) : null));
+
+    main.appendChild(profileCard());
+    main.appendChild(rainCard());
+    main.appendChild(timetableCard());
 
     // 先に対応が必要なもの（整理券・受付）で、まだプランにないもの
     var needFirst = HL.data.facilities.map(function (f) { return { k: 'facility', o: f }; })

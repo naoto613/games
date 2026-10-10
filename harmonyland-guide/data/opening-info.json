@@ -1,6 +1,6 @@
 {
   "date": "2026-10-13",
-  "status": "unconfirmed",
+  "status": "day_of_check",
   "isOpen": "unknown",
   "openingTime": null,
   "closingTime": null,
@@ -8,18 +8,21 @@
   "closures": [],
   "notes": [
     {
-      "text": "対象日の営業・休園と営業時間は公式の営業カレンダーで確認できていません。",
-      "status": "unconfirmed"
+      "text": "10月13日の営業時間・最終入園時刻は公式の営業カレンダーで確認できていません（当日要確認）。",
+      "status": "day_of_check"
     },
     {
       "text": "休園日は不定休と案内されています。来園前に公式サイトの営業カレンダーを確認してください。",
-      "status": "unconfirmed"
+      "status": "day_of_check"
     }
   ],
   "weather": {
-    "text": "雨天時の各施設・ショーの運用は未確認です。",
-    "status": "unconfirmed"
+    "text": "雨天運休と公式FAQに掲載：リズミックコースター、ハーモニートレイン、ハローキティのエンジェルコースター、ウォーターショット。スカイジェットは雨でも利用できる場合あり（濡れる可能性）。観覧車は強風時運休。天候だけで運行可否は断定できないため、当日の運行状況を確認。",
+    "status": "reference"
   },
-  "sources": ["source-official-top"],
+  "sources": [
+    "source-official-top",
+    "source-faq"
+  ],
   "lastVerifiedAt": null
 }
