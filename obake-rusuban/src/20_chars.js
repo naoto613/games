@@ -36,6 +36,9 @@ const CHAR_DEF = {
   akari: { name: 'あかり', short: 'あかり', col: '#3a4a7a', pants: '#3a4a7a', skin: '#f6dcc4', hair: '#2a2220', h: 1.52, w: 0.52, ribbon: '#e04a4a', tag: '#3a4a9a' },
   sota: { name: 'そうた', short: 'そうた', col: '#f4c84a', pants: '#4a7ac8', skin: '#f8e0c8', hair: '#3a2a22', h: 1.08, w: 0.48, tag: '#c89a1a' },
   fumi: { name: 'おばあちゃん', short: 'ばあちゃん', col: '#9a7ab0', pants: '#6a5a6a', skin: '#f2d6bc', hair: '#c8c4c0', h: 1.32, w: 0.56, tag: '#7a5a9a' },
+  hinata: { name: 'ひなた', short: 'ひなた', col: '#e8606a', pants: '#3a4a7a', skin: '#f6d8bc', hair: '#3a2a22', h: 1.14, w: 0.5, tag: '#d04050' },
+  mio: { name: 'みお', short: 'みお', col: '#7ac8a8', pants: '#7ac8a8', skin: '#f8e0c8', hair: '#6a4430', h: 1.12, w: 0.48, tag: '#3a9a7a' },
+  kento: { name: 'けんと', short: 'けんと', col: '#6aa8e8', pants: '#5a5a6a', skin: '#f8dcc4', hair: '#2e2420', h: 0.98, w: 0.46, tag: '#3a7ac8' },
   monaka: { name: 'もなか', short: 'もなか', col: '#f0e0c8', spot: '#b8865a', h: 0.5, tag: '#a8783a' },
 };
 function buildPerson(id) {
@@ -75,6 +78,9 @@ function buildPerson(id) {
   if (id === 'misaki') { const c = mesh(G.sph(headR * 1.08, 18, 14, 0, TAU, 0, Math.PI * 0.55), hair); at(c, 0, 0.0, -headR * 0.06); head.add(c); for (const s of [-1, 1]) { const b = mesh(G.rbox(headR * 0.4, headR * 1.1, headR * 0.8, headR * 0.18), hair); at(b, s * headR * 0.85, -headR * 0.35, -headR * 0.1); head.add(b); } }
   if (id === 'akari') { const c = mesh(G.sph(headR * 1.06, 18, 14, 0, TAU, 0, Math.PI * 0.5), hair); at(c, 0, 0.02, -headR * 0.05); head.add(c); const t = mesh(G.sph(headR * 0.42, 12, 10), hair); t.scale.set(0.8, 1.5, 0.8); at(t, 0, -headR * 0.15, -headR * 1.15); head.add(t); const rb = mesh(G.sph(headR * 0.2, 10, 8), M('#e04a4a')); at(rb, 0, headR * 0.35, -headR * 1.0); head.add(rb); for (const s of [-1, 1]) { const b = mesh(G.rbox(headR * 0.3, headR * 0.9, headR * 0.6, headR * 0.14), hair); at(b, s * headR * 0.9, -headR * 0.3, -headR * 0.15); head.add(b); } }
   if (id === 'sota') { const c = mesh(G.sph(headR * 1.04, 18, 12, 0, TAU, 0, Math.PI * 0.45), hair); at(c, 0, 0.03, -headR * 0.04); head.add(c); const tf = mesh(G.cone(headR * 0.18, headR * 0.4, 6), hair); at(tf, headR * 0.2, headR * 1.05, 0); tf.rotation.z = -0.4; head.add(tf); }
+  if (id === 'hinata') { const c = mesh(G.sph(headR * 1.08, 18, 14, 0, TAU, 0, Math.PI * 0.56), hair); at(c, 0, 0, -headR * 0.05); head.add(c); for (const s of [-1, 1]) { const b = mesh(G.rbox(headR * 0.36, headR * 0.9, headR * 0.8, headR * 0.16), hair); at(b, s * headR * 0.88, -headR * 0.3, -headR * 0.1); head.add(b); } const pin = mesh(G.rbox(headR * 0.4, headR * 0.1, headR * 0.08, 0.02), M('#f4c84a')); pin.rotation.z = 0.4; at(pin, headR * 0.5, headR * 0.6, headR * 0.65); head.add(pin); }
+  if (id === 'mio') { const c = mesh(G.sph(headR * 1.06, 18, 14, 0, TAU, 0, Math.PI * 0.5), hair); at(c, 0, 0.02, -headR * 0.05); head.add(c); for (const s of [-1, 1]) { const t = mesh(G.sph(headR * 0.36, 12, 10), hair); t.scale.set(0.8, 1.5, 0.8); at(t, s * headR * 1.05, -headR * 0.3, -headR * 0.2); head.add(t); const rb = mesh(G.sph(headR * 0.14, 10, 8), M('#f4a0c0')); at(rb, s * headR * 0.92, headR * 0.15, -headR * 0.2); head.add(rb); } }
+  if (id === 'kento') { const c = mesh(G.sph(headR * 1.04, 18, 12, 0, TAU, 0, Math.PI * 0.45), hair); at(c, 0, 0.03, -headR * 0.04); head.add(c); const cap = mesh(G.sph(headR * 1.08, 18, 10, 0, TAU, 0, Math.PI * 0.38), M('#e8a83a')); at(cap, 0, headR * 0.12, -headR * 0.02); head.add(cap); const br = mesh(G.rbox(headR * 1.2, headR * 0.08, headR * 0.7, 0.03), M('#e8a83a')); at(br, 0, headR * 0.5, headR * 0.75); head.add(br); }
   if (id === 'fumi') { const c = mesh(G.sph(headR * 1.05, 18, 12, 0, TAU, 0, Math.PI * 0.5), hair); at(c, 0, 0.02, -headR * 0.05); head.add(c); const bn = mesh(G.sph(headR * 0.42, 12, 10), hair); at(bn, 0, headR * 0.55, -headR * 0.8); head.add(bn); RB(body, W * 1.06, torsoH * 0.6, W * 0.78, '#b89ac8', 0, legH + torsoH * 0.62, 0, 0.12); }
   parts.headR = headR; parts.H = H;
   root.userData.parts = parts;
@@ -118,6 +124,8 @@ function propMesh(kind) {
   if (kind === 'tie') { RB(g, 0.08, 0.4, 0.02, '#3a5a9a', 0, -0.15, 0.05, 0.02); }
   if (kind === 'pudding') { const c = mesh(G.cyl(0.06, 0.07, 0.08, 10), M('#f4d880')); at(c, 0, 0.02, 0.05); g.add(c); const t = mesh(G.cyl(0.04, 0.06, 0.03, 10), M('#8a4a1a')); at(t, 0, 0.07, 0.05); g.add(t); }
   if (kind === 'senbei') { const c = mesh(G.rcyl(0.07, 0.02, 0.008, 12), M('#c8884a')); at(c, 0, 0, 0.05); g.add(c); }
+  if (kind === 'net') { const p = mesh(G.cyl(0.02, 0.02, 0.9, 6), M('#c8a868')); p.rotation.x = Math.PI / 2.4; at(p, 0, 0.1, 0.35); g.add(p); const r = mesh(G.tor(0.18, 0.015, 6, 14), M('#e8e8e8')); at(r, 0, 0.42, 0.75); g.add(r); const n = mesh(G.cone(0.18, 0.3, 10, 1, true), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5, side: THREE.DoubleSide })); n.rotation.x = Math.PI; at(n, 0, 0.27, 0.75); g.add(n); }
+  if (kind === 'mikan') { const m = mesh(G.sph(0.07, 10, 8), M('#f08a20')); at(m, 0, 0, 0.06); g.add(m); }
   if (kind === 'knit') { const c = mesh(G.sph(0.08, 10, 8), M('#e86a8a')); at(c, 0, 0, 0.06); g.add(c); }
   return g;
 }

@@ -1,99 +1,86 @@
-// ================================================================ conversations, results, diary
+// ================================================================ conversations, results, album
+const SPEAKER = { n: { name: '', col: '#7a6a8a' }, powa: { name: 'ぽわ', col: '#8a9ad8' }, sota: { name: 'そうた', col: '#c89a1a' }, hinata: { name: 'ひなた', col: '#d04050' }, mio: { name: 'みお', col: '#3a9a7a' }, kento: { name: 'けんと', col: '#3a7ac8' }, monaka: { name: 'もなか', col: '#a8783a' } };
 const Talk = (() => {
-  let resolve = null, lines = [], i = 0, typing = null, full = '', shown = 0, skipAll = false;
+  let resolve = null, lines = [], i = 0, typing = null, full = '', shown = 0;
   const box = $('#tkBox');
   function show() {
     const [who, text] = lines[i]; const sp = SPEAKER[who] || SPEAKER.n;
     $('#tkWho').textContent = sp.name; $('#tkWho').style.background = sp.col; $('#tkWho').style.visibility = sp.name ? '' : 'hidden';
-    full = text; shown = 0; $('#tkTxt').textContent = '';
-    $('#tkTxt').style.fontStyle = who === 'n' ? 'italic' : '';
-    const a = AG[who]; if (a && a.home) UI.bubble(a, text.length > 26 ? text.slice(0, 24) + '…' : text, 3.5);
-    if (who === 'powa') Hooks.powaSpeak && Hooks.powaSpeak(text);
-    clearInterval(typing);
-    typing = setInterval(() => { shown += 2; $('#tkTxt').textContent = full.slice(0, shown); if (shown >= full.length) clearInterval(typing); }, 28);
+    full = text; shown = 0; $('#tkTxt').textContent = ''; $('#tkTxt').style.fontStyle = who === 'n' ? 'italic' : '';
+    const a = AG[who]; if (a && a.home) UI.bubble(a, text.length > 24 ? text.slice(0, 22) + '…' : text, 3.5);
+    clearInterval(typing); typing = setInterval(() => { shown += 2; $('#tkTxt').textContent = full.slice(0, shown); if (shown >= full.length) clearInterval(typing); }, 28);
     Sound.sfx('page');
   }
-  function next() {
-    if (shown < full.length) { shown = full.length; $('#tkTxt').textContent = full; clearInterval(typing); return; }
-    i++; if (i >= lines.length) return done();
-    show();
-  }
+  function next() { if (shown < full.length) { shown = full.length; $('#tkTxt').textContent = full; clearInterval(typing); return; } i++; if (i >= lines.length) return done(); show(); }
   function done() { clearInterval(typing); $('#talk').classList.add('hide'); UI.clearBubbles(); const r = resolve; resolve = null; r && r(); }
   box.addEventListener('click', e => { if (e.target.id === 'tkSkip') return; Sound.unlock(); next(); });
   $('#tkSkip').addEventListener('click', e => { e.stopPropagation(); done(); });
   addEventListener('keydown', e => { if (!resolve) return; if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); next(); } });
-  return {
-    run(ls, head) {
-      return new Promise(r => {
-        if (HEADLESS || !ls || !ls.length) { r(); return; }
-        lines = ls; i = 0; resolve = r; $('#talk').classList.remove('hide'); $('#tkHdl').textContent = head || ''; show();
-      });
-    },
-    get active() { return !!resolve; },
-  };
+  return { run(ls, head) { return new Promise(r => { if (HEADLESS || !ls || !ls.length) { r(); return; } lines = ls; i = 0; resolve = r; $('#talk').classList.remove('hide'); $('#tkHdl').textContent = head || ''; show(); }); }, get active() { return !!resolve; } };
 })();
-function stars(n, max = 3) { let s = ''; for (let i = 0; i < max; i++) s += i < n ? '★' : '<i>★</i>'; return s; }
-function dayResult() {
-  const d = World.day, D = DAYS[d];
-  const ex = World.maxExposure || 0;
-  const hide = World.caught ? 0 : ex < 0.3 ? 3 : ex < 0.7 ? 2 : 1;
-  const md = World.maxDepth;
-  const chain = md >= 6 ? 3 : md >= 4 ? 2 : md >= 2 ? 1 : 0;
-  const goal = !World.caught && (D.free ? true : !!World.goalDone);
-  let hidden = false; try { hidden = !!D.hiddenOK(); } catch (e) { }
-  return { day: d, goal, hide, chain, depth: md, hidden, events: World.events.filter(e => !e.player).length, caught: World.caught };
+function stars(n) { let s = ''; for (let i = 0; i < 3; i++) s += i < n ? '★' : '<i>★</i>'; return s; }
+function visitResult() {
+  const kids = FAMILY.map(id => AG[id]);
+  const per = kids.map(a => { const den = Math.max(1, World.elapsed - a.arrive); return { id: a.id, r: clamp(a.good / den, 0, 1), cried: a.cried, bored: a.bored }; });
+  const avg = per.reduce((s, p) => s + p.r, 0) / Math.max(1, per.length);
+  let st = avg >= 0.5 ? 3 : avg >= 0.28 ? 2 : 1;
+  if (World.caught) st = Math.max(1, st - 1);
+  return { v: World.visit, stars: st, avg, per, caught: World.caught };
+}
+function kidComment(p) {
+  if (World.caught) return pick(['「出たー！」って みんなで わらった', 'おばけ みちゃった！ すごい！']);
+  if (p.cried) return 'こわかった… もう こないかも';
+  if (p.r >= 0.45) return pick(['たのしかった！ また くる！', 'ドキドキした〜！ また こよう！', 'ちょうど いい こわさ だった！']);
+  if (p.r >= 0.22) return pick(['まあまあ たのしかった', 'ちょっと こわかった かな']);
+  return p.bored >= 2 ? 'つまんなかった〜' : 'なにも おこらなかったね';
 }
 function showResult(r) {
   return new Promise(res => {
-    const D = DAYS[r.day];
+    const { season, k } = visitInfo(r.v);
+    const newItem = r.stars >= 2 && !(Save.d.items || {})[r.v];
     const c = $('#rsCard');
-    c.innerHTML = `<h2>${r.day <= LAST_DAY ? r.day + '日目の ふりかえり' : '自由な日の ふりかえり'}</h2>
-      <div class="rrow"><span class="l">お題<div class="v">${D.goalShort}</div></span><span class="s" style="color:${r.goal ? '#e0a020' : '#c0b0a0'}">${r.goal ? 'たっせい！' : 'まだ…'}</span></div>
-      <div class="rrow"><span class="l">かくれんぼ<div class="v">${r.caught ? 'みつかっちゃった' : r.hide === 3 ? 'だれにも 気づかれなかった' : r.hide === 2 ? 'ちょっと あぶなかった' : 'ぎりぎり にげきった'}</div></span><span class="s">${stars(r.hide)}</span></div>
-      <div class="rrow"><span class="l">れんさ<div class="v">いちばん ながい れんさ：${r.depth}つ（できごと ${r.events}こ）</div></span><span class="s">${stars(r.chain)}</span></div>
-      <div class="hid">${r.hidden ? '🎉 かくしお題 たっせい：' + D.hidden : '🔒 かくしお題：' + (Save.d.days[r.day] && Save.d.days[r.day].hidden ? D.hidden : '？？？（' + D.hidden.slice(0, 6) + '…）')}</div>
-      <div class="btns">${r.goal ? `<button class="bigb" data-r="next">${r.day >= LAST_DAY ? 'つづける' : 'つぎの 日へ'}</button>` : ''}<button class="bigb blue sm" data-r="retry">帰宅から やりなおす</button><button class="bigb blue sm" data-r="retry0">しこみから やりなおす</button><button class="bigb grey sm" data-r="title">タイトルへ</button></div>`;
+    c.innerHTML = `<h2>${SEASONS[season].name}の ${k}かいめ「${KIND_OF_VISIT[k]}」</h2>
+      <div class="rrow"><span class="l">ひょうか<div class="v">${r.caught ? 'つかまっちゃった… でも みんな わらって かえった' : 'ちょうどいい ドキドキの 時間 ' + Math.round(r.avg * 100) + '%'}</div></span><span class="s">${stars(r.stars)}</span></div>
+      <div style="margin:8px 0 4px;font-size:13px">かえりみちの 声</div>
+      ${r.per.map(p => `<div class="kres"><span class="nm4">${CHAR_DEF[p.id].name}</span><span class="bar"><i style="width:${Math.round(p.r * 100)}%"></i></span><span class="cm">「${kidComment(p)}」</span></div>`).join('')}
+      ${r.stars === 3 && visitKids(r.v + 1 <= 16 ? r.v + 1 : r.v).length < 4 ? '<div class="hid">🎈 たのしかったので、つぎは 友だちを つれてくるって！</div>' : ''}
+      ${newItem ? `<div class="hid">🎁 わすれもの「${ITEMS[r.v - 1]}」が ぽわの へやに ふえた</div>` : ''}
+      <div class="btns">${!r.caught ? `<button class="bigb" data-r="next">${r.v >= 16 ? 'つづける' : 'つぎの 日へ'}</button>` : ''}<button class="bigb blue sm" data-r="retry">もう いちど</button><button class="bigb grey sm" data-r="title">タイトルへ</button></div>`;
     $('#result').classList.remove('hide');
-    if (r.goal) Sound.sfx('goal');
+    Sound.sfx(r.stars >= 2 ? 'goal' : 'ok');
     c.onclick = e => { const b = e.target.closest('button'); if (!b) return; Sound.sfx('tap'); $('#result').classList.add('hide'); res(b.dataset.r); };
   });
 }
-function saveDay(r) {
-  if (r.day > LAST_DAY) return;
-  const prev = Save.d.days[r.day] || {};
-  Save.d.days[r.day] = { goal: prev.goal || r.goal, hide: Math.max(prev.hide || 0, r.goal ? r.hide : 0), chain: Math.max(prev.chain || 0, r.chain), hidden: prev.hidden || r.hidden };
-  if (r.goal) Save.d.unlocked = Math.max(Save.d.unlocked, Math.min(LAST_DAY + 1, r.day + 1));
+function saveVisit(r) {
+  const V = Save.d.visits = Save.d.visits || {};
+  const prev = V[r.v] || {};
+  V[r.v] = { stars: Math.max(prev.stars || 0, r.caught ? 0 : r.stars), lastStars: r.caught ? 0 : r.stars, done: prev.done || !r.caught };
+  if (r.stars >= 2 && !r.caught) { Save.d.items = Save.d.items || {}; Save.d.items[r.v] = 1; }
+  if (!r.caught) Save.d.unlocked = Math.max(Save.d.unlocked || 1, Math.min(16, r.v + 1));
   Save.write();
 }
-function diaryEntry(r, img) {
-  if (r.day > LAST_DAY) return;
-  const D = DAYS[r.day];
-  const txt = D.diary(r) + (r.depth >= 5 ? '\n…きょうは なんだか、へんな 日だった。' : '');
-  const prev = Save.d.diary[r.day];
-  if (!prev || r.goal || !prev.goal) Save.d.diary[r.day] = { text: txt, img: img || (prev && prev.img) || null, goal: r.goal };
-  Save.write();
-}
-function openDiary(onlyDay) {
-  const b = $('#dyBody'); b.innerHTML = '';
-  const days = Object.keys(Save.d.diary).map(Number).sort((a, b) => a - b).filter(d => !onlyDay || d === onlyDay);
-  if (!days.length) b.innerHTML = '<p style="font-size:16px">まだ なにも かかれていない。</p>';
-  for (const d of days) {
-    const e = Save.d.diary[d]; const pg = document.createElement('div'); pg.className = 'dpage';
-    pg.innerHTML = `<div class="dt">${d}日目 「${DAYS[d].title}」</div>${e.img ? `<img src="${e.img}" alt="">` : ''}<div class="tx"></div>`;
-    pg.querySelector('.tx').textContent = e.text; b.appendChild(pg);
+function openAlbum() {
+  const al = Save.d.album || {}, it = Save.d.items || {};
+  let h = '<p style="font-size:13px">子どもたちの びっくり顔。おどろかせかたで 3しゅるい あつまる。</p>';
+  for (const id of KIDS_ALL) {
+    const m = al[id] || 0;
+    h += `<div class="alk"><span class="nm3">${CHAR_DEF[id].name}</span><div class="ph">${[['くすっ', 'happy'], ['きゃっ', 'surp'], ['わーっ', 'panic']].map(([n, e], i) => `<div class="${m & (1 << i) ? '' : 'no'}"><img src="${m & (1 << i) ? UI.faceImg(id, e) : UI.faceImg(id, 'sleep')}" alt="">${m & (1 << i) ? n : '？？？'}</div>`).join('')}</div></div>`;
   }
-  $('#diary').classList.remove('hide');
-  if (onlyDay) $('#diary .card').scrollTop = 0;
+  h += '<div class="sec">ぽわの へや（わすれもの）</div><div class="items">' + ITEMS.map((n, i) => `<span class="${it[i + 1] ? '' : 'no'}">${it[i + 1] ? n : '？'}</span>`).join('') + '</div>';
+  $('#alBody').innerHTML = h; $('#album').classList.remove('hide');
 }
-function captureImg() {
-  if (HEADLESS) return null;
-  try {
-    renderer.render(scene, camera);
-    const src = renderer.domElement; const w = 420, h = Math.round(w * src.height / src.width);
-    const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d');
-    x.drawImage(src, 0, 0, w, h);
-    // warm diary tint
-    x.fillStyle = 'rgba(255,230,190,.12)'; x.fillRect(0, 0, w, h);
-    return c.toDataURL('image/jpeg', 0.62);
-  } catch (e) { return null; }
+function openDays() {
+  const g = $('#dGrid'); g.innerHTML = ''; const V = Save.d.visits || {};
+  for (let s = 1; s <= 4; s++) {
+    const sec = document.createElement('div'); sec.className = 'sea'; sec.textContent = SEASONS[s].name + '（' + SEASONS[s].kids.map(k => CHAR_DEF[k].name).join('・') + '）'; g.appendChild(sec);
+    const row = document.createElement('div'); row.className = 'row4'; g.appendChild(row);
+    for (let k = 1; k <= 4; k++) {
+      const v = (s - 1) * 4 + k; const ok = v <= (Save.d.unlocked || 1); const st = (V[v] || {}).stars || 0;
+      const b = document.createElement('button'); b.className = 'dbt'; b.disabled = !ok;
+      b.innerHTML = `<span class="n">${k}かいめ</span><span class="s">${KIND_OF_VISIT[k]}</span><span class="r">${'★'.repeat(st)}</span>`;
+      b.onclick = () => { $('#days').classList.add('hide'); startVisit(v); };
+      row.appendChild(b);
+    }
+  }
+  $('#days').classList.remove('hide');
 }

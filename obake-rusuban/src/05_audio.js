@@ -67,6 +67,20 @@ const Sound = {
       case 'ok': this.osc('sine', 880, 880, 0.08, 0.14); this.osc('sine', 1320, 1320, 0.15, 0.12, 0.08); break;
       case 'no': this.osc('triangle', 300, 220, 0.18, 0.15); break;
       case 'star': this.bell(1568, 0.14); break;
+      case 'knock': this.noise(0.05, 0.25, 'bandpass', 900, 3); this.osc('sine', 300, 180, 0.06, 0.15); break;
+      case 'rattle': for (let i = 0; i < 6; i++) { this.noise(0.05, 0.25, 'bandpass', 600 + Math.random() * 900, 3, i * 0.07); this.osc('sine', 220, 140, 0.05, 0.12, i * 0.07); } break;
+      case 'bong': [196, 196.8, 392].forEach((f, i) => this.osc('sine', f, f, 2.2, i === 2 ? 0.08 : 0.2)); this.osc('triangle', 588, 588, 0.6, 0.05); break;
+      case 'furin': this.bell(2093, 0.1); this.bell(2637, 0.05, 0.05); break;
+      case 'furin2': [2093, 2349, 2637, 2093, 2794].forEach((f, i) => this.bell(f, 0.09, i * 0.09)); break;
+      case 'cackle': for (let i = 0; i < 5; i++) this.osc('square', 520 + (i % 2) * 120, 480, 0.08, 0.06, i * 0.1); break;
+      case 'leaves': this.noise(0.5, 0.15, 'highpass', 2500, 0.5, 0, 5000); break;
+      case 'switch': this.osc('square', 1200, 1200, 0.02, 0.08); this.noise(0.03, 0.15, 'highpass', 3000); break;
+      case 'jingle': [1568, 1760, 2093].forEach((f, i) => this.bell(f, 0.08, i * 0.08)); break;
+      case 'chime': [659, 523, 587, 392, 392, 587, 659, 523].forEach((f, i) => this.osc('triangle', f, f, 0.6, 0.14, i * 0.42)); break;
+      case 'cry': this.osc('sawtooth', 700, 500, 0.5, 0.05); this.osc('sine', 650, 450, 0.6, 0.08, 0.05); break;
+      case 'laugh': [880, 990, 880, 1046].forEach((f, i) => this.osc('triangle', f, f * 1.02, 0.09, 0.08, i * 0.11)); break;
+      case 'eek': this.osc('sine', 900, 1500, 0.18, 0.12); break;
+      case 'thunder': this.noise(1.6, 0.35, 'lowpass', 400, 1, 0, 80); break;
     }
   },
 };

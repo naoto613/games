@@ -227,7 +227,7 @@ function lampShade(g, x, z, c = '#f8e4b0') {
   const bulb = mesh(G.sph(0.07, 10, 8), new THREE.MeshBasicMaterial({ color: 0xfff0c8 }), false, false); at(bulb, x, WALL_H - 0.28, z); g.add(bulb); BULBS.push(bulb);
 }
 const LAMPS = [], BULBS = [];
-function buildDecor(layout) {
+function buildDecor(layout, season = 1) {
   clearGroup(DECOR[1]); clearGroup(DECOR[2]); OCC.length = 0; LAMPS.length = 0; BULBS.length = 0;
   const g = DECOR[1], h = DECOR[2];
   occ(1, -4.2, -4.85, 5.6, 1.2, 1.2);
@@ -280,9 +280,11 @@ function buildDecor(layout) {
   RB(g, 1.5, 0.03, 0.8, '#8a9a6a', -6.2, 0.035, -2.0, 0.015); // mat
   lampShade(g, -4.5, -2.4);
   // ---------- washitsu
+  if (season !== 4) {
   const cb = mesh(G.rcyl(0.8, 0.07, 0.03, 24), M('#9a5a34'), true, true); at(cb, 4.2, 0.36, -2.6); g.add(cb);
   for (const [a, b] of [[-0.45, -0.45], [0.45, -0.45], [-0.45, 0.45], [0.45, 0.45]]) RB(g, 0.08, 0.34, 0.08, '#7a4a2a', 4.2 + a, 0.17, -2.6 + b, 0.02);
-  for (const [x, z] of [[4.2, -1.55], [3.15, -2.6], [5.25, -2.6]]) RB(g, 0.65, 0.09, 0.65, '#a84a4a', x, 0.05, z, 0.04);
+  }
+  for (const [x, z] of [[4.2, -1.35], [3.0, -2.6], [5.4, -2.6]]) RB(g, 0.65, 0.09, 0.65, '#a84a4a', x, 0.05, z, 0.04);
   RB(g, 1.3, 1.5, 0.55, '#8a5a34', 6.4, 0.75, -5.15, 0.05); // tansu
   for (let i = 0; i < 4; i++) RB(g, 1.2, 0.03, 0.03, '#5a3a24', 6.4, 0.35 + i * 0.35, -4.86, 0.01);
   occ(1, 6.4, -5.15, 1.3, 0.55, 1.5);

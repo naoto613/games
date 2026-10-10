@@ -11,9 +11,9 @@ const ROOMS = {
   shed: { name: 'ものおき', floor: 1, rects: [[13.6, -5.3, 17.6, -1.6]], tex: 'plank', col: '#9a8064' },
   garden: { name: 'にわ', floor: 1, rects: [[9.6, -5.5, 18, 5.5], [8, 0, 9.6, 5.5]], tex: 'grass', outdoor: 1 },
   kodomo: { name: 'そうたの へや', floor: 2, rects: [[-8, 0, 0, 5.5]], tex: 'plank', col: '#dcb084' },
-  shinshitsu: { name: 'しんしつ', floor: 2, rects: [[0, 0, 8, 5.5]], tex: 'plank', col: '#c89a6c' },
+  shinshitsu: { name: 'おとなの へや', floor: 2, rects: [[0, 0, 8, 5.5]], tex: 'plank', col: '#c89a6c' },
   hall2: { name: '2かい ろうか', floor: 2, rects: [[-8, -5.5, 0, 0]], tex: 'plank', col: '#c08c5a' },
-  akari: { name: 'あかりの へや', floor: 2, rects: [[0, -5.5, 8, 0]], tex: 'plank', col: '#e0b890' },
+  akari: { name: 'しょさい', floor: 2, rects: [[0, -5.5, 8, 0]], tex: 'plank', col: '#e0b890' },
 };
 const ROOM_IDS = Object.keys(ROOMS);
 function roomAt(floor, x, z) {

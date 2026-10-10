@@ -58,6 +58,11 @@ const MOODS = {
   prep: { sky: 0xf4f2f0, gnd: 0xb8b0a8, hi: 1.05, sun: 0xffffff, si: 0.95, dir: [-4, 18, 8], exp: 1.02, bg: ['#ddd8e8', '#f6f2ec'], lamp: 0 },
   chain: { sky: 0xffdcb8, gnd: 0x6a5a70, hi: 0.78, sun: 0xffa868, si: 1.45, dir: [14, 9, 6], exp: 1.08, bg: ['#f4b088', '#7a6aa8'], lamp: 1 },
   search: { sky: 0x8a80b8, gnd: 0x2a2440, hi: 0.5, sun: 0xa8a0e0, si: 0.55, dir: [10, 12, 6], exp: 1.0, bg: ['#4a3e70', '#1e1a34'], lamp: 0.8 },
+  spring: { sky: 0xfff0e8, gnd: 0x9a8a90, hi: 0.95, sun: 0xfff0d8, si: 1.3, dir: [10, 13, 8], exp: 1.06, bg: ['#f8d0d8', '#a898c8'], lamp: 0.3 },
+  summer: { sky: 0xeaf6ff, gnd: 0x8a9a88, hi: 1.0, sun: 0xfff8e0, si: 1.45, dir: [8, 16, 6], exp: 1.06, bg: ['#a8dcf4', '#7aa8d8'], lamp: 0 },
+  autumn: { sky: 0xffd8a8, gnd: 0x6a5a60, hi: 0.8, sun: 0xffa060, si: 1.5, dir: [14, 9, 6], exp: 1.08, bg: ['#f4a868', '#7a5a8a'], lamp: 0.8 },
+  winter: { sky: 0xe8eeff, gnd: 0x7a7a98, hi: 0.95, sun: 0xfff0e0, si: 1.1, dir: [12, 10, 8], exp: 1.05, bg: ['#cfd8f0', '#8a90b8'], lamp: 0.9 },
+  dark: { sky: 0x404870, gnd: 0x101020, hi: 0.32, sun: 0x8090c0, si: 0.25, dir: [10, 12, 6], exp: 1.0, bg: ['#2a2e48', '#101020'], lamp: 0 },
   night: { sky: 0x5a6aa8, gnd: 0x2a2440, hi: 0.55, sun: 0x8a9ae0, si: 0.35, dir: [-6, 14, 8], exp: 1.05, bg: ['#262a5a', '#14122a'], lamp: 1.2 },
 };
 const Mood = (() => {
@@ -113,17 +118,18 @@ const Dust = (() => {
 // rain (day 3)
 const Rain = (() => {
   const n = 500, geo = new THREE.BufferGeometry(), pos = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) { pos[i * 3] = rnd(-9, 18); pos[i * 3 + 1] = rnd(0, 9); pos[i * 3 + 2] = rnd(-6, 7); }
+  for (let i = 0; i < n; i++) { pos[i * 3] = rnd(8.2, 18); pos[i * 3 + 1] = rnd(0, 9); pos[i * 3 + 2] = rnd(-6, 7); }
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  const mat = new THREE.PointsMaterial({ color: 0xbfd8f0, size: 0.06, transparent: true, opacity: 0.0, depthWrite: false });
+  const mat = new THREE.PointsMaterial({ map: Parts.tex, color: 0xbfd8f0, size: 0.06, transparent: true, opacity: 0.0, depthWrite: false });
   const pts = new THREE.Points(geo, mat); FG[1].add(pts);
   return {
     update(dt, on) {
-      mat.opacity = damp(mat.opacity, on ? 0.7 : 0, 2, dt); pts.visible = mat.opacity > 0.01; if (!pts.visible) return;
+      mat.opacity = damp(mat.opacity, on ? 0.75 : 0, 2, dt); pts.visible = mat.opacity > 0.01; if (!pts.visible) return;
+      const snow = on === 'snow'; mat.color.setHex(snow ? 0xffffff : 0xbfd8f0); mat.size = snow ? 0.12 : 0.06;
+      const t = performance.now() * 0.001;
       for (let i = 0; i < n; i++) {
-        pos[i * 3 + 1] -= dt * 14; if (pos[i * 3 + 1] < 0) { pos[i * 3 + 1] = 9; }
-        const x = pos[i * 3], z = pos[i * 3 + 2];
-        if (x > -8 && x < 8 && z > -5.5 && z < 5.5) pos[i * 3 + 1] = Math.min(pos[i * 3 + 1], 8.9) && pos[i * 3 + 1] < 6.5 ? 9 : pos[i * 3 + 1];
+        pos[i * 3 + 1] -= dt * (snow ? 1.2 : 14); if (snow) pos[i * 3] += Math.sin(t + i) * dt * 0.3;
+        if (pos[i * 3 + 1] < 0) { pos[i * 3 + 1] = 9; pos[i * 3] = rnd(8.2, 18); }
       }
       geo.attributes.position.needsUpdate = true;
     },
@@ -146,14 +152,14 @@ const Cones = (() => {
   }
   return {
     update(dt) {
-      t += dt; const show = Save.d.cone && (World.phase === 'chain') && !World.blind;
+      t += dt; const show = Save.d.cone && (World.phase === 'play') && !World.blind;
       for (const id of FAMILY) {
         const a = AG[id]; let c = items[id]; if (!c) { c = items[id] = mk(); }
-        const vis = show && a.home && !a.asleep && !a.hidden && FG[a.floor].visible;
+        const vis = show && a.home && !a.asleep && !a.gone && FG[a.floor].visible && !(World.search && World.season === 2);
         if (c.parent !== AG_ROOT[a.floor]) AG_ROOT[a.floor].add(c);
         c.visible = vis; if (!vis) continue;
-        const col = a.mode === 'search' ? 0xff4a3a : a.susp > 60 ? 0xffa040 : 0xffffff;
-        c.material.color.setHex(col); c.material.opacity = a.mode === 'search' ? 0.2 : 0.1 + a.susp / 100 * 0.06;
+        const col = a.mode === 'search' ? 0xff4a3a : a.staring ? 0xffa040 : 0xffffff;
+        c.material.color.setHex(col); c.material.opacity = a.mode === 'search' ? 0.2 : 0.09;
         if (t < 0.1 && c.userData.done) continue;
         c.userData.done = 1;
         const pos = c.geometry.attributes.position; const fov = (a.fov || 120) * Math.PI / 180, R = 8.5;
@@ -182,14 +188,14 @@ const SearchFX = (() => {
   return {
     update() {
       for (const id of FAMILY) {
-        const a = AG[id]; let f = fx[id]; if (!f) { f = fx[id] = mk(id === 'sota' ? 0xfff0a0 : 0xa0d0ff); }
-        const on = a.home && a.mode === 'search' && World.phase === 'chain';
+        const a = AG[id]; let f = fx[id]; if (!f) { f = fx[id] = mk(0xfff0a0); }
+        const on = a.home && a.mode === 'search' && World.phase === 'play';
         if (f.userData.halo.parent !== a.mesh) a.mesh.add(f.userData.halo);
         f.userData.halo.visible = on; f.userData.halo.position.y = 0.03;
-        const beam = on && (a.style === 'camera' || a.style === 'light');
+        const beam = on && a.propKind === 'light';
         if (f.parent !== a.mesh) a.mesh.add(f);
         f.visible = beam; if (!beam) continue;
-        const R = a.style === 'camera' ? 7.5 : 6.0, ang = (a.style === 'camera' ? 23 : 29) * Math.PI / 180;
+        const R = 6.5, ang = 25 * Math.PI / 180;
         const c = f.userData.cone; c.scale.set(Math.tan(ang) * R, R, Math.tan(ang) * R); c.position.set(0, 0, R / 2);
         f.position.set(0, a.H * 0.62, 0.3); f.rotation.x = 0.12;
       }

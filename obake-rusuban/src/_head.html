@@ -167,7 +167,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;pad
   #ctlL .grp button{padding:5px 6px;font-size:12px;min-width:32px}
   #spd button{padding:5px 7px;font-size:12px}
   .bigb{padding:8px 14px;font-size:14px}
-  #panel{bottom:calc(max(10px,env(safe-area-inset-bottom)) + 52px)}
+  #panel{bottom:calc(max(10px,env(safe-area-inset-bottom)) + 100px)}
   #tip{top:calc(max(8px,env(safe-area-inset-top)) + 96px);font-size:12px}
   #danger{top:calc(max(8px,env(safe-area-inset-top)) + 96px)}
   #pow{padding:4px 6px}#pow i{width:12px;height:16px}
@@ -179,6 +179,59 @@ button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;pad
   #panel .ds{display:none}
   .ab{min-height:34px;padding:4px 6px}
 }
+
+/* ---- new game parts */
+#topL .chime{width:54px;height:8px;border-radius:4px;background:#ead8c0;overflow:hidden;align-self:center}
+#topL .chime i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f4c84a,#f08a3c)}
+#kids{position:absolute;left:50%;transform:translateX(-50%);top:max(8px,env(safe-area-inset-top));display:flex;gap:6px;pointer-events:none}
+.kc{background:rgba(255,248,236,.94);border-radius:14px;box-shadow:0 0 0 2.5px var(--ink2),0 4px 10px rgba(0,0,0,.2);padding:4px 8px 6px;width:clamp(78px,11vw,118px);font-size:12px;text-align:center}
+.kc.out{opacity:.45}
+.kc .nm2{display:flex;align-items:center;justify-content:center;gap:4px}
+.kc .fc{width:22px;height:22px;border-radius:50%;background:#f8e0c8;box-shadow:0 0 0 2px var(--kc,#888)}
+.kc .st{font-size:10px;color:var(--ink2);font-weight:500;height:13px;overflow:hidden}
+.meter{position:relative;height:9px;border-radius:5px;background:#e6dccd;margin-top:3px;overflow:hidden}
+.meter .bd{position:absolute;top:0;bottom:0;background:#8ad08a}
+.meter .cl{position:absolute;top:0;bottom:0;right:0;background:#f4b0a8}
+.meter .v{position:absolute;top:-2px;bottom:-2px;width:4px;margin-left:-2px;background:#4a3428;border-radius:2px;transition:left .15s}
+.hm{position:absolute;transform:translate(-50%,-100%);width:46px;pointer-events:none}
+.hm .meter{height:7px;box-shadow:0 0 0 1.5px rgba(74,52,40,.7)}
+.hm.sleep:after{content:"Zz";position:absolute;left:50%;top:-16px;transform:translateX(-50%);font-size:13px;color:#fff;-webkit-text-stroke:3px var(--ink);paint-order:stroke fill}
+#sus{padding:5px 10px;display:flex;gap:4px;align-items:center;font-size:12px}
+#sus i{display:inline-block;width:18px;height:18px;border-radius:50%;background:#e8ddd0;font-style:normal;font-size:12px;line-height:18px;text-align:center;color:#b8a898}
+#sus i.on{background:#e0504a;color:#fff}
+#searchBar{position:absolute;left:50%;transform:translateX(-50%);top:calc(max(8px,env(safe-area-inset-top)) + 72px);background:#3a2a4a;color:#fff;border-radius:16px;padding:6px 10px 6px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 0 0 3px #e0504a,0 6px 16px rgba(0,0,0,.4);font-size:15px}
+#searchBar b{font-size:24px;color:var(--yel);min-width:36px;text-align:center}
+#panel .scare{display:flex;gap:12px;align-items:center}
+#bScare{flex:none;width:86px;height:86px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff,#dfe8ff 55%,#a8b8f0);box-shadow:0 0 0 3px #fff,0 0 0 6px #6a7ad8,0 6px 14px rgba(0,0,0,.3);font-size:15px;color:#3a3a8a;position:relative;touch-action:none}
+#bScare:disabled{filter:grayscale(1);opacity:.5}
+#bScare svg{position:absolute;inset:-6px;width:98px;height:98px;pointer-events:none;transform:rotate(-90deg)}
+#panel .lbs{flex:1;font-size:13px;line-height:1.7}
+#panel .lbs b{display:inline-block;background:var(--paper2);border-radius:8px;padding:0 6px;margin-right:4px;font-size:11px}
+#panel .lbs .tp{font-size:11px;color:var(--ink2);font-weight:500;line-height:1.4}
+#dGrid .sea{font-size:14px;margin:10px 0 4px}
+#dGrid .row4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.alk{display:flex;gap:8px;align-items:center;margin:8px 0}
+.alk .nm3{width:64px;font-size:14px}
+.alk .ph{flex:1;display:flex;gap:6px}
+.alk .ph div{flex:1;background:#fff;border-radius:10px;box-shadow:0 0 0 2px var(--line);text-align:center;padding:4px;font-size:11px}
+.alk .ph img{width:100%;max-width:64px;display:block;margin:0 auto;border-radius:50%;background:#f8e0c8}
+.alk .ph .no{opacity:.35}
+.items{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.items span{background:#fff;border-radius:10px;box-shadow:0 0 0 2px var(--line);padding:3px 8px;font-size:12px}
+.items span.no{opacity:.35}
+.kres{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:13px}
+.kres .nm4{width:58px}
+.kres .bar{flex:1;height:10px;border-radius:5px;background:#eadfce;overflow:hidden}
+.kres .bar i{display:block;height:100%;background:#8ad08a}
+.kres .cm{flex:2;font-size:12px;font-weight:500;color:var(--ink2)}
+@media (max-width:640px){
+  #kids{top:calc(max(8px,env(safe-area-inset-top)) + 52px);left:8px;right:8px;transform:none;justify-content:center}
+  .kc{width:auto;flex:1;max-width:96px;padding:3px 5px 5px;font-size:11px}
+  .kc .st{display:none}
+  #searchBar{top:calc(max(8px,env(safe-area-inset-top)) + 112px);font-size:13px}
+  #bScare{width:72px;height:72px}
+  #bScare svg{width:84px;height:84px}
+}
 </style>
 </head>
 <body>
@@ -187,50 +240,47 @@ button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;pad
 <div id="vign"></div>
 <div id="ov"></div>
 <div id="hud" class="hide">
-  <div id="topL" class="pill"><div><div class="day" id="hDay">1日目</div><div class="clk" id="hClk">10:00</div></div><div class="ph" id="hPh">しこみ</div></div>
-  <div id="goal" class="pill"><span class="k">お題</span><span id="gTx"></span><span class="sub" id="gSub"></span></div>
-  <div id="topR"><div id="pow" class="pill"></div><button class="ib pill" id="bMenu" aria-label="メニュー">☰</button></div>
-  <div id="log"></div>
-  <div id="danger" class="hide"><span id="dTx">あぶない！</span><span class="bar"><i id="dBar"></i></span></div>
+  <div id="topL" class="pill"><div><div class="day" id="hDay">はる 1かいめ</div><div class="clk" id="hClk">15:30</div></div><div class="chime"><i id="hChime"></i></div></div>
+  <div id="kids"></div>
+  <div id="topR"><div id="sus" class="pill" title="あやしい"></div><button class="ib pill" id="bMenu" aria-label="メニュー">☰</button></div>
+  <div id="searchBar" class="hide"><span class="t">おばけさがし！</span><b id="sbT">60</b><button id="bCat" class="bigb sm">🐈 もなかを うごかす</button></div>
   <div id="ctlL">
     <div class="grp pill"><button id="bRotL" aria-label="左に回す">⟲</button><button id="bRotR" aria-label="右に回す">⟳</button></div>
     <div class="grp pill" id="flr"><button data-f="1">1F</button><button data-f="2">2F</button><button data-f="0">全体</button></div>
     <div class="grp pill"><button id="bXray">すかす</button></div>
   </div>
   <div id="ctlR">
-    <div id="spd" class="pill"><button data-s="0">Ⅱ</button><button data-s="1" class="on">▶</button><button data-s="2">▶▶</button><button data-s="4">▶▶▶</button></div>
-    <button id="bReady" class="bigb">じゅんび OK</button>
+    <div id="spd" class="pill"><button data-s="0">Ⅱ</button><button data-s="1" class="on">▶</button><button data-s="2">▶▶</button></div>
+    <button id="bReady" class="bigb hide">子どもを まつ</button>
   </div>
   <div id="panel" class="hide"></div>
   <div id="tip" class="hide"></div>
   <div id="toast"></div>
 </div>
 <div id="title" class="scr">
-  <div id="logo"><div class="s1">ぽわの ふしぎな 2しゅうかん</div><div class="s2">おばけの<br><span>るすばん</span></div></div>
+  <div id="logo"><div class="s1">ちょうどいい ドキドキを とどけよう</div><div class="s2">おばけの<br><span>るすばん</span></div></div>
   <div id="tmenu">
-    <div class="row"><button class="bigb" id="tPlay">はじめる</button><button class="bigb blue" id="tDays">日を えらぶ</button></div>
-    <div class="row"><button class="bigb grey sm" id="tDiary">異変日記</button><button class="bigb grey sm" id="tHow">あそびかた</button></div>
+    <div class="row"><button class="bigb" id="tPlay">はじめる</button><button class="bigb blue" id="tDays">えらんで あそぶ</button></div>
+    <div class="row"><button class="bigb grey sm" id="tAlbum">びっくりアルバム</button><button class="bigb grey sm" id="tHow">あそびかた</button></div>
   </div>
   <a id="back" href="../">← ゲームいちらん</a>
 </div>
-<div id="days" class="scr dim hide"><div class="card"><h2>日を えらぶ</h2><div class="grid" id="dGrid"></div><div class="sec">クリアご</div><div id="dFree"></div><div class="btns"><button class="bigb grey sm" data-close>もどる</button></div></div></div>
+<div id="days" class="scr dim hide"><div class="card"><h2>あそびに くる 日を えらぶ</h2><div id="dGrid"></div><div class="btns"><button class="bigb grey sm" data-close>もどる</button></div></div></div>
 <div id="how" class="scr dim hide"><div class="card"><h2>あそびかた</h2>
-<p>ぽわは 家具や 家電に のりうつれる、ちいさな おばけ。1日は <b>しこみ → れんさ → かくれんぼ</b> の じゅんに すすみます。</p>
-<p>🕯 <b>しこみ</b>：家族が るすの あいだに、物を タップして のりうつり、「異変」を しかけよう。つかえる数は ふしぎ力（右上）まで。</p>
-<p>🏠 <b>れんさ</b>：家族が かえると、いつもの 習慣と 異変が ぶつかって、できごとが つながっていきます。とちゅうで 異変を たして ながれを かえることも できます。</p>
-<p>👀 <b>かくれんぼ</b>：家族の 頭の「？」が ふくらんで「！」に なると、さがしに きます。のりうつる物を かえて にげよう。うごく ところを 見られると あやしまれます。</p>
-<p>🐈 こまったら、ちかくの ねこ「もなか」に のりうつって「ねこの しわざ」に できます（1日1回）。</p>
-<p>操作：物を タップ（クリック）で えらぶ／ドラッグで 視点の 移動／ピンチ・ホイールで ズーム／⟲⟳ で 90度 回す／「すかす」で かべを すかす。部屋を ダブルタップで その部屋に ズーム。</p>
+<p>ぽわは 家具や 家電に のりうつれる、ちいさな おばけ。遊びに きた 子どもたちを「<b>ちょっと こわいけど たのしい！</b>」くらいに おどかそう。5時の チャイムで みんな かえります。</p>
+<p>👻 <b>のりうつる</b>：ちかくの 物（白い ○）を タップ。とおくへは 物から 物へ わたりあるいて。</p>
+<p>✨ <b>おどかす</b>：おどかすボタンを <b>かるく おす</b> と「カタッ」、<b>ながおし</b> で「ガタガタッ！」。物によって おどろかせかたが ちがいます。</p>
+<p>💓 <b>ドキドキメーター</b>：子どもの 頭の うえの メーター。<b>緑の「ちょうどいい」帯</b> に いる時間が ながいほど ★が ふえる。帯を こえて ふりきれると 泣いて かえり、下の ままだと「つまんない」と ほかの 部屋へ。</p>
+<p>👀 <b>見られない</b>：子どもが 見ている 物を うごかすと「あやしい…」。3回で <b>おばけさがし</b>（60秒）が はじまる。そのあいだは おどかせず、にげるだけ。さわられたり、目の前で うつったら つかまる。1回だけ ねこの もなかで ごまかせる。</p>
+<p>操作：ドラッグで 視点の 移動／ピンチ・ホイールで ズーム／⟲⟳ で 90度 回す／「すかす」で かべを すかす。キーボードなら スペースで おどかす（ながおしで 大）。</p>
 <div class="btns"><button class="bigb sm" data-close>わかった</button></div></div></div>
-<div id="diary" class="scr dim hide"><div class="card"><h2>ふみの 異変日記</h2><div id="dyBody"></div><div class="btns"><button class="bigb grey sm" data-close>とじる</button></div></div></div>
+<div id="album" class="scr dim hide"><div class="card"><h2>びっくりアルバム</h2><div id="alBody"></div><div class="btns"><button class="bigb grey sm" data-close>とじる</button></div></div></div>
 <div id="talk" class="scr hide"><div class="box" id="tkBox"><div class="hdl" id="tkHdl"></div><button class="skip" id="tkSkip">とばす ≫</button><div class="who" id="tkWho"></div><div class="txt" id="tkTxt"></div><div class="nx">▼</div></div></div>
 <div id="result" class="scr dim hide"><div class="card" id="rsCard"></div></div>
 <div id="pause" class="scr dim hide"><div class="card"><h2>ひとやすみ</h2>
 <div class="optrow"><span>おと</span><button class="tog" id="oSnd">ON</button></div>
-<div class="optrow"><span>家族の 視界を 表示</span><button class="tog" id="oCone">ON</button></div>
-<div class="optrow"><span>ヒント</span><button class="tog" id="oHint">見る</button></div>
-<div id="hintBox" class="hide"></div>
-<div class="btns"><button class="bigb sm" id="pRes">つづける</button><button class="bigb blue sm" id="pRetry">帰宅から やりなおす</button><button class="bigb blue sm" id="pRetry0">しこみから やりなおす</button><button class="bigb grey sm" id="pTitle">タイトルへ</button></div></div></div>
+<div class="optrow"><span>子どもの 視界を 表示</span><button class="tog" id="oCone">ON</button></div>
+<div class="btns"><button class="bigb sm" id="pRes">つづける</button><button class="bigb blue sm" id="pRetry">さいしょから やりなおす</button><button class="bigb grey sm" id="pTitle">タイトルへ</button></div></div></div>
 <div id="fade"></div>
 <script src="./three.min.js"></script>
 <script>
