@@ -324,13 +324,21 @@ export class FieldScreen implements Screen {
         const state = { open: ch === 'C' && this.game.isOpened({ x, y }), used: ch === 'H' && !!ex?.springUsed };
         g.drawImage(tileSprite(th, ch, x, y, anim, state), Math.round((x - camX) * TILE), Math.round((y - camY) * TILE));
       }
+    const shadow = (sx: number, sy: number, w = 11) => {
+      g.fillStyle = 'rgba(0,0,0,.28)';
+      g.beginPath();
+      g.ellipse(sx + TILE / 2, sy + TILE - 3, w, 4, 0, 0, Math.PI * 2);
+      g.fill();
+    };
     // ボス
     for (const b of findAll(this.map, 'B')) {
       const bossId = this.game.floor?.floor.bossId;
       if (!bossId) continue;
       const sp = monsterSprite(BOSSES[bossId].enemies.find((e) => e.distorted)?.speciesId ?? 'madoidake', { distorted: true });
-      const bob = Math.round(Math.sin(this.frame / 12));
-      g.drawImage(sp, Math.round((b.x - camX) * TILE) - 4, Math.round((b.y - camY) * TILE) - 8 + bob, 24, 24);
+      const bob = Math.round(Math.sin(this.frame / 12) * 1.5);
+      const bx = Math.round((b.x - camX) * TILE), by = Math.round((b.y - camY) * TILE);
+      shadow(bx, by, 16);
+      g.drawImage(sp, bx - 12, by - 22 + bob, 56, 56);
     }
     // まちの人
     if (th === 'town') {
@@ -338,12 +346,25 @@ export class FieldScreen implements Screen {
         if (!npc.look) continue;
         for (const p of findAll(this.map, ch)) {
           const facing = npc.facing ?? 'down';
-          g.drawImage(personSprite(npc.look, facing, npc.idle ? anim : 0), Math.round((p.x - camX) * TILE), Math.round((p.y - camY) * TILE) - 2);
+          const sx = Math.round((p.x - camX) * TILE), sy = Math.round((p.y - camY) * TILE);
+          if (tileAt(this.map, p.x, p.y - 1) !== 'W') shadow(sx, sy);
+          g.drawImage(personSprite(npc.look, facing, npc.idle ? anim : 0), sx, sy - 10);
         }
       }
     }
     // しゅじんこう
     const walk = this.moving ? Math.floor(this.frame / 6) : 0;
-    g.drawImage(personSprite('hero', this.dir, walk), Math.round((px - camX) * TILE), Math.round((py - camY) * TILE) - 3);
+    const hx = Math.round((px - camX) * TILE), hy = Math.round((py - camY) * TILE);
+    shadow(hx, hy);
+    g.drawImage(personSprite('hero', this.dir, walk), hx, hy - 10);
+    // どうくつは 暗く、まわりだけ明るく
+    if (th === 'cave') {
+      const cx = hx + TILE / 2, cy = hy + TILE / 2;
+      const rg = g.createRadialGradient(cx, cy, TILE * 1.5, cx, cy, TILE * 6);
+      rg.addColorStop(0, 'rgba(10,6,20,0)');
+      rg.addColorStop(1, 'rgba(10,6,20,.72)');
+      g.fillStyle = rg;
+      g.fillRect(0, 0, this.cv.width, this.cv.height);
+    }
   }
 }

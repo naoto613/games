@@ -5,7 +5,7 @@ root.style.cssText = 'margin:0;background:#9ab;display:flex;flex-wrap:wrap;gap:8
 for (const id of SPRITE_IDS) for (const d of [false, true]) {
   if (d && !['madoidake', 'haganegame', 'homurawolf'].includes(id)) continue;
   const c = monsterSprite(id, { distorted: d });
-  c.style.cssText = 'width:160px;height:160px;image-rendering:pixelated;background:#fff';
+  c.style.cssText = 'width:192px;height:192px;image-rendering:pixelated;background:#fff';
   root.append(c);
 }
 (window as any).ready = true;

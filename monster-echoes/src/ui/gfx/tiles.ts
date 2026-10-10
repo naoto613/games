@@ -1,215 +1,308 @@
-// マップのタイル（16×16）と人物（16×16、4方向×2コマ）のドット絵
-import { E, P, Pix, R, RR, flipH, shade } from './Pix';
+// マップのタイル（16×16 の設計を 32×32 で描く）と人物（16×20 を 32×40 で描く）
+import { E, P, Pix, R, RR, Sub, flipH, mix, shade } from './Pix';
 
-export const TILE = 16;
+export const TILE = 32;
+const S = 2;
 export type Theme = 'town' | 'forest' | 'cave' | 'highland';
 
-const PAL: Record<Theme, { floor: string; floor2: string; wall: string; wallHi: string; wallLo: string; water: string; dot: string }> = {
-  town: { floor: '#7cc860', floor2: '#6ab850', wall: '#3a8a3a', wallHi: '#5ab050', wallLo: '#235a23', water: '#4a90e0', dot: '#a8e080' },
-  forest: { floor: '#78c058', floor2: '#68b048', wall: '#2e7a32', wallHi: '#4aa848', wallLo: '#1a4a20', water: '#3a80d0', dot: '#a0d878' },
-  cave: { floor: '#8a7a6a', floor2: '#7a6a5a', wall: '#4a4048', wallHi: '#6a6070', wallLo: '#2a2228', water: '#2a5a9a', dot: '#a09080' },
-  highland: { floor: '#b8c868', floor2: '#a8b858', wall: '#a08058', wallHi: '#c8a878', wallLo: '#6a5038', water: '#4aa0e0', dot: '#d8e090' },
+type Pal = { g: [string, string, string, string]; wall: string; water: string; blade: string };
+const PAL: Record<Theme, Pal> = {
+  town: { g: ['#4f9a3c', '#62b048', '#78c458', '#94d870'], wall: '#2f7a34', water: '#3a86d8', blade: '#a8e47c' },
+  forest: { g: ['#3f8a36', '#509e40', '#66b24e', '#86c866'], wall: '#256c2e', water: '#2f78c8', blade: '#9ad870' },
+  cave: { g: ['#7a6454', '#8a725e', '#987e68', '#a68c74'], wall: '#3e3448', water: '#24508e', blade: '#b09a84' },
+  highland: { g: ['#8c9a48', '#a2ae58', '#b6c068', '#ccd484'], wall: '#8a6a4c', water: '#3a96d8', blade: '#e4e49a' },
 };
 
-// 決まった位置にだけ小さな模様を置く（見た目のばらつき）
-const hash = (x: number, y: number) => ((x * 73856093) ^ (y * 19349663)) >>> 0;
+// ---- なめらかな ノイズ（タイルどうしが つながるように 世界座標で計算）
+const h2 = (x: number, y: number) => {
+  let n = (x * 374761393 + y * 668265263) | 0;
+  n = Math.imul(n ^ (n >>> 13), 1274126177);
+  return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
+};
+const smooth = (t: number) => t * t * (3 - 2 * t);
+function noise(x: number, y: number, f: number) {
+  const X = x / f, Y = y / f, x0 = Math.floor(X), y0 = Math.floor(Y);
+  const tx = smooth(X - x0), ty = smooth(Y - y0);
+  const a = h2(x0, y0), b = h2(x0 + 1, y0), c = h2(x0, y0 + 1), d = h2(x0 + 1, y0 + 1);
+  return (a + (b - a) * tx) * (1 - ty) + (c + (d - c) * tx) * ty;
+}
+const BAYER4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => v / 16);
 
-function floorTile(p: Pix, th: Theme, x: number, y: number, deco: boolean) {
+/** 地面のテクスチャ（ディザつき 4 色） */
+function ground(p: Pix, cols: string[], wx: number, wy: number, freq = 9) {
+  for (let Y = 0; Y < p.H; Y++)
+    for (let X = 0; X < p.W; X++) {
+      const gx = wx * 32 + X, gy = wy * 32 + Y;
+      let v = noise(gx, gy, freq) * 0.65 + noise(gx, gy, 3.2) * 0.35;
+      v += (BAYER4[(X & 3) + (Y & 3) * 4] - 0.5) * 0.22;
+      const i = Math.max(0, Math.min(cols.length - 1, Math.floor(v * cols.length)));
+      p.pxh(X, Y, cols[i]);
+    }
+}
+
+function grassTile(p: Pix, th: Theme, wx: number, wy: number, deco: boolean) {
   const c = PAL[th];
-  p.rect(0, 0, 16, 16, c.floor);
-  const h = hash(x, y);
-  for (let i = 0; i < 5; i++) {
-    const px = (h >> (i * 5)) % 16, py = (h >> (i * 3 + 2)) % 16;
-    p.px(px, py, i % 2 ? c.floor2 : c.dot);
-  }
-  if (th === 'forest' || th === 'town' || th === 'highland') {
-    const tx = h % 12 + 2, ty = (h >> 8) % 12 + 2;
-    p.px(tx, ty, c.floor2); p.px(tx + 2, ty, c.floor2); p.px(tx + 1, ty - 1, c.floor2);
-  }
-  if (deco) {
+  ground(p, c.g, wx, wy);
+  const r = (i: number) => h2(wx * 7 + i, wy * 13 + i * 3);
+  // 草の葉
+  const n = th === 'cave' ? 2 : 4;
+  for (let i = 0; i < n; i++) {
+    const X = Math.floor(r(i) * 26) + 3, Y = Math.floor(r(i + 9) * 24) + 6;
     if (th === 'cave') {
-      for (const [dx, dy] of [[3, 4], [10, 9], [6, 12]]) p.part(E(dx, dy, 1.5, 1), '#9a8a7a');
+      p.part(E(X / S, Y / S, 1.4, 1), '#9a8a7c', { ol: '#4a3c36' });
+      continue;
+    }
+    p.pxh(X, Y, c.g[0]); p.pxh(X - 1, Y - 1, c.g[0]); p.pxh(X - 2, Y - 2, c.blade);
+    p.pxh(X + 1, Y - 1, c.g[0]); p.pxh(X + 2, Y - 2, c.blade); p.pxh(X, Y - 2, c.blade); p.pxh(X, Y - 3, mix(c.blade, '#ffffff', 0.4));
+  }
+  if (deco && h2(wx * 31, wy * 17) > 0.45) {
+    if (th === 'cave') {
+      for (let i = 0; i < 3; i++) p.part(E(2 + r(i + 20) * 12, 2 + r(i + 30) * 12, 1.6, 1.1), '#a89888', { ol: '#4a3c36' });
+      if (r(40) > 0.5) { p.part(P(10, 13, 11.5, 7, 13, 13), '#7ae0ff', { hi: '#ffffff', ol: '#1a4a7a' }); }
     } else {
-      const cols = ['#ff7aa0', '#fff070', '#ffffff', '#a0a0ff'];
-      for (let i = 0; i < 3; i++) {
-        const fx = 2 + ((h >> (i * 4)) % 12), fy = 2 + ((h >> (i * 4 + 2)) % 12);
-        const col = cols[(h >> i) % cols.length];
-        p.px(fx, fy, col); p.px(fx - 1, fy, col); p.px(fx + 1, fy, col); p.px(fx, fy - 1, col); p.px(fx, fy + 1, '#f0d040');
-        p.px(fx, fy, '#f0d040');
+      const cols = ['#ff7aa8', '#fff070', '#ffffff', '#b0a0ff', '#ff9a50'];
+      const nf = h2(wx, wy * 3) > 0.7 ? 2 : 1;
+      for (let i = 0; i < nf; i++) {
+        const fx = 2.5 + r(i + 40) * 11, fy = 2.5 + r(i + 50) * 11;
+        const col = cols[Math.floor(r(i + 60) * cols.length)];
+        for (const [dx, dy] of [[-0.9, 0], [0.9, 0], [0, -0.9], [0, 0.9]]) p.part(E(fx + dx, fy + dy, 0.75, 0.75), col, { flat: true, ol: mix(col, '#203010', 0.6) });
+        p.part(E(fx, fy, 0.5, 0.5), '#f0c030', { flat: true, noOl: true });
       }
     }
   }
 }
 
-function pathTile(p: Pix, x: number, y: number) {
-  p.rect(0, 0, 16, 16, '#d8c090');
-  const h = hash(x, y);
-  for (let i = 0; i < 4; i++) p.part(RR(((h >> (i * 4)) % 12), ((h >> (i * 4 + 2)) % 12), 4, 3, 1), '#c8b080', { flat: true, ol: '#b09868' });
-}
-
-function wallTile(p: Pix, th: Theme, x: number, y: number) {
-  const c = PAL[th];
-  if (th === 'forest' || th === 'town') {
-    floorTile(p, th, x, y, false);
-    p.part(R(7, 11, 3, 4), '#7a5030');
-    p.part(E(8, 7, 7, 6.5), c.wall, { hi: c.wallHi, lo: c.wallLo });
-    const h = hash(x, y);
-    if (h % 3 === 0) { p.px(5, 5, '#ff5050'); p.px(10, 8, '#ff5050'); }
-  } else if (th === 'cave') {
-    p.rect(0, 0, 16, 16, c.wall);
-    p.part(RR(0, 0, 9, 7, 2), c.wall, { hi: c.wallHi, lo: c.wallLo, ol: c.wallLo });
-    p.part(RR(8, 2, 8, 7, 2), c.wall, { hi: c.wallHi, lo: c.wallLo, ol: c.wallLo });
-    p.part(RR(2, 8, 10, 8, 2), c.wall, { hi: c.wallHi, lo: c.wallLo, ol: c.wallLo });
-  } else {
-    p.rect(0, 0, 16, 16, c.wall);
-    p.part(P(0, 16, 3, 2, 9, 0, 16, 4, 16, 16), c.wall, { hi: c.wallHi, lo: c.wallLo, ol: c.wallLo });
-    p.hline(2, 13, 9, c.wallLo); p.hline(4, 15, 13, c.wallLo);
+function pathTile(p: Pix, wx: number, wy: number) {
+  ground(p, ['#b49a6e', '#c4aa7c', '#d2ba8c', '#dcc89c'], wx, wy, 6);
+  const r = (i: number) => h2(wx * 11 + i, wy * 17 + i * 5);
+  const stones: [number, number, number, number][] = [[1, 1, 6, 4.5], [8, 0.5, 7, 5], [0.5, 6.5, 5, 4.5], [6.5, 6, 6, 5], [12.5, 6.5, 3.5, 4], [2, 11.5, 7, 4], [9.5, 11.5, 6, 4]];
+  for (const [i, [x, y, w, hh]] of stones.entries()) {
+    const shade0 = ['#c8b8a0', '#bcae98', '#d4c4aa'][Math.floor(r(i) * 3)];
+    p.part(RR(x + 0.2, y + 0.2, w - 0.6, hh - 0.6, 1.6), shade0, { ol: '#8a7658', hiT: 0.4 });
   }
 }
 
-function waterTile(p: Pix, th: Theme, frame: number) {
-  const c = PAL[th].water;
-  p.rect(0, 0, 16, 16, c);
+function treeTile(p: Pix, th: Theme, wx: number, wy: number) {
+  grassTile(p, th, wx, wy, false);
+  const c = PAL[th].wall;
+  p.part(E(8, 14.5, 6, 1.6), mix(PAL[th].g[0], '#000000', 0.35), { flat: true, noOl: true });
+  p.part(R(6.5, 10, 3, 5), '#7a4e2a', { hi: '#a87040', ol: '#3a2010' });
+  const r = h2(wx * 3, wy * 5);
+  p.part(E(4.5, 8.5, 4.2, 3.6), shade(c, 0.9), { ol: '#123a18' });
+  p.part(E(11.5, 8.5, 4.2, 3.6), shade(c, 0.9), { ol: '#123a18' });
+  p.part(E(8, 5.5, 6.2, 5.2), c, { ol: '#123a18', hi: mix(c, '#d0ff90', 0.35) });
+  for (const [x, y] of [[5, 4], [9, 3], [7, 7], [11, 6]]) p.part(E(x, y, 0.9, 0.6), mix(c, '#e0ffa0', 0.45), { flat: true, noOl: true });
+  if (r > 0.6) for (const [x, y] of [[4, 8], [12, 8.5], [8, 6.5]]) p.part(E(x, y, 0.8, 0.8), '#ff4a4a', { flat: true, ol: '#6a1010' });
+}
+
+function rockWall(p: Pix, th: Theme, wx: number, wy: number) {
+  const c = PAL[th].wall;
+  p.rect(0, 0, 16, 16, shade(c, 0.45));
+  const r = (i: number) => h2(wx * 5 + i, wy * 9 + i);
+  // ごつごつした岩を ずらして 積む
+  const rocks: [number, number, number, number][] = [[-1, -1, 9, 8], [7, 0, 10, 8], [0, 7, 8, 9], [7.5, 7.5, 9, 9]];
+  for (const [i, [x, y, w, hh]] of rocks.entries()) {
+    const col = mix(c, i % 2 ? '#ffffff' : '#000000', 0.06 + r(i) * 0.08);
+    p.part(RR(x + 0.4 + r(i + 3), y + 0.4, w - 1, hh - 1, 3), col, { ol: shade(c, 0.35), hiT: 0.3 });
+  }
+  if (th === 'highland' && r(7) > 0.5) for (const [x, y] of [[3, 3], [11, 10]]) { p.part(E(x, y, 1.6, 0.9), '#8aa848', { flat: true, ol: '#3a5020' }); }
+  if (th === 'cave' && r(9) > 0.75) p.part(P(9, 9, 10.5, 4, 12, 9), '#8ae0ff', { hi: '#ffffff', ol: '#1a4a7a' });
+}
+
+function waterTile(p: Pix, th: Theme, wx: number, wy: number, f: number) {
+  const base = PAL[th].water;
+  ground(p, [shade(base, 0.82), base, mix(base, '#ffffff', 0.12), mix(base, '#ffffff', 0.22)], wx + f * 0.07, wy, 7);
   for (let i = 0; i < 3; i++) {
-    const y = (i * 5 + frame) % 16, x = (i * 7) % 12;
-    p.hline(x, x + 3, y, shade(c, 1.4));
+    const y = ((i * 5 + f * 0.8 + h2(wx, wy + i) * 10) % 15) + 0.5, x = (h2(wx + i, wy) * 10) | 0;
+    p.line(x, y, x + 3, y, mix(base, '#ffffff', 0.6));
+    p.line(x + 3, y, x + 4, y - 0.5, mix(base, '#ffffff', 0.35));
   }
 }
 
-function chestTile(p: Pix, th: Theme, x: number, y: number, open: boolean) {
-  floorTile(p, th, x, y, false);
+function chestTile(p: Pix, th: Theme, wx: number, wy: number, open: boolean) {
+  grassTile(p, th, wx, wy, false);
+  p.part(E(8, 13.5, 6.5, 1.5), mix(PAL[th].g[0], '#000000', 0.4), { flat: true, noOl: true });
   if (open) {
-    p.part(RR(2, 7, 12, 7, 1), '#8a5020', { flat: true });
-    p.part(R(3, 8, 10, 3), '#3a2010', { flat: true, noOl: true });
-    p.part(RR(2, 3, 12, 4, 1), '#b07030');
+    p.part(RR(2, 7, 12, 7, 1), '#9a5a24', { ol: '#3a1a08' });
+    p.part(R(3, 7.6, 10, 3), '#2a1206', { flat: true, noOl: true });
+    p.part(RR(2, 2.5, 12, 4.5, 1.5), '#c47a34', { ol: '#3a1a08' });
+    p.part(R(7, 3, 2, 4), '#e8c040', { ol: '#6a4a08' });
   } else {
-    p.part(RR(2, 4, 12, 10, 2), '#c07a30', { hi: '#e8a050' });
-    p.hline(2, 13, 8, '#6a3a10');
-    p.part(R(7, 7, 2, 3), '#f0d040', { flat: true });
+    p.part(RR(2, 7.5, 12, 6.5, 1), '#b06a2c', { ol: '#3a1a08', hi: '#d89048' });
+    p.part(RR(2, 3.5, 12, 5, 2.5), '#c87a34', { ol: '#3a1a08', hi: '#ec9e58' });
+    for (const x of [3.5, 11.5]) p.part(R(x, 3.8, 1.2, 10), '#e8c040', { ol: '#6a4a08', hi: '#fff0a0' });
+    p.part(RR(6.8, 7, 2.6, 3, 0.6), '#f0d050', { ol: '#6a4a08', hi: '#fff8c0' });
+    p.part(E(8.1, 8.6, 0.4, 0.6), '#3a2a08', { flat: true, noOl: true });
   }
 }
 
-function portalTile(p: Pix, th: Theme, x: number, y: number, frame: number, col = '#4ab0ff') {
-  floorTile(p, th, x, y, false);
-  p.part(E(8, 8, 6.5, 5.5), shade(col, 0.6), { flat: true });
-  for (let i = 0; i < 3; i++) {
-    const a = (frame * 0.6 + i * 2.1);
-    const r = 4 - i;
-    p.px(8 + Math.round(Math.cos(a) * r * 1.2), 8 + Math.round(Math.sin(a) * r), '#ffffff');
-    p.px(8 + Math.round(Math.cos(a + 3.1) * r * 1.2), 8 + Math.round(Math.sin(a + 3.1) * r), shade(col, 1.5));
-  }
-  p.part(E(8, 8, 2, 1.5), shade(col, 1.6), { flat: true, noOl: true });
+/** 旅の扉（うずまき） */
+function portalTile(p: Pix, th: Theme, wx: number, wy: number, f: number, col: string) {
+  if (th === 'town') pathTile(p, wx, wy); else grassTile(p, th, wx, wy, false);
+  p.part(E(8, 8.5, 7.2, 6.4), shade(col, 0.45), { flat: true, ol: shade(col, 0.25) });
+  p.part(E(8, 8.5, 5.8, 5), shade(col, 0.7), { flat: true, noOl: true });
+  p.part(E(8, 8.5, 3.6, 3.1), shade(col, 1.0), { flat: true, noOl: true });
+  for (let k = 0; k < 3; k++)
+    for (let i = 0; i < 14; i++) {
+      const a = i * 0.42 + f * 0.5 + k * 2.1, rr = 0.6 + i * 0.4;
+      p.pxh(Math.round((8 + Math.cos(a) * rr * 1.15) * S), Math.round((8.5 + Math.sin(a) * rr) * S), i < 6 ? '#ffffff' : mix(col, '#ffffff', 0.6));
+    }
+  p.part(E(8, 8.5, 1.4, 1.2), '#ffffff', { flat: true, noOl: true });
 }
 
-function springTile(p: Pix, th: Theme, x: number, y: number, frame: number, used: boolean) {
-  floorTile(p, th, x, y, false);
-  p.part(E(8, 9, 7, 5), used ? '#6a8aa0' : '#5ac8f0', { hi: '#c0f0ff', ol: '#8a8a9a' });
-  if (!used) { const s = frame % 4; p.px(5 + s, 7, '#ffffff'); p.px(11 - s, 10, '#ffffff'); }
+function springTile(p: Pix, th: Theme, wx: number, wy: number, f: number, used: boolean) {
+  grassTile(p, th, wx, wy, false);
+  p.part(E(8, 9, 7.5, 5.8), '#a8a8b8', { ol: '#4a4a5a', hi: '#e0e0ea' });
+  p.part(E(8, 9.2, 5.8, 4.2), used ? '#5a7a90' : '#48b8f0', { flat: true, ol: '#2a4a6a' });
+  p.part(E(6.5, 8, 2.2, 1.1), used ? '#7a9ab0' : '#a8ecff', { flat: true, noOl: true });
+  if (!used) for (let i = 0; i < 3; i++) { const t = (f + i * 3) % 8; p.part(E(4 + i * 3.5, 10 - t * 0.4, 0.5, 0.5), '#ffffff', { flat: true, noOl: true }); }
 }
 
-function roofTile(p: Pix, x: number) {
-  p.rect(0, 0, 16, 16, '#c84a3a');
-  for (let y = 3; y < 16; y += 4) p.hline(0, 15, y, '#8a2a20');
-  for (let y = 0; y < 16; y += 4) for (let i = (y / 4) % 2 ? 0 : 4; i < 16; i += 8) p.px(i + (x % 2), y + 1, '#e87a60');
+function roofTile(p: Pix, wx: number) {
+  p.rect(0, 0, 16, 16, '#8a2a20');
+  for (let row = 0; row < 4; row++)
+    for (let i = -1; i < 3; i++) {
+      const x = i * 8 + (row % 2) * 4 + (wx % 2) * 0, y = row * 4;
+      p.part(Sub(E(x + 4, y + 2.5, 4.2, 3.4), R(x - 1, y - 2, 10, 2.2)), '#c8483a', { ol: '#5a1410', hi: '#ec7a60' });
+    }
 }
-function houseWallTile(p: Pix, x: number) {
-  p.rect(0, 0, 16, 16, '#f0e0c0');
-  p.hline(0, 15, 15, '#b0a080');
-  if (x % 2 === 0) { p.part(R(4, 4, 8, 7), '#7ac0e8', { flat: true, ol: '#6a5030' }); p.hline(4, 11, 7, '#6a5030'); }
+function houseWallTile(p: Pix, wx: number) {
+  ground(p, ['#e2d2ae', '#ecdcba', '#f2e4c6', '#f6ead0'], wx, 0, 5);
+  p.rect(0, 0, 16, 1.4, '#6a4a2a');
+  p.rect(0, 14.6, 16, 1.4, '#7a5a3a');
+  if (wx % 2 === 0) {
+    p.part(RR(3.5, 3.5, 9, 8, 1), '#6a4a2a', { flat: true, ol: '#3a2410' });
+    p.part(R(4.5, 4.5, 7, 6), '#6ab8e8', { flat: true, noOl: true });
+    p.part(P(4.5, 4.5, 8, 4.5, 4.5, 8), '#c0e8ff', { flat: true, noOl: true });
+    p.rect(7.6, 4.5, 0.8, 6, '#6a4a2a'); p.rect(4.5, 7.2, 7, 0.8, '#6a4a2a');
+    p.rect(3, 11.5, 10, 1.2, '#8a6a4a');
+  } else { p.rect(1, 1, 1.2, 14, '#8a6a4a'); p.rect(14, 1, 1.2, 14, '#8a6a4a'); }
 }
 function counterTile(p: Pix) {
-  p.rect(0, 0, 16, 16, '#f0e0c0');
-  p.part(R(0, 9, 16, 7), '#a06a30', { hi: '#c8904a' });
+  ground(p, ['#e2d2ae', '#ecdcba', '#f2e4c6', '#f6ead0'], 3, 3, 5);
+  p.part(R(0, 8, 16, 8), '#9a6230', { ol: '#3a2010', hi: '#c88a4a' });
+  p.rect(0, 8, 16, 1.3, '#d8a868');
 }
-function fountainTile(p: Pix, frame: number) {
-  pathTile(p, 0, 0);
-  p.part(E(8, 9, 7.5, 6), '#a0a8b8', { hi: '#e0e8f0' });
-  p.part(E(8, 9, 5.5, 4), '#5ab8f0', { flat: true, ol: '#8090a0' });
-  p.part(R(7, 2, 2, 7), '#c0c8d8');
-  const s = frame % 3;
-  p.px(6 - s, 3 + s, '#c0f0ff'); p.px(10 + s, 3 + s, '#c0f0ff'); p.px(8, 1, '#ffffff');
+function fountainTile(p: Pix, f: number) {
+  pathTile(p, 5, 5);
+  p.part(E(8, 10, 7.6, 5.2), '#9aa2b8', { ol: '#3a4256', hi: '#e8eef8' });
+  p.part(E(8, 9.8, 5.8, 3.6), '#4ab0f0', { flat: true, ol: '#2a4a6a' });
+  p.part(R(7, 3, 2, 7), '#c0c8d8', { ol: '#3a4256' });
+  p.part(E(8, 3, 2.4, 1.2), '#d0d8e6', { ol: '#3a4256' });
+  for (let i = 0; i < 5; i++) {
+    const t = ((f + i * 1.6) % 8) / 8;
+    for (const s of [-1, 1]) p.part(E(8 + s * (1 + t * 4.5), 2 + t * 6 - Math.sin(t * Math.PI) * 2.5, 0.55, 0.55), '#d8f4ff', { flat: true, noOl: true });
+  }
+}
+function gateTile(p: Pix, wx: number, wy: number, f: number) {
+  portalTile(p, 'town', wx, wy, f, '#a070ff');
 }
 
 const cache = new Map<string, HTMLCanvasElement>();
-/** タイルの絵（座標は模様のばらつき用、frame はアニメ用） */
+/** タイルの絵（座標は模様のつながり用、frame はアニメ用） */
 export function tileSprite(th: Theme, ch: string, x: number, y: number, frame: number, state: { open?: boolean; used?: boolean } = {}): HTMLCanvasElement {
   const anim = ch === '~' || ch === '>' || ch === 'G' || ch === 'E' || ch === 'H' || ch === 'F';
-  const variant = ch === '.' || ch === ',' || ch === '#' || ch === 'T' || ch === 'C' || ch === 'S' || ch === 'P' || /[0-9]/.test(ch) || ch === 'H' || ch === 'R' || ch === 'W';
-  const f = anim ? frame % 8 : 0;
-  const key = `${th}|${ch}|${variant ? `${x % 4},${y % 4}` : ''}|${f}|${state.open ? 1 : 0}${state.used ? 1 : 0}`;
+  const f = anim ? frame % 16 : 0;
+  const key = `${th}|${ch}|${x},${y}|${f}|${state.open ? 1 : 0}${state.used ? 1 : 0}`;
   const hit = cache.get(key);
   if (hit) return hit;
-  const p = new Pix(16, 16);
-  const vx = x % 4, vy = y % 4;
+  const p = new Pix(16, 16, S);
   switch (ch) {
-    case '#': case 'T': wallTile(p, th, vx, vy); break;
-    case '~': waterTile(p, th, f); break;
-    case ',': floorTile(p, th, vx, vy, true); break;
-    case 'C': chestTile(p, th, vx, vy, !!state.open); break;
-    case '>': portalTile(p, th, vx, vy, f); break;
-    case 'G': portalTile(p, 'town', vx, vy, f, '#b070ff'); break;
-    case 'E': portalTile(p, th, vx, vy, f, '#ffd040'); break;
-    case 'H': springTile(p, th, vx, vy, f, !!state.used); break;
-    case 'R': roofTile(p, vx); break;
-    case 'W': houseWallTile(p, vx); break;
+    case '#':
+    case 'T':
+      if (th === 'forest' || th === 'town') treeTile(p, th, x, y);
+      else rockWall(p, th, x, y);
+      break;
+    case '~': waterTile(p, th, x, y, f); break;
+    case ',': grassTile(p, th, x, y, true); break;
+    case 'C': chestTile(p, th, x, y, !!state.open); break;
+    case '>': portalTile(p, th, x, y, f, '#3aa0ff'); break;
+    case 'G': gateTile(p, x, y, f); break;
+    case 'E': portalTile(p, th, x, y, f, '#ffc030'); break;
+    case 'H': springTile(p, th, x, y, f, !!state.used); break;
+    case 'R': roofTile(p, x); break;
+    case 'W': houseWallTile(p, x); break;
     case 'F': fountainTile(p, f); break;
+    case 'K': counterTile(p); break;
     default:
-      if (ch === 'K') counterTile(p);
-      else if (th === 'town' && (ch === '.' || ch === 'P' || /[0-9]/.test(ch))) pathTile(p, vx, vy);
-      else floorTile(p, th, vx, vy, false);
+      if (th === 'town' && (ch === '.' || ch === 'P' || /[0-9]/.test(ch))) pathTile(p, x, y);
+      else grassTile(p, th, x, y, false);
   }
   const c = p.canvas();
+  if (cache.size > 3000) cache.clear();
   cache.set(key, c);
   return c;
 }
 
-// ---------------------------------------------------------------- 人物
-export type PersonLook = { hair: string; skin?: string; top: string; bottom: string; hat?: string; beard?: boolean; scarf?: string; bald?: boolean; braid?: boolean; staff?: boolean };
+// ---------------------------------------------------------------- 人物（16×20 を 2 倍で）
+export type PersonLook = { hair: string; skin?: string; top: string; bottom: string; hat?: string; beard?: boolean; scarf?: string; bald?: boolean; braid?: boolean; staff?: boolean; bag?: string };
 export type Facing = 'down' | 'up' | 'left' | 'right';
+export const PERSON_W = 32, PERSON_H = 40;
 
 export const LOOKS: Record<string, PersonLook> = {
-  hero: { hair: '#7a4a2a', top: '#2a9a8a', bottom: '#3a4a6a', scarf: '#e04a3a' },
-  doctor: { hair: '#f0f0f0', top: '#7a5ab0', bottom: '#5a3a8a', beard: true, staff: true },
-  lily: { hair: '#f0c860', top: '#f07aa0', bottom: '#f8f0e0', hat: '#ff9ac0', braid: true },
-  shop: { hair: '#5a3a2a', top: '#e0e0d0', bottom: '#5a7a3a', bald: true },
+  hero: { hair: '#6a3c22', top: '#2a8aa0', bottom: '#34405e', scarf: '#e04a3a', bag: '#a87040' },
+  doctor: { hair: '#f2f2f2', top: '#6e50a8', bottom: '#4a3080', beard: true, staff: true },
+  lily: { hair: '#f2c860', top: '#ef7aa4', bottom: '#fbf2e2', hat: '#ff92bc', braid: true },
+  shop: { hair: '#5a3a2a', top: '#e8e2cc', bottom: '#4e7a3a', bald: true },
   arena: { hair: '#2a2a3a', top: '#3a5ab0', bottom: '#2a3a7a', hat: '#3a5ab0' },
   guard: { hair: '#4a3a2a', top: '#a0a8b8', bottom: '#5a6070', hat: '#c0c8d8' },
   kid: { hair: '#3a2a1a', top: '#f0a030', bottom: '#4a6ab0', hat: '#e04040' },
-  granny: { hair: '#d0d0d8', top: '#a07a5a', bottom: '#7a5a4a' },
-  scribe: { hair: '#6a4a3a', top: '#4a8a5a', bottom: '#3a5a4a', hat: '#4a8a5a' },
+  granny: { hair: '#d4d4dc', top: '#9a7258', bottom: '#6a4a3a' },
+  scribe: { hair: '#6a4a3a', top: '#3e8a5a', bottom: '#2e5a44', hat: '#3e8a5a' },
 };
 
 function drawPerson(L: PersonLook, dir: Facing, frame: number): Pix {
-  const p = new Pix(16, 16);
-  const skin = L.skin ?? '#f8d0a8';
-  const ol = '#2a1a20';
+  const p = new Pix(16, 20, S);
+  const skin = L.skin ?? '#f8d4ae';
+  const ol = '#2a1820';
   const step = frame % 2;
-  // あし
-  if (dir === 'left' || dir === 'right') {
-    p.rect(5 + step, 13, 2, 3, L.bottom); p.rect(9 - step, 13, 2, 3, L.bottom);
+  const side = dir === 'left';
+  // あし・くつ
+  const legY = 15.5;
+  if (side) {
+    p.part(RR(5.2 + step, legY, 2.6, 3.8, 0.8), L.bottom, { ol });
+    p.part(RR(8.4 - step, legY, 2.6, 3.8, 0.8), L.bottom, { ol });
+    p.part(E(5.6 + step, 19, 1.9, 0.9), '#4a3020', { ol }); p.part(E(8.8 - step, 19, 1.9, 0.9), '#4a3020', { ol });
   } else {
-    p.rect(5, 13, 2, step ? 2 : 3, L.bottom); p.rect(9, 13, 2, step ? 3 : 2, L.bottom);
+    p.part(RR(5.2, legY, 2.6, step ? 3 : 3.8, 0.8), L.bottom, { ol });
+    p.part(RR(8.2, legY, 2.6, step ? 3.8 : 3, 0.8), L.bottom, { ol });
+    p.part(E(6.5, step ? 18.4 : 19.1, 1.6, 0.9), '#4a3020', { ol }); p.part(E(9.5, step ? 19.1 : 18.4, 1.6, 0.9), '#4a3020', { ol });
   }
+  if (L.staff) { p.line(13.5, 5, 13.5, 19.5, '#7a4a20', 1.1); p.part(E(13.5, 4.2, 1.3, 1.3), '#70e8ff', { ol: '#1a4a6a' }); }
   // からだ
-  p.part(RR(4, 8, 8, 6, 2), L.top, { ol });
-  if (L.staff) { p.line(13, 4, 13, 15, '#8a5a2a'); p.px(13, 3, '#60e0ff'); }
-  // あたま
-  p.part(E(8, 5.5, 4.5, 4.2), skin, { ol, flat: true });
-  if (!L.bald) {
-    if (dir === 'up') p.part(E(8, 5, 4.6, 4.3), L.hair, { ol });
-    else {
-      p.part(P(3, 6, 4, 1, 8, 0, 12, 1, 13, 6, 11, 3, 8, 4, 5, 3), L.hair, { ol });
-      if (dir === 'left') p.part(R(9, 2, 4, 5), L.hair, { flat: true, ol });
-      if (dir === 'right') p.part(R(3, 2, 4, 5), L.hair, { flat: true, ol });
-    }
+  p.part(RR(3.6, 10.3, 8.8, 6.4, 2.4), L.top, { ol });
+  if (L.bag && dir !== 'up') p.part(RR(dir === 'left' ? 9.5 : 2.5, 12.5, 3.2, 3, 0.8), L.bag, { ol });
+  p.part(R(4, 14.6, 8, 1.1), shade(L.top, 0.6), { flat: true, noOl: true });
+  // うで
+  const armSwing = step ? 0.7 : -0.7;
+  if (!side) {
+    p.part(E(3.4, 13 + armSwing, 1.3, 2), L.top, { ol }); p.part(E(12.6, 13 - armSwing, 1.3, 2), L.top, { ol });
+    p.part(E(3.4, 14.8 + armSwing, 0.9, 0.9), skin, { flat: true, ol }); p.part(E(12.6, 14.8 - armSwing, 0.9, 0.9), skin, { flat: true, ol });
+  } else p.part(E(8, 13 + armSwing, 1.4, 2), shade(L.top, 0.9), { ol });
+  if (L.scarf) {
+    p.part(RR(4, 9.6, 8, 2, 1), L.scarf, { ol });
+    if (dir === 'up') p.part(P(7, 11, 9, 11, 9.5, 14.5, 7.5, 14), L.scarf, { ol });
+    if (side) p.part(P(10, 10.5, 13.5, 11.5 + step, 13, 13.5 + step, 10, 12), L.scarf, { ol });
   }
-  if (L.hat) p.part(RR(3, 0, 10, 3, 1), L.hat, { ol });
-  if (L.braid && dir !== 'right') p.part(E(3, 9, 1.5, 2.5), L.hair, { ol });
-  if (L.scarf) { p.rect(4, 8, 8, 2, L.scarf); if (dir !== 'down') p.rect(dir === 'left' ? 11 : dir === 'right' ? 3 : 7, 9, 2, 3, L.scarf); }
+  // あたま
+  p.part(E(8, 6.2, 5.4, 5), skin, { ol, flat: false, hiT: 0.7, loT: -0.75 });
+  if (!L.bald) {
+    if (dir === 'up') p.part(E(8, 5.6, 5.6, 5), L.hair, { ol });
+    else {
+      p.part(P(2.4, 7.5, 2.8, 2.5, 5.5, 0.6, 10.5, 0.6, 13.2, 2.5, 13.6, 7.5, 11.8, 4, 10, 5, 8, 3.6, 6, 5, 4, 4), L.hair, { ol });
+      if (side) p.part(RR(9, 2, 4.8, 6.5, 2), L.hair, { ol });
+    }
+  } else p.part(E(8, 2.6, 4, 1.6), shade(skin, 0.9), { flat: true, noOl: true });
+  if (L.hat) p.part(RR(2.6, 0.2, 10.8, 3.4, 1.6), L.hat, { ol });
+  if (L.braid && dir !== 'left') p.part(E(dir === 'up' ? 8 : 2.6, 10.5, 1.4, 2.8), L.hair, { ol });
   if (dir !== 'up') {
-    const ex = dir === 'left' ? [5, 8] : dir === 'right' ? [8, 11] : [6, 10];
-    for (const x of ex) { p.px(x, 6, '#20202a'); p.px(x, 7, '#20202a'); }
-    if (L.beard) p.part(E(8, 9, 3, 2.5), '#f0f0f0', { ol: '#a0a0a0' });
+    const ex = side ? [5, 8] : [5.8, 10.2];
+    for (const x of ex) {
+      p.part(E(x, 7, 0.9, 1.3), '#2a1a28', { flat: true, noOl: true });
+      p.pxh(Math.round((x - 0.3) * S), Math.round(6.2 * S), '#ffffff');
+    }
+    if (!side) { p.part(E(4.4, 8.8, 0.9, 0.5), '#ffa0a0', { flat: true, noOl: true }); p.part(E(11.6, 8.8, 0.9, 0.5), '#ffa0a0', { flat: true, noOl: true }); }
+    if (L.beard) p.part(Sub(E(8, 10, 3.8, 3), R(3, 6, 10, 2.6)), '#f4f4f4', { ol: '#9a9aa4' });
   }
   return p;
 }
@@ -220,9 +313,7 @@ export function personSprite(look: string, dir: Facing, frame: number): HTMLCanv
   const hit = pcache.get(key);
   if (hit) return hit;
   const L = LOOKS[look] ?? LOOKS.kid;
-  let c: HTMLCanvasElement;
-  if (dir === 'right') c = flipH(personSprite(look, 'left', frame));
-  else c = drawPerson(L, dir, frame).canvas();
+  const c = dir === 'right' ? flipH(personSprite(look, 'left', frame)) : drawPerson(L, dir, frame).canvas();
   pcache.set(key, c);
   return c;
 }

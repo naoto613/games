@@ -26,93 +26,155 @@ const u32 = (h: string | null | undefined) => {
 export type Shape = { bb: [number, number, number, number]; f: (x: number, y: number) => boolean };
 export type PartOpts = { hi?: string; lo?: string; ol?: string; flat?: boolean; noOl?: boolean; lx?: number; ly?: number; hiT?: number; loT?: number };
 
+const BAYER = [0, 0.5, 0.75, 0.25];
+const SHADOW_TINT = '#2a1850';
+const LIGHT_TINT = '#fff6dc';
+/** 光の向き（左上・手前から） */
+const L = (() => { const v = [-0.45, -0.65, 0.62]; const n = Math.hypot(...v); return v.map((x) => x / n); })();
+
+/** 色から 5 段階の色を作る（影は寒色寄り、ハイライトは暖色寄り） */
+export function ramp(col: string, o: { hi?: string; lo?: string } = {}) {
+  return {
+    deep: mix(o.lo ?? mix(col, SHADOW_TINT, 0.28), SHADOW_TINT, 0.3),
+    lo: o.lo ?? mix(col, SHADOW_TINT, 0.28),
+    base: col,
+    hi: o.hi ?? mix(col, LIGHT_TINT, 0.32),
+    top: mix(o.hi ?? mix(col, LIGHT_TINT, 0.32), '#ffffff', 0.5),
+    ol: mix(col, '#140c20', 0.74),
+  };
+}
+
+/**
+ * ドット絵バッファ。座標は「論理ピクセル」で指定し、scale 倍の解像度で描く。
+ * 形の塗りは高解像度で行うので、曲線がなめらかで陰影もこまかくなる。
+ */
 export class Pix {
   d: Uint32Array;
-  constructor(public w: number, public h: number) {
-    this.d = new Uint32Array(w * h);
+  W: number;
+  H: number;
+  constructor(public w: number, public h: number, public scale = 1) {
+    this.W = w * scale;
+    this.H = h * scale;
+    this.d = new Uint32Array(this.W * this.H);
   }
+  /** 高解像度の 1 ピクセル */
+  pxh(X: number, Y: number, c: string | number) {
+    X |= 0;
+    Y |= 0;
+    if (X < 0 || Y < 0 || X >= this.W || Y >= this.H) return;
+    this.d[Y * this.W + X] = typeof c === 'number' ? c : u32(c);
+  }
+  /** 論理ピクセル 1 つぶん（scale×scale のかたまり） */
   px(x: number, y: number, c: string | number) {
-    x |= 0;
-    y |= 0;
-    if (x < 0 || y < 0 || x >= this.w || y >= this.h) return;
-    this.d[y * this.w + x] = typeof c === 'number' ? c : u32(c);
+    const v = typeof c === 'number' ? c : u32(c);
+    const s = this.scale, X = Math.floor(x) * s, Y = Math.floor(y) * s;
+    for (let j = 0; j < s; j++) for (let i = 0; i < s; i++) this.pxh(X + i, Y + j, v);
   }
   get(x: number, y: number) {
-    if (x < 0 || y < 0 || x >= this.w || y >= this.h) return 0;
-    return this.d[y * this.w + x];
+    const X = Math.floor(x * this.scale), Y = Math.floor(y * this.scale);
+    if (X < 0 || Y < 0 || X >= this.W || Y >= this.H) return 0;
+    return this.d[Y * this.W + X];
   }
   rect(x: number, y: number, w: number, h: number, c: string) {
-    const v = u32(c);
-    for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) this.px(i, j, v);
+    const v = u32(c), s = this.scale;
+    for (let j = Math.round(y * s); j < Math.round((y + h) * s); j++) for (let i = Math.round(x * s); i < Math.round((x + w) * s); i++) this.pxh(i, j, v);
     return this;
   }
   hline(x0: number, x1: number, y: number, c: string) {
-    for (let x = x0; x <= x1; x++) this.px(x, y, c);
+    this.line(x0, y, x1, y, c);
   }
-  line(x0: number, y0: number, x1: number, y1: number, c: string) {
-    const v = u32(c);
-    const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) || 1;
-    for (let i = 0; i <= n; i++) this.px(Math.round(lerp(x0, x1, i / n)), Math.round(lerp(y0, y1, i / n)), v);
+  /** 線（高解像度で描くので 細い） */
+  line(x0: number, y0: number, x1: number, y1: number, c: string, thick = 1) {
+    const v = u32(c), s = this.scale;
+    const X0 = (x0 + 0.5) * s, Y0 = (y0 + 0.5) * s, X1 = (x1 + 0.5) * s, Y1 = (y1 + 0.5) * s;
+    const n = Math.max(Math.abs(X1 - X0), Math.abs(Y1 - Y0)) || 1;
+    const t = Math.max(1, Math.round(thick * s * 0.5));
+    for (let i = 0; i <= n; i++) {
+      const X = Math.round(lerp(X0, X1, i / n) - t / 2), Y = Math.round(lerp(Y0, Y1, i / n) - t / 2);
+      for (let a = 0; a < t; a++) for (let b = 0; b < t; b++) this.pxh(X + a, Y + b, v);
+    }
   }
-  /** 形を塗る（3段階の影と、暗いふちどり） */
+  /** 形を塗る（球面ライティングの 5 段階陰影＋ディザ＋ふちどり） */
   part(sh: Shape, col: string, o: PartOpts = {}) {
-    const [x0, y0, x1, y1] = sh.bb.map(Math.floor);
-    const W = x1 - x0 + 3, H = y1 - y0 + 3, m = new Uint8Array(W * H);
-    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (sh.f(x + 0.5, y + 0.5)) m[(y - y0 + 1) * W + (x - x0 + 1)] = 1;
+    const s = this.scale;
+    const X0 = Math.floor(sh.bb[0] * s) - 1, Y0 = Math.floor(sh.bb[1] * s) - 1, X1 = Math.ceil(sh.bb[2] * s) + 1, Y1 = Math.ceil(sh.bb[3] * s) + 1;
+    const W = X1 - X0 + 1, H = Y1 - Y0 + 1, m = new Uint8Array(W * H);
+    for (let Y = Y0; Y <= Y1; Y++) for (let X = X0; X <= X1; X++) if (sh.f((X + 0.5) / s, (Y + 0.5) / s)) m[(Y - Y0) * W + (X - X0)] = 1;
     const at = (x: number, y: number) => (x < 0 || y < 0 || x >= W || y >= H ? 0 : m[y * W + x]);
     const cx = (sh.bb[0] + sh.bb[2]) / 2 + (o.lx ?? 0), cy = (sh.bb[1] + sh.bb[3]) / 2 + (o.ly ?? 0);
-    const rx = Math.max(1, (sh.bb[2] - sh.bb[0]) / 2), ry = Math.max(1, (sh.bb[3] - sh.bb[1]) / 2);
-    const base = u32(col), hi = u32(o.hi ?? shade(col, 1.35)), lo = u32(o.lo ?? shade(col, 0.72)), ol = u32(o.ol ?? shade(col, 0.38));
+    const rx = Math.max(0.6, (sh.bb[2] - sh.bb[0]) / 2), ry = Math.max(0.6, (sh.bb[3] - sh.bb[1]) / 2);
+    const r = ramp(col, o);
+    const T = { deep: u32(r.deep), lo: u32(r.lo), base: u32(r.base), hi: u32(r.hi), top: u32(r.top) };
+    const ol = u32(o.ol ?? r.ol);
     if (!o.noOl)
       for (let y = 0; y < H; y++)
         for (let x = 0; x < W; x++) {
           if (m[y * W + x]) continue;
-          if (at(x - 1, y) || at(x + 1, y) || at(x, y - 1) || at(x, y + 1)) this.px(x + x0 - 1, y + y0 - 1, ol);
+          if (at(x - 1, y) || at(x + 1, y) || at(x, y - 1) || at(x, y + 1)) this.pxh(x + X0, y + Y0, ol);
         }
+    const small = rx * s < 3 || ry * s < 3;
     for (let y = 0; y < H; y++)
       for (let x = 0; x < W; x++) {
         if (!m[y * W + x]) continue;
-        const X = x + x0 - 1, Y = y + y0 - 1;
-        let c = base;
-        if (!o.flat) {
-          const u = (X + 0.5 - cx) / rx, v = (Y + 0.5 - cy) / ry, l = -(u * 0.55 + v * 0.85);
-          if (l > (o.hiT ?? 0.55)) c = hi;
-          else if (l < (o.loT ?? -0.45)) c = lo;
+        const X = x + X0, Y = y + Y0;
+        let c = T.base;
+        if (!o.flat && !small) {
+          const u = ((X + 0.5) / s - cx) / rx, v = ((Y + 0.5) / s - cy) / ry;
+          const d2 = Math.min(1, u * u + v * v);
+          const z = Math.sqrt(1 - d2);
+          const nl = Math.hypot(u, v, z) || 1;
+          let lit = (u * L[0] + v * L[1] + z * L[2]) / nl;
+          lit += (BAYER[(X & 1) + (Y & 1) * 2] - 0.375) * 0.16; // ディザ
+          const hiT = o.hiT ?? 0.55, loT = o.loT ?? -0.45;
+          if (lit > hiT + 0.33) c = T.top;
+          else if (lit > hiT) c = T.hi;
+          else if (lit > loT + 0.3) c = T.base;
+          else if (lit > loT - 0.25) c = T.lo;
+          else c = T.deep;
+          // ふちの 照り返し（右下）
+          if (d2 > 0.7 && u + v > 0.9 && c === T.deep) c = T.lo;
         }
-        this.px(X, Y, c);
+        this.pxh(X, Y, c);
       }
     return this;
   }
   fill(sh: Shape, col: string) {
     return this.part(sh, col, { flat: true, noOl: true });
   }
+  /** つやのある目 */
   eye(x: number, y: number, r = 2, col = '#202028', o: { closed?: boolean; w?: number; noShine?: boolean } = {}) {
     if (o.closed) {
-      this.hline(x - r, x + r, y, col);
+      this.line(x - r, y, x + r, y, col);
       return this;
     }
-    this.part(E(x, y, r * (o.w ?? 0.8), r), col, { flat: true, ol: '#202028' });
-    if (!o.noShine) this.px(x - Math.max(0, Math.round(r * 0.4)), y - Math.max(1, Math.round(r * 0.5)), '#ffffff');
+    const rx = r * (o.w ?? 0.8);
+    this.part(E(x, y, rx, r), col, { flat: true, ol: '#1a1020' });
+    // 下半分を すこし明るく（虹彩のグラデーション）
+    this.part(Sub(E(x, y + r * 0.25, rx * 0.8, r * 0.7), R(x - r, y - r, r * 2, r * 0.9)), mix(col, '#9ad0ff', 0.35), { flat: true, noOl: true });
+    if (!o.noShine) {
+      this.part(E(x - rx * 0.35, y - r * 0.4, Math.max(0.5, r * 0.32), Math.max(0.5, r * 0.32)), '#ffffff', { flat: true, noOl: true });
+      this.part(E(x + rx * 0.35, y + r * 0.35, Math.max(0.35, r * 0.15), Math.max(0.35, r * 0.15)), '#ffffff', { flat: true, noOl: true });
+    }
     return this;
   }
-  /** 外側に 1px のふちどりを足す（全体のシルエットを強調） */
+  /** 外側に ふちどりを足す（全体のシルエットを強調） */
   outline(col = '#1a1420') {
-    const v = u32(col);
+    const v = u32(col), W = this.W, H = this.H;
     const src = this.d.slice();
-    for (let y = 0; y < this.h; y++)
-      for (let x = 0; x < this.w; x++) {
-        if (src[y * this.w + x]) continue;
-        const n = (xx: number, yy: number) => xx >= 0 && yy >= 0 && xx < this.w && yy < this.h && src[yy * this.w + xx];
-        if (n(x - 1, y) || n(x + 1, y) || n(x, y - 1) || n(x, y + 1)) this.d[y * this.w + x] = v;
+    for (let y = 0; y < H; y++)
+      for (let x = 0; x < W; x++) {
+        if (src[y * W + x]) continue;
+        const n = (xx: number, yy: number) => xx >= 0 && yy >= 0 && xx < W && yy < H && src[yy * W + xx];
+        if (n(x - 1, y) || n(x + 1, y) || n(x, y - 1) || n(x, y + 1)) this.d[y * W + x] = v;
       }
     return this;
   }
   canvas(): HTMLCanvasElement {
     const c = document.createElement('canvas');
-    c.width = this.w;
-    c.height = this.h;
+    c.width = this.W;
+    c.height = this.H;
     const g = c.getContext('2d')!;
-    const id = g.createImageData(this.w, this.h);
+    const id = g.createImageData(this.W, this.H);
     new Uint32Array(id.data.buffer).set(this.d);
     g.putImageData(id, 0, 0);
     return c;
@@ -124,7 +186,7 @@ export const E = (cx: number, cy: number, rx: number, ry = rx): Shape => ({
   bb: [cx - rx - 1, cy - ry - 1, cx + rx + 1, cy + ry + 1],
   f: (x, y) => ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1,
 });
-export const R = (x: number, y: number, w: number, h: number): Shape => ({ bb: [x, y, x + w - 1, y + h - 1], f: (px, py) => px >= x && px < x + w && py >= y && py < y + h });
+export const R = (x: number, y: number, w: number, h: number): Shape => ({ bb: [x, y, x + w, y + h], f: (px, py) => px >= x && px < x + w && py >= y && py < y + h });
 export const RR = (x: number, y: number, w: number, h: number, r: number): Shape => ({
   bb: [x, y, x + w, y + h],
   f: (px, py) => {
