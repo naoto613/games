@@ -3,6 +3,7 @@
 ブラウザで遊べるゲームを GitHub Pages で公開するリポジトリです。
 
 - 一覧ページ: https://naoto613.github.io/games/
+- モンスター・エコーズ 〜ルナフィアと ひかりのクリスタル〜: https://naoto613.github.io/games/monster-echoes/
 - ハーモニーランド攻略ナビ（非公式）: https://naoto613.github.io/games/harmonyland-guide/
 - ふーたんを さがせ！: https://naoto613.github.io/games/futan-sagase/
 - みつけたタウン: https://naoto613.github.io/games/mitsuketa-town/
@@ -40,6 +41,12 @@
 ├── thumbs/                 # 一覧ページ用サムネイル（<ゲームフォルダ名>.jpg、800×500）
 ├── .nojekyll               # Jekyll 処理を無効化（ファイルをそのまま配信）
 ├── README.md
+├── monster-echoes/
+│   ├── index.html          # モンスター・エコーズ（GB『テリーのワンダーランド』の遊びの仕組み（旅の扉・にくで仲間化・血統で決まる系統配合と特殊配合・+値と成長限界・特技の継承と変化・野生値・作戦AI・闘技場）を再現した、オリジナルのモンスター・名前・世界観の育成配合 RPG。16種・3エリア×3フロア・闘技場3ランク。スマホ縦持ち、IndexedDB に自動保存）
+│   ├── game.js             # ビルド済み（src/ を esbuild でまとめたもの）
+│   ├── src/                # TypeScript: data（マスタ・バランス設定）/ domain（成長・戦闘・配合・探索・仲間化・進行。DOM 非依存）/ application（ユースケース）/ infrastructure（保存・音）/ ui（画面・ドット絵）
+│   ├── tests/              # unit・integration・balance（難易度曲線のシミュレーションと配合グラフの検証）
+│   └── tools/              # e2e.mjs / e2e-panels.mjs（Playwright でスマホ幅の通しプレイ確認）、shot.mjs、sheet.ts（ドット絵一覧）
 ├── harmonyland-guide/
 │   ├── index.html          # ハーモニーランド攻略ナビ（非公式。対象日 2026年10月13日。最初の画面は役に立つ公式ページへのリンク集（当日の朝に見る3つ＋分類別、そこで分かることを一言で、公式／外部／アプリ内を区別）。補助に きょう（参考時刻）・マップ（独自作図の略図と全施設の一覧）・プラン（☆・行った・子どもの年齢・雨の日モード・メモ）。リンクは data/links.json で管理。ビルド不要、file:// でも動く）
 │   ├── css/ js/ data/ assets/  # js: app・links・today・map・detail・planner・storage、data-fallback.js は build.py の生成物
@@ -146,6 +153,7 @@
 
 各ゲームは `<ゲーム名>/index.html` の 1 フォルダ 1 ゲーム構成で、置いた HTML がそのまま配信されます。
 `fuchan-town`・`fuchan-hospital`・`cure-tantei`・`chibikko-auto`・`futan-quest`・`futan-takuto`・`futan-kitchen`・`fumon-ruby`・`stella-noctis`・`obake-rusuban`・`futan-sagase` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
+`monster-echoes` も TypeScript なので、`cd monster-echoes && npm install && npm run build` で `game.js` を再生成してからコミットしてください（`npm test` でテスト、`npm run sim` で難易度シミュレーションの表）。
 `mori-itazura` は TypeScript なので、`cd mori-itazura && npm install && npm run build` で `game.js` を再生成してからコミットしてください（`npm test` でテスト）。
 
 ## ゲームの追加方法

@@ -293,6 +293,25 @@ export class Game {
     this.autosave();
   }
 
+  /** まちで 1 歩うごく。人・ふんすい・とびらは ぶつかると話しかける。 */
+  townMove(dir: Dir): MoveResult {
+    const map = loadMap('town');
+    const { townPos } = this.state.player;
+    const [dx, dy] = DIRS[dir];
+    const nx = townPos.x + dx, ny = townPos.y + dy;
+    const t = tileAt(map, nx, ny);
+    if (/[0-9]|F|G/.test(t)) {
+      this.setTownPos(townPos, dir);
+      return { kind: 'npc', id: t };
+    }
+    if (!isPassable(map, nx, ny)) {
+      this.setTownPos(townPos, dir);
+      return { kind: 'blocked' };
+    }
+    this.setTownPos({ x: nx, y: ny }, dir);
+    return { kind: 'moved', encounter: null };
+  }
+
   // ---------------------------------------------------------------- 配合
   breedingWorld() {
     return { monsters: this.state.monsters, partyIds: this.state.partyIds, capacity: this.state.capacity, flags: this.flags };
