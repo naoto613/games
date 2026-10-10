@@ -70,6 +70,8 @@ export const BALANCE = {
   recruitment: {
     minChance: 0,
     maxChance: 0.95,
+    /** にくを もらっていない敵の 基礎確率に掛ける値（にくなしでは まず なかまに ならない） */
+    noMeatFactor: 0.15,
     /** 敵のレベルがパーティ平均より高いとき 1 レベルごとに下がる確率 */
     levelPenalty: 0.015,
     initialWildness: 60,
