@@ -40,7 +40,8 @@ const View = {
     FG[1].visible = true;
     this.moved = this.moved || Math.abs(py - this.f2y) > 1e-4 || Math.abs(pb - this.f2back) > 1e-4 || Math.abs(prevYaw - this.yaw) > 1e-4;
     const cp = Math.cos(this.pitch), sp = Math.sin(this.pitch);
-    camera.position.set(this.target.x + Math.sin(this.yaw) * cp * this.dist, this.target.y + sp * this.dist, this.target.z + Math.cos(this.yaw) * cp * this.dist);
+    const ak = clamp(1.45 / (VW / VH), 1, 2.6), D = this.dist * ak;
+    camera.position.set(this.target.x + Math.sin(this.yaw) * cp * D, this.target.y + sp * D, this.target.z + Math.cos(this.yaw) * cp * D);
     camera.lookAt(this.target);
     // x-ray
     this.xray = damp(this.xray, this.xrayT, 10, dt);

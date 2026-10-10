@@ -160,7 +160,7 @@ async function caughtScene(by) {
 // ---------------------------------------------------------------- end of day
 async function endDay() {
   APP.mode = 'scene'; World.phase = 'night';
-  UI.closePanel(); UI.tip(null); UI.clearMarks(); Chain.hide();
+  UI.closePanel(); UI.tip(null); UI.clearMarks(); Chain.hide(); UI.clearBubbles();
   const r = dayResult(); const D = DAYS[r.day];
   await fadeOut();
   $('#hud').classList.add('hide');

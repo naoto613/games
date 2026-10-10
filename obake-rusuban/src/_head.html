@@ -159,16 +159,17 @@ button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;pad
 .tog.on{background:var(--org);color:#fff;box-shadow:0 0 0 2px var(--org2)}
 #hintBox{font-size:13px;font-weight:500;text-align:left;background:#f4f0ff;border-radius:12px;padding:8px 12px;margin-top:8px;line-height:1.6}
 @media (max-width:640px){
-  #goal{max-width:calc(100vw - 210px);font-size:11px;padding:5px 8px}
+  #goal{top:calc(max(8px,env(safe-area-inset-top)) + 50px);left:10px;right:10px;transform:none;max-width:none;font-size:11px;padding:5px 8px}
   #goal .sub{display:none}
   #topL{padding:4px 8px;gap:6px}#topL .clk{font-size:17px;min-width:48px}#topL .day{font-size:11px}
-  #log{top:calc(max(8px,env(safe-area-inset-top)) + 44px);width:46vw}
+  #log{top:calc(max(8px,env(safe-area-inset-top)) + 96px);width:46vw}
   .lg{font-size:10.5px}
   #ctlL .grp button{padding:5px 6px;font-size:12px;min-width:32px}
   #spd button{padding:5px 7px;font-size:12px}
   .bigb{padding:8px 14px;font-size:14px}
   #panel{bottom:calc(max(10px,env(safe-area-inset-bottom)) + 52px)}
-  #tip{top:calc(max(8px,env(safe-area-inset-top)) + 54px);font-size:12px}
+  #tip{top:calc(max(8px,env(safe-area-inset-top)) + 96px);font-size:12px}
+  #danger{top:calc(max(8px,env(safe-area-inset-top)) + 96px)}
   #pow{padding:4px 6px}#pow i{width:12px;height:16px}
 }
 @media (max-height:480px){

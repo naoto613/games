@@ -39,7 +39,7 @@ function dayResult() {
   const hide = World.caught ? 0 : ex < 0.3 ? 3 : ex < 0.7 ? 2 : 1;
   const md = World.maxDepth;
   const chain = md >= 6 ? 3 : md >= 4 ? 2 : md >= 2 ? 1 : 0;
-  const goal = D.free ? true : !!World.goalDone;
+  const goal = !World.caught && (D.free ? true : !!World.goalDone);
   let hidden = false; try { hidden = !!D.hiddenOK(); } catch (e) { }
   return { day: d, goal, hide, chain, depth: md, hidden, events: World.events.filter(e => !e.player).length, caught: World.caught };
 }

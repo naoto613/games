@@ -159,16 +159,17 @@ button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;pad
 .tog.on{background:var(--org);color:#fff;box-shadow:0 0 0 2px var(--org2)}
 #hintBox{font-size:13px;font-weight:500;text-align:left;background:#f4f0ff;border-radius:12px;padding:8px 12px;margin-top:8px;line-height:1.6}
 @media (max-width:640px){
-  #goal{max-width:calc(100vw - 210px);font-size:11px;padding:5px 8px}
+  #goal{top:calc(max(8px,env(safe-area-inset-top)) + 50px);left:10px;right:10px;transform:none;max-width:none;font-size:11px;padding:5px 8px}
   #goal .sub{display:none}
   #topL{padding:4px 8px;gap:6px}#topL .clk{font-size:17px;min-width:48px}#topL .day{font-size:11px}
-  #log{top:calc(max(8px,env(safe-area-inset-top)) + 44px);width:46vw}
+  #log{top:calc(max(8px,env(safe-area-inset-top)) + 96px);width:46vw}
   .lg{font-size:10.5px}
   #ctlL .grp button{padding:5px 6px;font-size:12px;min-width:32px}
   #spd button{padding:5px 7px;font-size:12px}
   .bigb{padding:8px 14px;font-size:14px}
   #panel{bottom:calc(max(10px,env(safe-area-inset-bottom)) + 52px)}
-  #tip{top:calc(max(8px,env(safe-area-inset-top)) + 54px);font-size:12px}
+  #tip{top:calc(max(8px,env(safe-area-inset-top)) + 96px);font-size:12px}
+  #danger{top:calc(max(8px,env(safe-area-inset-top)) + 96px)}
   #pow{padding:4px 6px}#pow i{width:12px;height:16px}
 }
 @media (max-height:480px){
@@ -3805,7 +3806,7 @@ const DAYS = {
     goal: 'おとうさんに はなうたを うたわせよう', goalShort: 'おとうさんの はなうた',
     goalSub: 'おとうさんは 6時に かえって、ソファで ニュースを みる。ラジオは リビングの たなの うえ', hidden: 'おばあちゃんも いっしょに うたわせよう', hiddenOK: () => hasF('d9sing'),
     morning: [['hiroshi', 'ラジオ、うごくかな。'], ['misaki', 'こわれてるんじゃない？'], ['hiroshi', 'かえったら ためしてみるよ。…いや、ニュースが さきか。'], ['fumi', 'むかしの うたが きこえたら いいねえ。'], ['n', 'ラジオは リビングの たなの うえに いる。']],
-    hints: ['テレビを みている あいだは、ラジオの おとは じゃま。', 'リモコンが ないと、おとうさんは しんぶんを よむ。', 'のんびり している ときに ラジオが なると…？'],
+    hints: ['テレビを みている あいだは、ラジオの おとは じゃま。', 'リモコンが ないと、おとうさんは しんぶんを よむ。でも はやく かくすと、そうたが アニメの ときに さわぎだす…（5時半すぎが ねらいめ）', 'のんびり している ときに ラジオが なると…？'],
     dinner: r => r.goal ? [['misaki', 'あなたが はなうたなんて、めずらしい。'], ['hiroshi', 'おやじが すきだった うたなんだ。'], ['fumi', 'わたしも すきだよ、あの うた。'], ['sota', 'ラジオ、すてないで！'], ['misaki', '……そうね。かんがえとく。']] : [['hiroshi', 'ラジオ、ためす ひま なかったな。'], ['misaki', 'やっぱり いらないんじゃない？']],
     diary: r => r.goal ? 'ひろしさんが はなうたを うたった。' + (hasF('d9sing') ? 'わたしも つられて うたった。' : '') + '\nあの ラジオから ながれる うたは、どこか なつかしい。' : 'ラジオは だまって たなの うえ。',
   },
@@ -3850,7 +3851,7 @@ const DAYS = {
     goal: '家族 みんなを 和室に あつめよう', goalShort: '家族 みんなを 和室へ',
     goalSub: '手紙は 2かいの おかあさんの つくえ。おかあさんは 5時45分ごろ しごとを おえる', hidden: 'さいごまで いちども あぶなく ならずに', hiddenOK: () => (World.maxExposure || 0) < 0.3,
     morning: [['fumi', 'きょうは… ちよさんの めいにち なんだよ。'], ['misaki', '……。'], ['hiroshi', 'きょうは はやく かえるよ。'], ['akari', 'わたしは へやで べんきょう。イヤホン するから。'], ['sota', 'ぽわ、いる？ きょうは とくべつな 日なんだって。'], ['n', 'さいごの 日。家じゅう どこへでも いける。']],
-    hints: ['おかあさんの つくえの 手紙を ひからせよう。', 'テレビを みている 人と、イヤホンの 人には よびごえが とどかない。', 'リモコンを かくす、じゅうでんきを ぬく…。'],
+    hints: ['おかあさんの つくえの 手紙を ひからせよう。', 'テレビを みている 人と、イヤホンの 人には よびごえが とどかない。', 'リモコンを かくすなら、そうたの アニメが おわる 5時半すぎに。じゅうでんきも ぬいておこう。'],
     dinner: r => r.goal ? [] : [['misaki', '手紙… わたせなかった。'], ['fumi', 'あせらなくて いいさ。']],
     diary: r => r.goal ? 'ちよさんの 手紙を、やっと うけとった。\n「この家で くらす 家族が、いつも わらって いられますように」\nぽわ、ありがとう。' : 'みさきが なにか いいたそうに していた。',
   },
@@ -3930,7 +3931,8 @@ const View = {
     FG[1].visible = true;
     this.moved = this.moved || Math.abs(py - this.f2y) > 1e-4 || Math.abs(pb - this.f2back) > 1e-4 || Math.abs(prevYaw - this.yaw) > 1e-4;
     const cp = Math.cos(this.pitch), sp = Math.sin(this.pitch);
-    camera.position.set(this.target.x + Math.sin(this.yaw) * cp * this.dist, this.target.y + sp * this.dist, this.target.z + Math.cos(this.yaw) * cp * this.dist);
+    const ak = clamp(1.45 / (VW / VH), 1, 2.6), D = this.dist * ak;
+    camera.position.set(this.target.x + Math.sin(this.yaw) * cp * D, this.target.y + sp * D, this.target.z + Math.cos(this.yaw) * cp * D);
     camera.lookAt(this.target);
     // x-ray
     this.xray = damp(this.xray, this.xrayT, 10, dt);
@@ -4367,7 +4369,7 @@ function dayResult() {
   const hide = World.caught ? 0 : ex < 0.3 ? 3 : ex < 0.7 ? 2 : 1;
   const md = World.maxDepth;
   const chain = md >= 6 ? 3 : md >= 4 ? 2 : md >= 2 ? 1 : 0;
-  const goal = D.free ? true : !!World.goalDone;
+  const goal = !World.caught && (D.free ? true : !!World.goalDone);
   let hidden = false; try { hidden = !!D.hiddenOK(); } catch (e) { }
   return { day: d, goal, hide, chain, depth: md, hidden, events: World.events.filter(e => !e.player).length, caught: World.caught };
 }
@@ -4587,7 +4589,7 @@ async function caughtScene(by) {
 // ---------------------------------------------------------------- end of day
 async function endDay() {
   APP.mode = 'scene'; World.phase = 'night';
-  UI.closePanel(); UI.tip(null); UI.clearMarks(); Chain.hide();
+  UI.closePanel(); UI.tip(null); UI.clearMarks(); Chain.hide(); UI.clearBubbles();
   const r = dayResult(); const D = DAYS[r.day];
   await fadeOut();
   $('#hud').classList.add('hide');
