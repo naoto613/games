@@ -451,9 +451,23 @@ function endOfTurn(s: BattleState, ev: BattleEvent[], _rng: Rng) {
   }
 }
 
-/** 勝利時の報酬（全員に同じだけ経験値が入る） */
-export function battleRewards(s: BattleState): { exp: number; gold: number } {
+/** 勝利時の報酬（exp は合計。1体ぶんは expForMember で計算する） */
+export function battleRewards(s: BattleState): { exp: number; gold: number; enemyLevel: number; alive: number } {
   const exp = s.enemies.reduce((a, e) => a + e.expYield * e.level * BALANCE.reward.expScale, 0);
   const gold = s.enemies.reduce((a, e) => a + e.goldYield * (1 + e.level * 0.5) * BALANCE.reward.goldScale, 0);
-  return { exp: Math.round(exp), gold: Math.round(gold) };
+  const enemyLevel = s.enemies.reduce((a, e) => a + e.level, 0) / Math.max(1, s.enemies.length);
+  const alive = s.allies.filter((c) => c.hp > 0).length;
+  return { exp: Math.round(exp), gold: Math.round(gold), enemyLevel, alive };
+}
+
+/**
+ * 1体が もらえる経験値: 合計を 生きている みかたで 分け（2体いじょうなら おまけ）、
+ * 敵との レベル差で 増減する（格下ばかり倒しても 育ちにくい）。
+ */
+export function expForMember(r: { exp: number; enemyLevel: number; alive: number }, level: number): number {
+  const R = BALANCE.reward;
+  const share = (r.exp / Math.max(1, r.alive)) * (r.alive > 1 ? R.shareBonus : 1);
+  const diff = level - r.enemyLevel;
+  const f = Math.max(R.expMinFactor, Math.min(R.expMaxFactor, 1 - diff * R.expLevelPenalty));
+  return Math.max(1, Math.round(share * f));
 }

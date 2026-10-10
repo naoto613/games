@@ -5,7 +5,7 @@ import { getSpecies } from '../data/monsters';
 import type { EnemySpec, Reward, Tactic } from '../data/types';
 import { createRng, type Rng } from '../core/Random';
 import { err, ok, type Result } from '../core/Result';
-import { battleRewards, createBattle, resolveTurn } from '../domain/battle/BattleEngine';
+import { battleRewards, createBattle, expForMember, resolveTurn } from '../domain/battle/BattleEngine';
 import type { BattleState, TurnInput, TurnResult } from '../domain/battle/types';
 import { BREEDING_ERROR_TEXT, checkBreedable, executeBreeding, previewBreeding, type BreedingPreview } from '../domain/breeding/BreedingEngine';
 import { DIRS, encounterChance, findTile, isPassable, loadMap, rollEncounter, tileAt, type Dir, type Pos, type TileMap } from '../domain/dungeon/DungeonEngine';
@@ -573,7 +573,7 @@ export class Game {
       for (const c of st.allies) {
         const m = s.monsters.find((x) => x.id === c.instanceId);
         if (!m || c.hp <= 0) continue;
-        const g = gainExperience(m, r.exp, this.rng);
+        const g = gainExperience(m, expForMember(r, m.level), this.rng);
         const wild = Math.max(0, g.monster.wildness - BALANCE.recruitment.wildnessPerBattle - g.events.length * BALANCE.recruitment.wildnessPerLevel);
         Object.assign(m, g.monster, { wildness: wild });
         if (g.events.length) summary.levelUps.push({ monsterId: m.id, name: displayName(m), events: g.events });

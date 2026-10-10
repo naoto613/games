@@ -10,7 +10,7 @@ export const BALANCE = {
     varianceMin: 0.75,
     varianceMax: 1.25,
     /** プラス値1につき伸びが何割増えるか */
-    plusGrowthBonus: 0.03,
+    plusGrowthBonus: 0.02,
     /** 経験値テーブル: 必要累計経験値 = expBase * rate * (L-1)^expPow */
     expBase: 4,
     expPow: 2.5,
@@ -18,7 +18,7 @@ export const BALANCE = {
   breeding: {
     plusLevelBonus: 2,
     /** 親2体の能力の合計にかける割合（子の Lv1 能力に足される） */
-    statInheritanceWeight: 0.12,
+    statInheritanceWeight: 0.07,
     /** 親のレベルの合計 levelSumPerPlus ごとにプラス値 +1（上限 maxLevelPlus） */
     levelSumPerPlus: 12,
     maxLevelPlus: 4,
@@ -64,7 +64,7 @@ export const BALANCE = {
     enemyWhim: { wild: 0.35, boss: 0.15, arena: 0.2 } as Record<string, number>,
   },
   /** 野生のモンスターは育てたモンスターより少し弱い */
-  wild: { hpScale: 0.75, statScale: 0.88 },
+  wild: { hpScale: 0.85, statScale: 0.95 },
   /** 闘技場の相手（育成途中のトレーナーのモンスター） */
   arena: { hpScale: 0.9, statScale: 0.93 },
   recruitment: {
@@ -89,8 +89,15 @@ export const BALANCE = {
     encounterMax: 0.3,
   },
   reward: {
-    /** 経験値 = expYield * level * expScale */
-    expScale: 0.9,
+    /** 経験値 = expYield * level * expScale（これを 生きている みかたで 分ける） */
+    expScale: 1.5,
+    /** 2体いじょうで 分けるときの おまけ（3体で わけても 1体ぶんより すこし多い） */
+    shareBonus: 1.25,
+    /** 敵より レベルが 1 高いごとに 経験値が これだけ へる（下限 expMinFactor） */
+    expLevelPenalty: 0.12,
+    expMinFactor: 0.2,
+    /** 敵より レベルが ひくいと すこし ふえる（上限） */
+    expMaxFactor: 1.2,
     goldScale: 1,
   },
 };

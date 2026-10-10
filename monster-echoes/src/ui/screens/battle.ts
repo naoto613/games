@@ -426,7 +426,7 @@ class BattleScreen implements Screen {
       sfx('win');
       await sleep(300);
       const lines: string[] = [];
-      if (sum.exp) lines.push(`けいけんちを ${sum.exp} かくとく！${sum.gold ? `\n${sum.gold}ゴールドを てにいれた！` : ''}`);
+      if (sum.exp) lines.push(`みんなで けいけんちを ${sum.exp} わけあった！${sum.gold ? `\n${sum.gold}ゴールドを てにいれた！` : ''}`);
       await say(lines);
       for (const lu of sum.levelUps) {
         const last = lu.events[lu.events.length - 1];

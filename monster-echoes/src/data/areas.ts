@@ -76,7 +76,7 @@ export const BOSSES: Record<string, BossDefinition> = {
     id: 'boss_forest', name: 'ゆがみの マドイダケ',
     intro: ['もりの おくで くろい もやが うずまいている…！', 'ゆがみに とりつかれた マドイダケが おそいかかってきた！'],
     enemies: [
-      { speciesId: 'madoidake', level: 12, hpScale: 3.0, statScale: 1.55, skills: ['poisonmist', 'dazzle', 'heal', 'bite'], name: 'ゆがみマドイダケ', distorted: true, recruitable: false },
+      { speciesId: 'madoidake', level: 10, hpScale: 3.0, statScale: 1.45, skills: ['poisonmist', 'dazzle', 'heal', 'bite'], name: 'ゆがみマドイダケ', distorted: true, recruitable: false },
       { speciesId: 'mossglow', level: 7, recruitable: false },
     ],
     defeatText: ['くろい もやが はれていく…。', 'あとには あたたかく ひかる かけらが のこっていた。', 'ひかりのかけらを てにいれた！'],
@@ -87,8 +87,9 @@ export const BOSSES: Record<string, BossDefinition> = {
     id: 'boss_cave', name: 'ゆがみの ハガネガメ',
     intro: ['ちていこの ほとりで みずが くろく にごっている…！', 'ゆがみに とりつかれた ハガネガメが あらわれた！'],
     enemies: [
-      { speciesId: 'haganegame', level: 16, hpScale: 1.7, statScale: 1.18, skills: ['tackle', 'rockfall', 'glare', 'icicle'], name: 'ゆがみハガネガメ', distorted: true, recruitable: false },
-      { speciesId: 'tsukipon', level: 13, recruitable: false },
+      { speciesId: 'haganegame', level: 16, hpScale: 2.0, statScale: 1.2, skills: ['tackle', 'rockfall', 'glare', 'icicle'], name: 'ゆがみハガネガメ', distorted: true, recruitable: false },
+      { speciesId: 'tsukipon', level: 14, recruitable: false },
+      { speciesId: 'madoidake', level: 14, recruitable: false },
     ],
     defeatText: ['にごった みずが すきとおっていく…。', 'ひかりのかけらを てにいれた！'],
     rewards: [{ type: 'item', itemId: 'shard', count: 1 }, { type: 'gold', amount: 400 }],
