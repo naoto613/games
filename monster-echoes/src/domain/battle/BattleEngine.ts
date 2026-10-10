@@ -55,13 +55,13 @@ export function enemyFromSpec(spec: EnemySpec, slot: number): Combatant {
   };
 }
 
-/** 同じ名前が並んだら A・B・C をつける */
-function labelDuplicates(cs: Combatant[]) {
+/** 同じ名前が並んだら A・B・C をつける（味方と同じ名前の敵にも つけて 見分けやすくする） */
+function labelDuplicates(cs: Combatant[], reserved: string[] = []) {
   const count: Record<string, number> = {};
   for (const c of cs) count[c.name] = (count[c.name] ?? 0) + 1;
   const seen: Record<string, number> = {};
   for (const c of cs) {
-    if (count[c.name] > 1) {
+    if (count[c.name] > 1 || reserved.includes(c.name)) {
       const i = (seen[c.name] = (seen[c.name] ?? 0) + 1);
       c.name = `${c.name}${'ABCDE'[i - 1]}`;
     }
@@ -71,10 +71,11 @@ function labelDuplicates(cs: Combatant[]) {
 export function createBattle(kind: BattleKind, party: MonsterInstance[], enemies: EnemySpec[], tactic: Tactic): BattleState {
   const W = kind === 'wild' ? BALANCE.wild : kind === 'arena' ? BALANCE.arena : null;
   const es = enemies.map((e, i) => enemyFromSpec(W ? { ...e, hpScale: (e.hpScale ?? 1) * W.hpScale, statScale: (e.statScale ?? 1) * W.statScale } : e, i));
-  labelDuplicates(es);
+  const allies = party.map((m, i) => allyFromInstance(m, i));
+  labelDuplicates(es, allies.map((a) => a.name));
   return {
     kind,
-    allies: party.map((m, i) => allyFromInstance(m, i)),
+    allies,
     enemies: es,
     turn: 0,
     tactic,

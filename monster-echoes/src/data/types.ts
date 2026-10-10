@@ -185,4 +185,4 @@ export type ArenaRankDefinition = {
   description: string;
 };
 
-export type Tactic = 'attack' | 'skill' | 'support' | 'save';
+export type Tactic = 'attack' | 'skill' | 'support' | 'save' | 'nomagic';

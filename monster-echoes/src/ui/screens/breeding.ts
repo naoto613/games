@@ -5,6 +5,7 @@ import { displayName } from '../../domain/monster/MonsterFactory';
 import type { MonsterInstance } from '../../domain/monster/types';
 import { sfx } from '../../infrastructure/audio/Sound';
 import type { App } from '../App';
+import { askName } from './menus';
 import { btn, h, item, sleep } from '../dom';
 import { monIcon, monLabel, monsterDetailBody, plusMark, resistList, statsGrid } from '../components/monster';
 
@@ -131,5 +132,7 @@ async function birth(app: App, child: MonsterInstance, isNew: boolean) {
   await sleep(1500);
   await app.say([`${getSpecies(child.speciesId).name}が うまれた！${isNew ? '\n（はじめて みる モンスターだ！）' : ''}`, child.plusValue ? `この こは +${child.plusValue}。 おやより よく そだつぞ。` : 'たいせつに そだててあげよう。'], { speaker: undefined });
   bp.close();
-  app.panel('うまれた こ', (body) => body.append(monsterDetailBody(child)));
+  if (await app.confirm(`${getSpecies(child.speciesId).name}に なまえを つけますか？`, 'つける', 'あとで')) await askName(app, child.id);
+  const born = app.game!.monster(child.id) ?? child;
+  app.panel('うまれた こ', (body) => body.append(monsterDetailBody(born)));
 }
