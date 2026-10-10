@@ -103,7 +103,9 @@ export class App {
     const text = h('div');
     const more = h('div', { class: 'more' }, '▼');
     box.append(text);
-    this.stage.append(box);
+    // 画面の どこを タップしても 次へ すすむ
+    const catcher = h('div', { class: 'tap-catcher' });
+    this.stage.append(catcher, box);
     const speed = { slow: 30, normal: 14, fast: 4 }[this.settings.textSpeed];
     try {
       for (const pg of pages) {
@@ -117,6 +119,7 @@ export class App {
             resolve();
           };
           box.onclick = advance;
+          catcher.onclick = advance;
           this.modal = { onKey: (k) => (k === 'a' || k === 'b') && advance() };
           (async () => {
             more.remove();
@@ -135,6 +138,7 @@ export class App {
     } finally {
       this.modal = null;
       box.remove();
+      catcher.remove();
     }
   }
 

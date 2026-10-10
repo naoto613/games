@@ -137,3 +137,26 @@ canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
 .titlescr canvas { width: 100%; flex: none; }
 .titlescr .menu { margin: auto 24px calc(24px + var(--safe-b)); display: flex; flex-direction: column; gap: 10px; }
 input.name { font: inherit; font-size: 1.3em; padding: 10px; width: 100%; background: #000; color: #fff; border: 2px solid #fff; border-radius: 6px; -webkit-user-select: text; user-select: text; }
+
+/* ---- 牧場のカード */
+.mgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.mcard { position: relative; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 4px; min-height: 124px; border-radius: 10px; border: 2px solid #8a94d0; background: linear-gradient(180deg, #1c2a5c, #101a3e); cursor: pointer; text-align: center; transition: transform .08s; }
+.mcard:active { transform: scale(.97); }
+.mcard .nm { font-size: .9em; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mcard .bar { width: 80%; }
+.mcard.sel { border-color: var(--hl); box-shadow: 0 0 0 2px var(--hl), 0 0 14px rgba(255,216,74,.6); transform: translateY(-2px); }
+.mcard.target { border-style: dashed; border-color: #c8d4ff; animation: pulse 1s ease-in-out infinite; }
+.mcard.empty { color: var(--sub); justify-content: center; border-style: dashed; }
+.mcard.dead { opacity: .7; }
+.mcard .badge { position: absolute; top: 3px; right: 5px; color: var(--hl); font-weight: bold; }
+.mcard .fav { position: absolute; top: 3px; left: 6px; color: var(--hl); }
+.icon.mid { width: 64px; height: 64px; }
+.ranch-hint { position: sticky; top: -10px; z-index: 2; }
+.ranch-hint.on { border-color: var(--hl); color: var(--hl); }
+.btn.chip { min-height: 36px; min-width: 36px; padding: 2px 8px; font-size: .8em; white-space: nowrap; }
+@keyframes pulse { 50% { box-shadow: 0 0 10px rgba(200,212,255,.6); } }
+.tap-catcher { position: absolute; inset: 0; z-index: 38; }
+.pstrip { position: absolute; left: 6px; right: 6px; bottom: 6px; display: flex; gap: 4px; z-index: 5; cursor: pointer; }
+.pstrip .pm { flex: 1; padding: 2px 6px; font-size: .72em; line-height: 1.25; }
+.pstrip .pm .bar { margin: 1px 0 0; height: 4px; }
+.pstrip .pm.dead { color: var(--bad); }

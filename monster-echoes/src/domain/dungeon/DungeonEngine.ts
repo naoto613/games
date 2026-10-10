@@ -71,3 +71,33 @@ export function rollEncounter(tableId: string, rng: Rng, lastLeadSpecies?: strin
   }
   return out;
 }
+
+/**
+ * 地図タップ用の みちすじ（最短）。目的地に乗れない（人・宝箱など）ときは となりまで歩いて、最後に そちらを向いて ぶつかる。
+ */
+export function findPath(m: TileMap, from: Pos, to: Pos, maxLen = 60): Dir[] | null {
+  if (to.x < 0 || to.y < 0 || to.x >= m.w || to.y >= m.h) return null;
+  const goalWalk = isPassable(m, to.x, to.y);
+  const key = (x: number, y: number) => y * m.w + x;
+  const prev = new Map<number, { k: number; d: Dir } | null>([[key(from.x, from.y), null]]);
+  const q: Pos[] = [from];
+  let end: Pos | null = null;
+  let finalBump: Dir | null = null;
+  while (q.length && !end) {
+    const p = q.shift()!;
+    for (const [d, [dx, dy]] of Object.entries(DIRS) as [Dir, [number, number]][]) {
+      const x = p.x + dx, y = p.y + dy;
+      if (!goalWalk && x === to.x && y === to.y) { end = p; finalBump = d; break; }
+      if (prev.has(key(x, y)) || !isPassable(m, x, y)) continue;
+      prev.set(key(x, y), { k: key(p.x, p.y), d });
+      if (goalWalk && x === to.x && y === to.y) { end = { x, y }; break; }
+      q.push({ x, y });
+    }
+  }
+  if (!end) return null;
+  const dirs: Dir[] = [];
+  let k = key(end.x, end.y);
+  while (prev.get(k)) { const e = prev.get(k)!; dirs.unshift(e.d); k = e.k; }
+  if (finalBump) dirs.push(finalBump);
+  return dirs.length && dirs.length <= maxLen ? dirs : null;
+}

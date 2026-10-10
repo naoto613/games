@@ -6,9 +6,14 @@ import { isFieldSkill } from '../../domain/monster/FieldSkills';
 import type { MonsterInstance } from '../../domain/monster/types';
 import { setSoundEnabled, sfx } from '../../infrastructure/audio/Sound';
 import { migrate } from '../../infrastructure/save/SaveMigration';
+import { openArena } from './arena';
+import { openBreeding } from './breeding';
+import { openDex } from './dex';
+import { openGate } from './gate';
+import { openShop } from './shop';
 import type { App } from '../App';
 import { btn, h, item } from '../dom';
-import { hpText, monIcon, monLabel, monsterDetailBody } from '../components/monster';
+import { monIcon, monsterDetailBody, sexMark } from '../components/monster';
 
 export const TACTICS: { id: Tactic; name: string; short: string; desc: string }[] = [
   { id: 'attack', name: 'こうげき ゆうせん', short: 'こうげき', desc: 'てきへの ダメージを いちばんに かんがえる' },
@@ -35,6 +40,20 @@ export function openFieldMenu(app: App, onClose: () => void) {
         !inDungeon ? item('きろくする', () => app.saveNow(true)) : null,
       ),
     );
+    // まちでは しせつへ すぐ行ける（歩いて行かなくても よい）
+    if (!inDungeon) {
+      const go = () => app.closeAllPanels();
+      const arenaOpen = g.state.progress.unlockedArenaRanks.length > 0;
+      body.children[0].after(h('div', { class: 'small muted' }, 'まちの しせつ（タップで すぐ いけます）'), h('div', { class: 'win list' },
+        item('たびのとびら', () => openGate(app, go), { meta: 'でかける' }),
+        item('ぼくじょう', () => openParty(app, () => {}), { meta: 'パーティ へんせい' }),
+        item('配合', () => openBreeding(app, () => {}), { meta: 'はかせ' }),
+        item('どうぐや', () => openShop(app, 'buy', () => {})),
+        item('とうぎじょう', () => openArena(app, go), { disabled: !arenaOpen, meta: arenaOpen ? '' : 'まだ さんか できない' }),
+        item('モンスターずかん', () => openDex(app)),
+        item('いやしの ふんすい', async () => { sfx('heal'); g.healAll(); await app.say('モンスターたちの HPと MPが すべて かいふくした！'); app.refreshPanels(); }, { meta: 'むりょう' }),
+      ));
+    }
   }, { onClose });
 }
 
@@ -47,47 +66,110 @@ async function returnHome(app: App) {
 }
 
 // ---------------------------------------------------------------- 牧場・パーティ
+type RanchSel = { kind: 'party'; index: number } | { kind: 'box'; id: string } | null;
+
+/**
+ * 牧場: 上に パーティ3わく、下に あずけている モンスター。
+ * 2回タップで いれかえ（パーティ↔牧場、パーティどうしは ならびかえ）。
+ */
 export function openParty(app: App, onClose: () => void, opts: { viewOnly?: boolean } = {}) {
   const g = app.game!;
-  app.panel(opts.viewOnly ? 'つよさ' : 'ぼくじょう', (body) => {
+  let sel: RanchSel = null;
+  let sort: 'level' | 'species' | 'new' = 'level';
+  const p = app.panel(opts.viewOnly ? 'つよさ' : 'ぼくじょう', (body, foot) => {
     const party = g.party;
-    body.append(h('div', { class: 'small muted' }, opts.viewOnly ? 'モンスターを えらぶと くわしく みられます。' : `つれていく モンスター（${party.length}/3）  ぼくじょう ${g.state.monsters.length}/${g.state.capacity}`));
-    const slots = h('div', { class: 'win list' });
+    const selM = sel?.kind === 'party' ? party[sel.index] : sel?.kind === 'box' ? g.monster(sel.id) : undefined;
+    const hint = opts.viewOnly ? 'モンスターを タップすると くわしく みられます。'
+      : !sel ? 'モンスターを タップして えらび、いれかえる あいてを タップ。'
+      : sel.kind === 'party' ? `${displayName(selM!)}と いれかえる モンスターを タップ（パーティどうしなら ならびかえ）`
+      : `${displayName(selM!)}を いれる パーティの わくを タップ`;
+    body.append(h('div', { class: `win small ranch-hint${sel ? ' on' : ''}` }, hint));
+    body.append(h('div', { class: 'small muted' }, `つれていく（${party.length}/3）`));
+    const grid = h('div', { class: 'mgrid' });
     for (let i = 0; i < 3; i++) {
       const m = party[i];
-      if (m) slots.append(item(h('span', { class: 'row' }, monIcon(m.speciesId), h('span', null, monLabel(m), h('br'), hpText(m), m.pendingSkills.length ? h('span', { class: 'hl small' }, ' ！とくぎ') : null)), () => openDetail(app, m.id, opts)));
-      else if (!opts.viewOnly) slots.append(item(h('span', { class: 'muted' }, '（あき）  ＋ くわえる'), () => pickForParty(app, i)));
+      const isSel = sel?.kind === 'party' && sel.index === i;
+      const target = !!sel && !isSel;
+      grid.append(m ? card(m, isSel, target, () => tapParty(i)) : emptyCard(target, () => tapParty(i)));
     }
-    body.append(slots);
+    body.append(grid);
     if (opts.viewOnly) return;
     const others = g.state.monsters.filter((m) => !g.state.partyIds.includes(m.id));
-    body.append(h('div', { class: 'small muted' }, `あずけている モンスター（${others.length}）`));
-    const list = h('div', { class: 'win list' });
-    if (!others.length) list.append(h('div', { class: 'muted small' }, 'まだ いません。たびのとびらで なかまを さがそう！'));
-    for (const m of others) list.append(item(h('span', { class: 'row' }, monIcon(m.speciesId), h('span', null, monLabel(m), h('br'), hpText(m))), () => openDetail(app, m.id, opts)));
-    body.append(list);
+    const sorted = [...others].sort((a, b) => sort === 'level' ? b.level - a.level : sort === 'species' ? a.speciesId.localeCompare(b.speciesId) || b.level - a.level : b.createdAt - a.createdAt);
+    body.append(h('div', { class: 'row', style: 'justify-content:space-between' },
+      h('span', { class: 'small muted' }, `ぼくじょう（${others.length}）  ぜんぶで ${g.state.monsters.length}/${g.state.capacity}`),
+      h('span', { class: 'row', style: 'gap:4px' }, ...(['level', 'species', 'new'] as const).map((k) => btn({ level: 'Lv', species: 'しゅるい', new: 'しんちゃく' }[k], () => { sort = k; p.refresh(); }, `chip${sort === k ? ' primary' : ''}`)))));
+    const box = h('div', { class: 'mgrid' });
+    if (!others.length) body.append(h('div', { class: 'win muted small' }, 'あずけている モンスターは いません。たびのとびらで なかまを さがそう！'));
+    for (const m of sorted) {
+      const isSel = sel?.kind === 'box' && sel.id === m.id;
+      box.append(card(m, isSel, sel?.kind === 'party', () => tapBox(m.id)));
+    }
+    body.append(box);
+    // えらんでいる モンスターへの 操作
+    if (selM) {
+      foot.append(btn('くわしく', () => openDetail(app, selM.id, opts), 'grow'));
+      if (sel?.kind === 'party') {
+        const b = btn('ぼくじょうへ', () => setIds(g.state.partyIds.filter((x) => x !== selM.id)), 'grow');
+        b.disabled = party.length <= 1;
+        foot.append(b);
+      } else if (party.length < 3) foot.append(btn('つれていく', () => setIds([...g.state.partyIds, selM.id]), 'primary grow'));
+      foot.append(btn('やめる', () => { sel = null; p.refresh(); }));
+    }
   }, { onClose });
+
+  function setIds(ids: string[]) {
+    const r = g.setParty(ids);
+    if (!r.ok) { app.toast(r.error); return; }
+    sfx('ok');
+    sel = null;
+    app.refreshPanels();
+  }
+  function tapParty(i: number) {
+    const ids = [...g.state.partyIds];
+    if (opts.viewOnly) { if (ids[i]) openDetail(app, ids[i], opts); return; }
+    if (!sel) { if (ids[i]) { sel = { kind: 'party', index: i }; sfx('cursor'); p.refresh(); } return; }
+    if (sel.kind === 'party') {
+      if (sel.index === i) { sel = null; p.refresh(); return; }
+      if (!ids[i]) { const [m] = ids.splice(sel.index, 1); ids.push(m); return setIds(ids); }
+      [ids[sel.index], ids[i]] = [ids[i], ids[sel.index]];
+      return setIds(ids);
+    }
+    if (i < ids.length) ids[i] = sel.id;
+    else ids.push(sel.id);
+    setIds(ids);
+  }
+  function tapBox(id: string) {
+    if (sel?.kind === 'party') {
+      const ids = [...g.state.partyIds];
+      ids[sel.index] = id;
+      return setIds(ids);
+    }
+    if (sel?.kind === 'box' && sel.id === id) { sel = null; p.refresh(); return; }
+    sel = { kind: 'box', id };
+    sfx('cursor');
+    p.refresh();
+  }
 }
 
-function pickForParty(app: App, slot: number) {
-  const g = app.game!;
-  const p = app.panel('つれていく モンスター', (body) => {
-    const list = h('div', { class: 'win list' });
-    const cands = g.state.monsters.filter((m) => !g.state.partyIds.includes(m.id));
-    if (!cands.length) list.append(h('div', { class: 'muted' }, 'あずけている モンスターが いません。'));
-    for (const m of cands)
-      list.append(item(h('span', { class: 'row' }, monIcon(m.speciesId), h('span', null, monLabel(m), h('br'), hpText(m))), () => {
-        const ids = [...g.state.partyIds];
-        if (slot < ids.length) ids[slot] = m.id;
-        else ids.push(m.id);
-        const r = g.setParty(ids);
-        if (!r.ok) return app.toast(r.error);
-        sfx('ok');
-        p.close();
-        app.refreshPanels();
-      }));
-    body.append(list);
-  });
+/** モンスターの カード（アイコン・なまえ・Lv・HP） */
+function card(m: MonsterInstance, sel: boolean, target: boolean, onTap: () => void) {
+  const ratio = m.stats.hp ? m.hp / m.stats.hp : 0;
+  const el = h('div', { class: `mcard${sel ? ' sel' : ''}${target ? ' target' : ''}${m.hp <= 0 ? ' dead' : ''}`, role: 'button' },
+    m.pendingSkills.length ? h('span', { class: 'badge' }, '！') : null,
+    m.favorite ? h('span', { class: 'fav' }, '★') : null,
+    monIcon(m.speciesId, 'icon mid'),
+    h('div', { class: 'nm' }, displayName(m)),
+    h('div', { class: 'small' }, sexMark(m), ` Lv${m.level}`, m.plusValue ? h('span', { class: 'plus' }, ` +${m.plusValue}`) : null),
+    h('div', { class: 'bar' }, h('i', { style: `width:${Math.round(ratio * 100)}%;${ratio < 0.3 ? 'background:var(--warn)' : ''}` })),
+  );
+  el.addEventListener('click', (e) => { e.stopPropagation(); onTap(); });
+  return el;
+}
+function emptyCard(target: boolean, onTap: () => void) {
+  const el = h('div', { class: `mcard empty${target ? ' target' : ''}`, role: 'button' }, h('div', { style: 'font-size:1.6em' }, '＋'), h('div', { class: 'small' }, 'あき'));
+  el.addEventListener('click', (e) => { e.stopPropagation(); onTap(); });
+  return el;
 }
 
 export function openDetail(app: App, id: string, opts: { viewOnly?: boolean } = {}) {

@@ -1,17 +1,18 @@
 import { BOSSES, getArea } from '../../data/areas';
 import { getItem } from '../../data/items';
-import { DIRS, findAll, loadMap, tileAt, type Dir, type TileMap } from '../../domain/dungeon/DungeonEngine';
+import { DIRS, findAll, findPath, loadMap, tileAt, type Dir, type TileMap } from '../../domain/dungeon/DungeonEngine';
 import type { MoveResult } from '../../application/Game';
 import type { Reward } from '../../data/types';
 import { playBgm, sfx } from '../../infrastructure/audio/Sound';
 import type { App, Key, Screen } from '../App';
-import { h } from '../dom';
+import { clear, h } from '../dom';
 import { monsterSprite } from '../gfx/monsters';
 import { mkCanvas } from '../gfx/Pix';
 import { personSprite, TILE, tileSprite, type Theme } from '../gfx/tiles';
 import { startBattle } from './battle';
 import { talkTo, TOWN_NPCS } from './town';
-import { openFieldMenu } from './menus';
+import { openFieldMenu, openParty } from './menus';
+import { displayName } from '../../domain/monster/MonsterFactory';
 
 const VW = 11;
 let VH = 9;
@@ -29,6 +30,10 @@ export class FieldScreen implements Screen {
   private g: CanvasRenderingContext2D;
   private hudL: HTMLElement;
   private hudR: HTMLElement;
+  private strip: HTMLElement;
+  /** 地図タップで歩く道すじ */
+  private path: Dir[] = [];
+  private pathGoal: { x: number; y: number } | null = null;
   private held: Dir | null = null;
   private moving: { from: { x: number; y: number }; t0: number; dur: number } | null = null;
   private busy = false;
@@ -43,8 +48,10 @@ export class FieldScreen implements Screen {
     [this.cv, this.g] = mkCanvas(VW * TILE, VH * TILE);
     this.hudL = h('div', { class: 'win hud' });
     this.hudR = h('div', { class: 'win hud right' });
-    const view = h('div', { class: 'view' }, this.cv, this.hudL, this.hudR);
-    view.addEventListener('click', () => this.key('a', true));
+    this.strip = h('div', { class: 'pstrip' });
+    this.strip.addEventListener('click', (e) => { e.stopPropagation(); if (this.busy || this.moving) return; sfx('ok'); openParty(this.app, () => this.afterMenu(), { viewOnly: !this.inTown }); });
+    const view = h('div', { class: 'view' }, this.cv, this.hudL, this.hudR, this.strip);
+    view.addEventListener('click', (e) => this.tapMap(e));
     this.map = this.loadCurrentMap();
     this.el = h('div', { class: 'layer' }, view, this.buildPad());
   }
@@ -162,6 +169,29 @@ export class FieldScreen implements Screen {
     const s = this.game.state;
     this.hudL.textContent = this.inTown ? 'ルナフィアの まち' : this.game.floor!.floor.name;
     this.hudR.textContent = `${s.player.gold} G`;
+    clear(this.strip);
+    for (const m of this.game.party) {
+      const r = m.stats.hp ? m.hp / m.stats.hp : 0;
+      this.strip.append(h('div', { class: `win pm${m.hp <= 0 ? ' dead' : ''}` },
+        h('div', { style: 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis' }, displayName(m)),
+        h('div', null, m.hp <= 0 ? 'たおれている' : `HP ${m.hp}`),
+        h('div', { class: 'bar' }, h('i', { style: `width:${Math.round(r * 100)}%;${r < 0.3 ? 'background:var(--warn)' : ''}` }))));
+    }
+  }
+
+  /** 地図をタップ: そこまで歩く（人・宝箱などなら となりまで歩いて 話しかける） */
+  private tapMap(e: MouseEvent) {
+    if (this.busy || this.moving || this.app.panels.length) return;
+    const rect = this.cv.getBoundingClientRect();
+    const cx = ((e.clientX - rect.left) / rect.width) * this.cv.width, cy = ((e.clientY - rect.top) / rect.height) * this.cv.height;
+    const camX = this.pos.x - (VW - 1) / 2, camY = this.pos.y - (VH - 1) / 2;
+    const tx = Math.floor(camX + cx / TILE), ty = Math.floor(camY + cy / TILE);
+    if (tx === this.pos.x && ty === this.pos.y) return void this.key('a', true);
+    const path = findPath(this.map, this.pos, { x: tx, y: ty });
+    if (!path) return;
+    this.path = path;
+    this.pathGoal = { x: tx, y: ty };
+    sfx('cursor');
   }
 
   /** A ボタン: 向いている先を調べる */
@@ -187,8 +217,11 @@ export class FieldScreen implements Screen {
       }
       return;
     }
-    if (this.busy || !this.held || this.app.panels.length) return;
-    this.step(this.held);
+    if (this.busy || this.app.panels.length) return;
+    if (this.held) { this.path = []; this.pathGoal = null; this.step(this.held); return; }
+    const d = this.path.shift();
+    if (d) this.step(d);
+    else this.pathGoal = null;
   }
 
   private pendingResult: MoveResult | null = null;
@@ -203,9 +236,11 @@ export class FieldScreen implements Screen {
     }
     if (r.kind === 'blocked') {
       if (this.frame % 20 === 0) sfx('bump');
+      this.path = [];
       return;
     }
     this.held = null;
+    this.path = [];
     this.handle(r);
   }
 
@@ -218,6 +253,8 @@ export class FieldScreen implements Screen {
   private async handle(r: MoveResult) {
     this.busy = true;
     this.held = null;
+    this.path = [];
+    this.pathGoal = null;
     try {
       switch (r.kind) {
         case 'npc':
@@ -351,6 +388,10 @@ export class FieldScreen implements Screen {
           g.drawImage(personSprite(npc.look, facing, npc.idle ? anim : 0), sx, sy - 10);
         }
       }
+    }
+    if (this.pathGoal && Math.floor(this.frame / 8) % 2 === 0) {
+      const gx = Math.round((this.pathGoal.x - camX) * TILE), gy = Math.round((this.pathGoal.y - camY) * TILE);
+      g.strokeStyle = '#ffe070'; g.lineWidth = 2; g.strokeRect(gx + 3, gy + 3, TILE - 6, TILE - 6);
     }
     // しゅじんこう
     const walk = this.moving ? Math.floor(this.frame / 6) : 0;
