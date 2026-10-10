@@ -4,6 +4,7 @@
 
 - 一覧ページ: https://naoto613.github.io/games/
 - ハーモニーランド攻略ナビ（非公式）: https://naoto613.github.io/games/harmonyland-guide/
+- ふーたんを さがせ！: https://naoto613.github.io/games/futan-sagase/
 - みつけたタウン: https://naoto613.github.io/games/mitsuketa-town/
 - もりのいたずら日和: https://naoto613.github.io/games/mori-itazura/
 - こっそりトレジャー: https://naoto613.github.io/games/kossori-treasure/
@@ -44,6 +45,10 @@
 │   ├── css/ js/ data/ assets/  # js: app・map・schedule・planner・storage、data-fallback.js は build.py の生成物
 │   ├── build.py            # data/*.json を編集したら python3 build.py（data-fallback.js と配布用 harmonyland-guide.zip を再生成）
 │   └── tests/e2e.mjs       # node tests/e2e.mjs（Playwright で全画面・保存・マップ・オフライン・file:// を確認）
+├── futan-sagase/
+│   ├── index.html          # ふーたんを さがせ！（ウォーリーをさがせ型。2400×1600 の 2D の一枚絵に 200〜270人の モブと 小物・どうぶつを ならべ、どこかに いる ふーたん（きいろい ようちえんぼう・みずいろ・くろかみボブ）を ドラッグ／ピンチで さがして タップ。みつけると みーつけた！の えんしゅつ → まるい ワイプで まったく ちがう つぎの ステージへ。10ステージ（はるの こうえん・なつの うみ（およぐ ひと）・ゆうがたの ゆうえんち（まわる かんらんしゃ）・ゆきやま（ゆきが ふる）・よるの なつまつり（ちょうちん）・どうぶつえん・うみの そこ（あわと ひかり）・つきの うちゅうきち・おとぎの おしろ・きょうりゅうの くに）で いしょうも ステージごと。ふーたんに にた こ（きいろい ぼうし／みずいろの ふく／ボブ）を まぜ、ものかげに かくれることも。サブキャラ：まま＝ふーたんの いる ほうに ハートの みちしるべ、パパ＝きねんしゃしん（ステージえらびに のこる）、リッキー＝ステージごとの まほう（はなびら・にじ・はなび・オーロラ・あわ・ながれぼし・かみふぶき）で まちじゅうが とびはねる。モブを タップすると しゃべって ジャンプ。1しゅうめは ひとも にた こも すくなめから だんだん ふえ、10か所 まわると 2しゅうめ・3しゅうめ（ひと・にた こ・ものかげが ふえる）。1しゅうめは 45びょう みつからないと ふーたんが ときどき ぴょんと はね、75びょうで じどうヒント。タイトルに クリア・なかま・しゃしんの かず。ヒントは だんだん せまく なる わ。BGM・こうかおん は Web Audio、セリフは 音声よみあげ。ビルド済み成果物。`window.GAME` でデバッグ）
+│   ├── build.py            # src/*.js を連結して index.html を生成
+│   └── src/                # 00 基盤、10 キャラ（ふーたん・まま・パパ・リッキー・モブ・どうぶつ）、20 小物、30 おと、40 せかい（スプライト・配置・描画）、45 えんしゅつ・ふきだし、50/51 ステージ、60 ゲームの ながれ、90 入力・ループ
 ├── mitsuketa-town/
 │   ├── index.html          # みつけたタウン（企画書どおりの ウォーリーをさがせ型の 探しものタイムアタック。3D の町（角丸の模型・噴水の広場・屋台・商店）に 紙の切り抜き風の 2D の人・物・動物が立つ。お題カード・残り時間（正解 +3秒、おしい −1秒、まちがい −2秒）・れんぞく（3秒以内、音が上がり 町の人が手を振る）・ヒント2回（ミニマップと地面の区画が光る、未使用で★）・住人図鑑（名前と一言プロフィール）。モードは どんどんさがし（3分）／きょうの一枚（日付シードで全員同じ町、5つの時間を共有）／のんびりさがし。お題ごとに 色違い・形違い・組み合わせ違いの「おしい」候補を混ぜ、町レベルで難しさが上がる。参考実装からの改善：人の密度アップと引きのカメラ、町レベルごとに ガーランド・ふうせん屋さん・花だん・りんごの木・クレープ屋台・メリーゴーランド・キラキラ噴水・ちょうちん・ステージ・お祭り と町が育つ、歩く住人・ねこ・いぬ・ハト、オルゴール風 BGM（残り30秒で速く）と残り10秒のカウント音、あそびかた画面、重なった正解や小さな物も拾いやすいタップ判定。単一 HTML＋three.js、記録は localStorage。デバッグ用に `window.MT`）
 │   └── three.min.js        # three.js r149（obake-rusuban と同じもの）
@@ -140,7 +145,7 @@
 ```
 
 各ゲームは `<ゲーム名>/index.html` の 1 フォルダ 1 ゲーム構成で、置いた HTML がそのまま配信されます。
-`fuchan-town`・`fuchan-hospital`・`cure-tantei`・`chibikko-auto`・`futan-quest`・`futan-takuto`・`futan-kitchen`・`fumon-ruby`・`stella-noctis`・`obake-rusuban` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
+`fuchan-town`・`fuchan-hospital`・`cure-tantei`・`chibikko-auto`・`futan-quest`・`futan-takuto`・`futan-kitchen`・`fumon-ruby`・`stella-noctis`・`obake-rusuban`・`futan-sagase` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
 `mori-itazura` は TypeScript なので、`cd mori-itazura && npm install && npm run build` で `game.js` を再生成してからコミットしてください（`npm test` でテスト）。
 
 ## ゲームの追加方法
