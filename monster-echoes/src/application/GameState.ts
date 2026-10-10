@@ -4,7 +4,7 @@ import type { Dir, Pos } from '../domain/dungeon/DungeonEngine';
 import type { MonsterInstance } from '../domain/monster/types';
 import type { ProgressState } from '../domain/progression/ProgressionEngine';
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 export const GAME_VERSION = '0.1.0';
 
 export type GameSettings = {
@@ -31,6 +31,8 @@ export type PlayerState = {
 export type Expedition = {
   areaId: string;
   floorIndex: number;
+  /** フロア自動生成の シード（はいるたびに かわる） */
+  mapSeed: number;
   pos: Pos;
   dir: Dir;
   openedChests: string[];

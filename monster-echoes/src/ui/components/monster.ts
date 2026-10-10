@@ -8,7 +8,7 @@ import { h } from '../dom';
 import { monsterSprite } from '../gfx/monsters';
 
 export function monIcon(speciesId: string, cls = 'icon', opts: { distorted?: boolean; silhouette?: boolean } = {}) {
-  const src = monsterSprite(speciesId, opts);
+  const src = monsterSprite(speciesId, { ...opts, small: !/\b(big|mid)\b/.test(cls) });
   const c = document.createElement('canvas');
   c.width = src.width;
   c.height = src.height;
@@ -40,7 +40,7 @@ export function statsGrid(st: Stats, cur?: { hp: number; mp: number }, compare?:
   return h('div', { class: 'stats' }, cells);
 }
 
-export const RESIST_LABEL: Record<ResistKey, string> = { fire: 'ほのお', ice: 'こおり', wind: 'かぜ', earth: 'だいち', light: 'ひかり', sleep: 'ねむり', paralysis: 'まひ', confusion: 'こんらん', poison: 'どく' };
+export const RESIST_LABEL: Record<ResistKey, string> = { fire: 'ほのお', ice: 'こおり', wind: 'かぜ', earth: 'だいち', thunder: 'かみなり', light: 'ひかり', sleep: 'ねむり', paralysis: 'まひ', confusion: 'こんらん', poison: 'どく' };
 const RES_WORD: Record<string, string> = { '-1': 'よわい', '1': 'つよい', '2': 'とてもつよい', '3': 'むこう' };
 export function resistList(r: Resistances) {
   const items = RESIST_KEYS.filter((k) => (r[k] ?? 0) !== 0).map((k) => {

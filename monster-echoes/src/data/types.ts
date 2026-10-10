@@ -8,16 +8,16 @@ export type Stats = Record<StatKey, number>;
 export type GrowthCurve = 'early' | 'normal' | 'late';
 
 /** 属性・状態異常の耐性キー */
-export type ElementId = 'fire' | 'ice' | 'wind' | 'earth' | 'light';
+export type ElementId = 'fire' | 'ice' | 'wind' | 'earth' | 'thunder' | 'light';
 export type StatusId = 'sleep' | 'paralysis' | 'confusion' | 'poison';
 export type ResistKey = ElementId | StatusId;
-export const RESIST_KEYS: readonly ResistKey[] = ['fire', 'ice', 'wind', 'earth', 'light', 'sleep', 'paralysis', 'confusion', 'poison'];
+export const RESIST_KEYS: readonly ResistKey[] = ['fire', 'ice', 'wind', 'earth', 'thunder', 'light', 'sleep', 'paralysis', 'confusion', 'poison'];
 /** -1:よわい 0:ふつう 1:つよい 2:とてもつよい 3:むこう */
 export type Resistances = Partial<Record<ResistKey, number>>;
 
 export type LearnsetEntry = { level: number; skillId: string };
 
-export type FamilyId = 'spirit' | 'beast' | 'mineral' | 'bird' | 'plant' | 'mystery';
+export type FamilyId = 'slime' | 'beast' | 'material' | 'bird' | 'bug' | 'plant' | 'spirit' | 'demon' | 'water' | 'dragon';
 
 export type FamilyDefinition = {
   id: FamilyId;
@@ -157,7 +157,6 @@ export type FloorDefinition = {
   id: string;
   name: string;
   encounterTableId: string;
-  mapTemplateId: string;
   /** 宝箱から出るもの */
   chestTable: { weight: number; value: Reward }[];
   bossId?: string;

@@ -146,7 +146,7 @@ class BattleScreen implements Screen {
       if (v.deadT === -999) continue;
       const p = this.enemyPos(e);
       const sp = monsterSprite(e.speciesId, { distorted: e.distorted });
-      const w = 96 * p.s, hgt = 96 * p.s;
+      const w = Math.round(sp.width * p.s), hgt = Math.round(sp.height * p.s);
       const bob = this.app.settings.reduceMotion ? 0 : Math.round(Math.sin((now + e.slot * 20) / 14) * 2);
       g.save();
       if (v.dead) g.globalAlpha = Math.max(0, 1 - (now - v.deadT) / 24);

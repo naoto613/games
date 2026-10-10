@@ -1,12 +1,17 @@
 import type { FamilyDefinition, FamilyId, MonsterSpecies, Stats } from './types';
 
+// 系統（図鑑の 10 系統）
 export const FAMILIES: Record<FamilyId, FamilyDefinition> = {
-  spirit: { id: 'spirit', name: 'せいれい', baseResistances: { light: 2, ice: 1, sleep: 1, earth: -1 } },
+  slime: { id: 'slime', name: 'スライム', baseResistances: { ice: 1, sleep: 1, earth: -1 } },
   beast: { id: 'beast', name: 'けもの', baseResistances: { fire: 1, ice: -1, confusion: -1 } },
-  mineral: { id: 'mineral', name: 'こうせき', baseResistances: { earth: 2, fire: 1, poison: 3, wind: -1 } },
-  bird: { id: 'bird', name: 'とり', baseResistances: { earth: 3, wind: 1, ice: -1, paralysis: -1 } },
+  material: { id: 'material', name: 'ぶっしつ', baseResistances: { earth: 2, poison: 3, sleep: 2, thunder: -1 } },
+  bird: { id: 'bird', name: 'とり', baseResistances: { earth: 3, wind: 1, thunder: -1 } },
+  bug: { id: 'bug', name: 'むし', baseResistances: { earth: 1, poison: 2, fire: -1 } },
   plant: { id: 'plant', name: 'しょくぶつ', baseResistances: { earth: 1, poison: 1, sleep: 1, fire: -1 } },
-  mystery: { id: 'mystery', name: '？？？', baseResistances: { light: 2, fire: 1, ice: 1, wind: 1, earth: 1, sleep: 2, paralysis: 2, confusion: 2, poison: 2 } },
+  spirit: { id: 'spirit', name: 'せいれい', baseResistances: { thunder: 2, light: 1, paralysis: 2, earth: -1 } },
+  demon: { id: 'demon', name: 'あくま', baseResistances: { confusion: 2, sleep: 1, poison: 1, light: -1 } },
+  water: { id: 'water', name: 'みず', baseResistances: { ice: 2, fire: 1, thunder: -1 } },
+  dragon: { id: 'dragon', name: 'ドラゴン', baseResistances: { fire: 1, ice: 1, sleep: 1, paralysis: 1 } },
 };
 
 const S = (hp: number, mp: number, attack: number, defense: number, speed: number, wisdom: number): Stats => ({ hp, mp, attack, defense, speed, wisdom });
@@ -32,45 +37,49 @@ function sp(
   };
 }
 
+// 役割ごとの 基本能力（Lv1）と 1レベルの のび
+type Role = [Stats, Stats];
+const ROLE: Record<string, Role> = {
+  healer: [S(13, 8, 8, 7, 9, 10), S(3.6, 2.8, 2.3, 2.0, 2.6, 3.0)],
+  attacker: [S(15, 4, 11, 7, 9, 5), S(4.2, 1.5, 3.2, 2.0, 2.6, 1.4)],
+  tank: [S(18, 3, 9, 12, 4, 4), S(4.8, 1.2, 2.6, 3.4, 1.2, 1.3)],
+  speed: [S(12, 6, 8, 6, 13, 8), S(3.4, 2.2, 2.4, 1.8, 3.4, 2.4)],
+  caster: [S(13, 9, 7, 7, 9, 12), S(3.6, 3.0, 2.0, 2.0, 2.6, 3.4)],
+  bruiser: [S(17, 5, 12, 9, 6, 5), S(4.8, 1.6, 3.4, 2.6, 1.8, 1.6)],
+  metal: [S(8, 8, 9, 22, 16, 9), S(1.8, 2.2, 2.4, 5.0, 4.2, 2.2)],
+};
+const TIER_SCALE: Record<number, [number, number]> = { 1: [1, 1], 2: [1.2, 1.15], 3: [1.5, 1.35], 4: [1.8, 1.55] };
+const scale = (st: Stats, k: number): Stats => Object.fromEntries(Object.entries(st).map(([key, v]) => [key, Math.round(v * k * 10) / 10])) as Stats;
+function mon(id: string, name: string, familyId: FamilyId, rarity: number, role: string, learnset: [number, string][], description: string, extra: Partial<MonsterSpecies> = {}) {
+  const [b, g] = ROLE[role];
+  const [kb, kg] = TIER_SCALE[rarity];
+  const base = scale(b, kb);
+  for (const k of Object.keys(base) as (keyof Stats)[]) base[k] = Math.round(base[k]);
+  return sp(id, name, familyId, rarity, base, scale(g, kg), learnset, description, extra);
+}
+
+// 図鑑の順（No.01〜20）
 const list: MonsterSpecies[] = [
-  // ---- せいれい系
-  sp('lumipon', 'ルミポン', 'spirit', 1, S(13, 8, 8, 7, 9, 10), S(3.6, 2.8, 2.3, 2.0, 2.6, 3.0),
-    [[1, 'heal'], [6, 'glimmer'], [12, 'veil']], 'ひかりと みずの しずくから うまれた せいれい。こうきしんが つよい。', { growthCurves: { wisdom: 'early' } }),
-  sp('tsukipon', 'ツキポン', 'spirit', 2, S(16, 12, 9, 9, 11, 14), S(4.2, 3.4, 2.6, 2.6, 2.8, 3.6),
-    [[1, 'lullaby'], [8, 'icicle'], [15, 'healall']], 'つきの ひかりを あびて そだった ルミポンの なかま。よるに なると ひかる。'),
-  sp('auroran', 'オーロラン', 'spirit', 3, S(22, 16, 12, 14, 14, 18), S(5.0, 4.0, 3.0, 3.3, 3.2, 4.4),
-    [[1, 'veil'], [12, 'revive'], [20, 'lightrain']], 'そらに かかる オーロラの せいれい。たおれた なかまを うたで よびもどす。', { resistances: { fire: 1 }, growthCurves: { hp: 'late' } }),
-  // ---- けもの系
-  sp('kogemaru', 'コゲマル', 'beast', 1, S(15, 4, 11, 7, 9, 5), S(4.2, 1.5, 3.2, 2.0, 2.6, 1.4),
-    [[1, 'bite'], [5, 'ember'], [11, 'focus']], 'しっぽに すみびを ともした こいぬ。げんきで くいしんぼう。', { growthCurves: { attack: 'early' } }),
-  sp('homurawolf', 'ホムラウルフ', 'beast', 2, S(19, 7, 14, 9, 13, 7), S(4.8, 2.0, 3.8, 2.4, 3.4, 1.8),
-    [[1, 'ember'], [8, 'glare'], [15, 'flamebreath']], 'ほのおの たてがみを もつ おおかみ。むれで かりを する。', { resistances: { fire: 2 } }),
-  sp('mitsugashira', 'ミツガシラ', 'beast', 3, S(28, 10, 19, 13, 13, 9), S(6.2, 2.5, 4.8, 3.2, 3.2, 2.2),
-    [[1, 'sweep'], [12, 'triplebite'], [20, 'flamebreath']], '3つの あたまを もつ ばんけん。それぞれ せいかくが ちがう。', { resistances: { fire: 2 }, growthCurves: { attack: 'late', hp: 'late' } }),
-  // ---- こうせき系
-  sp('iwatokage', 'イワトカゲ', 'mineral', 1, S(17, 3, 9, 12, 4, 4), S(4.6, 1.2, 2.5, 3.4, 1.3, 1.3),
-    [[1, 'pebbles'], [6, 'harden'], [12, 'tackle']], 'せなかに こうせきを せおった トカゲ。のんびりや。ダメージを うけると せなかが ひかる。'),
-  sp('haganegame', 'ハガネガメ', 'mineral', 2, S(22, 5, 11, 16, 5, 6), S(5.4, 1.6, 2.9, 4.2, 1.5, 1.8),
-    [[1, 'veil'], [8, 'tackle'], [15, 'rockfall']], 'はがねの こうらを もつ カメ。どんな こうげきも はじきかえす。'),
-  sp('suishoryu', 'スイショウリュウ', 'mineral', 3, S(30, 12, 17, 20, 9, 14), S(6.4, 3.0, 4.2, 4.6, 2.4, 3.6),
-    [[1, 'glimmer'], [12, 'rockfall'], [20, 'crystalbreath']], 'すいしょうの うろこに おおわれた りゅう。ひかりを ためこんで はきだす。', { resistances: { light: 2 }, growthCurves: { defense: 'early' } }),
-  // ---- とり系
-  sp('yorufukuro', 'ヨルフクロ', 'bird', 1, S(12, 6, 8, 6, 13, 8), S(3.4, 2.2, 2.4, 1.8, 3.4, 2.4),
-    [[1, 'gust'], [5, 'lullaby'], [11, 'peck']], 'ほしもようの はねを もつ フクロウ。しんちょうで よるに つよい。'),
-  sp('kazetsubame', 'カゼツバメ', 'bird', 2, S(15, 9, 11, 8, 17, 10), S(3.9, 2.6, 3.0, 2.1, 4.2, 2.8),
-    [[1, 'peck'], [8, 'haste'], [15, 'tornado']], 'かぜに のって せかいを かける ツバメ。だれよりも はやい。', { growthCurves: { speed: 'early' } }),
-  sp('nijikujaku', 'ニジクジャク', 'bird', 3, S(24, 15, 14, 12, 19, 17), S(5.2, 3.6, 3.6, 3.0, 4.4, 4.0),
-    [[1, 'dazzle'], [12, 'tornado'], [20, 'healall']], 'なないろの はねを ひろげて まう クジャク。みた ものを まどわせる。'),
-  // ---- しょくぶつ系
-  sp('mossglow', 'モスグロウ', 'plant', 1, S(16, 6, 7, 9, 5, 8), S(4.6, 2.2, 2.0, 2.6, 1.6, 2.4),
-    [[1, 'stunspore'], [4, 'heal'], [10, 'antidote']], 'こけと ちいさな きの からだを もつ。おんこうで なかまおもい。'),
-  sp('madoidake', 'マドイダケ', 'plant', 2, S(19, 10, 9, 10, 7, 12), S(5.0, 3.0, 2.4, 2.8, 2.0, 3.2),
-    [[1, 'poisonmist'], [8, 'dazzle'], [15, 'lullaby']], 'あやしい ほうしを まきちらす キノコ。もりで まよう ひとの しわざは だいたい こいつ。'),
-  sp('morinushi', 'モリヌシ', 'plant', 3, S(32, 14, 13, 17, 8, 15), S(6.8, 3.6, 3.2, 4.0, 2.0, 3.6),
-    [[1, 'antidote'], [12, 'healall'], [20, 'revive']], 'もりの ぬしと よばれる おおきな き。せなかで ことりが くらしている。', { growthCurves: { hp: 'late', defense: 'late' } }),
-  // ---- ？？？系
-  sp('luxdrago', 'ルクスドラゴ', 'mystery', 4, S(36, 20, 22, 20, 18, 22), S(7.2, 4.4, 5.0, 4.4, 4.0, 4.8),
-    [[1, 'lightrain'], [15, 'crystalbreath'], [25, 'judgement']], 'ひかりの クリスタルを まもると いわれる でんせつの りゅう。', { growthCurves: { attack: 'late', wisdom: 'late' } }),
+  mon('lunaslime', 'ルナスライム', 'slime', 1, 'healer', [[1, 'heal'], [6, 'veil'], [12, 'glimmer']], 'つきの ひかりを あびて うまれた みずいろの しずくがた モンスター。おんこうで なかまに なりやすい。', { growthCurves: { wisdom: 'early' } }),
+  mon('magmadog', 'マグマドッグ', 'beast', 1, 'attacker', [[1, 'firefang'], [5, 'ember'], [11, 'focus']], 'すみのような くろい けなみと ほのおの たてがみを もつ けもの。こうげきりょくが たかい。', { resistances: { fire: 2 }, growthCurves: { attack: 'early' } }),
+  mon('stonegolem', 'ストーンゴーレム', 'material', 1, 'tank', [[1, 'harden'], [6, 'pebbles'], [14, 'rockfall']], 'いわと こけで できた きょじん。うごきは おそいが しゅびりょくが ひじょうに たかい。'),
+  mon('frostbird', 'フロストバード', 'bird', 1, 'speed', [[1, 'wingstrike'], [5, 'icefeather'], [11, 'haste']], 'ゆきやまに すむ あおじろい とり。すばやく、こおりの はねを とばして こうげきする。', { resistances: { ice: 2, fire: -1 } }),
+  mon('sandworm', 'サンドワーム', 'bug', 1, 'bruiser', [[1, 'bite'], [6, 'dust'], [12, 'tackle']], 'さばくの ちかを いどうする きょだいな むし。ちめんに もぐって こうげきを さける。'),
+  mon('leafant', 'リーファント', 'plant', 1, 'healer', [[1, 'leaf'], [4, 'heal'], [10, 'antidote']], 'はっぱの ふくを まとった ちいさな もりの せいれい。かいふくと じょうたいいじょうの ちりょうが とくい。'),
+  mon('thunderkids', 'サンダーキッズ', 'spirit', 1, 'caster', [[1, 'spark'], [6, 'stunspore'], [13, 'thunder']], 'でんきを おびた ちいさな けもの。こうげきの たびに かみなりを ためこむ。'),
+  mon('darkeye', 'ダークアイ', 'demon', 2, 'caster', [[1, 'darkwave'], [8, 'glare'], [15, 'dazzle']], 'きょだいな ひとつめを もつ ふゆう せいぶつ。てきの のうりょくを さげる じゅもんを とくいとする。'),
+  mon('metalspirit', 'メタルスピリット', 'slime', 3, 'metal', [[1, 'metalbody'], [8, 'haste'], [16, 'glimmer']], 'ぎんいろの えきたいきんぞくで できた めずらしい まもの。すばやく、しゅびりょくが きょくたんに たかい。', { resistances: { fire: 3, ice: 3, wind: 3, earth: 3, thunder: 3, light: 3, poison: 3, sleep: 3, confusion: 3 } }),
+  mon('firedragon', 'ファイアドラゴン', 'dragon', 2, 'bruiser', [[1, 'flamebreath'], [8, 'firefang'], [15, 'fireball']], 'ほのおを はく わかい りゅう。そだつほど こうげきりょくが のび、うえの ドラゴンへの 配合の そざいにも なる。', { resistances: { fire: 2 }, growthCurves: { attack: 'late' } }),
+  mon('windcat', 'ウィンドキャット', 'bird', 2, 'speed', [[1, 'windwave'], [8, 'haste'], [15, 'peck']], 'ねこのような かおと おおきな つばさを もつ かぜの まもの。みかたの すばやさも あげられる。'),
+  mon('icekrill', 'アイスクリル', 'material', 2, 'tank', [[1, 'icebreath'], [8, 'veil'], [15, 'blizzard']], 'こおりの けっしょうが あつまって うまれた まもの。じゅもんに つよく、こおりの ぜんたい こうげきを つかう。', { resistances: { ice: 3, fire: -1 } }),
+  mon('greensprite', 'グリーンスプライト', 'plant', 2, 'healer', [[1, 'healall'], [8, 'regen'], [15, 'revive']], 'もりの エネルギーから うまれた ようせい。かいふくと ほじょで なかまの のうりょくを そこあげする。'),
+  mon('devilcrab', 'デビルクラブ', 'water', 1, 'tank', [[1, 'pinch'], [6, 'shellguard'], [12, 'icicle']], 'まりょくを おびた かいがらを せおう カニ。かたい からで まもりつつ、おおきな ハサミで はんげきする。'),
+  mon('ghostbill', 'ゴーストビル', 'demon', 1, 'caster', [[1, 'ember'], [5, 'dazzle'], [12, 'darkbreath']], 'むらさきいろの ほのおに つつまれた こあくま。じゅもんで じわじわ おいつめる。'),
+  mon('darkdragon', 'ダークドラゴン', 'dragon', 3, 'bruiser', [[1, 'darkbreath'], [12, 'megaflare'], [20, 'sweep']], 'やみの まりょくを やどした おおがたの ドラゴン。たかい こうげきりょくと きょうりょくな ぜんたい こうげきを もつ。', { growthCurves: { attack: 'late', hp: 'late' } }),
+  mon('kinoborg', 'キノコボーグ', 'plant', 2, 'bruiser', [[1, 'poisonmist'], [8, 'lullaby'], [15, 'stunspore']], 'キノコと きの ねが ゆうごうした まもの。どくや ねむりで てきを よわらせる。'),
+  mon('lightningleo', 'ライトニングレオ', 'spirit', 2, 'attacker', [[1, 'thunderfang'], [8, 'peck'], [15, 'thunder']], 'いなずまの たてがみを もつ ライオン。すばやく、れんぞく こうげきが とくい。', { growthCurves: { speed: 'early' } }),
+  mon('goldslime', 'ゴールドスライム', 'slime', 4, 'healer', [[1, 'happyguard'], [10, 'goldflash'], [20, 'healall']], 'きんいろの からだと ちいさな おうかんが とくちょう。めずらしく、しゅびりょくと こううんに すぐれる。', { resistances: { light: 3, fire: 1, thunder: 1 } }),
+  mon('chaosdragon', 'カオスドラゴン', 'dragon', 4, 'bruiser', [[1, 'darkflare'], [15, 'demonvoice'], [25, 'megaflare']], 'やみの ちからで きょうかされた りゅう。たさいな ブレスと じょうたいいじょうで あいてを おいつめる。', { resistances: { light: 1, confusion: 2 } }),
 ];
 
 export const SPECIES: Record<string, MonsterSpecies> = Object.fromEntries(list.map((s) => [s.id, s]));

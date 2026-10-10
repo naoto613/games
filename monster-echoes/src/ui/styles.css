@@ -150,7 +150,7 @@ input.name { font: inherit; font-size: 1.3em; padding: 10px; width: 100%; backgr
 .mcard.dead { opacity: .7; }
 .mcard .badge { position: absolute; top: 3px; right: 5px; color: var(--hl); font-weight: bold; }
 .mcard .fav { position: absolute; top: 3px; left: 6px; color: var(--hl); }
-.icon.mid { width: 64px; height: 64px; }
+.icon.mid { width: 64px; height: 64px; image-rendering: auto; }
 .ranch-hint { position: sticky; top: -10px; z-index: 2; }
 .ranch-hint.on { border-color: var(--hl); color: var(--hl); }
 .btn.chip { min-height: 36px; min-width: 36px; padding: 2px 8px; font-size: .8em; white-space: nowrap; }

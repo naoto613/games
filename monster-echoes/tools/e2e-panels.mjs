@@ -27,7 +27,7 @@ await p.waitForSelector('.pad-area');
 await p.evaluate(() => {
   const s = window.app.game.state;
   s.progress.defeatedBossIds.push('boss_forest'); s.progress.unlockedAreas.push('cave'); s.progress.unlockedArenaRanks.push('arenaF');
-  s.discoveredSpeciesIds.push('yorufukuro', 'mossglow', 'tsukipon'); s.player.gold = 500;
+  s.discoveredSpeciesIds.push('frostbird', 'leafant', 'darkeye'); s.player.gold = 500;
 });
 const talk = async (map, x, y, dir, name) => {
   await p.evaluate(([m, x, y, d]) => { const s = window.app.game.state; s.player.townMap = m; s.player.townPos = { x, y }; s.player.townDir = d; window.app.show(new (window.app.screen.constructor)(window.app)); }, [map, x, y, dir]);

@@ -67,6 +67,10 @@ describe('ゲームループ（探索→戦闘→仲間化→配合→保存→�
   it('一連の流れが成立する', async () => {
     const repo = new MemorySaveRepository();
     const g = new Game(newGameState('テスト', createRng(1), 0), { rng: createRng(2), sink: repo });
+    // フローの確認が目的なので、じゅうぶん強い パーティで 進む
+    const strong = [0, 1, 2].map((i) => createMonster('lightningleo', createRng(70 + i), { level: 15 }));
+    g.state.monsters.push(...strong);
+    g.setParty(strong.map((m) => m.id));
     expect(g.startExpedition('forest').ok).toBe(true);
     // 1F → 2F → 3F → ボス
     for (let f = 0; f < 2; f++) {
@@ -96,25 +100,25 @@ describe('ゲームループ（探索→戦闘→仲間化→配合→保存→�
     const repo = new MemorySaveRepository();
     const s = newGameState('テスト', createRng(1), 0);
     const g = new Game(s, { rng: createRng(5), sink: repo });
-    const a = createMonster('kogemaru', createRng(10), { level: 12, sex: 'A' });
-    const b = createMonster('yorufukuro', createRng(11), { level: 12, sex: 'B' });
+    const a = createMonster('frostbird', createRng(10), { level: 12, sex: 'A' });
+    const b = createMonster('magmadog', createRng(11), { level: 12, sex: 'B' });
     g.state.monsters.push(a, b);
     expect(g.setParty([a.id, b.id]).ok).toBe(true);
     const pv = g.breedCheck(a.id, b.id);
     if (!pv.ok) throw new Error(pv.error);
-    expect(pv.value.speciesId).toBe('homurawolf');
+    expect(pv.value.speciesId).toBe('windcat');
     const r = g.breed(a.id, b.id, pv.value.skills.recommended);
     if (!r.ok) throw new Error(r.error);
     expect(g.state.partyIds).toEqual([r.value.id]);
     expect(g.monster(a.id)).toBeUndefined();
-    expect(g.state.ownedSpeciesIds).toContain('homurawolf');
+    expect(g.state.ownedSpeciesIds).toContain('windcat');
     g.startExpedition('forest');
-    g.startWildBattle([{ speciesId: 'mossglow', level: 1 }]);
-    expect(g.battle!.state.allies[0].speciesId).toBe('homurawolf');
+    g.startWildBattle([{ speciesId: 'leafant', level: 1 }]);
+    expect(g.battle!.state.allies[0].speciesId).toBe('windcat');
     fight(g);
     await g.save();
     const l = await repo.load();
-    expect(l.kind === 'ok' && l.data.monsters.find((m) => m.id === r.value.id)?.speciesId).toBe('homurawolf');
+    expect(l.kind === 'ok' && l.data.monsters.find((m) => m.id === r.value.id)?.speciesId).toBe('windcat');
   });
 
   it('保存に失敗してもエラーを握りつぶさず、状態は壊れない', async () => {
@@ -138,14 +142,14 @@ describe('ゲームループ（探索→戦闘→仲間化→配合→保存→�
   it('全滅するとお金を一部失って町へ。図鑑・進行は残る', () => {
     const g = new Game(newGameState('テスト', createRng(1), 0), { rng: createRng(2) });
     g.startExpedition('forest');
-    g.state.discoveredSpeciesIds.push('madoidake');
-    g.startWildBattle([{ speciesId: 'homurawolf', level: 30 }, { speciesId: 'homurawolf', level: 30 }]);
+    g.state.discoveredSpeciesIds.push('kinoborg');
+    g.startWildBattle([{ speciesId: 'lightningleo', level: 30 }, { speciesId: 'lightningleo', level: 30 }]);
     const s = fight(g);
     expect(s.outcome).toBe('lose');
     expect(s.goldLost).toBe(60);
     expect(g.state.player.gold).toBe(60);
     expect(g.state.expedition).toBeNull();
-    expect(g.state.discoveredSpeciesIds).toContain('madoidake');
+    expect(g.state.discoveredSpeciesIds).toContain('kinoborg');
     expect(g.party.every((m) => m.hp === m.stats.hp)).toBe(true);
   });
 
@@ -153,7 +157,7 @@ describe('ゲームループ（探索→戦闘→仲間化→配合→保存→�
     const g = new Game(newGameState('テスト', createRng(1), 0), { rng: createRng(2) });
     g.state.progress.defeatedBossIds.push('boss_forest');
     g.state.progress.unlockedArenaRanks.push('arenaF');
-    const strong = [0, 1, 2].map((i) => createMonster('homurawolf', createRng(50 + i), { level: 25, plusValue: 4 }));
+    const strong = [0, 1, 2].map((i) => createMonster('lightningleo', createRng(50 + i), { level: 25, plusValue: 4 }));
     g.state.monsters.push(...strong);
     g.setParty(strong.map((m) => m.id));
     for (let i = 0; i < 3; i++) {
@@ -174,7 +178,7 @@ describe('フィードバック対応', () => {
     g.setMonsterTactic(a.id, 'support');
     g.setMonsterTactic(b.id, 'save');
     g.startExpedition('forest');
-    g.startWildBattle([{ speciesId: 'mossglow', level: 1 }]);
+    g.startWildBattle([{ speciesId: 'leafant', level: 1 }]);
     expect(g.battle!.state.allies.map((c) => c.tactic)).toEqual(['support', 'save']);
     g.setMonsterTactic(b.id, 'attack');
     expect(g.battle!.state.allies[1].tactic).toBe('attack');
@@ -183,8 +187,8 @@ describe('フィードバック対応', () => {
   });
   it('仲間にしたモンスターをパーティの誰かと入れかえられる', () => {
     const g = new Game(newGameState('テスト', createRng(1), 0), { rng: createRng(2) });
-    g.acceptRecruit('mossglow', 3);
-    const r = g.acceptRecruit('yorufukuro', 3);
+    g.acceptRecruit('leafant', 3);
+    const r = g.acceptRecruit('frostbird', 3);
     if (!r.ok) throw new Error(r.error);
     expect(g.state.partyIds).not.toContain(r.value.id);
     const out = g.state.partyIds[0];
@@ -197,8 +201,8 @@ describe('フィードバック対応', () => {
 describe('フィードバック対応 2', () => {
   it('メニューで回復のじゅもんを使える（MPが減ってHPが回復する）', () => {
     const g = new Game(newGameState('テスト', createRng(1), 0), { rng: createRng(2) });
-    const lumi = g.party.find((m) => m.speciesId === 'lumipon')!;
-    const koge = g.party.find((m) => m.speciesId === 'kogemaru')!;
+    const lumi = g.party.find((m) => m.speciesId === 'lunaslime')!;
+    const koge = g.party.find((m) => m.speciesId === 'magmadog')!;
     g.state.monsters = g.state.monsters.map((m) => (m.id === koge.id ? { ...m, hp: 3 } : m));
     const r = g.useFieldSkill(lumi.id, 'heal', koge.id);
     if (!r.ok) throw new Error(r.error);
@@ -210,15 +214,15 @@ describe('フィードバック対応 2', () => {
   it('じゅもんつかうな: MPを使う特技を選ばない', async () => {
     const { chooseAction } = await import('../../src/domain/battle/BattleAI');
     const { createBattle } = await import('../../src/domain/battle/BattleEngine');
-    const party = [createMonster('kogemaru', createRng(3), { level: 12 }), createMonster('lumipon', createRng(4), { level: 12 })];
-    const s = createBattle('wild', party, [{ speciesId: 'mossglow', level: 10 }, { speciesId: 'mossglow', level: 10 }], 'nomagic');
+    const party = [createMonster('magmadog', createRng(3), { level: 12 }), createMonster('lunaslime', createRng(4), { level: 12 })];
+    const s = createBattle('wild', party, [{ speciesId: 'leafant', level: 10 }, { speciesId: 'leafant', level: 10 }], 'nomagic');
     s.allies[0].hp = 1;
     for (let i = 0; i < 50; i++) for (const a of s.allies) expect(chooseAction(s, a, 'nomagic', createRng(i), 3).skillId).toBe('attack');
   });
   it('味方と同じ名前の敵には A がつく', async () => {
     const { createBattle } = await import('../../src/domain/battle/BattleEngine');
-    const s = createBattle('wild', [createMonster('lumipon', createRng(3), { level: 3 })], [{ speciesId: 'lumipon', level: 2 }], 'attack');
-    expect(s.allies[0].name).toBe('ルミポン');
-    expect(s.enemies[0].name).toBe('ルミポンA');
+    const s = createBattle('wild', [createMonster('lunaslime', createRng(3), { level: 3 })], [{ speciesId: 'lunaslime', level: 2 }], 'attack');
+    expect(s.allies[0].name).toBe('ルナスライム');
+    expect(s.enemies[0].name).toBe('ルナスライムA');
   });
 });

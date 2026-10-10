@@ -4,23 +4,29 @@ import { MAPS } from '../../src/data/maps';
 import { SPECIES } from '../../src/data/monsters';
 import { findAll, findTile, isPassable, loadMap, reachable } from '../../src/domain/dungeon/DungeonEngine';
 import { TOWN_MAPS } from '../../src/data/town';
+import { floorMap } from '../../src/application/Game';
 
 describe('マップデータ', () => {
-  for (const id of Object.keys(MAPS).filter((k) => !TOWN_MAPS[k])) {
-    it(`${id}: 長方形で、スタートから全部の宝箱・出口・ボスに届く`, () => {
-      const raw = MAPS[id].rows;
-      expect(new Set(raw.map((r) => r.length)).size, raw.map((r, i) => `${i}:${r.length}`).join(' ')).toBe(1);
-      const m = loadMap(id);
-      const start = findTile(m, 'S')!;
-      expect(start).toBeTruthy();
-      const { walk, touch } = reachable(m, start);
-      const need = ['C', '>', 'B', 'E', 'H'];
-      for (const ch of need) for (const p of findAll(m, ch)) {
-        const k = `${p.x},${p.y}`;
-        expect(walk.has(k) || touch.has(k), `${id} ${ch} at ${k}`).toBe(true);
+  it('自動生成フロア: どの シードでも スタートから 全部の 宝箱・出口・ボスに 届き、形が シードで かわる', () => {
+    for (const a of AREAS) a.floors.forEach((f, i) => {
+      const shapes = new Set<string>();
+      for (let seed = 1; seed <= 60; seed++) {
+        const m = floorMap(a.id, i, seed * 7919);
+        const start = findTile(m, 'S')!;
+        expect(start, f.id).toBeTruthy();
+        const { walk, touch } = reachable(m, start);
+        for (const ch of ['C', '>', 'B', 'E', 'H']) for (const p of findAll(m, ch)) {
+          const k = `${p.x},${p.y}`;
+          expect(walk.has(k) || touch.has(k), `${f.id} seed${seed} ${ch} at ${k}`).toBe(true);
+        }
+        expect(findAll(m, 'C').length, f.id).toBeGreaterThanOrEqual(1);
+        // 同じ シードなら 同じ 形
+        expect(floorMap(a.id, i, seed * 7919).tiles.map((r) => r.join('')).join('/')).toBe(m.tiles.map((r) => r.join('')).join('/'));
+        shapes.add(m.tiles.map((r) => r.join('')).join('/'));
       }
+      expect(shapes.size, f.id).toBeGreaterThan(55);
     });
-  }
+  });
   for (const def of Object.values(TOWN_MAPS)) {
     it(`まち ${def.id}: 出入り口・人・旅の扉に たどりつけ、つながる先が 正しい`, () => {
       const m = loadMap(def.id);
@@ -42,7 +48,7 @@ describe('マップデータ', () => {
   }
   it('最終フロアだけにボスがいて、それ以外には次への階段がある', () => {
     for (const a of AREAS) a.floors.forEach((f, i) => {
-      const m = loadMap(f.mapTemplateId);
+      const m = floorMap(a.id, i, 12345);
       const last = i === a.floors.length - 1;
       expect(!!findTile(m, 'B'), f.id).toBe(last);
       expect(!!findTile(m, '>'), f.id).toBe(!last);

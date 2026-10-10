@@ -140,10 +140,10 @@ export class TitleScreen implements Screen {
     const bob = this.app.settings.reduceMotion ? 0 : Math.round(Math.sin(t / 12) * 2);
     const shadow = (x: number, y: number, w: number) => { g.fillStyle = 'rgba(0,0,0,.25)'; g.beginPath(); g.ellipse(x, y, w, 5, 0, 0, Math.PI * 2); g.fill(); };
     shadow(84, 330, 30); shadow(186, 332, 22); shadow(262, 330, 30);
-    g.drawImage(monsterSprite('kogemaru'), 36, 236 - bob, 96, 96);
+    g.drawImage(monsterSprite('magmadog'), 36, 236 - bob, 96, 96);
     g.drawImage(personSprite('hero', 'down', Math.floor(t / 24)), 154, 252, 64, 80);
-    g.drawImage(monsterSprite('lumipon'), 214, 236 + bob, 96, 96);
-    g.drawImage(monsterSprite('yorufukuro'), 20, 150 + bob * 2, 64, 64);
+    g.drawImage(monsterSprite('lunaslime'), 214, 236 + bob, 96, 96);
+    g.drawImage(monsterSprite('frostbird'), 20, 150 + bob * 2, 64, 64);
   }
 
   private async cont() {
@@ -177,9 +177,9 @@ export class TitleScreen implements Screen {
       'しかし あるひ、まちを まもる ひかりの クリスタルが くだけ、せかいの あちこちに「ゆがみ」が うまれた。',
       `${name}は モンスターの ちからを ととのえる みならい「ちょうりつし」。`,
     ]);
-    await app.say(['よく きた、' + name + '。', 'ゆがみは たびのとびらの むこうで モンスターたちを くるしめておる。', 'これは わしが そだてた ルミポンと、リリィが そだてた コゲマルじゃ。いっしょに つれていきなさい。'], { speaker: 'モンスターはかせ' });
+    await app.say(['よく きた、' + name + '。', 'ゆがみは たびのとびらの むこうで モンスターたちを くるしめておる。', 'これは わしが そだてた ルナスライムと、リリィが そだてた マグマドッグじゃ。いっしょに つれていきなさい。'], { speaker: 'モンスターはかせ' });
     sfx('recruit');
-    await app.say('ルミポン と コゲマル が なかまに なった！');
+    await app.say('ルナスライム と マグマドッグ が なかまに なった！');
     for (const m of game.party) await welcomeMonster(app, m.id, 'なかまの なまえ');
     await app.say(['やせいの モンスターに にくを なげてから たおすと、なかまに なってくれることが ある。', 'なかまを ふやし、そだて、配合して…ひかりの かけらを 3つ あつめてくるのじゃ！', 'まずは まちの きたの「たびのとびら」から はじまりのもりへ いってみなさい。'], { speaker: 'モンスターはかせ' });
     await app.saveNow();
