@@ -41,8 +41,8 @@
 ├── .nojekyll               # Jekyll 処理を無効化（ファイルをそのまま配信）
 ├── README.md
 ├── harmonyland-guide/
-│   ├── index.html          # ハーモニーランド攻略ナビ（詳細設計書どおりの 非公式の 来園当日ナビ。対象日 2026年10月13日。ホーム・園内マップ（独自の模式図、位置が確認できた施設だけマーカー、ピンチ／ボタンで拡大縮小）・施設詳細・一覧検索・整理券攻略・ショー（確認済みと参考時刻を区別したタイムライン）・回り方プラン・情報と出典。データは data/*.json、確認できない情報は推測せず「未確認」表示。localStorage 保存、Service Worker でオフライン参照。ビルド不要、file:// でも動く）
-│   ├── css/ js/ data/ assets/  # js: app・map・schedule・planner・storage、data-fallback.js は build.py の生成物
+│   ├── index.html          # ハーモニーランド攻略ナビ（非公式。対象日 2026年10月13日。最初の画面は役に立つ公式ページへのリンク集（当日の朝に見る3つ＋分類別、そこで分かることを一言で、公式／外部／アプリ内を区別）。補助に きょう（参考時刻）・マップ（独自作図の略図と全施設の一覧）・プラン（☆・行った・子どもの年齢・雨の日モード・メモ）。リンクは data/links.json で管理。ビルド不要、file:// でも動く）
+│   ├── css/ js/ data/ assets/  # js: app・links・today・map・detail・planner・storage、data-fallback.js は build.py の生成物
 │   ├── build.py            # data/*.json を編集したら python3 build.py（data-fallback.js と配布用 harmonyland-guide.zip を再生成）
 │   └── tests/e2e.mjs       # node tests/e2e.mjs（Playwright で全画面・保存・マップ・オフライン・file:// を確認）
 ├── futan-sagase/

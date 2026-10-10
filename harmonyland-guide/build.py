@@ -10,7 +10,7 @@
 import json, os, zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-NAMES = ['app-config', 'facilities', 'shows', 'sources', 'opening-info', 'park-info']
+NAMES = ['app-config', 'facilities', 'shows', 'sources', 'opening-info', 'park-info', 'links']
 
 data = {}
 for n in NAMES:
