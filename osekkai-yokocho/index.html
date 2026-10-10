@@ -49,21 +49,21 @@
     <div class="town-wrap" id="town-wrap">
       <div class="town" id="town" role="group" aria-label="横丁の町並み">
         <div class="town-layer" id="town-layer"></div>
-        <!-- SC-04 イベント表示 -->
-        <div class="event-card" id="event-card" role="status" aria-live="polite" hidden>
-          <div class="event-icon" id="event-icon"></div>
-          <div class="event-text">
-            <p class="event-msg" id="event-msg"></p>
-            <p class="event-line" id="event-line"></p>
-          </div>
-          <div class="event-next" aria-hidden="true">タップで次へ ▶</div>
-          <div class="event-bar"><i id="event-bar"></i></div>
-        </div>
         <div class="fx" id="fx" aria-hidden="true"></div>
       </div>
     </div>
 
     <div class="panel">
+      <!-- SC-04 イベント表示 -->
+      <div class="event-card" id="event-card" role="status" aria-live="polite" hidden>
+        <div class="event-icon" id="event-icon"></div>
+        <div class="event-text">
+          <p class="event-msg" id="event-msg"></p>
+          <p class="event-line sr" id="event-line"></p>
+        </div>
+        <div class="event-next" aria-hidden="true">タップで次へ ▸</div>
+        <div class="event-bar"><i id="event-bar"></i></div>
+      </div>
       <section class="message" id="message" aria-live="polite">
         <div class="msg-head">
           <span class="msg-icon" id="msg-icon" aria-hidden="true" hidden></span>

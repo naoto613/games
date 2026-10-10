@@ -635,7 +635,8 @@
     return s;
   }
 
-  function sky() {
+  function sky(opts) {
+    if (opts && opts.noSky) return '';
     return `<rect x="-200" y="-200" width="1000" height="1000" fill="url(#oy-sky)"/>
       <g fill="${C.cloud}" opacity=".95">
         <path d="M60 210 q-4 -26 22 -30 q8 -26 36 -18 q20 -18 42 4 q26 -2 24 22 q16 10 4 24 h-118 q-16 -2 -10 -2 z"/>
@@ -971,6 +972,92 @@
     return `<svg viewBox="${vb}" aria-hidden="true" focusable="false">${characterSVG(id, state)}</svg>`;
   }
 
+
+  /* ---------- 見物人（演奏会に集まる人） ---------- */
+
+  const MASTER = {
+    skin: '#F2C9A5',
+    top: '#FBF6EC',
+    sleeve: '#FBF6EC',
+    legs: '#4A4040',
+    shoes: '#3E2C24',
+    torsoW: 11.5,
+    torso: (by, sh) =>
+      `<path d="M${-sh} ${-42 + by} Q${-sh - 2} ${-30 + by} ${-sh - 1} ${-17 + by} L${sh + 1} ${-17 + by} Q${sh + 2} ${-30 + by} ${sh} ${-42 + by} Q0 ${-46 + by} ${-sh} ${-42 + by} Z" fill="#FBF6EC" ${LINE}/>` +
+      `<path d="M${-sh} ${-41 + by} L-3 ${-30 + by} L-3 ${-17 + by} L${-sh - 1} ${-17 + by} Q${-sh - 2} ${-30 + by} ${-sh} ${-41 + by} Z M${sh} ${-41 + by} L3 ${-30 + by} L3 ${-17 + by} L${sh + 1} ${-17 + by} Q${sh + 2} ${-30 + by} ${sh} ${-41 + by} Z" fill="#4F6B5A" ${THIN}/>` +
+      `<path d="M-2 ${-42 + by} L0 ${-38 + by} L2 ${-42 + by}" fill="#7B3F3F" ${THIN}/>`,
+    hair: (x, y) =>
+      `<path d="M${x - 15.5} ${y - 1} Q${x - 16} ${y - 15} ${x} ${y - 16} Q${x + 16} ${y - 15} ${x + 15.5} ${y - 1} Q${x + 12} ${y - 8} ${x} ${y - 9} Q${x - 12} ${y - 8} ${x - 15.5} ${y - 1} Z" fill="#B9B2AA" ${LINE}/>` +
+      `<circle cx="${x - 6}" cy="${y + 1}" r="4.6" fill="none" ${THIN}/><circle cx="${x + 6}" cy="${y + 1}" r="4.6" fill="none" ${THIN}/><path d="M${x - 1.4} ${y + 1} H${x + 1.4}" ${THIN}/>`
+  };
+
+  const GRANNY = {
+    skin: '#F3D2BC',
+    top: '#9C7BB0',
+    legs: '#8A776A',
+    shoes: '#6B4A36',
+    torsoW: 11,
+    torso: (by, sh) =>
+      `<path d="M${-sh} ${-40 + by} Q${-sh - 2} ${-30 + by} ${-sh - 1} ${-24 + by} L${-sh - 4} ${-12 + by} Q0 ${-9 + by} ${sh + 4} ${-12 + by} L${sh + 1} ${-24 + by} Q${sh + 2} ${-30 + by} ${sh} ${-40 + by} Q0 ${-44 + by} ${-sh} ${-40 + by} Z" fill="#9C7BB0" ${LINE}/>` +
+      `<path d="M${-sh - 2} ${-24 + by} L${-sh - 4} ${-12 + by} Q0 ${-9 + by} ${sh + 4} ${-12 + by} L${sh + 2} ${-24 + by} Z" fill="#B97A50" ${LINE}/>` +
+      `<circle cx="0" cy="${-35 + by}" r="1.2" fill="${C.ivory}"/><circle cx="0" cy="${-30 + by}" r="1.2" fill="${C.ivory}"/>`,
+    hair: (x, y) =>
+      `<circle cx="${x}" cy="${y - 18}" r="6.5" fill="#D9D3CC" ${LINE}/>` +
+      `<path d="M${x - 15.5} ${y + 1} Q${x - 17} ${y - 15} ${x} ${y - 15} Q${x + 17} ${y - 15} ${x + 15.5} ${y + 1} Q${x + 10} ${y - 8} ${x} ${y - 8} Q${x - 10} ${y - 8} ${x - 15.5} ${y + 1} Z" fill="#D9D3CC" ${LINE}/>` +
+      `<path d="M${x - 6} ${y - 11} q6 -3 12 0" fill="none" stroke="#B9B2AA" stroke-width="1.2"/>`
+  };
+
+  const CLAP = { hands: [[-3, -42], [4, -43]], eyes: 'happy', brows: 'up', mouth: 'open', tilt: 4 };
+
+  function extraSVG(kind) {
+    if (kind === 'master') return `<g transform="scale(1.02)">${figure(MASTER, CLAP)}</g>`;
+    if (kind === 'granny') return `<g transform="scale(.9)">${figure(GRANNY, Object.assign({}, CLAP, { tilt: -4, mouth: 'smile' }))}</g>`;
+    // ねこ（すわってしっぽを振る）
+    return `<g transform="scale(.95)">
+      <ellipse cx="0" cy="0" rx="10" ry="3.5" fill="rgba(89,72,63,.22)"/>
+      <path class="cat-tail" d="M7 -3 Q16 -4 15 -14 Q14 -19 18 -20" fill="none" stroke="${C.ink}" stroke-width="5.4" stroke-linecap="round"/>
+      <path class="cat-tail" d="M7 -3 Q16 -4 15 -14 Q14 -19 18 -20" fill="none" stroke="#F0A86E" stroke-width="3" stroke-linecap="round"/>
+      <path d="M-8 0 Q-10 -14 0 -16 Q10 -14 8 0 Z" fill="#F0A86E" ${LINE}/>
+      <path d="M-3 -1 V-6 M3 -1 V-6" stroke="${C.ink}" stroke-width="1"/>
+      <path d="M-9 -24 L-8 -33 L-3 -27 M9 -24 L8 -33 L3 -27" fill="#F0A86E" ${LINE}/>
+      <circle cx="0" cy="-22" r="9" fill="#F0A86E" ${LINE}/>
+      <path d="M-4 -29 l1.5 3 M0 -30.5 v3 M4 -29 l-1.5 3" stroke="#C97A45" stroke-width="1.2" stroke-linecap="round"/>
+      <path d="M-5 -22 q1.5 -2 3 0 M2 -22 q1.5 -2 3 0" fill="none" stroke="${C.ink}" stroke-width="1.2" stroke-linecap="round"/>
+      <path d="M-1.2 -19 h2.4 l-1.2 1.4 z" fill="#E88A8A"/>
+      <path d="M0 -17.6 q-1.6 1.8 -3 .6 M0 -17.6 q1.6 1.8 3 .6" fill="none" stroke="${C.ink}" stroke-width=".9"/>
+    </g>`;
+  }
+
+  /* ---------- 反応のしるし（頭の上にぽんと出る） ---------- */
+
+  function markSVG(kind) {
+    switch (kind) {
+      case 'notice':
+        return `<path d="M0 6 L-4 -1 Q-11 -3 -11 -11 Q-11 -20 0 -20 Q11 -20 11 -11 Q11 -3 4 -1 Z" fill="${C.ivory}" ${LINE}/>
+          <path d="M-1.6 -16 H1.6 L1 -8 H-1 Z" fill="${C.red}"/><circle cx="0" cy="-4.8" r="1.7" fill="${C.red}"/>`;
+      case 'spark':
+        return sparkle(-9, -6, 1.3, C.butter) + sparkle(8, -14, 1.6, C.butter) + sparkle(10, 2, 0.9, '#fff');
+      case 'joy':
+        return `<path d="M0 -4 C-4 -9 -11 -6 -9 -1 C-8 2 -3 4 0 7 C3 4 8 2 9 -1 C11 -6 4 -9 0 -4 Z" fill="${C.coral}" ${LINE}/>
+          <path d="M-15 -10 l-4 -3 M15 -10 l4 -3 M-14 2 l-5 0 M14 2 l5 0" stroke="${C.ink}" stroke-width="1.6" stroke-linecap="round"/>`;
+      case 'music':
+        return note(-7, 2, 1.4, '#7B5BA6') + note(7, -6, 1.2, C.coral);
+      default:
+        return '';
+    }
+  }
+
+  /** 手渡しで飛ぶアイテムの絵 */
+  function itemFlySVG(id) {
+    if (id === 'IT-01') return balloonShape(0, 10, 1);
+    if (id === 'IT-02') return scoreSheet(0, 8, 1, -8);
+    return croissant(0, 0, 1.3, -6);
+  }
+
+  function cloudSVG(w) {
+    return `<svg viewBox="0 0 120 50" width="${w}" aria-hidden="true"><path d="M8 46 q-6 -16 12 -20 q4 -18 26 -14 q12 -14 30 -2 q22 -4 22 16 q14 4 10 20 z" fill="${C.cloud}"/></svg>`;
+  }
+
   /* ---------- アイテム（町の中の見た目・アイコン） ---------- */
 
   function itemSceneSVG(id) {
@@ -1018,9 +1105,9 @@
     ];
   }
 
-  function sceneBackgroundSVG() {
+  function sceneBackgroundSVG(opts) {
     return (
-      sky() +
+      sky(opts) +
       ground() +
       tree(1.6, 0.2, { color: C.autumn2, s: 1.25 }) +
       conifer(0.4, 0.9, 1.1, C.leafDark) +
@@ -1095,6 +1182,10 @@
     portraitSVG,
     itemSceneSVG,
     itemIconSVG,
+    itemFlySVG,
+    extraSVG,
+    markSVG,
+    cloudSVG,
     staticTownSVG,
     note,
     sparkle,

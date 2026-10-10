@@ -206,6 +206,7 @@
         message: 'ココの目がキラッとした！',
         speaker: 'CH-02',
         line: 'わあ、風船だ！ もっと広いところで飛ばしたい！',
+        anim: { look: [['CH-02', 'IT-01']], mark: [['CH-02', 'spark']] },
         once: true
       },
       {
@@ -232,6 +233,7 @@
         message: '風船遊びが始まった',
         speaker: 'CH-02',
         line: 'それーっ！ まてまてー！',
+        anim: { mark: [['CH-02', 'joy']] },
         once: true
       },
       {
@@ -248,6 +250,7 @@
         message: 'ネネは子どもの笑い声に気づいた',
         speaker: 'CH-03',
         line: 'あの子、楽しそう……。一曲だけ弾いてみようかな。でも、楽譜はどこ？',
+        anim: { look: [['CH-03', 'CH-02']], mark: [['CH-03', 'notice']] },
         once: true
       },
       {
@@ -267,6 +270,7 @@
         message: 'ネネはもう一曲演奏することにした',
         speaker: 'CH-03',
         line: 'あった、わたしの楽譜！ 聴いてね、「横丁のワルツ」',
+        anim: { look: [['CH-03', 'IT-02']], mark: [['CH-03', 'music']] },
         once: true
       },
       {
@@ -283,6 +287,7 @@
         message: 'マルは広場の音に気づいた',
         speaker: 'CH-01',
         line: 'おや、いい音……。広場に人がいるのかな？',
+        anim: { notes: ['CH-03', 'CH-01'], look: [['CH-01', 'CH-03']], mark: [['CH-01', 'notice']] },
         once: true
       },
       {
@@ -317,6 +322,7 @@
         message: 'マルは深呼吸して、新作パンを高く掲げた',
         speaker: 'CH-01',
         line: 'み、みなさん！ 焼きたての「横丁クロワッサン」です！',
+        anim: { mark: [['CH-01', 'joy']] },
         once: true
       },
       {
@@ -338,6 +344,7 @@
         message: 'ココの「おいしい！」の声に、マルの背中が押された',
         speaker: 'CH-02',
         line: 'このパン、さくさくでおいしい！ ねえ、どこのパン？',
+        anim: { look: [['CH-02', 'CH-01'], ['CH-01', 'CH-02']], mark: [['CH-02', 'joy'], ['CH-01', 'notice']] },
         once: true
       },
       {
@@ -359,6 +366,7 @@
         message: 'ネネは香りにつられて、曲を「パンの歌」にアレンジした',
         speaker: 'CH-03',
         line: '♪さくさく〜 横丁の〜 焼きたてクロワッサン〜♪',
+        anim: { look: [['CH-03', 'CH-01'], ['CH-01', 'CH-03']], mark: [['CH-03', 'music'], ['CH-01', 'notice']] },
         once: true
       },
       {
@@ -379,6 +387,7 @@
         message: '焼きたての香りが広場に広がり、みんながマルを振り返った',
         speaker: 'CH-01',
         line: 'あ、えっと……し、新作です！ 横丁クロワッサン！',
+        anim: { mark: [['CH-01', 'notice']] },
         once: true
       },
       {
@@ -395,6 +404,7 @@
         },
         effects: [{ type: 'clear_stage' }],
         message: '小さな演奏会が始まった！',
+        anim: { concert: true, look: [['CH-02', 'CH-03'], ['CH-01', 'CH-03']], mark: [['CH-02', 'joy'], ['CH-01', 'joy']] },
         once: true
       }
     ],
