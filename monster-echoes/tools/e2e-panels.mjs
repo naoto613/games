@@ -1,0 +1,51 @@
+// 町の施設パネルを開いてスクリーンショット: node tools/e2e-panels.mjs <出力dir>
+import { chromium } from 'playwright';
+import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const out = process.argv[2] || '/tmp/e2e-p';
+fs.mkdirSync(out, { recursive: true });
+const srv = http.createServer((q, s) => {
+  const f = path.join(root, decodeURIComponent(q.url.split('?')[0]).replace(/\/$/, '/index.html'));
+  fs.readFile(f, (e, d) => { if (e) { s.writeHead(404); s.end(); return; } s.writeHead(200, { 'content-type': f.endsWith('.js') ? 'text/javascript' : 'text/html' }); s.end(d); });
+}).listen(0);
+const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const p = await b.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+const errors = [];
+p.on('pageerror', (e) => errors.push('PAGEERROR: ' + e.message));
+await p.goto(`http://localhost:${srv.address().port}/index.html`);
+await p.evaluate(() => localStorage.setItem('me-settings', JSON.stringify({ textSpeed: 'fast', battleSpeed: 'instant', reduceMotion: true, sound: false })));
+await p.reload();
+const wait = (ms) => p.waitForTimeout(ms);
+const skip = async () => { await wait(300); for (let i = 0; i < 40; i++) { if (await p.$('.choices')) return 'choice'; const m = await p.$('.msgbox'); if (!m) { await wait(150); if (!(await p.$('.msgbox'))) return; continue; } await m.click(); await wait(50); } };
+await p.locator('button', { hasText: 'はじめから' }).click(); await wait(200);
+await p.locator('button', { hasText: 'けってい' }).click();
+await skip();
+await p.waitForSelector('.pad-area');
+// 進行を進めた状態にする
+await p.evaluate(() => {
+  const s = window.app.game.state;
+  s.progress.defeatedBossIds.push('boss_forest'); s.progress.unlockedAreas.push('cave'); s.progress.unlockedArenaRanks.push('arenaF');
+  s.discoveredSpeciesIds.push('yorufukuro', 'mossglow', 'tsukipon'); s.player.gold = 500;
+});
+const talk = async (x, y, name) => {
+  await p.evaluate(([x, y]) => { const s = window.app.game.state; s.player.townPos = { x, y }; s.player.townDir = 'up'; window.app.dispatch('a', true); }, [x, y]);
+  if ((await skip()) === 'choice') await p.locator('.choices .item').first().click();
+  await wait(300);
+  await p.screenshot({ path: path.join(out, `${name}.png`) });
+  await p.evaluate(() => window.app.closeAllPanels());
+  await skip();
+};
+await talk(4, 5, 'doctor-breed');
+await talk(14, 5, 'ranch');
+await talk(4, 14, 'shop');
+await talk(14, 14, 'arena');
+await talk(9, 2, 'gate');
+// 図鑑
+await p.evaluate(() => { const s = window.app.game.state; s.player.townPos = { x: 4, y: 5 }; s.player.townDir = 'up'; window.app.dispatch('a', true); });
+if ((await skip()) === 'choice') await p.locator('.choices .item').nth(1).click();
+await wait(300);
+await p.screenshot({ path: path.join(out, 'dex.png') });
+console.log(errors.join('\n') || 'no errors');
+await b.close(); srv.close();
