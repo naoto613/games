@@ -39,6 +39,22 @@ const noHScroll = async () => page.evaluate(() => document.documentElement.scrol
 const shot = async (n) => { if (SHOTS) await page.screenshot({ path: path.join(SHOTS, n + '.png'), fullPage: false }); };
 const goto = async (hash) => { await page.goto(BASE + 'index.html' + hash); await page.waitForSelector('#main .card, #main .row, #main .err', { timeout: 5000 }); };
 
+console.log('リンク集');
+await page.goto(BASE + 'index.html'); await page.waitForSelector('.link-card');
+ok((await page.textContent('#screen-title')) === 'リンク集', '最初の画面はリンク集');
+const ext0 = await page.$$eval('a.link-card:not(.internal)', els => els.map(a => [a.href, a.target, a.rel]));
+ok(ext0.length >= 14 && ext0.every(x => x[0].startsWith('https://') && x[1] === '_blank' && x[2].includes('noopener')), '外部リンクは https・新しいタブ・noopener（' + ext0.length + '件）');
+const hrefs = ext0.map(x => x[0]);
+ok(new Set(hrefs).size === hrefs.length, 'リンクの重複なし');
+ok(hrefs.includes('https://www.harmonyland.jp/') && hrefs.includes('https://www.harmonyland.jp/sp/halloween2026/index.html') && hrefs.includes('https://platinumaps.jp/d/harmonyland?culture=ja'), '公式トップ・ハロウィーン・デジタルマップ');
+ok((await page.locator('.link-card.big').count()) === 3, '当日の朝に見る3つを大きく表示');
+await page.click('a.link-card.internal:has-text("園内略図")');
+await page.waitForSelector('.map-viewport');
+ok((await page.textContent('#screen-title')) === 'マップ', 'アプリ内リンクで略図へ');
+await goto('#info');
+ok((await page.textContent('#screen-title')) === 'リンク集', '#info → リンク集');
+await shot('00-links');
+
 console.log('きょう');
 await goto('#today');
 ok(await page.textContent('#app-date') === '対象日 2026年10月13日（火）', '対象日を表示');
@@ -50,7 +66,7 @@ ok(JSON.stringify(times) === JSON.stringify(['開園から約20分', '10:30', '1
 ok(!td.includes('15:15'), '土日祝の時刻は出さない');
 ok(td.includes('受付 10:30〜') && td.includes('先着約90名'), 'ダイコウシンの受付を同じ行に表示');
 ok(td.includes('時間の決まっていないもの') && td.includes('デジタル整理券'), 'ファンスタジオの整理券');
-ok(await page.locator('.bottom-nav a').count() === 4, 'タブは4つ');
+ok(await page.locator('.bottom-nav a').count() === 4 && (await page.locator('.bottom-nav a').first().textContent()).includes('リンク'), 'タブは4つ（最初はリンク）');
 ok(await noHScroll(), '横スクロールなし');
 await page.locator('.row', { hasText: 'Magical Masquerade' }).locator('.star').click();
 ok(await page.locator('.row', { hasText: 'Magical Masquerade' }).locator('.star.on').count() === 1, '☆でプランに入る');
@@ -78,7 +94,7 @@ console.log('以前のURL');
 await goto('#facility/kitty-castle');
 ok((await page.textContent('.hero-title')).includes('キティキャッスル'), '#facility/ → 詳細');
 await goto('#tickets');
-ok((await page.textContent('#screen-title')) === 'きょうの予定', '#tickets → きょう');
+ok((await page.textContent('#screen-title')).startsWith('きょうの予定'), '#tickets → きょう');
 await goto('#list');
 ok((await page.textContent('#screen-title')) === 'マップ', '#list → マップ');
 
@@ -137,13 +153,15 @@ ok(!kids.includes('リズミックコースター') && kids.includes('キティ�
 await goto('#today');
 ok((await page.textContent('#main')).includes('雨の日モード'), '雨の日モードの案内');
 
-console.log('情報');
-await goto('#info');
+console.log('リンク集のメモ・チェック');
+await goto('#links');
+await page.click('summary:has-text("来園前に確認")');
 const cb0 = page.locator('details.fold input[type=checkbox]').first();
 await cb0.check();
 await page.reload(); await page.waitForSelector('#main .card');
+await page.click('summary:has-text("来園前に確認")');
 ok(await page.locator('details.fold input[type=checkbox]').first().isChecked(), 'チェックリストを保存');
-await page.click('summary:has-text("赤ちゃん")');
+await page.click('summary:has-text("子ども連れ")');
 ok((await page.textContent('#main')).includes('男性はベビーセンター内に入室できない'), '子ども連れ情報');
 await page.click('summary:has-text("出典")');
 ok((await page.locator('details:has(summary:has-text("出典")) li').count()) === 15, '出典 15件');

@@ -1,13 +1,14 @@
 /* app.js — 初期化・JSON 読み込み・画面切り替え・共通 UI・初期化エラー表示
-   画面は 4 つのタブ（きょう today.js／マップ map.js／プラン planner.js／情報 info.js）と、共通の詳細画面（detail.js）。 */
+   画面は 4 つのタブ（リンク links.js／きょう today.js／マップ map.js／プラン planner.js）と、共通の詳細画面（detail.js）。
+   最初の画面はリンク集。役に立つ公式ページへ迷わず行けることを基本にする。 */
 window.HL = window.HL || {};
 
 (function () {
   'use strict';
 
-  var DATA_FILES = ['app-config', 'facilities', 'shows', 'sources', 'opening-info', 'park-info'];
+  var DATA_FILES = ['app-config', 'facilities', 'shows', 'sources', 'opening-info', 'park-info', 'links'];
 
-  HL.data = { config: null, facilities: [], shows: [], sources: [], opening: null, park: null };
+  HL.data = { config: null, facilities: [], shows: [], sources: [], opening: null, park: null, links: null };
   HL.errors = {};          // データファイルごとの読み込みエラー
   HL.dataOrigin = {};      // 'network' | 'bundled'
   HL.screens = {};
@@ -39,9 +40,9 @@ window.HL = window.HL || {};
 
   HL.TICKET_NOTICE = '整理券の配布方法・受付条件は変更される場合があります。対象日の最新情報を公式案内で確認してください。';
 
-  HL.SCREEN_TITLES = { today: 'きょうの予定', map: 'マップ', plan: 'わたしのプラン', info: '情報', d: '詳細' };
+  HL.SCREEN_TITLES = { links: 'リンク集', today: 'きょうの予定（参考）', map: 'マップ', plan: 'わたしのプラン', d: '詳細' };
   // 以前の URL（ブックマーク）は新しい画面へ読み替える
-  var ALIAS = { home: 'today', tickets: 'today', shows: 'today', list: 'map', sources: 'info', facility: 'd', show: 'd' };
+  var ALIAS = { home: 'links', info: 'links', sources: 'links', tickets: 'today', shows: 'today', list: 'map', facility: 'd', show: 'd' };
 
   /* ---------- DOM ヘルパー（文字列は常に textContent で入れる） ---------- */
   function h(tag, attrs) {
@@ -270,7 +271,7 @@ window.HL = window.HL || {};
       var s = HL.source(id);
       if (!s) { wrap.appendChild(h('div', null, HL.unknown('出典データが見つかりません：' + id))); return; }
       wrap.appendChild(h('div', { style: { marginBottom: '6px' } },
-        s.url ? HL.extLink(s.url, s.title, { official: s.official }) : h('a', { class: 'inlink', href: '#info', text: s.title + '（アプリ外の資料）' }),
+        s.url ? HL.extLink(s.url, s.title, { official: s.official }) : h('a', { class: 'inlink', href: '#links', text: s.title + '（アプリ外の資料）' }),
         h('div', { class: 'small muted' },
           '公開日：' + (HL.fmtDate(s.publishedAt) || '未確認') + '　確認日：' + (s.checkedAt ? HL.fmtDate(s.checkedAt) : '本文未確認') +
           (s.searchedAt ? '（' + HL.fmtDate(s.searchedAt) + ' 検索で概要を確認）' : ''))));
@@ -351,14 +352,14 @@ window.HL = window.HL || {};
       var j = kv.indexOf('=');
       params[decodeURIComponent(j < 0 ? kv : kv.slice(0, j))] = j < 0 ? '' : decodeURIComponent(kv.slice(j + 1));
     });
-    return { name: parts[0] || 'today', id: parts[1] || null, params: params };
+    return { name: parts[0] || 'links', id: parts[1] || null, params: params };
   };
   HL.go = function (hash) { if (location.hash === hash) render(); else location.hash = hash; };
 
   function render() {
     var r = HL.parseHash();
     if (ALIAS[r.name]) r.name = ALIAS[r.name];
-    var screen = HL.screens[r.name] ? r.name : 'today';
+    var screen = HL.screens[r.name] ? r.name : 'links';
     var main = document.getElementById('main');
     main.textContent = '';
     document.getElementById('screen-title').textContent = HL.SCREEN_TITLES[screen] || '';
@@ -415,6 +416,7 @@ window.HL = window.HL || {};
         if (n === 'app-config') HL.data.config = d;
         else if (n === 'opening-info') HL.data.opening = d;
         else if (n === 'park-info') HL.data.park = d;
+        else if (n === 'links') HL.data.links = d;
         else if (Array.isArray(d)) HL.data[n] = d;
         else HL.errors[n] = '形式が正しくありません';
       });

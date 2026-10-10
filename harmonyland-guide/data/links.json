@@ -1,0 +1,178 @@
+{
+  "note": "リンク先の内容は変わることがあります。アプリからは各ページの最新の内容を確認できないため、必ずリンク先で確認してください。",
+  "top": [
+    {
+      "id": "official-top",
+      "icon": "🏠",
+      "title": "公式サイト トップ",
+      "desc": "営業時間・運行状況・ライブショー・優先券／有料券・お知らせ",
+      "url": "https://www.harmonyland.jp/",
+      "official": true
+    },
+    {
+      "id": "halloween",
+      "icon": "🎃",
+      "title": "ハロウィーン2026 特設ページ",
+      "desc": "平日の参考時刻：11:00 ダイコウシン（10:30受付）・12:30 パレード・15:00 プラザステージ・16:00 Magical Masquerade。会場・受付方法・観覧ルール",
+      "url": "https://www.harmonyland.jp/sp/halloween2026/index.html",
+      "official": true
+    },
+    {
+      "id": "funstudio",
+      "icon": "🤝",
+      "title": "ファンスタジオ キャラクタースケジュール",
+      "desc": "その日に会えるキャラクターと時間",
+      "url": "https://www.harmonyland.jp/sp/funstudio/c_schedule.html",
+      "official": true
+    }
+  ],
+  "sections": [
+    {
+      "id": "today",
+      "icon": "🕒",
+      "title": "当日の情報・整理券",
+      "items": [
+        {
+          "id": "x",
+          "icon": "📣",
+          "title": "公式X（@harmony_event）",
+          "desc": "当日のお知らせ・運休・変更をすぐ確認",
+          "url": "https://x.com/harmony_event",
+          "official": true
+        },
+        {
+          "id": "digital-ticket",
+          "icon": "🎫",
+          "title": "ファンスタジオ デジタル整理券のお知らせ",
+          "desc": "2026年6月22日から整理券がデジタルに。取り方はここで確認",
+          "url": "https://www.harmonyland.jp/news/19966",
+          "official": true
+        }
+      ]
+    },
+    {
+      "id": "event",
+      "icon": "🎃",
+      "title": "イベント（10月13日に関係するもの）",
+      "items": [
+        {
+          "id": "wi15th",
+          "icon": "🎀",
+          "title": "ウィッシュミーメル15周年 特設ページ",
+          "desc": "スペシャルグリーティング（有料・事前予約、10:30〜）。10月13日は掲載期間の最終日",
+          "url": "https://www.harmonyland.jp/sp/wi15th/index.html",
+          "official": true
+        },
+        {
+          "id": "pr-halloween",
+          "icon": "📰",
+          "title": "プレスリリース：HARMONYLAND HALLOWEEN",
+          "desc": "イベント全体の概要（PR TIMES・2026年8月21日）",
+          "url": "https://prtimes.jp/main/html/rd/p/000000535.000007643.html",
+          "official": true
+        },
+        {
+          "id": "pr-parade",
+          "icon": "📰",
+          "title": "プレスリリース：パレードパラレル the FINAL",
+          "desc": "パレードのシーズンと有料スペシャルグリーティング（PR TIMES）",
+          "url": "https://prtimes.jp/main/html/rd/p/000000537.000007643.html",
+          "official": true
+        },
+        {
+          "id": "pr-report",
+          "icon": "📰",
+          "title": "プレスリリース：ハロウィーン初日レポート",
+          "desc": "ショーやハロウィーンメニューの様子（PR TIMES・2026年9月18日）",
+          "url": "https://prtimes.jp/main/html/rd/p/000000543.000007643.html",
+          "official": true
+        }
+      ]
+    },
+    {
+      "id": "map",
+      "icon": "🗺️",
+      "title": "マップ・行き方・天気",
+      "items": [
+        {
+          "id": "digital-map",
+          "icon": "🗺️",
+          "title": "ハーモニーランド デジタルマップ",
+          "desc": "園内の施設の場所（platinumaps。公式提供かは未確認）",
+          "url": "https://platinumaps.jp/d/harmonyland?culture=ja",
+          "official": false
+        },
+        {
+          "id": "app-map",
+          "icon": "📍",
+          "title": "このアプリの園内略図",
+          "desc": "エリアとおもな施設のおおよその位置。施設名でさがせる",
+          "href": "#map",
+          "internal": true
+        },
+        {
+          "id": "gmaps",
+          "icon": "🚗",
+          "title": "Googleマップで場所を開く",
+          "desc": "車・電車での行き方と所要時間",
+          "url": "https://www.google.com/maps/search/?api=1&query=%E3%82%B5%E3%83%B3%E3%83%AA%E3%82%AA%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%83%91%E3%83%BC%E3%82%AF%20%E3%83%8F%E3%83%BC%E3%83%A2%E3%83%8B%E3%83%BC%E3%83%A9%E3%83%B3%E3%83%89",
+          "official": false
+        },
+        {
+          "id": "weather",
+          "icon": "☔",
+          "title": "日出町の天気（Google検索）",
+          "desc": "雨・強風だと運休するのりものがある",
+          "url": "https://www.google.com/search?q=%E5%A4%A7%E5%88%86%E7%9C%8C%E6%97%A5%E5%87%BA%E7%94%BA+%E5%A4%A9%E6%B0%97",
+          "official": false
+        }
+      ]
+    },
+    {
+      "id": "park",
+      "icon": "🎡",
+      "title": "のりもの・園内のこと",
+      "items": [
+        {
+          "id": "attraction",
+          "icon": "🎡",
+          "title": "アトラクション一覧（公式）",
+          "desc": "年齢・身長などの利用条件、料金",
+          "url": "https://www.harmonyland.jp/attraction",
+          "official": true
+        },
+        {
+          "id": "faq",
+          "icon": "❓",
+          "title": "よくある質問（公式FAQ）",
+          "desc": "整理券・雨天運休・ベビーセンター・ベビーカー貸し出し・駐車場",
+          "url": "https://www.harmonyland.jp/faq",
+          "official": true
+        },
+        {
+          "id": "app-today",
+          "icon": "🕒",
+          "title": "このアプリ：きょうの予定（参考時刻）",
+          "desc": "ショーと受付を時間順に。☆でプランに入れられる",
+          "href": "#today",
+          "internal": true
+        }
+      ]
+    },
+    {
+      "id": "ref",
+      "icon": "📄",
+      "title": "参考（過去の資料）",
+      "items": [
+        {
+          "id": "pdf-2026-04",
+          "icon": "📄",
+          "title": "月間スケジュールPDF（2026年4月）",
+          "desc": "過去の資料。時刻や運休はそのまま当日に使わない",
+          "url": "https://www.harmonyland.jp/wp/wp-content/uploads/2026/04/e2e6e40eaaa7d6de5651df945fcc25c3.pdf",
+          "official": true
+        }
+      ]
+    }
+  ]
+}
