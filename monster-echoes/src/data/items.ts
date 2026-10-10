@@ -10,6 +10,7 @@ const list: ItemDefinition[] = [
   { id: 'bonemeat', name: 'ほねつきにく', category: 'meat', price: 50, power: 0.28, battle: true, field: true, description: 'ジャーキーより ずっと こうかが ある にく。' },
   { id: 'primemeat', name: 'とくじょうにく', category: 'meat', price: 240, power: 0.6, battle: true, field: true, description: 'どんな モンスターも めのいろを かえる さいこうきゅうの にく。' },
   { id: 'returnwing', name: 'かえりのはね', category: 'escape', price: 25, power: 0, battle: false, field: true, description: 'たびのとびらの なかから まちへ もどれる。' },
+  { id: 'medal', name: 'ちいさなメダル', category: 'key', price: 0, power: 0, battle: false, field: false, description: 'ほしの もようの ちいさな メダル。どうぐやの メダルあつめの ひとが こうかんしてくれる。' },
   { id: 'shard', name: 'ひかりのかけら', category: 'key', price: 0, power: 0, battle: false, field: false, description: 'くだけた ひかりの クリスタルの かけら。あたたかく ひかっている。' },
 ];
 

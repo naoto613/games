@@ -9,7 +9,7 @@ const fake = (speciesId: string, plusValue = 3) => ({ speciesId, plusValue, leve
 
 describe('配合グラフ', () => {
   it('野生の種族から全種族に配合で届き、組み合わせごとに結果が分かれる', () => {
-    const wild = new Set(Object.values(ENCOUNTERS).flatMap((t) => t.entries.map((e) => e.speciesId)));
+    const wild = new Set(Object.values(ENCOUNTERS).filter((t) => !t.id.startsWith('tower')).flatMap((t) => t.entries.map((e) => e.speciesId))); // クリア後の塔は のぞく
     const gen = new Map<string, number>([...wild].map((id) => [id, 0]));
     const via = new Map<string, string>();
     for (let g = 1; g <= 6; g++) {

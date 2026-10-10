@@ -20,7 +20,7 @@ export function loadMap(id: string): TileMap {
 
 export const tileAt = (m: TileMap, x: number, y: number) => (x < 0 || y < 0 || x >= m.w || y >= m.h ? '#' : m.tiles[y][x]);
 
-const BLOCK = new Set(['#', '~', 'T', 'R', 'W', 'F', 'C', 'H', 'B', 'G', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+const BLOCK = new Set(['#', '~', 'T', 'R', 'W', 'F', 'C', 'H', 'B', 'G', 'L', 'X', 'K', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
 /** 歩けるか（宝箱・人・ボスは「調べる」対象で、上には乗れない） */
 export const isPassable = (m: TileMap, x: number, y: number) => !BLOCK.has(tileAt(m, x, y));
 

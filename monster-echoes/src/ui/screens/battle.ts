@@ -136,7 +136,7 @@ class BattleScreen implements Screen {
 
   private draw() {
     const g = this.g;
-    const theme = this.session.context.kind === 'arena' ? 'arena' : this.game.state.expedition ? getArea(this.game.state.expedition.areaId).theme : 'forest';
+    const theme = this.session.context.kind === 'arena' || this.session.context.kind === 'practice' ? 'arena' : this.game.state.expedition ? getArea(this.game.state.expedition.areaId).theme : 'forest';
     g.drawImage(backdrop(theme), 0, 0);
     const now = this.frame;
     const order = [...this.st.enemies].sort((a, b) => (a.slot === 1 ? 1 : 0) - (b.slot === 1 ? 1 : 0));
@@ -470,7 +470,7 @@ class BattleScreen implements Screen {
       if (ctx.kind === 'arena') await say(['まけてしまった…。', 'モンスターたちは てあてを うけて げんきに なった。']);
       else await say(['めのまえが まっくらに なった…。', `……ルナフィアの まちで めを さました。${sum.goldLost ? `\nおかねを ${sum.goldLost}ゴールド なくしてしまった…。` : ''}`]);
     }
-    for (const a of sum.unlocked.areas) await say(`あたらしい たびのとびら「${getArea(a).name}」が ひらいた！`);
+    for (const a of sum.unlocked.areas) await say(`たびのとびらの しんでんの ちかへ すすめるように なった！\n（あたらしい とびら「${getArea(a).name}」）`);
     if (sum.unlocked.ranks.length) await say('とうぎじょうで あたらしい ランクに さんか できるように なった！');
     await this.app.saveNow();
     if (this.after) return this.after(sum);

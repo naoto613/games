@@ -2,7 +2,7 @@
 import { mkCanvas } from './Pix';
 
 export const BD_W = 352, BD_H = 224;
-export type Backdrop = 'forest' | 'cave' | 'highland' | 'arena';
+export type Backdrop = 'forest' | 'cave' | 'highland' | 'arena' | 'tower';
 const HORIZON = 132;
 
 const rnd = (seed: number) => () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
@@ -137,12 +137,29 @@ function arena(g: CanvasRenderingContext2D) {
   g.beginPath(); g.ellipse(176, 190, 130, 24, 0, 0, Math.PI * 2); g.stroke();
 }
 
+function tower(g: CanvasRenderingContext2D) {
+  sky(g, '#0c1440', '#3a4aa0', 150);
+  const r = rnd(77);
+  for (let i = 0; i < 70; i++) { g.fillStyle = `rgba(255,255,255,${0.3 + r() * 0.7})`; g.fillRect(r() * BD_W, r() * 110, 1, 1); }
+  const glow = g.createRadialGradient(176, 60, 4, 176, 60, 120);
+  glow.addColorStop(0, 'rgba(160,220,255,.55)'); glow.addColorStop(1, 'rgba(160,220,255,0)');
+  g.fillStyle = glow; g.fillRect(0, 0, BD_W, 180);
+  for (const [x, w, h] of [[30, 26, 120], [100, 20, 90], [252, 20, 96], [322, 26, 126]] as [number, number, number][]) {
+    g.fillStyle = '#c8d8f8'; g.fillRect(x - w / 2, 136 - h, w, h);
+    g.fillStyle = '#8aa0d8'; g.fillRect(x + w * 0.15, 136 - h, w * 0.35, h);
+    g.fillStyle = '#e8f6ff'; g.beginPath(); g.moveTo(x - w / 2 - 3, 136 - h); g.lineTo(x, 136 - h - 16); g.lineTo(x + w / 2 + 3, 136 - h); g.fill();
+  }
+  floor(g, '#9aa8d8', '#dce4fa', 'rgba(80,90,150,.25)', 61, 136);
+  g.strokeStyle = 'rgba(120,200,255,.6)'; g.lineWidth = 2;
+  g.beginPath(); g.ellipse(176, 190, 120, 22, 0, 0, Math.PI * 2); g.stroke();
+}
+
 const cache = new Map<string, HTMLCanvasElement>();
 export function backdrop(b: Backdrop): HTMLCanvasElement {
   const hit = cache.get(b);
   if (hit) return hit;
   const [c, g] = mkCanvas(BD_W, BD_H);
-  ({ forest, cave, highland, arena })[b](g);
+  ({ forest, cave, highland, arena, tower })[b](g);
   cache.set(b, c);
   return c;
 }

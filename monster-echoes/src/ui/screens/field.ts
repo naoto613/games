@@ -10,7 +10,8 @@ import { monsterSprite } from '../gfx/monsters';
 import { mkCanvas } from '../gfx/Pix';
 import { personSprite, TILE, tileSprite, type Theme } from '../gfx/tiles';
 import { startBattle } from './battle';
-import { talkTo, TOWN_NPCS } from './town';
+import { talkTo } from './town';
+import { getArea as areaOf } from '../../data/areas';
 import { openFieldMenu, openParty } from './menus';
 import { displayName } from '../../domain/monster/MonsterFactory';
 
@@ -63,10 +64,10 @@ export class FieldScreen implements Screen {
     return !this.game.state.expedition;
   }
   private get theme(): Theme {
-    return this.inTown ? 'town' : getArea(this.game.state.expedition!.areaId).theme;
+    return this.inTown ? this.game.currentTownMap().theme : getArea(this.game.state.expedition!.areaId).theme;
   }
   private loadCurrentMap() {
-    return this.inTown ? loadMap('town') : this.game.currentMap()!;
+    return this.inTown ? loadMap(this.game.currentTownMap().id) : this.game.currentMap()!;
   }
   private get pos() {
     return this.inTown ? this.game.state.player.townPos : this.game.state.expedition!.pos;
@@ -167,7 +168,7 @@ export class FieldScreen implements Screen {
 
   updateHud() {
     const s = this.game.state;
-    this.hudL.textContent = this.inTown ? 'ルナフィアの まち' : this.game.floor!.floor.name;
+    this.hudL.textContent = this.inTown ? this.game.currentTownMap().name : this.game.floor!.floor.name;
     this.hudR.textContent = `${s.player.gold} G`;
     clear(this.strip);
     for (const m of this.game.party) {
@@ -234,6 +235,12 @@ export class FieldScreen implements Screen {
       this.pendingResult = r;
       return;
     }
+    if (r.kind === 'warp') {
+      this.held = null;
+      this.path = [];
+      this.handle(r);
+      return;
+    }
     if (r.kind === 'blocked') {
       if (this.frame % 20 === 0) sfx('bump');
       this.path = [];
@@ -260,6 +267,27 @@ export class FieldScreen implements Screen {
         case 'npc':
           await talkTo(this.app, r.id, this);
           break;
+        case 'warp':
+          sfx('stairs');
+          await this.fade(() => { this.map = this.loadCurrentMap(); });
+          break;
+        case 'locked':
+          sfx('bump');
+          await this.app.say(r.text);
+          break;
+        case 'gate': {
+          const area = areaOf(r.areaId);
+          const ok = this.game.canStartExpedition(r.areaId);
+          if (!this.game.state.progress.unlockedAreas.includes(r.areaId)) { await this.app.say('たびのとびらは しずかに うずまいている。まだ むこうへは いけないようだ…。'); break; }
+          if (!ok.ok) { await this.app.say(ok.error); break; }
+          if (this.game.state.monsters.length >= this.game.state.capacity) await this.app.say('ぼくじょうが いっぱいだ。なかまが ふえても つれて かえれない。');
+          if (!(await this.app.confirm(`「${area.name}」への たびのとびらだ。\nとびこみますか？`))) break;
+          sfx('stairs');
+          await this.fade(() => { this.game.startExpedition(r.areaId); this.map = this.loadCurrentMap(); });
+          playBgm('field');
+          this.app.toast(this.game.floor!.floor.name);
+          break;
+        }
         case 'moved':
           if (r.encounter) {
             sfx('encounter');
@@ -337,6 +365,39 @@ export class FieldScreen implements Screen {
     await new Promise((r) => setTimeout(r, 200));
   }
 
+  // 牧場で あずけている モンスターが うろうろする（見た目だけ）
+  private roam = new Map<string, { x: number; y: number; tx: number; ty: number; t: number; flip: boolean }>();
+  private drawRanchMonsters(g: CanvasRenderingContext2D, camX: number, camY: number) {
+    const def = this.game.currentTownMap();
+    const others = this.game.state.monsters.filter((m) => !this.game.state.partyIds.includes(m.id));
+    const list = def.id === 'ranch1' ? others.slice(0, 6) : others.slice(6, 18);
+    const free = findAll(this.map, ',');
+    list.forEach((m, i) => {
+      let r = this.roam.get(m.id + def.id);
+      if (!r) {
+        const p0 = free[(i * 37 + 11) % free.length];
+        r = { x: p0.x, y: p0.y, tx: p0.x, ty: p0.y, t: (i * 53) % 120, flip: false };
+        this.roam.set(m.id + def.id, r);
+      }
+      r.t++;
+      if (r.t % 150 === 0) {
+        const n = free[Math.floor(Math.random() * free.length)];
+        if (Math.abs(n.x - r.x) + Math.abs(n.y - r.y) <= 3) { r.tx = n.x; r.ty = n.y; }
+      }
+      const dx = r.tx - r.x, dy = r.ty - r.y;
+      if (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01) { r.x += Math.sign(dx) * Math.min(Math.abs(dx), 0.02); r.y += Math.sign(dy) * Math.min(Math.abs(dy), 0.02); if (dx) r.flip = dx > 0; }
+      const sx = Math.round((r.x - camX) * TILE), sy = Math.round((r.y - camY) * TILE);
+      const hop = Math.abs(dx) + Math.abs(dy) > 0.01 ? Math.abs(Math.sin(r.t / 5)) * 3 : 0;
+      g.fillStyle = 'rgba(0,0,0,.25)';
+      g.beginPath(); g.ellipse(sx + 16, sy + 29, 11, 4, 0, 0, Math.PI * 2); g.fill();
+      const sp = monsterSprite(m.speciesId);
+      g.save();
+      if (r.flip) { g.translate(sx + 34, 0); g.scale(-1, 1); g.drawImage(sp, 0, sy - 10 - hop, 36, 36); }
+      else g.drawImage(sp, sx - 2, sy - 10 - hop, 36, 36);
+      g.restore();
+    });
+  }
+
   // ---------------------------------------------------------------- 描画（状態は読むだけ）
   private draw() {
     const g = this.g;
@@ -355,6 +416,7 @@ export class FieldScreen implements Screen {
     const ex = this.game.state.expedition;
     for (let y = y0; y <= y0 + VH + 1; y++)
       for (let x = x0; x <= x0 + VW + 1; x++) {
+        if (th !== 'town' && !ex && (x < 0 || y < 0 || x >= this.map.w || y >= this.map.h)) continue; // へやの そとは まっくら
         let ch = tileAt(this.map, x, y);
         if (th === 'town' && /[0-9]/.test(ch)) ch = tileAt(this.map, x, y - 1) === 'W' ? 'K' : '.';
         if (ch === 'B') ch = '.';
@@ -378,13 +440,14 @@ export class FieldScreen implements Screen {
       g.drawImage(sp, bx - 12, by - 22 + bob, 56, 56);
     }
     // まちの人
-    if (th === 'town') {
-      for (const [ch, npc] of Object.entries(TOWN_NPCS)) {
-        if (!npc.look) continue;
+    if (!ex) {
+      const def = this.game.currentTownMap();
+      if (def.theme === 'ranch') this.drawRanchMonsters(g, camX, camY);
+      for (const [ch, npc] of Object.entries(def.npcs)) {
         for (const p of findAll(this.map, ch)) {
           const facing = npc.facing ?? 'down';
           const sx = Math.round((p.x - camX) * TILE), sy = Math.round((p.y - camY) * TILE);
-          if (tileAt(this.map, p.x, p.y - 1) !== 'W') shadow(sx, sy);
+          if (!['W', 'K', 'L'].includes(tileAt(this.map, p.x, p.y - 1))) shadow(sx, sy);
           g.drawImage(personSprite(npc.look, facing, npc.idle ? anim : 0), sx, sy - 10);
         }
       }

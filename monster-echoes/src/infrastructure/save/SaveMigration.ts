@@ -19,6 +19,8 @@ export function migrate(raw: unknown): Result<SaveData, MigrationError> {
   }
   if (!validate(d)) return err('corrupt');
   const s = d as unknown as SaveData;
+  // まちが 1まいだった ころの きろく: 新しい まちの まんなかから はじめる
+  if (!s.player.townMap) s.player = { ...s.player, townMap: 'town', townPos: { x: 9, y: 10 }, townDir: 'up' };
   return ok({ ...s, settings: { ...defaultSettings(), ...s.settings } });
 }
 

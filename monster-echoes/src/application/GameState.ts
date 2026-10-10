@@ -21,6 +21,8 @@ export type PlayerState = {
   gold: number;
   tactic: Tactic;
   playTimeSec: number;
+  /** まちの どの へやに いるか */
+  townMap: string;
   townPos: Pos;
   townDir: Dir;
 };

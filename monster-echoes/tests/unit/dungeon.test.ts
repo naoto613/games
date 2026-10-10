@@ -2,22 +2,42 @@ import { describe, expect, it } from 'vitest';
 import { AREAS, ENCOUNTERS } from '../../src/data/areas';
 import { MAPS } from '../../src/data/maps';
 import { SPECIES } from '../../src/data/monsters';
-import { findAll, findTile, loadMap, reachable } from '../../src/domain/dungeon/DungeonEngine';
+import { findAll, findTile, isPassable, loadMap, reachable } from '../../src/domain/dungeon/DungeonEngine';
+import { TOWN_MAPS } from '../../src/data/town';
 
 describe('マップデータ', () => {
-  for (const id of Object.keys(MAPS)) {
+  for (const id of Object.keys(MAPS).filter((k) => !TOWN_MAPS[k])) {
     it(`${id}: 長方形で、スタートから全部の宝箱・出口・ボスに届く`, () => {
       const raw = MAPS[id].rows;
       expect(new Set(raw.map((r) => r.length)).size, raw.map((r, i) => `${i}:${r.length}`).join(' ')).toBe(1);
       const m = loadMap(id);
-      const start = findTile(m, id === 'town' ? 'P' : 'S')!;
+      const start = findTile(m, 'S')!;
       expect(start).toBeTruthy();
       const { walk, touch } = reachable(m, start);
-      const need = id === 'town' ? ['G', 'F', '1', '2', '3', '4', '5', '6', '7'] : ['C', '>', 'B', 'E', 'H'];
+      const need = ['C', '>', 'B', 'E', 'H'];
       for (const ch of need) for (const p of findAll(m, ch)) {
         const k = `${p.x},${p.y}`;
         expect(walk.has(k) || touch.has(k), `${id} ${ch} at ${k}`).toBe(true);
       }
+    });
+  }
+  for (const def of Object.values(TOWN_MAPS)) {
+    it(`まち ${def.id}: 出入り口・人・旅の扉に たどりつけ、つながる先が 正しい`, () => {
+      const m = loadMap(def.id);
+      expect(new Set(MAPS[def.id].rows.map((r) => r.length)).size).toBe(1);
+      // この部屋に 入ってくる 位置（町は P）
+      const entries = Object.values(TOWN_MAPS).flatMap((d) => d.links.filter((l) => l.to === def.id).map((l) => ({ x: l.tx, y: l.ty })));
+      const start = def.id === 'town' ? findTile(m, 'P')! : entries[0];
+      expect(start, def.id).toBeTruthy();
+      for (const e of entries) expect(isPassable(m, e.x, e.y), `${def.id} entry ${e.x},${e.y}`).toBe(true);
+      const { walk, touch } = reachable(m, start);
+      for (const l of def.links) {
+        expect(TOWN_MAPS[l.to], l.to).toBeTruthy();
+        expect(touch.has(`${l.x},${l.y}`) || walk.has(`${l.x},${l.y}`), `${def.id} link ${l.x},${l.y}`).toBe(true);
+      }
+      for (const ch of [...Object.keys(def.npcs), ...(def.gate ? ['G'] : []), 'F']) for (const p of findAll(m, ch)) expect(touch.has(`${p.x},${p.y}`), `${def.id} ${ch}`).toBe(true);
+      for (const ch of Object.keys(def.npcs)) expect(findAll(m, ch).length, `${def.id} npc ${ch}`).toBe(1);
+      if (def.gate) expect(AREAS.some((a) => a.id === def.gate)).toBe(true);
     });
   }
   it('最終フロアだけにボスがいて、それ以外には次への階段がある', () => {

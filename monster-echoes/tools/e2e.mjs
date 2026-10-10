@@ -23,7 +23,7 @@ let n = 0;
 const shot = async (name) => p.screenshot({ path: path.join(out, `${String(n++).padStart(2, '0')}-${name}.png`) });
 const wait = (ms) => p.waitForTimeout(ms);
 /** メッセージが出ているあいだ タップし続ける */
-const skip = async (max = 80) => { await wait(350); for (let i = 0; i < max; i++) { const has = await p.$('.msgbox:not(:has(+ .choices))'); const ch = await p.$('.choices'); if (ch) { const later = p.locator('.choices .item', { hasText: 'あとで' }); if (await later.count()) { await later.click(); await wait(100); continue; } return 'choice'; } if (!has) { await wait(120); if (!(await p.$('.msgbox'))) return; continue; } await has.click(); await wait(60); } };
+const skip = async (max = 80) => { await wait(350); for (let i = 0; i < max; i++) { const nm = p.locator('.panel-foot button', { hasText: 'けってい' }); if (await nm.count() && await p.$('input.name')) { await nm.last().click(); await wait(150); continue; } const has = await p.$('.msgbox:not(:has(+ .choices))'); const ch = await p.$('.choices'); if (ch) { const later = p.locator('.choices .item', { hasText: 'あとで' }); if (await later.count()) { await later.click(); await wait(100); continue; } return 'choice'; } if (!has) { await wait(120); if (!(await p.$('.msgbox'))) return; continue; } await has.click(); await wait(60); } };
 const click = async (text) => { const el = p.locator('button', { hasText: text }).first(); await el.click(); await wait(150); };
 const hold = async (dir, ms) => { await p.evaluate((d) => window.app.dispatch(d, true), dir); await wait(ms); await p.evaluate((d) => window.app.screen.key(d, false), dir); await wait(200); };
 
@@ -37,12 +37,13 @@ await shot('town');
 await p.waitForSelector('.pad-area');
 await hold('left', 300);
 await skip();
-await p.evaluate(() => { const s = window.app.game.state; s.player.townPos = { x: 9, y: 2 }; s.player.townDir = 'up'; });
+await p.evaluate(() => { const s = window.app.game.state; s.player.townMap = 'shrine1'; s.player.townPos = { x: 5, y: 2 }; s.player.townDir = 'up'; window.app.show(new (window.app.screen.constructor)(window.app)); });
+await wait(300);
 await p.evaluate(() => window.app.dispatch('a', true)); await wait(300);
 await skip();
 await shot('gate');
-await p.locator('.panel .item').first().click();
-await wait(400);
+await p.locator('.choices .item').first().click();
+await wait(800);
 await shot('forest');
 // 歩きまわって せんとう
 const dirs = ['down', 'down', 'right', 'right', 'down', 'left', 'up', 'right'];
@@ -87,7 +88,7 @@ await p.evaluate(async () => {
   window.app.show(new (window.app.screen.constructor)(window.app));
 });
 await wait(300);
-await p.evaluate(() => { const g = window.app.game; const s = g.state; s.player.townPos = { x: 4, y: 5 }; s.player.townDir = 'up'; });
+await p.evaluate(() => { const g = window.app.game; const s = g.state; s.player.townMap = 'lab1'; s.player.townPos = { x: 5, y: 2 }; s.player.townDir = 'up'; window.app.show(new (window.app.screen.constructor)(window.app)); });
 await wait(200);
 await p.evaluate(() => window.app.dispatch('a', true)); await wait(300);
 await skip();
