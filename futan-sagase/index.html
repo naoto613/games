@@ -21,7 +21,7 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 #hud .tl{position:absolute;left:12px;top:calc(10px + env(safe-area-inset-top));display:flex;gap:10px;align-items:center;padding:8px 14px 8px 8px;pointer-events:auto}
 #hud .tl canvas{width:58px;height:58px;border-radius:14px;background:#fff1f6;flex:none}
 #hud .tl b{display:block;font-family:var(--display);font-weight:400;font-size:19px;line-height:1.2}
-#hud .tl small{font-size:12px;font-weight:900;color:var(--soft)}
+#hud .tl small{font-size:12px;font-weight:900;color:var(--soft)}#hud .tl small.feat{display:block;font-size:11px;color:#d2386e}
 #hud .tr{position:absolute;right:12px;top:calc(10px + env(safe-area-inset-top));display:flex;gap:6px;padding:6px;pointer-events:auto}
 .slot{width:50px;height:58px;border-radius:14px;background:var(--paper2);border:2px dashed var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:var(--soft)}
 .slot canvas{width:40px;height:40px}
@@ -84,7 +84,7 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
 <canvas id="cv"></canvas>
 <div id="fx"></div>
 <div id="hud" hidden>
-  <div class="card tl"><canvas id="hudFutan" width="116" height="116"></canvas><div><small id="hudStage">ステージ 1</small><b>ふーたんは どこ？</b></div></div>
+  <div class="card tl"><canvas id="hudFutan" width="116" height="116"></canvas><div><small id="hudStage">ステージ 1</small><b>ふーたんは どこ？</b><small class="feat">みつあみ・ピンクの みずたま・<span style="color:#d9a400">ハートの ポシェット</span></small></div></div>
   <div class="card tr" id="slots"></div>
   <div class="bl"><button class="pill" id="menuBtn">ⅠⅠ</button><button class="pill" id="zoomBtn">ぜんたい</button></div>
   <div class="br"><button class="pill hint" id="hintBtn">ヒント</button></div>
@@ -93,7 +93,7 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
   <div class="panel">
     <div class="logo">ふーたんを<br><em>さがせ！</em></div>
     <div class="cast" id="cast"></div>
-    <p class="lede">ひとが いっぱいの まちの どこかに ふーたんが かくれているよ。<br>みつけたら つぎの ばしょへ ワープ！<br>ままや パパや リッキーを みつけると いいことが あるよ。</p>
+    <p class="lede">ひとが いっぱいの まちの どこかに ふーたんが かくれているよ。<br><span style="color:#d2386e">めじるしは みつあみと ピンクの みずたまの ふく、<br>きいろい ハートの ポシェット！</span><br>みつけたら つぎの ばしょへ ワープ！<br>ままや パパや リッキーを みつけると いいことが あるよ。</p>
     <div class="tstats" id="titleStats"></div>
     <button class="btn main" id="playBtn">あそぶ</button>
     <div class="links"><button class="link" id="albumBtn">ステージ えらび</button><button class="link snd" id="sndBtn">おと：オン</button></div>
@@ -162,8 +162,8 @@ function ink(c,w){c.strokeStyle=LN;c.lineWidth=w||1.6;c.lineJoin='round';c.lineC
 const COLS={red:'#e8504a',blue:'#3f7bd6',green:'#4cad62',yellow:'#f6c63a',orange:'#f28b2f',purple:'#8d5cc8',pink:'#f28fb7',sky:'#7cc8ec',white:'#f7f4ee',black:'#3b3533',brown:'#a8703f',gray:'#9fa4ab',navy:'#2f4078',mint:'#7fd6b4',cream:'#f3e1b5'};
 const CLIST=Object.values(COLS);
 // colours that would look like ふーたん's smock or hat are kept rare for the crowd (set per stage as decoys)
-const FUTAN_SMOCK='#8fd0f0',FUTAN_HAT='#ffd23f';
-const SAFE_TOPS=['#e8504a','#3f7bd6','#4cad62','#f28b2f','#8d5cc8','#f28fb7','#f7f4ee','#3b3533','#a8703f','#9fa4ab','#2f4078','#7fd6b4','#f3e1b5','#c44a6a','#5a8a6a','#e0a040'];
+const FUTAN_PINK='#ff8cc0',FUTAN_SMOCK=FUTAN_PINK,FUTAN_BAG='#ffd23f';
+const SAFE_TOPS=['#e8504a','#3f7bd6','#4cad62','#f28b2f','#8d5cc8','#7cc8ec','#f7f4ee','#3b3533','#a8703f','#9fa4ab','#2f4078','#7fd6b4','#f3e1b5','#c44a6a','#5a8a6a','#e0a040'];
 // ================= characters (drawn at the origin = feet) =================
 const BODY={
   kid:{hr:12.5,hy:-34,sy:-23,hip:-11,arm:10},
@@ -189,6 +189,7 @@ function drawPerson(c,o){
   if(hs==='bob'){c.beginPath();c.moveTo(-hr-1.5,hy);c.bezierCurveTo(-hr-2,hy-hr*1.7,hr+2,hy-hr*1.7,hr+1.5,hy);c.quadraticCurveTo(hr+3,hy+8,hr,hy+11);c.quadraticCurveTo(0,hy+13,-hr,hy+11);c.quadraticCurveTo(-hr-3,hy+8,-hr-1.5,hy);c.closePath();FS(c,hc)}
   if(hs==='pony'){ell(c,hr+1,hy+5,4.5,8,-.4);FS(c,hc)}
   if(hs==='twin'){ell(c,-hr-3,hy+4,4.5,7.5,.4);FS(c,hc);ell(c,hr+3,hy+4,4.5,7.5,-.4);FS(c,hc)}
+  if(hs==='braid'){for(const k of[-1,1]){for(let i=0;i<3;i++){ell(c,k*(hr+.5+i*.6),hy+4+i*4.6,3.5-i*.3,3.1,k*.3);FS(c,hc)}const bx=k*(hr+1.8),by=hy+17;c.save();c.translate(bx,by);poly(c,[[0,0],[-3.4,-2.6],[-3.4,2.6]]);FS(c,o.ribbon||'#e8504a');poly(c,[[0,0],[3.4,-2.6],[3.4,2.6]]);FS(c,o.ribbon||'#e8504a');circ(c,0,0,1.2);FS(c,o.ribbon||'#e8504a');c.restore();c.lineWidth=1.1;line(c,bx,by+1,bx+k*.4,by+4.5);ink(c)}}
   // ---- legs ----
   const legC=o.legCol||(top==='astro'?'#eef1f5':top==='diver'?'#2c3a4e':top==='knight'?'#aab1bb':(o.fem&&!o.pants)||top==='swim'?sk:bc);
   const spread=o.pose==='walk'?3:0;
@@ -237,7 +238,9 @@ function drawPerson(c,o){
     rr(c,-sw,sy,2*sw,hip-sy+1,5);FS(c,tc);
     if(o.stripe){c.save();rr(c,-sw,sy,2*sw,hip-sy+1,5);c.clip();c.fillStyle=o.stripe;for(let y=sy+3;y<hip;y+=5)c.fillRect(-sw,y,2*sw,2.2);c.restore();rr(c,-sw,sy,2*sw,hip-sy+1,5);c.stroke()}
   }
+  if(o.dots){const sw2=top==='swim'?6:sw-2,y0=top==='swim'?sy+6:sy+3,y1=top==='swim'?hip-1:top==='dress'?hip+3:hip;c.fillStyle=o.dots;for(let y=y0,r=0;y<y1;y+=4.6,r++)for(let x=-sw2+(r%2)*2.3;x<=sw2;x+=4.6){circ(c,x,y,1.15);c.fill()}}
   if(A.scarf){rr(c,-8,sy-2,16,5,2.5);FS(c,A.scarf);rr(c,2,sy+1,4.5,9,2);FS(c,A.scarf)}
+  if(A.pochette){c.lineWidth=1.5;c.strokeStyle='#c98a20';line(c,sw-3,sy+1,-2,hip-1);ink(c);heart(c,-1,hip+1,6);FS(c,A.pochette);circ(c,-3,hip-1,1.3);F(c,'#fff')}
   if(A.bag){c.lineWidth=1.2;line(c,-6,sy,8,hip-2);c.lineWidth=1.6;rr(c,5,hip-5,9,8,2);FS(c,A.bag)}
   // ---- arms ----
   const armC=top==='swim'?sk:top==='astro'?'#f4f6fa':top==='diver'?'#2c3a4e':top==='knight'?'#c3c8cf':top==='yukata'||top==='happi'||top==='smock'||top==='ski'||top==='coat'||top==='princess'?tc:(o.short?sk:tc);
@@ -272,7 +275,7 @@ function drawPerson(c,o){
   case 'bald':c.beginPath();c.arc(0,hy,hr,Math.PI*.95,Math.PI*1.05);c.stroke();ell(c,-hr+1,hy+1,2.6,4);FS(c,hc);ell(c,hr-1,hy+1,2.6,4);FS(c,hc);break;
   case 'spiky':c.beginPath();c.moveTo(-hr-1,hy+1);for(let i=0;i<=6;i++){const a=Math.PI+i/6*Math.PI;c.lineTo(Math.cos(a)*(hr+(i%2?5:1)),hy+Math.sin(a)*(hr+(i%2?5:1)))}c.lineTo(hr+1,hy+1);c.quadraticCurveTo(0,hy-6,-hr-1,hy+1);c.closePath();FS(c,hc);break;
   case 'curly':for(let i=0;i<7;i++){const a=Math.PI*(1.02+i*.16);circ(c,Math.cos(a)*hr,hy+Math.sin(a)*hr,4.2);FS(c,hc)}break;
-  case 'bob':case 'pattsun':
+  case 'bob':case 'pattsun':case 'braid':
     c.beginPath();c.moveTo(-hr-1,hy+4);c.quadraticCurveTo(-hr-1.5,hy-hr-1,0,hy-hr-1);c.quadraticCurveTo(hr+1.5,hy-hr-1,hr+1,hy+4);c.lineTo(hr-2,hy-2);
     for(let i=0;i<=6;i++)c.lineTo(hr-3-i*((2*hr-6)/6),hy-3.5+(i%2?1.4:0));c.lineTo(-hr+2,hy-2);c.closePath();FS(c,hc);break;
   default: // short, long, pony, twin, bun
@@ -308,7 +311,8 @@ function drawPerson(c,o){
 }
 
 // ---- the family ----
-const LOOK_FUTAN={age:'kid',fem:true,skin:SKIN,hair:'bob',hairCol:HAIR,top:'smock',topCol:FUTAN_SMOCK,hat:'yochien',hatCol:FUTAN_HAT,shoe:'#e8483a',legCol:SKIN};
+// ふーたん: みつあみ・ピンクの みずたまの ワンピース・きいろい ハートの ポシェット（ポシェットは ふーたん だけ）
+const LOOK_FUTAN={age:'kid',fem:true,skin:SKIN,hair:'braid',hairCol:HAIR,ribbon:'#e8504a',top:'dress',topCol:FUTAN_PINK,dots:'#fff',shoe:'#e8483a',legCol:SKIN,acc:{pochette:FUTAN_BAG}};
 const LOOK_MAMA={age:'adult',fem:true,hair:'pattsun',hairCol:'#4a2a1a',top:'dress',topCol:'#e8483a',apron:true,shoe:'#5a3a6a'};
 const LOOK_PAPA={age:'adult',hair:'short',hairCol:'#3a2a20',top:'shirt',topCol:'#2f5fa8',botCol:'#d8c4a0',shoe:'#7a4a2a',acc:{scarf:'#e8a020',glasses:true},s:1.08};
 // stage outfits keep the family recognisable
@@ -484,7 +488,13 @@ function makeSprite(key,w,h,draw,res){
   x.scale(res,res);x.translate(w/2+pad,h+pad);draw(x);
   const s={c,ax:w/2+pad,ay:h+pad,w:w+pad*2,h:h+pad*2};if(key)sprCache.set(key,s);return s;
 }
-function personSprite(look){return makeSprite(null,84,130,x=>drawPerson(x,look))}
+// sprite box sized to the person (most are small; balloons, parasols and tall hats need more room)
+function personBox(o){const B=BODY[o.age||'adult'],A=o.acc||{},s=o.s||1;let up=-B.hy+B.hr+(o.hat?20:6)+(o.top==='astro'||o.helmet?6:0),half=20;
+  if(A.balloon)up=Math.max(up,-B.hy+64);if(A.parasol)up=Math.max(up,-B.hy+B.hr+28);if(A.flag||A.net)up=Math.max(up,-B.sy+34);
+  if(A.balloon||A.flag||A.net)half=Math.max(half,28);if(A.parasol)half=36;if(A.ice||A.cotton||A.fan)half=Math.max(half,24);if(A.ring)half=Math.max(half,22);
+  return[half*2*s,up*s]}
+function personSprite(look){const[w,h]=personBox(look);return makeSprite(null,w,h,x=>drawPerson(x,look))}
+const CROWD=2.3; // ウォーリーなみの 人ごみ
 function personHit(look){const B=BODY[look.age||'adult'],s=look.s||1;return{hw:12*s,hh:(-B.hy+B.hr+5)*s}}
 
 let W=null; // current world
@@ -522,14 +532,16 @@ function buildWorld(st,seed,diff){
   const rp={x:rnd(200,WW-200),y:rnd(300,WH-150)};
   w.fam.ricky={kind:'ricky',x:rp.x,y:rp.y,hx:rp.x,hy:rp.y,ph:0,live:true,hit:{hw:16,hh:62},hop:0};w.items.push(w.fam.ricky);
   // crowd
-  const n=Math.round(st.people*diff.people);let made=0;
-  for(let i=0;i<n*3&&made<n;i++){const s=spot('crowd',st.gap||15,1);if(!s)continue;const look=st.look(s.k);if(s.k==='swim')look.swim=true;addPerson(w,look,s.x,s.y,'mob');made++}
+  const n=Math.round(st.people*diff.people*CROWD);let made=0;
+  for(let i=0;i<n*10&&made<n;i++){const s=spot('crowd',st.gap||12,2);if(!s)continue;const look=st.look(s.k);if(s.k==='swim')look.swim=true;addPerson(w,look,s.x,s.y,'mob');made++}
   // decoys: kids who share one or two things with ふーたん
   const kids=w.items.filter(it=>it.kind==='mob'&&it.look.age==='kid'&&!it.look.swim);shuffle(kids);
-  for(let i=0;i<Math.min(Math.round(st.decoys*diff.decoys),kids.length);i++){const it=kids[i],o=it.look;const v=i%3;
-    if(v===0){o.hat='yochien';o.hatCol=FUTAN_HAT;if(o.topCol===FUTAN_SMOCK)o.topCol='#f28fb7'}
-    else if(v===1){o.top='smock';o.topCol=FUTAN_SMOCK;o.hat=pick(['cap','beret','bow','straw']);o.hatCol=pick(SAFE_TOPS)}
-    else{o.fem=true;o.hair='bob';o.top='smock';o.topCol=pick(['#f28fb7','#f6c63a','#7fd6b4','#f7f4ee']);o.hat='yochien';o.hatCol=pick(['#e8504a','#f28fb7','#7cc8ec','#f7f4ee'])}
+  for(let i=0;i<Math.min(Math.round(st.decoys*diff.decoys*1.6),kids.length);i++){const it=kids[i],o=it.look;const v=i%3;
+    // みつあみだけ同じ／ピンクの みずたまだけ同じ／みつあみ＋ピンク（みずたま なし）
+    if(v===0){o.fem=true;o.hair='braid';o.hairCol=pick(HAIRCOLS);o.ribbon=pick(['#3f7bd6','#4cad62','#f6c63a','#fff']);if(o.topCol===FUTAN_PINK)o.topCol='#7cc8ec';o.hat=null}
+    else if(v===1){o.top='dress';o.fem=true;o.topCol=FUTAN_PINK;o.dots='#fff';o.hair=pick(['bob','pony','short','curly']);o.hat=null}
+    else{o.fem=true;o.hair='braid';o.top='dress';o.topCol=pick([FUTAN_PINK,'#f7a8c8','#e86a9a']);o.dots=null;o.hat=null;o.ribbon=pick(['#e8504a','#fff'])}
+    o.acc=Object.assign({},o.acc);delete o.acc.pochette;
     if(st.decoyFix)st.decoyFix(o);
     it.spr=personSprite(o)}
   // animals
@@ -744,8 +756,8 @@ STAGES.push({id:'beach',name:'なつの うみ',intro:'あおい うみと し�
     for(const x of[60,2340])for(let i=0;i<3;i++)L.prop('palm',x+rnd(-20,20),900+i*260,{flip:x>1000});
     L.prop('stall',700,1500,{col:'#3f7bd6',sign:'かきごおり',goods:['#e8504a','#7cc8ec','#f6c63a']});L.prop('stall',1800,1480,{col:'#f28b2f',sign:'やきそば'})},
   look(){return mobLook({tops:[['swim',5],['shirt',1]],hats:[[null,4],['sunhat',1],['straw',1],['cap',1],['goggle',.4]],acc:[['ice',.06],['parasol',.03]],fix:o=>{o.short=true;if(o.top==='swim'&&o.age==='kid'&&chance(.4))o.acc.ring=pick(['#f6c63a','#e8504a','#f28fb7','#7fd6b4'])}})},
-  family:{futan:{top:'swim',topCol:FUTAN_SMOCK},mama:{hat:'sunhat',hatCol:'#f7f4ee'},papa:{hat:'straw',hatCol:'#3f7bd6',short:true,acc:{glasses:true}}},
-  decoyFix:o=>{if(o.top==='smock')o.top='swim'},
+  family:{futan:{top:'swim',topCol:FUTAN_PINK},mama:{hat:'sunhat',hatCol:'#f7f4ee'},papa:{hat:'straw',hatCol:'#3f7bd6',short:true,acc:{glasses:true}}},
+  decoyFix:o=>{if(o.top==='dress')o.top='swim'},
   animals:[['crab',10],['bird',8]],hide:{p:.4,props:['sandcastle','parasol']},lines:['うみ きもちいい〜','かにさん いたよ！']
 });
 // 3 ----------------------------------------------------------------
@@ -795,8 +807,8 @@ STAGES.push({id:'snow',name:'ゆきやまの スキーじょう',intro:'まっ�
   layout(L,w){scatter(L,w,'pine',22,[40,340,2360,1580],()=>({snow:true,s:rnd(.8,1.2)}),170);scatter(L,w,'snowman',7,[100,500,2300,1550],()=>({col:pick(['#e8504a','#3f7bd6','#4cad62']),scarf:pick(['#f6c63a','#f28fb7','#e8504a'])}),220);
     L.prop('igloo',900,620);L.prop('igloo',2200,1500);scatter(L,w,'sled',7,[100,500,2300,1550],()=>({col:pick(['#e8504a','#3f7bd6','#f6c63a'])}),200);scatter(L,w,'flag',4,[200,500,2200,1300],()=>({col:pick(['#e8504a','#3f7bd6'])}),400)},
   look(){return mobLook({tops:[['ski',4],['coat',1]],hats:[['beanie',3],['goggle',1.4],[null,.5]],acc:[['scarf',.4]]})},
-  family:{futan:{top:'ski',topCol:FUTAN_SMOCK,botCol:'#f28fb7'},mama:{top:'coat',topCol:'#e8483a',acc:{scarf:'#fff'}},papa:{top:'coat',topCol:'#2f5fa8',botCol:'#3b3533'}},
-  decoyFix:o=>{if(o.top==='smock')o.top='ski'},
+  family:{futan:{top:'ski',topCol:FUTAN_PINK,botCol:'#f7f4ee'},mama:{top:'coat',topCol:'#e8483a',acc:{scarf:'#fff'}},papa:{top:'coat',topCol:'#2f5fa8',botCol:'#3b3533'}},
+  decoyFix:o=>{if(o.top==='dress')o.top='ski'},
   animals:[['rabbit',6],['bird',4]],hide:{p:.5,props:['snowman','sled','pine']},hideOpts:{},lines:['さむ〜い！','ゆきがっせん しよう！']
 });
 // 5 ----------------------------------------------------------------
@@ -817,8 +829,8 @@ STAGES.push({id:'matsuri',name:'よるの なつまつり',intro:'ちょうち�
     for(let i=0;i<8;i++){const x=200+(i%4)*660+(i<4?0:300),y=i<4?560:1520;L.prop('stall',x,y,{col:pick(['#e8504a','#3f7bd6','#f6c63a','#4cad62','#f28fb7']),sign:names[i]});w.lan.push({x,y:y-110})}
     for(let i=0;i<8;i++){const x=150+i*300,y=i%2?1150:780;L.prop('lanternpole',x,y,{lit:true});w.lan.push({x:x-20,y:y-114},{x:x+20,y:y-114})}},
   look(){return mobLook({tops:[['yukata',5],['shirt',1]],hats:[[null,5],['hachimaki',.8],['flower',1]],acc:[['fan',.2],['cotton',.1],['flag',.03]],fix:o=>{if(o.hat==='flower'&&!o.fem)o.hat=null}})},
-  family:{futan:{top:'yukata',topCol:FUTAN_SMOCK,obi:'#ffd23f'},mama:{top:'yukata',topCol:'#e8483a',obi:'#fff',apron:false},papa:{top:'happi',topCol:'#2f5fa8',botCol:'#3b3533'}},
-  decoyFix:o=>{if(o.top==='smock')o.top='yukata'},
+  family:{futan:{top:'yukata',topCol:FUTAN_PINK,obi:'#ffd23f'},mama:{top:'yukata',topCol:'#e8483a',obi:'#fff',apron:false},papa:{top:'happi',topCol:'#2f5fa8',botCol:'#3b3533'}},
+  decoyFix:o=>{if(o.top==='dress')o.top='yukata'},
   animals:[['cat',3]],hide:{p:.4,props:['taiko','barrel']},lines:['たこやき おいしい！','はなび まだかな？']
 });
 // 6 ----------------------------------------------------------------
@@ -921,7 +933,7 @@ const G={state:'title',si:0,t:0,hints:0,subs:{},lastHintReady:false};
 let PROG=load('fs_prog',{stages:{},next:0,max:-1});if(!PROG.round)PROG.round=1;
 // difficulty: the first lap starts gentle and ramps up; every later lap is busier and trickier
 function diffFor(i){const k=i/(STAGES.length-1),r=PROG.round;
-  if(r<=1)return{people:.6+.4*k,decoys:.4+.6*k,hide:-.25+.25*k,assist:true};
+  if(r<=1)return{people:.8+.2*k,decoys:.4+.6*k,hide:-.25+.25*k,assist:true};
   if(r===2)return{people:1.1,decoys:1.6,hide:.2,assist:false};
   return{people:1.2,decoys:2.2,hide:.35,assist:false}}
 const roundName=r=>r<=1?'':r===2?'2しゅうめ':r+'しゅうめ';

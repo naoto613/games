@@ -7,7 +7,13 @@ function makeSprite(key,w,h,draw,res){
   x.scale(res,res);x.translate(w/2+pad,h+pad);draw(x);
   const s={c,ax:w/2+pad,ay:h+pad,w:w+pad*2,h:h+pad*2};if(key)sprCache.set(key,s);return s;
 }
-function personSprite(look){return makeSprite(null,84,130,x=>drawPerson(x,look))}
+// sprite box sized to the person (most are small; balloons, parasols and tall hats need more room)
+function personBox(o){const B=BODY[o.age||'adult'],A=o.acc||{},s=o.s||1;let up=-B.hy+B.hr+(o.hat?20:6)+(o.top==='astro'||o.helmet?6:0),half=20;
+  if(A.balloon)up=Math.max(up,-B.hy+64);if(A.parasol)up=Math.max(up,-B.hy+B.hr+28);if(A.flag||A.net)up=Math.max(up,-B.sy+34);
+  if(A.balloon||A.flag||A.net)half=Math.max(half,28);if(A.parasol)half=36;if(A.ice||A.cotton||A.fan)half=Math.max(half,24);if(A.ring)half=Math.max(half,22);
+  return[half*2*s,up*s]}
+function personSprite(look){const[w,h]=personBox(look);return makeSprite(null,w,h,x=>drawPerson(x,look))}
+const CROWD=2.3; // ウォーリーなみの 人ごみ
 function personHit(look){const B=BODY[look.age||'adult'],s=look.s||1;return{hw:12*s,hh:(-B.hy+B.hr+5)*s}}
 
 let W=null; // current world
@@ -45,14 +51,16 @@ function buildWorld(st,seed,diff){
   const rp={x:rnd(200,WW-200),y:rnd(300,WH-150)};
   w.fam.ricky={kind:'ricky',x:rp.x,y:rp.y,hx:rp.x,hy:rp.y,ph:0,live:true,hit:{hw:16,hh:62},hop:0};w.items.push(w.fam.ricky);
   // crowd
-  const n=Math.round(st.people*diff.people);let made=0;
-  for(let i=0;i<n*3&&made<n;i++){const s=spot('crowd',st.gap||15,1);if(!s)continue;const look=st.look(s.k);if(s.k==='swim')look.swim=true;addPerson(w,look,s.x,s.y,'mob');made++}
+  const n=Math.round(st.people*diff.people*CROWD);let made=0;
+  for(let i=0;i<n*10&&made<n;i++){const s=spot('crowd',st.gap||12,2);if(!s)continue;const look=st.look(s.k);if(s.k==='swim')look.swim=true;addPerson(w,look,s.x,s.y,'mob');made++}
   // decoys: kids who share one or two things with ふーたん
   const kids=w.items.filter(it=>it.kind==='mob'&&it.look.age==='kid'&&!it.look.swim);shuffle(kids);
-  for(let i=0;i<Math.min(Math.round(st.decoys*diff.decoys),kids.length);i++){const it=kids[i],o=it.look;const v=i%3;
-    if(v===0){o.hat='yochien';o.hatCol=FUTAN_HAT;if(o.topCol===FUTAN_SMOCK)o.topCol='#f28fb7'}
-    else if(v===1){o.top='smock';o.topCol=FUTAN_SMOCK;o.hat=pick(['cap','beret','bow','straw']);o.hatCol=pick(SAFE_TOPS)}
-    else{o.fem=true;o.hair='bob';o.top='smock';o.topCol=pick(['#f28fb7','#f6c63a','#7fd6b4','#f7f4ee']);o.hat='yochien';o.hatCol=pick(['#e8504a','#f28fb7','#7cc8ec','#f7f4ee'])}
+  for(let i=0;i<Math.min(Math.round(st.decoys*diff.decoys*1.6),kids.length);i++){const it=kids[i],o=it.look;const v=i%3;
+    // みつあみだけ同じ／ピンクの みずたまだけ同じ／みつあみ＋ピンク（みずたま なし）
+    if(v===0){o.fem=true;o.hair='braid';o.hairCol=pick(HAIRCOLS);o.ribbon=pick(['#3f7bd6','#4cad62','#f6c63a','#fff']);if(o.topCol===FUTAN_PINK)o.topCol='#7cc8ec';o.hat=null}
+    else if(v===1){o.top='dress';o.fem=true;o.topCol=FUTAN_PINK;o.dots='#fff';o.hair=pick(['bob','pony','short','curly']);o.hat=null}
+    else{o.fem=true;o.hair='braid';o.top='dress';o.topCol=pick([FUTAN_PINK,'#f7a8c8','#e86a9a']);o.dots=null;o.hat=null;o.ribbon=pick(['#e8504a','#fff'])}
+    o.acc=Object.assign({},o.acc);delete o.acc.pochette;
     if(st.decoyFix)st.decoyFix(o);
     it.spr=personSprite(o)}
   // animals

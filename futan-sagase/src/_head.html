@@ -21,7 +21,7 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 #hud .tl{position:absolute;left:12px;top:calc(10px + env(safe-area-inset-top));display:flex;gap:10px;align-items:center;padding:8px 14px 8px 8px;pointer-events:auto}
 #hud .tl canvas{width:58px;height:58px;border-radius:14px;background:#fff1f6;flex:none}
 #hud .tl b{display:block;font-family:var(--display);font-weight:400;font-size:19px;line-height:1.2}
-#hud .tl small{font-size:12px;font-weight:900;color:var(--soft)}
+#hud .tl small{font-size:12px;font-weight:900;color:var(--soft)}#hud .tl small.feat{display:block;font-size:11px;color:#d2386e}
 #hud .tr{position:absolute;right:12px;top:calc(10px + env(safe-area-inset-top));display:flex;gap:6px;padding:6px;pointer-events:auto}
 .slot{width:50px;height:58px;border-radius:14px;background:var(--paper2);border:2px dashed var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:var(--soft)}
 .slot canvas{width:40px;height:40px}
@@ -84,7 +84,7 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
 <canvas id="cv"></canvas>
 <div id="fx"></div>
 <div id="hud" hidden>
-  <div class="card tl"><canvas id="hudFutan" width="116" height="116"></canvas><div><small id="hudStage">ステージ 1</small><b>ふーたんは どこ？</b></div></div>
+  <div class="card tl"><canvas id="hudFutan" width="116" height="116"></canvas><div><small id="hudStage">ステージ 1</small><b>ふーたんは どこ？</b><small class="feat">みつあみ・ピンクの みずたま・<span style="color:#d9a400">ハートの ポシェット</span></small></div></div>
   <div class="card tr" id="slots"></div>
   <div class="bl"><button class="pill" id="menuBtn">ⅠⅠ</button><button class="pill" id="zoomBtn">ぜんたい</button></div>
   <div class="br"><button class="pill hint" id="hintBtn">ヒント</button></div>
@@ -93,7 +93,7 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
   <div class="panel">
     <div class="logo">ふーたんを<br><em>さがせ！</em></div>
     <div class="cast" id="cast"></div>
-    <p class="lede">ひとが いっぱいの まちの どこかに ふーたんが かくれているよ。<br>みつけたら つぎの ばしょへ ワープ！<br>ままや パパや リッキーを みつけると いいことが あるよ。</p>
+    <p class="lede">ひとが いっぱいの まちの どこかに ふーたんが かくれているよ。<br><span style="color:#d2386e">めじるしは みつあみと ピンクの みずたまの ふく、<br>きいろい ハートの ポシェット！</span><br>みつけたら つぎの ばしょへ ワープ！<br>ままや パパや リッキーを みつけると いいことが あるよ。</p>
     <div class="tstats" id="titleStats"></div>
     <button class="btn main" id="playBtn">あそぶ</button>
     <div class="links"><button class="link" id="albumBtn">ステージ えらび</button><button class="link snd" id="sndBtn">おと：オン</button></div>

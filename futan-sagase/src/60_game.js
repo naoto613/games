@@ -3,7 +3,7 @@ const G={state:'title',si:0,t:0,hints:0,subs:{},lastHintReady:false};
 let PROG=load('fs_prog',{stages:{},next:0,max:-1});if(!PROG.round)PROG.round=1;
 // difficulty: the first lap starts gentle and ramps up; every later lap is busier and trickier
 function diffFor(i){const k=i/(STAGES.length-1),r=PROG.round;
-  if(r<=1)return{people:.6+.4*k,decoys:.4+.6*k,hide:-.25+.25*k,assist:true};
+  if(r<=1)return{people:.8+.2*k,decoys:.4+.6*k,hide:-.25+.25*k,assist:true};
   if(r===2)return{people:1.1,decoys:1.6,hide:.2,assist:false};
   return{people:1.2,decoys:2.2,hide:.35,assist:false}}
 const roundName=r=>r<=1?'':r===2?'2しゅうめ':r+'しゅうめ';
