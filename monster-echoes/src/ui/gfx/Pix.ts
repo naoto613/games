@@ -24,7 +24,7 @@ const u32 = (h: string | null | undefined) => {
 };
 
 export type Shape = { bb: [number, number, number, number]; f: (x: number, y: number) => boolean };
-export type PartOpts = { hi?: string; lo?: string; ol?: string; flat?: boolean; noOl?: boolean; lx?: number; ly?: number; hiT?: number; loT?: number };
+export type PartOpts = { hi?: string; lo?: string; ol?: string; flat?: boolean; noOl?: boolean; lx?: number; ly?: number; hiT?: number; loT?: number; cel?: boolean };
 
 const BAYER = [0, 0.5, 0.75, 0.25];
 const SHADOW_TINT = '#2a1850';
@@ -52,6 +52,8 @@ export class Pix {
   d: Uint32Array;
   W: number;
   H: number;
+  /** true なら アニメ塗り（3色）が 標準 */
+  cel = false;
   constructor(public w: number, public h: number, public scale = 1) {
     this.W = w * scale;
     this.H = h * scale;
@@ -124,6 +126,12 @@ export class Pix {
           const z = Math.sqrt(1 - d2);
           const nl = Math.hypot(u, v, z) || 1;
           let lit = (u * L[0] + v * L[1] + z * L[2]) / nl;
+          if (o.cel ?? this.cel) {
+            // アニメ塗り: ハイライト・ベース・影 の 3 色だけ（くっきり）
+            c = lit > (o.hiT ?? 0.8) ? T.hi : lit < (o.loT ?? -0.05) ? T.lo : T.base;
+            this.pxh(X, Y, c);
+            continue;
+          }
           lit += (BAYER[(X & 1) + (Y & 1) * 2] - 0.375) * 0.16; // ディザ
           const hiT = o.hiT ?? 0.55, loT = o.loT ?? -0.45;
           if (lit > hiT + 0.33) c = T.top;

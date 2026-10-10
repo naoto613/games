@@ -12,8 +12,8 @@ await p.evaluate(() => localStorage.setItem('me-settings', JSON.stringify({ text
 await p.reload(); const wait = (ms) => p.waitForTimeout(ms);
 await p.locator('button', { hasText: 'はじめから' }).click(); await wait(200);
 await p.locator('button', { hasText: 'けってい' }).click();
-for (let i = 0; i < 40; i++) { const later = p.locator('.choices .item', { hasText: 'あとで' }); if (await later.count()) await later.click(); const m = await p.$('.msgbox:not(:has(+ .choices))'); if (m && !(await p.$('.choices'))) await m.click(); await wait(80); if (await p.$('.pad-area') && !(await p.$('.msgbox'))) break; }
-for (const [area, fl, x, y] of [['cave', 1, 5, 6], ['highland', 0, 3, 5], ['forest', 2, 12, 6]]) {
+for (let i = 0; i < 40; i++) { const nm = p.locator('.panel-foot button', { hasText: 'けってい' }); if (await nm.count() && await p.$('input.name')) { await nm.last().click(); await wait(150); continue; } const later = p.locator('.choices .item', { hasText: 'あとで' }); if (await later.count()) await later.click(); const m = await p.$('.msgbox:not(:has(+ .choices))'); if (m && !(await p.$('.choices'))) await m.click(); await wait(80); if (await p.$('.pad-area') && !(await p.$('.msgbox'))) break; }
+for (const [area, fl, x, y] of [['cave', 1, 5, 6], ['highland', 0, 3, 5], ['forest', 2, 12, 6], ['tower', 0, 3, 5]]) {
   await p.evaluate(([a, f, x, y]) => { const g = window.app.game; g.state.progress.unlockedAreas.push(a); g.startExpedition(a); for (let i = 0; i < f; i++) g.descend(); g.state.expedition.pos = { x, y }; window.app.show(new (window.app.screen.constructor)(window.app)); }, [area, fl, x, y]);
   await wait(400); await p.screenshot({ path: path.join(out, `${area}.png`) });
 }

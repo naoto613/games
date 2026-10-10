@@ -3,7 +3,7 @@ import { E, P, Pix, R, RR, Sub, flipH, mix, shade } from './Pix';
 
 export const TILE = 32;
 const S = 2;
-export type Theme = 'town' | 'forest' | 'cave' | 'highland';
+export type Theme = 'town' | 'forest' | 'cave' | 'highland' | 'tower' | 'interior' | 'shrine' | 'ranch';
 
 type Pal = { g: [string, string, string, string]; wall: string; water: string; blade: string };
 const PAL: Record<Theme, Pal> = {
@@ -11,6 +11,10 @@ const PAL: Record<Theme, Pal> = {
   forest: { g: ['#3f8a36', '#509e40', '#66b24e', '#86c866'], wall: '#256c2e', water: '#2f78c8', blade: '#9ad870' },
   cave: { g: ['#7a6454', '#8a725e', '#987e68', '#a68c74'], wall: '#3e3448', water: '#24508e', blade: '#b09a84' },
   highland: { g: ['#8c9a48', '#a2ae58', '#b6c068', '#ccd484'], wall: '#8a6a4c', water: '#3a96d8', blade: '#e4e49a' },
+  tower: { g: ['#b8c4e0', '#c8d2ec', '#d6def4', '#e6ecfc'], wall: '#6a84c8', water: '#5ab0f0', blade: '#ffffff' },
+  interior: { g: ['#9a6a3c', '#a87648', '#b48254', '#c09060'], wall: '#7a5232', water: '#3a86d8', blade: '#c09060' },
+  shrine: { g: ['#8a8ca4', '#9a9cb4', '#a8aac0', '#b6b8cc'], wall: '#4a4c6e', water: '#3a86d8', blade: '#c0c2d6' },
+  ranch: { g: ['#4f9a3c', '#62b048', '#78c458', '#94d870'], wall: '#8a5a2a', water: '#3a96e0', blade: '#a8e47c' },
 };
 
 // ---- なめらかな ノイズ（タイルどうしが つながるように 世界座標で計算）
@@ -198,6 +202,98 @@ function gateTile(p: Pix, wx: number, wy: number, f: number) {
   portalTile(p, 'town', wx, wy, f, '#a070ff');
 }
 
+// ---------------------------------------------------------------- へやの中
+function woodFloor(p: Pix, wx: number, wy: number) {
+  const c = PAL.interior.g;
+  for (let row = 0; row < 4; row++) {
+    const y = row * 4, off = ((wy * 4 + row) % 2) * 8 + (wx % 2) * 3;
+    const col = c[(row + wx + wy) % 4];
+    p.rect(0, y, 16, 4, col);
+    p.rect(0, y + 3.5, 16, 0.5, '#6a4424');
+    p.rect((off + 4) % 16, y, 0.5, 4, '#6a4424');
+    p.rect((off + 12) % 16, y, 0.5, 4, '#6a4424');
+    p.line(1, y + 1, 5, y + 1, mix(col, '#ffffff', 0.15), 0.5);
+  }
+}
+function stoneFloor(p: Pix, th: Theme, wx: number, wy: number) {
+  const c = PAL[th].g;
+  for (let j = 0; j < 2; j++)
+    for (let i = 0; i < 2; i++) {
+      const col = c[(i + j + wx + wy) % 4];
+      p.rect(i * 8, j * 8, 8, 8, col);
+      p.rect(i * 8, j * 8, 8, 0.6, mix(col, '#ffffff', 0.35));
+      p.rect(i * 8, j * 8 + 7.4, 8, 0.6, mix(col, '#000000', 0.25));
+      p.rect(i * 8 + 7.4, j * 8, 0.6, 8, mix(col, '#000000', 0.2));
+    }
+  if (th === 'tower' && h2(wx, wy) > 0.8) p.part(P(7, 9, 8, 6, 9, 9), '#ffffff', { flat: true, noOl: true });
+}
+function carpet(p: Pix, th: Theme, wx: number, wy: number) {
+  const base = th === 'shrine' ? '#2a4aa8' : '#b02a3a';
+  ground(p, [mix(base, '#000000', 0.15), base, base, mix(base, '#ffffff', 0.1)], wx, wy, 4);
+  for (let i = 1; i < 16; i += 4) p.rect(i, 7.6, 2, 0.8, th === 'shrine' ? '#8ac8ff' : '#e8c060');
+}
+function innerWall(p: Pix, th: Theme, wx: number) {
+  if (th === 'shrine') {
+    p.rect(0, 0, 16, 16, '#3a3c5a');
+    p.part(R(1, 0, 14, 16), '#5a5c80', { ol: '#22243a', hiT: 0.3 });
+    p.rect(3, 2, 10, 1, '#8a8cb0');
+    p.part(E(8, 8, 2.2, 3), '#6ad0ff', { flat: true, ol: '#1a3a6a' });
+    p.part(E(8, 8, 1, 1.6), '#e0faff', { flat: true, noOl: true });
+    return;
+  }
+  ground(p, ['#e8d6b0', '#f0dfbc', '#f4e6c6', '#f8ecd2'], wx, 0, 5);
+  p.rect(0, 0, 16, 2, '#6a4424');
+  p.rect(0, 10, 16, 6, '#8a5a32');
+  p.rect(0, 10, 16, 1, '#b07a48');
+  for (let x = 2; x < 16; x += 5) p.rect(x, 11.5, 0.6, 4, '#6a4424');
+}
+function fence(p: Pix, wx: number, wy: number) {
+  grassTile(p, 'ranch', wx, wy, false);
+  p.part(R(0, 6, 16, 2), '#b07a3a', { ol: '#4a2a10' });
+  p.part(R(0, 11, 16, 2), '#b07a3a', { ol: '#4a2a10' });
+  for (const x of [2, 12]) p.part(R(x, 3, 2.4, 12), '#c88a48', { ol: '#4a2a10' });
+}
+function bookshelf(p: Pix) {
+  p.part(R(0.5, 0.5, 15, 15), '#7a4a24', { ol: '#2a1408', flat: true });
+  const cols = ['#d84a4a', '#4a7ad8', '#e8c040', '#4aa860', '#a060c8', '#e88a3a'];
+  for (let row = 0; row < 3; row++) {
+    p.rect(1.5, 1.5 + row * 5, 13, 4, '#3a2210');
+    for (let i = 0; i < 6; i++) p.rect(2 + i * 2.1, 2 + row * 5 + (i % 3 === 0 ? 0.6 : 0), 1.8, 3.4 - (i % 3 === 0 ? 0.6 : 0), cols[(i + row * 2) % cols.length]);
+  }
+}
+function table(p: Pix, th: Theme, wx: number, wy: number) {
+  if (th === 'shrine' || th === 'tower') stoneFloor(p, th, wx, wy); else woodFloor(p, wx, wy);
+  p.part(E(8, 13.5, 6.5, 1.6), '#000000', { flat: true, noOl: true });
+  p.part(E(8, 8, 6.8, 5), '#b8743a', { ol: '#3a1a08', hi: '#e0a060' });
+  p.part(E(6, 6.5, 1.4, 2), '#7ae0ff', { ol: '#1a3a6a' });
+  p.part(E(10.5, 7.5, 1.8, 1.2), '#ffffff', { ol: '#6a6a7a' });
+}
+function pottedPlant(p: Pix, wx: number, wy: number) {
+  woodFloor(p, wx, wy);
+  p.part(RR(5, 9, 6, 6, 1), '#c8603a', { ol: '#4a1a08' });
+  for (const [x, y] of [[6, 6], [10, 6], [8, 3.5], [5, 4], [11, 4]]) p.part(E(x, y, 2.4, 2), '#3aa848', { ol: '#123a18' });
+}
+function stairs(p: Pix, th: Theme, wx: number, wy: number, up: boolean) {
+  if (th === 'shrine' || th === 'tower') stoneFloor(p, th, wx, wy); else if (th === 'ranch') grassTile(p, 'ranch', wx, wy, false); else woodFloor(p, wx, wy);
+  if (th === 'ranch') { p.part(R(1, 3, 14, 10), '#c88a48', { ol: '#4a2a10' }); p.rect(2, 7, 12, 1, '#7a4a20'); return; }
+  for (let i = 0; i < 4; i++) {
+    const y = up ? 2 + i * 3 : 2 + i * 3, sh = up ? 0.9 - i * 0.12 : 0.5 + i * 0.12;
+    p.part(R(2, y, 12, 3), mix('#8a8ca8', '#000000', 1 - sh), { ol: '#22243a', flat: true });
+  }
+}
+function doorTile(p: Pix, th: Theme, wx: number, wy: number) {
+  if (th === 'town') {
+    houseWallTile(p, 1);
+    p.part(RR(3.5, 2.5, 9, 13.5, 3), '#7a4420', { ol: '#2a1206', hi: '#a86a3a' });
+    p.rect(8, 3, 0.5, 13, '#4a2410');
+    p.part(E(10.4, 10, 0.8, 0.8), '#f0d040', { flat: true, ol: '#6a4a08' });
+    return;
+  }
+  if (th === 'shrine') stoneFloor(p, th, wx, wy); else if (th === 'ranch') grassTile(p, 'ranch', wx, wy, false); else woodFloor(p, wx, wy);
+  p.part(RR(2, 4, 12, 9, 2), '#3a6a3a', { ol: '#123a12' });
+  p.rect(3, 8, 10, 0.8, '#e8c060');
+}
+
 const cache = new Map<string, HTMLCanvasElement>();
 /** タイルの絵（座標は模様のつながり用、frame はアニメ用） */
 export function tileSprite(th: Theme, ch: string, x: number, y: number, frame: number, state: { open?: boolean; used?: boolean } = {}): HTMLCanvasElement {
@@ -207,6 +303,30 @@ export function tileSprite(th: Theme, ch: string, x: number, y: number, frame: n
   const hit = cache.get(key);
   if (hit) return hit;
   const p = new Pix(16, 16, S);
+  const indoor = th === 'interior' || th === 'shrine' || th === 'ranch';
+  if (indoor || (th === 'town' && ch === 'D')) {
+    switch (ch) {
+      case '#': if (th === 'ranch') fence(p, x, y); else innerWall(p, th, x); break;
+      case ',': if (th === 'ranch') grassTile(p, 'ranch', x, y, true); else carpet(p, th, x, y); break;
+      case 'L': bookshelf(p); break;
+      case 'X': table(p, th, x, y); break;
+      case 'K': counterTile(p); break;
+      case 'T': pottedPlant(p, x, y); break;
+      case '>': stairs(p, th, x, y, false); break;
+      case '<': stairs(p, th, x, y, true); break;
+      case 'D': doorTile(p, th, x, y); break;
+      case 'G': gateTile(p, x, y, f); break;
+      case '~': waterTile(p, 'town', x, y, f); break;
+      default:
+        if (th === 'ranch') grassTile(p, 'ranch', x, y, false);
+        else if (th === 'shrine') stoneFloor(p, th, x, y);
+        else woodFloor(p, x, y);
+    }
+    const c0 = p.canvas();
+    if (cache.size > 3000) cache.clear();
+    cache.set(key, c0);
+    return c0;
+  }
   switch (ch) {
     case '#':
     case 'T':
@@ -226,6 +346,7 @@ export function tileSprite(th: Theme, ch: string, x: number, y: number, frame: n
     case 'K': counterTile(p); break;
     default:
       if (th === 'town' && (ch === '.' || ch === 'P' || /[0-9]/.test(ch))) pathTile(p, x, y);
+      else if (th === 'tower') stoneFloor(p, th, x, y);
       else grassTile(p, th, x, y, false);
   }
   const c = p.canvas();

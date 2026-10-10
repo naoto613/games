@@ -170,7 +170,7 @@ export type AreaDefinition = {
   recommendedLevel: number;
   floors: FloorDefinition[];
   unlockConditions: Condition[];
-  theme: 'forest' | 'cave' | 'highland';
+  theme: 'forest' | 'cave' | 'highland' | 'tower';
 };
 
 export type ArenaBattleDefinition = { trainer: string; enemies: EnemySpec[]; tactic?: Tactic };

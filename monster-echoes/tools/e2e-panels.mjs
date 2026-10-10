@@ -18,7 +18,7 @@ await p.goto(`http://localhost:${srv.address().port}/index.html`);
 await p.evaluate(() => localStorage.setItem('me-settings', JSON.stringify({ textSpeed: 'fast', battleSpeed: 'instant', reduceMotion: true, sound: false })));
 await p.reload();
 const wait = (ms) => p.waitForTimeout(ms);
-const skip = async () => { await wait(300); for (let i = 0; i < 40; i++) { if (await p.$('.choices')) { const later = p.locator('.choices .item', { hasText: 'あとで' }); if (await later.count()) { await later.click(); await wait(100); continue; } return 'choice'; } const m = await p.$('.msgbox'); if (!m) { await wait(150); if (!(await p.$('.msgbox'))) return; continue; } await m.click(); await wait(50); } };
+const skip = async () => { await wait(300); for (let i = 0; i < 40; i++) { const nm = p.locator('.panel-foot button', { hasText: 'けってい' }); if (await nm.count() && await p.$('input.name')) { await nm.last().click(); await wait(150); continue; } if (await p.$('.choices')) { const later = p.locator('.choices .item', { hasText: 'あとで' }); if (await later.count()) { await later.click(); await wait(100); continue; } return 'choice'; } const m = await p.$('.msgbox'); if (!m) { await wait(150); if (!(await p.$('.msgbox'))) return; continue; } await m.click(); await wait(50); } };
 await p.locator('button', { hasText: 'はじめから' }).click(); await wait(200);
 await p.locator('button', { hasText: 'けってい' }).click();
 await skip();
@@ -29,21 +29,24 @@ await p.evaluate(() => {
   s.progress.defeatedBossIds.push('boss_forest'); s.progress.unlockedAreas.push('cave'); s.progress.unlockedArenaRanks.push('arenaF');
   s.discoveredSpeciesIds.push('yorufukuro', 'mossglow', 'tsukipon'); s.player.gold = 500;
 });
-const talk = async (x, y, name) => {
-  await p.evaluate(([x, y]) => { const s = window.app.game.state; s.player.townPos = { x, y }; s.player.townDir = 'up'; window.app.dispatch('a', true); }, [x, y]);
+const talk = async (map, x, y, dir, name) => {
+  await p.evaluate(([m, x, y, d]) => { const s = window.app.game.state; s.player.townMap = m; s.player.townPos = { x, y }; s.player.townDir = d; window.app.show(new (window.app.screen.constructor)(window.app)); }, [map, x, y, dir]);
+  await wait(200);
+  await p.evaluate(() => window.app.dispatch('a', true));
   if ((await skip()) === 'choice') await p.locator('.choices .item').first().click();
   await wait(300);
   await p.screenshot({ path: path.join(out, `${name}.png`) });
   await p.evaluate(() => window.app.closeAllPanels());
   await skip();
 };
-await talk(4, 5, 'doctor-breed');
-await talk(14, 5, 'ranch');
-await talk(4, 14, 'shop');
-await talk(14, 14, 'arena');
-await talk(9, 2, 'gate');
+await talk('lab1', 5, 2, 'up', 'doctor-breed');
+await talk('ranch1', 5, 5, 'down', 'ranch');
+await talk('shop', 4, 2, 'up', 'shop');
+await talk('arena1', 5, 2, 'up', 'arena');
 // 図鑑
-await p.evaluate(() => { const s = window.app.game.state; s.player.townPos = { x: 4, y: 5 }; s.player.townDir = 'up'; window.app.dispatch('a', true); });
+await p.evaluate(() => { const s = window.app.game.state; s.player.townMap = 'lab1'; s.player.townPos = { x: 5, y: 2 }; s.player.townDir = 'up'; window.app.show(new (window.app.screen.constructor)(window.app)); });
+await wait(200);
+await p.evaluate(() => window.app.dispatch('a', true));
 if ((await skip()) === 'choice') await p.locator('.choices .item').nth(1).click();
 await wait(300);
 await p.screenshot({ path: path.join(out, 'dex.png') });

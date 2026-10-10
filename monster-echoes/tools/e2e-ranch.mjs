@@ -11,7 +11,7 @@ await p.goto(`http://localhost:${srv.address().port}/index.html`);
 await p.evaluate(() => localStorage.setItem('me-settings', JSON.stringify({ textSpeed: 'fast', sound: false, reduceMotion: true })));
 await p.reload(); const wait = (ms) => p.waitForTimeout(ms);
 const shot = (n) => p.screenshot({ path: path.join(out, n + '.png') });
-const msgs = async () => { for (let i = 0; i < 80; i++) { const later = p.locator('.choices .item', { hasText: 'あとで' }); if (await later.count()) { await later.click(); await wait(80); continue; } if (await p.$('.choices')) return; const m = await p.$('.msgbox'); if (!m) { await wait(150); if (!(await p.$('.msgbox'))) return; continue; } await m.click(); await wait(60); } };
+const msgs = async () => { for (let i = 0; i < 80; i++) { const nm = p.locator('.panel-foot button', { hasText: 'けってい' }); if (await nm.count() && await p.$('input.name')) { await nm.last().click(); await wait(150); continue; } const later = p.locator('.choices .item', { hasText: 'あとで' }); if (await later.count()) { await later.click(); await wait(80); continue; } if (await p.$('.choices')) return; const m = await p.$('.msgbox'); if (!m) { await wait(150); if (!(await p.$('.msgbox'))) return; continue; } await m.click(); await wait(60); } };
 const party = () => p.evaluate(() => window.app.game.party.map((m) => m.speciesId));
 await p.locator('button', { hasText: 'はじめから' }).click(); await wait(200);
 await p.locator('button', { hasText: 'けってい' }).click(); await wait(300);

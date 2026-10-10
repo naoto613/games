@@ -5,7 +5,7 @@ import { getSpecies } from '../data/monsters';
 import type { EnemySpec, Reward, Tactic } from '../data/types';
 import { createRng, type Rng } from '../core/Random';
 import { err, ok, type Result } from '../core/Result';
-import { battleRewards, createBattle, resolveTurn } from '../domain/battle/BattleEngine';
+import { battleRewards, createBattle, expForMember, resolveTurn } from '../domain/battle/BattleEngine';
 import type { BattleState, TurnInput, TurnResult } from '../domain/battle/types';
 import { BREEDING_ERROR_TEXT, checkBreedable, executeBreeding, previewBreeding, type BreedingPreview } from '../domain/breeding/BreedingEngine';
 import { DIRS, encounterChance, findTile, isPassable, loadMap, rollEncounter, tileAt, type Dir, type Pos, type TileMap } from '../domain/dungeon/DungeonEngine';
@@ -17,12 +17,15 @@ import { getSkill } from '../data/skills';
 import { allMet, initialProgress, refreshUnlocks } from '../domain/progression/ProgressionEngine';
 import { recruitChance, rollRecruit } from '../domain/recruitment/RecruitmentEngine';
 import { weightedPick } from '../core/Random';
+import { DEX_REWARDS, MEDAL_PRIZES, getTownMap } from '../data/town';
+import { SPECIES_LIST } from '../data/monsters';
 import { defaultSettings, GAME_VERSION, SCHEMA_VERSION, type SaveData } from './GameState';
 
 export type BattleContext =
   | { kind: 'wild' }
   | { kind: 'boss'; bossId: string }
-  | { kind: 'arena'; rankId: string; index: number };
+  | { kind: 'arena'; rankId: string; index: number }
+  | { kind: 'practice' };
 
 export type BattleSession = { state: BattleState; context: BattleContext };
 
@@ -48,7 +51,10 @@ export type MoveResult =
   | { kind: 'chest'; reward: Reward | null; pos: Pos }
   | { kind: 'spring'; used: boolean }
   | { kind: 'boss'; bossId: string }
-  | { kind: 'npc'; id: string };
+  | { kind: 'npc'; id: string }
+  | { kind: 'warp'; to: string }
+  | { kind: 'locked'; text: string }
+  | { kind: 'gate'; areaId: string };
 
 export interface SaveSink {
   save(data: SaveData): Promise<void>;
@@ -72,7 +78,7 @@ export function newGameState(name: string, rng: Rng, now = Date.now()): SaveData
     schemaVersion: SCHEMA_VERSION,
     gameVersion: GAME_VERSION,
     savedAt: now,
-    player: { name, gold: 120, tactic: 'attack', playTimeSec: 0, townPos: findTile(town, 'P')!, townDir: 'up' },
+    player: { name, gold: 120, tactic: 'attack', playTimeSec: 0, townMap: 'town', townPos: findTile(town, 'P')!, townDir: 'up' },
     monsters: [a, b],
     partyIds: [a.id, b.id],
     storageIds: [],
@@ -345,14 +351,33 @@ export class Game {
 
   /** まちで 1 歩うごく。人・ふんすい・とびらは ぶつかると話しかける。 */
   townMove(dir: Dir): MoveResult {
-    const map = loadMap('town');
+    const def = getTownMap(this.state.player.townMap);
+    const map = loadMap(def.id);
     const { townPos } = this.state.player;
     const [dx, dy] = DIRS[dir];
     const nx = townPos.x + dx, ny = townPos.y + dy;
     const t = tileAt(map, nx, ny);
-    if (/[0-9]|F|G/.test(t)) {
+    // 出入り口・階段
+    const link = def.links.find((l) => l.x === nx && l.y === ny);
+    if (link) {
+      if (link.cond && !allMet(this.state.progress, link.cond)) {
+        this.setTownPos(townPos, dir);
+        return { kind: 'locked', text: link.locked ?? 'とびらは かたく とざされている。' };
+      }
+      this.update((s) => { s.player.townMap = link.to; s.player.townPos = { x: link.tx, y: link.ty }; s.player.townDir = link.dir; });
+      return { kind: 'warp', to: link.to };
+    }
+    if (t === 'G' && def.gate) {
       this.setTownPos(townPos, dir);
-      return { kind: 'npc', id: t };
+      return { kind: 'gate', areaId: def.gate };
+    }
+    if (/[0-9]/.test(t)) {
+      this.setTownPos(townPos, dir);
+      return { kind: 'npc', id: def.npcs[t]?.id ?? t };
+    }
+    if (t === 'F') {
+      this.setTownPos(townPos, dir);
+      return { kind: 'npc', id: 'fountain' };
     }
     if (!isPassable(map, nx, ny)) {
       this.setTownPos(townPos, dir);
@@ -360,6 +385,69 @@ export class Game {
     }
     this.setTownPos({ x: nx, y: ny }, dir);
     return { kind: 'moved', encounter: null };
+  }
+  currentTownMap() {
+    return getTownMap(this.state.player.townMap);
+  }
+
+  // ---------------------------------------------------------------- やりこみ
+  /** ちいさなメダルを こうかんする */
+  exchangeMedal(prizeId: string): Result<string> {
+    const prize = MEDAL_PRIZES.find((x) => x.id === prizeId);
+    if (!prize) return err('その しなものは ありません。');
+    if ((this.state.inventory.medal ?? 0) < prize.cost) return err('メダルが たりません。');
+    let msg = `${prize.name}を もらった！`;
+    if (prize.id === 'egg') {
+      if (this.state.monsters.length >= this.state.capacity) return err('ぼくじょうが いっぱいです。');
+      const pool = SPECIES_LIST.filter((sp) => sp.rarity === 3);
+      const sp = pool[Math.floor(this.rng.next() * pool.length)];
+      const m = createMonster(sp.id, this.rng, { level: 1, plusValue: 2, obtainedFrom: 'egg', existingIds: new Set(this.state.monsters.map((x) => x.id)) });
+      this.update((s) => { s.monsters.push(m); s.discoveredSpeciesIds = addUnique(s.discoveredSpeciesIds, sp.id); s.ownedSpeciesIds = addUnique(s.ownedSpeciesIds, sp.id); });
+      msg = `ひかりのたまごが われて…\n${sp.name}が うまれた！（ぼくじょうに いるよ）`;
+    }
+    this.update((s) => {
+      s.inventory.medal -= prize.cost;
+      if (!s.inventory.medal) delete s.inventory.medal;
+      const add = (id: string, n: number) => (s.inventory[id] = (s.inventory[id] ?? 0) + n);
+      if (prize.id === 'bonemeat2') add('bonemeat', 2);
+      if (prize.id === 'lifeleaf2') add('lifeleaf', 2);
+      if (prize.id === 'primemeat') add('primemeat', 1);
+      if (prize.id === 'capacity') s.capacity += 5;
+    });
+    this.autosave();
+    return ok(msg);
+  }
+  /** 図鑑の ごほうびで まだ もらっていないもの（もらえる ものは すべて うけとる） */
+  claimDexRewards(): { count: number; medals: number; items: Record<string, number> }[] {
+    const seen = this.state.discoveredSpeciesIds.length;
+    const got = DEX_REWARDS.filter((r) => seen >= r.count && !this.state.progress.storyFlags[`dex${r.count}`]);
+    if (!got.length) return [];
+    this.update((s) => {
+      for (const r of got) {
+        s.progress.storyFlags[`dex${r.count}`] = true;
+        s.inventory.medal = (s.inventory.medal ?? 0) + r.medals;
+        for (const [id, n] of Object.entries(r.items)) s.inventory[id] = (s.inventory[id] ?? 0) + n;
+      }
+    });
+    this.autosave();
+    return got;
+  }
+  /** おくの まきばの おじさん: たびから かえるたびに おみやげ */
+  takeRanchGift(): boolean {
+    if (!this.state.progress.storyFlags.ranchGift) return false;
+    this.update((s) => { s.progress.storyFlags.ranchGift = false; s.inventory.jerky = (s.inventory.jerky ?? 0) + 2; });
+    this.autosave();
+    return true;
+  }
+  /** かんきゃくせきの れんしゅうじあい（パーティと おなじくらいの つよさ） */
+  startPracticeBattle(): Result<BattleSession> {
+    if (!this.party.some((m) => m.hp > 0)) return err('うごける モンスターが いません。');
+    const lv = Math.max(2, Math.round(this.party.reduce((a, m) => a + m.level, 0) / this.party.length));
+    const maxRarity = this.state.progress.storyFlags.champion ? 3 : this.state.progress.defeatedBossIds.includes('boss_cave') ? 2 : 1;
+    const pool = SPECIES_LIST.filter((sp) => sp.rarity <= maxRarity && this.state.discoveredSpeciesIds.includes(sp.id));
+    const pickOne = () => pool[Math.floor(this.rng.next() * pool.length)]?.id ?? 'lumipon';
+    const enemies = [0, 1, 2].map(() => ({ speciesId: pickOne(), level: lv, recruitable: false }));
+    return ok(this.beginBattle('arena', enemies, { kind: 'practice' }));
   }
 
   // ---------------------------------------------------------------- 配合
@@ -397,6 +485,7 @@ export class Game {
     if (!c.ok) return c;
     const area = getArea(areaId);
     const map = loadMap(area.floors[0].mapTemplateId);
+    this.update((s) => (s.progress.storyFlags.ranchGift = true));
     this.update((s) => (s.expedition = { areaId, floorIndex: 0, pos: findTile(map, 'S')!, dir: 'down', openedChests: [], springUsed: false, stepsSinceBattle: 0 }));
     this.autosave();
     return ok(undefined);
@@ -568,12 +657,12 @@ export class Game {
     if (outcome === 'win') {
       const r = battleRewards(st);
       summary.exp = r.exp;
-      summary.gold = b.context.kind === 'arena' ? 0 : r.gold;
+      summary.gold = b.context.kind === 'arena' || b.context.kind === 'practice' ? 0 : r.gold;
       s.player.gold += summary.gold;
       for (const c of st.allies) {
         const m = s.monsters.find((x) => x.id === c.instanceId);
         if (!m || c.hp <= 0) continue;
-        const g = gainExperience(m, r.exp, this.rng);
+        const g = gainExperience(m, expForMember(r, m.level), this.rng);
         const wild = Math.max(0, g.monster.wildness - BALANCE.recruitment.wildnessPerBattle - g.events.length * BALANCE.recruitment.wildnessPerLevel);
         Object.assign(m, g.monster, { wildness: wild });
         if (g.events.length) summary.levelUps.push({ monsterId: m.id, name: displayName(m), events: g.events });
@@ -614,8 +703,8 @@ export class Game {
         } else this.recoverParty(s, rank.betweenBattleRecovery);
       }
     } else if (outcome === 'lose') {
-      if (b.context.kind === 'arena') {
-        summary.arena = { rankId: b.context.rankId, index: b.context.index, cleared: false, rewards: [] };
+      if (b.context.kind === 'arena' || b.context.kind === 'practice') {
+        if (b.context.kind === 'arena') summary.arena = { rankId: b.context.rankId, index: b.context.index, cleared: false, rewards: [] };
       } else {
         summary.goldLost = Math.floor(s.player.gold * BALANCE.dungeon.defeatGoldLossRate);
         s.player.gold -= summary.goldLost;
