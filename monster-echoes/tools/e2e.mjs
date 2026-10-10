@@ -76,7 +76,7 @@ for (let i = 0; i < 30 && (await p.$('.party-bar')); i++) {
 await p.evaluate(() => window.app.dispatch('menu', true)); await wait(200);
 await shot('menu');
 await p.locator('.panel .item', { hasText: 'つよさ' }).click(); await wait(200);
-await p.locator('.panel').last().locator('.item').first().click(); await wait(200);
+await p.locator('.panel').last().locator('.mcard').first().click(); await wait(200);
 await shot('detail');
 await p.evaluate(() => window.app.closeAllPanels());
 // 配合: テスト用に Lv10 のモンスターを用意
