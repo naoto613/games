@@ -8,14 +8,21 @@ function diffFor(i){const k=i/(STAGES.length-1),r=PROG.round;
   return{people:1.2,decoys:2.2,hide:.35,assist:false}}
 const roundName=r=>r<=1?'':r===2?'2しゅうめ':r+'しゅうめ';
 const SUBS=[['mama','まま'],['papa','パパ'],['ricky','リッキー']];
+// リッキーの まほうで ステージに おこる たのしい へんか
+const PARTY={park:{fx:['balloons','petals'],text:'ふうせんが いっぱい とんでいく！'},beach:{fx:['whale','rainbow'],text:'クジラが あそびに きた！'},
+  yuenchi:{fx:['fireworks','balloons'],text:'はなびが あがった！'},snow:{fx:['aurora','stars'],text:'オーロラが でた！ ゆきだるまも おどるよ'},
+  matsuri:{fx:['fireworks','confetti'],text:'おおきな はなびの はじまり！'},zoo:{fx:['confetti','balloons'],text:'どうぶつたちが おどりだした！'},
+  sea:{fx:['fishes','bubbles'],text:'にじいろの さかなの むれ！'},space:{fx:['ufo','stars'],text:'UFOが とんできた！'},
+  castle:{fx:['rainbow','petals'],text:'にじが かかって ドラゴンも ごきげん！'},dino:{fx:['confetti','balloons'],text:'きょうりゅうたちが ダンス！'}};
+const DANCERS=new Set(['dino','giraffe','elephant','lion','dragon','snowman','penguin','rocket','balloons','popcorn']);
 function saveProg(){save('fs_prog',PROG)}
 function stageRec(id){return PROG.stages[id]||(PROG.stages[id]={clear:0,subs:{},best:0,photo:null})}
 
-function portraitOf(who,size){const c=mk(size,size*1.15),x=c.getContext('2d');const s=size/60;x.translate(size/2,size*1.1);x.scale(s,s);
+function portraitOf(who,size){const c=mk(size,size*1.15),x=c.getContext('2d');const s=size/(who==='papa'?82:60);x.translate(size/2,size*1.1);x.scale(s,s);
   if(who==='ricky'){x.translate(0,14);drawRicky(x,1.2,{happy:true})}else drawPerson(x,who==='futan'?LOOK_FUTAN:who==='mama'?LOOK_MAMA:LOOK_PAPA);return c}
 function headOf(who,cv2){const x=cv2.getContext('2d'),S=cv2.width;x.clearRect(0,0,S,S);x.save();
   if(who==='ricky'){x.translate(S/2,S*.86);x.scale(S/42,S/42);x.translate(0,14);drawRicky(x,1.2,{happy:true})}
-  else{const o=who==='futan'?LOOK_FUTAN:who==='mama'?LOOK_MAMA:LOOK_PAPA,B=BODY[o.age];x.translate(S/2,S*.62);const k=S/34;x.scale(k,k);x.translate(0,-B.hy);drawPerson(x,Object.assign({},o,{s:1}))}
+  else{const o=who==='futan'?LOOK_FUTAN:who==='mama'?LOOK_MAMA:LOOK_PAPA,B=bodyOf(o);x.translate(S/2,S*.62);const k=S/34;x.scale(k,k);x.translate(0,-B.hy);drawPerson(x,Object.assign({},o,{s:1}))}
   x.restore()}
 
 function startStage(i){
@@ -23,7 +30,7 @@ function startStage(i){
   W=null;
   G.diff=diffFor(i);W=buildWorld(st,(Math.random()*4294967296)>>>0,G.diff);G.assistT=0;G.autoHint=false;
   cam.anim=null;cam.z=zMin();cam.x=(WW-VW/cam.z)/2;cam.y=(WH-VH/cam.z)/2;clampCam();
-  G.state='intro';G.t=0;G.hints=0;G.subs={};G.lastHintReady=false;
+  G.state='intro';G.t=0;G.hints=0;G.subs={};G.futanGlow=false;G.lastHintReady=false;
   $('introNum').textContent='ステージ '+(i+1)+' / '+STAGES.length+(PROG.round>1?'　★'+roundName(PROG.round):'');$('introName').textContent=st.name;$('introText').textContent=st.intro;
   // the town itself shows through behind the card; the card shows ふうか in this stage's clothes
   const ic=$('introPic'),ix=ic.getContext('2d');ix.setTransform(1,0,0,1,0,0);ix.clearRect(0,0,ic.width,ic.height);ix.translate(ic.width/2,ic.height-8);ix.scale(2.6,2.6);drawPerson(ix,familyLook(LOOK_FUTAN,st,'futan'));
@@ -52,7 +59,7 @@ function onTap(sx,sy){
 function pickAt(x,y){
   const tol=12/cam.z;let best=null,bestSpecial=null;
   for(const it of W.items){if(!it.hit)continue;
-    const hx=it.kind==='ricky'?it.x:it.x,top=it.kind==='ricky'?it.y-62:it.y-it.hit.hh,bot=it.kind==='ricky'?it.y-18:it.y+3;
+    const hx=it.x,top=it.y-it.hit.hh,bot=it.y+3;
     if(x<hx-it.hit.hw-tol||x>hx+it.hit.hw+tol||y<top-tol||y>bot+tol)continue;
     if((it.kind==='futan'&&G.state==='play')||((it.kind==='mama'||it.kind==='papa'||it.kind==='ricky')&&!G.subs[it.kind])){if(!bestSpecial||it.kind==='futan')bestSpecial=it}
     const inside=x>=hx-it.hit.hw&&x<=hx+it.hit.hw&&y>=top&&y<=bot;
@@ -85,12 +92,24 @@ function foundSub(it){
   const k=it.kind;G.subs[k]=true;const rec=stageRec(W.st.id);rec.subs[k]=1;saveProg();
   renderSlots();const sl=$('slot_'+k);if(sl)sl.classList.add('pop');
   it.hop=1;SFX.chime();addFx({k:'ring',x:it.x,y:it.y-30,r:14,grow:50,d:.7,col:'#ffb347',w:5});
-  if(k==='mama'){bubble(it,'ふーたんなら あっちで みたわよ！',3.5,true);say('ふーたんなら、あっちで みたわよ');addFx({k:'arrow',x:it.x,y:it.y,d:7});toast('まま みっけ！<br><span style="font-size:.5em">ハートの ほうに いるかも</span>')}
-  if(k==='papa'){bubble(it,'はい、チーズ！',2.5,true);say('はい、チーズ');setTimeout(()=>{SFX.shutter();addFx({k:'flash',d:.6});rec.photo=photoOfView();saveProg()},500);toast('パパ みっけ！<br><span style="font-size:.5em">しゃしんを とったよ</span>')}
-  if(k==='ricky'){it.happy=true;bubble(it,'リッキーの まほう〜！',3,true);say('リッキーの まほう！');SFX.magic();magicFx(W.st.magic,7);
-    if(W.st.magic==='fireworks')W.fx[W.fx.length-1].sound=true;
+  const F=W.fam.futan;
+  if(k==='mama'){
+    // まま: ハートの みちしるべ ＋ ふーたんの ポシェットが ときどき きらっと ひかる
+    bubble(it,'あら〜 ふーたんなら あっちよ〜！',3.5,true);addFx({k:'arrow',x:it.x,y:it.y,d:12});G.futanGlow=true;G.glowT=0;
+    toast('まま みっけ！<br><span style="font-size:.5em">ハートの ほうを みてね。ふーたんが きらっと ひかるよ</span>')}
+  if(k==='papa'){
+    // パパ: せが たかいから とおくまで みえる → ふーたんの いる あたりを まるで おしえて、そこへ カメラを よせる
+    bubble(it,'せが たかいから みえたぞ！ あのへんだ！',3.2,true);
+    setTimeout(()=>{if(G.state!=='play'&&G.state!=='hunt')return;const r=170,a=rnd(TAU),d=rnd(r*.4),cx=F.x+Math.cos(a)*d,cy=F.y-25+Math.sin(a)*d;addFx({k:'hint',x:cx,y:cy,r,d:8});lookAt(cx,cy,Math.min(VW,VH)/(r*2.4),1)},900);
+    setTimeout(()=>{SFX.shutter();addFx({k:'flash',d:.5});rec.photo=photoOfView();saveProg()},2400);
+    toast('パパ みっけ！<br><span style="font-size:.5em">まるの なかに ふーたんが いるよ</span>')}
+  if(k==='ricky'){
+    // リッキー: まほうで ステージが ずっと おまつり さわぎに かわる
+    it.happy=true;const P=PARTY[W.st.id]||{fx:['confetti'],text:'まちが おおさわぎ！'};
+    bubble(it,'リッキーの まほう〜！',3,true);SFX.magic();W.party=true;W.partyT=0;
+    for(const kind of P.fx){const f=magicFx(kind,Infinity);if(kind==='fireworks')f.sound=true}
     for(const m of W.items)if(m.kind==='mob'||m.kind==='animal'){const d=Math.hypot(m.x-it.x,m.y-it.y);setTimeout(()=>{m.hop=1},d*1.2)}
-    toast('リッキー みっけ！<br><span style="font-size:.5em">まほうで まちが おおさわぎ</span>')}
+    toast('リッキー みっけ！<br><span style="font-size:.5em">'+P.text+'</span>')}
   if(G.state==='hunt'&&SUBS.every(([s])=>G.subs[s]))setTimeout(()=>{toast('みんな みつけた！');setTimeout(showClear,1600)},1800);
 }
 function photoOfView(){const c=mk(300,200),x=c.getContext('2d'),k=Math.max(300/cv.width,200/cv.height),sw=300/k,sh=200/k;x.drawImage(cv,(cv.width-sw)/2,(cv.height-sh)/2,sw,sh,0,0,300,200);try{return c.toDataURL('image/jpeg',.72)}catch(e){return null}}

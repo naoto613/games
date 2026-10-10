@@ -36,9 +36,9 @@ function frame(now){
       if(G.t>45){G.assistT-=dt;if(G.assistT<=0){G.assistT=5;const f=W.fam.futan;f.hop=1;addFx({k:'ring',x:f.x,y:f.y-20,r:8,grow:26,d:.6,col:'#ffd23f',w:3})}}
       if(G.t>75&&!G.autoHint&&G.hints===0){G.autoHint=true;toast('ヒントだよ！');useHint()}
     }
+    if(G.futanGlow&&(G.state==='play')){G.glowT-=dt;if(G.glowT<=0){G.glowT=2.5;const f=W.fam.futan;burst(f.x+4,f.y-14,10,['#ffd23f','#fff6b0','#ff8cc0'],70)}}
     for(const it of W.items){if(it.hop>0)it.hop-=dt*1.8;it.walking=false}
     if(G.state!=='paused')stepWalkers(dt);
-    const r=W.fam.ricky;if(r){r.x=r.hx+Math.sin(NOW*.35)*70;r.y=r.hy+Math.sin(NOW*.6)*24}
     if(G.state==='title'){cam.x=clamp(WW/2-VW/2/cam.z+Math.sin(NOW*.08)*300,0,WW);cam.y=clamp(WH/2-VH/2/cam.z+Math.sin(NOW*.05)*150,0,WH);clampCam()}
     stepCam(dt);
   }

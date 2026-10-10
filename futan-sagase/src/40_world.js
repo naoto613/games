@@ -8,7 +8,7 @@ function makeSprite(key,w,h,draw,res){
   const s={c,ax:w/2+pad,ay:h+pad,w:w+pad*2,h:h+pad*2};if(key)sprCache.set(key,s);return s;
 }
 // sprite box sized to the person (most are small; balloons, parasols and tall hats need more room)
-function personBox(o){const B=BODY[o.age||'adult'],A=o.acc||{},s=o.s||1;let up=-B.hy+B.hr+(o.hat?20:6)+(o.top==='astro'||o.helmet?6:0),half=20;
+function personBox(o){const B=bodyOf(o),A=o.acc||{},s=o.s||1;let up=-B.hy+B.hr+(o.hat?20:6)+(o.top==='astro'||o.helmet?6:0),half=20;
   if(A.balloon)up=Math.max(up,-B.hy+64);if(A.parasol)up=Math.max(up,-B.hy+B.hr+28);if(A.flag||A.net)up=Math.max(up,-B.sy+34);
   if(A.balloon||A.flag||A.net)half=Math.max(half,28);if(A.parasol)half=36;if(A.ice||A.cotton||A.fan)half=Math.max(half,24);if(A.ring)half=Math.max(half,22);
   return[half*2*s,up*s]}
@@ -27,7 +27,7 @@ function atlasSprite(w,h,draw){
 }
 function personSprite(look){const[w,h]=personBox(look);return atlasSprite(w,h,x=>drawPerson(x,look))}
 const CROWD=3.4; // ウォーリーなみの 人ごみ
-function personHit(look){const B=BODY[look.age||'adult'],s=look.s||1;return{hw:12*s,hh:(-B.hy+B.hr+5)*s}}
+function personHit(look){const B=bodyOf(look),s=look.s||1;return{hw:12*s,hh:(-B.hy+B.hr+5)*s}}
 
 let W=null,BGCV=null; // current world
 function buildWorld(st,seed,diff){
@@ -66,8 +66,9 @@ function buildWorld(st,seed,diff){
   const far=(want)=>{for(let i=0;i<80;i++){const s=spot(want,16);if(!s)continue;if(Math.hypot(s.x-fp.x,s.y-fp.y)>520&&margin(s.x,s.y))return s;pts.pop()}return spot(want,8)||{x:200,y:WH-200,k:'land'}};
   const mp=far('land');w.fam.mama=addPerson(w,familyLook(LOOK_MAMA,st,'mama'),mp.x,mp.y,'mama');
   const pp=far('land');w.fam.papa=addPerson(w,familyLook(LOOK_PAPA,st,'papa'),pp.x,pp.y,'papa');
-  const rp={x:rnd(200,WW-200),y:rnd(300,WH-150)};
-  w.fam.ricky={kind:'ricky',x:rp.x,y:rp.y,hx:rp.x,hy:rp.y,ph:0,live:true,hit:{hw:16,hh:62},hop:0};w.items.push(w.fam.ricky);
+  // リッキーは じめんを とことこ あるく（そらは とばない）
+  const rp=far(st.rickyOn||'land');
+  w.fam.ricky={kind:'ricky',x:rp.x,y:rp.y,ph:0,live:true,hit:{hw:13,hh:38},hop:0,flip:false,walk:{tx:rp.x,ty:rp.y,wait:rnd(3),sp:10},where:rp.k||'land'};w.items.push(w.fam.ricky);
   // crowd
   const n=Math.round(st.people*diff.people*CROWD);let made=0;
   for(let i=0;i<n*10&&made<n;i++){const s=spot('crowd',st.gap||10,2);if(!s)continue;const look=st.look(s.k);if(s.k==='swim')look.swim=true;addPerson(w,look,s.x,s.y,'mob');made++}
@@ -119,8 +120,8 @@ function stepCam(dt){const a=cam.anim;if(!a)return;a.t+=dt;const k=Math.min(1,a.
   cam.z=lerp(a.z0,a.z1,e);cam.x=lerp(a.x0,a.x1,e);cam.y=lerp(a.y0,a.y1,e);clampCam();if(k>=1)cam.anim=null}
 function drawItem(c,it,t){
   let y=it.y;const B=it.hop>0?-Math.sin(Math.min(1,it.hop)*Math.PI)*14:0;
-  const bob=it.walking?-Math.abs(Math.sin(t*9+it.ph))*1.6:it.kind==='prop'?0:-Math.max(0,Math.sin(t*1.6+it.ph))*.7;
-  if(it.kind==='ricky'){c.save();c.translate(it.x,it.y);drawRicky(c,t,{hop:-B,happy:it.happy});c.restore();return}
+  const bob=it.walking?-Math.abs(Math.sin(t*9+it.ph))*1.6:it.kind==='prop'?(W.party&&DANCERS.has(it.k)?-Math.abs(Math.sin(t*4+it.x*.01))*14:0):W.party?-Math.abs(Math.sin(t*5+it.ph))*3:-Math.max(0,Math.sin(t*1.6+it.ph))*.7;
+  if(it.kind==='ricky'){c.save();c.translate(it.x,it.y);drawRicky(c,t,{hop:-B,happy:it.happy,ground:true,s:.9});c.restore();return}
   if(it.liveLook){c.save();c.translate(it.x,y+B);c.scale(it.scale||1,it.scale||1);drawPerson(c,it.liveLook);c.restore();return}
   const s=it.spr;if(!s)return;
   if(s.sx!=null){if(it.flip){c.save();c.translate(it.x,y+B+bob);c.scale(-1,1);c.drawImage(s.c,s.sx,s.sy,s.sw,s.sh,-s.ax,-s.ay,s.w,s.h);c.restore()}else c.drawImage(s.c,s.sx,s.sy,s.sw,s.sh,it.x-s.ax,y+B+bob-s.ay,s.w,s.h);return}

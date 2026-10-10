@@ -28,7 +28,7 @@ STAGES.push({id:'beach',name:'なつの うみ',intro:'あおい うみと し�
     for(const x of[60,2340])for(let i=0;i<3;i++)L.prop('palm',x+rnd(-20,20),900+i*260,{flip:x>1000});
     L.prop('stall',700,1500,{col:'#3f7bd6',sign:'かきごおり',goods:['#e8504a','#7cc8ec','#f6c63a']});L.prop('stall',1800,1480,{col:'#f28b2f',sign:'やきそば'})},
   look(){return mobLook({tops:[['swim',5],['shirt',1]],hats:[[null,4],['sunhat',1],['straw',1],['cap',1],['goggle',.4]],acc:[['ice',.06],['parasol',.03]],fix:o=>{o.short=true;if(o.top==='swim'&&o.age==='kid'&&chance(.4))o.acc.ring=pick(['#f6c63a','#e8504a','#f28fb7','#7fd6b4'])}})},
-  family:{futan:{top:'swim',topCol:FUTAN_PINK},mama:{hat:'sunhat',hatCol:'#f7f4ee'},papa:{hat:'straw',hatCol:'#3f7bd6',short:true,acc:{glasses:true}}},
+  family:{futan:{top:'swim',topCol:FUTAN_PINK},mama:{hat:'sunhat',hatCol:'#f7f4ee'},papa:{hat:'straw',hatCol:'#3f7bd6',top:'shirt',short:true,stripe:'#7cc8ec',botCol:'#f7f4ee'}},
   decoyFix:o=>{if(o.top==='dress')o.top='swim'},
   animals:[['crab',10],['bird',8]],hide:{p:.4,props:['sandcastle','parasol']},lines:['うみ きもちいい〜','かにさん いたよ！']
 });
@@ -143,7 +143,7 @@ STAGES.push({id:'sea',name:'うみの そこの たんけん',intro:'ふかい �
   layout(L,w){scatter(L,w,'coral',22,[60,300,2340,1580],()=>({col:pick(['#f28fb7','#f28b2f','#8d5cc8','#e8504a','#f6c63a'])}),140);scatter(L,w,'seaweed',22,[60,300,2340,1580],()=>({s:rnd(.8,1.3)}),130);
     scatter(L,w,'clam',8,[100,1100,2300,1580],{},200);L.prop('chest',700,700);L.prop('chest',2100,1450);scatter(L,w,'rock',8,[100,700,2300,1580],()=>({col:'#7a8aa0'}),250)},
   look(){return mobLook({tops:[['diver',4],['princess',1.2],['swim',.8]],hats:[[null,4],['goggle',.4]],age:[['kid',.3],['adult',.6],['elder',.1]],acc:[],fix:o=>{if(o.top==='princess'){o.topCol=pick(['#7fd6b4','#7cc8ec','#c79bff','#f28fb7']);o.hat='mermaid';o.hair='long'}}})},
-  family:{futan:{mask:true},mama:{mask:true},papa:{mask:true,acc:{scarf:'#e8a020'}}},
+  family:{futan:{mask:true},mama:{mask:true},papa:{mask:true}},
   animals:[['fish',34],['crab',6]],hide:{p:.5,props:['coral','seaweed','rock']},lines:['ごぼごぼ…','おさかな きれい！']
 });
 // 8 ----------------------------------------------------------------
@@ -197,6 +197,6 @@ STAGES.push({id:'dino',name:'きょうりゅうの くに',intro:'むかしむ�
     scatter(L,w,'jungle',12,[40,400,2360,1580],{},220);scatter(L,w,'palm',6,[40,400,2360,1580],{},300);scatter(L,w,'egg',8,[100,450,2300,1550],()=>({col:pick(['#8fcf6a','#f28fb7','#7cc8ec'])}),160);
     L.prop('tent',900,1150,{col:'#f28b2f'});L.prop('tent',1750,1180,{col:'#4cad62'});scatter(L,w,'mushroom',5,[100,450,2300,1550],{},200);scatter(L,w,'rock',6,[100,450,2300,1550],{},200)},
   look(){return mobLook({tops:[['safari',4],['shirt',1]],hats:[['safari',3],['cap',1],[null,1]],acc:[['camera',.1],['net',.1],['backpack',.15]],fix:o=>{if(o.top==='safari')o.topCol=pick(['#c8b07a','#a8946a','#d9c08a','#8a9a6a'])}})},
-  family:{papa:{acc:{scarf:'#e8a020',glasses:true,camera:true}}},
+  family:{papa:{hat:'safari',acc:{camera:true}}},
   animals:[['bird',8],['monkey',5]],hide:{p:.5,props:['jungle','egg','rock']},lines:['きょうりゅう でかい！','たまご みつけた！']
 });

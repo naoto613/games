@@ -93,7 +93,7 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
   <div class="panel">
     <div class="logo">ふーたんを<br><em>さがせ！</em></div>
     <div class="cast" id="cast"></div>
-    <p class="lede">ひとが いっぱいの まちの どこかに ふーたんが かくれているよ。<br><span style="color:#d2386e">めじるしは みつあみと ピンクの みずたまの ふく、<br>きいろい ハートの ポシェット！</span><br>みつけたら つぎの ばしょへ ワープ！<br>ままや パパや リッキーを みつけると いいことが あるよ。</p>
+    <p class="lede">ひとが いっぱいの まちの どこかに ふーたんが かくれているよ。<br><span style="color:#d2386e">めじるしは みつあみと ピンクの みずたまの ふく、<br>きいろい ハートの ポシェット！</span><br>みつけたら つぎの ばしょへ ワープ！<br>ままや パパを みつけると ふーたんが みつけやすく なるよ。<br>リッキーを みつけると ステージに たのしい へんかが おこるよ！</p>
     <div class="tstats" id="titleStats"></div>
     <button class="btn main" id="playBtn">あそぶ</button>
     <div class="links"><button class="link" id="albumBtn">ステージ えらび</button><button class="link snd" id="sndBtn">おと：オン</button></div>
@@ -171,9 +171,11 @@ const BODY={
   adult:{hr:11.5,hy:-50,sy:-38,hip:-19,arm:15},
   elder:{hr:11.5,hy:-46,sy:-35,hip:-17,arm:13}
 };
+// tall: longer (+) or shorter (-) legs
+function bodyOf(o){const B=BODY[o.age||'adult'],T=o.tall||0;return T?{hr:B.hr,hy:B.hy-T,sy:B.sy-T,hip:B.hip-T,arm:B.arm}:B}
 // o: {age, fem, skin, hair, hairCol, top, topCol, botCol, shoe, hat, hatCol, acc:{glasses,balloon,...}, pose, swim, s}
 function drawPerson(c,o){
-  const B=BODY[o.age||'adult'],hr=B.hr,hy=B.hy,sy=B.sy,hip=B.hip;
+  const B=bodyOf(o),hr=B.hr,hy=B.hy,sy=B.sy,hip=B.hip;
   const top=o.top||'shirt',tc=o.topCol||'#e8504a',bc=o.botCol||'#4d5a78',sk=o.skin||SKIN;
   const A=o.acc||{};
   c.save();ink(c,1.6);
@@ -233,6 +235,9 @@ function drawPerson(c,o){
     rr(c,-sw,sy,2*sw,hip-sy+9,5);FS(c,tc);c.lineWidth=1;line(c,0,sy+1,0,hip+8);for(let i=0;i<3;i++){circ(c,2.5,sy+5+i*5,.9);F(c,LN)}c.lineWidth=1.6;break;
   case 'safari':
     rr(c,-8.5,hip-3,17,7,2);FS(c,'#c8b07a');rr(c,-sw,sy,2*sw,hip-sy+2,4);FS(c,tc);c.lineWidth=1;line(c,0,sy+1,0,hip-1);rr(c,-7,sy+4,5,4,1);c.stroke();c.lineWidth=1.6;break;
+  case 'suit':
+    rr(c,-8.5,hip-3,17,7,2);FS(c,bc);rr(c,-sw,sy,2*sw,hip-sy+3,4);FS(c,tc);poly(c,[[-4.5,sy],[4.5,sy],[0,sy+11]]);FS(c,'#fff');
+    poly(c,[[-1.4,sy+1],[1.4,sy+1],[2,sy+9],[0,sy+12],[-2,sy+9]]);FS(c,o.tie||'#e8a020');c.lineWidth=1.1;line(c,-4.5,sy,-1,hip+2);line(c,4.5,sy,1,hip+2);c.lineWidth=1.6;break;
   default: // shirt
     if(o.fem&&!o.pants){c.beginPath();c.moveTo(-8,hip-3);c.lineTo(8,hip-3);c.lineTo(11,hip+5);c.lineTo(-11,hip+5);c.closePath();FS(c,bc)}
     else{rr(c,-8.5,hip-3,17,7,2);FS(c,bc)}
@@ -242,6 +247,7 @@ function drawPerson(c,o){
   if(o.dots){const sw2=top==='swim'?6:sw-2,y0=top==='swim'?sy+6:sy+3,y1=top==='swim'?hip-1:top==='dress'?hip+3:hip;c.fillStyle=o.dots;for(let y=y0,r=0;y<y1;y+=4.6,r++)for(let x=-sw2+(r%2)*2.3;x<=sw2;x+=4.6){circ(c,x,y,1.15);c.fill()}}
   if(A.scarf){rr(c,-8,sy-2,16,5,2.5);FS(c,A.scarf);rr(c,2,sy+1,4.5,9,2);FS(c,A.scarf)}
   if(A.pochette){c.lineWidth=1.5;c.strokeStyle='#c98a20';line(c,sw-3,sy+1,-2,hip-1);ink(c);heart(c,-1,hip+1,6);FS(c,A.pochette);circ(c,-3,hip-1,1.3);F(c,'#fff')}
+  if(A.negi){const bx=-sw-5,by=hip-1;c.lineWidth=2.4;c.strokeStyle='#4cad62';line(c,bx-2,by-6,bx-6,by-24);line(c,bx+2,by-6,bx+3,by-22);c.lineWidth=1.6;c.strokeStyle='#f7f4ee';line(c,bx-2,by-6,bx-4,by-14);ink(c);rr(c,bx-6,by-8,12,11,3);FS(c,'#f3e1b5');c.lineWidth=1.1;c.beginPath();c.arc(bx,by-8,4,Math.PI,0);c.stroke();c.lineWidth=1.6}
   if(A.bag){c.lineWidth=1.2;line(c,-6,sy,8,hip-2);c.lineWidth=1.6;rr(c,5,hip-5,9,8,2);FS(c,A.bag)}
   // ---- arms ----
   const armC=top==='swim'?sk:top==='astro'?'#f4f6fa':top==='diver'?'#2c3a4e':top==='knight'?'#c3c8cf':top==='yukata'||top==='happi'||top==='smock'||top==='ski'||top==='coat'||top==='princess'?tc:(o.short?sk:tc);
@@ -259,11 +265,25 @@ function drawPerson(c,o){
   if(A.sword){c.lineWidth=2.4;line(c,sw+2,ay,sw+6,sy-16);ink(c)}
   // ---- head ----
   if(hs==='bun'){circ(c,0,hy-hr-2,5);FS(c,hc)}
+  if(hs==='perm'){for(let i=0;i<11;i++){const a=Math.PI*(.85+i*.13);circ(c,Math.cos(a)*(hr+3),hy-1+Math.sin(a)*(hr+3.5),5.6);FS(c,hc)}}
   circ(c,0,hy,hr);FS(c,sk);
   // face
   const ey=hy+2.5;
   if(top==='diver'||o.mask){rr(c,-hr+1,ey-6,2*hr-2,9,4);FS(c,'#bfe6f5');c.lineWidth=2.2;line(c,hr-1,ey-2,hr+4,hy-hr-2);ink(c)}
-  if(o.face==='futan'){
+  if(o.face==='papa'){
+    // パパ: サングラスと にかっと わらう くち、きりっと まゆ
+    c.lineWidth=1.8;line(c,-7.6,ey-4.6,-2.2,ey-3.8);line(c,7.6,ey-4.6,2.2,ey-3.8);c.lineWidth=1.2;
+    rr(c,-8.4,ey-2.4,6.6,4.8,2);FS(c,'#1d1a22');rr(c,1.8,ey-2.4,6.6,4.8,2);FS(c,'#1d1a22');line(c,-1.8,ey-1.2,1.8,ey-1.2);line(c,-8.4,ey-1.4,-hr+.5,ey-2.4);line(c,8.4,ey-1.4,hr-.5,ey-2.4);
+    line(c,-7,ey-1.2,-5,ey+.8);line(c,3.2,ey-1.2,5.2,ey+.8);c.strokeStyle='rgba(255,255,255,.7)';line(c,-6.8,ey-1.6,-5.6,ey-.4);ink(c);
+    c.beginPath();c.moveTo(-3.6,ey+4.6);c.quadraticCurveTo(0,ey+8.6,3.8,ey+4);c.closePath();FS(c,'#fff');c.lineWidth=1.6;
+  }
+  else if(o.face==='mama'){
+    // まま: にこにこの ほそい め・まんまるの あかい ほっぺ・おおきく あけて わらう くち
+    c.lineWidth=1.9;for(const k of[-1,1]){c.beginPath();c.arc(k*4.8,ey+1.4,2.6,Math.PI*1.1,Math.PI*1.9);c.stroke()}
+    circ(c,-8,ey+4.2,2.7);F(c,'rgba(255,80,90,.55)');circ(c,8,ey+4.2,2.7);F(c,'rgba(255,80,90,.55)');
+    c.lineWidth=1.3;c.beginPath();c.moveTo(-5,ey+4.2);c.quadraticCurveTo(0,ey+5.6,5,ey+4.2);c.quadraticCurveTo(4.6,ey+10.5,0,ey+10.5);c.quadraticCurveTo(-4.6,ey+10.5,-5,ey+4.2);c.closePath();FS(c,'#c8304a');ell(c,0,ey+8.8,2.6,1.4);F(c,'#ff8aa0');c.fillStyle='#fff';c.fillRect(-3.6,ey+4.6,7.2,1.2);c.lineWidth=1.6;
+  }
+  else if(o.face==='futan'){
     // ふうか: きらきらの おおきな め（まつげ・ほしの ひかり）と、おおきく あけた にっこり くち
     if(o.happy){c.lineWidth=2.2;for(const k of[-1,1]){c.beginPath();c.arc(k*4.9,ey+1.2,2.9,Math.PI*1.08,Math.PI*1.92);c.stroke()}c.lineWidth=1.6}
     else for(const k of[-1,1]){ell(c,k*4.9,ey,3,3.7);F(c,'#2a1c1c');ell(c,k*4.9,ey+1.3,2.1,2);F(c,'#c2386e');circ(c,k*4.9-1,ey-1.3,1.15);F(c,'#fff');circ(c,k*4.9+1.1,ey+1.5,.6);F(c,'#fff');
@@ -275,13 +295,15 @@ function drawPerson(c,o){
   else if(o.age==='elder'&&!o.openEyes){c.lineWidth=1.5;for(const k of[-1,1]){c.beginPath();c.arc(k*4.6,ey+.5,2.2,Math.PI*1.1,Math.PI*1.9);c.stroke()}c.lineWidth=1.6}
   else if(o.happy){c.lineWidth=1.7;for(const k of[-1,1]){c.beginPath();c.arc(k*4.6,ey+1,2.4,Math.PI*1.1,Math.PI*1.9);c.stroke()}c.lineWidth=1.6}
   else{for(const k of[-1,1]){ell(c,k*4.6,ey,1.9,2.4);F(c,'#2a1c1c');circ(c,k*4.6-.6,ey-.9,.7);F(c,'#fff')}}
-  if(o.face!=='futan'){ell(c,-8,ey+4,2.3,1.4);F(c,'rgba(255,110,140,.4)');ell(c,8,ey+4,2.3,1.4);F(c,'rgba(255,110,140,.4)');
+  if(!o.face){ell(c,-8,ey+4,2.3,1.4);F(c,'rgba(255,110,140,.4)');ell(c,8,ey+4,2.3,1.4);F(c,'rgba(255,110,140,.4)');
   c.lineWidth=1.3;c.beginPath();c.arc(0,ey+4.2,2.2,Math.PI*.15,Math.PI*.85);c.stroke();c.lineWidth=1.6}
   if(A.mustache){ell(c,-2.5,ey+3.5,3,1.4,.2);F(c,hc);ell(c,2.5,ey+3.5,3,1.4,-.2);F(c,hc)}
   if(A.glasses){c.lineWidth=1.2;circ(c,-4.6,ey,3.4);c.stroke();circ(c,4.6,ey,3.4);c.stroke();line(c,-1.2,ey,1.2,ey);c.lineWidth=1.6}
   // front hair
   c.fillStyle=hc;
   switch(hs){
+  case 'perm':for(let i=0;i<6;i++){circ(c,-hr+2.5+i*((2*hr-5)/5),hy-hr+2.5+(i%2)*1.2,3.6);FS(c,hc)}break;
+  case 'quiff':c.beginPath();c.moveTo(-hr-.5,hy+1);c.quadraticCurveTo(-hr-1,hy-hr-1,-2,hy-hr-1.5);c.bezierCurveTo(4,hy-hr-9,hr+6,hy-hr-6,hr+1.5,hy-3);c.lineTo(hr+.5,hy+1);c.quadraticCurveTo(hr-2,hy-6,2,hy-6);c.quadraticCurveTo(-4,hy-4,-hr-.5,hy+1);c.closePath();FS(c,hc);c.lineWidth=1;c.strokeStyle='rgba(255,255,255,.35)';c.beginPath();c.moveTo(-2,hy-hr+1);c.quadraticCurveTo(4,hy-hr-5,hr,hy-hr);c.stroke();ink(c);break;
   case 'bald':c.beginPath();c.arc(0,hy,hr,Math.PI*.95,Math.PI*1.05);c.stroke();ell(c,-hr+1,hy+1,2.6,4);FS(c,hc);ell(c,hr-1,hy+1,2.6,4);FS(c,hc);break;
   case 'spiky':c.beginPath();c.moveTo(-hr-1,hy+1);for(let i=0;i<=6;i++){const a=Math.PI+i/6*Math.PI;c.lineTo(Math.cos(a)*(hr+(i%2?5:1)),hy+Math.sin(a)*(hr+(i%2?5:1)))}c.lineTo(hr+1,hy+1);c.quadraticCurveTo(0,hy-6,-hr-1,hy+1);c.closePath();FS(c,hc);break;
   case 'curly':for(let i=0;i<7;i++){const a=Math.PI*(1.02+i*.16);circ(c,Math.cos(a)*hr,hy+Math.sin(a)*hr,4.2);FS(c,hc)}break;
@@ -323,12 +345,14 @@ function drawPerson(c,o){
 // ---- the family ----
 // ふーたん: みつあみ・ピンクの みずたまの ワンピース・きいろい ハートの ポシェット（ポシェットは ふーたん だけ）
 const LOOK_FUTAN={face:'futan',age:'kid',fem:true,skin:SKIN,hair:'braid',hairCol:HAIR,ribbon:'#e8504a',top:'dress',topCol:FUTAN_PINK,dots:'#fff',shoe:'#e8483a',legCol:SKIN,acc:{pochette:FUTAN_BAG}};
-const LOOK_MAMA={age:'adult',fem:true,hair:'pattsun',hairCol:'#4a2a1a',top:'dress',topCol:'#e8483a',apron:true,shoe:'#5a3a6a'};
-const LOOK_PAPA={age:'adult',hair:'short',hairCol:'#3a2a20',top:'shirt',topCol:'#2f5fa8',botCol:'#d8c4a0',shoe:'#7a4a2a',acc:{scarf:'#e8a020',glasses:true},s:1.08};
+// まま: せが ひくい・もじゃもじゃパーマ・あかい ワンピースに エプロン・ネギの はいった かいものぶくろ・わらいがお
+const LOOK_MAMA={face:'mama',age:'adult',fem:true,hair:'perm',hairCol:'#5a3020',top:'dress',topCol:'#e8483a',apron:true,shoe:'#5a3a6a',tall:-7,s:.9,acc:{negi:true}};
+// パパ: せが たかい・リーゼント・あおい ジャケットに オレンジの ネクタイ・サングラス
+const LOOK_PAPA={face:'papa',age:'adult',hair:'quiff',hairCol:'#231c20',top:'suit',topCol:'#2f5fa8',botCol:'#2e2a33',shoe:'#7a4a2a',tie:'#f28b2f',tall:15,s:1.12,acc:{}};
 // stage outfits keep the family recognisable
 function familyLook(base,st,who){
   const o=JSON.parse(JSON.stringify(base));
-  const fit=st.family&&st.family[who];if(fit)Object.assign(o,fit);
+  const fit=st.family&&st.family[who];if(fit){const acc=Object.assign({},o.acc,fit.acc||{});Object.assign(o,fit);o.acc=acc}
   return o;
 }
 // リッキー: baby fairy that floats (drawn live, origin = point on the ground under her)
@@ -336,7 +360,7 @@ function drawRicky(c,t,o){
   o=o||{};c.save();ink(c,1.4);
   if(o.s)c.scale(o.s,o.s);
   ell(c,0,0,8,2.6);F(c,'rgba(40,0,40,.14)');
-  c.translate(0,-30-Math.sin(t*3)*3-(o.hop||0));
+  c.translate(0,(o.ground?-9:-30-Math.sin(t*3)*3)-(o.hop||0));
   const fa=Math.sin(t*14)*.35;
   for(const k of[-1,1]){c.save();c.translate(k*6,-6);c.rotate(k*(-.5+fa));ell(c,k*7,0,7.5,4.5);FS(c,'#fff');c.strokeStyle='#bcd8ff';line(c,k*3,0,k*11,0);c.restore();ink(c,1.4)}
   rr(c,-8,-9,16,14,6);FS(c,'#fff');c.strokeStyle='#f3dc5a';c.lineWidth=2.2;line(c,-5,-8,-6,3);line(c,5,-8,6,3);ink(c,1.4);
@@ -499,7 +523,7 @@ function makeSprite(key,w,h,draw,res){
   const s={c,ax:w/2+pad,ay:h+pad,w:w+pad*2,h:h+pad*2};if(key)sprCache.set(key,s);return s;
 }
 // sprite box sized to the person (most are small; balloons, parasols and tall hats need more room)
-function personBox(o){const B=BODY[o.age||'adult'],A=o.acc||{},s=o.s||1;let up=-B.hy+B.hr+(o.hat?20:6)+(o.top==='astro'||o.helmet?6:0),half=20;
+function personBox(o){const B=bodyOf(o),A=o.acc||{},s=o.s||1;let up=-B.hy+B.hr+(o.hat?20:6)+(o.top==='astro'||o.helmet?6:0),half=20;
   if(A.balloon)up=Math.max(up,-B.hy+64);if(A.parasol)up=Math.max(up,-B.hy+B.hr+28);if(A.flag||A.net)up=Math.max(up,-B.sy+34);
   if(A.balloon||A.flag||A.net)half=Math.max(half,28);if(A.parasol)half=36;if(A.ice||A.cotton||A.fan)half=Math.max(half,24);if(A.ring)half=Math.max(half,22);
   return[half*2*s,up*s]}
@@ -518,7 +542,7 @@ function atlasSprite(w,h,draw){
 }
 function personSprite(look){const[w,h]=personBox(look);return atlasSprite(w,h,x=>drawPerson(x,look))}
 const CROWD=3.4; // ウォーリーなみの 人ごみ
-function personHit(look){const B=BODY[look.age||'adult'],s=look.s||1;return{hw:12*s,hh:(-B.hy+B.hr+5)*s}}
+function personHit(look){const B=bodyOf(look),s=look.s||1;return{hw:12*s,hh:(-B.hy+B.hr+5)*s}}
 
 let W=null,BGCV=null; // current world
 function buildWorld(st,seed,diff){
@@ -557,8 +581,9 @@ function buildWorld(st,seed,diff){
   const far=(want)=>{for(let i=0;i<80;i++){const s=spot(want,16);if(!s)continue;if(Math.hypot(s.x-fp.x,s.y-fp.y)>520&&margin(s.x,s.y))return s;pts.pop()}return spot(want,8)||{x:200,y:WH-200,k:'land'}};
   const mp=far('land');w.fam.mama=addPerson(w,familyLook(LOOK_MAMA,st,'mama'),mp.x,mp.y,'mama');
   const pp=far('land');w.fam.papa=addPerson(w,familyLook(LOOK_PAPA,st,'papa'),pp.x,pp.y,'papa');
-  const rp={x:rnd(200,WW-200),y:rnd(300,WH-150)};
-  w.fam.ricky={kind:'ricky',x:rp.x,y:rp.y,hx:rp.x,hy:rp.y,ph:0,live:true,hit:{hw:16,hh:62},hop:0};w.items.push(w.fam.ricky);
+  // リッキーは じめんを とことこ あるく（そらは とばない）
+  const rp=far(st.rickyOn||'land');
+  w.fam.ricky={kind:'ricky',x:rp.x,y:rp.y,ph:0,live:true,hit:{hw:13,hh:38},hop:0,flip:false,walk:{tx:rp.x,ty:rp.y,wait:rnd(3),sp:10},where:rp.k||'land'};w.items.push(w.fam.ricky);
   // crowd
   const n=Math.round(st.people*diff.people*CROWD);let made=0;
   for(let i=0;i<n*10&&made<n;i++){const s=spot('crowd',st.gap||10,2);if(!s)continue;const look=st.look(s.k);if(s.k==='swim')look.swim=true;addPerson(w,look,s.x,s.y,'mob');made++}
@@ -610,8 +635,8 @@ function stepCam(dt){const a=cam.anim;if(!a)return;a.t+=dt;const k=Math.min(1,a.
   cam.z=lerp(a.z0,a.z1,e);cam.x=lerp(a.x0,a.x1,e);cam.y=lerp(a.y0,a.y1,e);clampCam();if(k>=1)cam.anim=null}
 function drawItem(c,it,t){
   let y=it.y;const B=it.hop>0?-Math.sin(Math.min(1,it.hop)*Math.PI)*14:0;
-  const bob=it.walking?-Math.abs(Math.sin(t*9+it.ph))*1.6:it.kind==='prop'?0:-Math.max(0,Math.sin(t*1.6+it.ph))*.7;
-  if(it.kind==='ricky'){c.save();c.translate(it.x,it.y);drawRicky(c,t,{hop:-B,happy:it.happy});c.restore();return}
+  const bob=it.walking?-Math.abs(Math.sin(t*9+it.ph))*1.6:it.kind==='prop'?(W.party&&DANCERS.has(it.k)?-Math.abs(Math.sin(t*4+it.x*.01))*14:0):W.party?-Math.abs(Math.sin(t*5+it.ph))*3:-Math.max(0,Math.sin(t*1.6+it.ph))*.7;
+  if(it.kind==='ricky'){c.save();c.translate(it.x,it.y);drawRicky(c,t,{hop:-B,happy:it.happy,ground:true,s:.9});c.restore();return}
   if(it.liveLook){c.save();c.translate(it.x,y+B);c.scale(it.scale||1,it.scale||1);drawPerson(c,it.liveLook);c.restore();return}
   const s=it.spr;if(!s)return;
   if(s.sx!=null){if(it.flip){c.save();c.translate(it.x,y+B+bob);c.scale(-1,1);c.drawImage(s.c,s.sx,s.sy,s.sw,s.sh,-s.ax,-s.ay,s.w,s.h);c.restore()}else c.drawImage(s.c,s.sx,s.sy,s.sw,s.sh,it.x-s.ax,y+B+bob-s.ay,s.w,s.h);return}
@@ -641,9 +666,10 @@ let NOW=0;
 function addFx(f){f.t0=NOW;W.fx.push(f);return f}
 function burst(x,y,n,cols,sp){const ps=[];for(let i=0;i<n;i++){const a=rnd(TAU),v=rnd(.4,1)*(sp||160);ps.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-60,c:pick(cols),r:rnd(3,6),rot:rnd(6)})}return addFx({k:'spark',ps,d:1.6})}
 function viewRect(){return{x:cam.x,y:cam.y,w:VW/cam.z,h:VH/cam.z}}
-function magicFx(kind,d){const v=viewRect(),ps=[];const n=kind==='fireworks'?0:120;
-  for(let i=0;i<n;i++)ps.push({x:v.x+rnd(v.w),y:v.y+rnd(-v.h,v.h),s:rnd(.6,1.4),ph:rnd(6.28),c:pick(kind==='petals'?['#ffc6d9','#ff9cbc','#fff']:kind==='bubbles'?['rgba(255,255,255,.8)']:['#e8504a','#f6c63a','#4cad62','#3f7bd6','#f28fb7','#8d5cc8'])});
-  return addFx({k:'magic',kind,ps,d:d||7,v,bursts:[]})}
+// magic effects follow the camera (particles live in 0..1 view space); d:Infinity keeps one running for the rest of the stage
+function magicFx(kind,d){const ps=[];const cols=kind==='petals'?['#ffc6d9','#ff9cbc','#fff']:['#e8504a','#f6c63a','#4cad62','#3f7bd6','#f28fb7','#8d5cc8','#7cc8ec'];
+  for(let i=0;i<140;i++)ps.push({u:Math.random(),v:Math.random(),s:rnd(.6,1.4),ph:rnd(6.28),c:pick(cols)});
+  return addFx({k:'magic',kind,ps,d:d||7,bursts:[]})}
 function drawFx(c,t){
   const z=cam.z*DPR;c.setTransform(z,0,0,z,-cam.x*z,-cam.y*z);
   let flash=0;
@@ -652,8 +678,8 @@ function drawFx(c,t){
     case 'ring':c.globalAlpha=1-k;c.lineWidth=(f.w||5)/cam.z*1.4;c.strokeStyle=f.col||'#ff6f9f';circ(c,f.x,f.y,(f.r||30)+k*(f.grow||60));c.stroke();c.globalAlpha=1;break;
     case 'spark':for(const p of f.ps){const x=p.x+p.vx*dt,y=p.y+p.vy*dt+140*dt*dt;c.globalAlpha=1-k;star(c,x,y,p.r,p.r*.45);c.fillStyle=p.c;c.fill()}c.globalAlpha=1;break;
     case 'hint':{const a=.5+.5*Math.sin(dt*6);c.globalAlpha=Math.min(1,(1-k)*3)*.9;c.fillStyle='rgba(255,220,120,'+(0.18+a*.12)+')';circ(c,f.x,f.y,f.r);c.fill();c.setLineDash([16/cam.z,10/cam.z]);c.lineWidth=5/cam.z;c.strokeStyle='#ff9a3c';c.stroke();c.setLineDash([]);c.globalAlpha=1;break}
-    case 'arrow':{const T=W.fam.futan,ang=Math.atan2(T.y-f.y,T.x-f.x),len=Math.min(320,Math.hypot(T.x-f.x,T.y-f.y)-60);c.globalAlpha=Math.min(1,(1-k)*3);
-      for(let j=0;j<7;j++){const q=((j/7)+dt*.5)%1,x=f.x+Math.cos(ang)*len*q,y=f.y-40+Math.sin(ang)*len*q;heart(c,x,y,7+q*4);c.fillStyle='#ff6f9f';c.fill();c.lineWidth=1.5;c.strokeStyle='#fff';c.stroke()}
+    case 'arrow':{const T=W.fam.futan,ang=Math.atan2(T.y-f.y,T.x-f.x),len=Math.max(40,Math.min(700,Math.hypot(T.x-f.x,T.y-f.y)-50)),hs=Math.max(1,.55/cam.z);c.globalAlpha=Math.min(1,(1-k)*3);
+      for(let j=0;j<10;j++){const q=((j/10)+dt*.4)%1,x=f.x+Math.cos(ang)*len*q,y=f.y-40+Math.sin(ang)*len*q;heart(c,x,y,(7+q*5)*hs);c.fillStyle='#ff4f8f';c.fill();c.lineWidth=2*hs;c.strokeStyle='#fff';c.stroke()}
       c.globalAlpha=1;break}
     case 'flash':flash=Math.max(flash,1-k);break;
     case 'magic':drawMagic(c,f,k,dt);break;
@@ -662,19 +688,29 @@ function drawFx(c,t){
   if(flash>0){c.setTransform(DPR,0,0,DPR,0,0);c.fillStyle='rgba(255,255,255,'+flash*.85+')';c.fillRect(0,0,VW,VH)}
 }
 function drawMagic(c,f,k,dt){
-  const v=f.v,fade=Math.min(1,(1-k)*4,dt*3);c.globalAlpha=fade;
+  const v=viewRect(),u=1/cam.z,fade=Math.min(f.d>1e5?.85:1,(1-k)*4,dt*2);c.globalAlpha=fade;
   switch(f.kind){
-  case 'rainbow':{const cx=v.x+v.w/2,cy=v.y+v.h*.9,R0=Math.min(v.w,v.h*1.6)*.55;['#e8504a','#f28b2f','#f6c63a','#4cad62','#3f7bd6','#8d5cc8'].forEach((col,i)=>{c.lineWidth=R0*.05;c.strokeStyle=col;c.beginPath();c.arc(cx,cy,R0-i*R0*.05,Math.PI,0);c.stroke()});
-    for(const p of f.ps){const a=.5+.5*Math.sin(dt*5+p.ph);star(c,p.x,p.y+v.h,6*p.s*a+2,2);c.fillStyle='#fff6b0';c.fill()}break}
-  case 'aurora':for(let i=0;i<3;i++){c.fillStyle=['rgba(120,255,190,.25)','rgba(140,200,255,.22)','rgba(220,150,255,.18)'][i];c.beginPath();c.moveTo(v.x,v.y);for(let x=0;x<=v.w;x+=20)c.lineTo(v.x+x,v.y+v.h*(.18+i*.07)+Math.sin(x*.01+dt*1.5+i)*v.h*.06);c.lineTo(v.x+v.w,v.y);c.closePath();c.fill()}break;
-  case 'fireworks':{if(!f.lastB||dt-f.lastB>.35){f.lastB=dt;f.bursts.push({x:v.x+rnd(.1,.9)*v.w,y:v.y+rnd(.1,.45)*v.h,t:dt,c:pick(['#ff6f9f','#f6c63a','#7cc8ec','#7fd6b4','#ff8a5c','#c79bff'])});if(f.sound)SFX.pop()}
-    for(const b of f.bursts){const q=dt-b.t;if(q>1.4)continue;const R0=Math.min(v.w,v.h)*.14*Math.min(1,q*2.2);c.globalAlpha=fade*Math.max(0,1-q/1.4);for(let j=0;j<16;j++){const a=j/16*TAU;circ(c,b.x+Math.cos(a)*R0,b.y+Math.sin(a)*R0+q*q*20,Math.max(1,4/cam.z*1.5));c.fillStyle=b.c;c.fill()}}c.globalAlpha=fade;break}
-  case 'stars':for(const p of f.ps.slice(0,24)){const q=((dt*.6+p.ph)%1.5)/1.5,x=p.x+q*260,y=v.y+((p.y-v.y)%v.h+v.h)%v.h*.6+q*160;c.strokeStyle='rgba(255,250,200,'+(1-q)+')';c.lineWidth=3/cam.z*1.4;line(c,x,y,x-60,y-38);star(c,x,y,8,3.5);c.fillStyle='#fff6b0';c.fill()}break;
+  case 'rainbow':{const cx=v.x+v.w/2,cy=v.y+v.h*.95,R0=Math.min(v.w,v.h*1.6)*.55;c.globalAlpha=fade*.42;['#e8504a','#f28b2f','#f6c63a','#4cad62','#3f7bd6','#8d5cc8'].forEach((col,i)=>{c.lineWidth=R0*.045;c.strokeStyle=col;c.beginPath();c.arc(cx,cy,R0-i*R0*.045,Math.PI,0);c.stroke()});c.globalAlpha=fade;
+    for(const p of f.ps.slice(0,50)){const a=.5+.5*Math.sin(dt*5+p.ph);star(c,v.x+p.u*v.w,v.y+p.v*v.h,(6*p.s*a+2)*u,2*u);c.fillStyle='#fff6b0';c.fill()}break}
+  case 'aurora':for(let i=0;i<3;i++){c.fillStyle=['rgba(120,255,190,.25)','rgba(140,200,255,.22)','rgba(220,150,255,.18)'][i];c.beginPath();c.moveTo(v.x,v.y);for(let x=0;x<=v.w;x+=v.w/60)c.lineTo(v.x+x,v.y+v.h*(.18+i*.07)+Math.sin(x/v.w*8+dt*1.5+i)*v.h*.06);c.lineTo(v.x+v.w,v.y);c.closePath();c.fill()}
+    for(const p of f.ps.slice(0,40)){circ(c,v.x+p.u*v.w,v.y+p.v*v.h*.5,(1.5+Math.sin(dt*4+p.ph))*u+.5*u);c.fillStyle='#fff';c.fill()}break;
+  case 'fireworks':{if(!f.lastB||dt-f.lastB>.4){f.lastB=dt;f.bursts.push({bx:rnd(.1,.9),by:rnd(.08,.4),t:dt,c:pick(['#ff6f9f','#f6c63a','#7cc8ec','#7fd6b4','#ff8a5c','#c79bff'])});if(f.bursts.length>12)f.bursts.shift();if(f.sound&&dt<8)SFX.pop()}
+    for(const b of f.bursts){const q=dt-b.t;if(q>1.4)continue;const x=v.x+b.bx*v.w,y=v.y+b.by*v.h,R0=Math.min(v.w,v.h)*.14*Math.min(1,q*2.2);c.globalAlpha=fade*Math.max(0,1-q/1.4);for(let j=0;j<16;j++){const a=j/16*TAU;circ(c,x+Math.cos(a)*R0,y+Math.sin(a)*R0+q*q*20*u,3.2*u);c.fillStyle=b.c;c.fill()}}c.globalAlpha=fade;break}
+  case 'stars':for(const p of f.ps.slice(0,18)){const q=((dt*.5+p.ph)%1.6)/1.6,x=v.x+p.u*v.w+q*v.w*.25,y=v.y+p.v*v.h*.5+q*v.h*.18;c.strokeStyle='rgba(255,250,200,'+(1-q)+')';c.lineWidth=3*u;line(c,x,y,x-50*u,y-30*u);star(c,x,y,8*u,3.5*u);c.fillStyle='#fff6b0';c.fill()}break;
+  case 'balloons':for(const p of f.ps.slice(0,60)){const q=(dt*.05*p.s+p.v)%1.25,x=v.x+p.u*v.w+Math.sin(dt*1.5+p.ph)*14*u,y=v.y+v.h*(1.15-q);c.lineWidth=1*u;c.strokeStyle=LN;line(c,x,y+12*u*p.s,x+2*u,y+30*u*p.s);ell(c,x,y,9*u*p.s,11*u*p.s);c.fillStyle=p.c;c.fill();c.lineWidth=1.4*u;c.stroke();ell(c,x-3*u*p.s,y-4*u*p.s,2*u*p.s,3*u*p.s);c.fillStyle='rgba(255,255,255,.7)';c.fill()}ink(c);break;
+  case 'fishes':for(const p of f.ps.slice(0,70)){const q=(dt*.05*p.s+p.u)%1.3-.15,x=v.x+q*v.w,y=v.y+v.h*(.15+p.v*.7)+Math.sin(dt*3+p.ph)*8*u;c.save();c.translate(x,y);c.scale(u*1.3,u*1.3);poly(c,[[-14,0],[-22,-7],[-22,7]]);c.fillStyle=p.c;c.fill();ell(c,0,0,13,7);c.fill();c.lineWidth=1.4;c.strokeStyle=LN;c.stroke();circ(c,7,-1.5,1.6);c.fillStyle=LN;c.fill();c.restore()}break;
+  case 'ufo':{const q=dt*.12,x=v.x+v.w*(.5+.42*Math.sin(q*2.1)),y=v.y+v.h*(.22+.08*Math.sin(q*3.3));c.save();c.translate(x,y);c.scale(u*1.6,u*1.6);
+    c.fillStyle='rgba(255,250,180,.25)';poly(c,[[-14,8],[14,8],[46,120],[-46,120]]);c.fill();ink(c,2);ell(c,0,0,40,11);FS(c,'#c7ccd4');c.beginPath();c.arc(0,-3,18,Math.PI,0);c.closePath();c.fillStyle='rgba(160,230,255,.85)';c.fill();c.stroke();
+    for(let i=0;i<5;i++){circ(c,-28+i*14,3,3);c.fillStyle=(Math.floor(dt*4)+i)%2?'#f6c63a':'#ff6f9f';c.fill()}c.restore();ink(c);break}
+  case 'whale':{const x=((dt*45)%2900)-250,y=470;c.save();c.translate(x,y);ink(c,3);c.beginPath();c.moveTo(-120,10);c.quadraticCurveTo(-130,-50,-40,-58);c.quadraticCurveTo(80,-62,110,0);c.quadraticCurveTo(60,30,-120,10);c.closePath();FS(c,'#5a8ad8');
+    poly(c,[[-118,0],[-160,-30],[-150,8],[-165,40]]);FS(c,'#5a8ad8');ell(c,-10,8,70,14);F(c,'#c9dcf5');circ(c,70,-18,5);F(c,LN);c.lineWidth=2;c.beginPath();c.arc(72,-4,12,.3,1.3);c.stroke();
+    const sp=(dt%3)<1.6;if(sp){for(let i=0;i<9;i++){const a=-Math.PI/2+(i-4)*.22,r=40+30*Math.sin((dt%3)/1.6*Math.PI);circ(c,40+Math.cos(a)*r*.6,-60+Math.sin(a)*r,6);c.fillStyle='rgba(220,245,255,.9)';c.fill()}}
+    c.restore();break}
   default:// petals, confetti, bubbles fall/rise across the view
-    for(const p of f.ps){const up=f.kind==='bubbles';const y=up?p.y+v.h*2-((dt*70*p.s)%(v.h*2.2)):p.y+((dt*80*p.s)%(v.h*2.2)),x=p.x+Math.sin(dt*2+p.ph)*20;
-      if(f.kind==='bubbles'){circ(c,x,y,7*p.s);c.strokeStyle='rgba(255,255,255,.9)';c.lineWidth=1.6;c.stroke();c.fillStyle='rgba(200,240,255,.25)';c.fill()}
-      else if(f.kind==='petals'){ell(c,x,y,6*p.s,3.5*p.s,dt*2+p.ph);c.fillStyle=p.c;c.fill()}
-      else{c.save();c.translate(x,y);c.rotate(dt*4+p.ph);c.fillStyle=p.c;c.fillRect(-4*p.s,-2.5*p.s,8*p.s,5*p.s);c.restore()}}
+    for(const p of f.ps){const up=f.kind==='bubbles',q=((dt*.07*p.s+p.v)%1.2)-.1,y=v.y+v.h*(up?1-q:q),x=v.x+p.u*v.w+Math.sin(dt*2+p.ph)*20*u;
+      if(up){circ(c,x,y,7*p.s*u);c.strokeStyle='rgba(255,255,255,.9)';c.lineWidth=1.6*u;c.stroke();c.fillStyle='rgba(200,240,255,.25)';c.fill()}
+      else if(f.kind==='petals'){ell(c,x,y,6*p.s*u,3.5*p.s*u,dt*2+p.ph);c.fillStyle=p.c;c.fill()}
+      else{c.save();c.translate(x,y);c.rotate(dt*4+p.ph);c.fillStyle=p.c;c.fillRect(-4*p.s*u,-2.5*p.s*u,8*p.s*u,5*p.s*u);c.restore()}}
   }
   c.globalAlpha=1;
 }
@@ -786,7 +822,7 @@ STAGES.push({id:'beach',name:'なつの うみ',intro:'あおい うみと し�
     for(const x of[60,2340])for(let i=0;i<3;i++)L.prop('palm',x+rnd(-20,20),900+i*260,{flip:x>1000});
     L.prop('stall',700,1500,{col:'#3f7bd6',sign:'かきごおり',goods:['#e8504a','#7cc8ec','#f6c63a']});L.prop('stall',1800,1480,{col:'#f28b2f',sign:'やきそば'})},
   look(){return mobLook({tops:[['swim',5],['shirt',1]],hats:[[null,4],['sunhat',1],['straw',1],['cap',1],['goggle',.4]],acc:[['ice',.06],['parasol',.03]],fix:o=>{o.short=true;if(o.top==='swim'&&o.age==='kid'&&chance(.4))o.acc.ring=pick(['#f6c63a','#e8504a','#f28fb7','#7fd6b4'])}})},
-  family:{futan:{top:'swim',topCol:FUTAN_PINK},mama:{hat:'sunhat',hatCol:'#f7f4ee'},papa:{hat:'straw',hatCol:'#3f7bd6',short:true,acc:{glasses:true}}},
+  family:{futan:{top:'swim',topCol:FUTAN_PINK},mama:{hat:'sunhat',hatCol:'#f7f4ee'},papa:{hat:'straw',hatCol:'#3f7bd6',top:'shirt',short:true,stripe:'#7cc8ec',botCol:'#f7f4ee'}},
   decoyFix:o=>{if(o.top==='dress')o.top='swim'},
   animals:[['crab',10],['bird',8]],hide:{p:.4,props:['sandcastle','parasol']},lines:['うみ きもちいい〜','かにさん いたよ！']
 });
@@ -901,7 +937,7 @@ STAGES.push({id:'sea',name:'うみの そこの たんけん',intro:'ふかい �
   layout(L,w){scatter(L,w,'coral',22,[60,300,2340,1580],()=>({col:pick(['#f28fb7','#f28b2f','#8d5cc8','#e8504a','#f6c63a'])}),140);scatter(L,w,'seaweed',22,[60,300,2340,1580],()=>({s:rnd(.8,1.3)}),130);
     scatter(L,w,'clam',8,[100,1100,2300,1580],{},200);L.prop('chest',700,700);L.prop('chest',2100,1450);scatter(L,w,'rock',8,[100,700,2300,1580],()=>({col:'#7a8aa0'}),250)},
   look(){return mobLook({tops:[['diver',4],['princess',1.2],['swim',.8]],hats:[[null,4],['goggle',.4]],age:[['kid',.3],['adult',.6],['elder',.1]],acc:[],fix:o=>{if(o.top==='princess'){o.topCol=pick(['#7fd6b4','#7cc8ec','#c79bff','#f28fb7']);o.hat='mermaid';o.hair='long'}}})},
-  family:{futan:{mask:true},mama:{mask:true},papa:{mask:true,acc:{scarf:'#e8a020'}}},
+  family:{futan:{mask:true},mama:{mask:true},papa:{mask:true}},
   animals:[['fish',34],['crab',6]],hide:{p:.5,props:['coral','seaweed','rock']},lines:['ごぼごぼ…','おさかな きれい！']
 });
 // 8 ----------------------------------------------------------------
@@ -955,7 +991,7 @@ STAGES.push({id:'dino',name:'きょうりゅうの くに',intro:'むかしむ�
     scatter(L,w,'jungle',12,[40,400,2360,1580],{},220);scatter(L,w,'palm',6,[40,400,2360,1580],{},300);scatter(L,w,'egg',8,[100,450,2300,1550],()=>({col:pick(['#8fcf6a','#f28fb7','#7cc8ec'])}),160);
     L.prop('tent',900,1150,{col:'#f28b2f'});L.prop('tent',1750,1180,{col:'#4cad62'});scatter(L,w,'mushroom',5,[100,450,2300,1550],{},200);scatter(L,w,'rock',6,[100,450,2300,1550],{},200)},
   look(){return mobLook({tops:[['safari',4],['shirt',1]],hats:[['safari',3],['cap',1],[null,1]],acc:[['camera',.1],['net',.1],['backpack',.15]],fix:o=>{if(o.top==='safari')o.topCol=pick(['#c8b07a','#a8946a','#d9c08a','#8a9a6a'])}})},
-  family:{papa:{acc:{scarf:'#e8a020',glasses:true,camera:true}}},
+  family:{papa:{hat:'safari',acc:{camera:true}}},
   animals:[['bird',8],['monkey',5]],hide:{p:.5,props:['jungle','egg','rock']},lines:['きょうりゅう でかい！','たまご みつけた！']
 });
 // ================= game flow =================
@@ -968,14 +1004,21 @@ function diffFor(i){const k=i/(STAGES.length-1),r=PROG.round;
   return{people:1.2,decoys:2.2,hide:.35,assist:false}}
 const roundName=r=>r<=1?'':r===2?'2しゅうめ':r+'しゅうめ';
 const SUBS=[['mama','まま'],['papa','パパ'],['ricky','リッキー']];
+// リッキーの まほうで ステージに おこる たのしい へんか
+const PARTY={park:{fx:['balloons','petals'],text:'ふうせんが いっぱい とんでいく！'},beach:{fx:['whale','rainbow'],text:'クジラが あそびに きた！'},
+  yuenchi:{fx:['fireworks','balloons'],text:'はなびが あがった！'},snow:{fx:['aurora','stars'],text:'オーロラが でた！ ゆきだるまも おどるよ'},
+  matsuri:{fx:['fireworks','confetti'],text:'おおきな はなびの はじまり！'},zoo:{fx:['confetti','balloons'],text:'どうぶつたちが おどりだした！'},
+  sea:{fx:['fishes','bubbles'],text:'にじいろの さかなの むれ！'},space:{fx:['ufo','stars'],text:'UFOが とんできた！'},
+  castle:{fx:['rainbow','petals'],text:'にじが かかって ドラゴンも ごきげん！'},dino:{fx:['confetti','balloons'],text:'きょうりゅうたちが ダンス！'}};
+const DANCERS=new Set(['dino','giraffe','elephant','lion','dragon','snowman','penguin','rocket','balloons','popcorn']);
 function saveProg(){save('fs_prog',PROG)}
 function stageRec(id){return PROG.stages[id]||(PROG.stages[id]={clear:0,subs:{},best:0,photo:null})}
 
-function portraitOf(who,size){const c=mk(size,size*1.15),x=c.getContext('2d');const s=size/60;x.translate(size/2,size*1.1);x.scale(s,s);
+function portraitOf(who,size){const c=mk(size,size*1.15),x=c.getContext('2d');const s=size/(who==='papa'?82:60);x.translate(size/2,size*1.1);x.scale(s,s);
   if(who==='ricky'){x.translate(0,14);drawRicky(x,1.2,{happy:true})}else drawPerson(x,who==='futan'?LOOK_FUTAN:who==='mama'?LOOK_MAMA:LOOK_PAPA);return c}
 function headOf(who,cv2){const x=cv2.getContext('2d'),S=cv2.width;x.clearRect(0,0,S,S);x.save();
   if(who==='ricky'){x.translate(S/2,S*.86);x.scale(S/42,S/42);x.translate(0,14);drawRicky(x,1.2,{happy:true})}
-  else{const o=who==='futan'?LOOK_FUTAN:who==='mama'?LOOK_MAMA:LOOK_PAPA,B=BODY[o.age];x.translate(S/2,S*.62);const k=S/34;x.scale(k,k);x.translate(0,-B.hy);drawPerson(x,Object.assign({},o,{s:1}))}
+  else{const o=who==='futan'?LOOK_FUTAN:who==='mama'?LOOK_MAMA:LOOK_PAPA,B=bodyOf(o);x.translate(S/2,S*.62);const k=S/34;x.scale(k,k);x.translate(0,-B.hy);drawPerson(x,Object.assign({},o,{s:1}))}
   x.restore()}
 
 function startStage(i){
@@ -983,7 +1026,7 @@ function startStage(i){
   W=null;
   G.diff=diffFor(i);W=buildWorld(st,(Math.random()*4294967296)>>>0,G.diff);G.assistT=0;G.autoHint=false;
   cam.anim=null;cam.z=zMin();cam.x=(WW-VW/cam.z)/2;cam.y=(WH-VH/cam.z)/2;clampCam();
-  G.state='intro';G.t=0;G.hints=0;G.subs={};G.lastHintReady=false;
+  G.state='intro';G.t=0;G.hints=0;G.subs={};G.futanGlow=false;G.lastHintReady=false;
   $('introNum').textContent='ステージ '+(i+1)+' / '+STAGES.length+(PROG.round>1?'　★'+roundName(PROG.round):'');$('introName').textContent=st.name;$('introText').textContent=st.intro;
   // the town itself shows through behind the card; the card shows ふうか in this stage's clothes
   const ic=$('introPic'),ix=ic.getContext('2d');ix.setTransform(1,0,0,1,0,0);ix.clearRect(0,0,ic.width,ic.height);ix.translate(ic.width/2,ic.height-8);ix.scale(2.6,2.6);drawPerson(ix,familyLook(LOOK_FUTAN,st,'futan'));
@@ -1012,7 +1055,7 @@ function onTap(sx,sy){
 function pickAt(x,y){
   const tol=12/cam.z;let best=null,bestSpecial=null;
   for(const it of W.items){if(!it.hit)continue;
-    const hx=it.kind==='ricky'?it.x:it.x,top=it.kind==='ricky'?it.y-62:it.y-it.hit.hh,bot=it.kind==='ricky'?it.y-18:it.y+3;
+    const hx=it.x,top=it.y-it.hit.hh,bot=it.y+3;
     if(x<hx-it.hit.hw-tol||x>hx+it.hit.hw+tol||y<top-tol||y>bot+tol)continue;
     if((it.kind==='futan'&&G.state==='play')||((it.kind==='mama'||it.kind==='papa'||it.kind==='ricky')&&!G.subs[it.kind])){if(!bestSpecial||it.kind==='futan')bestSpecial=it}
     const inside=x>=hx-it.hit.hw&&x<=hx+it.hit.hw&&y>=top&&y<=bot;
@@ -1045,12 +1088,24 @@ function foundSub(it){
   const k=it.kind;G.subs[k]=true;const rec=stageRec(W.st.id);rec.subs[k]=1;saveProg();
   renderSlots();const sl=$('slot_'+k);if(sl)sl.classList.add('pop');
   it.hop=1;SFX.chime();addFx({k:'ring',x:it.x,y:it.y-30,r:14,grow:50,d:.7,col:'#ffb347',w:5});
-  if(k==='mama'){bubble(it,'ふーたんなら あっちで みたわよ！',3.5,true);say('ふーたんなら、あっちで みたわよ');addFx({k:'arrow',x:it.x,y:it.y,d:7});toast('まま みっけ！<br><span style="font-size:.5em">ハートの ほうに いるかも</span>')}
-  if(k==='papa'){bubble(it,'はい、チーズ！',2.5,true);say('はい、チーズ');setTimeout(()=>{SFX.shutter();addFx({k:'flash',d:.6});rec.photo=photoOfView();saveProg()},500);toast('パパ みっけ！<br><span style="font-size:.5em">しゃしんを とったよ</span>')}
-  if(k==='ricky'){it.happy=true;bubble(it,'リッキーの まほう〜！',3,true);say('リッキーの まほう！');SFX.magic();magicFx(W.st.magic,7);
-    if(W.st.magic==='fireworks')W.fx[W.fx.length-1].sound=true;
+  const F=W.fam.futan;
+  if(k==='mama'){
+    // まま: ハートの みちしるべ ＋ ふーたんの ポシェットが ときどき きらっと ひかる
+    bubble(it,'あら〜 ふーたんなら あっちよ〜！',3.5,true);addFx({k:'arrow',x:it.x,y:it.y,d:12});G.futanGlow=true;G.glowT=0;
+    toast('まま みっけ！<br><span style="font-size:.5em">ハートの ほうを みてね。ふーたんが きらっと ひかるよ</span>')}
+  if(k==='papa'){
+    // パパ: せが たかいから とおくまで みえる → ふーたんの いる あたりを まるで おしえて、そこへ カメラを よせる
+    bubble(it,'せが たかいから みえたぞ！ あのへんだ！',3.2,true);
+    setTimeout(()=>{if(G.state!=='play'&&G.state!=='hunt')return;const r=170,a=rnd(TAU),d=rnd(r*.4),cx=F.x+Math.cos(a)*d,cy=F.y-25+Math.sin(a)*d;addFx({k:'hint',x:cx,y:cy,r,d:8});lookAt(cx,cy,Math.min(VW,VH)/(r*2.4),1)},900);
+    setTimeout(()=>{SFX.shutter();addFx({k:'flash',d:.5});rec.photo=photoOfView();saveProg()},2400);
+    toast('パパ みっけ！<br><span style="font-size:.5em">まるの なかに ふーたんが いるよ</span>')}
+  if(k==='ricky'){
+    // リッキー: まほうで ステージが ずっと おまつり さわぎに かわる
+    it.happy=true;const P=PARTY[W.st.id]||{fx:['confetti'],text:'まちが おおさわぎ！'};
+    bubble(it,'リッキーの まほう〜！',3,true);SFX.magic();W.party=true;W.partyT=0;
+    for(const kind of P.fx){const f=magicFx(kind,Infinity);if(kind==='fireworks')f.sound=true}
     for(const m of W.items)if(m.kind==='mob'||m.kind==='animal'){const d=Math.hypot(m.x-it.x,m.y-it.y);setTimeout(()=>{m.hop=1},d*1.2)}
-    toast('リッキー みっけ！<br><span style="font-size:.5em">まほうで まちが おおさわぎ</span>')}
+    toast('リッキー みっけ！<br><span style="font-size:.5em">'+P.text+'</span>')}
   if(G.state==='hunt'&&SUBS.every(([s])=>G.subs[s]))setTimeout(()=>{toast('みんな みつけた！');setTimeout(showClear,1600)},1800);
 }
 function photoOfView(){const c=mk(300,200),x=c.getContext('2d'),k=Math.max(300/cv.width,200/cv.height),sw=300/k,sh=200/k;x.drawImage(cv,(cv.width-sw)/2,(cv.height-sh)/2,sw,sh,0,0,300,200);try{return c.toDataURL('image/jpeg',.72)}catch(e){return null}}
@@ -1154,9 +1209,9 @@ function frame(now){
       if(G.t>45){G.assistT-=dt;if(G.assistT<=0){G.assistT=5;const f=W.fam.futan;f.hop=1;addFx({k:'ring',x:f.x,y:f.y-20,r:8,grow:26,d:.6,col:'#ffd23f',w:3})}}
       if(G.t>75&&!G.autoHint&&G.hints===0){G.autoHint=true;toast('ヒントだよ！');useHint()}
     }
+    if(G.futanGlow&&(G.state==='play')){G.glowT-=dt;if(G.glowT<=0){G.glowT=2.5;const f=W.fam.futan;burst(f.x+4,f.y-14,10,['#ffd23f','#fff6b0','#ff8cc0'],70)}}
     for(const it of W.items){if(it.hop>0)it.hop-=dt*1.8;it.walking=false}
     if(G.state!=='paused')stepWalkers(dt);
-    const r=W.fam.ricky;if(r){r.x=r.hx+Math.sin(NOW*.35)*70;r.y=r.hy+Math.sin(NOW*.6)*24}
     if(G.state==='title'){cam.x=clamp(WW/2-VW/2/cam.z+Math.sin(NOW*.08)*300,0,WW);cam.y=clamp(WH/2-VH/2/cam.z+Math.sin(NOW*.05)*150,0,WH);clampCam()}
     stepCam(dt);
   }

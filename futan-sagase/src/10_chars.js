@@ -4,9 +4,11 @@ const BODY={
   adult:{hr:11.5,hy:-50,sy:-38,hip:-19,arm:15},
   elder:{hr:11.5,hy:-46,sy:-35,hip:-17,arm:13}
 };
+// tall: longer (+) or shorter (-) legs
+function bodyOf(o){const B=BODY[o.age||'adult'],T=o.tall||0;return T?{hr:B.hr,hy:B.hy-T,sy:B.sy-T,hip:B.hip-T,arm:B.arm}:B}
 // o: {age, fem, skin, hair, hairCol, top, topCol, botCol, shoe, hat, hatCol, acc:{glasses,balloon,...}, pose, swim, s}
 function drawPerson(c,o){
-  const B=BODY[o.age||'adult'],hr=B.hr,hy=B.hy,sy=B.sy,hip=B.hip;
+  const B=bodyOf(o),hr=B.hr,hy=B.hy,sy=B.sy,hip=B.hip;
   const top=o.top||'shirt',tc=o.topCol||'#e8504a',bc=o.botCol||'#4d5a78',sk=o.skin||SKIN;
   const A=o.acc||{};
   c.save();ink(c,1.6);
@@ -66,6 +68,9 @@ function drawPerson(c,o){
     rr(c,-sw,sy,2*sw,hip-sy+9,5);FS(c,tc);c.lineWidth=1;line(c,0,sy+1,0,hip+8);for(let i=0;i<3;i++){circ(c,2.5,sy+5+i*5,.9);F(c,LN)}c.lineWidth=1.6;break;
   case 'safari':
     rr(c,-8.5,hip-3,17,7,2);FS(c,'#c8b07a');rr(c,-sw,sy,2*sw,hip-sy+2,4);FS(c,tc);c.lineWidth=1;line(c,0,sy+1,0,hip-1);rr(c,-7,sy+4,5,4,1);c.stroke();c.lineWidth=1.6;break;
+  case 'suit':
+    rr(c,-8.5,hip-3,17,7,2);FS(c,bc);rr(c,-sw,sy,2*sw,hip-sy+3,4);FS(c,tc);poly(c,[[-4.5,sy],[4.5,sy],[0,sy+11]]);FS(c,'#fff');
+    poly(c,[[-1.4,sy+1],[1.4,sy+1],[2,sy+9],[0,sy+12],[-2,sy+9]]);FS(c,o.tie||'#e8a020');c.lineWidth=1.1;line(c,-4.5,sy,-1,hip+2);line(c,4.5,sy,1,hip+2);c.lineWidth=1.6;break;
   default: // shirt
     if(o.fem&&!o.pants){c.beginPath();c.moveTo(-8,hip-3);c.lineTo(8,hip-3);c.lineTo(11,hip+5);c.lineTo(-11,hip+5);c.closePath();FS(c,bc)}
     else{rr(c,-8.5,hip-3,17,7,2);FS(c,bc)}
@@ -75,6 +80,7 @@ function drawPerson(c,o){
   if(o.dots){const sw2=top==='swim'?6:sw-2,y0=top==='swim'?sy+6:sy+3,y1=top==='swim'?hip-1:top==='dress'?hip+3:hip;c.fillStyle=o.dots;for(let y=y0,r=0;y<y1;y+=4.6,r++)for(let x=-sw2+(r%2)*2.3;x<=sw2;x+=4.6){circ(c,x,y,1.15);c.fill()}}
   if(A.scarf){rr(c,-8,sy-2,16,5,2.5);FS(c,A.scarf);rr(c,2,sy+1,4.5,9,2);FS(c,A.scarf)}
   if(A.pochette){c.lineWidth=1.5;c.strokeStyle='#c98a20';line(c,sw-3,sy+1,-2,hip-1);ink(c);heart(c,-1,hip+1,6);FS(c,A.pochette);circ(c,-3,hip-1,1.3);F(c,'#fff')}
+  if(A.negi){const bx=-sw-5,by=hip-1;c.lineWidth=2.4;c.strokeStyle='#4cad62';line(c,bx-2,by-6,bx-6,by-24);line(c,bx+2,by-6,bx+3,by-22);c.lineWidth=1.6;c.strokeStyle='#f7f4ee';line(c,bx-2,by-6,bx-4,by-14);ink(c);rr(c,bx-6,by-8,12,11,3);FS(c,'#f3e1b5');c.lineWidth=1.1;c.beginPath();c.arc(bx,by-8,4,Math.PI,0);c.stroke();c.lineWidth=1.6}
   if(A.bag){c.lineWidth=1.2;line(c,-6,sy,8,hip-2);c.lineWidth=1.6;rr(c,5,hip-5,9,8,2);FS(c,A.bag)}
   // ---- arms ----
   const armC=top==='swim'?sk:top==='astro'?'#f4f6fa':top==='diver'?'#2c3a4e':top==='knight'?'#c3c8cf':top==='yukata'||top==='happi'||top==='smock'||top==='ski'||top==='coat'||top==='princess'?tc:(o.short?sk:tc);
@@ -92,11 +98,25 @@ function drawPerson(c,o){
   if(A.sword){c.lineWidth=2.4;line(c,sw+2,ay,sw+6,sy-16);ink(c)}
   // ---- head ----
   if(hs==='bun'){circ(c,0,hy-hr-2,5);FS(c,hc)}
+  if(hs==='perm'){for(let i=0;i<11;i++){const a=Math.PI*(.85+i*.13);circ(c,Math.cos(a)*(hr+3),hy-1+Math.sin(a)*(hr+3.5),5.6);FS(c,hc)}}
   circ(c,0,hy,hr);FS(c,sk);
   // face
   const ey=hy+2.5;
   if(top==='diver'||o.mask){rr(c,-hr+1,ey-6,2*hr-2,9,4);FS(c,'#bfe6f5');c.lineWidth=2.2;line(c,hr-1,ey-2,hr+4,hy-hr-2);ink(c)}
-  if(o.face==='futan'){
+  if(o.face==='papa'){
+    // パパ: サングラスと にかっと わらう くち、きりっと まゆ
+    c.lineWidth=1.8;line(c,-7.6,ey-4.6,-2.2,ey-3.8);line(c,7.6,ey-4.6,2.2,ey-3.8);c.lineWidth=1.2;
+    rr(c,-8.4,ey-2.4,6.6,4.8,2);FS(c,'#1d1a22');rr(c,1.8,ey-2.4,6.6,4.8,2);FS(c,'#1d1a22');line(c,-1.8,ey-1.2,1.8,ey-1.2);line(c,-8.4,ey-1.4,-hr+.5,ey-2.4);line(c,8.4,ey-1.4,hr-.5,ey-2.4);
+    line(c,-7,ey-1.2,-5,ey+.8);line(c,3.2,ey-1.2,5.2,ey+.8);c.strokeStyle='rgba(255,255,255,.7)';line(c,-6.8,ey-1.6,-5.6,ey-.4);ink(c);
+    c.beginPath();c.moveTo(-3.6,ey+4.6);c.quadraticCurveTo(0,ey+8.6,3.8,ey+4);c.closePath();FS(c,'#fff');c.lineWidth=1.6;
+  }
+  else if(o.face==='mama'){
+    // まま: にこにこの ほそい め・まんまるの あかい ほっぺ・おおきく あけて わらう くち
+    c.lineWidth=1.9;for(const k of[-1,1]){c.beginPath();c.arc(k*4.8,ey+1.4,2.6,Math.PI*1.1,Math.PI*1.9);c.stroke()}
+    circ(c,-8,ey+4.2,2.7);F(c,'rgba(255,80,90,.55)');circ(c,8,ey+4.2,2.7);F(c,'rgba(255,80,90,.55)');
+    c.lineWidth=1.3;c.beginPath();c.moveTo(-5,ey+4.2);c.quadraticCurveTo(0,ey+5.6,5,ey+4.2);c.quadraticCurveTo(4.6,ey+10.5,0,ey+10.5);c.quadraticCurveTo(-4.6,ey+10.5,-5,ey+4.2);c.closePath();FS(c,'#c8304a');ell(c,0,ey+8.8,2.6,1.4);F(c,'#ff8aa0');c.fillStyle='#fff';c.fillRect(-3.6,ey+4.6,7.2,1.2);c.lineWidth=1.6;
+  }
+  else if(o.face==='futan'){
     // ふうか: きらきらの おおきな め（まつげ・ほしの ひかり）と、おおきく あけた にっこり くち
     if(o.happy){c.lineWidth=2.2;for(const k of[-1,1]){c.beginPath();c.arc(k*4.9,ey+1.2,2.9,Math.PI*1.08,Math.PI*1.92);c.stroke()}c.lineWidth=1.6}
     else for(const k of[-1,1]){ell(c,k*4.9,ey,3,3.7);F(c,'#2a1c1c');ell(c,k*4.9,ey+1.3,2.1,2);F(c,'#c2386e');circ(c,k*4.9-1,ey-1.3,1.15);F(c,'#fff');circ(c,k*4.9+1.1,ey+1.5,.6);F(c,'#fff');
@@ -108,13 +128,15 @@ function drawPerson(c,o){
   else if(o.age==='elder'&&!o.openEyes){c.lineWidth=1.5;for(const k of[-1,1]){c.beginPath();c.arc(k*4.6,ey+.5,2.2,Math.PI*1.1,Math.PI*1.9);c.stroke()}c.lineWidth=1.6}
   else if(o.happy){c.lineWidth=1.7;for(const k of[-1,1]){c.beginPath();c.arc(k*4.6,ey+1,2.4,Math.PI*1.1,Math.PI*1.9);c.stroke()}c.lineWidth=1.6}
   else{for(const k of[-1,1]){ell(c,k*4.6,ey,1.9,2.4);F(c,'#2a1c1c');circ(c,k*4.6-.6,ey-.9,.7);F(c,'#fff')}}
-  if(o.face!=='futan'){ell(c,-8,ey+4,2.3,1.4);F(c,'rgba(255,110,140,.4)');ell(c,8,ey+4,2.3,1.4);F(c,'rgba(255,110,140,.4)');
+  if(!o.face){ell(c,-8,ey+4,2.3,1.4);F(c,'rgba(255,110,140,.4)');ell(c,8,ey+4,2.3,1.4);F(c,'rgba(255,110,140,.4)');
   c.lineWidth=1.3;c.beginPath();c.arc(0,ey+4.2,2.2,Math.PI*.15,Math.PI*.85);c.stroke();c.lineWidth=1.6}
   if(A.mustache){ell(c,-2.5,ey+3.5,3,1.4,.2);F(c,hc);ell(c,2.5,ey+3.5,3,1.4,-.2);F(c,hc)}
   if(A.glasses){c.lineWidth=1.2;circ(c,-4.6,ey,3.4);c.stroke();circ(c,4.6,ey,3.4);c.stroke();line(c,-1.2,ey,1.2,ey);c.lineWidth=1.6}
   // front hair
   c.fillStyle=hc;
   switch(hs){
+  case 'perm':for(let i=0;i<6;i++){circ(c,-hr+2.5+i*((2*hr-5)/5),hy-hr+2.5+(i%2)*1.2,3.6);FS(c,hc)}break;
+  case 'quiff':c.beginPath();c.moveTo(-hr-.5,hy+1);c.quadraticCurveTo(-hr-1,hy-hr-1,-2,hy-hr-1.5);c.bezierCurveTo(4,hy-hr-9,hr+6,hy-hr-6,hr+1.5,hy-3);c.lineTo(hr+.5,hy+1);c.quadraticCurveTo(hr-2,hy-6,2,hy-6);c.quadraticCurveTo(-4,hy-4,-hr-.5,hy+1);c.closePath();FS(c,hc);c.lineWidth=1;c.strokeStyle='rgba(255,255,255,.35)';c.beginPath();c.moveTo(-2,hy-hr+1);c.quadraticCurveTo(4,hy-hr-5,hr,hy-hr);c.stroke();ink(c);break;
   case 'bald':c.beginPath();c.arc(0,hy,hr,Math.PI*.95,Math.PI*1.05);c.stroke();ell(c,-hr+1,hy+1,2.6,4);FS(c,hc);ell(c,hr-1,hy+1,2.6,4);FS(c,hc);break;
   case 'spiky':c.beginPath();c.moveTo(-hr-1,hy+1);for(let i=0;i<=6;i++){const a=Math.PI+i/6*Math.PI;c.lineTo(Math.cos(a)*(hr+(i%2?5:1)),hy+Math.sin(a)*(hr+(i%2?5:1)))}c.lineTo(hr+1,hy+1);c.quadraticCurveTo(0,hy-6,-hr-1,hy+1);c.closePath();FS(c,hc);break;
   case 'curly':for(let i=0;i<7;i++){const a=Math.PI*(1.02+i*.16);circ(c,Math.cos(a)*hr,hy+Math.sin(a)*hr,4.2);FS(c,hc)}break;
@@ -156,12 +178,14 @@ function drawPerson(c,o){
 // ---- the family ----
 // ふーたん: みつあみ・ピンクの みずたまの ワンピース・きいろい ハートの ポシェット（ポシェットは ふーたん だけ）
 const LOOK_FUTAN={face:'futan',age:'kid',fem:true,skin:SKIN,hair:'braid',hairCol:HAIR,ribbon:'#e8504a',top:'dress',topCol:FUTAN_PINK,dots:'#fff',shoe:'#e8483a',legCol:SKIN,acc:{pochette:FUTAN_BAG}};
-const LOOK_MAMA={age:'adult',fem:true,hair:'pattsun',hairCol:'#4a2a1a',top:'dress',topCol:'#e8483a',apron:true,shoe:'#5a3a6a'};
-const LOOK_PAPA={age:'adult',hair:'short',hairCol:'#3a2a20',top:'shirt',topCol:'#2f5fa8',botCol:'#d8c4a0',shoe:'#7a4a2a',acc:{scarf:'#e8a020',glasses:true},s:1.08};
+// まま: せが ひくい・もじゃもじゃパーマ・あかい ワンピースに エプロン・ネギの はいった かいものぶくろ・わらいがお
+const LOOK_MAMA={face:'mama',age:'adult',fem:true,hair:'perm',hairCol:'#5a3020',top:'dress',topCol:'#e8483a',apron:true,shoe:'#5a3a6a',tall:-7,s:.9,acc:{negi:true}};
+// パパ: せが たかい・リーゼント・あおい ジャケットに オレンジの ネクタイ・サングラス
+const LOOK_PAPA={face:'papa',age:'adult',hair:'quiff',hairCol:'#231c20',top:'suit',topCol:'#2f5fa8',botCol:'#2e2a33',shoe:'#7a4a2a',tie:'#f28b2f',tall:15,s:1.12,acc:{}};
 // stage outfits keep the family recognisable
 function familyLook(base,st,who){
   const o=JSON.parse(JSON.stringify(base));
-  const fit=st.family&&st.family[who];if(fit)Object.assign(o,fit);
+  const fit=st.family&&st.family[who];if(fit){const acc=Object.assign({},o.acc,fit.acc||{});Object.assign(o,fit);o.acc=acc}
   return o;
 }
 // リッキー: baby fairy that floats (drawn live, origin = point on the ground under her)
@@ -169,7 +193,7 @@ function drawRicky(c,t,o){
   o=o||{};c.save();ink(c,1.4);
   if(o.s)c.scale(o.s,o.s);
   ell(c,0,0,8,2.6);F(c,'rgba(40,0,40,.14)');
-  c.translate(0,-30-Math.sin(t*3)*3-(o.hop||0));
+  c.translate(0,(o.ground?-9:-30-Math.sin(t*3)*3)-(o.hop||0));
   const fa=Math.sin(t*14)*.35;
   for(const k of[-1,1]){c.save();c.translate(k*6,-6);c.rotate(k*(-.5+fa));ell(c,k*7,0,7.5,4.5);FS(c,'#fff');c.strokeStyle='#bcd8ff';line(c,k*3,0,k*11,0);c.restore();ink(c,1.4)}
   rr(c,-8,-9,16,14,6);FS(c,'#fff');c.strokeStyle='#f3dc5a';c.lineWidth=2.2;line(c,-5,-8,-6,3);line(c,5,-8,6,3);ink(c,1.4);
