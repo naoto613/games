@@ -15,7 +15,7 @@ const msgs = async () => { for (let i = 0; i < 80; i++) { const nm = p.locator('
 const party = () => p.evaluate(() => window.app.game.party.map((m) => m.speciesId));
 await p.locator('button', { hasText: 'はじめから' }).click(); await wait(200);
 await p.locator('button', { hasText: 'けってい' }).click(); await wait(300);
-await msgs(); await p.waitForSelector('.pad-area');
+await msgs(); await p.waitForSelector('.fmenu');
 await shot('01-field-strip');
 await p.evaluate(() => { const g = window.app.game; for (const s of ['leafant', 'frostbird', 'stonegolem', 'darkeye']) g.acceptRecruit(s, 4); });
 // まちメニュー → ぼくじょう

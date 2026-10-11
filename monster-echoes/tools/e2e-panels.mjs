@@ -22,7 +22,7 @@ const skip = async () => { await wait(300); for (let i = 0; i < 40; i++) { const
 await p.locator('button', { hasText: 'はじめから' }).click(); await wait(200);
 await p.locator('button', { hasText: 'けってい' }).click();
 await skip();
-await p.waitForSelector('.pad-area');
+await p.waitForSelector('.fmenu');
 // 進行を進めた状態にする
 await p.evaluate(() => {
   const s = window.app.game.state;

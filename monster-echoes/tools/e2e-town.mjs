@@ -14,7 +14,7 @@ const shot = (n) => p.screenshot({ path: path.join(out, n + '.png') });
 const msgs = async () => { for (let i = 0; i < 80; i++) { const ok = p.locator('.panel-foot button', { hasText: 'けってい' }); if (await ok.count()) { await shot('00-name'); await ok.last().click(); await wait(150); continue; } if (await p.$('.choices')) return; const m = await p.$('.msgbox'); if (!m) { await wait(200); if (!(await p.$('.msgbox')) && !(await p.locator('.panel-foot button', { hasText: 'けってい' }).count())) return; continue; } await m.click(); await wait(60); } };
 await p.locator('button', { hasText: 'はじめから' }).click(); await wait(200);
 await p.locator('button', { hasText: 'けってい' }).click(); await wait(300);
-await msgs(); await p.waitForSelector('.pad-area');
+await msgs(); await p.waitForSelector('.fmenu');
 await shot('01-town');
 const go = async (map, x, y, dir, name) => {
   await p.evaluate(([m, x, y, d]) => { const s = window.app.game.state; s.player.townMap = m; s.player.townPos = { x, y }; s.player.townDir = d; window.app.show(new (window.app.screen.constructor)(window.app)); }, [map, x, y, dir]);
