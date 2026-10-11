@@ -19,8 +19,12 @@ export type Combatant = {
   attack: number;
   defense: number;
   speed: number;
-  wisdom: number;
-  stages: { attack: number; defense: number; speed: number };
+  magic: number;
+  spirit: number;
+  stages: { attack: number; defense: number; speed: number; magic: number; spirit: number };
+  /** 変則型（成長タイプ6）：HP が へると いちどだけ 覚醒する */
+  variable?: boolean;
+  awakened?: boolean;
   status: StatusState;
   charged: boolean;
   defending: boolean;

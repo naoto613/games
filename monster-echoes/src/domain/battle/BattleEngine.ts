@@ -14,7 +14,8 @@ import type { AllyCommand, BattleEvent, BattleKind, BattleState, Combatant, Turn
 
 const B = BALANCE.battle;
 const STATUS_NAME: Record<StatusId, string> = { sleep: 'ねむり', paralysis: 'まひ', confusion: 'こんらん', poison: 'どく' };
-const STAT_NAME = { attack: 'こうげきりょく', defense: 'しゅびりょく', speed: 'すばやさ' } as const;
+const STAT_NAME = { attack: 'こうげきりょく', defense: 'しゅびりょく', speed: 'すばやさ', magic: 'まりょく', spirit: 'せいしん' } as const;
+const emptyStages = () => ({ attack: 0, defense: 0, speed: 0, magic: 0, spirit: 0 });
 
 const emptyStatus = () => ({ sleep: 0, paralysis: 0, confusion: 0, poison: false });
 
@@ -23,8 +24,8 @@ export function allyFromInstance(m: MonsterInstance, slot: number): Combatant {
   return {
     key: `a${slot}`, side: 'ally', slot, instanceId: m.id, speciesId: m.speciesId, name: displayName(m), level: m.level,
     maxHp: m.stats.hp, hp: m.hp, maxMp: m.stats.mp, mp: m.mp,
-    attack: m.stats.attack, defense: m.stats.defense, speed: m.stats.speed, wisdom: m.stats.wisdom,
-    stages: { attack: 0, defense: 0, speed: 0 }, status: emptyStatus(), charged: false, defending: false,
+    attack: m.stats.attack, defense: m.stats.defense, speed: m.stats.speed, magic: m.stats.magic, spirit: m.stats.spirit,
+    stages: emptyStages(), status: emptyStatus(), charged: false, defending: false, variable: sp.growthType === 'variable',
     skills: [...m.skills], resist: { ...m.resistances }, wildness: m.wildness, affection: 0, recruitable: false,
     recruitBase: 0, expYield: sp.expYield, goldYield: sp.goldYield, distorted: false,
     tactic: m.tactic, healsUsed: 0, used: {}, statusHits: 0,
@@ -46,8 +47,9 @@ export function enemyFromSpec(spec: EnemySpec, slot: number): Combatant {
   return {
     key: `e${slot}`, side: 'enemy', slot, speciesId: sp.id, name: spec.name ?? sp.name, level: spec.level,
     maxHp: hp, hp, maxMp: st.mp, mp: st.mp,
-    attack: Math.round(st.attack * sc), defense: Math.round(st.defense * sc), speed: Math.round(st.speed * sc), wisdom: Math.round(st.wisdom * sc),
-    stages: { attack: 0, defense: 0, speed: 0 }, status: emptyStatus(), charged: false, defending: false,
+    attack: Math.round(st.attack * sc), defense: Math.round(st.defense * sc), speed: Math.round(st.speed * sc),
+    magic: Math.round(st.magic * sc), spirit: Math.round(st.spirit * sc),
+    stages: emptyStages(), status: emptyStatus(), charged: false, defending: false, variable: sp.growthType === 'variable',
     skills, resist, wildness: 0, affection: 0, recruitable: spec.recruitable ?? true, recruitBase: sp.recruitBaseChance,
     expYield: Math.round(sp.expYield * Math.max(1, spec.hpScale ?? 1)), goldYield: Math.round(sp.goldYield * Math.max(1, spec.hpScale ?? 1)),
     distorted: !!spec.distorted,
@@ -263,7 +265,11 @@ function monsterAct(s: BattleState, a: Combatant, choice: { skillId: string; tar
     case 'physical': return doPhysical(s, a, sk, ts, ev, rng, false);
     case 'magic':
     case 'breath':
-      for (const t of ts) dealDamage(a, t, calculateDamage({ skill: sk, attacker: a, defender: t, isCritical: false, charged: false, rng }), ev, sk, rng);
+      for (const t of ts) {
+        const d = calculateDamage({ skill: sk, attacker: a, defender: t, isCritical: false, charged: false, rng });
+        dealDamage(a, t, d, ev, sk, rng);
+        afterHit(a, t, d, sk, ev, rng);
+      }
       return;
     case 'heal':
       for (const t of ts) {
@@ -325,6 +331,7 @@ function doPhysical(s: BattleState, a: Combatant, sk: SkillDefinition, ts: Comba
     if (crit) ev.push({ t: 'msg', text: 'かいしんの いちげき！' });
     const d = calculateDamage({ skill: sk, attacker: a, defender: t, isCritical: crit, charged: charged && !confused, rng });
     dealDamage(a, t, d, ev, sk, rng, crit);
+    afterHit(a, t, d, sk, ev, rng);
     if (sk.recoil && d > 0 && a.hp > 0) {
       const r = Math.max(1, Math.floor(d * sk.recoil));
       a.hp = Math.max(0, a.hp - r);
@@ -342,7 +349,14 @@ const faintText = (c: Combatant) => (c.side === 'enemy' ? `${c.name}を たお�
 
 function dealDamage(_a: Combatant, t: Combatant, d: number, ev: BattleEvent[], sk: SkillDefinition, _rng: Rng, crit = false) {
   if (t.hp <= 0) return;
-  if (d <= 0) {
+  if (d < 0) {
+    // 吸収：ダメージの かわりに 回復する
+    const amt = Math.min(t.maxHp - t.hp, -d);
+    t.hp += amt;
+    ev.push({ t: 'heal', target: t.key, amount: amt, hp: t.hp, text: `${t.name}は ${sk.name}を すいこんだ！ HPが ${amt} かいふくした！` });
+    return;
+  }
+  if (d === 0) {
     ev.push({ t: 'miss', target: t.key, text: `${t.name}には まったく きいていない！` });
     return;
   }
@@ -353,10 +367,32 @@ function dealDamage(_a: Combatant, t: Combatant, d: number, ev: BattleEvent[], s
     t.status = emptyStatus();
     t.charged = false;
     ev.push({ t: 'faint', target: t.key, text: faintText(t) });
+    return;
+  }
+  // 変則型：HP が へると いちどだけ 覚醒して こうげき・まりょくが あがる
+  if (t.variable && !t.awakened && t.hp <= t.maxHp * B.variableAwaken.threshold) {
+    t.awakened = true;
+    ev.push({ t: 'msg', text: `${t.name}の からだが かわっていく……！` });
+    changeStage(t, 'attack', B.variableAwaken.stages, ev);
+    changeStage(t, 'magic', B.variableAwaken.stages, ev);
   }
 }
 
-function changeStage(t: Combatant, stat: 'attack' | 'defense' | 'speed', delta: number, ev: BattleEvent[]) {
+/** ダメージの あとの 追加効果（吸いとり・状態異常の つけたし） */
+function afterHit(a: Combatant, t: Combatant, d: number, sk: SkillDefinition, ev: BattleEvent[], rng: Rng) {
+  if (d <= 0) return;
+  if (sk.drain && a.hp > 0) {
+    const amt = Math.min(a.maxHp - a.hp, Math.max(1, Math.floor(d * sk.drain)));
+    if (amt > 0) {
+      a.hp += amt;
+      ev.push({ t: 'heal', target: a.key, amount: amt, hp: a.hp, text: `${a.name}は HPを ${amt} すいとった！` });
+    }
+  }
+  // こうげきの ついでの 状態異常は かからなかった ときに なにも いわない
+  if (sk.statusEffectId && t.hp > 0) applyStatus(t, sk.statusEffectId, sk.statusChance ?? 0, ev, rng, true);
+}
+
+function changeStage(t: Combatant, stat: keyof Combatant['stages'], delta: number, ev: BattleEvent[]) {
   const before = t.stages[stat];
   const after = clamp(before + delta, -B.maxStage, B.maxStage);
   if (after === before) {
@@ -368,12 +404,12 @@ function changeStage(t: Combatant, stat: 'attack' | 'defense' | 'speed', delta: 
 }
 
 /** 状態異常: 耐性で確率が下がる。すでにかかっていれば効果なし（上書きしない）。 */
-export function applyStatus(t: Combatant, st: StatusId, base: number, ev: BattleEvent[], rng: Rng) {
+export function applyStatus(t: Combatant, st: StatusId, base: number, ev: BattleEvent[], rng: Rng, quiet = false) {
   const already = st === 'poison' ? t.status.poison : t.status[st] > 0;
-  if (already) { ev.push({ t: 'msg', text: `${t.name}は すでに ${STATUS_NAME[st]}に なっている。` }); return; }
+  if (already) { if (!quiet) ev.push({ t: 'msg', text: `${t.name}は すでに ${STATUS_NAME[st]}に なっている。` }); return; }
   // 状態異常は かかるたびに かかりにくくなる（はめ殺しを防ぐ）
   const p = base * statusMultiplier(t, st) * Math.pow(B.statusRepeatFactor, t.statusHits);
-  if (!chance(rng, p)) { ev.push({ t: 'miss', target: t.key, text: `${t.name}には きかなかった！` }); return; }
+  if (!chance(rng, p)) { if (!quiet) ev.push({ t: 'miss', target: t.key, text: `${t.name}には きかなかった！` }); return; }
   t.statusHits += 1;
   if (st === 'poison') t.status.poison = true;
   else {

@@ -31,8 +31,15 @@ export const BALANCE = {
   battle: {
     attackScale: 0.6,
     defenseScale: 0.3,
-    wisdomScale: 0.12,
-    healWisdomScale: 0.25,
+    /** 呪文の 威力に 足す 魔力の 割合 */
+    magicScale: 0.12,
+    /** 呪文・息の ダメージを 精神で へらす 割合（Q13：はじめは 0 ＝ v1 と おなじ ダメージ。バランス調整で あげる） */
+    spiritScale: 0,
+    healMagicScale: 0.25,
+    /** 回復量に 足す 精神の 割合（はじめは 0） */
+    healSpiritScale: 0,
+    /** 変則型（成長タイプ6）が HP はんぶん いかで 覚醒したときに あがる 能力段階 */
+    variableAwaken: { threshold: 0.5, stages: 1 },
     damageVarianceMin: 0.88,
     damageVarianceMax: 1.12,
     criticalChance: 1 / 28,
@@ -47,10 +54,10 @@ export const BALANCE = {
     sleepTurns: [2, 4] as [number, number],
     paralysisTurns: [1, 3] as [number, number],
     confusionTurns: [2, 4] as [number, number],
-    /** 耐性レベル → ダメージ倍率 */
-    elementMultiplier: { '-1': 1.5, '0': 1, '1': 0.6, '2': 0.3, '3': 0 } as Record<string, number>,
+    /** 耐性レベル → ダメージ倍率（4 = 吸収：マイナスは その割合で 回復する） */
+    elementMultiplier: { '-1': 1.5, '0': 1, '1': 0.6, '2': 0.3, '3': 0, '4': -1 } as Record<string, number>,
     /** 耐性レベル → 状態異常のかかりやすさ */
-    statusMultiplier: { '-1': 1.4, '0': 1, '1': 0.55, '2': 0.25, '3': 0 } as Record<string, number>,
+    statusMultiplier: { '-1': 1.4, '0': 1, '1': 0.55, '2': 0.25, '3': 0, '4': 0 } as Record<string, number>,
     /** 野生値1につき命令を無視する確率 */
     disobeyPerWildness: 0.006,
     maxDisobey: 0.5,
