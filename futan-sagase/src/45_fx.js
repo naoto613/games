@@ -15,9 +15,10 @@ function drawFx(c,t){
     case 'ring':c.globalAlpha=1-k;c.lineWidth=(f.w||5)/cam.z*1.4;c.strokeStyle=f.col||'#ff6f9f';circ(c,f.x,f.y,(f.r||30)+k*(f.grow||60));c.stroke();c.globalAlpha=1;break;
     case 'spark':for(const p of f.ps){const x=p.x+p.vx*dt,y=p.y+p.vy*dt+140*dt*dt;c.globalAlpha=1-k;star(c,x,y,p.r,p.r*.45);c.fillStyle=p.c;c.fill()}c.globalAlpha=1;break;
     case 'hint':{const a=.5+.5*Math.sin(dt*6);c.globalAlpha=Math.min(1,(1-k)*3)*.9;c.fillStyle='rgba(255,220,120,'+(0.18+a*.12)+')';circ(c,f.x,f.y,f.r);c.fill();c.setLineDash([16/cam.z,10/cam.z]);c.lineWidth=5/cam.z;c.strokeStyle='#ff9a3c';c.stroke();c.setLineDash([]);c.globalAlpha=1;break}
-    case 'arrow':{const T=W.fam.futan,ang=Math.atan2(T.y-f.y,T.x-f.x),len=Math.max(40,Math.min(700,Math.hypot(T.x-f.x,T.y-f.y)-50)),hs=Math.max(1,.55/cam.z);c.globalAlpha=Math.min(1,(1-k)*3);
+    case 'arrow':{const T=W.fam.futan,ang=Math.atan2(T.y-f.y,T.x-f.x),len=f.short?Math.min(230,Math.max(40,Math.hypot(T.x-f.x,T.y-f.y)-50)):Math.max(40,Math.min(700,Math.hypot(T.x-f.x,T.y-f.y)-50)),hs=Math.max(1,.55/cam.z);c.globalAlpha=Math.min(1,(1-k)*3);
       for(let j=0;j<10;j++){const q=((j/10)+dt*.4)%1,x=f.x+Math.cos(ang)*len*q,y=f.y-40+Math.sin(ang)*len*q;heart(c,x,y,(7+q*5)*hs);c.fillStyle='#ff4f8f';c.fill();c.lineWidth=2*hs;c.strokeStyle='#fff';c.stroke()}
       c.globalAlpha=1;break}
+    case 'zone':{const a=.5+.5*Math.sin(dt*4);c.globalAlpha=Math.min(1,(1-k)*3)*.9;c.fillStyle='rgba(120,180,255,'+(.07+a*.06)+')';c.fillRect(f.x,f.y,f.w,f.h);c.setLineDash([22/cam.z,14/cam.z]);c.lineWidth=5/cam.z;c.strokeStyle='#5a8ad8';c.strokeRect(f.x+6,f.y+6,f.w-12,f.h-12);c.setLineDash([]);c.globalAlpha=1;break}
     case 'flash':flash=Math.max(flash,1-k);break;
     case 'magic':drawMagic(c,f,k,dt);break;
     }

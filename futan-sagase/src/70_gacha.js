@@ -87,25 +87,29 @@ function revealPrize(){
   else{g.stars++;msg='もう もってる！ おまけの ほし +1（'+g.stars+'/5）';if(g.stars>=5){g.stars-=5;g.spins++;msg+=' → ほし 5こで もう1かい！'}}
   saveProg();
   ({k:()=>{SFX.found();SFX.magic()},r:()=>SFX.found(),n:()=>SFX.chime()})[p.r]();
-  const info=$('gachaPrize');info.hidden=false;
+  const info=$('gachaPrize');info.hidden=false;const more=g.spins>0;
+  const nextLbl=more?'もう いっかい まわす':(GC.keyStage?'ひみつの ばしょへ ▶':'つぎの ばしょへ ▶');
   info.innerHTML=`<div class="rar r-${p.r}">${RARITY[p.r].name}${isNew?' <b>NEW!</b>':''}</div><div class="pname">${p.kind==='secret'?'かくれキャラ：':p.kind==='key'?'':'きせかえ：'}${p.n}</div><p>${msg}</p>
-    <div class="row">${p.kind==='wear'?'<button class="btn" id="gWear">きてみる</button>':''}${p.kind==='key'?'<button class="btn main" id="gGo">いってみる！</button>':''}<button class="btn ${p.kind==='key'?'':'main'}" id="gOk">${g.spins>0?'もう いっかい':'OK'}</button></div>`;
-  const ok=$('gOk');ok.onclick=()=>{info.hidden=true;GC.state='idle';GC.open=null;GC.drop=null;updateGachaInfo()};
-  const wb=$('gWear');if(wb)wb.onclick=()=>{g.equip[p.slot]=p.id;if(p.slot==='outfit'&&PRIZE_BY[p.id].hood&&g.equip.head&&!isHeadWear(g.equip.head))delete g.equip.head;saveProg();wb.textContent='きたよ！';wb.disabled=true;SFX.pop()};
-  const go2=$('gGo');if(go2)go2.onclick=()=>{info.hidden=true;$('gacha').hidden=true;GC.state='idle';$('clear').hidden=true;$('title').hidden=true;$('album').hidden=true;audio();startStage(STAGES.indexOf(p.st))};
+    <div class="row">${p.kind==='wear'?`<button class="btn main" id="gWear">きる！</button><button class="btn" id="gOk">きない</button>`:`<button class="btn main" id="gOk">${nextLbl}</button>`}</div>`;
+  if(p.kind==='key')GC.keyStage=p.st;
+  $('gOk').onclick=advanceGacha;
+  const wb=$('gWear');if(wb)wb.onclick=()=>{g.equip[p.slot]=p.id;if(p.slot==='outfit'&&PRIZE_BY[p.id].hood&&g.equip.head&&!isHeadWear(g.equip.head))delete g.equip.head;saveProg();SFX.pop();advanceGacha()};
 }
+// つぎの ガチャへ。のこりが なければ そのまま つぎの ばしょへ
+function advanceGacha(){$('gachaPrize').hidden=true;GC.state='idle';GC.open=null;GC.drop=null;updateGachaInfo();
+  if(PROG.gacha.spins<=0){$('gacha').hidden=true;const f=GC.after,k=GC.keyStage;GC.after=null;GC.keyStage=null;if(f)f(k)}}
 // ふーたんに ためしに きせた みため（いまの きせかえは そのまま）
 function lookWith(eq){const g=PROG.gacha,keep=g.equip;g.equip=eq;const L=futanLook();g.equip=keep;return L}
 function isHeadWear(id){return PRIZE_BY[id]&&PRIZE_BY[id].slot==='head'}
-function updateGachaInfo(){const g=PROG.gacha;$('gachaInfo').innerHTML=`のこり <b>${g.spins}</b> かい　<span>おまけの ほし ${'★'.repeat(g.stars)}${'☆'.repeat(5-g.stars)}</span>`;$('gachaHint').textContent=g.spins>0?'ハンドルを ゆびで くるっと まわしてね（タップでも まわるよ）':'ステージを クリアすると まわせるよ。まま・パパ・リッキーを ぜんぶ みつけると もう1かい！'}
-function openGacha(after){
-  GC.after=after||null;const el=$('gacha');el.hidden=false;$('gachaPrize').hidden=true;
+function updateGachaInfo(){const g=PROG.gacha;$('gachaInfo').innerHTML=(GC.header||'')+`<div>ガチャガチャ のこり <b>${g.spins}</b> かい　<span>おまけの ほし ${'★'.repeat(g.stars)}${'☆'.repeat(5-g.stars)}</span></div>`;$('gachaHint').textContent='ハンドルを ゆびで くるっと まわしてね（タップでも まわるよ）'}
+// spins: このステージで もらえた かいすう。header: けっかの ひょうじ。done(ひみつステージ): おわったら よばれる
+function openGacha(spins,header,done){
+  PROG.gacha.spins=spins;saveProg();GC.after=done||null;GC.header=header||'';GC.keyStage=null;const el=$('gacha');el.hidden=false;$('gachaPrize').hidden=true;
   if(!GC.cv){GC.cv=$('gcv');GC.x=GC.cv.getContext('2d');initCaps();bindGacha()}
   GC.dpr=Math.min(2,window.devicePixelRatio||1);GC.cv.width=GC.W*GC.dpr;GC.cv.height=GC.H*GC.dpr;
   GC.state='idle';GC.acc=0;GC.auto=0;updateGachaInfo();audio();
   if(!GC.raf)GC.raf=requestAnimationFrame(gachaFrame);
 }
-function closeGacha(){if(GC.state==='drop'||GC.state==='open')return;$('gacha').hidden=true;GC.state='idle';const f=GC.after;GC.after=null;if(f)f();else showTitle()}
 function bindGacha(){
   const cvs=GC.cv;let drag=null;
   const pos=e=>{const r=cvs.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*GC.W,y:(e.clientY-r.top)/r.height*GC.H}};
@@ -114,7 +118,6 @@ function bindGacha(){
     if(GC.state==='idle'&&PROG.gacha.spins>0&&Math.hypot(p.x-160,p.y-370)<75){drag={a:Math.atan2(p.y-370,p.x-160),moved:0,t0:performance.now()}}});
   cvs.addEventListener('pointermove',e=>{if(!drag||GC.state!=='idle')return;const p=pos(e),a=Math.atan2(p.y-370,p.x-160);let d=a-drag.a;if(d>Math.PI)d-=TAU;if(d<-Math.PI)d+=TAU;drag.a=a;if(d>0)rotateBy(d);drag.moved+=Math.abs(d)});
   cvs.addEventListener('pointerup',()=>{if(drag&&drag.moved<.3&&GC.state==='idle')GC.auto=TAU-GC.acc;drag=null});
-  $('gachaClose').onclick=closeGacha;$('gachaCloset').onclick=()=>openCloset();
 }
 // ---- きせかえ ----
 const SLOTS=[['head','あたま'],['outfit','ふく'],['back','せなか'],['face','かお']];
@@ -146,6 +149,5 @@ function openZukan(){
 }
 $('closetClose').onclick=()=>{$('closet').hidden=true;if($('gacha').hidden&&G.state==='title')showTitle()};
 $('zukanClose').onclick=()=>{$('zukan').hidden=true};
-$('titleGacha').onclick=()=>{$('title').hidden=true;openGacha(null)};
 $('titleCloset').onclick=()=>{openCloset()};
 $('titleZukan').onclick=()=>{openZukan()};

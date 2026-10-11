@@ -69,4 +69,4 @@ STAGES.push({id:'okashi',secret:true,name:'おかしの くに',intro:'なにも
   animals:[['rabbit',16]],hide:{p:.5,props:['cupcake','gumdrop','lollipop']},lines:['あま〜い！','おなか いっぱい'],
   party:{fx:['confetti','balloons'],text:'おかしの あめが ふってきた！'}
 });
-const MAIN_STAGES=STAGES.filter(s=>!s.secret).length;
+const MAIN_STAGES=STAGES.filter(s=>!s.secret&&!s.boss).length;

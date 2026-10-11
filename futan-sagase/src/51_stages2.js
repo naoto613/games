@@ -28,7 +28,7 @@ STAGES.push({id:'beach',name:'なつの うみ',intro:'あおい うみと し�
     for(const x of[60,2340])for(let i=0;i<3;i++)L.prop('palm',x+rnd(-20,20),900+i*260,{flip:x>1000});
     L.prop('stall',700,1500,{col:'#3f7bd6',sign:'かきごおり',goods:['#e8504a','#7cc8ec','#f6c63a']});L.prop('stall',1800,1480,{col:'#f28b2f',sign:'やきそば'})},
   look(){return mobLook({tops:[['swim',5],['shirt',1]],hats:[[null,4],['sunhat',1],['straw',1],['cap',1],['goggle',.4]],acc:[['ice',.06],['parasol',.03]],fix:o=>{o.short=true;if(o.top==='swim'&&o.age==='kid'&&chance(.4))o.acc.ring=pick(['#f6c63a','#e8504a','#f28fb7','#7fd6b4'])}})},
-  family:{futan:{top:'swim',topCol:FUTAN_PINK},mama:{hat:'sunhat',hatCol:'#f7f4ee'},papa:{hat:'straw',hatCol:'#3f7bd6',top:'shirt',short:true,stripe:'#7cc8ec',botCol:'#f7f4ee'}},
+  family:{futan:{top:'swim',topCol:FUTAN_PINK},mama:{},papa:{hat:'straw',hatCol:'#3f7bd6',top:'shirt',short:true,stripe:'#7cc8ec',botCol:'#f7f4ee'}},
   decoyFix:o=>{if(o.top==='dress')o.top='swim'},
   animals:[['crab',10],['bird',8]],hide:{p:.4,props:['sandcastle','parasol']},lines:['うみ きもちいい〜','かにさん いたよ！']
 });

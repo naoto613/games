@@ -144,6 +144,7 @@ function render(t){
   ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#f3e9da';ctx.fillRect(0,0,cv.width,cv.height);
   if(!W)return;
   renderWorld(ctx,t,cam.x,cam.y,cam.z*DPR,VW/cam.z,VH/cam.z);
+  drawBoss(ctx,t);drawDark(ctx);
   drawFx(ctx,t);
 }
 // a whole-stage picture for the intro card and the album

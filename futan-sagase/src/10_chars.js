@@ -22,6 +22,7 @@ function drawPerson(c,o){
   if(A.wings){for(const k of[-1,1]){ell(c,k*15,sy+3,11,6.5,k*-.5);FS(c,A.wings);ell(c,k*12,sy+10,7,4.5,k*-.2);FS(c,A.wings)}}
   if(top==='dinosuit'){c.beginPath();c.moveTo(6,hip-2);c.quadraticCurveTo(22,hip+2,26,-2);c.quadraticCurveTo(16,-2,6,hip+4);c.closePath();FS(c,tc);for(let i=0;i<3;i++){poly(c,[[10+i*5,hip-1+i*2],[13+i*5,hip-6+i*2],[15+i*5,hip+i*2]]);FS(c,'#f6c63a')}}
   if(top==='usagisuit'){circ(c,0,hip+1,5);FS(c,'#fff')}
+  if(A.tail){c.lineWidth=4.6;c.strokeStyle=LN;c.beginPath();c.moveTo(4,hip-2);c.quadraticCurveTo(18,hip,16,hip-16);c.stroke();c.lineWidth=2.6;c.strokeStyle=A.tail;c.stroke();ink(c)}
   if(top==='princess'||top==='knight'){c.beginPath();c.moveTo(-8,sy);c.lineTo(8,sy);c.lineTo(13,-3);c.lineTo(-13,-3);c.closePath();FS(c,top==='knight'?'#c9433a':shade(tc,-.15))}
   // back hair
   const hc=o.hairCol||HAIR,hs=o.hair||'short';
@@ -95,6 +96,7 @@ function drawPerson(c,o){
   }
   if(o.dots){const sw2=top==='swim'?6:sw-2,y0=top==='swim'?sy+6:sy+3,y1=top==='swim'?hip-1:top==='dress'?hip+3:hip;c.fillStyle=o.dots;for(let y=y0,r=0;y<y1;y+=4.6,r++)for(let x=-sw2+(r%2)*2.3;x<=sw2;x+=4.6){circ(c,x,y,1.15);c.fill()}}
   if(A.scarf){rr(c,-8,sy-2,16,5,2.5);FS(c,A.scarf);rr(c,2,sy+1,4.5,9,2);FS(c,A.scarf)}
+  if(A.starPochette){c.lineWidth=1.5;c.strokeStyle='#c98a20';line(c,sw-3,sy+1,-2,hip-1);ink(c);star(c,-1,hip,6.5,3);FS(c,A.starPochette)}
   if(A.pochette){c.lineWidth=1.5;c.strokeStyle='#c98a20';line(c,sw-3,sy+1,-2,hip-1);ink(c);heart(c,-1,hip+1,6);FS(c,A.pochette);circ(c,-3,hip-1,1.3);F(c,'#fff')}
   if(A.negi){const bx=-sw-5,by=hip-1;c.lineWidth=2.4;c.strokeStyle='#4cad62';line(c,bx-2,by-6,bx-6,by-24);line(c,bx+2,by-6,bx+3,by-22);c.lineWidth=1.6;c.strokeStyle='#f7f4ee';line(c,bx-2,by-6,bx-4,by-14);ink(c);rr(c,bx-6,by-8,12,11,3);FS(c,'#f3e1b5');c.lineWidth=1.1;c.beginPath();c.arc(bx,by-8,4,Math.PI,0);c.stroke();c.lineWidth=1.6}
   if(A.bag){c.lineWidth=1.2;line(c,-6,sy,8,hip-2);c.lineWidth=1.6;rr(c,5,hip-5,9,8,2);FS(c,A.bag)}
@@ -178,6 +180,7 @@ function drawPerson(c,o){
   case 'party':poly(c,[[-6,hy-hr+3],[6,hy-hr+3],[1,hy-hr-12]]);FS(c,hcol);circ(c,1,hy-hr-12,2);FS(c,'#fff');break;
   case 'safari':ell(c,0,hy-5,hr+6,3.6);FS(c,'#d9c08a');c.beginPath();c.arc(0,hy-6,hr-1,Math.PI,0);c.closePath();FS(c,'#d9c08a');rr(c,-hr+1,hy-8,2*hr-2,2.5,1);F(c,'#8a6a3a');break;
   case 'knight':c.beginPath();c.arc(0,hy-1,hr+1.5,Math.PI*.9,Math.PI*2.1);c.closePath();FS(c,'#c3c8cf');rr(c,-hr+2,hy-2,2*hr-4,3,1);F(c,'#3b3533');ell(c,0,hy-hr-6,3,6,.3);FS(c,hcol);break;
+  case 'sunflower':{const fx=hr-1,fy=hy-hr-3;for(let i=0;i<12;i++){const a=i/12*TAU;ell(c,fx+Math.cos(a)*8,fy+Math.sin(a)*8,4.2,2.4,a);FS(c,'#ffd23f')}circ(c,fx,fy,5.5);FS(c,'#8a5a2a');break}
   case 'nekomimi':for(const k of[-1,1]){poly(c,[[k*4,hy-hr+1],[k*11,hy-hr-9],[k*12,hy-hr+4]]);FS(c,hcol);poly(c,[[k*6.5,hy-hr+.5],[k*10.5,hy-hr-5],[k*10.5,hy-hr+2]]);F(c,'#ffb3cf')}break;
   case 'usamimi':for(const k of[-1,1]){ell(c,k*5,hy-hr-11,3.6,11,k*.18);FS(c,hcol);ell(c,k*5,hy-hr-10,1.7,8,k*.18);F(c,'#ffb3cf')}rr(c,-hr+1,hy-hr+1,2*hr-2,3,1.5);FS(c,hcol);break;
   case 'flowercrown':for(let i=0;i<7;i++){const a=Math.PI*(1.1+i*.13);circ(c,Math.cos(a)*(hr-.5),hy-2+Math.sin(a)*(hr-1),2.6);FS(c,['#f28fb7','#f6c63a','#fff','#c79bff'][i%4])}break;
@@ -201,8 +204,8 @@ function drawPerson(c,o){
 // ---- the family ----
 // ふーたん: みつあみ・ピンクの みずたまの ワンピース・きいろい ハートの ポシェット（ポシェットは ふーたん だけ）
 const LOOK_FUTAN={face:'futan',age:'kid',fem:true,skin:SKIN,hair:'braid',hairCol:HAIR,ribbon:'#e8504a',top:'dress',topCol:FUTAN_PINK,dots:'#fff',shoe:'#e8483a',legCol:SKIN,acc:{pochette:FUTAN_BAG}};
-// まま: せが ひくい・もじゃもじゃパーマ・あかい ワンピースに エプロン・ネギの はいった かいものぶくろ・わらいがお
-const LOOK_MAMA={face:'mama',age:'adult',fem:true,hair:'perm',hairCol:'#5a3020',top:'dress',topCol:'#e8483a',apron:true,shoe:'#5a3a6a',tall:-7,s:.9,acc:{negi:true}};
+// まま: せが ひくい・オレンジいろの もじゃもじゃパーマに おおきな ひまわり・あかい ワンピースに エプロン・ネギの はいった かいものぶくろ・わらいがお
+const LOOK_MAMA={face:'mama',age:'adult',fem:true,hair:'perm',hairCol:'#ef6a2a',hat:'sunflower',top:'dress',topCol:'#e8483a',apron:true,shoe:'#5a3a6a',tall:-7,s:.9,acc:{negi:true}};
 // パパ: せが たかい・リーゼント・あおい ジャケットに オレンジの ネクタイ・サングラス
 const LOOK_PAPA={face:'papa',age:'adult',hair:'quiff',hairCol:'#231c20',top:'suit',topCol:'#2f5fa8',botCol:'#2e2a33',shoe:'#7a4a2a',tie:'#f28b2f',tall:15,s:1.12,acc:{}};
 // stage outfits keep the family recognisable

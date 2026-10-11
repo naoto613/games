@@ -3,7 +3,7 @@ const G={state:'title',si:0,t:0,hints:0,subs:{},lastHintReady:false};
 let PROG=load('fs_prog',{stages:{},next:0,max:-1});if(!PROG.round)PROG.round=1;
 PROG.gacha=Object.assign({spins:0,stars:0,owned:{},equip:{},found:{},keys:[]},PROG.gacha||{});
 // difficulty: the first lap starts gentle and ramps up; every later lap is busier and trickier
-function diffFor(i){const k=STAGES[i].secret?1:i/(MAIN_STAGES-1),r=PROG.round;
+function diffFor(i){const k=STAGES[i].secret||STAGES[i].boss?1:i/(MAIN_STAGES-1),r=PROG.round;
   if(r<=1)return{people:.8+.2*k,decoys:.4+.6*k,hide:-.25+.25*k,assist:true};
   if(r===2)return{people:1.1,decoys:1.6,hide:.2,assist:false};
   return{people:1.2,decoys:2.2,hide:.35,assist:false}}
@@ -31,17 +31,19 @@ function startStage(i){
   W=null;
   G.diff=diffFor(i);W=buildWorld(st,(Math.random()*4294967296)>>>0,G.diff);G.assistT=0;G.autoHint=false;
   cam.anim=null;cam.z=zMin();cam.x=(WW-VW/cam.z)/2;cam.y=(WH-VH/cam.z)/2;clampCam();
-  G.state='intro';G.t=0;G.hints=0;G.subs={};G.futanGlow=false;G.lastHintReady=false;G.bonus=false;G.secFound=0;
-  $('introNum').textContent=st.secret?'★ ひみつの ステージ ★':'ステージ '+(i+1)+' / '+MAIN_STAGES+(PROG.round>1?'　★'+roundName(PROG.round):'');$('introName').textContent=st.name;$('introText').textContent=st.intro;
+  G.state='intro';G.t=0;G.hints=0;G.subs={};G.futanGlow=false;G.lastHintReady=false;G.bonus=false;G.secFound=0;G.boss=false;G.rule=ruleFor(i);setupRule();
+  const RU=RULES[G.rule];$('introRule').hidden=!RU.n;$('introRule').innerHTML=RU.n?'<b>とくべつルール：'+RU.n+'</b><br>'+RU.d:'';
+  $('introNum').textContent=st.boss?'★ ボス ステージ ★':st.secret?'★ ひみつの ステージ ★':'ステージ '+(i+1)+' / '+MAIN_STAGES+(PROG.round>1?'　★'+roundName(PROG.round):'');$('introName').textContent=st.name;$('introText').textContent=st.intro;
   // the town itself shows through behind the card; the card shows ふうか in this stage's clothes
   const ic=$('introPic'),ix=ic.getContext('2d');ix.setTransform(1,0,0,1,0,0);ix.clearRect(0,0,ic.width,ic.height);ix.translate(ic.width/2,ic.height-8);ix.scale(2.6,2.6);drawPerson(ix,futanLook(st));
   $('title').hidden=true;$('album').hidden=true;$('clear').hidden=true;$('pause').hidden=true;$('hud').hidden=true;$('intro').hidden=false;
-  $('hudStage').textContent=(st.secret?'ひみつ. ':(i+1)+'. ')+st.name;
+  $('hudStage').textContent=(st.boss?'ボス. ':st.secret?'ひみつ. ':(i+1)+'. ')+st.name;
   headOf('futan',$('hudFutan'));renderSlots();bgmStart(st);
 }
 function go(){
   audio();$('intro').hidden=true;$('hud').hidden=false;G.state='play';G.t=0;
-  toast('ふーたんを さがせ！');say('ふーたんは どこかな？');updateHintBtn();
+  toast(G.rule==='boss'?'ほんものを さがせ！':'ふーたんを さがせ！');updateHintBtn();renderRule();
+  if(W.boss)setTimeout(()=>bubble(W.boss,'ふーたんは いただいたニャ！ ほんものが わかるかニャ？',4,true),600);
 }
 function renderSlots(){
   const el=$('slots');el.innerHTML='';
@@ -51,8 +53,9 @@ function renderSlots(){
 }
 function onTap(sx,sy){
   if(G.state!=='play'&&G.state!=='hunt')return;
-  const p=toWorld(sx,sy),it=pickAt(p.x,p.y);
+  lastTouch={x:sx,y:sy,t:NOW};const p=toWorld(sx,sy),it=pickAt(p.x,p.y);
   if(!it){addFx({k:'ring',x:p.x,y:p.y,r:6,grow:18,d:.4,col:'#fff',w:3});return}
+  if(ruleTap(it))return;
   if(it.kind==='futan'&&G.state==='play')return foundFutan(it);
   if((it.kind==='mama'||it.kind==='papa'||it.kind==='ricky')&&!G.subs[it.kind])return foundSub(it);
   if(it.kind==='secret'&&!it.got)return foundSecret(it);
@@ -63,7 +66,7 @@ function pickAt(x,y){
   for(const it of W.items){if(!it.hit)continue;
     const hx=it.x,top=it.y-it.hit.hh,bot=it.y+3;
     if(x<hx-it.hit.hw-tol||x>hx+it.hit.hw+tol||y<top-tol||y>bot+tol)continue;
-    if((it.kind==='futan'&&G.state==='play')||((it.kind==='mama'||it.kind==='papa'||it.kind==='ricky')&&!G.subs[it.kind])||(it.kind==='secret'&&!it.got)){if(!bestSpecial||it.kind==='futan'||bestSpecial.kind==='secret')bestSpecial=it}
+    if((it.kind==='futan'&&G.state==='play')||((it.kind==='mama'||it.kind==='papa'||it.kind==='ricky')&&!G.subs[it.kind])||(it.kind==='secret'&&!it.got)||it.kind==='item'){if(!bestSpecial||it.kind==='futan'||bestSpecial.kind==='secret')bestSpecial=it}
     const inside=x>=hx-it.hit.hw&&x<=hx+it.hit.hw&&y>=top&&y<=bot;
     if(inside&&(!best||it.y>best.y))best=it}
   return bestSpecial||best;
@@ -89,9 +92,9 @@ function foundFutan(it){
   lookAt(it.x,it.y-30,Math.max(2,zMin()*2.5),1);
   setTimeout(()=>{bubble(it,'みーつけた！',3,true);say('みーつけた！');burst(it.x,it.y-30,40,['#ff6f9f','#f6c63a','#7cc8ec','#7fd6b4','#fff'],200);addFx({k:'ring',x:it.x,y:it.y-25,r:20,grow:70,d:.9,col:'#ff6f9f',w:6})},700);
   const rec=stageRec(W.st.id);rec.clear++;if(!rec.best||t<rec.best)rec.best=t;G.lapDone=false;
-  if(!W.st.secret){PROG.max=Math.max(PROG.max,G.si);PROG.next=(G.si+1)%MAIN_STAGES;if(G.si===MAIN_STAGES-1){PROG.round++;G.lapDone=true}}
-  PROG.gacha.spins++;G.spinGot=1;saveProg();
-  G.foundAt=t;setTimeout(showClear,2700);
+  if(!W.st.secret&&!W.st.boss){PROG.max=Math.max(PROG.max,G.si);PROG.next=(G.si+1)%MAIN_STAGES;if(G.si===MAIN_STAGES-1){PROG.round++;G.lapDone=true}}
+  saveProg();
+  G.foundAt=t;setTimeout(afterFound,2700);
 }
 function foundSub(it){
   const k=it.kind;G.subs[k]=true;const rec=stageRec(W.st.id);rec.subs[k]=1;saveProg();
@@ -100,14 +103,14 @@ function foundSub(it){
   const F=W.fam.futan;
   if(k==='mama'){
     // まま: ハートの みちしるべ ＋ ふーたんの ポシェットが ときどき きらっと ひかる
-    bubble(it,'あら〜 ふーたんなら あっちよ〜！',3.5,true);addFx({k:'arrow',x:it.x,y:it.y,d:12});G.futanGlow=true;G.glowT=0;
-    toast('まま みっけ！<br><span style="font-size:.5em">ハートの ほうを みてね。ふーたんが きらっと ひかるよ</span>')}
+    bubble(it,'あら〜 ふーたんなら あっちの ほうよ〜！',3.5,true);addFx({k:'arrow',x:it.x,y:it.y,d:5,short:true});
+    toast('まま みっけ！<br><span style="font-size:.5em">ハートの むきに いるかも</span>')}
   if(k==='papa'){
     // パパ: せが たかいから とおくまで みえる → ふーたんの いる あたりを まるで おしえて、そこへ カメラを よせる
-    bubble(it,'せが たかいから みえたぞ！ あのへんだ！',3.2,true);
-    setTimeout(()=>{if(G.state!=='play'&&G.state!=='hunt')return;const r=170,a=rnd(TAU),d=rnd(r*.4),cx=F.x+Math.cos(a)*d,cy=F.y-25+Math.sin(a)*d;addFx({k:'hint',x:cx,y:cy,r,d:8});lookAt(cx,cy,Math.min(VW,VH)/(r*2.4),1)},900);
-    setTimeout(()=>{SFX.shutter();addFx({k:'flash',d:.5});rec.photo=photoOfView();saveProg()},2400);
-    toast('パパ みっけ！<br><span style="font-size:.5em">まるの なかに ふーたんが いるよ</span>')}
+    const col=Math.min(2,Math.floor(F.x/(WW/3))),row=Math.min(2,Math.floor(F.y/(WH/3))),cw=['ひだり','まんなか','みぎ'][col],where=row===1&&col===1?'まんなかへん':row===1?cw+'の ほう':(row?'したの ':'うえの ')+(col===1?'ほう':cw+'の ほう');
+    bubble(it,'せが たかいから みえたぞ！ '+where+'に いたよ！',4,true);addFx({k:'zone',x:col*WW/3,y:row*WH/3,w:WW/3,h:WH/3,d:4.5});
+    setTimeout(()=>{SFX.shutter();addFx({k:'flash',d:.5});rec.photo=photoOfView();saveProg()},1600);
+    toast('パパ みっけ！<br><span style="font-size:.5em">'+where+'に いるみたい</span>')}
   if(k==='ricky'){
     // リッキー: まほうで ステージが ずっと おまつり さわぎに かわる
     it.happy=true;const P=PARTY[W.st.id]||W.st.party||{fx:['confetti'],text:'まちが おおさわぎ！'};
@@ -115,13 +118,21 @@ function foundSub(it){
     for(const kind of P.fx){const f=magicFx(kind,Infinity);if(kind==='fireworks')f.sound=true}
     for(const m of W.items)if(m.kind==='mob'||m.kind==='animal'){const d=Math.hypot(m.x-it.x,m.y-it.y);setTimeout(()=>{m.hop=1},d*1.2)}
     toast('リッキー みっけ！<br><span style="font-size:.5em">'+P.text+'</span>')}
-  if(SUBS.every(([s])=>G.subs[s])&&!G.bonus){G.bonus=true;PROG.gacha.spins++;saveProg();setTimeout(()=>toast('みんな みつけた！<br><span style="font-size:.5em">ガチャガチャが 1かい ふえたよ</span>'),2600)}
+  if(SUBS.every(([s])=>G.subs[s])&&!G.bonus){G.bonus=true;setTimeout(()=>toast('みんな みつけた！<br><span style="font-size:.5em">さいごの ガチャガチャが 1かい ふえるよ</span>'),2600)}
   if(G.state==='hunt'&&SUBS.every(([s])=>G.subs[s]))setTimeout(()=>{toast('みんな みつけた！');setTimeout(showClear,1600)},1800);
 }
 function foundSecret(it){
   it.got=true;it.hop=1;G.secFound++;const d=SECRET_BY[it.sid];PROG.gacha.found[it.sid]=(PROG.gacha.found[it.sid]||0)+1;saveProg();
   SFX.chime();burst(it.x,it.y-20,22,['#f6c63a','#fff6b0','#ff8cc0','#7cc8ec'],140);bubble(it,d.line,2.6,true);
   toast('かくれキャラ みっけ！<br><span style="font-size:.5em">'+d.n+'</span>')}
+// ステージの おわり: その場で もらえた ぶんだけ ガチャを まわして、つぎの ばしょへ
+function afterFound(){
+  const st=W.st,all=SUBS.every(([k])=>G.subs[k]),fast=G.rule==='time'&&G.timeOk,items=G.rule==='otoshimono',spins=1+(all?1:0)+(G.boss?1:0)+(fast?1:0)+(items?1:0);
+  const header=`<div class="res"><b>みーつけた！</b>　${st.name}　タイム ${fmtT(G.foundAt)}<br>${SUBS.map(([k,n])=>(G.subs[k]?'★':'☆')+n).join('　')}${all?'　ぜんぶ みつけて +1かい！':''}${G.boss?'　ボスに かって +1かい！':''}${fast?'　はやく みつけて +1かい！':''}${items?'　おとしもの ぜんぶ +1かい！':''}</div>`;
+  if(G.lapDone)toast('ぜんぶの ばしょを まわったよ！<br><span style="font-size:.5em">つぎは '+roundName(PROG.round)+'</span>');
+  G.state='gacha';$('hud').hidden=true;bgmStop();
+  openGacha(spins,header,key=>{const f=W.fam.futan,p=toScreen(f.x,f.y-30);wipe(p.x,p.y,()=>startStage(key?STAGES.indexOf(key):nextIndex()))});
+}
 function photoOfView(){const c=mk(300,200),x=c.getContext('2d'),k=Math.max(300/cv.width,200/cv.height),sw=300/k,sh=200/k;x.drawImage(cv,(cv.width-sw)/2,(cv.height-sh)/2,sw,sh,0,0,300,200);try{return c.toDataURL('image/jpeg',.72)}catch(e){return null}}
 function fmtT(t){const m=Math.floor(t/60),s=Math.floor(t%60);return m+':'+String(s).padStart(2,'0')}
 function showClear(){
@@ -145,7 +156,8 @@ function showClear(){
   $('clearAlbum').onclick=()=>{$('clear').hidden=true;openAlbum()};
   const gb=$('clearGacha');if(gb)gb.onclick=()=>openGacha(showClear);
 }
-function nextStage(){$('clear').hidden=true;$('hud').hidden=true;const f=W.fam.futan,p=toScreen(f.x,f.y-30);wipe(p.x,p.y,()=>startStage(W.st.secret?PROG.next:(G.si+1)%MAIN_STAGES))}
+function nextIndex(){if(!W||W.st.secret||W.st.boss)return PROG.next;if(bossDue(G.si))return STAGES.findIndex(s=>s.boss);return (G.si+1)%MAIN_STAGES}
+function nextStage(){$('clear').hidden=true;$('hud').hidden=true;const f=W.fam.futan,p=toScreen(f.x,f.y-30);wipe(p.x,p.y,()=>startStage(nextIndex()))}
 // iris wipe between stages
 const wc=$('wipe'),wx=wc.getContext('2d');let WIPE=null;
 function wipe(cx,cy,mid){SFX.whoosh();WIPE={cx,cy,t:0,mid,done:false}}
@@ -169,7 +181,7 @@ function useHint(){
 function updateHintBtn(){const b=$('hintBtn');const ready=G.t-(G.lastHint||0)>25;b.classList.toggle('ready',ready&&(G.state==='play'||G.state==='hunt'));b.textContent=G.state==='hunt'?'ヒント':'ヒント'}
 function openAlbum(){
   const el=$('stageList');el.innerHTML='';
-  STAGES.forEach((st,i)=>{const rec=PROG.stages[st.id],open=st.secret?PROG.gacha.keys.includes(st.id):i<=PROG.max+1;if(st.secret&&!open&&!PROG.gacha.keys.length&&i>MAIN_STAGES)return;
+  STAGES.forEach((st,i)=>{if(st.boss)return;const rec=PROG.stages[st.id],open=st.secret?PROG.gacha.keys.includes(st.id):i<=PROG.max+1;if(st.secret&&!open&&!PROG.gacha.keys.length&&i>MAIN_STAGES)return;
     const d=document.createElement('button');d.className='st'+(open?'':' lock');
     const c=mk(240,160);if(rec&&rec.photo){const im=new Image();im.onload=()=>c.getContext('2d').drawImage(im,0,0,240,160);im.src=rec.photo}else stageThumb(st,c);
     d.appendChild(c);const n=document.createElement('span');n.className='num';n.textContent=st.secret?'ひみつ':i+1;d.appendChild(n);

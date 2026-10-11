@@ -23,7 +23,7 @@ $('introGo').onclick=go;
 $('hintBtn').onclick=useHint;
 $('zoomBtn').onclick=()=>{const v=viewRect(),cx=v.x+v.w/2,cy=v.y+v.h/2;if(cam.z>zMin()*1.3)lookAt(cx,cy,zMin(),.6);else lookAt(cx,cy,zMin()*2.6,.6)};
 $('menuBtn').onclick=pauseGame;$('resumeBtn').onclick=resumeGame;
-$('skipBtn').onclick=()=>{$('pause').hidden=true;G.state='clear';wipe(VW/2,VH/2,()=>startStage((G.si+1)%STAGES.length))};
+$('skipBtn').onclick=()=>{$('pause').hidden=true;G.state='clear';wipe(VW/2,VH/2,()=>startStage(nextIndex()))};
 $('homeBtn').onclick=()=>{$('pause').hidden=true;bgmStop();showTitle()};
 document.querySelectorAll('.snd').forEach(b=>b.onclick=()=>{audio();setSound(!SOUND)});setSound(SOUND);
 
@@ -31,6 +31,7 @@ let last=performance.now();
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;NOW=now/1000;
   if(W){
+    stepRule(dt);
     if(G.state==='play'||G.state==='hunt'){G.t+=dt;if(Math.floor(G.t)!==Math.floor(G.t-dt))updateHintBtn()}
     if(G.state==='play'&&G.diff&&G.diff.assist){
       if(G.t>45){G.assistT-=dt;if(G.assistT<=0){G.assistT=5;const f=W.fam.futan;f.hop=1;addFx({k:'ring',x:f.x,y:f.y-20,r:8,grow:26,d:.6,col:'#ffd23f',w:3})}}

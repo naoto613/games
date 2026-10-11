@@ -74,7 +74,7 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
 .trow{display:flex;gap:8px}.trow .btn{flex:1;padding:12px 8px;font-size:15px}
 .gachaBtn{background:#fff3c4;border-color:#f2cf5a;color:#b8571a}
 .gpanel{width:min(420px,100%);align-items:center;gap:8px;padding:16px}
-.ginfo{font-weight:900;font-size:15px}.ginfo b{font-family:var(--display);font-weight:400;font-size:24px;color:var(--accent)}.ginfo span{margin-left:8px;color:#e0a400;font-size:14px}
+.ginfo{font-weight:900;font-size:15px;text-align:center;display:flex;flex-direction:column;gap:4px}.ginfo .res{font-size:13px;color:var(--soft)}.ginfo .res b{font-size:18px;color:var(--ink)}.ginfo b{font-family:var(--display);font-weight:400;font-size:24px;color:var(--accent)}.ginfo span{margin-left:8px;color:#e0a400;font-size:14px}
 .gwrap{position:relative;height:min(560px,62vh,calc((100vw - 60px)*1.556));aspect-ratio:360/560}
 .gpanel .row .btn{white-space:nowrap}
 #gcv{width:100%;height:100%;display:block;touch-action:none}
@@ -91,6 +91,10 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
 .citem .q{width:76px;height:76px;display:grid;place-items:center;font-family:var(--display);font-size:30px;color:#cdb9a0}
 .citem>span:only-child{padding:30px 0}
 @media (max-width:560px){.closet{flex-direction:column;align-items:center}}
+.rulebar{position:absolute;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top));background:#2f2440;color:#fff;border-radius:999px;padding:8px 16px;font-weight:900;font-size:14px;white-space:nowrap;box-shadow:0 3px 0 rgba(0,0,0,.2);pointer-events:none}
+.rulebar b{color:#ffd23f;margin-right:6px}.rulebar .warn{color:#ff8a8a}
+@media (max-width:640px){.rulebar{top:auto;bottom:calc(64px + env(safe-area-inset-bottom));font-size:12px}}
+.introRule{margin:0;background:#2f2440;color:#fff;border-radius:16px;padding:10px 14px;font-weight:700;font-size:13px;line-height:1.6}.introRule b{color:#ffd23f;font-size:15px}
 .links{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
 .link{background:none;border:0;font-weight:900;font-size:15px;padding:8px 10px;text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--line)}
 @media (max-width:640px){
@@ -106,6 +110,7 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
 <div id="hud" hidden>
   <div class="card tl"><canvas id="hudFutan" width="116" height="116"></canvas><div><small id="hudStage">ステージ 1</small><b>ふーたんは どこ？</b><small class="feat">みつあみ・ピンクの みずたま・<span style="color:#d9a400">ハートの ポシェット</span></small></div></div>
   <div class="card tr" id="slots"></div>
+  <div class="rulebar" id="rulebar" hidden></div>
   <div class="bl"><button class="pill" id="menuBtn">ⅠⅠ</button><button class="pill" id="zoomBtn">ぜんたい</button></div>
   <div class="br"><button class="pill hint" id="hintBtn">ヒント</button></div>
 </div>
@@ -116,7 +121,7 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
     <p class="lede">ひとが いっぱいの まちの どこかに ふーたんが かくれているよ。<br><span style="color:#d2386e">めじるしは みつあみと ピンクの みずたまの ふく、<br>きいろい ハートの ポシェット！</span><br>みつけたら つぎの ばしょへ ワープ！<br>ままや パパを みつけると ふーたんが みつけやすく なるよ。<br>リッキーを みつけると ステージに たのしい へんかが おこるよ！</p>
     <div class="tstats" id="titleStats"></div>
     <button class="btn main" id="playBtn">あそぶ</button>
-    <div class="trow"><button class="btn gachaBtn" id="titleGacha">ガチャガチャ</button><button class="btn" id="titleCloset">きせかえ</button><button class="btn" id="titleZukan">ずかん</button></div>
+    <div class="trow"><button class="btn" id="titleCloset">きせかえ</button><button class="btn" id="titleZukan">ずかん</button></div>
     <div class="links"><button class="link" id="albumBtn">ステージ えらび</button><button class="link snd" id="sndBtn">おと：オン</button></div>
   </div>
 </div>
@@ -127,6 +132,7 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
     <canvas id="introPic" width="200" height="190"></canvas>
     <p class="lede" style="color:#d2386e;margin-top:-6px">みつあみ・ピンクの みずたま・きいろい ハートの ポシェット<br>きらきらの め と にっこり おくち</p>
     <p class="lede" id="introText"></p>
+    <p class="introRule" id="introRule" hidden></p>
     <button class="btn main" id="introGo">さがす！</button>
   </div>
 </div>
@@ -153,7 +159,6 @@ h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;text-align
     <div class="ginfo" id="gachaInfo"></div>
     <div class="gwrap"><canvas id="gcv"></canvas><div class="gprize" id="gachaPrize" hidden></div></div>
     <p class="lede" id="gachaHint" style="font-size:13px"></p>
-    <div class="row"><button class="btn" id="gachaCloset">きせかえ</button><button class="btn" id="gachaClose">とじる</button></div>
   </div>
 </div>
 <div id="closet" class="overlay" hidden>
