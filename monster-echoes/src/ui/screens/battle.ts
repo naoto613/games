@@ -7,7 +7,9 @@ import type { AllyCommand, BattleEvent, BattleState, Combatant, PlayerAction, Tu
 import { playBgm, sfx } from '../../infrastructure/audio/Sound';
 import type { App, Key, Screen } from '../App';
 import { btn, clear, h, sleep } from '../dom';
-import { monsterSprite } from '../gfx/monsters';
+import { flashSprite, monsterSprite, spriteFoot } from '../gfx/monsters';
+import { drawWithPose, motionPose, MOTION_LENGTH } from '../gfx/motion';
+import { MONSTER2_BY_ID } from '../../data/v2/monsters';
 import { mkCanvas } from '../gfx/Pix';
 import { BD_H, BD_W, backdrop } from '../gfx/backdrops';
 import { TACTICS, welcomeMonster, resolvePending } from './menus';
@@ -17,7 +19,7 @@ import { recruitFx } from '../components/fx';
 
 const BW = BD_W, BH = BD_H;
 type Pop = { key: string; text: string; color: string; t0: number };
-type View = { hp: number; mp: number; maxHp: number; maxMp: number; dead: boolean; status: string[]; hitT: number; deadT: number };
+type View = { hp: number; mp: number; maxHp: number; maxMp: number; dead: boolean; status: string[]; hitT: number; deadT: number; actT: number };
 
 export type AfterBattle = (summary: BattleSummary) => Promise<void>;
 
@@ -63,7 +65,7 @@ class BattleScreen implements Screen {
   }
 
   private viewOf(c: Combatant): View {
-    return { hp: c.hp, mp: c.mp, maxHp: c.maxHp, maxMp: c.maxMp, dead: c.hp <= 0, status: this.statusOf(c), hitT: -99, deadT: c.hp <= 0 ? -999 : -1 };
+    return { hp: c.hp, mp: c.mp, maxHp: c.maxHp, maxMp: c.maxMp, dead: c.hp <= 0, status: this.statusOf(c), hitT: -99, deadT: c.hp <= 0 ? -999 : -1, actT: -99 };
   }
   private statusOf(c: Combatant) {
     const out: string[] = [];
@@ -158,21 +160,39 @@ class BattleScreen implements Screen {
     const order = [...this.st.enemies].sort((a, b) => (a.slot === 1 ? 1 : 0) - (b.slot === 1 ? 1 : 0));
     for (const e of order) {
       const v = this.views.get(e.key)!;
-      if (v.dead && v.deadT >= 0 && now - v.deadT > 24) continue;
+      if (v.dead && v.deadT >= 0 && now - v.deadT > MOTION_LENGTH.faint) continue;
       if (v.deadT === -999) continue;
       const p = this.enemyPos(e);
       const sp = monsterSprite(e.speciesId, { distorted: e.distorted });
-      const w = Math.round(sp.width * p.s), hgt = Math.round(sp.height * p.s);
-      const bob = this.app.settings.reduceMotion ? 0 : Math.round(Math.sin((now + e.slot * 20) / 14) * 2);
+      let w = Math.round(sp.width * p.s), hgt = Math.round(sp.height * p.s);
+      // 大きい絵は 画面に おさまるように ちぢめる
+      if (hgt > 184) { const k = 184 / hgt; w = Math.round(w * k); hgt = Math.round(hgt * k); }
+      const k = hgt / sp.height;
+      const foot = spriteFoot(e.speciesId) ?? sp.height - 4;
+      const by = p.y + Math.round((sp.height - foot) * k);
+      // うごき（待機・攻撃・被弾・戦闘不能）
+      const still = this.app.settings.reduceMotion;
+      const pose = v.dead ? motionPose('faint', now - v.deadT)
+        : now - v.hitT < MOTION_LENGTH.hit ? motionPose('hit', now - v.hitT)
+        : now - v.actT < MOTION_LENGTH.attack && !still ? motionPose('attack', now - v.actT)
+        : still ? motionPose('idle', 0) : motionPose('idle', now, e.slot * 20);
+      if (still) { pose.dx = 0; pose.dy = Math.min(pose.dy, 0); }
       g.save();
-      if (v.dead) g.globalAlpha = Math.max(0, 1 - (now - v.deadT) / 24);
       g.fillStyle = 'rgba(0,0,0,.28)';
+      g.globalAlpha = pose.alpha;
       g.beginPath();
-      g.ellipse(p.x, p.y - 2, w * 0.32, 7 * p.s, 0, 0, Math.PI * 2);
+      g.ellipse(p.x, p.y - 2, w * 0.3 * pose.sx, 7 * p.s, 0, 0, Math.PI * 2);
       g.fill();
-      const hit = now - v.hitT < 16 && Math.floor((now - v.hitT) / 3) % 2 === 0;
-      if (!hit) g.drawImage(sp, Math.round(p.x - w / 2), Math.round(p.y - hgt + 4) + bob, w, hgt);
       g.restore();
+      // 伝説級は ほのかに ひかる
+      const def2 = MONSTER2_BY_ID[e.speciesId];
+      if (def2?.legendary && !v.dead) {
+        const gl = g.createRadialGradient(p.x, p.y - hgt * 0.35, 4, p.x, p.y - hgt * 0.35, hgt * 0.6);
+        const a = 0.25 + 0.12 * Math.sin(now / 10);
+        gl.addColorStop(0, `rgba(255,240,170,${a})`); gl.addColorStop(1, 'rgba(255,240,170,0)');
+        g.fillStyle = gl; g.fillRect(p.x - hgt, p.y - hgt * 1.2, hgt * 2, hgt * 1.4);
+      }
+      drawWithPose(g, sp, flashSprite(sp), p.x, by, w, hgt, pose);
       const top = p.y - hgt + 6;
       // なつき（にく）
       const c = this.st.enemies.find((x) => x.key === e.key)!;
@@ -380,6 +400,8 @@ class BattleScreen implements Screen {
     const isEnemy = 'target' in ev && ev.target.startsWith('e');
     switch (ev.t) {
       case 'act': {
+        const av = this.views.get(ev.actor);
+        if (av && ev.actor.startsWith('e')) av.actT = this.frame;
         const s = getSkill(ev.skillId);
         sfx(s.category === 'magic' || s.category === 'breath' ? 'magic' : s.category === 'heal' || s.category === 'revive' ? 'heal' : 'cursor');
         break;
