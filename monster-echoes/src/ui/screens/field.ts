@@ -14,6 +14,8 @@ import { talkTo } from './town';
 import { getArea as areaOf } from '../../data/areas';
 import { openFieldMenu, openParty } from './menus';
 import { buildingAt, TOWN_BUILDINGS } from '../../data/town';
+import { EVENT_BY_ID } from '../../data/events';
+import { runEvent } from './events';
 import { displayName } from '../../domain/monster/MonsterFactory';
 
 const VW = 11;
@@ -340,6 +342,9 @@ export class FieldScreen implements Screen {
           this.app.toast(this.game.floor!.floor.name);
           break;
         }
+        case 'event':
+          await runEvent(this.app, this.game, r.eventId, () => { this.map = this.loadCurrentMap(); });
+          break;
         case 'moved':
           if (r.encounter) {
             sfx('encounter');
@@ -502,7 +507,7 @@ export class FieldScreen implements Screen {
         if (ch === 'B') ch = '.';
         const b = th === 'town' ? buildingAt(x, y) : undefined;
         const bld = b && 'RWD'.includes(ch) ? { style: b.style, rel: x - b.x0, w: b.x1 - b.x0 + 1, sign: ch === 'R' && x === b.door } : undefined;
-        const state = { open: ch === 'C' && this.game.isOpened({ x, y }), used: ch === 'H' && !!ex?.springUsed, boss: bossRoom, bld };
+        const state = { open: ch === 'C' && this.game.isOpened({ x, y }), used: ch === 'H' && !!ex?.springUsed, boss: bossRoom, bld, ev: ch === 'V' || ch === 'Z' ? EVENT_BY_ID[this.map.events?.[`${x},${y}`] ?? '']?.kind : undefined };
         g.drawImage(tileSprite(th, ch, x, y, anim, state), Math.round((x - camX) * TILE), Math.round((y - camY) * TILE));
       }
     if (th === 'town') this.drawTownFx(g, camX, camY);

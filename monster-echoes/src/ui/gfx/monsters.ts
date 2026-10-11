@@ -6,6 +6,7 @@ import { ALPH, FACING, SPRITE_DATA, SPRITE_SMALL, type SpriteData } from './spri
 // 色ちがいの なかま（スライムの 色ちがい と おなじ やりかた）。もとの 絵の 色あい（r: 度の はんい）だけを ずらして べつの モンスターに する。
 type Recolor = { r: [number, number]; d: number; s?: number; l?: number; minS?: number };
 export const VARIANTS: Record<string, { base: string; rules: Recolor[] }> = {
+  echoslime: { base: 'lunaslime', rules: [{ r: [170, 260], d: 62, s: 0.62, l: 0.1 }] },
   mintslime: { base: 'lunaslime', rules: [{ r: [170, 260], d: -92 }] },
   flameslime: { base: 'lunaslime', rules: [{ r: [170, 260], d: 172, s: 1.1 }] },
   shadowdog: { base: 'magmadog', rules: [{ r: [330, 65], d: 250, minS: 0.3 }] },

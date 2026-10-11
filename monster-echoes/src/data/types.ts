@@ -50,6 +50,8 @@ export type MonsterSpecies = {
   recruitBaseChance: number;
   spriteId: string;
   description: string;
+  /** なかまに したときだけ 図鑑に のる とくべつな じょうほう */
+  lore?: string;
 };
 
 export type SkillCategory = 'physical' | 'magic' | 'breath' | 'heal' | 'revive' | 'buff' | 'debuff' | 'status' | 'cure';
@@ -147,6 +149,8 @@ export type BossDefinition = {
   intro: string[];
   enemies: EnemySpec[];
   defeatText: string[];
+  /** たおした あとに あかされる じじつ（メインストーリー。ボスごとに あたらしい じょうほうを ひとつ） */
+  story?: string[];
   rewards: Reward[];
   setFlags: string[];
 };

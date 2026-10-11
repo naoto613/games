@@ -1,4 +1,5 @@
 import { AREAS, ENCOUNTERS } from '../../data/areas';
+import { EVENTS } from '../../data/events';
 import { BREEDING_RECIPES } from '../../data/breeding';
 import { FAMILIES, getSpecies, SPECIES_LIST } from '../../data/monsters';
 import { getSkill } from '../../data/skills';
@@ -31,10 +32,16 @@ export function openDex(app: App) {
         h('div', { class: 'small muted' }, `${FAMILIES[sp.familyId].name}けい`),
         known ? h('div', { class: 'small' }, sp.description) : h('div', { class: 'small muted' }, 'まだ みたことが ない。'))));
       const where = AREAS.filter((a) => a.floors.some((f) => ENCOUNTERS[f.encounterTableId].entries.some((e) => e.speciesId === id)));
-      body.append(h('div', { class: 'win small' }, h('h3', null, 'であえる ばしょ'), where.length ? where.map((a) => h('div', null, g.state.progress.unlockedAreas.includes(a.id) ? a.name : '？？？')) : h('div', { class: 'muted' }, 'やせいでは みかけない。配合で うまれるらしい。')));
+      const spots = EVENTS.filter((e) => e.encounter?.speciesId === id).map((e) => AREAS.find((a) => a.id === e.areaId)!);
+      const seenSpot = (a: (typeof spots)[number]) => owned || g.state.progress.storyFlags.echoMet;
+      body.append(h('div', { class: 'win small' }, h('h3', null, 'であえる ばしょ'),
+        where.map((a) => h('div', null, g.state.progress.unlockedAreas.includes(a.id) ? a.name : '？？？')),
+        spots.map((a) => h('div', null, seenSpot(a) ? `${a.name}の おく（ひかる あしあとの さき）` : '？？？ ひかる あしあとが しるべに なるらしい…')),
+        !where.length && !spots.length ? h('div', { class: 'muted' }, 'やせいでは みかけない。配合で うまれるらしい。') : null));
       if (known) {
         body.append(h('div', { class: 'win small' }, h('h3', null, 'おぼえる とくぎ'), sp.learnset.map((e) => h('div', null, `Lv${e.level} ${getSkill(e.skillId).name}`))));
         body.append(h('div', { class: 'win small' }, h('h3', null, 'たいせい'), resistList(speciesResistances(sp))));
+        if (sp.lore) body.append(h('div', { class: 'win small' }, h('h3', null, 'とくべつな きおく'), owned ? sp.lore : h('span', { class: 'muted' }, 'なかまに すると、ふしぎな ことが わかるかもしれない…。')));
       }
       // 配合のヒント: 親のどちらかを見たことがあれば表示
       const hints = BREEDING_RECIPES.filter((r) => r.kind === 'special' && r.resultSpeciesId === id && r.hint);

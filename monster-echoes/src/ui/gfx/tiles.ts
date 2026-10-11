@@ -1,5 +1,6 @@
 // マップのタイル（16×16 の設計を 32×32 で描く）と人物（16×20 を 32×40 で描く）
 import { E, P, Pix, R, RR, Sub, flipH, mix, shade } from './Pix';
+import { eventObject, hiddenDoorOverlay, type EventTileKind } from './eventTiles';
 import { doorStyled, flowerBed, lampTile, roofStyled, wallStyled, wellTile, type BldState } from './buildings';
 
 export const TILE = 32;
@@ -455,10 +456,10 @@ function bossTile(p: Pix, th: Theme, ch: string, x: number, y: number, f: number
 
 const cache = new Map<string, HTMLCanvasElement>();
 /** タイルの絵（座標は模様のつながり用、frame はアニメ用） */
-export function tileSprite(th: Theme, ch: string, x: number, y: number, frame: number, state: { open?: boolean; used?: boolean; boss?: boolean; bld?: BldState } = {}): HTMLCanvasElement {
-  const anim = ch === '~' || ch === '>' || ch === 'G' || ch === 'E' || ch === 'H' || ch === 'F' || (!!state.boss && (ch === 'f' || ch === ',')) || (th === 'town' && (ch === 'l' || (ch === 'R' && !!state.bld)));
+export function tileSprite(th: Theme, ch: string, x: number, y: number, frame: number, state: { open?: boolean; used?: boolean; boss?: boolean; bld?: BldState; ev?: EventTileKind } = {}): HTMLCanvasElement {
+  const anim = ch === '~' || ch === '>' || ch === 'G' || ch === 'E' || ch === 'H' || ch === 'F' || (!!state.boss && (ch === 'f' || ch === ',')) || ch === 'V' || ch === 'Z' || (th === 'town' && (ch === 'l' || (ch === 'R' && !!state.bld)));
   const f = anim ? frame % 16 : 0;
-  const key = `${th}|${ch}|${x},${y}|${f}|${state.open ? 1 : 0}${state.used ? 1 : 0}${state.boss ? 'B' : ''}${state.bld ? `${state.bld.style}${state.bld.rel}${state.bld.sign ? 's' : ''}` : ''}`;
+  const key = `${th}|${ch}|${x},${y}|${f}|${state.open ? 1 : 0}${state.used ? 1 : 0}${state.boss ? 'B' : ''}${state.ev ?? ''}${state.bld ? `${state.bld.style}${state.bld.rel}${state.bld.sign ? 's' : ''}` : ''}`;
   const hit = cache.get(key);
   if (hit) return hit;
   const p = new Pix(16, 16, S);
@@ -515,6 +516,11 @@ export function tileSprite(th: Theme, ch: string, x: number, y: number, frame: n
     case '~': waterTile(p, th, x, y, f); break;
     case ',': grassTile(p, th, x, y, true); break;
     case 'C': chestTile(p, th, x, y, !!state.open); break;
+    case 'V': grassTile(p, th, x, y, false); eventObject(p, state.ev ?? 'story', f, PAL[th].g[1]); break;
+    case 'Z':
+      if (th === 'forest' || th === 'town') treeTile(p, th, x, y); else rockWall(p, th, x, y);
+      hiddenDoorOverlay(p, f);
+      break;
     case '>': portalTile(p, th, x, y, f, '#3aa0ff'); break;
     case 'G': gateTile(p, x, y, f); break;
     case 'E': portalTile(p, th, x, y, f, '#ffc030'); break;

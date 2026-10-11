@@ -20,6 +20,8 @@ import { recruitChance, rollRecruit } from '../domain/recruitment/RecruitmentEng
 import { weightedPick } from '../core/Random';
 import { DEX_REWARDS, MEDAL_PRIZES, getTownMap } from '../data/town';
 import { SPECIES_LIST } from '../data/monsters';
+import { eventsOnFloor, EVENT_BY_ID, type EventContext, type EventDef } from '../data/events';
+import { eventAvailable, overlayEvents, type EventState } from '../domain/events/EventEngine';
 import { defaultSettings, GAME_VERSION, SCHEMA_VERSION, type SaveData } from './GameState';
 
 export type BattleContext =
@@ -28,7 +30,8 @@ export type BattleContext =
   | { kind: 'arena'; rankId: string; index: number }
   | { kind: 'practice' };
 
-export type BattleSession = { state: BattleState; context: BattleContext };
+export type EventResult = { def: EventDef; pages: string[]; rewards: Reward[]; battle: EnemySpec[] | null };
+export type BattleSession = { state: BattleState; context: BattleContext; /** はじめて であう しゅぞく（図鑑に はじめて とうろくされる） */ firstSeen: string[]; /** はじめて たたかう ボスか */ firstBoss: boolean };
 
 export type LevelUpReport = { monsterId: string; name: string; events: LevelUpEvent[] };
 export type BattleSummary = {
@@ -39,7 +42,7 @@ export type BattleSummary = {
   recruit: { speciesId: string; level: number; name: string } | null;
   recruitBlocked: boolean;
   goldLost: number;
-  boss: { bossId: string; texts: string[]; rewards: Reward[] } | null;
+  boss: { bossId: string; texts: string[]; story: string[]; rewards: Reward[] } | null;
   arena: { rankId: string; index: number; cleared: boolean; rewards: Reward[] } | null;
   unlocked: { areas: string[]; ranks: string[] };
 };
@@ -55,7 +58,8 @@ export type MoveResult =
   | { kind: 'npc'; id: string }
   | { kind: 'warp'; to: string }
   | { kind: 'locked'; text: string }
-  | { kind: 'gate'; areaId: string };
+  | { kind: 'gate'; areaId: string }
+  | { kind: 'event'; eventId: string };
 
 export interface SaveSink {
   save(data: SaveData): Promise<void>;
@@ -67,7 +71,8 @@ export function floorMap(areaId: string, floorIndex: number, seed: number): Tile
   const area = getArea(areaId);
   const f = area.floors[floorIndex];
   const last = floorIndex === area.floors.length - 1;
-  return generateFloor({ id: f.id, theme: area.theme, first: floorIndex === 0, last, boss: !!f.bossId, spring: floorIndex === 1 && !last }, seed);
+  const events = eventsOnFloor(areaId, floorIndex).filter((e) => e.kind !== 'vault').map((e) => ({ id: e.id, kind: e.kind, vaultId: e.vaultId }));
+  return generateFloor({ id: f.id, theme: area.theme, first: floorIndex === 0, last, boss: !!f.bossId, spring: floorIndex === 1 && !last, events }, seed);
 }
 
 export function shopItems(s: SaveData): string[] {
@@ -517,7 +522,7 @@ export class Game {
     const mapSeed = Math.floor(this.rng.next() * 0x7fffffff);
     const map = floorMap(areaId, 0, mapSeed);
     this.update((s) => (s.progress.storyFlags.ranchGift = true));
-    this.update((s) => (s.expedition = { areaId, floorIndex: 0, mapSeed, pos: findTile(map, 'S')!, dir: 'down', openedChests: [], springUsed: false, stepsSinceBattle: 0 }));
+    this.update((s) => (s.expedition = { areaId, floorIndex: 0, mapSeed, pos: findTile(map, 'S')!, dir: 'down', openedChests: [], springUsed: false, stepsSinceBattle: 0, eventsDone: [] }));
     this.autosave();
     return ok(undefined);
   }
@@ -529,7 +534,30 @@ export class Game {
   }
   currentMap(): TileMap | null {
     const ex = this.state.expedition;
-    return ex ? floorMap(ex.areaId, ex.floorIndex, ex.mapSeed) : null;
+    return ex ? overlayEvents(floorMap(ex.areaId, ex.floorIndex, ex.mapSeed), this.eventState()) : null;
+  }
+  private eventState(): EventState {
+    return { flags: this.state.progress.storyFlags, owned: this.state.ownedSpeciesIds, done: this.state.expedition?.eventsDone ?? [] };
+  }
+  private eventContext(): EventContext {
+    const party = this.party;
+    return { partySpecies: party.map((m) => m.speciesId), partyFamilies: [...new Set(party.map((m) => getSpecies(m.speciesId).familyId))] };
+  }
+  /** 固有イベントを しらべた。メッセージ・ほうしゅう・せんとう あいてを かえす（発生していなければ null） */
+  triggerEvent(eventId: string): EventResult | null {
+    const def = EVENT_BY_ID[eventId];
+    if (!def || !this.state.expedition) return null;
+    // かくし とびらは ひらいた あとも とおれる（もういちど しらべたら そのまま）
+    if (!eventAvailable(def, this.eventState())) return null;
+    const rewards = def.rewards ?? [];
+    this.update((s) => {
+      if (def.kind === 'hidden' || def.kind === 'nest') s.expedition!.eventsDone.push(def.id);
+      else s.progress.storyFlags[`ev_${def.id}`] = true;
+      for (const f of def.setFlags ?? []) s.progress.storyFlags[f] = true;
+      for (const r of rewards) this.applyReward(s, r);
+    });
+    this.autosave();
+    return { def, pages: [...def.pages, ...(def.react?.(this.eventContext()) ?? [])], rewards, battle: def.encounter ? [def.encounter] : null };
   }
   leaveExpedition() {
     this.update((s) => (s.expedition = null));
@@ -555,6 +583,11 @@ export class Game {
     if (t === 'B') {
       setDir();
       return { kind: 'boss', bossId: this.floor!.floor.bossId! };
+    }
+    if (t === 'V' || t === 'Z') {
+      setDir();
+      const id = map.events?.[`${nx},${ny}`];
+      return id ? { kind: 'event', eventId: id } : { kind: 'blocked' };
     }
     if (!isPassable(map, nx, ny)) {
       setDir();
@@ -627,10 +660,12 @@ export class Game {
   // ---------------------------------------------------------------- 戦闘
   private beginBattle(kind: BattleState['kind'], enemies: EnemySpec[], context: BattleContext) {
     const st = createBattle(kind, this.party, enemies, this.state.player.tactic);
+    const firstSeen = [...new Set(enemies.map((e) => e.speciesId))].filter((id) => !this.state.discoveredSpeciesIds.includes(id));
+    const firstBoss = context.kind === 'boss' && !this.state.progress.defeatedBossIds.includes(context.bossId);
     this.update((s) => {
       for (const e of enemies) s.discoveredSpeciesIds = addUnique(s.discoveredSpeciesIds, e.speciesId);
     });
-    this.battle = { state: st, context };
+    this.battle = { state: st, context, firstSeen, firstBoss };
     return this.battle;
   }
   startWildBattle(enemies: EnemySpec[]) {
@@ -709,7 +744,7 @@ export class Game {
       }
       if (b.context.kind === 'boss') {
         const boss = BOSSES[b.context.bossId];
-        summary.boss = { bossId: boss.id, texts: boss.defeatText, rewards: boss.rewards };
+        summary.boss = { bossId: boss.id, texts: boss.defeatText, story: boss.story ?? [], rewards: boss.rewards };
         if (!s.progress.defeatedBossIds.includes(boss.id)) {
           s.progress.defeatedBossIds.push(boss.id);
           for (const r2 of boss.rewards) this.applyReward(s, r2);

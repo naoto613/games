@@ -13,6 +13,7 @@ import { BD_H, BD_W, backdrop } from '../gfx/backdrops';
 import { TACTICS, welcomeMonster, resolvePending } from './menus';
 import { FieldScreen, rewardText } from './field';
 import { STAT_LABEL } from '../components/monster';
+import { recruitFx } from '../components/fx';
 
 const BW = BD_W, BH = BD_H;
 type Pop = { key: string; text: string; color: string; t0: number };
@@ -39,6 +40,9 @@ class BattleScreen implements Screen {
   private raf = 0;
   private frame = 0;
   private ff = false;
+  /** とくべつな せんとうの バナー（はじめて であう モンスター・ボス）。frame まで ひょうじ */
+  private banner: { lines: string[]; until: number } | null = null;
+  private hitsAfterAct = 0;
   private st: BattleState;
   private keyHandler: ((k: Key) => void) | null = null;
   private activeAlly = -1;
@@ -71,8 +75,9 @@ class BattleScreen implements Screen {
     return this.app.game!;
   }
   private get delay() {
-    if (this.ff) return 70;
-    return { normal: 700, fast: 380, instant: 110 }[this.app.settings.battleSpeed];
+    if (this.ff) return 40;
+    // ふつうの せんとうは さくさく すすむ（けっかは ログと ダメージ表示で つたわる）
+    return { normal: 520, fast: 270, instant: 80 }[this.app.settings.battleSpeed];
   }
 
   enter() {
@@ -89,7 +94,18 @@ class BattleScreen implements Screen {
       if (this.session.context.kind === 'boss') this.log(`${this.st.enemies.find((e) => e.distorted)?.name ?? names[0]}が たちはだかった！`);
       else if (names.length === 1) this.log(`${names[0]}が あらわれた！`);
       else this.log(`${names[0]}たちが あらわれた！`);
-      await sleep(this.delay);
+      // とくべつな せんとう（はじめて であう モンスター／はじめての ボス）は 演出を つよく。2回目からは みじかく
+      const fresh = this.session.firstSeen.map((id) => getSpecies(id).name);
+      if (this.session.firstBoss) {
+        this.banner = { lines: ['ゆがみとの けっせん！'], until: this.frame + 110 };
+        sfx('encounter');
+        await sleep(this.ff ? 200 : 900);
+      } else if (fresh.length) {
+        this.banner = { lines: ['はじめて であう モンスター！', `「${fresh[0]}」${fresh.length > 1 ? ` ほか` : ''}`], until: this.frame + 120 };
+        sfx('discover');
+        this.log('ずかんに あたらしく とうろくされた！');
+        await sleep(this.ff ? 200 : 1000);
+      } else await sleep(this.delay * 0.4);
       this.commandPhase();
     })();
   }
@@ -190,6 +206,24 @@ class BattleScreen implements Screen {
       g.strokeText(pp.text, p.x, y);
       g.fillStyle = pp.color;
       g.fillText(pp.text, p.x, y);
+    }
+    // とくべつな せんとうの バナー
+    if (this.banner) {
+      const left = this.banner.until - now;
+      if (left <= 0) this.banner = null;
+      else {
+        const a = Math.min(1, left / 18, (120 - left) / 10 + 0.2);
+        const hh = 18 + this.banner.lines.length * 22;
+        g.save();
+        g.globalAlpha = Math.max(0, a);
+        g.fillStyle = 'rgba(12,10,30,.82)';
+        g.fillRect(0, 22, BW, hh);
+        g.fillStyle = '#ffd860'; g.fillRect(0, 22, BW, 2); g.fillRect(0, 22 + hh - 2, BW, 2);
+        g.textAlign = 'center';
+        g.font = 'bold 18px "DotGothic16", monospace';
+        this.banner.lines.forEach((t, i) => { g.fillStyle = i ? '#ffffff' : '#ffd860'; g.fillText(t, BW / 2, 22 + 28 + i * 22); });
+        g.restore();
+      }
     }
   }
 
@@ -399,7 +433,11 @@ class BattleScreen implements Screen {
         break;
     }
     if ('text' in ev && ev.text) this.log(ev.text);
-    await sleep(ev.t === 'act' ? this.delay * 0.6 : this.delay);
+    // 待ち時間: こうげきの 連続は みじかく、見せ場（ひっさつ・ひんし）は ふつうに。せつめいだけの イベントは 待たない
+    let w = ev.t === 'act' ? 0.5 : ev.t === 'damage' ? (this.hitsAfterAct > 0 ? 0.45 : 0.75) : ev.t === 'faint' ? 0.9 : ev.t === 'end' ? 0 : ev.t === 'miss' ? 0.5 : 0.7;
+    if (ev.t === 'act') this.hitsAfterAct = 0; else if (ev.t === 'damage') this.hitsAfterAct++;
+    if (!('text' in ev && ev.text) && ev.t !== 'damage') w = Math.min(w, 0.2);
+    if (w > 0) await sleep(this.delay * w);
   }
 
   /** パーティが いっぱいのとき、だれと 入れかえるか えらぶ */
@@ -425,21 +463,32 @@ class BattleScreen implements Screen {
     if (outcome === 'win') {
       sfx('win');
       await sleep(300);
+      // けっかは まとめて ひょうじ（けいけんち・ゴールド・レベルアップを すくない タップで）
+      const special = this.session.firstBoss || this.session.firstSeen.length > 0;
       const lines: string[] = [];
-      if (sum.exp) lines.push(`みんなで けいけんちを ${sum.exp} わけあった！${sum.gold ? `\n${sum.gold}ゴールドを てにいれた！` : ''}`);
-      await say(lines);
+      if (sum.exp) lines.push(`みんなで けいけんちを ${sum.exp} わけあった！`);
+      if (sum.gold) lines.push(`${sum.gold}ゴールドを てにいれた！`);
       for (const lu of sum.levelUps) {
         const last = lu.events[lu.events.length - 1];
-        sfx('levelup');
         const gains = lu.events.reduce((acc, e) => { for (const k of Object.keys(e.gains) as (keyof typeof e.gains)[]) acc[k] = (acc[k] ?? 0) + e.gains[k]; return acc; }, {} as Record<string, number>);
         const gtxt = Object.entries(gains).filter(([, n]) => n > 0).map(([k, n]) => `${STAT_LABEL[k as keyof typeof STAT_LABEL]}+${n}`).join(' ');
-        const msgs = [`${lu.name}は レベル${last.level}に あがった！\n${gtxt}`];
+        lines.push(`${lu.name}は Lv${last.level}に あがった！\n${gtxt}`);
         for (const e of lu.events) {
-          for (const s of e.learned) msgs.push(`${lu.name}は ${getSkill(s).name}を おぼえた！`);
-          for (const u of e.upgraded) msgs.push(`${lu.name}の ${getSkill(u.from).name}が ${getSkill(u.to).name}に しんかした！`);
+          for (const sk of e.learned) lines.push(`${lu.name}は ${getSkill(sk).name}を おぼえた！`);
+          for (const u of e.upgraded) lines.push(`${lu.name}の ${getSkill(u.from).name}が ${getSkill(u.to).name}に しんかした！`);
         }
-        await say(msgs);
       }
+      if (sum.levelUps.length) sfx('levelup');
+      const cap = special ? 3 : 4; // 1ページに のせる ぎょうすう
+      const pages: string[] = [];
+      let cur: string[] = [], n = 0;
+      for (const l of lines) {
+        const k = l.split('\n').length;
+        if (n + k > cap && cur.length) { pages.push(cur.join('\n')); cur = []; n = 0; }
+        cur.push(l); n += k;
+      }
+      if (cur.length) pages.push(cur.join('\n'));
+      await say(pages);
       for (const lu of sum.levelUps) {
         const m = this.game.monster(lu.monsterId);
         if (m?.pendingSkills.length) await resolvePending(this.app, m);
@@ -449,9 +498,10 @@ class BattleScreen implements Screen {
         const rc = sum.recruit;
         await say(`${rc.name}が おきあがって ちかよってきた。\nなかまに なりたいようだ！`);
         if (await this.app.confirm(`${rc.name}を なかまに しますか？`)) {
+          const first = !this.game.state.ownedSpeciesIds.includes(rc.speciesId);
           const r = this.game.acceptRecruit(rc.speciesId, rc.level);
           if (r.ok) {
-            sfx('recruit');
+            await recruitFx(this.app, rc.speciesId, first);
             const inParty = this.game.state.partyIds.includes(r.value.id);
             await say(`${rc.name}が なかまに なった！`);
             await welcomeMonster(this.app, r.value.id, 'あたらしい なかま');
@@ -463,6 +513,7 @@ class BattleScreen implements Screen {
       if (sum.boss) {
         await say(sum.boss.texts);
         for (const r of sum.boss.rewards) if (r.type !== 'item' || r.itemId !== 'shard') await say(`${rewardText(r)}を てにいれた！`);
+        if (sum.boss.story.length) await say(sum.boss.story);
         await say('ゆがみが はらわれ、ひかりの みちが まちへと つながった。');
       }
     } else if (outcome === 'lose') {

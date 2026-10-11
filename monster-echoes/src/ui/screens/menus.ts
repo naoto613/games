@@ -6,6 +6,7 @@ import { isFieldSkill } from '../../domain/monster/FieldSkills';
 import { randomName } from '../../data/names';
 import type { MonsterInstance } from '../../domain/monster/types';
 import { setSoundEnabled, sfx } from '../../infrastructure/audio/Sound';
+import { openNotes } from './notes';
 import { migrate } from '../../infrastructure/save/SaveMigration';
 import { openArena } from './arena';
 import { openBreeding } from './breeding';
@@ -36,6 +37,7 @@ export function openFieldMenu(app: App, onClose: () => void) {
         item('じゅもん', () => openFieldSkills(app)),
         item('どうぐ', () => openItems(app)),
         item('さくせん', () => openTactic(app)),
+        item('ぼうけんメモ', () => openNotes(app)),
         inDungeon ? item('まちへ かえる（かえりのはね）', () => returnHome(app), { disabled: !(g.state.inventory.returnwing > 0), meta: `のこり ${g.state.inventory.returnwing ?? 0}` }) : null,
         item('せってい', () => openSettings(app)),
         item('きろくする', () => app.saveNow(true), { meta: 'オートセーブ ON' }),
