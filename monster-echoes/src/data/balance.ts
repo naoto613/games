@@ -94,6 +94,8 @@ export const BALANCE = {
     encounterBase: 0.05,
     encounterRamp: 0.018,
     encounterMax: 0.3,
+    /** 毒の床（v2 の ギミック）を 1歩 ふむごとに 最大HP の この割合の ダメージ（たおれは しない） */
+    poisonFloorRate: 0.03,
   },
   reward: {
     /** 経験値 = expYield * level * expScale（これを 生きている みかたで 分ける） */
