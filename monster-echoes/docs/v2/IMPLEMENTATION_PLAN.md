@@ -221,7 +221,9 @@ monster-echoes/
 
 ---
 
-## 6. 保存データ（SCHEMA v4）と移行
+## 6. 保存データ（SCHEMA v4・v5）と移行
+
+> 実装メモ（Phase 0 完了時）：v4 は 7能力化（0-5）、v5 は v2 進行の欄の追加（0-10）に使った。下記の「移行 v3→v4」の内容（種族ID の変換・物語の引き継ぎ）は `inheritLegacy()` として実装済みで、Phase 1 で内容を v2 に切りかえるときに v5→v6 の移行として実行する。
 
 - 追加：`chapter`（章番号・章内の段階）、`town`（現在の街・解放済みの街）、`features`（解放済み機能）、`storyLog`（見たイベント）、`equipment`（所持・装備）、`quests`（依頼の進行）、`bossRematch`、`clock`（Q11）、`dex`（見た／仲間にした／**生息地を知った**）、モンスター個体の `history` / `labels` / `breedingCount`。
 - **移行 v3→v4**（Q9 推奨案）：

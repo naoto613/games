@@ -22,6 +22,7 @@ export class MemorySaveRepository implements SaveRepository {
   async load(): Promise<LoadResult> {
     if (this.data == null) return { kind: 'empty' };
     const r = migrate(structuredClone(this.data));
+    if (r.ok && (this.data as SaveData).schemaVersion !== r.value.schemaVersion) this.backups.push(structuredClone(this.data)); // 移行前に バックアップ
     return r.ok ? { kind: 'ok', data: r.value } : { kind: 'error', error: r.error, raw: this.data };
   }
   async save(data: SaveData) {

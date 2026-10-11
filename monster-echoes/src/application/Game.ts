@@ -22,7 +22,7 @@ import { DEX_REWARDS, MEDAL_PRIZES, getTownMap } from '../data/town';
 import { SPECIES_LIST } from '../data/monsters';
 import { eventsOnFloor, EVENT_BY_ID, type EventContext, type EventDef } from '../data/events';
 import { eventAvailable, overlayEvents, type EventState } from '../domain/events/EventEngine';
-import { defaultSettings, GAME_VERSION, SCHEMA_VERSION, type SaveData, type StoryLog } from './GameState';
+import { defaultSettings, defaultV2State, GAME_VERSION, SCHEMA_VERSION, type SaveData, type StoryLog } from './GameState';
 import { clearStage, enterStage, hasFeature, initialChapterProgress, type ChapterProgress, type Unlocked } from '../domain/progression/ChapterEngine';
 import type { FeatureId } from '../data/world/chapters';
 import { LUNA_REACTIONS, NPC_BY_ID, STORY_EVENTS } from '../data/story';
@@ -109,6 +109,9 @@ export function newGameState(name: string, rng: Rng, now = Date.now()): SaveData
     breedingHistory: [],
     expedition: null,
     settings: defaultSettings(),
+    chapters: initialChapterProgress(),
+    story: { seen: [], records: [] },
+    v2: defaultV2State(),
   };
 }
 
@@ -253,7 +256,7 @@ export class Game {
 
   // ---- v2 の 章・街・機能（data/world/chapters.ts）
   get chapters(): ChapterProgress {
-    return this.state.chapters ?? initialChapterProgress();
+    return this.state.chapters;
   }
   hasFeature(f: FeatureId): boolean {
     return hasFeature(this.chapters, f);
@@ -267,7 +270,7 @@ export class Game {
   }
   // ---- v2 の 物語（data/story・domain/story/StoryEngine）
   get story(): StoryLog {
-    return this.state.story ?? { seen: [], records: [] };
+    return this.state.story;
   }
   storyContext(): StoryContext {
     const partner = this.state.monsters.find((m) => m.speciesId === 'm001');
