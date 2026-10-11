@@ -14,6 +14,8 @@ const mapSp = (id: unknown) => (typeof id === 'string' ? SPECIES_V1_TO_V2[id] ??
 const mapList = (l: unknown) => (Array.isArray(l) ? [...new Set(l.map(mapSp))] : l);
 
 const MIGRATIONS: Record<number, (d: Record<string, unknown>) => Record<string, unknown>> = {
+  // v2→v3: たびの なかの 固有イベント（おわった イベントの きろく）
+  2: (d) => ({ ...d, expedition: d.expedition && typeof d.expedition === 'object' ? { eventsDone: [], ...(d.expedition as object) } : d.expedition ?? null }),
   1: (d) => ({
     ...d,
     monsters: (d.monsters as Record<string, unknown>[]).map((m) => ({ ...m, speciesId: mapSp(m.speciesId), parentSpeciesIds: Array.isArray(m.parentSpeciesIds) ? (m.parentSpeciesIds as unknown[]).map(mapSp) : m.parentSpeciesIds })),

@@ -72,7 +72,7 @@ function seq(notes: Note[], bpm: number, type: OscillatorType = 'square', vol = 
   return t;
 }
 
-export type Sfx = 'cursor' | 'ok' | 'cancel' | 'bump' | 'hit' | 'crit' | 'magic' | 'heal' | 'levelup' | 'recruit' | 'breed' | 'stairs' | 'chest' | 'encounter' | 'win' | 'lose' | 'buy' | 'dead' | 'status' | 'save';
+export type Sfx = 'cursor' | 'ok' | 'cancel' | 'bump' | 'hit' | 'crit' | 'magic' | 'heal' | 'levelup' | 'recruit' | 'breed' | 'stairs' | 'chest' | 'encounter' | 'win' | 'lose' | 'buy' | 'dead' | 'status' | 'save' | 'discover' | 'secret';
 
 export function sfx(name: Sfx) {
   if (!ctx || !enabled || paused) return;
@@ -97,6 +97,8 @@ export function sfx(name: Sfx) {
     case 'win': seq([[12, 0.5], [12, 0.5], [12, 0.5], [16, 1.5], [14, 0.5], [17, 0.5], [21, 2]], 300, 'square', 0.3); break;
     case 'lose': seq([[7, 1], [3, 1], [0, 1], [-5, 3]], 140, 'triangle', 0.4); break;
     case 'buy': tone(24, t, 0.06, 'square', 0.25); tone(31, t + 0.06, 0.1, 'square', 0.25); break;
+    case 'discover': seq([[19, 0.4], [26, 0.4], [23, 0.4], [31, 1.4]], 340, 'sine', 0.32); break;
+    case 'secret': for (let i = 0; i < 6; i++) tone(7 + i * 2, t + i * 0.07, 0.12, 'triangle', 0.28); tone(24, t + 0.45, 0.5, 'sine', 0.3); break;
     case 'save': seq([[12, 0.5], [19, 0.5], [24, 1]], 300, 'triangle', 0.35); break;
   }
 }

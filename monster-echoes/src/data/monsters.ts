@@ -100,6 +100,9 @@ const list: MonsterSpecies[] = [
   mon('moonleo', 'ムーンレオ', 'spirit', 3, 'attacker', [[1, 'thunderfang'], [10, 'lightrain'], [18, 'quickstrike']], 'つきの ひかりを あびた しろい ししの せいれい。すばやく、ひかりの あめを ふらせる。', { resistances: { light: 2 }, growthCurves: { speed: 'early' } }),
   mon('bluecrab', 'ブルークラブ', 'water', 1, 'tank', [[1, 'pinch'], [6, 'icicle'], [12, 'shellguard']], 'あおい かいがらの カニ。こおりの いきで あいてを ひやして まもる。', { resistances: { ice: 3, fire: -1 } }),
   mon('poisonborg', 'ポイズンボーグ', 'plant', 2, 'bruiser', [[1, 'poisonmist'], [8, 'darkwave'], [15, 'lullaby']], 'どくの ふくろを もつ むらさきの キノコの まもの。むやみに ふれては いけない。', { resistances: { poison: 3 } }),
+  // ---- ストーリーに かかわる めずらしい なかま
+  mon('echoslime', 'エコースライム', 'slime', 2, 'healer', [[1, 'glimmer'], [6, 'heal'], [12, 'veil']], 'ひかりの こだまの ような うすむらさきの スライム。ふしぎな ひかりの あしあとを のこして あるく。', { resistances: { light: 2 }, growthCurves: { wisdom: 'early' },
+    lore: 'ひかりの クリスタルが くだけた ときの「こだま」から うまれた と いわれる。ゆがみの ない ばしょを えらんで あるき、ひかる あしあとを のこす。ふるい きおくを やどし、そだてると ひかりの とくぎを おぼえる。' }),
 ];
 
 export const SPECIES: Record<string, MonsterSpecies> = Object.fromEntries(list.map((s) => [s.id, s]));

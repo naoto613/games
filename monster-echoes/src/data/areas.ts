@@ -132,7 +132,8 @@ export const BOSSES: Record<string, BossDefinition> = {
     ],
     defeatText: ['くろい もやが はれていく…。', 'あとには あたたかく ひかる かけらが のこっていた。', 'ひかりのかけらを てにいれた！'],
     rewards: [{ type: 'item', itemId: 'shard', count: 1 }, { type: 'gold', amount: 150 }, { type: 'item', itemId: 'medal', count: 2 }],
-    setFlags: ['shard1'],
+    story: ['たおれた キノコボーグの ねもとで、ひかりの かけらが やさしく かがやいている。','……この ゆがみは、キノコボーグの せいでは なかった。','もりを まもる ために ふかく ねを はり、かけらの ゆがみを ひとりで うけとめていたのだ。','けれど ゆがみは ボスを のみこみ、やがて もり ぜんたいに あふれだした…。','もりを まもろうと した ばかりに、ゆがみに とりつかれて しまったらしい。','（ふと みると、ひかる あしあとが もりの おくへと きえていく。）'],
+  setFlags: ['shard1', 'truth_forest'],
   },
   boss_cave: {
     id: 'boss_cave', name: 'ゆがみの アイスクリル',
@@ -144,7 +145,8 @@ export const BOSSES: Record<string, BossDefinition> = {
     ],
     defeatText: ['にごった みずが すきとおっていく…。', 'ひかりのかけらを てにいれた！'],
     rewards: [{ type: 'item', itemId: 'shard', count: 1 }, { type: 'gold', amount: 400 }, { type: 'item', itemId: 'medal', count: 3 }],
-    setFlags: ['shard2'],
+    story: ['かけらに ふれた しゅんかん、ふるい きおくが ながれこんできた。','モンスターと ひとが ひかりの もとで ともに くらしていた、とおい むかしの けしき…。','アイスクリルは その きおくに とらわれて、みずうみを にごらせていたのだ。','クリスタルの かけらには、モンスターたちの きおくが やどっているらしい。'],
+  setFlags: ['shard2', 'truth_cave'],
   },
   boss_highland: {
     id: 'boss_highland', name: 'ゆがみの ファイアドラゴン',
@@ -156,7 +158,8 @@ export const BOSSES: Record<string, BossDefinition> = {
     ],
     defeatText: ['くろい ほのおが しずかに きえていく…。', 'ひかりのかけらを てにいれた！'],
     rewards: [{ type: 'item', itemId: 'shard', count: 1 }, { type: 'gold', amount: 800 }, { type: 'item', itemId: 'medal', count: 4 }],
-    setFlags: ['shard3'],
+    story: ['ファイアドラゴンは、ゆがみが こうげんの いのちを うばうのを ふせごうと していた。','かぜは かれ、くさは しおれ、すむ いきものたちも ちりぢりに なっている…。','ゆがみは モンスターだけで なく、とちや いきものの くらしまで むしばんでいたのだ。'],
+  setFlags: ['shard3', 'truth_highland'],
   },
 };
 
@@ -170,7 +173,8 @@ BOSSES.boss_tower = {
   ],
   defeatText: ['かげは ひかりの つぶに なって きえていった…。', 'あしもとに ちいさなメダルが たくさん ちらばっている！'],
   rewards: [{ type: 'gold', amount: 3000 }, { type: 'item', itemId: 'medal', count: 10 }],
-  setFlags: ['towerClear'],
+  story: ['ゆがみの おうが きえ、とうの さいじょうかいに ほんとうの ひかりが もどった。','クリスタルは だれかに こわされたのでは なく、じぶんの ちからを ふうじる ために くだけたのかも しれない。','……では、なぜ？ それは まだ ぜんぶは わからない。','あの ひかる あしあとの ぬしは、その ひかりの ことを しっているのだろうか。'],
+  setFlags: ['towerClear', 'truth_tower'],
 };
 
 BOSSES.boss_snow = {
@@ -183,7 +187,8 @@ BOSSES.boss_snow = {
   ],
   defeatText: ['ふぶきが ぴたりと やんで、そらが はれわたっていく…。', 'こおりの なかから ひかりの かけらが あらわれた！'],
   rewards: [{ type: 'item', itemId: 'shard', count: 1 }, { type: 'gold', amount: 1500 }, { type: 'item', itemId: 'medal', count: 5 }],
-  setFlags: ['shard4'],
+  story: ['アイスドラゴンの こおりの なかに、むかしの クリスタルの いっぺんが とじこめられていた。','ふしぎな ことに、その かけらは「くだけた」と いうより「なにかに わられた」あとが ある。','ゆがみは クリスタルが こわれた だけでは おきない。ほかに げんいんが あるのかも しれない…。'],
+  setFlags: ['shard4', 'truth_snow'],
 };
 
 BOSSES.boss_volcano = {
@@ -196,7 +201,8 @@ BOSSES.boss_volcano = {
   ],
   defeatText: ['マグマの いきおいが おさまり、かざんは しずかに なった…。', 'ひかりの かけらが あしもとで かがやいている！'],
   rewards: [{ type: 'item', itemId: 'shard', count: 1 }, { type: 'gold', amount: 4000 }, { type: 'item', itemId: 'medal', count: 8 }],
-  setFlags: ['shard5'],
+  story: ['マグマの おくで、せかいじゅうの かけらたちが ひとつの ほうこうへ ひかりを のばしている。','ゆがみは ばらばらに おきていたのでは なかった。','すべては ひかりのとうの さいじょうかいへ つながっている…！'],
+  setFlags: ['shard5', 'truth_volcano'],
 };
 
 export const ARENA_RANKS: ArenaRankDefinition[] = [

@@ -13,6 +13,8 @@ export type FloorSpec = {
   last: boolean;
   /** ボス専用の へやか（敵は でない） */
   boss?: boolean;
+  /** この フロアに おく 固有イベント（hidden は かくし へや つき） */
+  events?: { id: string; kind: string; vaultId?: string }[];
   /** いやしのいずみ H を おくか */
   spring: boolean;
 };
@@ -131,6 +133,12 @@ function tryGenerate(spec: FloorSpec, rng: Rng): TileMap | null {
     g[p.y][p.x] = 'H';
   }
   if (ends.length < (spec.last ? 1 : 2)) return null;
+  // 固有イベント（いきどまりに おく。たからばこより さきに ばしょを とる）
+  const evList: { x: number; y: number; id: string }[] = [];
+  const evs = spec.events ?? [];
+  const visible = evs.filter((e) => e.kind !== 'hidden');
+  if (ends.length < visible.length + (spec.last ? 1 : 2)) return null;
+  for (const e of visible) { const p = ends.pop()!; g[p.y][p.x] = 'V'; evList.push({ x: p.x, y: p.y, id: e.id }); }
   const nChest = Math.min(ends.length, spec.last ? randomInt(rng, 1, 2) : randomInt(rng, 2, 4));
   for (let i = 0; i < nChest; i++) { const p = ends.pop()!; g[p.y][p.x] = 'C'; }
 
@@ -151,14 +159,35 @@ function tryGenerate(spec: FloorSpec, rng: Rng): TileMap | null {
     if (rng.next() < grass * (1 + near * 0.6) * (roomOf(x, y) ? 1.2 : 1)) g[y][x] = ',';
   }
 
-  const m: TileMap = { id: spec.id, w: W, h: H, tiles: g };
-  // けんさ: スタートから ぜんぶに 手が とどくか
-  const { walk, touch } = reachable(m, start);
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-    const t = g[y][x];
-    if ('C>BHE'.includes(t) && !touch.has(`${x},${y}`) && !walk.has(`${x},${y}`)) return null;
+  let tiles = g, H2 = H;
+  const evPos: Record<string, string> = {};
+  const hid = evs.find((e) => e.kind === 'hidden');
+  let dy = 0;
+  if (hid && hid.vaultId) {
+    // うえの かべの そとに かくし へやを つくる（かべの ひとつを「かくし とびら Z」に する）
+    const cols: number[] = [];
+    for (let x = 1; x < W - 1; x += 2) if (g[1][x] === '.' || g[1][x] === ',') cols.push(x);
+    if (!cols.length) return null;
+    const ax = cols[Math.floor(rng.next() * cols.length)];
+    dy = 3;
+    const pad = () => Array(W).fill('#') as string[];
+    tiles = [pad(), pad(), pad(), ...g.map((r) => [...r])];
+    tiles[2][ax] = 'V';
+    tiles[3][ax] = 'Z';
+    H2 = H + dy;
+    evPos[`${ax},3`] = hid.id;
+    evPos[`${ax},2`] = hid.vaultId;
   }
-  if (!isPassable(m, start.x, start.y)) return null;
+  for (const e of evList) evPos[`${e.x},${e.y + dy}`] = e.id;
+  const m: TileMap = { id: spec.id, w: W, h: H2, tiles, events: evPos };
+  // けんさ: スタートから ぜんぶに 手が とどくか
+  const { walk, touch } = reachable(m, { x: start.x, y: start.y + dy });
+  for (let y = 0; y < H2; y++) for (let x = 0; x < W; x++) {
+    const t = tiles[y][x];
+    if (t === 'V' && dy && y === 2) continue; // かくし へやの なか
+    if ('CVZ>BHE'.includes(t) && !touch.has(`${x},${y}`) && !walk.has(`${x},${y}`)) return null;
+  }
+  if (!isPassable(m, start.x, start.y + dy)) return null;
   return m;
 }
 

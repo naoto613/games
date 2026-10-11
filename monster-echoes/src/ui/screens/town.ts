@@ -39,6 +39,10 @@ export async function talkTo(app: App, id: string, field: { updateHud(): void; a
         await app.say(['おお、きたか。わしは モンスターの 配合を けんきゅうしておる。', 'レベル10いじょうの ♂と♀を つれてくれば、ふたりの ちからを うけついだ こを うみだせるぞ。', 'ただし おやの 2たいは この せかいの ひかりに かえる。よく かんがえて えらぶのじゃ。'], { speaker: name });
         g.setTutorial('breedTalk');
       }
+      if (g.state.progress.storyFlags.truth_forest && !g.state.progress.tutorialFlags.doctorForest) {
+        await app.say(['キノコボーグの はなしは きいたぞ。ゆがみは ひかりの かけらから あふれだして いたのか…。', 'かけらの ちからを しらべる ひつようが あるな。2かいの けんきゅうしつを つかいなさい。'], { speaker: name });
+        g.setTutorial('doctorForest');
+      }
       const c = await app.ask('なにを するかね？', ['配合する', 'モンスターずかん', 'はなしを きく', 'やめる'], { speaker: name });
       if (c === 0) openBreeding(app, done);
       else if (c === 1) openDex(app);
@@ -54,6 +58,10 @@ export async function talkTo(app: App, id: string, field: { updateHud(): void; a
       if (!g.state.progress.tutorialFlags.ranchTalk) {
         await app.say(['ここは ぼくじょうよ。なかまに した モンスターは みんな ここで あずかるわ。', 'つれていけるのは 3たいまで。たびの まえに えらんでね！'], { speaker: name });
         g.setTutorial('ranchTalk');
+      }
+      if (g.state.breedingHistory.length > 0 && !g.state.progress.tutorialFlags.lilyBred) {
+        await app.say(['あら…その こ、はじめての 配合で うまれた こね！', 'おやの ちからを うけついで、とても いきいきしてる。だいじに そだててあげてね。'], { speaker: name });
+        g.setTutorial('lilyBred');
       }
       openParty(app, done);
       break;
@@ -77,8 +85,15 @@ export async function talkTo(app: App, id: string, field: { updateHud(): void; a
       break;
     }
     case 'kid': {
+      const f = g.state.progress.storyFlags;
+      const specials: string[][] = [];
+      if ((f.foot1 || f.foot2) && !g.state.ownedSpeciesIds.includes('echoslime')) specials.push(['ひかる あしあとを みたの！？ ぼく、もりの おくで うすむらさきの ひかりを みたことが あるんだ。', 'にくを もって いけば、なかまに なってくれるかも！']);
+      if (!f.ev_forest_vault) specials.push(['もりの きの ねっこが からまった かべが あってね、ときどき ひかって みえるんだ。', 'あれ、ぜったい あやしいと おもうな！']);
+      if (f.truth_forest) specials.push(['もりの もやが うすく なったって、みんな いってるよ！ キノコボーグ、もりを まもって いたんだね…。']);
+      if (f.truth_cave && !f.truth_highland) specials.push(['どうくつの みずが きれいに なったって！ つぎは かぜの こうげんかな？']);
+      const lines = [...specials, ...KID_TIPS.map((t) => [t])];
       const i = (g.state.player.playTimeSec / 7 + g.state.monsters.length) | 0;
-      await app.say(KID_TIPS[i % KID_TIPS.length], { speaker: name });
+      await app.say(lines[i % lines.length], { speaker: name });
       break;
     }
     case 'granny': {
@@ -88,6 +103,8 @@ export async function talkTo(app: App, id: string, field: { updateHud(): void; a
         await app.say(['ひかりの クリスタルが もとに もどって、せかいの ゆがみも おさまったねえ。', 'むかし きいた はなしだよ…すいしょうの りゅうと にじの とり、どちらも 配合を かさねた つよい こを あわせると、でんせつの りゅうが うまれるとか。'], { speaker: name });
       else if (shards === 3)
         await app.say(['かけらが 3つ そろったね。あとは とうぎじょうの ルナフィアたいかいで ゆうしょうして、クリスタルを まつる ゆるしを もらうんだよ。'], { speaker: name });
+      else if (p.storyFlags.truth_forest && shards < 3)
+        await app.say(['もりの ゆがみが うすれて、キノコボーグは もりを まもって いたそうだね。…かなしい はなしだよ。', 'クリスタルの かけらに さわると、ふるい きおくが みえる…と、ばあちゃんの ばあちゃんが いっていたねえ。', `かけらは いま ${shards}つ。のこりも あつめておくれ。`], { speaker: name });
       else
         await app.say([`むかし この まちには ひかりの クリスタルが あったんだよ。くだけて できた ゆがみが、たびのとびらの むこうで モンスターたちを くるしめている…。`, `かけらは いま ${shards}つ。ぜんぶで 3つ あつめておくれ。`], { speaker: name });
       break;
