@@ -10,6 +10,7 @@ import type { MonsterInstance } from '../monster/types';
 import { alive, chooseAction, friendsOf, opponentsOf } from './BattleAI';
 import { calculateDamage, effSpeed, healAmount, statusMultiplier } from './DamageCalculator';
 import { decideOrder } from './TurnOrder';
+import { forcedSkillOf, initScript, reflectTarget, runBossScripts, tickReflect, type ScriptHelpers } from './BossScript';
 import type { AllyCommand, BattleEvent, BattleKind, BattleState, Combatant, TurnInput, TurnResult } from './types';
 
 const B = BALANCE.battle;
@@ -44,7 +45,7 @@ export function enemyFromSpec(spec: EnemySpec, slot: number): Combatant {
   }
   const resist = { ...speciesResistances(sp) };
   if (spec.distorted) resist.light = -1; // ゆがんだモンスターは光に弱い
-  return {
+  const c: Combatant = {
     key: `e${slot}`, side: 'enemy', slot, speciesId: sp.id, name: spec.name ?? sp.name, level: spec.level,
     maxHp: hp, hp, maxMp: st.mp, mp: st.mp,
     attack: Math.round(st.attack * sc), defense: Math.round(st.defense * sc), speed: Math.round(st.speed * sc),
@@ -55,6 +56,8 @@ export function enemyFromSpec(spec: EnemySpec, slot: number): Combatant {
     distorted: !!spec.distorted,
     healsUsed: 0, used: {}, statusHits: 0,
   };
+  initScript(c, spec.script);
+  return c;
 }
 
 /** 同じ名前が並んだら A・B・C をつける（味方と同じ名前の敵にも つけて 見分けやすくする） */
@@ -107,6 +110,8 @@ export function resolveTurn(input: BattleState, cmd: TurnInput, rng: Rng): TurnR
   if (s.outcome) return { state: s, events: ev, itemsUsed };
   s.turn += 1;
   for (const c of [...s.allies, ...s.enemies]) c.defending = false;
+  // ボスの 台本（召喚・強化・形態変化 など）
+  runBossScripts(s, 'turnStart', ev, scriptHelpers);
 
   // ---- にげる（味方の行動より先に判定）
   let alliesAct = true;
@@ -150,7 +155,10 @@ export function resolveTurn(input: BattleState, cmd: TurnInput, rng: Rng): TurnR
   }
   for (const e of s.enemies) {
     if (e.hp <= 0) continue;
-    plans.push({ actor: e, priority: 0, run: () => monsterAct(s, e, autoChoice(s, e, s.enemyTactic, rng, 6), ev, rng) });
+    plans.push({ actor: e, priority: 0, run: () => {
+      const forced = forcedSkillOf(e);
+      monsterAct(s, e, forced && getSkill(forced).mpCost <= e.mp ? { skillId: forced } : autoChoice(s, e, s.enemyTactic, rng, 6), ev, rng);
+    } });
   }
   const order = decideOrder(plans.map((p) => ({ actor: p.actor, priority: p.priority })), rng);
   for (const o of order) {
@@ -162,8 +170,11 @@ export function resolveTurn(input: BattleState, cmd: TurnInput, rng: Rng): TurnR
   }
   if (!s.outcome) endOfTurn(s, ev, rng);
   checkEnd(s, ev);
+  if (!s.outcome) runBossScripts(s, 'turnEnd', ev, scriptHelpers);
   return { state: s, events: ev, itemsUsed };
 }
+
+const scriptHelpers: ScriptHelpers = { makeEnemy: (spec, slot) => enemyFromSpec(spec, slot), changeStage: (t, stat, d, ev) => changeStage(t, stat, d, ev) };
 
 function checkEnd(s: BattleState, ev: BattleEvent[]) {
   if (s.outcome) return;
@@ -265,7 +276,8 @@ function monsterAct(s: BattleState, a: Combatant, choice: { skillId: string; tar
     case 'physical': return doPhysical(s, a, sk, ts, ev, rng, false);
     case 'magic':
     case 'breath':
-      for (const t of ts) {
+      for (const t0 of ts) {
+        const t = reflectTarget(a, t0, sk.category, ev);
         const d = calculateDamage({ skill: sk, attacker: a, defender: t, isCritical: false, charged: false, rng });
         dealDamage(a, t, d, ev, sk, rng);
         afterHit(a, t, d, sk, ev, rng);
@@ -320,8 +332,9 @@ function doPhysical(s: BattleState, a: Combatant, sk: SkillDefinition, ts: Comba
   } else if (sk.target === 'allEnemies') list.push(...ts);
   else for (let i = 0; i < hits; i++) list.push(ts[0]);
   if (confused) ev.push({ t: 'act', actor: a.key, skillId: 'attack', text: `${a.name}は ${list[0].name}に おそいかかった！` });
-  for (const t of list) {
-    if (t.hp <= 0) continue;
+  for (const t0 of list) {
+    if (t0.hp <= 0) continue;
+    const t = reflectTarget(a, t0, 'physical', ev);
     const sure = t.status.sleep > 0 || t.status.paralysis > 0;
     if (!sure && !chance(rng, sk.hitRate)) {
       ev.push({ t: 'miss', target: t.key, text: `ミス！ ${t.name}は ひらりと みを かわした！` });
@@ -484,6 +497,7 @@ function endOfTurn(s: BattleState, ev: BattleEvent[], _rng: Rng) {
     if (c.status.sleep > 0 && --c.status.sleep === 0) ev.push({ t: 'status', target: c.key, status: 'sleep', on: false, text: `${c.name}は めを さました！` });
     if (c.status.paralysis > 0 && --c.status.paralysis === 0) ev.push({ t: 'status', target: c.key, status: 'paralysis', on: false, text: `${c.name}の からだの しびれが とれた！` });
     if (c.status.confusion > 0 && --c.status.confusion === 0) ev.push({ t: 'status', target: c.key, status: 'confusion', on: false, text: `${c.name}は われに かえった！` });
+    tickReflect(c, ev);
   }
 }
 

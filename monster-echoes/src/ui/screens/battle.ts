@@ -451,6 +451,19 @@ class BattleScreen implements Screen {
       case 'item':
         sfx('ok');
         break;
+      case 'summon':
+        // 台本で ふえた 敵（再生中の 画面にも すぐ 出す）
+        this.st.enemies.push(structuredClone(ev.combatant));
+        this.views.set(ev.target, this.viewOf(ev.combatant));
+        sfx('status');
+        break;
+      case 'phase': {
+        const e = this.st.enemies.find((x) => x.key === ev.target);
+        if (e) e.name = ev.name;
+        if (v) v.hitT = this.frame;
+        sfx('magic');
+        break;
+      }
       case 'end':
         break;
     }

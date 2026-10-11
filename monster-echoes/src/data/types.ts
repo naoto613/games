@@ -158,7 +158,35 @@ export type EnemySpec = {
   name?: string;
   distorted?: boolean;
   recruitable?: boolean;
+  /** ボスの 行動台本（src/data/bosses/scripts.ts の ID） */
+  script?: string;
 };
+
+// ---- ボスの 行動台本（v2 仕様：召喚・反射・ターン強化・形態変化・属性切替）
+/** いつ うごくか。turn は ターンの はじめ、hpBelow は ターンの はじめと おわりに しらべる */
+export type BossTrigger =
+  | { kind: 'start' }
+  | { kind: 'turn'; at?: number; every?: number; from?: number }
+  | { kind: 'hpBelow'; ratio: number }
+  | { kind: 'minionsBelow'; count: number };
+export type BossStep =
+  | { kind: 'message'; text: string }
+  /** 子分を よぶ（場の 敵は max 体まで） */
+  | { kind: 'summon'; speciesId: string; level: number; count: number; max: number; name?: string }
+  /** はねかえす まく。physicalHits 回 物理で なぐると われる */
+  | { kind: 'reflect'; turns: number; categories: SkillCategory[]; physicalHits?: number }
+  | { kind: 'buff'; stat: BuffStat; stages: number; target: 'self' | 'team' }
+  /** 形態変化 */
+  | { kind: 'phase'; name?: string; healRatio?: number; statScale?: number; skills?: string[]; resist?: Resistances; clearStages?: boolean; message?: string }
+  /** 属性切替（じゅんばんに。その属性に つよく、弱点に よわくなる） */
+  | { kind: 'element'; cycle: ElementId[] }
+  /** みかたの 強化を けす */
+  | { kind: 'dispel' }
+  /** この ターンは この 特技を つかう */
+  | { kind: 'useSkill'; skillId: string };
+/** inPhase を 書くと その 形態の ときだけ うごく（形態は 0 から） */
+export type BossRule = { id: string; when: BossTrigger; once?: boolean; inPhase?: number; steps: BossStep[] };
+export type BossScript = { id: string; rules: BossRule[] };
 
 export type BossDefinition = {
   id: string;
