@@ -22,9 +22,12 @@ import { DEX_REWARDS, MEDAL_PRIZES, getTownMap } from '../data/town';
 import { SPECIES_LIST } from '../data/monsters';
 import { eventsOnFloor, EVENT_BY_ID, type EventContext, type EventDef } from '../data/events';
 import { eventAvailable, overlayEvents, type EventState } from '../domain/events/EventEngine';
-import { defaultSettings, GAME_VERSION, SCHEMA_VERSION, type SaveData } from './GameState';
+import { defaultSettings, GAME_VERSION, SCHEMA_VERSION, type SaveData, type StoryLog } from './GameState';
 import { clearStage, enterStage, hasFeature, initialChapterProgress, type ChapterProgress, type Unlocked } from '../domain/progression/ChapterEngine';
 import type { FeatureId } from '../data/world/chapters';
+import { LUNA_REACTIONS, NPC_BY_ID, STORY_EVENTS } from '../data/story';
+import type { LunaSituation, StoryAction, StoryLine, StoryTrigger } from '../data/story/types';
+import { allCond, eventsFor, lunaReaction, markSeen, npcLines, renderLines, type StoryContext } from '../domain/story/StoryEngine';
 
 export type BattleContext =
   | { kind: 'wild' }
@@ -262,6 +265,79 @@ export class Game {
     this.update((s) => (s.chapters = r.value.progress));
     return ok(r.value.unlocked);
   }
+  // ---- v2 の 物語（data/story・domain/story/StoryEngine）
+  get story(): StoryLog {
+    return this.state.story ?? { seen: [], records: [] };
+  }
+  storyContext(): StoryContext {
+    const partner = this.state.monsters.find((m) => m.speciesId === 'm001');
+    return {
+      chapters: this.chapters, flags: this.state.progress.storyFlags, seen: this.story.seen,
+      partySpecies: this.party.map((m) => m.speciesId), ownedSpecies: this.state.ownedSpeciesIds,
+      playerName: this.state.player.name, partnerName: partner ? displayName(partner) : 'ルナスライム',
+    };
+  }
+  /**
+   * きっかけに あう 物語イベントを すべて おこす（台詞を かえし、フラグ・道具・仲間などを 反映）。
+   * 一度きりの イベントは 二度と おこらない。
+   */
+  runStory(trigger: StoryTrigger): { id: string; lines: StoryLine[] }[] {
+    const out: { id: string; lines: StoryLine[] }[] = [];
+    for (const e of eventsFor(this.storyContext(), STORY_EVENTS, trigger)) {
+      // まえの イベントで 条件が かわる ことが あるので もういちど たしかめる
+      if (!allCond(this.storyContext(), e.conditions)) continue;
+      this.update((s) => (s.story = { ...this.story, seen: markSeen(this.story.seen, e.id) }));
+      for (const a of e.actions) this.applyStoryAction(a);
+      // 台詞は 反映の あとに つくる（あたらしい 相棒の 名前などを つかう）
+      out.push({ id: e.id, lines: renderLines(this.storyContext(), e.lines) });
+    }
+    if (out.length) this.autosave();
+    return out;
+  }
+  private applyStoryAction(a: StoryAction) {
+    switch (a.type) {
+      case 'setFlag': this.setFlag(a.id); return;
+      case 'giveItem': this.update((s) => (s.inventory[a.itemId] = (s.inventory[a.itemId] ?? 0) + a.count)); return;
+      case 'gold': this.update((s) => (s.player = { ...s.player, gold: s.player.gold + a.amount })); return;
+      case 'heal': this.healAll(); return;
+      case 'clearStage': this.clearStage(a.id); return;
+      case 'record':
+        this.update((s) => {
+          const st = this.story;
+          if (!st.records.some((r) => r.id === a.id)) s.story = { ...st, records: [...st.records, { id: a.id, title: a.title }] };
+        });
+        return;
+      case 'giveMonster': {
+        const m = createMonster(a.speciesId, this.rng, { level: a.level, obtainedFrom: 'story', existingIds: new Set(this.state.monsters.map((x) => x.id)) });
+        if (a.nickname) m.nickname = a.nickname;
+        this.update((s) => {
+          s.monsters.push(m);
+          // 相棒は かならず パーティの 先頭に いれる
+          if (a.partner) s.partyIds = [m.id, ...s.partyIds].slice(0, BALANCE.partySize);
+          else if (s.partyIds.length < BALANCE.partySize) s.partyIds.push(m.id);
+          s.ownedSpeciesIds = addUnique(s.ownedSpeciesIds, a.speciesId);
+          s.discoveredSpeciesIds = addUnique(s.discoveredSpeciesIds, a.speciesId);
+        });
+        return;
+      }
+    }
+  }
+  /** NPC に はなしかける（章ごとに かわる 台詞） */
+  talkTo(npcId: string): StoryLine[] {
+    const npc = NPC_BY_ID[npcId];
+    if (!npc) return [];
+    const ev = this.runStory({ kind: 'talk', target: npcId });
+    if (ev.length) return ev.flatMap((e) => e.lines);
+    return npcLines(this.storyContext(), npc) ?? [];
+  }
+  /** ルナスライムの 反応（一度きりの 反応は 見た ことを のこす） */
+  lunaSays(situation: LunaSituation): string | null {
+    const r = lunaReaction(this.storyContext(), LUNA_REACTIONS, situation);
+    if (!r) return null;
+    if (r.once) this.update((s) => (s.story = { ...this.story, seen: markSeen(this.story.seen, r.id) }));
+    return r.text;
+  }
+
   /** ステージを クリアした（章の 最後なら 章クリア）。解放された ものを かえす */
   clearStage(stageId: string): Result<Unlocked> {
     const r = clearStage(this.chapters, stageId);
