@@ -1,4 +1,5 @@
-import type { Resistances, StatusId, Tactic } from '../../data/types';
+import type { Resistances, SkillCategory, StatusId, Tactic } from '../../data/types';
+import type { ScriptState } from './BossScript';
 
 export type Side = 'ally' | 'enemy';
 
@@ -25,6 +26,13 @@ export type Combatant = {
   /** 変則型（成長タイプ6）：HP が へると いちどだけ 覚醒する */
   variable?: boolean;
   awakened?: boolean;
+  /** ボスの 行動台本 */
+  script?: string;
+  scriptState?: ScriptState;
+  /** 台本で よばれた 子分（経験値・お金なし） */
+  summoned?: boolean;
+  /** はねかえす かがみ（のこりターン・はねかえす 種類・物理で われるまでの 回数） */
+  reflect?: { turns: number; categories: SkillCategory[]; hits?: number };
   status: StatusState;
   charged: boolean;
   defending: boolean;
@@ -92,6 +100,10 @@ export type BattleEvent =
   | { t: 'status'; target: string; status: StatusId | 'buff'; on: boolean; text: string }
   | { t: 'miss'; target: string; text: string }
   | { t: 'item'; itemId: string; text: string }
+  /** 台本で 敵が ふえた */
+  | { t: 'summon'; target: string; combatant: Combatant; text: string }
+  /** 台本で 形態が かわった */
+  | { t: 'phase'; target: string; name: string; text: string }
   | { t: 'end'; outcome: 'win' | 'lose' | 'escape'; text: string };
 
 export type TurnResult = { state: BattleState; events: BattleEvent[]; itemsUsed: Record<string, number> };
