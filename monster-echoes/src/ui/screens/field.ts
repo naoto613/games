@@ -43,7 +43,6 @@ export class FieldScreen implements Screen {
   private paused = false;
   private map!: TileMap;
   private stepAnim = 0;
-  private dpadKeys: Record<Dir, HTMLElement> = {} as Record<Dir, HTMLElement>;
 
   constructor(private app: App) {
     [this.cv, this.g] = mkCanvas(VW * TILE, VH * TILE);
@@ -51,10 +50,10 @@ export class FieldScreen implements Screen {
     this.hudR = h('div', { class: 'win hud right' });
     this.strip = h('div', { class: 'pstrip' });
     this.strip.addEventListener('click', (e) => { e.stopPropagation(); if (this.busy || this.moving) return; sfx('ok'); openParty(this.app, () => this.afterMenu(), { viewOnly: !this.inTown }); });
-    const view = h('div', { class: 'view' }, this.cv, this.hudL, this.hudR, this.strip);
-    view.addEventListener('click', (e) => this.tapMap(e));
+    const view = h('div', { class: 'view full' }, this.cv, this.hudL, this.hudR, this.strip);
+    this.buildTouch(view);
     this.reloadMap();
-    this.el = h('div', { class: 'layer' }, view, this.buildPad());
+    this.el = h('div', { class: 'layer' }, view);
   }
 
   private get game() {
@@ -76,57 +75,90 @@ export class FieldScreen implements Screen {
     return this.inTown ? this.game.state.player.townDir : this.game.state.expedition!.dir;
   }
 
-  private buildPad() {
-    const dpad = h('div', { class: 'dpad' }, h('div', { class: 'c' }));
-    for (const d of ['up', 'down', 'left', 'right'] as Dir[]) {
-      const k = h('div', { class: `k ${d}` }, { up: '▲', down: '▼', left: '◀', right: '▶' }[d]);
-      this.dpadKeys[d] = k;
-      dpad.append(k);
-    }
-    // 中心からの角度で方向を決める（指をすべらせても方向が変わる）
-    const fromPoint = (e: PointerEvent): Dir | null => {
-      const r = dpad.getBoundingClientRect();
-      const x = e.clientX - (r.left + r.width / 2), y = e.clientY - (r.top + r.height / 2);
-      if (Math.hypot(x, y) < 12) return null;
-      return Math.abs(x) > Math.abs(y) ? (x > 0 ? 'right' : 'left') : y > 0 ? 'down' : 'up';
+  /**
+   * スマホ向けの そうさ（十字キーなし）:
+   * ・タップ … そこまで あるく（人・たからばこ なら となりまで いって しらべる）
+   * ・なぞる … ゆびを おいた ところに スティックが でて、なぞった ほうこうへ あるきつづける
+   */
+  private buildTouch(view: HTMLElement) {
+    const knob = h('div', { class: 'knob' });
+    const joy = h('div', { class: 'joy' }, knob);
+    view.append(joy);
+    let start: { x: number; y: number; id: number; t: number } | null = null;
+    let dragging = false;
+    const R = 34;
+    const setJoy = (x: number, y: number, dx: number, dy: number) => {
+      const r = view.getBoundingClientRect();
+      joy.style.left = `${x - r.left}px`;
+      joy.style.top = `${y - r.top}px`;
+      const len = Math.hypot(dx, dy) || 1, k = Math.min(len, R) / len;
+      knob.style.transform = `translate(${dx * k}px, ${dy * k}px)`;
     };
-    const set = (d: Dir | null) => {
+    view.addEventListener('pointerdown', (e) => {
+      if (start || (e.target as HTMLElement).closest('.pstrip, .fmenu')) return;
+      start = { x: e.clientX, y: e.clientY, id: e.pointerId, t: performance.now() };
+      dragging = false;
+      view.setPointerCapture(e.pointerId);
+    });
+    view.addEventListener('pointermove', (e) => {
+      if (!start || e.pointerId !== start.id) return;
+      const dx = e.clientX - start.x, dy = e.clientY - start.y;
+      const len = Math.hypot(dx, dy);
+      if (!dragging && len < 14) return;
+      if (!dragging) {
+        dragging = true;
+        this.path = []; this.pathGoal = null;
+        joy.classList.add('on');
+      }
+      // スティックが にげないよう、ゆびが とおくまで いったら 中心を ひきよせる
+      if (len > R * 1.8) { start.x = e.clientX - (dx / len) * R * 1.8; start.y = e.clientY - (dy / len) * R * 1.8; }
+      setJoy(start.x, start.y, e.clientX - start.x, e.clientY - start.y);
+      const ax = Math.abs(dx), ay = Math.abs(dy);
+      // ななめ付近では いまの ほうこうを たもつ（ガタつかない）
+      let d: Dir = ax > ay ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';
+      if (this.held && Math.abs(ax - ay) < Math.max(ax, ay) * 0.25) d = this.held;
       this.held = d;
-      for (const [k, el] of Object.entries(this.dpadKeys)) el.classList.toggle('on', k === d);
+    });
+    const end = (e: PointerEvent, cancel: boolean) => {
+      if (!start || e.pointerId !== start.id) return;
+      const wasDrag = dragging;
+      start = null;
+      dragging = false;
+      joy.classList.remove('on');
+      this.held = null;
+      if (!wasDrag && !cancel) this.tapMap(e);
     };
-    dpad.addEventListener('pointerdown', (e) => { dpad.setPointerCapture(e.pointerId); set(fromPoint(e)); });
-    dpad.addEventListener('pointermove', (e) => { if (this.held !== null || e.buttons) set(fromPoint(e)); });
-    const up = () => set(null);
-    dpad.addEventListener('pointerup', up);
-    dpad.addEventListener('pointercancel', up);
-    const a = h('div', { class: 'round a', role: 'button', 'aria-label': 'しらべる' }, 'A');
-    const b = h('div', { class: 'round b', role: 'button', 'aria-label': 'メニュー' }, 'B');
-    a.addEventListener('pointerdown', (e) => { e.preventDefault(); this.key('a', true); });
-    b.addEventListener('pointerdown', (e) => { e.preventDefault(); this.key('b', true); });
-    const menu = h('button', { class: 'btn menu-btn', type: 'button' }, 'メニュー');
-    menu.addEventListener('click', () => this.key('menu', true));
-    return h('div', { class: 'pad-area' }, dpad, menu, h('div', { class: 'abtn' }, a, b));
+    view.addEventListener('pointerup', (e) => end(e, false));
+    view.addEventListener('pointercancel', (e) => end(e, true));
+    const menu = h('button', { class: 'btn fmenu', type: 'button', 'aria-label': 'メニュー' }, h('span', { class: 'ham' }, '≡'), 'メニュー');
+    menu.addEventListener('click', (e) => { e.stopPropagation(); this.key('menu', true); });
+    view.append(menu);
   }
 
-  /** 縦長の画面では 見える範囲を 下に広げる */
+  /** 画面いっぱいに マップを ひろげる（たて長でも よこ長でも あまらないように 行数を きめる） */
   private fit() {
     const w = this.el.clientWidth || 390, hgt = this.el.clientHeight || 700;
     const tilePx = w / VW;
-    let rows = Math.floor((hgt - 230) / tilePx);
-    rows = Math.max(9, Math.min(15, rows - ((rows + 1) % 2)));
+    let rows = Math.ceil(hgt / tilePx);
+    if (rows % 2 === 0) rows++;
+    rows = Math.max(9, Math.min(27, rows));
     if (rows !== VH || this.cv.height !== rows * TILE) {
       VH = rows;
       this.cv.height = VH * TILE;
       this.g.imageSmoothingEnabled = false;
-      (this.cv.parentElement as HTMLElement).style.aspectRatio = `${VW} / ${VH}`;
     }
   }
 
   enter() {
+    window.addEventListener('resize', this.onResize);
     this.fit();
     this.reloadMap();
     playBgm(this.inTown ? 'town' : 'field');
     this.updateHud();
+    if (!this.game.state.progress.tutorialFlags.touchHint) {
+      this.game.setTutorial('touchHint');
+      this.app.toast('タップで いどう／なぞって あるく', 3200);
+    }
     const loop = () => {
       this.raf = requestAnimationFrame(loop);
       if (this.paused) return;
@@ -135,7 +167,9 @@ export class FieldScreen implements Screen {
     };
     loop();
   }
+  private onResize = () => this.fit();
   leave() {
+    window.removeEventListener('resize', this.onResize);
     cancelAnimationFrame(this.raf);
     this.held = null;
   }
@@ -181,7 +215,7 @@ export class FieldScreen implements Screen {
   }
 
   /** 地図をタップ: そこまで歩く（人・宝箱などなら となりまで歩いて 話しかける） */
-  private tapMap(e: MouseEvent) {
+  private tapMap(e: PointerEvent) {
     if (this.busy || this.moving || this.app.panels.length) return;
     const rect = this.cv.getBoundingClientRect();
     const cx = ((e.clientX - rect.left) / rect.width) * this.cv.width, cy = ((e.clientY - rect.top) / rect.height) * this.cv.height;

@@ -26,7 +26,7 @@ export class TitleScreen implements Screen {
       btn('はじめから', () => this.newGame(), save ? '' : 'primary'),
       btn('せってい', () => openSettings(this.app)),
       loadError ? h('div', { class: 'win small bad' }, loadError) : null,
-      h('div', { class: 'small muted', style: 'text-align:center' }, 'ゆびで あそべます（キーボード: やじるし・Z・X）'));
+      h('div', { class: 'small muted', style: 'text-align:center' }, 'タップで いどう・なぞって あるく／きろくは じどうで のこります'));
     this.el = h('div', { class: 'titlescr' }, this.cv, menu);
   }
   enter() {

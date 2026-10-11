@@ -27,7 +27,25 @@ export class App {
   root: HTMLElement;
   stage: HTMLElement;
   screen: Screen | null = null;
-  game: Game | null = null;
+  private _game: Game | null = null;
+  private saveMark: HTMLElement;
+  private saveMarkTimer = 0;
+  private lastSaveFailToast = 0;
+  get game() { return this._game; }
+  set game(g: Game | null) {
+    this._game = g;
+    if (g) g.onSaved = (ok) => this.showSaved(ok);
+  }
+  /** オートセーブの しるし（画面の すみに そっと だす） */
+  private showSaved(ok: boolean) {
+    if (!ok) {
+      if (Date.now() - this.lastSaveFailToast > 20000) { this.lastSaveFailToast = Date.now(); this.toast('きろくに しっぱいしました…（ようりょう不足かも）', 3000); }
+      return;
+    }
+    this.saveMark.classList.add('on');
+    clearTimeout(this.saveMarkTimer);
+    this.saveMarkTimer = window.setTimeout(() => this.saveMark.classList.remove('on'), 900);
+  }
   panels: Panel[] = [];
   private modal: { onKey: (k: Key) => void } | null = null;
 
@@ -35,6 +53,8 @@ export class App {
     this.root = document.getElementById('app')!;
     this.stage = h('div', { class: 'stage' });
     this.root.append(this.stage);
+    this.saveMark = h('div', { class: 'savemark', 'aria-hidden': 'true' }, 'きろくしました');
+    this.stage.append(this.saveMark);
     window.addEventListener('keydown', (e) => {
       const k = KEYMAP[e.key];
       if (!k || (e.target instanceof HTMLInputElement)) return;
@@ -53,8 +73,9 @@ export class App {
       const hidden = document.visibilityState === 'hidden';
       pauseAudio(hidden);
       this.screen?.pause?.(hidden);
-      if (hidden) this.game?.save().catch(() => {});
+      if (hidden) this.game?.flushSave().catch(() => {});
     });
+    window.addEventListener('pagehide', () => { this.game?.flushSave().catch(() => {}); });
     // ピンチやダブルタップでの拡大・ページのスクロールを防ぐ
     document.addEventListener('gesturestart', (e) => e.preventDefault());
     document.addEventListener('touchmove', (e) => {
@@ -229,7 +250,7 @@ export class App {
   async saveNow(showToast = false) {
     if (!this.game) return false;
     try {
-      await this.game.save();
+      await this.game.flushSave();
       if (showToast) { sfx('save'); this.toast('ぼうけんの きろくを のこしました。'); }
       return true;
     } catch {

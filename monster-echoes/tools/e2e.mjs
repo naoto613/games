@@ -34,7 +34,7 @@ await click('けってい');
 await skip();
 await shot('town');
 // 北の たびのとびらへ
-await p.waitForSelector('.pad-area');
+await p.waitForSelector('.fmenu');
 await hold('left', 300);
 await skip();
 await p.evaluate(() => { const s = window.app.game.state; s.player.townMap = 'shrine1'; s.player.townPos = { x: 5, y: 2 }; s.player.townDir = 'up'; window.app.show(new (window.app.screen.constructor)(window.app)); });

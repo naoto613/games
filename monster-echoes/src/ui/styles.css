@@ -75,22 +75,17 @@ canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
 /* ---- フィールド */
 .view { position: relative; width: 100%; aspect-ratio: 11 / 9; background: #000; flex: none; }
 .view canvas { width: 100%; height: 100%; display: block; }
+.view.full { flex: 1; aspect-ratio: auto; display: flex; align-items: center; overflow: hidden; touch-action: none; }
+.view.full > canvas { height: auto; flex: none; }
+.joy { position: absolute; width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%; border: 2px solid rgba(255,255,255,.55); background: rgba(10,16,40,.28); display: none; pointer-events: none; z-index: 6; }
+.joy.on { display: block; }
+.joy .knob { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.9), rgba(160,176,255,.75)); box-shadow: 0 2px 6px rgba(0,0,0,.4); }
+.fmenu { position: absolute; right: 8px; bottom: calc(66px + var(--safe-b)); z-index: 6; min-height: 48px; padding: 4px 14px; font-size: .9em; gap: 4px; opacity: .95; }
+.fmenu .ham { font-size: 1.3em; line-height: 1; }
+.savemark { position: absolute; right: 8px; bottom: calc(122px + var(--safe-b)); z-index: 70; font-size: .72em; padding: 2px 8px; border-radius: 10px; background: rgba(10,16,40,.75); border: 1px solid #8fa0ff; color: #cfe0ff; opacity: 0; transition: opacity .3s; pointer-events: none; }
+.savemark.on { opacity: 1; }
 .hud { position: absolute; left: 6px; top: 6px; padding: 2px 8px; font-size: 0.82em; z-index: 5; }
 .hud.right { left: auto; right: 6px; }
-.pad-area { flex: 1; position: relative; display: flex; align-items: center; justify-content: space-between; padding: 8px 18px calc(10px + var(--safe-b)); min-height: 190px; background: radial-gradient(ellipse at 50% 0%, #22306a 0%, #0e1430 60%, #070b1c 100%); border-top: 3px solid #dfe4ff; }
-.dpad { position: relative; width: 168px; height: 168px; touch-action: none; }
-.dpad .k { position: absolute; width: 58px; height: 58px; background: linear-gradient(180deg, #34428a, #1e2860); border: 2px solid #c8d0ff; box-shadow: 0 3px 0 #060a1c; display: flex; align-items: center; justify-content: center; color: #c8cce8; }
-.dpad .k.on { background: #4a5290; }
-.dpad .up { left: 55px; top: 0; border-radius: 10px 10px 0 0; }
-.dpad .down { left: 55px; bottom: 0; border-radius: 0 0 10px 10px; }
-.dpad .left { left: 0; top: 55px; border-radius: 10px 0 0 10px; }
-.dpad .right { right: 0; top: 55px; border-radius: 0 10px 10px 0; }
-.dpad .c { position: absolute; left: 55px; top: 55px; width: 58px; height: 58px; background: #26326e; }
-.abtn { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
-.round { width: 70px; height: 70px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ff7a9a, #b02a4a 70%); border: 3px solid #ffe0e8; box-shadow: 0 4px 0 #3a0a18; display: flex; align-items: center; justify-content: center; font-size: 1.2em; touch-action: none; cursor: pointer; }
-.round.b { background: radial-gradient(circle at 35% 30%, #7a8ae0, #2a3a8a 70%); border-color: #dfe4ff; box-shadow: 0 4px 0 #0a1030; width: 60px; height: 60px; margin-right: 46px; margin-top: -30px; }
-.round:active, .round.on { filter: brightness(1.4); }
-.menu-btn { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); min-height: 40px; padding: 2px 18px; font-size: 0.9em; }
 
 /* ---- 戦闘 */
 .party-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; flex: none; }
@@ -156,7 +151,7 @@ input.name { font: inherit; font-size: 1.3em; padding: 10px; width: 100%; backgr
 .btn.chip { min-height: 36px; min-width: 36px; padding: 2px 8px; font-size: .8em; white-space: nowrap; }
 @keyframes pulse { 50% { box-shadow: 0 0 10px rgba(200,212,255,.6); } }
 .tap-catcher { position: absolute; inset: 0; z-index: 38; }
-.pstrip { position: absolute; left: 6px; right: 6px; bottom: 6px; display: flex; gap: 4px; z-index: 5; cursor: pointer; }
+.pstrip { position: absolute; left: 6px; right: 6px; bottom: calc(6px + var(--safe-b)); display: flex; gap: 4px; z-index: 5; cursor: pointer; }
 .pstrip .pm { flex: 1; padding: 2px 6px; font-size: .72em; line-height: 1.25; }
 .pstrip .pm .bar { margin: 1px 0 0; height: 4px; }
 .pstrip .pm.dead { color: var(--bad); }

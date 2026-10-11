@@ -38,7 +38,7 @@ export function openFieldMenu(app: App, onClose: () => void) {
         item('さくせん', () => openTactic(app)),
         inDungeon ? item('まちへ かえる（かえりのはね）', () => returnHome(app), { disabled: !(g.state.inventory.returnwing > 0), meta: `のこり ${g.state.inventory.returnwing ?? 0}` }) : null,
         item('せってい', () => openSettings(app)),
-        !inDungeon ? item('きろくする', () => app.saveNow(true)) : null,
+        item('きろくする', () => app.saveNow(true), { meta: 'オートセーブ ON' }),
       ),
     );
     // まちでは しせつへ すぐ行ける（歩いて行かなくても よい）

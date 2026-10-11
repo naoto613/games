@@ -128,6 +128,8 @@ export class Game {
   }
 
   // ---------------------------------------------------------------- 保存
+  /** 保存が おわるたびに よばれる（画面の すみに きろくマークを だす） */
+  onSaved: ((ok: boolean) => void) | null = null;
   /** 保存（直列化して、同時に二重保存しない）。失敗は lastSaveError に残し、呼び出し側に伝える。 */
   save(): Promise<void> {
     const snapshot: SaveData = structuredClone({ ...this.state, savedAt: Date.now(), storageIds: this.storageIds() });
@@ -136,8 +138,10 @@ export class Game {
       try {
         await this.sink.save(snapshot);
         this.lastSaveError = null;
+        this.onSaved?.(true);
       } catch (e) {
         this.lastSaveError = e;
+        this.onSaved?.(false);
         throw e;
       }
     });
@@ -165,6 +169,18 @@ export class Game {
     fn(s);
     s.storageIds = s.monsters.map((m) => m.id).filter((id) => !s.partyIds.includes(id));
     this.state = s;
+    this.autosaveSoon();
+  }
+  /** オートセーブ: かわった あと すこし まって まとめて 保存（あるくたびに かきこまない） */
+  private saveTimer: ReturnType<typeof setTimeout> | null = null;
+  private autosaveSoon() {
+    if (!this.sink || this.saveTimer) return;
+    this.saveTimer = setTimeout(() => { this.saveTimer = null; this.autosave(); }, 1200);
+  }
+  /** まって いる オートセーブを すぐ おこなう（アプリを とじる ときなど） */
+  flushSave(): Promise<void> {
+    if (this.saveTimer) { clearTimeout(this.saveTimer); this.saveTimer = null; }
+    return this.save();
   }
   private replaceMonster(s: SaveData, m: MonsterInstance) {
     s.monsters = s.monsters.map((x) => (x.id === m.id ? m : x));

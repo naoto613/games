@@ -18,7 +18,7 @@ await msgs();
 await p.waitForSelector('input.name'); await shot('01-name-input');
 await p.fill('input.name', 'ポン太'); await p.locator('.panel-foot button', { hasText: 'けってい' }).click(); await wait(300);
 await p.waitForSelector('input.name'); await p.fill('input.name', 'コゲ'); await p.locator('.panel-foot button', { hasText: 'けってい' }).click(); await wait(300);
-await msgs(); await p.waitForSelector('.pad-area');
+await msgs(); await p.waitForSelector('.fmenu');
 await p.evaluate(() => { const g = window.app.game; g.state.monsters = g.state.monsters.map((m) => ({ ...m, hp: 4 })); });
 await p.evaluate(() => window.app.dispatch('menu', true)); await wait(200);
 await p.locator('.panel .item', { hasText: 'じゅもん' }).click(); await wait(200);
