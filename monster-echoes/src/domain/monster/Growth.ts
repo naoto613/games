@@ -51,9 +51,13 @@ export function levelUpOnce(m: MonsterInstance, rng: Rng): { monster: MonsterIns
   const level = m.level + 1;
   const stats = { ...m.stats };
   const gains = {} as Stats;
+  // 精神は 魔力と おなじ 乱数を つかう（v1 の かしこさと おなじ 乱数の ながれを たもつ）
+  let shared: [number, number] = [1, 0];
   for (const k of STAT_KEYS) {
-    const g = expectedGain(sp, k, level, m.plusValue) * randomBetween(rng, G.varianceMin, G.varianceMax);
-    const inc = Math.floor(g + rng.next()); // 確率的な四捨五入で平均を保つ
+    const r: [number, number] = k === 'spirit' ? shared : [randomBetween(rng, G.varianceMin, G.varianceMax), rng.next()];
+    if (k === 'magic') shared = r;
+    const g = expectedGain(sp, k, level, m.plusValue) * r[0];
+    const inc = Math.floor(g + r[1]); // 確率的な四捨五入で平均を保つ
     const next = Math.min(sp.statCaps[k], stats[k] + inc);
     gains[k] = next - stats[k];
     stats[k] = next;

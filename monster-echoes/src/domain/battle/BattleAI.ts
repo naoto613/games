@@ -23,7 +23,10 @@ export const friendsOf = (s: BattleState, c: Combatant) => (c.side === 'ally' ? 
 
 function expectedDamage(skill: SkillDefinition, a: Combatant, d: Combatant): number {
   const hits = skill.target === 'randomEnemies' ? 1 : (skill.hits ?? 1);
-  let dmg = Math.max(1, rawDamage(skill, a, d) * elementMultiplier(d, skill.elementId)) * hits * skill.hitRate;
+  const em = elementMultiplier(d, skill.elementId);
+  // 吸収される 属性は あいてを 回復させて しまうので マイナスに 評価する
+  if (em < 0) return rawDamage(skill, a, d) * em * hits;
+  let dmg = Math.max(1, rawDamage(skill, a, d) * em) * hits * skill.hitRate;
   if (a.charged && skill.category === 'physical') dmg *= 2;
   const capped = Math.min(dmg, d.hp);
   // とどめを させるなら少し高く評価

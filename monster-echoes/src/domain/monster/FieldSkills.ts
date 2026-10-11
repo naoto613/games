@@ -8,7 +8,7 @@ export const isFieldSkill = (id: string) => ['heal', 'revive', 'cure'].includes(
 
 /** フィールドでの回復量（戦闘と同じ式。ばらつきなし） */
 export const fieldHealAmount = (skillId: string, caster: MonsterInstance) =>
-  Math.floor(getSkill(skillId).power + caster.stats.wisdom * BALANCE.battle.healWisdomScale);
+  Math.floor(getSkill(skillId).power + caster.stats.magic * BALANCE.battle.healMagicScale + caster.stats.spirit * BALANCE.battle.healSpiritScale);
 
 /**
  * フィールドで回復・蘇生の特技を使う。使い手の MP を減らし、対象の HP を回復した新しい一覧を返す。

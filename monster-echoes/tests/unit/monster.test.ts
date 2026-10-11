@@ -81,10 +81,10 @@ describe('モンスター生成と成長', () => {
 
   it('条件を満たすと特技が上位に変化する', () => {
     const m = createMonster('magmadog', createRng(1), { level: 5 });
-    const strong = { ...m, level: 12, stats: { ...m.stats, wisdom: 40 } };
+    const strong = { ...m, level: 12, stats: { ...m.stats, magic: 40 } };
     const r = applySkillUpgrades(strong);
     expect(r.upgraded).toEqual([{ from: 'ember', to: 'fireball' }]);
     expect(r.monster.skills).toContain('fireball');
-    expect(applySkillUpgrades({ ...strong, stats: { ...strong.stats, wisdom: 39 } }).upgraded).toEqual([]);
+    expect(applySkillUpgrades({ ...strong, stats: { ...strong.stats, magic: 39 } }).upgraded).toEqual([]);
   });
 });

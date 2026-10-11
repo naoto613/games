@@ -1,4 +1,5 @@
 import type { FamilyDefinition, FamilyId, MonsterSpecies, Stats } from './types';
+import { SPECIES2_LIST } from './v2/species';
 
 // 系統（図鑑の 10 系統）
 export const FAMILIES: Record<FamilyId, FamilyDefinition> = {
@@ -12,9 +13,12 @@ export const FAMILIES: Record<FamilyId, FamilyDefinition> = {
   demon: { id: 'demon', name: 'あくま', baseResistances: { confusion: 2, sleep: 1, poison: 1, light: -1 } },
   water: { id: 'water', name: 'みず', baseResistances: { ice: 2, fire: 1, thunder: -1 } },
   dragon: { id: 'dragon', name: 'ドラゴン', baseResistances: { fire: 1, ice: 1, sleep: 1, paralysis: 1 } },
+  // v2 で ふえた 系統（v2 の 種族は 系統こみの 耐性を もつので ここの 値は つかわない）
+  mystic: { id: 'mystic', name: 'しんぴ', baseResistances: { confusion: 2, sleep: 1 } },
 };
 
-const S = (hp: number, mp: number, attack: number, defense: number, speed: number, wisdom: number): Stats => ({ hp, mp, attack, defense, speed, wisdom });
+// v1 の 6能力（さいごが かしこさ）。かしこさは 魔力と 精神の りょうほうに する
+const S = (hp: number, mp: number, attack: number, defense: number, speed: number, wisdom: number): Stats => ({ hp, mp, attack, defense, speed, magic: wisdom, spirit: wisdom });
 
 type Tier = { cap: number; expRate: number; expYield: number; goldYield: number; recruit: number; statCaps: Stats };
 const TIER: Record<number, Tier> = {
@@ -60,7 +64,7 @@ function mon(id: string, name: string, familyId: FamilyId, rarity: number, role:
 
 // 図鑑の順（No.01〜20）
 const list: MonsterSpecies[] = [
-  mon('lunaslime', 'ルナスライム', 'slime', 1, 'healer', [[1, 'heal'], [6, 'veil'], [12, 'glimmer']], 'つきの ひかりを あびて うまれた みずいろの しずくがた モンスター。おんこうで なかまに なりやすい。', { growthCurves: { wisdom: 'early' } }),
+  mon('lunaslime', 'ルナスライム', 'slime', 1, 'healer', [[1, 'heal'], [6, 'veil'], [12, 'glimmer']], 'つきの ひかりを あびて うまれた みずいろの しずくがた モンスター。おんこうで なかまに なりやすい。', { growthCurves: { magic: 'early', spirit: 'early' } }),
   mon('magmadog', 'マグマドッグ', 'beast', 1, 'attacker', [[1, 'firefang'], [5, 'ember'], [11, 'focus']], 'すみのような くろい けなみと ほのおの たてがみを もつ けもの。こうげきりょくが たかい。', { resistances: { fire: 2 }, growthCurves: { attack: 'early' } }),
   mon('stonegolem', 'ストーンゴーレム', 'material', 1, 'tank', [[1, 'harden'], [6, 'pebbles'], [14, 'rockfall']], 'いわと こけで できた きょじん。うごきは おそいが しゅびりょくが ひじょうに たかい。'),
   mon('frostbird', 'フロストバード', 'bird', 1, 'speed', [[1, 'wingstrike'], [5, 'icefeather'], [11, 'haste']], 'ゆきやまに すむ あおじろい とり。すばやく、こおりの はねを とばして こうげきする。', { resistances: { ice: 2, fire: -1 } }),
@@ -81,7 +85,7 @@ const list: MonsterSpecies[] = [
   mon('goldslime', 'ゴールドスライム', 'slime', 4, 'healer', [[1, 'happyguard'], [10, 'goldflash'], [20, 'healall']], 'きんいろの からだと ちいさな おうかんが とくちょう。めずらしく、しゅびりょくと こううんに すぐれる。', { resistances: { light: 3, fire: 1, thunder: 1 } }),
   mon('chaosdragon', 'カオスドラゴン', 'dragon', 4, 'bruiser', [[1, 'darkflare'], [15, 'demonvoice'], [25, 'megaflare']], 'やみの ちからで きょうかされた りゅう。たさいな ブレスと じょうたいいじょうで あいてを おいつめる。', { resistances: { light: 1, confusion: 2 } }),
   // ---- ひろがった なかまたち（No.21〜）。同じ系統の 色ちがい・ちがう 地方に すむ なかま
-  mon('mintslime', 'ミントスライム', 'slime', 1, 'caster', [[1, 'leaf'], [5, 'heal'], [11, 'antidote']], 'もりの つゆを すって みどりに そまった スライム。さわやかな かおりで なかまを いやす。', { growthCurves: { wisdom: 'early' } }),
+  mon('mintslime', 'ミントスライム', 'slime', 1, 'caster', [[1, 'leaf'], [5, 'heal'], [11, 'antidote']], 'もりの つゆを すって みどりに そまった スライム。さわやかな かおりで なかまを いやす。', { growthCurves: { magic: 'early', spirit: 'early' } }),
   mon('flameslime', 'ブレイズスライム', 'slime', 2, 'attacker', [[1, 'ember'], [8, 'firefang'], [15, 'fireball']], 'ひのこを あびて あかく もえる スライム。さわると やけどするほど あつい。', { resistances: { fire: 2, ice: -1 } }),
   mon('shadowdog', 'シャドウドッグ', 'beast', 1, 'attacker', [[1, 'bite'], [5, 'darkwave'], [11, 'focus']], 'むらさきの ほのおを まとう かげの けもの。くらやみに まぎれて きばを むく。', { resistances: { light: -1 }, growthCurves: { speed: 'early' } }),
   mon('icewolf', 'フロストウルフ', 'beast', 2, 'attacker', [[1, 'bite'], [8, 'icicle'], [15, 'blizzard']], 'ゆきの おおかみ。こおりの たてがみで ふぶきを よび、あしが はやい。', { resistances: { ice: 3, fire: -1 }, growthCurves: { speed: 'early' } }),
@@ -101,12 +105,14 @@ const list: MonsterSpecies[] = [
   mon('bluecrab', 'ブルークラブ', 'water', 1, 'tank', [[1, 'pinch'], [6, 'icicle'], [12, 'shellguard']], 'あおい かいがらの カニ。こおりの いきで あいてを ひやして まもる。', { resistances: { ice: 3, fire: -1 } }),
   mon('poisonborg', 'ポイズンボーグ', 'plant', 2, 'bruiser', [[1, 'poisonmist'], [8, 'darkwave'], [15, 'lullaby']], 'どくの ふくろを もつ むらさきの キノコの まもの。むやみに ふれては いけない。', { resistances: { poison: 3 } }),
   // ---- ストーリーに かかわる めずらしい なかま
-  mon('echoslime', 'エコースライム', 'slime', 2, 'healer', [[1, 'glimmer'], [6, 'heal'], [12, 'veil']], 'ひかりの こだまの ような うすむらさきの スライム。ふしぎな ひかりの あしあとを のこして あるく。', { resistances: { light: 2 }, growthCurves: { wisdom: 'early' },
+  mon('echoslime', 'エコースライム', 'slime', 2, 'healer', [[1, 'glimmer'], [6, 'heal'], [12, 'veil']], 'ひかりの こだまの ような うすむらさきの スライム。ふしぎな ひかりの あしあとを のこして あるく。', { resistances: { light: 2 }, growthCurves: { magic: 'early', spirit: 'early' },
     lore: 'ひかりの クリスタルが くだけた ときの「こだま」から うまれた と いわれる。ゆがみの ない ばしょを えらんで あるき、ひかる あしあとを のこす。ふるい きおくを やどし、そだてると ひかりの とくぎを おぼえる。' }),
 ];
 
-export const SPECIES: Record<string, MonsterSpecies> = Object.fromEntries(list.map((s) => [s.id, s]));
+/** v1 の 種族と v2 の 200種（m001〜m200）。図鑑・出現・配合の 切りかえは 引き継ぎ（0-10）で おこなう */
+export const SPECIES: Record<string, MonsterSpecies> = Object.fromEntries([...list, ...SPECIES2_LIST].map((s) => [s.id, s]));
 export const SPECIES_LIST = list;
+export { SPECIES2_LIST };
 
 export function getSpecies(id: string): MonsterSpecies {
   const s = SPECIES[id];

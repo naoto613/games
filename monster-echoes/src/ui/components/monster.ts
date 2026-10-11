@@ -30,7 +30,7 @@ export function hpText(m: MonsterInstance) {
   return h('span', { class: cls }, m.hp <= 0 ? 'たおれている' : `HP ${m.hp}/${m.stats.hp}`);
 }
 
-export const STAT_LABEL: Record<keyof Stats, string> = { hp: 'HP', mp: 'MP', attack: 'こうげき', defense: 'しゅび', speed: 'すばやさ', wisdom: 'かしこさ' };
+export const STAT_LABEL: Record<keyof Stats, string> = { hp: 'HP', mp: 'MP', attack: 'こうげき', defense: 'しゅび', speed: 'すばやさ', magic: 'まりょく', spirit: 'せいしん' };
 export function statsGrid(st: Stats, cur?: { hp: number; mp: number }, compare?: Stats) {
   const cells: (HTMLElement | string)[] = [];
   for (const k of Object.keys(STAT_LABEL) as (keyof Stats)[]) {
@@ -41,8 +41,8 @@ export function statsGrid(st: Stats, cur?: { hp: number; mp: number }, compare?:
   return h('div', { class: 'stats' }, cells);
 }
 
-export const RESIST_LABEL: Record<ResistKey, string> = { fire: 'ほのお', ice: 'こおり', wind: 'かぜ', earth: 'だいち', thunder: 'かみなり', light: 'ひかり', sleep: 'ねむり', paralysis: 'まひ', confusion: 'こんらん', poison: 'どく' };
-const RES_WORD: Record<string, string> = { '-1': 'よわい', '1': 'つよい', '2': 'とてもつよい', '3': 'むこう' };
+export const RESIST_LABEL: Record<ResistKey, string> = { fire: 'ほのお', water: 'みず', ice: 'こおり', wind: 'かぜ', earth: 'だいち', thunder: 'かみなり', light: 'ひかり', shadow: 'かげ', sleep: 'ねむり', paralysis: 'まひ', confusion: 'こんらん', poison: 'どく' };
+const RES_WORD: Record<string, string> = { '-1': 'よわい', '1': 'つよい', '2': 'とてもつよい', '3': 'むこう', '4': 'きゅうしゅう' };
 export function resistList(r: Resistances) {
   const items = RESIST_KEYS.filter((k) => (r[k] ?? 0) !== 0).map((k) => {
     const v = r[k]!;

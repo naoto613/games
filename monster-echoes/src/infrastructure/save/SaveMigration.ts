@@ -13,7 +13,16 @@ export const SPECIES_V1_TO_V2: Record<string, string> = {
 const mapSp = (id: unknown) => (typeof id === 'string' ? SPECIES_V1_TO_V2[id] ?? id : id);
 const mapList = (l: unknown) => (Array.isArray(l) ? [...new Set(l.map(mapSp))] : l);
 
+/** v3→v4: 能力の「かしこさ」を 魔力・精神に わける（v2 の 7能力） */
+const splitWisdom = (st: unknown) => {
+  if (!st || typeof st !== 'object') return st;
+  const { wisdom, ...rest } = st as Record<string, number>;
+  if (typeof wisdom !== 'number') return st;
+  return { ...rest, magic: rest.magic ?? wisdom, spirit: rest.spirit ?? wisdom };
+};
+
 const MIGRATIONS: Record<number, (d: Record<string, unknown>) => Record<string, unknown>> = {
+  3: (d) => ({ ...d, monsters: Array.isArray(d.monsters) ? (d.monsters as Record<string, unknown>[]).map((m) => ({ ...m, stats: splitWisdom(m.stats) })) : d.monsters }),
   // v2→v3: たびの なかの 固有イベント（おわった イベントの きろく）
   2: (d) => ({ ...d, expedition: d.expedition && typeof d.expedition === 'object' ? { eventsDone: [], ...(d.expedition as object) } : d.expedition ?? null }),
   1: (d) => ({

@@ -8,6 +8,7 @@ import { applySkillUpgrades, expForLevel, levelUpOnce } from './Growth';
 import type { MonsterInstance, Sex } from './types';
 
 export function speciesResistances(sp: MonsterSpecies): Resistances {
+  if (sp.resistAbsolute) return { ...sp.resistances };
   return { ...FAMILIES[sp.familyId].baseResistances, ...sp.resistances };
 }
 

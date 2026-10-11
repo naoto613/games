@@ -1,23 +1,28 @@
 // ゲームデータ（マスタ）の型。計算ロジックは domain/ に置き、ここには「値」だけを持たせる。
 
-export type StatKey = 'hp' | 'mp' | 'attack' | 'defense' | 'speed' | 'wisdom';
-export const STAT_KEYS: readonly StatKey[] = ['hp', 'mp', 'attack', 'defense', 'speed', 'wisdom'];
+/** 7能力（仕様 10.1）。v1 の「かしこさ」は 魔力（magic）と 精神（spirit）に わけた */
+export type StatKey = 'hp' | 'mp' | 'attack' | 'defense' | 'speed' | 'magic' | 'spirit';
+// 順番は 乱数の つかいかたに かかわるので v1（hp, mp, attack, defense, speed, wisdom）の 順を まもり、精神を さいごに たす
+export const STAT_KEYS: readonly StatKey[] = ['hp', 'mp', 'attack', 'defense', 'speed', 'magic', 'spirit'];
 export type Stats = Record<StatKey, number>;
 
 /** 早熟／普通／晩成。レベルの進み具合で伸び幅が変わる。 */
 export type GrowthCurve = 'early' | 'normal' | 'late';
+/** 成長タイプ6種（仕様 10.2）。早熟・晩成は 曲線、攻撃特化・耐久は 能力の かたより、変則は 戦闘中の 覚醒で あらわす */
+export type GrowthType = 'early' | 'late' | 'balanced' | 'offense' | 'endure' | 'variable';
 
 /** 属性・状態異常の耐性キー */
-export type ElementId = 'fire' | 'ice' | 'wind' | 'earth' | 'thunder' | 'light';
+export type ElementId = 'fire' | 'water' | 'wind' | 'earth' | 'thunder' | 'ice' | 'light' | 'shadow';
+export const ELEMENT_IDS: readonly ElementId[] = ['fire', 'water', 'wind', 'earth', 'thunder', 'ice', 'light', 'shadow'];
 export type StatusId = 'sleep' | 'paralysis' | 'confusion' | 'poison';
 export type ResistKey = ElementId | StatusId;
-export const RESIST_KEYS: readonly ResistKey[] = ['fire', 'ice', 'wind', 'earth', 'thunder', 'light', 'sleep', 'paralysis', 'confusion', 'poison'];
-/** -1:よわい 0:ふつう 1:つよい 2:とてもつよい 3:むこう */
+export const RESIST_KEYS: readonly ResistKey[] = [...ELEMENT_IDS, 'sleep', 'paralysis', 'confusion', 'poison'];
+/** -1:よわい 0:ふつう 1:つよい 2:とてもつよい 3:むこう 4:きゅうしゅう（属性だけ。ダメージの かわりに 回復する） */
 export type Resistances = Partial<Record<ResistKey, number>>;
 
 export type LearnsetEntry = { level: number; skillId: string };
 
-export type FamilyId = 'slime' | 'beast' | 'material' | 'bird' | 'bug' | 'plant' | 'spirit' | 'demon' | 'water' | 'dragon';
+export type FamilyId = 'slime' | 'beast' | 'material' | 'bird' | 'bug' | 'plant' | 'spirit' | 'demon' | 'water' | 'dragon' | 'mystic';
 
 export type FamilyDefinition = {
   id: FamilyId;
@@ -52,11 +57,21 @@ export type MonsterSpecies = {
   description: string;
   /** なかまに したときだけ 図鑑に のる とくべつな じょうほう */
   lore?: string;
+  // ---- v2 の 種族（m001〜m200）だけが もつ じょうほう
+  /** 図鑑番号 */
+  no?: number;
+  element?: ElementId;
+  role?: string;
+  growthType?: GrowthType;
+  /** ランク 1〜5（5 = 伝説級） */
+  rank?: number;
+  /** true なら resistances が 系統こみの 最終的な 耐性（系統の 耐性を 足さない） */
+  resistAbsolute?: boolean;
 };
 
 export type SkillCategory = 'physical' | 'magic' | 'breath' | 'heal' | 'revive' | 'buff' | 'debuff' | 'status' | 'cure';
 export type SkillTarget = 'self' | 'oneAlly' | 'allAllies' | 'oneEnemy' | 'allEnemies' | 'randomEnemies';
-export type BuffStat = 'attack' | 'defense' | 'speed';
+export type BuffStat = 'attack' | 'defense' | 'speed' | 'magic' | 'spirit';
 
 export type SkillDefinition = {
   id: string;
@@ -78,6 +93,8 @@ export type SkillDefinition = {
   charge?: boolean;
   /** 反動（与えたダメージの割合） */
   recoil?: number;
+  /** 吸いとり（与えたダメージの割合だけ じぶんの HP を 回復） */
+  drain?: number;
   /** 条件を満たすと上位の特技に変化する */
   upgrade?: { to: string; level: number; stat: Partial<Stats> };
   /** 配合で受け継げない特技 */

@@ -4,7 +4,7 @@ import type { Dir, Pos } from '../domain/dungeon/DungeonEngine';
 import type { MonsterInstance } from '../domain/monster/types';
 import type { ProgressState } from '../domain/progression/ProgressionEngine';
 
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const GAME_VERSION = '0.1.0';
 
 export type GameSettings = {
