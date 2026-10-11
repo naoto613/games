@@ -5,7 +5,7 @@ import type { MonsterInstance } from '../domain/monster/types';
 import type { ProgressState } from '../domain/progression/ProgressionEngine';
 import type { ChapterProgress } from '../domain/progression/ChapterEngine';
 
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 export const GAME_VERSION = '0.1.0';
 
 export type GameSettings = {
@@ -63,10 +63,31 @@ export type SaveData = {
   breedingHistory: BreedingHistoryEntry[];
   expedition: Expedition | null;
   settings: GameSettings;
-  /** v2 の 章・街・機能の 進行（0-10 の 引き継ぎで 必ず もつように なる） */
-  chapters?: ChapterProgress;
+  /** v2 の 章・街・機能の 進行 */
+  chapters: ChapterProgress;
   /** 見た 物語イベント・ルナの 反応と、記録室に のこした 伏線 */
-  story?: StoryLog;
+  story: StoryLog;
+  /** v2 で ふえた 育成・やりこみの 記録（計画書 §6） */
+  v2: V2State;
 };
+
+export type V2State = {
+  /** 装備（Q10：1体 1つの アクセサリー）。もちもの と そうびちゅう（モンスターID → 道具ID） */
+  equipment: { owned: Record<string, number>; equipped: Record<string, string> };
+  /** 依頼の 進み具合 */
+  quests: Record<string, { stage: number; done: boolean }>;
+  /** 再戦できる ボス */
+  bossRematch: string[];
+  /** ゲーム内時計（Q11。分） */
+  clock: { minutes: number };
+  /** 図鑑：生息地を 知った 種族 → 場所 */
+  dexHabitats: Record<string, string[]>;
+  /** 旧版からの 引き継ぎ */
+  legacy: { fromSchema: number; at: number; inherited: boolean } | null;
+};
+
+export const defaultV2State = (): V2State => ({
+  equipment: { owned: {}, equipped: {} }, quests: {}, bossRematch: [], clock: { minutes: 0 }, dexHabitats: {}, legacy: null,
+});
 
 export type StoryLog = { seen: string[]; records: { id: string; title: string }[] };

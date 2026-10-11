@@ -1,4 +1,5 @@
-import { SCHEMA_VERSION, defaultSettings, type SaveData } from '../../application/GameState';
+import { SCHEMA_VERSION, defaultSettings, defaultV2State, type SaveData } from '../../application/GameState';
+import { initialChapterProgress } from '../../domain/progression/ChapterEngine';
 import { err, ok, type Result } from '../../core/Result';
 
 export type MigrationError = 'future' | 'corrupt';
@@ -22,6 +23,15 @@ const splitWisdom = (st: unknown) => {
 };
 
 const MIGRATIONS: Record<number, (d: Record<string, unknown>) => Record<string, unknown>> = {
+  // v4→v5: v2 の 進行（章・物語・装備・依頼・再戦・時計・生息地）と 個体の 履歴・ラベル・配合回数。
+  // 物語は 第1章から（Q9 の 引き継ぎ）。v1 の 進行（エリア・闘技場）は いまの 遊べる 内容の ために のこす
+  4: (d) => ({
+    ...d,
+    chapters: d.chapters ?? initialChapterProgress(),
+    story: d.story ?? { seen: [], records: [] },
+    v2: { ...defaultV2State(), ...(d.v2 as object | undefined), legacy: { fromSchema: (d as { _from?: number })._from ?? 4, at: Date.now(), inherited: false } },
+    monsters: Array.isArray(d.monsters) ? (d.monsters as Record<string, unknown>[]).map((m) => ({ history: [], labels: m.favorite ? ['favorite'] : [], breedingCount: 0, ...m })) : d.monsters,
+  }),
   3: (d) => ({ ...d, monsters: Array.isArray(d.monsters) ? (d.monsters as Record<string, unknown>[]).map((m) => ({ ...m, stats: splitWisdom(m.stats) })) : d.monsters }),
   // v2→v3: たびの なかの 固有イベント（おわった イベントの きろく）
   2: (d) => ({ ...d, expedition: d.expedition && typeof d.expedition === 'object' ? { eventsDone: [], ...(d.expedition as object) } : d.expedition ?? null }),
@@ -40,11 +50,13 @@ export function migrate(raw: unknown): Result<SaveData, MigrationError> {
   const v = d.schemaVersion;
   if (typeof v !== 'number') return err('corrupt');
   if (v > SCHEMA_VERSION) return err('future');
+  if (v < SCHEMA_VERSION) d = { ...d, _from: v };
   for (let cur = v; cur < SCHEMA_VERSION; cur++) {
     const f = MIGRATIONS[cur];
     if (!f) return err('corrupt');
     d = { ...f(d), schemaVersion: cur + 1 };
   }
+  delete d._from;
   if (!validate(d)) return err('corrupt');
   const s = d as unknown as SaveData;
   // まちが 1まいだった ころの きろく: 新しい まちの まんなかから はじめる
@@ -63,5 +75,6 @@ export function validate(d: Record<string, unknown>): boolean {
   if (new Set(s.partyIds).size !== s.partyIds.length) return false;
   if (s.partyIds.some((id) => !ids.has(id))) return false;
   if (!s.progress || !Array.isArray(s.progress.unlockedAreas)) return false;
+  if (!s.chapters || !Array.isArray(s.chapters.clearedStages) || !s.story || !Array.isArray(s.story.seen) || !s.v2) return false;
   return true;
 }

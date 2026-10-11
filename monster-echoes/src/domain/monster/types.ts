@@ -29,4 +29,11 @@ export type MonsterInstance = {
   pendingSkills: string[];
   /** このモンスターだけの作戦（未設定ならパーティ全体の作戦） */
   tactic?: Tactic;
+  // ---- v2（SCHEMA v5）
+  /** 個体の できごと（仲間になった・配合・ボスを たおした など） */
+  history?: { at: number; kind: string; text: string }[];
+  /** お気に入り・育成中・配合候補 などの ラベル（仕様 17.2） */
+  labels?: string[];
+  /** 親として 配合に つかった 回数 */
+  breedingCount?: number;
 };
