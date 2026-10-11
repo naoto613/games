@@ -19,12 +19,13 @@ describe('マップデータ', () => {
           const k = `${p.x},${p.y}`;
           expect(walk.has(k) || touch.has(k), `${f.id} seed${seed} ${ch} at ${k}`).toBe(true);
         }
-        expect(findAll(m, 'C').length, f.id).toBeGreaterThanOrEqual(1);
+        if (!f.bossId) expect(findAll(m, 'C').length, f.id).toBeGreaterThanOrEqual(1);
         // 同じ シードなら 同じ 形
         expect(floorMap(a.id, i, seed * 7919).tiles.map((r) => r.join('')).join('/')).toBe(m.tiles.map((r) => r.join('')).join('/'));
         shapes.add(m.tiles.map((r) => r.join('')).join('/'));
       }
-      expect(shapes.size, f.id).toBeGreaterThan(55);
+      if (f.bossId) expect(shapes.size, f.id).toBe(1); // ボスの へやは 専用の かたち
+      else expect(shapes.size, f.id).toBeGreaterThan(55);
     });
   });
   for (const def of Object.values(TOWN_MAPS)) {
@@ -58,5 +59,26 @@ describe('マップデータ', () => {
   });
   it('出現テーブルの種族が存在する', () => {
     for (const t of Object.values(ENCOUNTERS)) for (const e of t.entries) expect(SPECIES[e.speciesId]).toBeTruthy();
+  });
+});
+
+describe('ボスの へや', () => {
+  it('各エリアの さいごに ボス専用フロアが あり、やせいの てきは でない', async () => {
+    const { Game, newGameState } = await import('../../src/application/Game');
+    const { createRng } = await import('../../src/core/Random');
+    for (const a of AREAS) {
+      const last = a.floors[a.floors.length - 1];
+      expect(last.bossId, a.id).toBeTruthy();
+      expect(a.floors.slice(0, -1).every((f) => !f.bossId), a.id).toBe(true);
+      const g = new Game(newGameState('テスト', createRng(1)), { rng: createRng(5) });
+      g.state.progress.unlockedAreas.push(a.id);
+      expect(g.startExpedition(a.id).ok).toBe(true);
+      for (let i = 0; i < a.floors.length - 1; i++) g.descend();
+      expect(g.floor!.floor.bossId).toBe(last.bossId);
+      let encounters = 0;
+      const dirs = ['up', 'down', 'left', 'right'] as const;
+      for (let i = 0; i < 400; i++) { const r = g.move(dirs[i % 4]); if (r.kind === 'moved' && r.encounter) encounters++; g.state.expedition!.stepsSinceBattle = 99; }
+      expect(encounters, a.id).toBe(0);
+    }
   });
 });

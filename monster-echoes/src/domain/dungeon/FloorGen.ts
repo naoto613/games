@@ -9,8 +9,10 @@ export type FloorSpec = {
   theme: FloorTheme;
   /** はいってすぐの フロアか（まちへの でぐち E を おく） */
   first: boolean;
-  /** さいごの フロアか（ボス B を おく。ちがえば 階段 >） */
+  /** さいごの フロアか（ちがえば 階段 >） */
   last: boolean;
+  /** ボス専用の へやか（敵は でない） */
+  boss?: boolean;
   /** いやしのいずみ H を おくか */
   spring: boolean;
 };
@@ -160,9 +162,37 @@ function tryGenerate(spec: FloorSpec, rng: Rng): TileMap | null {
   return m;
 }
 
+/**
+ * ボスの へや（専用）。まっすぐ のびる じゅうたんの さきに ボスが いる。
+ * # かべ  = じゅうたん  I はしら  f ひばち  , まほうじん  H いずみ  ~ みず/よう岩  S 入口  B ボス
+ */
+const BOSS_ROOM = [
+  '#############',
+  '#f....,....f#',
+  '#.I..,B,..I.#',
+  '#...,,=,,...#',
+  '#...,.=.,...#',
+  '#.I...=...I.#',
+  '#.....=.....#',
+  '#.I...=...I.#',
+  '#.~~..=..~~.#',
+  '#.~~..=..~~.#',
+  '#f....=....f#',
+  '#H....S....f#',
+  '#############',
+];
+function bossRoom(spec: FloorSpec): TileMap {
+  const tiles = BOSS_ROOM.map((r) => r.split(''));
+  // みずの ない テーマは みずたまりを まほうじんの ゆかに かえる（かざん=よう岩、どうくつ・ゆきやま=みずうみ）
+  const hasWater = spec.theme === 'cave' || spec.theme === 'volcano' || spec.theme === 'snow';
+  if (!hasWater) for (const row of tiles) for (let x = 0; x < row.length; x++) if (row[x] === '~') row[x] = ',';
+  return { id: spec.id, w: tiles[0].length, h: tiles.length, tiles };
+}
+
 const cache = new Map<string, TileMap>();
 /** シードから フロアを つくる（同じ シード・フロアなら いつも 同じ 形） */
 export function generateFloor(spec: FloorSpec, seed: number): TileMap {
+  if (spec.boss) return bossRoom(spec);
   const key = `${spec.id}:${seed}`;
   const hit = cache.get(key);
   if (hit) return hit;

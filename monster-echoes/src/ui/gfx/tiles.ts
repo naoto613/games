@@ -1,9 +1,10 @@
 // マップのタイル（16×16 の設計を 32×32 で描く）と人物（16×20 を 32×40 で描く）
 import { E, P, Pix, R, RR, Sub, flipH, mix, shade } from './Pix';
+import { doorStyled, flowerBed, lampTile, roofStyled, wallStyled, wellTile, type BldState } from './buildings';
 
 export const TILE = 32;
 const S = 2;
-export type Theme = 'town' | 'forest' | 'cave' | 'highland' | 'tower' | 'snow' | 'volcano' | 'interior' | 'shrine' | 'ranch';
+export type Theme = 'town' | 'forest' | 'cave' | 'highland' | 'tower' | 'snow' | 'volcano' | 'interior' | 'shrine' | 'ranch' | 'lab' | 'shop' | 'arena';
 
 type Pal = { g: [string, string, string, string]; wall: string; water: string; blade: string };
 const PAL: Record<Theme, Pal> = {
@@ -14,6 +15,9 @@ const PAL: Record<Theme, Pal> = {
   tower: { g: ['#b8c4e0', '#c8d2ec', '#d6def4', '#e6ecfc'], wall: '#6a84c8', water: '#5ab0f0', blade: '#ffffff' },
   snow: { g: ['#c8d8ec', '#d8e6f6', '#e6f0fc', '#f6faff'], wall: '#7a9ac8', water: '#6ab4ec', blade: '#ffffff' },
   volcano: { g: ['#4a2a28', '#5c3430', '#6e3e36', '#82483c'], wall: '#3a1c20', water: '#f0601c', blade: '#e0a060' },
+  lab: { g: ['#484c76', '#525884', '#5a6092', '#646c9e'], wall: '#2a2c4e', water: '#3a86d8', blade: '#8ae0ff' },
+  shop: { g: ['#9a6a3c', '#a87648', '#b48254', '#c09060'], wall: '#7a5232', water: '#3a86d8', blade: '#c09060' },
+  arena: { g: ['#d4b474', '#dcbe80', '#e4c88c', '#ecd298'], wall: '#7a8098', water: '#3a86d8', blade: '#e8d098' },
   interior: { g: ['#9a6a3c', '#a87648', '#b48254', '#c09060'], wall: '#7a5232', water: '#3a86d8', blade: '#c09060' },
   shrine: { g: ['#8a8ca4', '#9a9cb4', '#a8aac0', '#b6b8cc'], wall: '#4a4c6e', water: '#3a86d8', blade: '#c0c2d6' },
   ranch: { g: ['#4f9a3c', '#62b048', '#78c458', '#94d870'], wall: '#8a5a2a', water: '#3a96e0', blade: '#a8e47c' },
@@ -158,8 +162,8 @@ function portalTile(p: Pix, th: Theme, wx: number, wy: number, f: number, col: s
   p.part(E(8, 8.5, 1.4, 1.2), '#ffffff', { flat: true, noOl: true });
 }
 
-function springTile(p: Pix, th: Theme, wx: number, wy: number, f: number, used: boolean) {
-  grassTile(p, th, wx, wy, false);
+function springTile(p: Pix, th: Theme, wx: number, wy: number, f: number, used: boolean, base?: () => void) {
+  if (base) base(); else grassTile(p, th, wx, wy, false);
   p.part(E(8, 9, 7.5, 5.8), '#a8a8b8', { ol: '#4a4a5a', hi: '#e0e0ea' });
   p.part(E(8, 9.2, 5.8, 4.2), used ? '#5a7a90' : '#48b8f0', { flat: true, ol: '#2a4a6a' });
   p.part(E(6.5, 8, 2.2, 1.1), used ? '#7a9ab0' : '#a8ecff', { flat: true, noOl: true });
@@ -231,10 +235,38 @@ function stoneFloor(p: Pix, th: Theme, wx: number, wy: number) {
     }
   if (th === 'tower' && h2(wx, wy) > 0.8) p.part(P(7, 9, 8, 6, 9, 9), '#ffffff', { flat: true, noOl: true });
 }
+function labFloor(p: Pix, wx: number, wy: number) {
+  const c = PAL.lab.g;
+  for (let j = 0; j < 2; j++)
+    for (let i = 0; i < 2; i++) {
+      const col = c[(i + j + wx + wy) & 3];
+      p.rect(i * 8, j * 8, 8, 8, col);
+      p.rect(i * 8, j * 8, 8, 0.6, mix(col, '#8ae0ff', 0.35));
+      p.rect(i * 8 + 7.4, j * 8, 0.6, 8, mix(col, '#000000', 0.3));
+      p.rect(i * 8, j * 8 + 7.4, 8, 0.6, mix(col, '#000000', 0.3));
+    }
+  if (h2(wx * 3, wy * 7) > 0.7) { p.rect(3, 4, 5, 0.5, '#8ae0ff'); p.rect(7.5, 4, 0.5, 4, '#8ae0ff'); p.part(E(8, 8.2, 0.9, 0.9), '#7af0c0', { flat: true, noOl: true }); }
+}
+function arenaFloor(p: Pix, wx: number, wy: number) {
+  ground(p, PAL.arena.g, wx, wy, 5);
+  const r = (i: number) => h2(wx * 9 + i, wy * 5 + i);
+  for (let i = 0; i < 3; i++) p.part(E(2 + r(i) * 12, 2 + r(i + 4) * 12, 0.9, 0.6), '#b89458', { flat: true, noOl: true });
+  if (r(9) > 0.8) p.line(2, 4 + r(2) * 8, 14, 4 + r(3) * 8, '#c8a468', 0.5);
+}
+/** へやの ゆか（たてものごとに ちがう） */
+function floorFor(p: Pix, th: Theme, wx: number, wy: number) {
+  if (th === 'lab') labFloor(p, wx, wy);
+  else if (th === 'arena') arenaFloor(p, wx, wy);
+  else if (th === 'shrine' || th === 'tower') stoneFloor(p, th, wx, wy);
+  else if (th === 'ranch') grassTile(p, 'ranch', wx, wy, false);
+  else woodFloor(p, wx, wy);
+}
 function carpet(p: Pix, th: Theme, wx: number, wy: number) {
-  const base = th === 'shrine' ? '#2a4aa8' : '#b02a3a';
+  const base = { shrine: '#2a4aa8', lab: '#4a2a8a', shop: '#2a7a4a', arena: '#8a1a2a' }[th as string] ?? '#b02a3a';
+  const trim = { shrine: '#8ac8ff', lab: '#8aecff', shop: '#f0e4c4', arena: '#e8c060' }[th as string] ?? '#e8c060';
   ground(p, [mix(base, '#000000', 0.15), base, base, mix(base, '#ffffff', 0.1)], wx, wy, 4);
-  for (let i = 1; i < 16; i += 4) p.rect(i, 7.6, 2, 0.8, th === 'shrine' ? '#8ac8ff' : '#e8c060');
+  for (let i = 1; i < 16; i += 4) p.rect(i, 7.6, 2, 0.8, trim);
+  if (th === 'shop') { p.rect(0, 2, 16, 0.6, trim); p.rect(0, 13.4, 16, 0.6, trim); }
 }
 function innerWall(p: Pix, th: Theme, wx: number) {
   if (th === 'shrine') {
@@ -245,11 +277,31 @@ function innerWall(p: Pix, th: Theme, wx: number) {
     p.part(E(8, 8, 1, 1.6), '#e0faff', { flat: true, noOl: true });
     return;
   }
+  if (th === 'lab') {
+    p.rect(0, 0, 16, 16, '#262848');
+    p.part(R(1, 0, 14, 16), '#383c68', { ol: '#14162e', hiT: 0.3 });
+    p.rect(2, 11, 12, 1, '#5a5e96');
+    if (wx % 2 === 0) { p.part(RR(6, 2, 4, 9, 2), '#1a1c34', { ol: '#0a0a1a' }); p.part(RR(6.8, 4.6, 2.4, 5.8, 1.2), '#5af0c8', { flat: true, noOl: true }); p.part(E(8, 5, 0.8, 0.6), '#c8fff0', { flat: true, noOl: true }); }
+    else { p.part(E(8, 6.6, 3.2, 3.2), '#14162e', { ol: '#0a0a1a' }); p.part(E(8, 6.6, 2.2, 2.2), '#8a7aff', { flat: true, noOl: true }); p.part(E(7.2, 5.8, 0.7, 0.7), '#ffffff', { flat: true, noOl: true }); }
+    return;
+  }
+  if (th === 'arena') {
+    p.rect(0, 0, 16, 16, '#868ca4');
+    for (let row = 0; row < 4; row++) {
+      const off = (row + wx) % 2 ? 4 : 0;
+      p.rect(0, row * 4, 16, 0.6, '#5a6078');
+      for (let i = 0; i < 3; i++) p.rect(off + i * 8, row * 4, 0.6, 4, '#5a6078');
+      p.rect(0, row * 4 + 0.6, 16, 0.5, '#b8bed0');
+    }
+    if (wx % 3 === 0) { p.part(R(7, 5, 2, 6), '#5a3a1a', { ol: '#2a1808' }); p.part(P(8, 1.6, 10.2, 5, 8, 6, 5.8, 5), '#ffb030', { ol: '#7a3a08' }); p.part(P(8, 3, 9.2, 5, 8, 5.4, 6.8, 5), '#fff0a0', { flat: true, noOl: true }); }
+    return;
+  }
   ground(p, ['#e8d6b0', '#f0dfbc', '#f4e6c6', '#f8ecd2'], wx, 0, 5);
-  p.rect(0, 0, 16, 2, '#6a4424');
-  p.rect(0, 10, 16, 6, '#8a5a32');
-  p.rect(0, 10, 16, 1, '#b07a48');
-  for (let x = 2; x < 16; x += 5) p.rect(x, 11.5, 0.6, 4, '#6a4424');
+  p.rect(0, 0, 16, 2, th === 'shop' ? '#3a6a3a' : '#6a4424');
+  p.rect(0, 10, 16, 6, th === 'shop' ? '#3a7a4a' : '#8a5a32');
+  p.rect(0, 10, 16, 1, th === 'shop' ? '#6ab87a' : '#b07a48');
+  for (let x = 2; x < 16; x += 5) p.rect(x, 11.5, 0.6, 4, th === 'shop' ? '#245a30' : '#6a4424');
+  if (th === 'shop' && wx % 2 === 0) { p.part(E(5, 5.5, 1.5, 1.5), '#e84a4a', { ol: '#6a1010' }); p.part(E(11, 5.5, 1.3, 1.3), '#f0d040', { ol: '#6a4a08' }); }
 }
 function fence(p: Pix, wx: number, wy: number) {
   grassTile(p, 'ranch', wx, wy, false);
@@ -266,19 +318,19 @@ function bookshelf(p: Pix) {
   }
 }
 function table(p: Pix, th: Theme, wx: number, wy: number) {
-  if (th === 'shrine' || th === 'tower') stoneFloor(p, th, wx, wy); else woodFloor(p, wx, wy);
+  floorFor(p, th, wx, wy);
   p.part(E(8, 13.5, 6.5, 1.6), '#000000', { flat: true, noOl: true });
   p.part(E(8, 8, 6.8, 5), '#b8743a', { ol: '#3a1a08', hi: '#e0a060' });
   p.part(E(6, 6.5, 1.4, 2), '#7ae0ff', { ol: '#1a3a6a' });
   p.part(E(10.5, 7.5, 1.8, 1.2), '#ffffff', { ol: '#6a6a7a' });
 }
-function pottedPlant(p: Pix, wx: number, wy: number) {
-  woodFloor(p, wx, wy);
+function pottedPlant(p: Pix, th: Theme, wx: number, wy: number) {
+  floorFor(p, th, wx, wy);
   p.part(RR(5, 9, 6, 6, 1), '#c8603a', { ol: '#4a1a08' });
   for (const [x, y] of [[6, 6], [10, 6], [8, 3.5], [5, 4], [11, 4]]) p.part(E(x, y, 2.4, 2), '#3aa848', { ol: '#123a18' });
 }
 function stairs(p: Pix, th: Theme, wx: number, wy: number, up: boolean) {
-  if (th === 'shrine' || th === 'tower') stoneFloor(p, th, wx, wy); else if (th === 'ranch') grassTile(p, 'ranch', wx, wy, false); else woodFloor(p, wx, wy);
+  floorFor(p, th, wx, wy);
   if (th === 'ranch') { p.part(R(1, 3, 14, 10), '#c88a48', { ol: '#4a2a10' }); p.rect(2, 7, 12, 1, '#7a4a20'); return; }
   for (let i = 0; i < 4; i++) {
     const y = up ? 2 + i * 3 : 2 + i * 3, sh = up ? 0.9 - i * 0.12 : 0.5 + i * 0.12;
@@ -293,21 +345,145 @@ function doorTile(p: Pix, th: Theme, wx: number, wy: number) {
     p.part(E(10.4, 10, 0.8, 0.8), '#f0d040', { flat: true, ol: '#6a4a08' });
     return;
   }
-  if (th === 'shrine') stoneFloor(p, th, wx, wy); else if (th === 'ranch') grassTile(p, 'ranch', wx, wy, false); else woodFloor(p, wx, wy);
+  floorFor(p, th, wx, wy);
   p.part(RR(2, 4, 12, 9, 2), '#3a6a3a', { ol: '#123a12' });
   p.rect(3, 8, 10, 0.8, '#e8c060');
 }
 
+// ---------------------------------------------------------------- ボスの へや（専用）
+type BossPal = { slab: [string, string, string, string]; wall: string; accent: string; flame: string; carpet: string; pillar: string };
+const BOSSPAL: Record<string, BossPal> = {
+  forest: { slab: ['#34463a', '#3e5242', '#486048', '#547054'], wall: '#1e2c22', accent: '#9aff8a', flame: '#8aff6a', carpet: '#2a5a3a', pillar: '#6a7a5a' },
+  cave: { slab: ['#322e48', '#3c3856', '#464264', '#524e72'], wall: '#1a1830', accent: '#8ae0ff', flame: '#6ad8ff', carpet: '#2a3a7a', pillar: '#6a6a9a' },
+  highland: { slab: ['#6a5a48', '#7a6854', '#8a7660', '#9a8670'], wall: '#3a2c24', accent: '#ffd870', flame: '#ffa030', carpet: '#8a2a2a', pillar: '#c8b090' },
+  tower: { slab: ['#a8b4e0', '#b8c4ec', '#c8d2f6', '#dce4ff'], wall: '#4a5a9a', accent: '#aee8ff', flame: '#c8f0ff', carpet: '#3a54c0', pillar: '#e8f0ff' },
+  snow: { slab: ['#a8c4e4', '#b8d2ee', '#c8def8', '#e0eeff'], wall: '#4a6a9a', accent: '#d8f6ff', flame: '#8ad8ff', carpet: '#3a6aa8', pillar: '#d8ecff' },
+  volcano: { slab: ['#3a2220', '#4a2a26', '#5c342e', '#6e3e34'], wall: '#1c0e0e', accent: '#ff9a3a', flame: '#ff7a1a', carpet: '#7a1818', pillar: '#2a1a1c' },
+};
+export const bossAccent = (th: Theme) => (BOSSPAL[th] ?? BOSSPAL.cave).accent;
+const bp = (th: Theme) => BOSSPAL[th] ?? BOSSPAL.cave;
+
+function bossFloor(p: Pix, th: Theme, wx: number, wy: number) {
+  const c = bp(th);
+  for (let j = 0; j < 2; j++)
+    for (let i = 0; i < 2; i++) {
+      p.rect(i * 8, j * 8, 8, 8, c.slab[(i + j + wx + wy) & 3]);
+    }
+  // ひび われ・かけた ゆかの きずあと
+  const r = (i: number) => h2(wx * 5 + i, wy * 11 + i);
+  for (let j = 0; j < 2; j++)
+    for (let i = 0; i < 2; i++) {
+      const col = c.slab[(i + j + wx + wy) & 3];
+      p.rect(i * 8, j * 8, 8, 0.6, mix(col, '#ffffff', 0.28));
+      p.rect(i * 8 + 7.4, j * 8, 0.6, 8, mix(col, '#000000', 0.35));
+      p.rect(i * 8, j * 8 + 7.4, 8, 0.6, mix(col, '#000000', 0.3));
+    }
+  if (r(1) > 0.72) p.line(2 + r(2) * 6, 2 + r(3) * 4, 6 + r(4) * 8, 8 + r(5) * 6, mix(c.slab[0], '#000000', 0.45), 0.5);
+  if (th === 'forest' && r(6) > 0.55) p.part(E(3 + r(7) * 10, 3 + r(8) * 10, 1.6, 1), '#4a8a3a', { flat: true, noOl: true });
+  if (th === 'snow' && r(6) > 0.6) p.part(E(3 + r(7) * 10, 3 + r(8) * 10, 2, 0.9), '#ffffff', { flat: true, noOl: true });
+  if (th === 'volcano' && r(6) > 0.7) p.line(3 + r(7) * 6, 4, 6 + r(8) * 6, 12, '#ff6a20', 0.6);
+}
+function bossWall(p: Pix, th: Theme, wx: number, wy: number) {
+  const c = bp(th);
+  p.rect(0, 0, 16, 16, c.wall);
+  for (let row = 0; row < 4; row++) {
+    const off = (row + wx) % 2 ? 4 : 0;
+    p.rect(0, row * 4, 16, 0.6, mix(c.wall, '#000000', 0.4));
+    for (let i = 0; i < 3; i++) p.rect(off + i * 8, row * 4, 0.6, 4, mix(c.wall, '#000000', 0.4));
+    p.rect(0, row * 4 + 0.6, 16, 0.5, mix(c.wall, '#ffffff', 0.1));
+  }
+  // ときどき かべに ともる ルーン
+  if ((wx * 7 + wy * 3) % 9 === 0) {
+    p.part(P(8, 3, 11, 8, 8, 13, 5, 8), mix(c.accent, c.wall, 0.55), { flat: true, noOl: true });
+    p.part(P(8, 5, 9.6, 8, 8, 11, 6.4, 8), c.accent, { flat: true, noOl: true });
+  }
+}
+function bossCarpet(p: Pix, th: Theme, wx: number, wy: number) {
+  const c = bp(th);
+  bossFloor(p, th, wx, wy);
+  p.rect(3, 0, 10, 16, c.carpet);
+  for (let y = 0; y < 16; y += 4) p.rect(5, y + 1.5, 6, 0.8, mix(c.carpet, '#ffffff', 0.12));
+  p.rect(3, 0, 1.2, 16, '#e8c860'); p.rect(11.8, 0, 1.2, 16, '#e8c860');
+  p.rect(4.2, 0, 0.6, 16, mix(c.carpet, '#000000', 0.35)); p.rect(11.2, 0, 0.6, 16, mix(c.carpet, '#000000', 0.35));
+}
+function bossRune(p: Pix, th: Theme, wx: number, wy: number, f: number) {
+  const c = bp(th);
+  bossFloor(p, th, wx, wy);
+  const pulse = 0.55 + 0.35 * Math.sin((f / 16) * Math.PI * 2 + wx + wy);
+  p.part(E(8, 8, 5.6, 5.6), mix(c.slab[0], c.accent, 0.22 * pulse), { flat: true, noOl: true });
+  p.part(E(8, 8, 4, 4), mix(c.slab[0], c.accent, 0.1), { flat: true, noOl: true });
+  p.part(P(8, 2.5, 13, 8, 8, 13.5, 3, 8), mix(c.slab[0], c.accent, 0.55 * pulse), { flat: true, noOl: true });
+  p.part(P(8, 5, 11, 8, 8, 11, 5, 8), mix(c.slab[1], c.accent, 0.8 * pulse), { flat: true, noOl: true });
+}
+function bossPillar(p: Pix, th: Theme, wx: number, wy: number) {
+  const c = bp(th);
+  bossFloor(p, th, wx, wy);
+  p.part(E(8, 14, 6.6, 1.8), '#000000', { flat: true, noOl: true });
+  p.part(R(2.5, 12, 11, 3), mix(c.pillar, '#000000', 0.25), { ol: '#14101c', hiT: 0.3 });
+  p.part(R(4, 3, 8, 10), c.pillar, { ol: '#14101c', hi: mix(c.pillar, '#ffffff', 0.4) });
+  for (const x of [6, 8.3, 10.3]) p.rect(x, 3.5, 0.5, 9, mix(c.pillar, '#000000', 0.22));
+  p.part(R(2.5, 1.2, 11, 3), mix(c.pillar, '#ffffff', 0.12), { ol: '#14101c', hiT: 0.4 });
+  p.part(E(8, 2.6, 1.3, 0.8), c.accent, { flat: true, noOl: true });
+  if (th === 'forest') for (const [x, y] of [[4.5, 6], [11.5, 9], [5, 11]]) p.part(E(x, y, 1.6, 1.2), '#3aa848', { ol: '#123a18' });
+  if (th === 'volcano') p.line(7, 4, 9, 12, '#ff6a20', 0.6);
+}
+function bossBrazier(p: Pix, th: Theme, wx: number, wy: number, f: number) {
+  const c = bp(th);
+  bossFloor(p, th, wx, wy);
+  p.part(E(8, 14, 5, 1.4), '#000000', { flat: true, noOl: true });
+  p.part(R(7, 9, 2, 5.5), '#4a4258', { ol: '#14101c' });
+  p.part(R(4.5, 13, 7, 2), '#4a4258', { ol: '#14101c' });
+  p.part(P(3.5, 6.5, 12.5, 6.5, 11, 10.5, 5, 10.5), '#5a5268', { ol: '#14101c', hi: '#8a8298' });
+  const glow = 0.7 + 0.3 * Math.sin(f * 0.9);
+  p.part(E(8, 6, 6, 4.2), mix(c.slab[0], c.flame, 0.2 * glow), { flat: true, noOl: true });
+  const w = 1 + 0.25 * Math.sin(f * 1.3 + wx);
+  p.part(P(8, 0.2 + (1 - w) * 2.5, 10.4, 3.6, 11.2, 6.4, 8, 7.2, 4.8, 6.4, 5.6, 3.6), c.flame, { ol: mix(c.flame, '#000000', 0.5) });
+  p.part(P(8, 2.6 + (1 - w) * 2, 9.4, 4.8, 9.6, 6.4, 8, 6.8, 6.4, 6.4, 6.6, 4.8), mix(c.flame, '#ffffff', 0.55), { flat: true, noOl: true });
+}
+function bossTile(p: Pix, th: Theme, ch: string, x: number, y: number, f: number, state: { open?: boolean; used?: boolean }) {
+  switch (ch) {
+    case '#': bossWall(p, th, x, y); break;
+    case '=': bossCarpet(p, th, x, y); break;
+    case ',': bossRune(p, th, x, y, f); break;
+    case 'I': bossPillar(p, th, x, y); break;
+    case 'f': bossBrazier(p, th, x, y, f); break;
+    case '~': waterTile(p, th, x, y, f); break;
+    case 'H': springTile(p, th, x, y, f, !!state.used, () => bossFloor(p, th, x, y)); break;
+    default: bossFloor(p, th, x, y);
+  }
+}
+
 const cache = new Map<string, HTMLCanvasElement>();
 /** タイルの絵（座標は模様のつながり用、frame はアニメ用） */
-export function tileSprite(th: Theme, ch: string, x: number, y: number, frame: number, state: { open?: boolean; used?: boolean } = {}): HTMLCanvasElement {
-  const anim = ch === '~' || ch === '>' || ch === 'G' || ch === 'E' || ch === 'H' || ch === 'F';
+export function tileSprite(th: Theme, ch: string, x: number, y: number, frame: number, state: { open?: boolean; used?: boolean; boss?: boolean; bld?: BldState } = {}): HTMLCanvasElement {
+  const anim = ch === '~' || ch === '>' || ch === 'G' || ch === 'E' || ch === 'H' || ch === 'F' || (!!state.boss && (ch === 'f' || ch === ',')) || (th === 'town' && (ch === 'l' || (ch === 'R' && !!state.bld)));
   const f = anim ? frame % 16 : 0;
-  const key = `${th}|${ch}|${x},${y}|${f}|${state.open ? 1 : 0}${state.used ? 1 : 0}`;
+  const key = `${th}|${ch}|${x},${y}|${f}|${state.open ? 1 : 0}${state.used ? 1 : 0}${state.boss ? 'B' : ''}${state.bld ? `${state.bld.style}${state.bld.rel}${state.bld.sign ? 's' : ''}` : ''}`;
   const hit = cache.get(key);
   if (hit) return hit;
   const p = new Pix(16, 16, S);
-  const indoor = th === 'interior' || th === 'shrine' || th === 'ranch';
+  if (state.boss) {
+    bossTile(p, th, ch, x, y, f, state);
+    const cb = p.canvas();
+    if (cache.size > 3000) cache.clear();
+    cache.set(key, cb);
+    return cb;
+  }
+  if (th === 'town' && (state.bld || ch === 'l' || ch === 'u' || ch === 'w')) {
+    const base = () => grassTile(p, 'town', x, y, false);
+    if (ch === 'R' && state.bld) roofStyled(p, state.bld, f);
+    else if (ch === 'W' && state.bld) wallStyled(p, state.bld, x);
+    else if (ch === 'D' && state.bld) doorStyled(p, state.bld, x);
+    else if (ch === 'l') lampTile(p, base, f);
+    else if (ch === 'u') flowerBed(p, base, x, y);
+    else if (ch === 'w') wellTile(p, base);
+    else base();
+    const cs = p.canvas();
+    if (cache.size > 3000) cache.clear();
+    cache.set(key, cs);
+    return cs;
+  }
+  const indoor = th === 'interior' || th === 'shrine' || th === 'ranch' || th === 'lab' || th === 'shop' || th === 'arena';
   if (indoor || (th === 'town' && ch === 'D')) {
     switch (ch) {
       case '#': if (th === 'ranch') fence(p, x, y); else innerWall(p, th, x); break;
@@ -315,7 +491,7 @@ export function tileSprite(th: Theme, ch: string, x: number, y: number, frame: n
       case 'L': bookshelf(p); break;
       case 'X': table(p, th, x, y); break;
       case 'K': counterTile(p); break;
-      case 'T': pottedPlant(p, x, y); break;
+      case 'T': pottedPlant(p, th, x, y); break;
       case '>': stairs(p, th, x, y, false); break;
       case '<': stairs(p, th, x, y, true); break;
       case 'D': doorTile(p, th, x, y); break;
@@ -323,8 +499,7 @@ export function tileSprite(th: Theme, ch: string, x: number, y: number, frame: n
       case '~': waterTile(p, 'town', x, y, f); break;
       default:
         if (th === 'ranch') grassTile(p, 'ranch', x, y, false);
-        else if (th === 'shrine') stoneFloor(p, th, x, y);
-        else woodFloor(p, x, y);
+        else floorFor(p, th, x, y);
     }
     const c0 = p.canvas();
     if (cache.size > 3000) cache.clear();
