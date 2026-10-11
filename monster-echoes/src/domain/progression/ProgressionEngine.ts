@@ -27,7 +27,7 @@ export function conditionMet(p: ProgressState, c: Condition): boolean {
 export const allMet = (p: ProgressState, cs: Condition[]) => cs.every((c) => conditionMet(p, c));
 
 export function describeCondition(c: Condition): string {
-  if (c.type === 'boss') return { boss_forest: 'はじまりのもりの ゆがみを はらう', boss_cave: 'しずくのどうくつの ゆがみを はらう', boss_highland: 'かぜのこうげんの ゆがみを はらう', boss_tower: 'ひかりのとうを せいはする' }[c.id] ?? c.id;
+  if (c.type === 'boss') return { boss_forest: 'はじまりのもりの ゆがみを はらう', boss_cave: 'しずくのどうくつの ゆがみを はらう', boss_highland: 'かぜのこうげんの ゆがみを はらう', boss_tower: 'ひかりのとうを せいはする', boss_snow: 'こおりのゆきやまの ゆがみを はらう', boss_volcano: 'ほのおのかざんの ゆがみを はらう' }[c.id] ?? c.id;
   if (c.type === 'flag') return { champion: 'ルナフィアたいかいで ゆうしょう', towerClear: 'ひかりのとうを せいはする' }[c.id] ?? c.id;
   return `とうぎじょう ${ARENA_RANKS.find((r) => r.id === c.id)?.name ?? c.id}を ゆうしょう`;
 }

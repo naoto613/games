@@ -57,6 +57,13 @@ const STAGES: { name: string; party: P; table?: string; boss?: string; arena?: s
   { name: 'こうげん ふもと 6連戦', party: [['firedragon', 14, 1], ['lightningleo', 16, 1], ['icekrill', 16]], table: 'highland1', expect: [0.5, 1] },
   { name: 'ボス: ゆがみファイアドラゴン', party: [['firedragon', 19, 1], ['lightningleo', 20, 1], ['icekrill', 19]], boss: 'boss_highland', expect: [0.3, 0.97] },
   { name: 'ルナフィアたいかい', party: [['darkdragon', 22, 2], ['metalspirit', 21, 2], ['greensprite', 22, 2]], arena: 'arenaD', expect: [0.25, 0.95] },
+  { name: 'こおりのゆきやま ふもと 6連戦', party: [['darkdragon', 24, 2], ['metalspirit', 23, 2], ['greensprite', 24, 2]], table: 'snow1', expect: [0.5, 1] },
+  { name: 'こおりのゆきやま ちょうじょう 6連戦', party: [['darkdragon', 26, 2], ['metalspirit', 25, 2], ['greensprite', 26, 2]], table: 'snow3', expect: [0.4, 1] },
+  { name: 'ボス: ゆがみアイスドラゴン', party: [['darkdragon', 26, 2], ['metalspirit', 25, 2], ['greensprite', 26, 2]], boss: 'boss_snow', expect: [0.3, 0.95] },
+  { name: 'ほのおのかざん ふもと 6連戦', party: [['darkdragon', 31, 3], ['icedragon', 30, 2], ['moonleo', 30, 2]], table: 'volcano1', expect: [0.5, 1] },
+  { name: 'ほのおのかざん ふんかこう 6連戦', party: [['darkdragon', 34, 3], ['icedragon', 33, 2], ['moonleo', 33, 2]], table: 'volcano3', expect: [0.4, 1] },
+  { name: 'ボス: ゆがみクリムゾンドラゴン', party: [['darkdragon', 34, 3], ['icedragon', 33, 3], ['moonleo', 33, 3]], boss: 'boss_volcano', expect: [0.3, 0.95] },
+  { name: 'マスターたいかい', party: [['chaosdragon', 36, 4], ['goldslime', 36, 3], ['moonleo', 36, 4]], arena: 'arenaX', expect: [0.25, 0.95] },
   { name: '(参考)配合なし R1 Lv20 でルナフィアたいかい', party: [['lunaslime', 20], ['magmadog', 20], ['stonegolem', 20]], arena: 'arenaD', expect: [0, 0.4] },
 ];
 

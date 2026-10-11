@@ -8,18 +8,26 @@ const enc = (id: string, entries: [string, number, number, number][], groupSize:
 
 export const ENCOUNTERS: Record<string, EncounterTable> = Object.fromEntries(
   [
-    enc('forest1', [['lunaslime', 3, 1, 2], ['leafant', 3, 1, 2], ['thunderkids', 2, 1, 2], ['frostbird', 2, 1, 2], ['ghostbill', 1, 2, 2]], [[1, 6], [2, 2]]),
-    enc('forest2', [['lunaslime', 3, 3, 5], ['leafant', 3, 3, 5], ['thunderkids', 3, 3, 5], ['frostbird', 2, 3, 5], ['magmadog', 2, 3, 5], ['sandworm', 2, 3, 5]], [[1, 3], [2, 4], [3, 1]]),
-    enc('forest3', [['magmadog', 3, 5, 6], ['sandworm', 3, 5, 7], ['leafant', 2, 5, 7], ['ghostbill', 2, 5, 6], ['thunderkids', 2, 5, 7], ['greensprite', 1, 5, 6]], [[1, 3], [2, 4], [3, 1]]),
-    enc('cave1', [['stonegolem', 3, 7, 9], ['devilcrab', 3, 7, 9], ['ghostbill', 2, 7, 9], ['lunaslime', 2, 7, 9], ['icekrill', 1, 7, 8]], [[1, 2], [2, 4], [3, 2]]),
-    enc('cave2', [['stonegolem', 2, 9, 11], ['devilcrab', 2, 9, 11], ['icekrill', 2, 9, 11], ['darkeye', 2, 9, 11], ['ghostbill', 2, 10, 12]], [[1, 2], [2, 4], [3, 2]]),
-    enc('cave3', [['icekrill', 2, 10, 11], ['darkeye', 2, 10, 11], ['devilcrab', 3, 10, 12], ['stonegolem', 3, 11, 12]], [[1, 3], [2, 4], [3, 1]]),
-    enc('highland1', [['frostbird', 3, 13, 15], ['windcat', 2, 13, 14], ['magmadog', 3, 14, 16], ['thunderkids', 2, 13, 15], ['kinoborg', 2, 13, 15]], [[1, 1], [2, 4], [3, 3]]),
-    enc('highland2', [['windcat', 3, 15, 17], ['lightningleo', 2, 15, 17], ['kinoborg', 2, 15, 17], ['sandworm', 2, 15, 17]], [[1, 1], [2, 4], [3, 3]]),
-    enc('highland3', [['windcat', 3, 17, 19], ['lightningleo', 3, 17, 19], ['frostbird', 2, 17, 19], ['kinoborg', 2, 17, 19]], [[2, 4], [3, 4]]),
+    enc('forest1', [['lunaslime', 3, 1, 2], ['leafant', 3, 1, 2], ['thunderkids', 2, 1, 2], ['frostbird', 2, 1, 2], ['ghostbill', 1, 2, 2], ['mintslime', 2, 1, 2], ['rosefant', 2, 1, 2]], [[1, 6], [2, 2]]),
+    enc('forest2', [['lunaslime', 3, 3, 5], ['leafant', 3, 3, 5], ['thunderkids', 3, 3, 5], ['frostbird', 2, 3, 5], ['magmadog', 2, 3, 5], ['sandworm', 2, 3, 5], ['mintslime', 2, 3, 5], ['rosefant', 2, 3, 5], ['venomworm', 1, 4, 5]], [[1, 3], [2, 4], [3, 1]]),
+    enc('forest3', [['magmadog', 3, 5, 6], ['sandworm', 3, 5, 7], ['leafant', 2, 5, 7], ['ghostbill', 2, 5, 6], ['thunderkids', 2, 5, 7], ['greensprite', 1, 5, 6], ['rosefant', 1, 5, 7], ['shadowdog', 1, 5, 6]], [[1, 3], [2, 4], [3, 1]]),
+    enc('cave1', [['stonegolem', 3, 7, 9], ['devilcrab', 3, 7, 9], ['ghostbill', 2, 7, 9], ['lunaslime', 2, 7, 9], ['icekrill', 1, 7, 8], ['bluecrab', 2, 7, 9], ['shadowdog', 1, 8, 9]], [[1, 2], [2, 4], [3, 2]]),
+    enc('cave2', [['stonegolem', 2, 9, 11], ['devilcrab', 2, 9, 11], ['icekrill', 2, 9, 11], ['darkeye', 2, 9, 11], ['ghostbill', 2, 10, 12], ['claygolem', 2, 9, 11], ['bluecrab', 2, 9, 11]], [[1, 2], [2, 4], [3, 2]]),
+    enc('cave3', [['icekrill', 2, 10, 11], ['darkeye', 2, 10, 11], ['devilcrab', 3, 10, 12], ['stonegolem', 3, 11, 12], ['claygolem', 1, 11, 12], ['shadowdog', 1, 10, 11]], [[1, 3], [2, 4], [3, 1]]),
+    enc('highland1', [['frostbird', 3, 13, 15], ['windcat', 2, 13, 14], ['magmadog', 3, 14, 16], ['thunderkids', 2, 13, 15], ['kinoborg', 2, 13, 15], ['blazebird', 2, 13, 15], ['venomworm', 2, 13, 15]], [[1, 1], [2, 4], [3, 3]]),
+    enc('highland2', [['windcat', 3, 15, 17], ['lightningleo', 2, 15, 17], ['kinoborg', 2, 15, 17], ['sandworm', 2, 15, 17], ['blazebird', 2, 15, 17], ['claygolem', 1, 15, 17]], [[1, 1], [2, 4], [3, 3]]),
+    enc('highland3', [['windcat', 3, 17, 19], ['lightningleo', 3, 17, 19], ['frostbird', 2, 17, 19], ['kinoborg', 2, 17, 19], ['venomworm', 1, 17, 19]], [[2, 4], [3, 4]]),
     enc('tower1', [['kinoborg', 2, 22, 24], ['lightningleo', 3, 24, 26], ['windcat', 3, 24, 26], ['darkeye', 2, 24, 26], ['metalspirit', 1, 20, 22]], [[2, 4], [3, 4]]),
     enc('tower2', [['lightningleo', 3, 25, 27], ['icekrill', 2, 25, 27], ['greensprite', 2, 25, 27], ['kinoborg', 2, 26, 28], ['metalspirit', 1, 22, 24]], [[2, 3], [3, 5]]),
     enc('tower3', [['darkdragon', 2, 27, 29], ['lightningleo', 3, 27, 29], ['darkeye', 2, 28, 30], ['metalspirit', 1, 24, 26]], [[2, 2], [3, 6]]),
+    // ---- こおりのゆきやま（ルナフィアたいかい ゆうしょうご）
+    enc('snow1', [['frostbird', 2, 20, 22], ['icewolf', 3, 20, 22], ['bluecrab', 2, 20, 22], ['icekrill', 2, 20, 22], ['mintslime', 1, 18, 20]], [[1, 1], [2, 4], [3, 3]]),
+    enc('snow2', [['icewolf', 3, 21, 23], ['aquasprite', 2, 21, 23], ['thunderbird', 2, 21, 23], ['icekrill', 2, 22, 24], ['rubykrill', 1, 22, 24]], [[2, 4], [3, 4]]),
+    enc('snow3', [['icedragon', 2, 23, 25], ['icewolf', 3, 23, 25], ['aquasprite', 2, 23, 25], ['thunderbird', 2, 23, 25], ['moonleo', 1, 24, 26]], [[2, 3], [3, 5]]),
+    // ---- ほのおのかざん（ひかりのとう・こおりのゆきやま せいはご）
+    enc('volcano1', [['flameslime', 3, 28, 30], ['blazebird', 3, 28, 30], ['redeye', 2, 28, 30], ['magmaworm', 2, 28, 30], ['shadowdog', 2, 26, 28]], [[2, 3], [3, 5]]),
+    enc('volcano2', [['magmaworm', 3, 29, 31], ['hellbill', 3, 29, 31], ['rubykrill', 2, 29, 31], ['redeye', 2, 30, 32], ['firedragon', 1, 30, 32]], [[2, 3], [3, 5]]),
+    enc('volcano3', [['crimsondragon', 1, 30, 31], ['hellbill', 3, 29, 31], ['magmaworm', 3, 29, 31], ['firedragon', 2, 30, 32], ['redeye', 2, 29, 31]], [[2, 3], [3, 5]]),
   ].map((e) => [e.id, e]),
 );
 
@@ -81,6 +89,26 @@ export const AREAS: AreaDefinition[] = [
       { id: 'tower3', name: 'ひかりのとう さいじょうかい', encounterTableId: 'tower3', chestTable: chest2(600), bossId: 'boss_tower' },
     ],
   },
+  {
+    id: 'snow', name: 'こおりのゆきやま', theme: 'snow', recommendedLevel: 20,
+    unlockConditions: [{ type: 'flag', id: 'champion' }],
+    description: 'ふぶきが ふきあれる ゆきやま。こおりの モンスターが すんでいる。',
+    floors: [
+      { id: 'snow1', name: 'こおりのゆきやま ふもと', encounterTableId: 'snow1', chestTable: chest2(450) },
+      { id: 'snow2', name: 'こおりのゆきやま ちゅうふく', encounterTableId: 'snow2', chestTable: chest2(550) },
+      { id: 'snow3', name: 'こおりのゆきやま ちょうじょう', encounterTableId: 'snow3', chestTable: chest2(700), bossId: 'boss_snow' },
+    ],
+  },
+  {
+    id: 'volcano', name: 'ほのおのかざん', theme: 'volcano', recommendedLevel: 28,
+    unlockConditions: [{ type: 'boss', id: 'boss_snow' }, { type: 'flag', id: 'towerClear' }],
+    description: 'マグマが ふきだす かざん。ほのおの つよい モンスターが ひしめく。',
+    floors: [
+      { id: 'volcano1', name: 'ほのおのかざん ふもと', encounterTableId: 'volcano1', chestTable: chest2(800) },
+      { id: 'volcano2', name: 'ほのおのかざん ちゅうふく', encounterTableId: 'volcano2', chestTable: chest2(1000) },
+      { id: 'volcano3', name: 'ほのおのかざん ふんかこう', encounterTableId: 'volcano3', chestTable: chest2(1300), bossId: 'boss_volcano' },
+    ],
+  },
 ];
 export const getArea = (id: string) => {
   const a = AREAS.find((x) => x.id === id);
@@ -139,6 +167,32 @@ BOSSES.boss_tower = {
   setFlags: ['towerClear'],
 };
 
+BOSSES.boss_snow = {
+  id: 'boss_snow', name: 'ゆがみの アイスドラゴン',
+  intro: ['ふぶきの なかで、くろい こおりが きしんでいる…！', 'ゆがみに とりつかれた アイスドラゴンが ふぶきを まとって あらわれた！'],
+  enemies: [
+    { speciesId: 'icewolf', level: 24, recruitable: false },
+    { speciesId: 'icedragon', level: 27, hpScale: 2.8, statScale: 1.15, name: 'ゆがみアイスドラゴン', distorted: true, recruitable: false },
+    { speciesId: 'icewolf', level: 24, recruitable: false },
+  ],
+  defeatText: ['ふぶきが ぴたりと やんで、そらが はれわたっていく…。', 'こおりの なかから ひかりの かけらが あらわれた！'],
+  rewards: [{ type: 'item', itemId: 'shard', count: 1 }, { type: 'gold', amount: 1500 }, { type: 'item', itemId: 'medal', count: 5 }],
+  setFlags: ['shard4'],
+};
+
+BOSSES.boss_volcano = {
+  id: 'boss_volcano', name: 'ゆがみの クリムゾンドラゴン',
+  intro: ['ふんかこうで まっかな ほのおが うずを まいている…！', 'ゆがみに とりつかれた クリムゾンドラゴンが ほえた！'],
+  enemies: [
+    { speciesId: 'hellbill', level: 31, recruitable: false },
+    { speciesId: 'crimsondragon', level: 34, hpScale: 2.2, statScale: 1.07, name: 'ゆがみクリムゾンドラゴン', distorted: true, recruitable: false },
+    { speciesId: 'hellbill', level: 31, recruitable: false },
+  ],
+  defeatText: ['マグマの いきおいが おさまり、かざんは しずかに なった…。', 'ひかりの かけらが あしもとで かがやいている！'],
+  rewards: [{ type: 'item', itemId: 'shard', count: 1 }, { type: 'gold', amount: 4000 }, { type: 'item', itemId: 'medal', count: 8 }],
+  setFlags: ['shard5'],
+};
+
 export const ARENA_RANKS: ArenaRankDefinition[] = [
   {
     id: 'arenaF', name: 'Fランク', description: 'しんじん ちょうりつしの ための たいかい。3れんせん、あいだに ぜんかいふく。',
@@ -183,6 +237,17 @@ export const ARENA_RANKS: ArenaRankDefinition[] = [
     ],
     rewards: [{ type: 'gold', amount: 5000 }, { type: 'item', itemId: 'medal', count: 10 }, { type: 'item', itemId: 'primemeat', count: 3 }],
     setFlags: ['legend'],
+  },
+  {
+    id: 'arenaX', name: 'マスターたいかい', description: 'ほのおのかざんを しずめた、でんせつの あとを つぐ ものだけが いどめる。3れんせん、かいふく なし。',
+    entryConditions: [{ type: 'arena', id: 'arenaS' }, { type: 'boss', id: 'boss_volcano' }], betweenBattleRecovery: 'none',
+    battles: [
+      { trainer: 'こおりの じょおう ユキノ', enemies: [{ speciesId: 'icedragon', level: 36 }, { speciesId: 'aquasprite', level: 35 }, { speciesId: 'moonleo', level: 36 }], tactic: 'support' },
+      { trainer: 'かざんの たつじん ガンジ', enemies: [{ speciesId: 'magmaworm', level: 36 }, { speciesId: 'crimsondragon', level: 37 }, { speciesId: 'hellbill', level: 36 }], tactic: 'skill' },
+      { trainer: 'マスター ルナ', enemies: [{ speciesId: 'chaosdragon', level: 38 }, { speciesId: 'goldslime', level: 37 }, { speciesId: 'moonleo', level: 38 }], tactic: 'skill' },
+    ],
+    rewards: [{ type: 'gold', amount: 9000 }, { type: 'item', itemId: 'medal', count: 15 }, { type: 'item', itemId: 'primemeat', count: 5 }, { type: 'capacity', amount: 10 }],
+    setFlags: ['master'],
   },
 ];
 export const getArenaRank = (id: string) => ARENA_RANKS.find((r) => r.id === id)!;
