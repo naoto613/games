@@ -72,8 +72,8 @@ describe('ゲームループ（探索→戦闘→仲間化→配合→保存→�
     g.state.monsters.push(...strong);
     g.setParty(strong.map((m) => m.id));
     expect(g.startExpedition('forest').ok).toBe(true);
-    // 1F → 2F → 3F → ボス
-    for (let f = 0; f < 2; f++) {
+    // 1F → 2F → 3F → ボスの へや
+    for (let f = 0; f < 3; f++) {
       const r = walkTo(g, '>');
       expect(r?.kind, `floor ${f}`).toBe('stairs');
       g.descend();

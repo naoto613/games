@@ -8,11 +8,12 @@ import type { App, Key, Screen } from '../App';
 import { clear, h } from '../dom';
 import { monsterSprite, needFlip } from '../gfx/monsters';
 import { mkCanvas } from '../gfx/Pix';
-import { personSprite, TILE, tileSprite, type Theme } from '../gfx/tiles';
+import { bossAccent, personSprite, TILE, tileSprite, type Theme } from '../gfx/tiles';
 import { startBattle } from './battle';
 import { talkTo } from './town';
 import { getArea as areaOf } from '../../data/areas';
 import { openFieldMenu, openParty } from './menus';
+import { buildingAt, TOWN_BUILDINGS } from '../../data/town';
 import { displayName } from '../../domain/monster/MonsterFactory';
 
 const VW = 11;
@@ -153,7 +154,7 @@ export class FieldScreen implements Screen {
     window.addEventListener('resize', this.onResize);
     this.fit();
     this.reloadMap();
-    playBgm(this.inTown ? 'town' : 'field');
+    playBgm(this.bgm());
     this.updateHud();
     if (!this.game.state.progress.tutorialFlags.touchHint) {
       this.game.setTutorial('touchHint');
@@ -193,10 +194,14 @@ export class FieldScreen implements Screen {
     }
   }
 
+  private bgm() {
+    return this.inTown ? 'town' : this.game.floor?.floor.bossId ? 'bossroom' : 'field';
+  }
+
   /** メニューから戻ったとき（かえりのはね などで場所が変わることがある） */
   afterMenu() {
     this.reloadMap();
-    playBgm(this.inTown ? 'town' : 'field');
+    playBgm(this.bgm());
     this.updateHud();
   }
 
@@ -219,7 +224,8 @@ export class FieldScreen implements Screen {
     if (this.busy || this.moving || this.app.panels.length) return;
     const rect = this.cv.getBoundingClientRect();
     const cx = ((e.clientX - rect.left) / rect.width) * this.cv.width, cy = ((e.clientY - rect.top) / rect.height) * this.cv.height;
-    const camX = this.pos.x - (VW - 1) / 2, camY = this.pos.y - (VH - 1) / 2;
+    const camX = this.pos.x - (VW - 1) / 2;
+    const camY = !this.inTown && this.game.floor?.floor.bossId && this.map.h <= VH ? (this.map.h - VH) / 2 : this.pos.y - (VH - 1) / 2;
     const tx = Math.floor(camX + cx / TILE), ty = Math.floor(camY + cy / TILE);
     if (tx === this.pos.x && ty === this.pos.y) return void this.key('a', true);
     const path = findPath(this.map, this.pos, { x: tx, y: ty });
@@ -330,7 +336,7 @@ export class FieldScreen implements Screen {
           if (!(await this.app.confirm(`「${area.name}」への たびのとびらだ。\nとびこみますか？`))) break;
           sfx('stairs');
           await this.fade(() => { this.game.startExpedition(r.areaId); this.reloadMap(); });
-          playBgm('field');
+          playBgm(this.bgm());
           this.app.toast(this.game.floor!.floor.name);
           break;
         }
@@ -362,6 +368,7 @@ export class FieldScreen implements Screen {
             this.game.descend();
             this.reloadMap();
           });
+          playBgm(this.bgm());
           this.app.toast(this.game.floor!.floor.name);
           break;
         case 'exit':
@@ -411,6 +418,30 @@ export class FieldScreen implements Screen {
     await new Promise((r) => setTimeout(r, 200));
   }
 
+  /** まちの えんとつの けむり・しんでんの きらめき */
+  private drawTownFx(g: CanvasRenderingContext2D, camX: number, camY: number) {
+    if (this.app.settings.reduceMotion) return;
+    const t = this.frame;
+    for (const b of TOWN_BUILDINGS) {
+      if (b.style === 'lab' || b.style === 'ranch') {
+        const cx = b.x0 + (b.style === 'lab' ? b.x1 - b.x0 - 1 : 1);
+        const bx = (cx - camX) * TILE + TILE * 0.68, by = (b.y0 - camY) * TILE;
+        for (let i = 0; i < 4; i++) {
+          const k = ((t + i * 22) % 88) / 88;
+          g.fillStyle = `rgba(240,240,250,${0.55 * (1 - k)})`;
+          g.beginPath(); g.arc(bx + Math.sin(k * 5 + i) * 4 + k * 8, by - k * 34, 3 + k * 5, 0, Math.PI * 2); g.fill();
+        }
+      } else if (b.style === 'shrine') {
+        const bx = (b.door - camX) * TILE + TILE / 2, by = (b.y0 - camY) * TILE + 6;
+        for (let i = 0; i < 5; i++) {
+          const k = ((t + i * 19) % 95) / 95, a = i * 1.7;
+          g.fillStyle = `rgba(200,240,255,${0.9 * Math.sin(k * Math.PI)})`;
+          g.fillRect(Math.round(bx + Math.cos(a) * (8 + k * 14)), Math.round(by - k * 26 + Math.sin(a) * 4), 2, 2);
+        }
+      }
+    }
+  }
+
   // 牧場で あずけている モンスターが うろうろする（見た目だけ）
   private roam = new Map<string, { x: number; y: number; tx: number; ty: number; t: number; flip: boolean }>();
   private drawRanchMonsters(g: CanvasRenderingContext2D, camX: number, camY: number) {
@@ -454,7 +485,10 @@ export class FieldScreen implements Screen {
       px = this.moving.from.x + (this.pos.x - this.moving.from.x) * t;
       py = this.moving.from.y + (this.pos.y - this.moving.from.y) * t;
     }
-    const camX = px - (VW - 1) / 2, camY = py - (VH - 1) / 2;
+    const bossRoom = !!this.game.floor?.floor.bossId;
+    const camX = px - (VW - 1) / 2;
+    // ボスの へやは ぜんたいが みえるように まんなかに おく
+    const camY = bossRoom && this.map.h <= VH ? (this.map.h - VH) / 2 : py - (VH - 1) / 2;
     g.fillStyle = '#000';
     g.fillRect(0, 0, this.cv.width, this.cv.height);
     const th = this.theme;
@@ -462,13 +496,16 @@ export class FieldScreen implements Screen {
     const ex = this.game.state.expedition;
     for (let y = y0; y <= y0 + VH + 1; y++)
       for (let x = x0; x <= x0 + VW + 1; x++) {
-        if (th !== 'town' && !ex && (x < 0 || y < 0 || x >= this.map.w || y >= this.map.h)) continue; // へやの そとは まっくら
+        if ((th !== 'town' && !ex || bossRoom) && (x < 0 || y < 0 || x >= this.map.w || y >= this.map.h)) continue; // へやの そとは まっくら
         let ch = tileAt(this.map, x, y);
         if (th === 'town' && /[0-9]/.test(ch)) ch = tileAt(this.map, x, y - 1) === 'W' ? 'K' : '.';
         if (ch === 'B') ch = '.';
-        const state = { open: ch === 'C' && this.game.isOpened({ x, y }), used: ch === 'H' && !!ex?.springUsed };
+        const b = th === 'town' ? buildingAt(x, y) : undefined;
+        const bld = b && 'RWD'.includes(ch) ? { style: b.style, rel: x - b.x0, w: b.x1 - b.x0 + 1, sign: ch === 'R' && x === b.door } : undefined;
+        const state = { open: ch === 'C' && this.game.isOpened({ x, y }), used: ch === 'H' && !!ex?.springUsed, boss: bossRoom, bld };
         g.drawImage(tileSprite(th, ch, x, y, anim, state), Math.round((x - camX) * TILE), Math.round((y - camY) * TILE));
       }
+    if (th === 'town') this.drawTownFx(g, camX, camY);
     const shadow = (sx: number, sy: number, w = 11) => {
       g.fillStyle = 'rgba(0,0,0,.28)';
       g.beginPath();
@@ -482,6 +519,11 @@ export class FieldScreen implements Screen {
       const sp = monsterSprite(BOSSES[bossId].enemies.find((e) => e.distorted)?.speciesId ?? 'kinoborg', { distorted: true });
       const bob = Math.round(Math.sin(this.frame / 12) * 1.5);
       const bx = Math.round((b.x - camX) * TILE), by = Math.round((b.y - camY) * TILE);
+      const pulse = 0.5 + 0.5 * Math.sin(this.frame / 14);
+      const acc = bossAccent(th);
+      const aura = g.createRadialGradient(bx + 16, by + 18, 4, bx + 16, by + 18, 48 + pulse * 6);
+      aura.addColorStop(0, acc + 'aa'); aura.addColorStop(1, acc + '00');
+      g.fillStyle = aura; g.fillRect(bx - 40, by - 40, 112, 112);
       shadow(bx, by, 16);
       g.imageSmoothingEnabled = true;
       g.drawImage(sp, bx - 12, by - 22 + bob, 56, 56);
@@ -528,7 +570,14 @@ export class FieldScreen implements Screen {
     });
     actors.sort((a, b) => a.y - b.y).forEach((a) => a.draw());
     // どうくつは 暗く、まわりだけ明るく
-    if (th === 'cave') {
+    if (bossRoom) {
+      // ボスの へや: ふちが くらく、ボスの いる おくが ぼうっと あかるい
+      const rg = g.createRadialGradient(this.cv.width / 2, this.cv.height / 2, TILE * 3, this.cv.width / 2, this.cv.height / 2, TILE * 9);
+      rg.addColorStop(0, 'rgba(8,4,16,0)');
+      rg.addColorStop(1, 'rgba(8,4,16,.6)');
+      g.fillStyle = rg;
+      g.fillRect(0, 0, this.cv.width, this.cv.height);
+    } else if (th === 'cave') {
       const cx = hx + TILE / 2, cy = hy + TILE / 2;
       const rg = g.createRadialGradient(cx, cy, TILE * 1.5, cx, cy, TILE * 6);
       rg.addColorStop(0, 'rgba(10,6,20,0)');

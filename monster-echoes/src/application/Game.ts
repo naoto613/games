@@ -67,7 +67,7 @@ export function floorMap(areaId: string, floorIndex: number, seed: number): Tile
   const area = getArea(areaId);
   const f = area.floors[floorIndex];
   const last = floorIndex === area.floors.length - 1;
-  return generateFloor({ id: f.id, theme: area.theme, first: floorIndex === 0, last, spring: floorIndex === 1 && !last }, seed);
+  return generateFloor({ id: f.id, theme: area.theme, first: floorIndex === 0, last, boss: !!f.bossId, spring: floorIndex === 1 && !last }, seed);
 }
 
 export function shopItems(s: SaveData): string[] {
@@ -570,7 +570,8 @@ export class Game {
     if (t === '>') return { kind: 'stairs' };
     if (t === 'E') return { kind: 'exit' };
     const e = this.state.expedition!;
-    if (this.rng.next() < encounterChance(e.stepsSinceBattle)) {
+    // ボスの へやには やせいの てきは でない
+    if (!this.floor!.floor.bossId && this.rng.next() < encounterChance(e.stepsSinceBattle)) {
       encounter = rollEncounter(this.floor!.floor.encounterTableId, this.rng, e.lastLead);
       this.update((s) => {
         s.expedition!.stepsSinceBattle = 0;

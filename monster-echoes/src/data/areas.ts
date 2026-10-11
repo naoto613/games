@@ -57,7 +57,8 @@ export const AREAS: AreaDefinition[] = [
     floors: [
       { id: 'forest1', name: 'はじまりのもり 1F', encounterTableId: 'forest1', chestTable: chest(30) },
       { id: 'forest2', name: 'はじまりのもり 2F', encounterTableId: 'forest2', chestTable: chest(50) },
-      { id: 'forest3', name: 'はじまりのもり おく', encounterTableId: 'forest3', chestTable: chest(80), bossId: 'boss_forest' },
+      { id: 'forest3', name: 'はじまりのもり おく', encounterTableId: 'forest3', chestTable: chest(80) },
+      { id: 'forestBoss', name: 'はじまりのもり キノコの おうざ', encounterTableId: 'forest3', chestTable: [], bossId: 'boss_forest' },
     ],
   },
   {
@@ -66,7 +67,8 @@ export const AREAS: AreaDefinition[] = [
     floors: [
       { id: 'cave1', name: 'しずくのどうくつ B1', encounterTableId: 'cave1', chestTable: chest(90) },
       { id: 'cave2', name: 'しずくのどうくつ B2', encounterTableId: 'cave2', chestTable: chest2(120) },
-      { id: 'cave3', name: 'しずくのどうくつ ちていこ', encounterTableId: 'cave3', chestTable: chest2(150), bossId: 'boss_cave' },
+      { id: 'cave3', name: 'しずくのどうくつ ちていこ', encounterTableId: 'cave3', chestTable: chest2(150) },
+      { id: 'caveBoss', name: 'しずくのどうくつ ちていの みずうみ', encounterTableId: 'cave3', chestTable: [], bossId: 'boss_cave' },
     ],
   },
   {
@@ -76,7 +78,8 @@ export const AREAS: AreaDefinition[] = [
     floors: [
       { id: 'highland1', name: 'かぜのこうげん ふもと', encounterTableId: 'highland1', chestTable: chest2(160) },
       { id: 'highland2', name: 'かぜのこうげん なかほど', encounterTableId: 'highland2', chestTable: chest2(200) },
-      { id: 'highland3', name: 'かぜのこうげん いただき', encounterTableId: 'highland3', chestTable: chest2(260), bossId: 'boss_highland' },
+      { id: 'highland3', name: 'かぜのこうげん いただき', encounterTableId: 'highland3', chestTable: chest2(260) },
+      { id: 'highlandBoss', name: 'かぜのこうげん いただきの だんじょう', encounterTableId: 'highland3', chestTable: [], bossId: 'boss_highland' },
     ],
   },
   {
@@ -86,7 +89,8 @@ export const AREAS: AreaDefinition[] = [
     floors: [
       { id: 'tower1', name: 'ひかりのとう 1F', encounterTableId: 'tower1', chestTable: chest2(400) },
       { id: 'tower2', name: 'ひかりのとう 2F', encounterTableId: 'tower2', chestTable: chest2(500) },
-      { id: 'tower3', name: 'ひかりのとう さいじょうかい', encounterTableId: 'tower3', chestTable: chest2(600), bossId: 'boss_tower' },
+      { id: 'tower3', name: 'ひかりのとう さいじょうかい', encounterTableId: 'tower3', chestTable: chest2(600) },
+      { id: 'towerBoss', name: 'ひかりのとう クリスタルの ぎょくざ', encounterTableId: 'tower3', chestTable: [], bossId: 'boss_tower' },
     ],
   },
   {
@@ -96,7 +100,8 @@ export const AREAS: AreaDefinition[] = [
     floors: [
       { id: 'snow1', name: 'こおりのゆきやま ふもと', encounterTableId: 'snow1', chestTable: chest2(450) },
       { id: 'snow2', name: 'こおりのゆきやま ちゅうふく', encounterTableId: 'snow2', chestTable: chest2(550) },
-      { id: 'snow3', name: 'こおりのゆきやま ちょうじょう', encounterTableId: 'snow3', chestTable: chest2(700), bossId: 'boss_snow' },
+      { id: 'snow3', name: 'こおりのゆきやま ちょうじょう', encounterTableId: 'snow3', chestTable: chest2(700) },
+      { id: 'snowBoss', name: 'こおりのゆきやま ふぶきの ほこら', encounterTableId: 'snow3', chestTable: [], bossId: 'boss_snow' },
     ],
   },
   {
@@ -106,7 +111,8 @@ export const AREAS: AreaDefinition[] = [
     floors: [
       { id: 'volcano1', name: 'ほのおのかざん ふもと', encounterTableId: 'volcano1', chestTable: chest2(800) },
       { id: 'volcano2', name: 'ほのおのかざん ちゅうふく', encounterTableId: 'volcano2', chestTable: chest2(1000) },
-      { id: 'volcano3', name: 'ほのおのかざん ふんかこう', encounterTableId: 'volcano3', chestTable: chest2(1300), bossId: 'boss_volcano' },
+      { id: 'volcano3', name: 'ほのおのかざん ふんかこう', encounterTableId: 'volcano3', chestTable: chest2(1300) },
+      { id: 'volcanoBoss', name: 'ほのおのかざん ふんかこうの おく', encounterTableId: 'volcano3', chestTable: [], bossId: 'boss_volcano' },
     ],
   },
 ];

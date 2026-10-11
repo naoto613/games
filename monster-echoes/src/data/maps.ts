@@ -1,7 +1,7 @@
 // まちの タイルマップ（ダンジョンは FloorGen で はいるたびに 自動生成する）。
 // # かべ  . ゆか  , くさ・はな（ゆか）  ~ みず  E でぐち(まちへ)  S はじまり  > つぎのフロア
 // C たからばこ  H いやしのいずみ  B ボス
-// まち: 0〜9 は人、F ふんすい、D 出入り口、R やね、W かべ、T き、G 旅の扉、< > 階段、L 本だな、K カウンター、X つくえ
+// まち: l ランプ、u はなだん、w いど、0〜9 は人、F ふんすい、D 出入り口、R やね、W かべ、T き、G 旅の扉、< > 階段、L 本だな、K カウンター、X つくえ
 
 export type MapTemplate = { id: string; rows: string[] };
 
@@ -13,19 +13,19 @@ export const MAPS: Record<string, MapTemplate> = Object.fromEntries(
       'TTTTTTTTTTTTTTTTTTT',
       'T,,,,RRRRRRRRR,,,,T',
       'T,,,,WWWWDWWWW,,,,T',
-      'T,,,,,,,,.,,,,,,,,T',
+      'Tu,,,,,,l.l,,,,,,uT',
       'T,RRRRR,,.,,RRRRR,T',
       'T,WWDWW,,.,,WWDWW,T',
-      'T,,,.,,,,.,,,,.,,,T',
+      'T,,l.l,,,.,,,l.l,,T',
       'T,,,.....,.....,,,T',
-      'T,,,,,,..F..,,,,,,T',
-      'T,,6,,,.....,,,7,,T',
+      'Tu,,,,,,..F..,,,,uT',
+      'T,,6,w,.....,,,7,,T',
       'T,,,,,,,,P,,,,,,,,T',
       'T,RRRRR,,.,,RRRRR,T',
       'T,WWDWW,,.,,WWDWW,T',
-      'T,,,.,,,,.,,,,.,,,T',
+      'T,,l.l,,,.,,,l.l,,T',
       'T,,,......5.....,,T',
-      'T,,,,,,,,,,,,,,,,,T',
+      'Tu,,,,,,,,,,,,,,,uT',
       'TTTTTTTTTTTTTTTTTTT',
     ]),
     // ---- まちの たてもの（なかの へや）

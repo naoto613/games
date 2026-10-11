@@ -1,7 +1,7 @@
 import type { Condition } from './types';
 
 // まちの へや・たてもの。出入り口（D）・階段（< >）の つながりと、進行で ひらく条件をデータで持つ。
-export type TownTheme = 'town' | 'interior' | 'shrine' | 'ranch';
+export type TownTheme = 'town' | 'interior' | 'shrine' | 'ranch' | 'lab' | 'shop' | 'arena';
 export type Facing4 = 'up' | 'down' | 'left' | 'right';
 export type TownLink = { x: number; y: number; to: string; tx: number; ty: number; dir: Facing4; cond?: Condition[]; locked?: string };
 export type TownNpc = { id: string; look: string; facing?: Facing4; idle?: boolean };
@@ -30,7 +30,7 @@ export const TOWN_MAPS: Record<string, TownMapDef> = {
     ],
   },
   lab1: {
-    id: 'lab1', name: '配合の やかた 1F', theme: 'interior',
+    id: 'lab1', name: '配合の やかた 1F', theme: 'lab',
     npcs: { '1': { id: 'doctor', look: 'doctor' }, '8': { id: 'librarian', look: 'scribe', facing: 'right' } },
     links: [
       D(5, 7, 'town', 4, 6, 'down'),
@@ -38,7 +38,7 @@ export const TOWN_MAPS: Record<string, TownMapDef> = {
     ],
   },
   lab2: {
-    id: 'lab2', name: '配合の やかた 2F けんきゅうしつ', theme: 'interior',
+    id: 'lab2', name: '配合の やかた 2F けんきゅうしつ', theme: 'lab',
     npcs: { '2': { id: 'researcher', look: 'guard' } },
     links: [D(1, 5, 'lab1', 8, 5, 'left')],
   },
@@ -56,12 +56,12 @@ export const TOWN_MAPS: Record<string, TownMapDef> = {
     links: [D(0, 4, 'ranch1', 11, 4, 'left')],
   },
   shop: {
-    id: 'shop', name: 'どうぐや', theme: 'interior',
+    id: 'shop', name: 'どうぐや', theme: 'shop',
     npcs: { '3': { id: 'shop', look: 'shop' }, '9': { id: 'medal', look: 'arena', facing: 'left' } },
     links: [D(4, 6, 'town', 4, 13, 'down')],
   },
   arena1: {
-    id: 'arena1', name: 'とうぎじょう ロビー', theme: 'interior',
+    id: 'arena1', name: 'とうぎじょう ロビー', theme: 'arena',
     npcs: { '4': { id: 'arena', look: 'arena' } },
     links: [
       D(5, 5, 'town', 14, 13, 'down'),
@@ -69,7 +69,7 @@ export const TOWN_MAPS: Record<string, TownMapDef> = {
     ],
   },
   arena2: {
-    id: 'arena2', name: 'とうぎじょう かんきゃくせき', theme: 'interior',
+    id: 'arena2', name: 'とうぎじょう かんきゃくせき', theme: 'arena',
     npcs: { '2': { id: 'coach', look: 'guard' } },
     links: [D(1, 3, 'arena1', 2, 3, 'right')],
   },
@@ -135,3 +135,14 @@ export const DEX_REWARDS: { count: number; medals: number; items: Record<string,
   { count: 32, medals: 15, items: { primemeat: 3 } },
   { count: 39, medals: 30, items: { primemeat: 5, lifeleaf: 5 } },
 ];
+
+// ---------------------------------------------------------------- まちの たてもの（外観のスタイルと ばしょ）
+export type TownBuilding = { style: 'lab' | 'ranch' | 'shop' | 'arena' | 'shrine'; x0: number; x1: number; y0: number; y1: number; door: number };
+export const TOWN_BUILDINGS: TownBuilding[] = [
+  { style: 'shrine', x0: 5, x1: 13, y0: 1, y1: 2, door: 9 },
+  { style: 'lab', x0: 2, x1: 6, y0: 4, y1: 5, door: 4 },
+  { style: 'ranch', x0: 12, x1: 16, y0: 4, y1: 5, door: 14 },
+  { style: 'shop', x0: 2, x1: 6, y0: 11, y1: 12, door: 4 },
+  { style: 'arena', x0: 12, x1: 16, y0: 11, y1: 12, door: 14 },
+];
+export const buildingAt = (x: number, y: number) => TOWN_BUILDINGS.find((b) => x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1);
