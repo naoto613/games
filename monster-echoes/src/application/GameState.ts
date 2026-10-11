@@ -65,4 +65,8 @@ export type SaveData = {
   settings: GameSettings;
   /** v2 の 章・街・機能の 進行（0-10 の 引き継ぎで 必ず もつように なる） */
   chapters?: ChapterProgress;
+  /** 見た 物語イベント・ルナの 反応と、記録室に のこした 伏線 */
+  story?: StoryLog;
 };
+
+export type StoryLog = { seen: string[]; records: { id: string; title: string }[] };
