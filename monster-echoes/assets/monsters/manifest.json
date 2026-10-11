@@ -1,0 +1,3607 @@
+{
+ "source": "docs/v2/ref/monster-zukan-200.png",
+ "canvas": 64,
+ "foot": 58,
+ "monsters": [
+  {
+   "id": "m001",
+   "no": 1,
+   "name": "ルナスライム",
+   "file": "mon_001_luna_slime.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 34,
+   "h": 36,
+   "source": [
+    27,
+    94,
+    61,
+    130
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m002",
+   "no": 2,
+   "name": "バブルミニ",
+   "file": "mon_002_bubble_mini.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 33,
+   "h": 29,
+   "source": [
+    89,
+    94,
+    122,
+    130
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m003",
+   "no": 3,
+   "name": "モスゼリー",
+   "file": "mon_003_moss_jelly.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 29,
+   "h": 36,
+   "source": [
+    154,
+    94,
+    183,
+    130
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m004",
+   "no": 4,
+   "name": "フレアゼリー",
+   "file": "mon_004_flare_jelly.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 36,
+   "h": 37,
+   "source": [
+    212,
+    94,
+    248,
+    130
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m005",
+   "no": 5,
+   "name": "フロストゼリー",
+   "file": "mon_005_frost_jelly.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 35,
+   "h": 36,
+   "source": [
+    272,
+    94,
+    307,
+    130
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m006",
+   "no": 6,
+   "name": "スパークゼリー",
+   "file": "mon_006_spark_jelly.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 36,
+   "h": 36,
+   "source": [
+    26,
+    168,
+    62,
+    206
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m007",
+   "no": 7,
+   "name": "ストーンゼリー",
+   "file": "mon_007_stone_jelly.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 37,
+   "h": 35,
+   "source": [
+    87,
+    168,
+    124,
+    206
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m008",
+   "no": 8,
+   "name": "ウインドゼリー",
+   "file": "mon_008_wind_jelly.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 34,
+   "h": 38,
+   "source": [
+    152,
+    168,
+    186,
+    206
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m009",
+   "no": 9,
+   "name": "ミストジェリー",
+   "file": "mon_009_mist_jelly.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 35,
+   "h": 38,
+   "source": [
+    212,
+    168,
+    248,
+    206
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m010",
+   "no": 10,
+   "name": "グラスゼリー",
+   "file": "mon_010_grass_jelly.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 36,
+   "h": 35,
+   "source": [
+    272,
+    168,
+    308,
+    206
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m011",
+   "no": 11,
+   "name": "アイアンゼリー",
+   "file": "mon_011_iron_jelly.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 40,
+   "h": 38,
+   "source": [
+    24,
+    245,
+    64,
+    283
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m012",
+   "no": 12,
+   "name": "シャドウゼリー",
+   "file": "mon_012_shadow_jelly.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 38,
+   "h": 36,
+   "source": [
+    86,
+    245,
+    124,
+    283
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m013",
+   "no": 13,
+   "name": "ブロンズスライム",
+   "file": "mon_013_bronze_slime.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 34,
+   "h": 30,
+   "source": [
+    151,
+    245,
+    186,
+    283
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m014",
+   "no": 14,
+   "name": "シルバースライム",
+   "file": "mon_014_silver_slime.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 35,
+   "h": 38,
+   "source": [
+    212,
+    245,
+    247,
+    283
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m015",
+   "no": 15,
+   "name": "ゴールドスライム",
+   "file": "mon_015_gold_slime.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 37,
+   "h": 39,
+   "source": [
+    271,
+    245,
+    308,
+    283
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m016",
+   "no": 16,
+   "name": "プリズムスライム",
+   "file": "mon_016_prism_slime.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 35,
+   "h": 35,
+   "source": [
+    25,
+    323,
+    62,
+    364
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m017",
+   "no": 17,
+   "name": "メタルスピリット",
+   "file": "mon_017_metal_spirit.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 31,
+   "h": 43,
+   "source": [
+    89,
+    323,
+    120,
+    364
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m018",
+   "no": 18,
+   "name": "キングゼリー",
+   "file": "mon_018_king_jelly.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 36,
+   "h": 40,
+   "source": [
+    150,
+    323,
+    186,
+    364
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m019",
+   "no": 19,
+   "name": "スターゼリー",
+   "file": "mon_019_star_jelly.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 33,
+   "h": 41,
+   "source": [
+    213,
+    323,
+    246,
+    364
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m020",
+   "no": 20,
+   "name": "エターナルスライム",
+   "file": "mon_020_eternal_slime.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 37,
+   "h": 33,
+   "source": [
+    271,
+    323,
+    308,
+    364
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m021",
+   "no": 21,
+   "name": "マグマドッグ",
+   "file": "mon_021_magma_dog.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 43,
+   "h": 40,
+   "source": [
+    348,
+    93,
+    391,
+    133
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m022",
+   "no": 22,
+   "name": "ウインドキャット",
+   "file": "mon_022_wind_cat.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 36,
+   "h": 40,
+   "source": [
+    409,
+    93,
+    445,
+    133
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m023",
+   "no": 23,
+   "name": "バークボア",
+   "file": "mon_023_bark_boar.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 45,
+   "h": 40,
+   "source": [
+    464,
+    93,
+    509,
+    133
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m024",
+   "no": 24,
+   "name": "スノーフォックス",
+   "file": "mon_024_snow_fox.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 40,
+   "h": 41,
+   "source": [
+    525,
+    93,
+    566,
+    133
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m025",
+   "no": 25,
+   "name": "ブレードウルフ",
+   "file": "mon_025_blade_wolf.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 42,
+   "source": [
+    580,
+    93,
+    622,
+    133
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m026",
+   "no": 26,
+   "name": "ナイトウルフ",
+   "file": "mon_026_night_wolf.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 44,
+   "h": 40,
+   "source": [
+    348,
+    166,
+    393,
+    209
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m027",
+   "no": 27,
+   "name": "サンドライオン",
+   "file": "mon_027_sand_lion.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 43,
+   "h": 42,
+   "source": [
+    407,
+    166,
+    450,
+    209
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m028",
+   "no": 28,
+   "name": "サンダーリンクス",
+   "file": "mon_028_thunder_lynx.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 45,
+   "h": 41,
+   "source": [
+    465,
+    166,
+    510,
+    209
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m029",
+   "no": 29,
+   "name": "クラウドモール",
+   "file": "mon_029_cloud_mole.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 43,
+   "h": 37,
+   "source": [
+    522,
+    166,
+    565,
+    209
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m030",
+   "no": 30,
+   "name": "フレイムタイガー",
+   "file": "mon_030_flame_tiger.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 44,
+   "h": 43,
+   "source": [
+    577,
+    166,
+    621,
+    209
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m031",
+   "no": 31,
+   "name": "グレイベア",
+   "file": "mon_031_gray_bear.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 45,
+   "h": 43,
+   "source": [
+    347,
+    245,
+    393,
+    288
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m032",
+   "no": 32,
+   "name": "アイシクルディア",
+   "file": "mon_032_icicle_deer.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 38,
+   "h": 42,
+   "source": [
+    409,
+    245,
+    447,
+    288
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m033",
+   "no": 33,
+   "name": "サンライズレオ",
+   "file": "mon_033_sunrise_leo.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 47,
+   "h": 44,
+   "source": [
+    464,
+    245,
+    511,
+    288
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m034",
+   "no": 34,
+   "name": "ダスクジャッカル",
+   "file": "mon_034_dusk_jackal.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 45,
+   "h": 38,
+   "source": [
+    521,
+    245,
+    566,
+    288
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m035",
+   "no": 35,
+   "name": "ストームバイソン",
+   "file": "mon_035_storm_bison.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 42,
+   "source": [
+    580,
+    245,
+    621,
+    288
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m036",
+   "no": 36,
+   "name": "ルーンフォックス",
+   "file": "mon_036_rune_fox.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 39,
+   "h": 40,
+   "source": [
+    352,
+    324,
+    391,
+    367
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m037",
+   "no": 37,
+   "name": "アビスパンサー",
+   "file": "mon_037_abyss_panther.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 38,
+   "source": [
+    407,
+    324,
+    449,
+    367
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m038",
+   "no": 38,
+   "name": "セレスティアルウルフ",
+   "file": "mon_038_celestial_wolf.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 43,
+   "source": [
+    468,
+    324,
+    509,
+    367
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m039",
+   "no": 39,
+   "name": "フェンリルガード",
+   "file": "mon_039_fenrir_guard.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 44,
+   "h": 42,
+   "source": [
+    522,
+    324,
+    566,
+    367
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m040",
+   "no": 40,
+   "name": "ムーンビースト",
+   "file": "mon_040_moon_beast.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 44,
+   "h": 44,
+   "source": [
+    578,
+    324,
+    622,
+    367
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m041",
+   "no": 41,
+   "name": "モスラット",
+   "file": "mon_041_moss_rat.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 39,
+   "h": 31,
+   "source": [
+    655,
+    92,
+    694,
+    135
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m042",
+   "no": 42,
+   "name": "リーフアント",
+   "file": "mon_042_leaf_ant.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 44,
+   "h": 42,
+   "source": [
+    708,
+    92,
+    752,
+    135
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m043",
+   "no": 43,
+   "name": "グリーンスプライト",
+   "file": "mon_043_green_sprite.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 38,
+   "h": 41,
+   "source": [
+    772,
+    92,
+    810,
+    135
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m044",
+   "no": 44,
+   "name": "キノコ兵",
+   "file": "mon_044_kinoko_soldier.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 33,
+   "h": 42,
+   "source": [
+    828,
+    92,
+    862,
+    135
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m045",
+   "no": 45,
+   "name": "ブロッサムウィッチ",
+   "file": "mon_045_blossom_witch.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 39,
+   "h": 44,
+   "source": [
+    885,
+    92,
+    924,
+    135
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m046",
+   "no": 46,
+   "name": "トゲボール",
+   "file": "mon_046_thorn_ball.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 43,
+   "h": 37,
+   "source": [
+    653,
+    165,
+    696,
+    209
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m047",
+   "no": 47,
+   "name": "ネムリバナ",
+   "file": "mon_047_sleep_flower.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 44,
+   "h": 43,
+   "source": [
+    709,
+    165,
+    753,
+    209
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m048",
+   "no": 48,
+   "name": "バインドツリー",
+   "file": "mon_048_bind_tree.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 46,
+   "h": 43,
+   "source": [
+    766,
+    165,
+    812,
+    209
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m049",
+   "no": 49,
+   "name": "サンフラワーガード",
+   "file": "mon_049_sunflower_guard.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 43,
+   "source": [
+    825,
+    165,
+    867,
+    209
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m050",
+   "no": 50,
+   "name": "ポイズンオーキッド",
+   "file": "mon_050_poison_orchid.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 43,
+   "h": 42,
+   "source": [
+    882,
+    165,
+    925,
+    209
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m051",
+   "no": 51,
+   "name": "フレイムリリー",
+   "file": "mon_051_flame_lily.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 43,
+   "source": [
+    654,
+    242,
+    696,
+    289
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m052",
+   "no": 52,
+   "name": "フロストローズ",
+   "file": "mon_052_frost_rose.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 43,
+   "source": [
+    709,
+    242,
+    752,
+    289
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m053",
+   "no": 53,
+   "name": "サンダーヴァイン",
+   "file": "mon_053_thunder_vine.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 43,
+   "h": 45,
+   "source": [
+    768,
+    242,
+    811,
+    289
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m054",
+   "no": 54,
+   "name": "ミストマッシュ",
+   "file": "mon_054_mist_mush.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 44,
+   "source": [
+    824,
+    242,
+    867,
+    289
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m055",
+   "no": 55,
+   "name": "フォレストタイタン",
+   "file": "mon_055_forest_titan.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 48,
+   "h": 48,
+   "source": [
+    879,
+    242,
+    927,
+    289
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m056",
+   "no": 56,
+   "name": "古樹の番人",
+   "file": "mon_056_old_tree_keeper.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 45,
+   "h": 46,
+   "source": [
+    652,
+    323,
+    697,
+    369
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m057",
+   "no": 57,
+   "name": "メモリーフェアリー",
+   "file": "mon_057_memory_fairy.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 38,
+   "h": 39,
+   "source": [
+    711,
+    323,
+    750,
+    369
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m058",
+   "no": 58,
+   "name": "ルーンブロッサム",
+   "file": "mon_058_rune_blossom.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 38,
+   "source": [
+    768,
+    323,
+    809,
+    369
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m059",
+   "no": 59,
+   "name": "エルダードライアド",
+   "file": "mon_059_elder_dryad.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 40,
+   "h": 42,
+   "source": [
+    827,
+    323,
+    867,
+    369
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m060",
+   "no": 60,
+   "name": "世界樹の精",
+   "file": "mon_060_world_tree_spirit.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 34,
+   "h": 46,
+   "source": [
+    886,
+    323,
+    920,
+    369
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m061",
+   "no": 61,
+   "name": "ストームビー",
+   "file": "mon_061_storm_bee.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 36,
+   "h": 36,
+   "source": [
+    960,
+    96,
+    996,
+    134
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m062",
+   "no": 62,
+   "name": "アイアンビートル",
+   "file": "mon_062_iron_beetle.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 40,
+   "h": 37,
+   "source": [
+    1014,
+    96,
+    1055,
+    134
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m063",
+   "no": 63,
+   "name": "フェザーモス",
+   "file": "mon_063_feather_moth.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 37,
+   "h": 36,
+   "source": [
+    1073,
+    96,
+    1110,
+    134
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m064",
+   "no": 64,
+   "name": "フレアマンティス",
+   "file": "mon_064_flare_mantis.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 38,
+   "h": 39,
+   "source": [
+    1125,
+    96,
+    1163,
+    134
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m065",
+   "no": 65,
+   "name": "フロストスパイダー",
+   "file": "mon_065_frost_spider.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 34,
+   "source": [
+    1177,
+    96,
+    1220,
+    134
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m066",
+   "no": 66,
+   "name": "ポイズンシケーダ",
+   "file": "mon_066_poison_cicada.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 40,
+   "source": [
+    956,
+    167,
+    997,
+    210
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m067",
+   "no": 67,
+   "name": "サンダーホーネット",
+   "file": "mon_067_thunder_hornet.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 38,
+   "h": 40,
+   "source": [
+    1017,
+    167,
+    1055,
+    210
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m068",
+   "no": 68,
+   "name": "コクーンガード",
+   "file": "mon_068_cocoon_guard.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 28,
+   "h": 42,
+   "source": [
+    1077,
+    167,
+    1105,
+    210
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m069",
+   "no": 69,
+   "name": "クリスタルスコーピオン",
+   "file": "mon_069_crystal_scorpion.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 39,
+   "h": 43,
+   "source": [
+    1125,
+    167,
+    1164,
+    210
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m070",
+   "no": 70,
+   "name": "サンドワーム",
+   "file": "mon_070_sand_worm.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 41,
+   "source": [
+    1178,
+    167,
+    1220,
+    210
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m071",
+   "no": 71,
+   "name": "ナイトモス",
+   "file": "mon_071_night_moth.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 36,
+   "h": 40,
+   "source": [
+    959,
+    243,
+    995,
+    287
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m072",
+   "no": 72,
+   "name": "グラスドラゴンフライ",
+   "file": "mon_072_glass_dragonfly.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 41,
+   "source": [
+    1015,
+    243,
+    1056,
+    287
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m073",
+   "no": 73,
+   "name": "ブレイズビートル",
+   "file": "mon_073_blaze_beetle.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 37,
+   "h": 36,
+   "source": [
+    1072,
+    243,
+    1109,
+    287
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m074",
+   "no": 74,
+   "name": "ミラージュバタフライ",
+   "file": "mon_074_mirage_butterfly.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 44,
+   "h": 44,
+   "source": [
+    1124,
+    243,
+    1168,
+    287
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m075",
+   "no": 75,
+   "name": "アビスセンチピード",
+   "file": "mon_075_abyss_centipede.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 36,
+   "h": 36,
+   "source": [
+    1182,
+    243,
+    1218,
+    287
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m076",
+   "no": 76,
+   "name": "スカイホッパー",
+   "file": "mon_076_sky_hopper.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 34,
+   "h": 39,
+   "source": [
+    962,
+    327,
+    996,
+    366
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m077",
+   "no": 77,
+   "name": "ルーンスパイダー",
+   "file": "mon_077_rune_spider.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 39,
+   "source": [
+    1015,
+    327,
+    1056,
+    366
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m078",
+   "no": 78,
+   "name": "エンシェントスカラベ",
+   "file": "mon_078_ancient_scarab.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 39,
+   "h": 37,
+   "source": [
+    1073,
+    327,
+    1113,
+    366
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m079",
+   "no": 79,
+   "name": "クイーンアラクネ",
+   "file": "mon_079_queen_arachne.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 43,
+   "h": 42,
+   "source": [
+    1125,
+    327,
+    1168,
+    366
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m080",
+   "no": 80,
+   "name": "星喰い甲虫",
+   "file": "mon_080_star_eater_beetle.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 37,
+   "h": 38,
+   "source": [
+    1178,
+    327,
+    1215,
+    366
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m081",
+   "no": 81,
+   "name": "フェザーバット",
+   "file": "mon_081_feather_bat.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 44,
+   "h": 36,
+   "source": [
+    1250,
+    94,
+    1294,
+    133
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m082",
+   "no": 82,
+   "name": "フロストバード",
+   "file": "mon_082_frost_bird.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 47,
+   "h": 40,
+   "source": [
+    1304,
+    94,
+    1351,
+    133
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m083",
+   "no": 83,
+   "name": "アッシュバット",
+   "file": "mon_083_ash_bat.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 44,
+   "h": 37,
+   "source": [
+    1362,
+    94,
+    1408,
+    133
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m084",
+   "no": 84,
+   "name": "サンダーレイヴン",
+   "file": "mon_084_thunder_raven.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 43,
+   "h": 38,
+   "source": [
+    1418,
+    94,
+    1461,
+    133
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m085",
+   "no": 85,
+   "name": "スカイモール",
+   "file": "mon_085_sky_mole.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 44,
+   "h": 38,
+   "source": [
+    1474,
+    94,
+    1518,
+    133
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m086",
+   "no": 86,
+   "name": "ミストフクロウ",
+   "file": "mon_086_mist_owl.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 45,
+   "h": 40,
+   "source": [
+    1250,
+    168,
+    1295,
+    210
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m087",
+   "no": 87,
+   "name": "ブレードイーグル",
+   "file": "mon_087_blade_eagle.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 40,
+   "source": [
+    1308,
+    168,
+    1349,
+    210
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m088",
+   "no": 88,
+   "name": "ナイトクロウ",
+   "file": "mon_088_night_crow.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 44,
+   "h": 43,
+   "source": [
+    1363,
+    168,
+    1408,
+    210
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m089",
+   "no": 89,
+   "name": "フレイムフェニックス",
+   "file": "mon_089_flame_phoenix.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 46,
+   "h": 42,
+   "source": [
+    1419,
+    168,
+    1465,
+    210
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m090",
+   "no": 90,
+   "name": "アイスフェニックス",
+   "file": "mon_090_ice_phoenix.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 45,
+   "h": 40,
+   "source": [
+    1474,
+    168,
+    1519,
+    210
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m091",
+   "no": 91,
+   "name": "ライトニングホーク",
+   "file": "mon_091_lightning_hawk.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 47,
+   "h": 43,
+   "source": [
+    1248,
+    244,
+    1295,
+    287
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m092",
+   "no": 92,
+   "name": "セレスティアルバード",
+   "file": "mon_092_celestial_bird.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 44,
+   "h": 42,
+   "source": [
+    1308,
+    244,
+    1353,
+    287
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m093",
+   "no": 93,
+   "name": "クラウドウィング",
+   "file": "mon_093_cloud_wing.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 44,
+   "h": 42,
+   "source": [
+    1364,
+    244,
+    1408,
+    287
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m094",
+   "no": 94,
+   "name": "スターウィスプ",
+   "file": "mon_094_star_wisp.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 35,
+   "h": 37,
+   "source": [
+    1423,
+    244,
+    1458,
+    287
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m095",
+   "no": 95,
+   "name": "アストラルフェニックス",
+   "file": "mon_095_astral_phoenix.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 47,
+   "h": 43,
+   "source": [
+    1472,
+    244,
+    1520,
+    287
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m096",
+   "no": 96,
+   "name": "グリフォン",
+   "file": "mon_096_griffon.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 45,
+   "h": 45,
+   "source": [
+    1250,
+    324,
+    1295,
+    368
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m097",
+   "no": 97,
+   "name": "風喰いグリフォン",
+   "file": "mon_097_wind_eater_griffon.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 43,
+   "h": 43,
+   "source": [
+    1305,
+    324,
+    1348,
+    368
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m098",
+   "no": 98,
+   "name": "天穹獣アストラ",
+   "file": "mon_098_astra.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 44,
+   "h": 43,
+   "source": [
+    1363,
+    324,
+    1407,
+    368
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m099",
+   "no": 99,
+   "name": "永劫の氷鳥",
+   "file": "mon_099_eternal_ice_bird.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 39,
+   "source": [
+    1420,
+    324,
+    1462,
+    368
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m100",
+   "no": 100,
+   "name": "原初の翼",
+   "file": "mon_100_primal_wing.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 48,
+   "h": 44,
+   "source": [
+    1471,
+    324,
+    1519,
+    368
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m101",
+   "no": 101,
+   "name": "クラブリン",
+   "file": "mon_101_crablin.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 34,
+   "h": 30,
+   "source": [
+    27,
+    440,
+    61,
+    477
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m102",
+   "no": 102,
+   "name": "コーラルスネイル",
+   "file": "mon_102_coral_snail.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 36,
+   "h": 37,
+   "source": [
+    88,
+    440,
+    124,
+    477
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m103",
+   "no": 103,
+   "name": "アトラフィッシュ",
+   "file": "mon_103_atla_fish.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 40,
+   "h": 36,
+   "source": [
+    147,
+    440,
+    187,
+    477
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m104",
+   "no": 104,
+   "name": "アクアバット",
+   "file": "mon_104_aqua_bat.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 43,
+   "h": 32,
+   "source": [
+    207,
+    440,
+    250,
+    477
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m105",
+   "no": 105,
+   "name": "アビスイール",
+   "file": "mon_105_abyss_eel.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 33,
+   "source": [
+    268,
+    440,
+    311,
+    477
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m106",
+   "no": 106,
+   "name": "シェルナイト",
+   "file": "mon_106_shell_knight.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 33,
+   "h": 33,
+   "source": [
+    28,
+    509,
+    61,
+    554
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m107",
+   "no": 107,
+   "name": "ディープジェリー",
+   "file": "mon_107_deep_jelly.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 31,
+   "h": 34,
+   "source": [
+    89,
+    509,
+    120,
+    554
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m108",
+   "no": 108,
+   "name": "タイドサーペント",
+   "file": "mon_108_tide_serpent.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 44,
+   "h": 45,
+   "source": [
+    146,
+    509,
+    190,
+    554
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m109",
+   "no": 109,
+   "name": "ネレイド",
+   "file": "mon_109_nereid.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 37,
+   "h": 46,
+   "source": [
+    211,
+    509,
+    249,
+    554
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m110",
+   "no": 110,
+   "name": "ミズチ",
+   "file": "mon_110_mizuchi.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 39,
+   "h": 37,
+   "source": [
+    270,
+    509,
+    309,
+    554
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m111",
+   "no": 111,
+   "name": "スノークラブ",
+   "file": "mon_111_snow_crab.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 38,
+   "h": 33,
+   "source": [
+    25,
+    589,
+    64,
+    627
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m112",
+   "no": 112,
+   "name": "ブリザードシャーク",
+   "file": "mon_112_blizzard_shark.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 46,
+   "h": 37,
+   "source": [
+    83,
+    589,
+    129,
+    627
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m113",
+   "no": 113,
+   "name": "サンダーオルカ",
+   "file": "mon_113_thunder_orca.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 47,
+   "h": 38,
+   "source": [
+    145,
+    589,
+    192,
+    627
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m114",
+   "no": 114,
+   "name": "ミラージュシェル",
+   "file": "mon_114_mirage_shell.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 33,
+   "source": [
+    209,
+    589,
+    250,
+    627
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m115",
+   "no": 115,
+   "name": "アビスホエール",
+   "file": "mon_115_abyss_whale.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 50,
+   "h": 35,
+   "source": [
+    266,
+    589,
+    316,
+    627
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m116",
+   "no": 116,
+   "name": "深海司祭ネレウス",
+   "file": "mon_116_nereus.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 39,
+   "h": 45,
+   "source": [
+    25,
+    661,
+    64,
+    710
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m117",
+   "no": 117,
+   "name": "ルーンマーメイド",
+   "file": "mon_117_rune_mermaid.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 39,
+   "h": 39,
+   "source": [
+    84,
+    661,
+    123,
+    710
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m118",
+   "no": 118,
+   "name": "海底の巨獣",
+   "file": "mon_118_seabed_behemoth.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 46,
+   "h": 44,
+   "source": [
+    145,
+    661,
+    191,
+    710
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m119",
+   "no": 119,
+   "name": "深淵のウロコ王",
+   "file": "mon_119_abyss_scale_king.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 39,
+   "source": [
+    209,
+    661,
+    251,
+    710
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m120",
+   "no": 120,
+   "name": "原初の海竜",
+   "file": "mon_120_primal_sea_dragon.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 43,
+   "h": 41,
+   "source": [
+    268,
+    661,
+    311,
+    710
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m121",
+   "no": 121,
+   "name": "コケゴーレム",
+   "file": "mon_121_moss_golem.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 36,
+   "h": 42,
+   "source": [
+    352,
+    438,
+    389,
+    483
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m122",
+   "no": 122,
+   "name": "ストーンゴーレム",
+   "file": "mon_122_stone_golem.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 44,
+   "source": [
+    408,
+    438,
+    450,
+    483
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m123",
+   "no": 123,
+   "name": "アイアンゴーレム",
+   "file": "mon_123_iron_golem.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 43,
+   "source": [
+    467,
+    438,
+    508,
+    483
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m124",
+   "no": 124,
+   "name": "クリスタルゴーレム",
+   "file": "mon_124_crystal_golem.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 44,
+   "source": [
+    525,
+    438,
+    566,
+    483
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m125",
+   "no": 125,
+   "name": "ラヴァゴーレム",
+   "file": "mon_125_lava_golem.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 33,
+   "h": 40,
+   "source": [
+    584,
+    438,
+    617,
+    483
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m126",
+   "no": 126,
+   "name": "ランタンゴースト",
+   "file": "mon_126_lantern_ghost.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 28,
+   "h": 44,
+   "source": [
+    355,
+    511,
+    384,
+    567
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m127",
+   "no": 127,
+   "name": "ルーンランタン",
+   "file": "mon_127_rune_lantern.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 26,
+   "h": 42,
+   "source": [
+    415,
+    511,
+    442,
+    567
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m128",
+   "no": 128,
+   "name": "アーマーナイト",
+   "file": "mon_128_armor_knight.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 33,
+   "h": 48,
+   "source": [
+    469,
+    511,
+    502,
+    567
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m129",
+   "no": 129,
+   "name": "ブレードナイト",
+   "file": "mon_129_blade_knight.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 34,
+   "h": 47,
+   "source": [
+    527,
+    511,
+    562,
+    567
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m130",
+   "no": 130,
+   "name": "ミラーメイジ",
+   "file": "mon_130_mirror_mage.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 32,
+   "h": 43,
+   "source": [
+    584,
+    511,
+    616,
+    567
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m131",
+   "no": 131,
+   "name": "フォートレス",
+   "file": "mon_131_fortress.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 45,
+   "h": 41,
+   "source": [
+    348,
+    585,
+    393,
+    629
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m132",
+   "no": 132,
+   "name": "メカビートル",
+   "file": "mon_132_mecha_beetle.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 45,
+   "h": 39,
+   "source": [
+    406,
+    585,
+    451,
+    629
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m133",
+   "no": 133,
+   "name": "マグネットナイト",
+   "file": "mon_133_magnet_knight.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 40,
+   "h": 44,
+   "source": [
+    467,
+    585,
+    507,
+    629
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m134",
+   "no": 134,
+   "name": "アンティークドール",
+   "file": "mon_134_antique_doll.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 35,
+   "h": 44,
+   "source": [
+    528,
+    585,
+    563,
+    629
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m135",
+   "no": 135,
+   "name": "クロックワーカー",
+   "file": "mon_135_clock_worker.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 36,
+   "h": 44,
+   "source": [
+    581,
+    585,
+    617,
+    629
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m136",
+   "no": 136,
+   "name": "エンシェントガーディアン",
+   "file": "mon_136_ancient_guardian.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 46,
+   "h": 51,
+   "source": [
+    348,
+    662,
+    394,
+    714
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m137",
+   "no": 137,
+   "name": "星屑の機兵",
+   "file": "mon_137_stardust_soldier.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 36,
+   "h": 47,
+   "source": [
+    412,
+    662,
+    448,
+    714
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m138",
+   "no": 138,
+   "name": "虚空の巨像",
+   "file": "mon_138_void_colossus.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 41,
+   "h": 47,
+   "source": [
+    468,
+    662,
+    509,
+    714
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m139",
+   "no": 139,
+   "name": "原初の機神",
+   "file": "mon_139_primal_machine_god.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 35,
+   "h": 47,
+   "source": [
+    529,
+    662,
+    564,
+    714
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m140",
+   "no": 140,
+   "name": "永遠の守護像",
+   "file": "mon_140_eternal_guardian_statue.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 36,
+   "h": 47,
+   "source": [
+    583,
+    662,
+    619,
+    714
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m141",
+   "no": 141,
+   "name": "ゴーストビル",
+   "file": "mon_141_ghost_bill.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 35,
+   "h": 40,
+   "source": [
+    660,
+    441,
+    695,
+    484
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m142",
+   "no": 142,
+   "name": "ミストレイス",
+   "file": "mon_142_mist_wraith.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 35,
+   "h": 40,
+   "source": [
+    714,
+    441,
+    749,
+    484
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m143",
+   "no": 143,
+   "name": "ナイトウィスプ",
+   "file": "mon_143_night_wisp.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 34,
+   "h": 38,
+   "source": [
+    766,
+    441,
+    800,
+    484
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m144",
+   "no": 144,
+   "name": "メモリーゴースト",
+   "file": "mon_144_memory_ghost.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 35,
+   "h": 45,
+   "source": [
+    826,
+    441,
+    862,
+    484
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m145",
+   "no": 145,
+   "name": "ミラーレイス",
+   "file": "mon_145_mirror_wraith.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 35,
+   "h": 38,
+   "source": [
+    881,
+    441,
+    917,
+    484
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m146",
+   "no": 146,
+   "name": "エクリプスバット",
+   "file": "mon_146_eclipse_bat.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 48,
+   "h": 33,
+   "source": [
+    654,
+    516,
+    703,
+    559
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m147",
+   "no": 147,
+   "name": "ソウルランタン",
+   "file": "mon_147_soul_lantern.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 27,
+   "h": 40,
+   "source": [
+    718,
+    516,
+    746,
+    559
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m148",
+   "no": 148,
+   "name": "ウィスパー",
+   "file": "mon_148_whisper.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 30,
+   "h": 44,
+   "source": [
+    768,
+    516,
+    799,
+    559
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m149",
+   "no": 149,
+   "name": "グリーフスピリット",
+   "file": "mon_149_grief_spirit.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 40,
+   "h": 43,
+   "source": [
+    824,
+    516,
+    864,
+    559
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m150",
+   "no": 150,
+   "name": "セレモニアルゴースト",
+   "file": "mon_150_ceremonial_ghost.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 31,
+   "h": 36,
+   "source": [
+    885,
+    516,
+    916,
+    559
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m151",
+   "no": 151,
+   "name": "ルーンファントム",
+   "file": "mon_151_rune_phantom.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 32,
+   "h": 43,
+   "source": [
+    659,
+    589,
+    691,
+    631
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m152",
+   "no": 152,
+   "name": "アビスレイス",
+   "file": "mon_152_abyss_wraith.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 31,
+   "h": 39,
+   "source": [
+    714,
+    589,
+    745,
+    631
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m153",
+   "no": 153,
+   "name": "夢喰い",
+   "file": "mon_153_dream_eater.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 40,
+   "h": 40,
+   "source": [
+    763,
+    589,
+    804,
+    631
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m154",
+   "no": 154,
+   "name": "記憶喰らい",
+   "file": "mon_154_memory_devourer.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 41,
+   "source": [
+    825,
+    589,
+    866,
+    631
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m155",
+   "no": 155,
+   "name": "メモリーイーター",
+   "file": "mon_155_memory_eater.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 34,
+   "h": 36,
+   "source": [
+    883,
+    589,
+    917,
+    631
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m156",
+   "no": 156,
+   "name": "静寂の精霊",
+   "file": "mon_156_silence_spirit.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 34,
+   "h": 43,
+   "source": [
+    659,
+    666,
+    694,
+    709
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m157",
+   "no": 157,
+   "name": "時渡りの幽霊",
+   "file": "mon_157_time_walker_ghost.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 41,
+   "source": [
+    710,
+    666,
+    751,
+    709
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m158",
+   "no": 158,
+   "name": "忘却の女王",
+   "file": "mon_158_oblivion_queen.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 40,
+   "h": 37,
+   "source": [
+    769,
+    666,
+    810,
+    709
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m159",
+   "no": 159,
+   "name": "永劫の案内人",
+   "file": "mon_159_eternal_guide.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 42,
+   "source": [
+    824,
+    666,
+    866,
+    709
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m160",
+   "no": 160,
+   "name": "原初の魂",
+   "file": "mon_160_primal_soul.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 35,
+   "h": 35,
+   "source": [
+    884,
+    666,
+    919,
+    709
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m161",
+   "no": 161,
+   "name": "ファイアドラゴン",
+   "file": "mon_161_fire_dragon.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 46,
+   "source": [
+    959,
+    440,
+    1001,
+    494
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m162",
+   "no": 162,
+   "name": "アイスクリル",
+   "file": "mon_162_ice_krill.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 39,
+   "source": [
+    1013,
+    440,
+    1055,
+    494
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m163",
+   "no": 163,
+   "name": "ストームドラゴン",
+   "file": "mon_163_storm_dragon.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 43,
+   "h": 41,
+   "source": [
+    1069,
+    440,
+    1112,
+    494
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m164",
+   "no": 164,
+   "name": "サンダードレイク",
+   "file": "mon_164_thunder_drake.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 43,
+   "h": 43,
+   "source": [
+    1124,
+    440,
+    1168,
+    494
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m165",
+   "no": 165,
+   "name": "ダークドラゴン",
+   "file": "mon_165_dark_dragon.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 40,
+   "source": [
+    1178,
+    440,
+    1220,
+    494
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m166",
+   "no": 166,
+   "name": "グリーンドラゴン",
+   "file": "mon_166_green_dragon.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 43,
+   "h": 45,
+   "source": [
+    958,
+    517,
+    1001,
+    561
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m167",
+   "no": 167,
+   "name": "サンドドラゴン",
+   "file": "mon_167_sand_dragon.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 42,
+   "source": [
+    1013,
+    517,
+    1055,
+    561
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m168",
+   "no": 168,
+   "name": "ミストドラゴン",
+   "file": "mon_168_mist_dragon.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 42,
+   "source": [
+    1070,
+    517,
+    1111,
+    561
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m169",
+   "no": 169,
+   "name": "スノードラゴン",
+   "file": "mon_169_snow_dragon.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 44,
+   "source": [
+    1124,
+    517,
+    1166,
+    561
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m170",
+   "no": 170,
+   "name": "ツリードラゴン",
+   "file": "mon_170_tree_dragon.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 45,
+   "source": [
+    1178,
+    517,
+    1220,
+    561
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m171",
+   "no": 171,
+   "name": "タイドドラゴン",
+   "file": "mon_171_tide_dragon.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 43,
+   "h": 44,
+   "source": [
+    957,
+    591,
+    1000,
+    643
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m172",
+   "no": 172,
+   "name": "クラウドドラゴン",
+   "file": "mon_172_cloud_dragon.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 46,
+   "h": 40,
+   "source": [
+    1011,
+    591,
+    1057,
+    643
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m173",
+   "no": 173,
+   "name": "カオスビースト",
+   "file": "mon_173_chaos_beast.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 44,
+   "h": 41,
+   "source": [
+    1068,
+    591,
+    1112,
+    643
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m174",
+   "no": 174,
+   "name": "ルーンドラゴン",
+   "file": "mon_174_rune_dragon.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 41,
+   "source": [
+    1125,
+    591,
+    1166,
+    643
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m175",
+   "no": 175,
+   "name": "灰冠竜グレイヴ",
+   "file": "mon_175_grave.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 40,
+   "h": 41,
+   "source": [
+    1179,
+    591,
+    1220,
+    643
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m176",
+   "no": 176,
+   "name": "紅蓮帝ヴォルガ",
+   "file": "mon_176_volga.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 49,
+   "h": 46,
+   "source": [
+    955,
+    667,
+    1004,
+    712
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m177",
+   "no": 177,
+   "name": "氷鏡竜ミラージュ",
+   "file": "mon_177_mirage.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 43,
+   "source": [
+    1014,
+    667,
+    1056,
+    712
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m178",
+   "no": 178,
+   "name": "虚空竜ノクス",
+   "file": "mon_178_nox.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 45,
+   "h": 45,
+   "source": [
+    1067,
+    667,
+    1113,
+    712
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m179",
+   "no": 179,
+   "name": "星界竜アストリオン",
+   "file": "mon_179_astrion.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 45,
+   "h": 46,
+   "source": [
+    1123,
+    667,
+    1168,
+    712
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m180",
+   "no": 180,
+   "name": "原初の竜",
+   "file": "mon_180_primal_dragon.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 42,
+   "source": [
+    1178,
+    667,
+    1220,
+    712
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m181",
+   "no": 181,
+   "name": "ダークアイ",
+   "file": "mon_181_dark_eye.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 36,
+   "h": 37,
+   "source": [
+    1250,
+    443,
+    1287,
+    483
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m182",
+   "no": 182,
+   "name": "ルーンフェアリー",
+   "file": "mon_182_rune_fairy.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 33,
+   "h": 35,
+   "source": [
+    1308,
+    443,
+    1341,
+    483
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m183",
+   "no": 183,
+   "name": "プリズムウィッチ",
+   "file": "mon_183_prism_witch.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 39,
+   "h": 39,
+   "source": [
+    1365,
+    443,
+    1404,
+    483
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m184",
+   "no": 184,
+   "name": "スターシーカー",
+   "file": "mon_184_star_seeker.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 34,
+   "h": 36,
+   "source": [
+    1424,
+    443,
+    1459,
+    483
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m185",
+   "no": 185,
+   "name": "時空の番人",
+   "file": "mon_185_spacetime_keeper.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 38,
+   "source": [
+    1474,
+    443,
+    1516,
+    483
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m186",
+   "no": 186,
+   "name": "星喰いフェニックス",
+   "file": "mon_186_star_eater_phoenix.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 49,
+   "h": 36,
+   "source": [
+    1248,
+    513,
+    1297,
+    559
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m187",
+   "no": 187,
+   "name": "月影の調律師",
+   "file": "mon_187_moonshadow_tuner.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 41,
+   "source": [
+    1307,
+    513,
+    1349,
+    559
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m188",
+   "no": 188,
+   "name": "原初の番人",
+   "file": "mon_188_primal_keeper.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 41,
+   "h": 44,
+   "source": [
+    1365,
+    513,
+    1406,
+    559
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m189",
+   "no": 189,
+   "name": "天空の賢者",
+   "file": "mon_189_sky_sage.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 35,
+   "h": 41,
+   "source": [
+    1424,
+    513,
+    1459,
+    559
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m190",
+   "no": 190,
+   "name": "永劫の氷帝",
+   "file": "mon_190_eternal_ice_emperor.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 44,
+   "h": 47,
+   "source": [
+    1474,
+    513,
+    1518,
+    559
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m191",
+   "no": 191,
+   "name": "無限の影王",
+   "file": "mon_191_infinite_shadow_king.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 43,
+   "h": 45,
+   "source": [
+    1251,
+    587,
+    1294,
+    632
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m192",
+   "no": 192,
+   "name": "光影の双獣",
+   "file": "mon_192_light_shadow_twins.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 45,
+   "h": 39,
+   "source": [
+    1305,
+    587,
+    1350,
+    632
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m193",
+   "no": 193,
+   "name": "世界の観測者",
+   "file": "mon_193_world_observer.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 40,
+   "h": 39,
+   "source": [
+    1365,
+    587,
+    1406,
+    632
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m194",
+   "no": 194,
+   "name": "夢幻の女神",
+   "file": "mon_194_dream_goddess.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 34,
+   "h": 38,
+   "source": [
+    1425,
+    587,
+    1459,
+    632
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m195",
+   "no": 195,
+   "name": "深淵の双頭王",
+   "file": "mon_195_abyss_twinhead_king.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 42,
+   "h": 44,
+   "source": [
+    1475,
+    587,
+    1517,
+    632
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m196",
+   "no": 196,
+   "name": "朽ちた古樹竜",
+   "file": "mon_196_withered_tree_dragon.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 46,
+   "h": 46,
+   "source": [
+    1250,
+    668,
+    1296,
+    713
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m197",
+   "no": 197,
+   "name": "無限機構",
+   "file": "mon_197_infinite_mechanism.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 46,
+   "h": 46,
+   "source": [
+    1304,
+    668,
+    1350,
+    713
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m198",
+   "no": 198,
+   "name": "星辰の王",
+   "file": "mon_198_star_king.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 46,
+   "h": 46,
+   "source": [
+    1362,
+    668,
+    1408,
+    713
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m199",
+   "no": 199,
+   "name": "虚無の王ノクティル",
+   "file": "mon_199_noctil.png",
+   "canvas": 96,
+   "foot": 88,
+   "large": true,
+   "w": 47,
+   "h": 42,
+   "source": [
+    1419,
+    668,
+    1466,
+    713
+   ],
+   "status": "ok"
+  },
+  {
+   "id": "m200",
+   "no": 200,
+   "name": "ルナフィアの守り手",
+   "file": "mon_200_lunafia_guardian.png",
+   "canvas": 64,
+   "foot": 58,
+   "large": false,
+   "w": 43,
+   "h": 41,
+   "source": [
+    1474,
+    668,
+    1517,
+    713
+   ],
+   "status": "ok"
+  }
+ ]
+}

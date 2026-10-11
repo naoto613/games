@@ -12,10 +12,9 @@ EL = {'火': 'fire', '水': 'water', '風': 'wind', '地': 'earth', '雷': 'thun
 # 要確認事項 Q1: 名前の重複を解消
 RENAME = {93: 'クラウドウィング', 108: 'タイドサーペント'}
 
-# スラッグ（スプライトのファイル名 mon_###_slug）
-KANA = {}
-def slug(no, name):
-    return SLUGS.get(no) or f'm{no:03d}'
+import sys
+sys.path.insert(0, os.path.dirname(__file__))
+from slugs import SLUGS  # スプライトのファイル名 mon_###_slug
 
 # 役割（特徴の文から決める。かっこの 中は 優先順位）
 def role_of(note):
@@ -62,8 +61,6 @@ def growth_of(role, rank, note, no):
         return 'early'
     return 'balanced'
 
-# 手で きめた スラッグ（英字）。ないものは m### に なる
-SLUGS = {}
 # 自動の きめかたが 合わない ものを 手で なおす（出現する 章・特徴に あわせる）
 OVERRIDES = {
     13: {'rank': 1},                                   # ブロンズスライム：序盤の物理型
@@ -98,14 +95,17 @@ FAM_JA = {'slime': 'スライム系', 'beast': '獣系', 'plant': '植物系', '
 for fam, items in out.items():
     lines = [
         f"// {FAM_JA[fam]}（{items[0]['no']:03d}〜{items[-1]['no']:03d}）。tools/v2/gen_monsters.py で 仕様書の 表から 生成。",
-        "// def(番号, 名前, 属性, 役割, ランク, 成長型, 特徴)",
+        "// def(番号, 名前, 系統, 属性, 役割, ランク, 成長型, 特徴, { slug: ファイル名 })",
         "import { def } from './def';",
         "",
         f"export const {fam.upper()} = [",
     ]
     for m in items:
-        lines.append(f"  def({m['no']}, '{m['name']}', '{fam}', '{m['el']}', '{m['role']}', {m['rank']}, '{m['growth']}', '{m['note']}'),")
+        lines.append(f"  def({m['no']}, '{m['name']}', '{fam}', '{m['el']}', '{m['role']}', {m['rank']}, '{m['growth']}', '{m['note']}', {{ slug: '{SLUGS[m['no']]}' }}),")
     lines.append("];")
     lines.append("")
     open(os.path.join(ROOT, 'src', 'data', 'v2', 'monsters', f'{fam}.ts'), 'w').write('\n'.join(lines))
+import json
+names = {str(m['no']): m['name'] for items in out.values() for m in items}
+json.dump(names, open(os.path.join(ROOT, 'tools', 'v2', 'names.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
 print('ok')
