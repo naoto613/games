@@ -3,7 +3,7 @@ import { E, P, Pix, R, RR, Sub, flipH, mix, shade } from './Pix';
 
 export const TILE = 32;
 const S = 2;
-export type Theme = 'town' | 'forest' | 'cave' | 'highland' | 'tower' | 'interior' | 'shrine' | 'ranch';
+export type Theme = 'town' | 'forest' | 'cave' | 'highland' | 'tower' | 'snow' | 'volcano' | 'interior' | 'shrine' | 'ranch';
 
 type Pal = { g: [string, string, string, string]; wall: string; water: string; blade: string };
 const PAL: Record<Theme, Pal> = {
@@ -12,6 +12,8 @@ const PAL: Record<Theme, Pal> = {
   cave: { g: ['#7a6454', '#8a725e', '#987e68', '#a68c74'], wall: '#3e3448', water: '#24508e', blade: '#b09a84' },
   highland: { g: ['#8c9a48', '#a2ae58', '#b6c068', '#ccd484'], wall: '#8a6a4c', water: '#3a96d8', blade: '#e4e49a' },
   tower: { g: ['#b8c4e0', '#c8d2ec', '#d6def4', '#e6ecfc'], wall: '#6a84c8', water: '#5ab0f0', blade: '#ffffff' },
+  snow: { g: ['#c8d8ec', '#d8e6f6', '#e6f0fc', '#f6faff'], wall: '#7a9ac8', water: '#6ab4ec', blade: '#ffffff' },
+  volcano: { g: ['#4a2a28', '#5c3430', '#6e3e36', '#82483c'], wall: '#3a1c20', water: '#f0601c', blade: '#e0a060' },
   interior: { g: ['#9a6a3c', '#a87648', '#b48254', '#c09060'], wall: '#7a5232', water: '#3a86d8', blade: '#c09060' },
   shrine: { g: ['#8a8ca4', '#9a9cb4', '#a8aac0', '#b6b8cc'], wall: '#4a4c6e', water: '#3a86d8', blade: '#c0c2d6' },
   ranch: { g: ['#4f9a3c', '#62b048', '#78c458', '#94d870'], wall: '#8a5a2a', water: '#3a96e0', blade: '#a8e47c' },
@@ -110,6 +112,8 @@ function rockWall(p: Pix, th: Theme, wx: number, wy: number) {
     p.part(RR(x + 0.4 + r(i + 3), y + 0.4, w - 1, hh - 1, 3), col, { ol: shade(c, 0.35), hiT: 0.3 });
   }
   if (th === 'highland' && r(7) > 0.5) for (const [x, y] of [[3, 3], [11, 10]]) { p.part(E(x, y, 1.6, 0.9), '#8aa848', { flat: true, ol: '#3a5020' }); }
+  if (th === 'snow' && r(8) > 0.4) p.part(E(5 + r(2) * 6, 2.4, 3.6, 1.4), '#ffffff', { flat: true, noOl: true });
+  if (th === 'volcano' && r(6) > 0.78) p.part(E(4 + r(3) * 8, 9 + r(4) * 3, 1.6, 0.8), '#ff8a2a', { flat: true, noOl: true });
   if (th === 'cave' && r(9) > 0.75) p.part(P(9, 9, 10.5, 4, 12, 9), '#8ae0ff', { hi: '#ffffff', ol: '#1a4a7a' });
 }
 

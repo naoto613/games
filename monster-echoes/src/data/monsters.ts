@@ -80,6 +80,26 @@ const list: MonsterSpecies[] = [
   mon('lightningleo', 'ライトニングレオ', 'spirit', 2, 'attacker', [[1, 'thunderfang'], [8, 'peck'], [15, 'thunder']], 'いなずまの たてがみを もつ ライオン。すばやく、れんぞく こうげきが とくい。', { growthCurves: { speed: 'early' } }),
   mon('goldslime', 'ゴールドスライム', 'slime', 4, 'healer', [[1, 'happyguard'], [10, 'goldflash'], [20, 'healall']], 'きんいろの からだと ちいさな おうかんが とくちょう。めずらしく、しゅびりょくと こううんに すぐれる。', { resistances: { light: 3, fire: 1, thunder: 1 } }),
   mon('chaosdragon', 'カオスドラゴン', 'dragon', 4, 'bruiser', [[1, 'darkflare'], [15, 'demonvoice'], [25, 'megaflare']], 'やみの ちからで きょうかされた りゅう。たさいな ブレスと じょうたいいじょうで あいてを おいつめる。', { resistances: { light: 1, confusion: 2 } }),
+  // ---- ひろがった なかまたち（No.21〜）。同じ系統の 色ちがい・ちがう 地方に すむ なかま
+  mon('mintslime', 'ミントスライム', 'slime', 1, 'caster', [[1, 'leaf'], [5, 'heal'], [11, 'antidote']], 'もりの つゆを すって みどりに そまった スライム。さわやかな かおりで なかまを いやす。', { growthCurves: { wisdom: 'early' } }),
+  mon('flameslime', 'ブレイズスライム', 'slime', 2, 'attacker', [[1, 'ember'], [8, 'firefang'], [15, 'fireball']], 'ひのこを あびて あかく もえる スライム。さわると やけどするほど あつい。', { resistances: { fire: 2, ice: -1 } }),
+  mon('shadowdog', 'シャドウドッグ', 'beast', 1, 'attacker', [[1, 'bite'], [5, 'darkwave'], [11, 'focus']], 'むらさきの ほのおを まとう かげの けもの。くらやみに まぎれて きばを むく。', { resistances: { light: -1 }, growthCurves: { speed: 'early' } }),
+  mon('icewolf', 'フロストウルフ', 'beast', 2, 'attacker', [[1, 'bite'], [8, 'icicle'], [15, 'blizzard']], 'ゆきの おおかみ。こおりの たてがみで ふぶきを よび、あしが はやい。', { resistances: { ice: 3, fire: -1 }, growthCurves: { speed: 'early' } }),
+  mon('claygolem', 'クレイゴーレム', 'material', 1, 'tank', [[1, 'harden'], [6, 'tackle'], [13, 'pebbles']], 'あかい つちで できた ゴーレム。あれちで うまれた ぶん、ちからが つよい。', { growthCurves: { attack: 'early' } }),
+  mon('rubykrill', 'ルビークリル', 'material', 2, 'tank', [[1, 'flamebreath'], [8, 'veil'], [15, 'fireball']], 'ほのおの ちから ほうせきが ひえて できた まもの。かたい うえに あつい。', { resistances: { fire: 3, ice: -1 } }),
+  mon('blazebird', 'ブレイズバード', 'bird', 1, 'speed', [[1, 'wingstrike'], [5, 'ember'], [11, 'haste']], 'ほのおを まとって そらを かける とり。ひのこを ちらして とびまわる。', { resistances: { fire: 2, ice: -1 } }),
+  mon('thunderbird', 'サンダーバード', 'bird', 2, 'speed', [[1, 'wingstrike'], [8, 'spark'], [15, 'thunder']], 'いなずまと ともに あらわれる とり。はねを ふるわせて でんげきを はなつ。', { resistances: { thunder: 2 } }),
+  mon('venomworm', 'ベノムワーム', 'bug', 1, 'bruiser', [[1, 'bite'], [6, 'poisonmist'], [12, 'stunspore']], 'どくを ためた むらさきの ながい むし。かまれると からだが しびれる。', { resistances: { poison: 3 } }),
+  mon('magmaworm', 'マグマワーム', 'bug', 2, 'bruiser', [[1, 'bite'], [8, 'flamebreath'], [15, 'tackle']], 'かざんの おくに すむ あかい むし。もえる いわも たべて すすむ。', { resistances: { fire: 3, ice: -1 }, growthCurves: { hp: 'late' } }),
+  mon('rosefant', 'ローズファント', 'plant', 1, 'healer', [[1, 'leaf'], [4, 'lullaby'], [10, 'heal']], 'ばらいろの はなを かざった もりの せいれい。いいにおいで てきを ねむらせる。'),
+  mon('aquasprite', 'アクアスプライト', 'water', 2, 'healer', [[1, 'icicle'], [8, 'healall'], [15, 'regen']], 'きれいな みずから うまれた ようせい。みんなの きずを みずで あらいながす。', { resistances: { ice: 2, fire: 1 } }),
+  mon('redeye', 'レッドアイ', 'demon', 2, 'caster', [[1, 'fireball'], [8, 'glare'], [15, 'darkwave']], 'ちばしった ひとつめの ふゆう せいぶつ。にらまれると からだが すくんで うごけない。', { resistances: { fire: 1 } }),
+  mon('hellbill', 'ヘルビル', 'demon', 2, 'caster', [[1, 'ember'], [8, 'fireball'], [15, 'darkbreath']], 'ごうかを まとった こあくま。ひのこを あびせて じわじわ おいつめる。', { resistances: { fire: 3, ice: -1 } }),
+  mon('icedragon', 'アイスドラゴン', 'dragon', 2, 'bruiser', [[1, 'icebreath'], [8, 'icicle'], [15, 'blizzard']], 'ゆきやまの おくに すむ こおりの りゅう。さむさに つよく、ぜんたいを こおらせる。', { resistances: { ice: 3, fire: -1 }, growthCurves: { attack: 'late' } }),
+  mon('crimsondragon', 'クリムゾンドラゴン', 'dragon', 3, 'bruiser', [[1, 'flamebreath'], [12, 'megaflare'], [20, 'sweep']], 'ちの いろに そまった おおがたの ドラゴン。もえさかる ほのおで ぜんたいを やきつくす。', { resistances: { fire: 3, ice: -1 }, growthCurves: { attack: 'late', hp: 'late' } }),
+  mon('moonleo', 'ムーンレオ', 'spirit', 3, 'attacker', [[1, 'thunderfang'], [10, 'lightrain'], [18, 'quickstrike']], 'つきの ひかりを あびた しろい ししの せいれい。すばやく、ひかりの あめを ふらせる。', { resistances: { light: 2 }, growthCurves: { speed: 'early' } }),
+  mon('bluecrab', 'ブルークラブ', 'water', 1, 'tank', [[1, 'pinch'], [6, 'icicle'], [12, 'shellguard']], 'あおい かいがらの カニ。こおりの いきで あいてを ひやして まもる。', { resistances: { ice: 3, fire: -1 } }),
+  mon('poisonborg', 'ポイズンボーグ', 'plant', 2, 'bruiser', [[1, 'poisonmist'], [8, 'darkwave'], [15, 'lullaby']], 'どくの ふくろを もつ むらさきの キノコの まもの。むやみに ふれては いけない。', { resistances: { poison: 3 } }),
 ];
 
 export const SPECIES: Record<string, MonsterSpecies> = Object.fromEntries(list.map((s) => [s.id, s]));

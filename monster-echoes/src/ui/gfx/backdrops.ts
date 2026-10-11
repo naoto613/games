@@ -2,7 +2,7 @@
 import { mkCanvas } from './Pix';
 
 export const BD_W = 352, BD_H = 224;
-export type Backdrop = 'forest' | 'cave' | 'highland' | 'arena' | 'tower';
+export type Backdrop = 'forest' | 'cave' | 'highland' | 'arena' | 'tower' | 'snow' | 'volcano';
 const HORIZON = 132;
 
 const rnd = (seed: number) => () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
@@ -154,12 +154,53 @@ function tower(g: CanvasRenderingContext2D) {
   g.beginPath(); g.ellipse(176, 190, 120, 22, 0, 0, Math.PI * 2); g.stroke();
 }
 
+function snow(g: CanvasRenderingContext2D) {
+  sky(g, '#7a9ac8', '#e8f2ff');
+  cloud(g, 70, 30, 1.1, '#f4f8ff', '#c8d6ec'); cloud(g, 250, 22, 0.9, '#f4f8ff', '#c8d6ec');
+  for (const [x, w, h, c] of [[60, 130, 84, '#9ab2d8'], [190, 170, 108, '#8aa4cc'], [320, 130, 76, '#9ab2d8']] as [number, number, number, string][]) {
+    g.fillStyle = c; g.beginPath(); g.moveTo(x - w / 2, 132); g.lineTo(x, 132 - h); g.lineTo(x + w / 2, 132); g.fill();
+    g.fillStyle = 'rgba(40,60,120,.18)'; g.beginPath(); g.moveTo(x, 132 - h); g.lineTo(x + w / 2, 132); g.lineTo(x + 8, 132); g.fill();
+    g.fillStyle = '#ffffff'; g.beginPath(); g.moveTo(x - w * 0.2, 132 - h * 0.6); g.lineTo(x, 132 - h); g.lineTo(x + w * 0.2, 132 - h * 0.6); g.lineTo(x + 6, 132 - h * 0.5); g.lineTo(x - 6, 132 - h * 0.62); g.fill();
+  }
+  hills(g, 138, 14, '#dce8f8', 8, 34);
+  // ゆきを かぶった もみのき
+  const r = rnd(14);
+  for (let x = 8; x < BD_W; x += 38 + r() * 30) {
+    const h = 22 + r() * 16;
+    g.fillStyle = '#2a5a58'; g.beginPath(); g.moveTo(x - 9, 140); g.lineTo(x, 140 - h); g.lineTo(x + 9, 140); g.fill();
+    g.fillStyle = '#f4faff'; g.beginPath(); g.moveTo(x - 6, 140 - h * 0.5); g.lineTo(x, 140 - h); g.lineTo(x + 6, 140 - h * 0.5); g.lineTo(x + 2, 140 - h * 0.42); g.lineTo(x - 2, 140 - h * 0.5); g.fill();
+  }
+  floor(g, '#d8e6f8', '#f8fcff', 'rgba(120,150,200,.35)', 91, 140);
+  g.fillStyle = 'rgba(255,255,255,.9)';
+  for (let i = 0; i < 60; i++) g.fillRect(r() * BD_W, r() * BD_H, 2, 2);
+}
+function volcano(g: CanvasRenderingContext2D) {
+  sky(g, '#2a0a10', '#c0481c', 140);
+  const glow = g.createRadialGradient(176, 110, 4, 176, 110, 150);
+  glow.addColorStop(0, 'rgba(255,200,80,.7)'); glow.addColorStop(1, 'rgba(255,100,30,0)');
+  g.fillStyle = glow; g.fillRect(0, 0, BD_W, 200);
+  for (const [x, w, h, c] of [[70, 150, 70, '#3a1a1c'], [290, 150, 80, '#3a1a1c']] as [number, number, number, string][]) {
+    g.fillStyle = c; g.beginPath(); g.moveTo(x - w / 2, 136); g.lineTo(x - 12, 136 - h); g.lineTo(x + 12, 136 - h); g.lineTo(x + w / 2, 136); g.fill();
+  }
+  // ちゅうおうの かざん（ふんか）
+  g.fillStyle = '#2a1214'; g.beginPath(); g.moveTo(80, 138); g.lineTo(150, 62); g.lineTo(202, 62); g.lineTo(272, 138); g.fill();
+  g.fillStyle = '#ff8a2a'; g.beginPath(); g.ellipse(176, 62, 28, 6, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#ffd860'; g.beginPath(); g.ellipse(176, 61, 18, 3.5, 0, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = '#ff7a20'; g.lineWidth = 3; g.beginPath(); g.moveTo(170, 66); g.bezierCurveTo(160, 90, 170, 110, 150, 138); g.stroke();
+  g.beginPath(); g.moveTo(184, 66); g.bezierCurveTo(196, 90, 188, 112, 206, 138); g.stroke();
+  const r = rnd(33);
+  for (let i = 0; i < 40; i++) { g.fillStyle = `rgba(255,${150 + (r() * 90) | 0},60,${0.4 + r() * 0.6})`; g.fillRect(r() * BD_W, r() * 120, 2, 2); }
+  floor(g, '#3a1a18', '#6a2e22', 'rgba(255,120,40,.35)', 71, 138);
+  g.fillStyle = 'rgba(255,120,30,.55)'; g.beginPath(); g.ellipse(80, 196, 60, 8, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = 'rgba(255,200,90,.6)'; g.beginPath(); g.ellipse(80, 196, 32, 4, 0, 0, Math.PI * 2); g.fill();
+}
+
 const cache = new Map<string, HTMLCanvasElement>();
 export function backdrop(b: Backdrop): HTMLCanvasElement {
   const hit = cache.get(b);
   if (hit) return hit;
   const [c, g] = mkCanvas(BD_W, BD_H);
-  ({ forest, cave, highland, arena, tower })[b](g);
+  ({ forest, cave, highland, arena, tower, snow, volcano })[b](g);
   cache.set(b, c);
   return c;
 }

@@ -3,7 +3,7 @@
 import { createRng, randomInt, type Rng } from '../../core/Random';
 import { DIRS, isPassable, reachable, type Pos, type TileMap } from './DungeonEngine';
 
-export type FloorTheme = 'forest' | 'cave' | 'highland' | 'tower';
+export type FloorTheme = 'forest' | 'cave' | 'highland' | 'tower' | 'snow' | 'volcano';
 export type FloorSpec = {
   id: string;
   theme: FloorTheme;
@@ -21,6 +21,8 @@ const SIZE: Record<FloorTheme, { cw: [number, number]; ch: [number, number] }> =
   cave: { cw: [9, 11], ch: [5, 7] },
   highland: { cw: [9, 11], ch: [5, 7] },
   tower: { cw: [8, 9], ch: [4, 5] },
+  snow: { cw: [9, 11], ch: [5, 7] },
+  volcano: { cw: [9, 11], ch: [5, 7] },
 };
 
 const shuffle = <T>(rng: Rng, a: T[]) => {
@@ -132,14 +134,14 @@ function tryGenerate(spec: FloorSpec, rng: Rng): TileMap | null {
 
   // 7) けしき（くさ・みず）
   const roomOf = (x: number, y: number) => rooms.find((r) => x >= r.x && y >= r.y && x < r.x + r.w && y < r.y + r.h);
-  if (spec.theme === 'cave') {
+  if (spec.theme === 'cave' || spec.theme === 'volcano') {
     // ひろまの まんなかに みずたまり（まわりを 1マス のこすので 道は きれない）
     for (const r of rooms) {
       if (r.w < 5 || r.h < 3 || rng.next() < 0.3) continue;
       for (let y = r.y + 1; y < r.y + r.h - 1; y++) for (let x = r.x + 1; x < r.x + r.w - 1; x++) if (g[y][x] === '.') g[y][x] = '~';
     }
   }
-  const grass = { forest: 0.32, highland: 0.5, cave: 0, tower: 0.05 }[spec.theme];
+  const grass = { forest: 0.32, highland: 0.5, cave: 0, tower: 0.05, snow: 0.4, volcano: 0.12 }[spec.theme];
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     if (g[y][x] !== '.') continue;
     // となりが くさだと くさに なりやすい（まとまりを つくる）

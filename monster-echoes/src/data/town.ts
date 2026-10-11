@@ -96,7 +96,21 @@ export const TOWN_MAPS: Record<string, TownMapDef> = {
   },
   shrine4: {
     id: 'shrine4', name: 'たびのとびらの しんでん B4', theme: 'shrine', gate: 'tower', npcs: {},
-    links: [D(1, 4, 'shrine3', 8, 4, 'left')],
+    links: [
+      D(1, 4, 'shrine3', 8, 4, 'left'),
+      D(9, 4, 'shrine5', 2, 4, 'right', [{ type: 'flag', id: 'champion' }], 'ひんやりした かぜが ふきこんで、とびらが とざされている…。ルナフィアたいかいの ゆうしょうしゃなら すすめそうだ。'),
+    ],
+  },
+  shrine5: {
+    id: 'shrine5', name: 'たびのとびらの しんでん B5', theme: 'shrine', gate: 'snow', npcs: {},
+    links: [
+      D(1, 4, 'shrine4', 8, 4, 'left'),
+      D(9, 4, 'shrine6', 2, 4, 'right', [{ type: 'boss', id: 'boss_snow' }, { type: 'flag', id: 'towerClear' }], 'あつい ひかりが もれている…。こおりの ゆがみを はらい、ひかりのとうを せいはすれば ひらきそうだ。'),
+    ],
+  },
+  shrine6: {
+    id: 'shrine6', name: 'たびのとびらの しんでん B6', theme: 'shrine', gate: 'volcano', npcs: {},
+    links: [D(1, 4, 'shrine5', 8, 4, 'left')],
   },
 };
 
@@ -117,4 +131,7 @@ export const DEX_REWARDS: { count: number; medals: number; items: Record<string,
   { count: 8, medals: 3, items: { bonemeat: 2 } },
   { count: 12, medals: 5, items: { lifeleaf: 2 } },
   { count: 16, medals: 10, items: { primemeat: 2 } },
+  { count: 24, medals: 12, items: { bigherb: 5, lifeleaf: 2 } },
+  { count: 32, medals: 15, items: { primemeat: 3 } },
+  { count: 39, medals: 30, items: { primemeat: 5, lifeleaf: 5 } },
 ];
