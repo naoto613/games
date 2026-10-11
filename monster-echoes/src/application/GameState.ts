@@ -3,6 +3,7 @@ import type { BreedingHistoryEntry } from '../domain/breeding/BreedingEngine';
 import type { Dir, Pos } from '../domain/dungeon/DungeonEngine';
 import type { MonsterInstance } from '../domain/monster/types';
 import type { ProgressState } from '../domain/progression/ProgressionEngine';
+import type { ChapterProgress } from '../domain/progression/ChapterEngine';
 
 export const SCHEMA_VERSION = 4;
 export const GAME_VERSION = '0.1.0';
@@ -62,4 +63,6 @@ export type SaveData = {
   breedingHistory: BreedingHistoryEntry[];
   expedition: Expedition | null;
   settings: GameSettings;
+  /** v2 の 章・街・機能の 進行（0-10 の 引き継ぎで 必ず もつように なる） */
+  chapters?: ChapterProgress;
 };

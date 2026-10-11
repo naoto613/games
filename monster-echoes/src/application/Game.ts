@@ -23,6 +23,8 @@ import { SPECIES_LIST } from '../data/monsters';
 import { eventsOnFloor, EVENT_BY_ID, type EventContext, type EventDef } from '../data/events';
 import { eventAvailable, overlayEvents, type EventState } from '../domain/events/EventEngine';
 import { defaultSettings, GAME_VERSION, SCHEMA_VERSION, type SaveData } from './GameState';
+import { clearStage, enterStage, hasFeature, initialChapterProgress, type ChapterProgress, type Unlocked } from '../domain/progression/ChapterEngine';
+import type { FeatureId } from '../data/world/chapters';
 
 export type BattleContext =
   | { kind: 'wild' }
@@ -244,6 +246,29 @@ export class Game {
   }
   setTutorial(id: string) {
     this.update((s) => (s.progress.tutorialFlags[id] = true));
+  }
+
+  // ---- v2 の 章・街・機能（data/world/chapters.ts）
+  get chapters(): ChapterProgress {
+    return this.state.chapters ?? initialChapterProgress();
+  }
+  hasFeature(f: FeatureId): boolean {
+    return hasFeature(this.chapters, f);
+  }
+  /** ステージに 着いた。解放された 機能・街を かえす */
+  enterStage(stageId: string): Result<Unlocked> {
+    const r = enterStage(this.chapters, stageId);
+    if (!r.ok) return r;
+    this.update((s) => (s.chapters = r.value.progress));
+    return ok(r.value.unlocked);
+  }
+  /** ステージを クリアした（章の 最後なら 章クリア）。解放された ものを かえす */
+  clearStage(stageId: string): Result<Unlocked> {
+    const r = clearStage(this.chapters, stageId);
+    if (!r.ok) return r;
+    this.update((s) => (s.chapters = r.value.progress));
+    this.autosave();
+    return ok(r.value.unlocked);
   }
 
   healAll() {
