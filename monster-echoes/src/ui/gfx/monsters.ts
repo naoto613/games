@@ -2,6 +2,12 @@
 // データは tools/sprites/extract.py で 生成する。
 import { mkCanvas, tint } from './Pix';
 import { ALPH, FACING, SPRITE_DATA, SPRITE_SMALL, type SpriteData } from './spriteData';
+import { atlasCell, atlasImage } from '../../infrastructure/assets/MonsterAtlas';
+
+/** v2 の モンスターID（m001〜m200） */
+export const isV2Id = (id: string) => /^m\d{3}$/.test(id);
+/** v2 の 絵を 何倍で 描くか（原寸 約40px の ドット絵を 整数倍で 見せる） */
+export const V2_SCALE = 2;
 
 // 色ちがいの なかま（スライムの 色ちがい と おなじ やりかた）。もとの 絵の 色あい（r: 度の はんい）だけを ずらして べつの モンスターに する。
 type Recolor = { r: [number, number]; d: number; s?: number; l?: number; minS?: number };
@@ -98,6 +104,48 @@ function square(src: HTMLCanvasElement, pad: number): HTMLCanvasElement {
 
 const cache = new Map<string, HTMLCanvasElement>();
 
+/** まだ 読みこめていない／絵の ない ときの かわり（キャッシュしない） */
+function placeholder(size: number): HTMLCanvasElement {
+  const [c, g] = mkCanvas(size, size);
+  g.fillStyle = 'rgba(40,44,70,.55)';
+  g.beginPath(); g.ellipse(size / 2, size * 0.62, size * 0.28, size * 0.26, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#c8d0f0'; g.font = `bold ${Math.round(size * 0.3)}px monospace`; g.textAlign = 'center';
+  g.fillText('?', size / 2, size * 0.72);
+  return c;
+}
+
+/** v2: アトラスから 切りだす。ふつうは 2倍（キャンバス 64→128、大型 96→192）、small は 絵の はんいだけ 原寸で */
+function v2Canvas(id: string, small: boolean): HTMLCanvasElement | null {
+  const cell = atlasCell(id), img = atlasImage();
+  if (!cell || !img) return null;
+  if (small) {
+    const [x0, y0, x1, y1] = cell.bbox;
+    const w = x1 - x0, h = y1 - y0, size = Math.max(w, h) + 2;
+    const [c, g] = mkCanvas(size, size);
+    g.drawImage(img, cell.x + x0, cell.y + y0, w, h, Math.floor((size - w) / 2), size - 1 - h, w, h);
+    return c;
+  }
+  const size = cell.size * V2_SCALE;
+  const [c, g] = mkCanvas(size, size);
+  g.imageSmoothingEnabled = false;
+  g.drawImage(img, cell.x, cell.y, cell.size, cell.size, 0, 0, size, size);
+  return c;
+}
+
+/** v2 の 絵の 足もとの 高さ（monsterSprite の キャンバスの 上から） */
+export function spriteFoot(id: string): number | null {
+  const cell = isV2Id(id) ? atlasCell(id) : undefined;
+  return cell ? cell.foot * V2_SCALE : null;
+}
+
+const flashCache = new WeakMap<HTMLCanvasElement, HTMLCanvasElement>();
+/** 被弾・戦闘不能の しゅんかんに つかう まっしろな 絵 */
+export function flashSprite(c: HTMLCanvasElement): HTMLCanvasElement {
+  let f = flashCache.get(c);
+  if (!f) { f = tint(c, '#ffffff', 0.85); flashCache.set(c, f); }
+  return f;
+}
+
 /**
  * モンスターの絵。
  * small=フィールドで ついてくる・リストの アイコン用の ちいさい絵（約34px）
@@ -108,7 +156,12 @@ export function monsterSprite(id: string, opts: { distorted?: boolean; small?: b
   const hit = cache.get(key);
   if (hit) return hit;
   const pad = opts.small ? 1 : 4;
-  let c = square(decode(dataOf(id, !!opts.small)), pad);
+  let c: HTMLCanvasElement;
+  if (isV2Id(id)) {
+    const v = v2Canvas(id, !!opts.small);
+    if (!v) return placeholder(opts.small ? 36 : 128);
+    c = v;
+  } else c = square(decode(dataOf(id, !!opts.small)), pad);
   if (opts.distorted) {
     const [c2, g] = mkCanvas(c.width, c.height);
     const aura = tint(c, '#3a0a52');
@@ -130,5 +183,5 @@ export const needFlip = (id: string, right: boolean) => {
   return right ? f < 0 : f > 0;
 };
 
-export const hasSprite = (id: string) => id in SPRITE_DATA || id in VARIANTS;
+export const hasSprite = (id: string) => id in SPRITE_DATA || id in VARIANTS || (isV2Id(id) && !!atlasCell(id));
 export const SPRITE_IDS = [...Object.keys(SPRITE_DATA), ...Object.keys(VARIANTS)];

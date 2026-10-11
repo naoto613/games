@@ -5,11 +5,14 @@ import { MemorySaveRepository, type SaveRepository } from '../infrastructure/sav
 import { TitleScreen } from '../ui/screens/title';
 import { startBattle } from '../ui/screens/battle';
 import { setSoundEnabled } from '../infrastructure/audio/Sound';
+import { loadMonsterAtlas } from '../infrastructure/assets/MonsterAtlas';
 
 async function boot() {
   const style = document.createElement('style');
   style.textContent = css;
   document.head.append(style);
+  // モンスターの ドット絵（アトラス）は セーブの 読みこみと 同時に 読む。おそい 回線でも 4秒で あきらめて すすむ（あとから 表示される）
+  const atlas = Promise.race([loadMonsterAtlas(), new Promise((r) => setTimeout(r, 4000))]);
   let repo: SaveRepository = new IndexedDbSaveRepository();
   let save = null;
   let error: string | null = null;
@@ -25,6 +28,7 @@ async function boot() {
     repo = new MemorySaveRepository();
     error = 'このブラウザでは きろくが のこせません（プライベートモードなど）。';
   }
+  await atlas;
   const app = new App(repo);
   try {
     const s = JSON.parse(localStorage.getItem('me-settings') ?? 'null');
