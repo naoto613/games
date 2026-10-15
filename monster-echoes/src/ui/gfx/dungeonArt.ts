@@ -2,16 +2,17 @@
 // 地面（草・しげみ・水）を 1枚の 絵に まとめ、かべの マスは 1本ずつ 木として 人と 奥行きじゅんに かさねる。
 import type { TileMap } from '../../domain/dungeon/DungeonEngine';
 import type { Gimmick } from '../../domain/dungeon/RoomGen';
-import { grass, hash, TT, water } from './townArt';
+import { dirt, grass, hash, TT, water } from './townArt';
 import { mkCanvas } from './Pix';
 
 type G = CanvasRenderingContext2D;
 export const isWallCh = (ch: string) => ch === '#' || ch === 'T' || ch === 'Z';
 
 const groundCache = new WeakMap<TileMap, HTMLCanvasElement[]>();
+const bossCache = new WeakMap<TileMap, HTMLCanvasElement[]>();
 /** 地面の 層（水が うごくので 4まい） */
-export function forestGround(m: TileMap): HTMLCanvasElement[] {
-  const hit = groundCache.get(m);
+export function forestGround(m: TileMap, boss = false): HTMLCanvasElement[] {
+  const hit = (boss ? bossCache : groundCache).get(m);
   if (hit) return hit;
   const at = (x: number, y: number) => (x < 0 || y < 0 || x >= m.w || y >= m.h ? '#' : m.tiles[y][x]);
   const isW = (x: number, y: number) => at(x, y) === '~';
@@ -25,8 +26,10 @@ export function forestGround(m: TileMap): HTMLCanvasElement[] {
         continue;
       }
       if (ch === '~') { water(g, ox, oy, x, y, f, isW); continue; }
+      if (boss && ch === '=') { dirt(g, ox, oy, x, y); continue; }
       grass(g, ox, oy, x, y);
-      if (ch === ',') {
+      if (boss) { g.fillStyle = 'rgba(10,30,20,.28)'; g.fillRect(ox, oy, TT, TT); }
+      if (ch === ',' && !boss) {
         // しげみ（たけの ながい 草）
         for (let i = 0; i < 14; i++) {
           const gx = ox + 2 + Math.floor(hash(x, y, i + 30) * 27), gy = oy + 8 + Math.floor(hash(y, x, i + 50) * 22);
@@ -40,6 +43,25 @@ export function forestGround(m: TileMap): HTMLCanvasElement[] {
         const gr = g.createLinearGradient(0, oy, 0, oy + 14);
         gr.addColorStop(0, 'rgba(10,30,10,.45)'); gr.addColorStop(1, 'rgba(10,30,10,0)');
         g.fillStyle = gr; g.fillRect(ox, oy, TT, 14);
+      }
+    }
+    // ボスの へや：ボスの まわりの まほうじん
+    if (boss) {
+      let bx = -1, by = -1;
+      for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) if (m.tiles[y][x] === 'B') { bx = x; by = y; }
+      if (bx >= 0) {
+        const cx = (bx + 0.5) * TT, cy = (by + 1) * TT;
+        const gl = g.createRadialGradient(cx, cy, 4, cx, cy, TT * 3);
+        gl.addColorStop(0, 'rgba(140,255,170,.35)'); gl.addColorStop(1, 'rgba(140,255,170,0)');
+        g.fillStyle = gl; g.fillRect(cx - TT * 3, cy - TT * 3, TT * 6, TT * 6);
+        g.strokeStyle = 'rgba(170,255,190,.75)'; g.lineWidth = 2;
+        for (const r of [TT * 2.2, TT * 1.7]) { g.beginPath(); g.ellipse(cx, cy, r, r * 0.7, 0, 0, Math.PI * 2); g.stroke(); }
+        g.lineWidth = 1.5;
+        for (let i = 0; i < 6; i++) {
+          const a = (i / 6) * Math.PI * 2, a2 = a + (Math.PI * 2 * 2) / 6;
+          g.beginPath(); g.moveTo(cx + Math.cos(a) * TT * 1.7, cy + Math.sin(a) * TT * 1.19); g.lineTo(cx + Math.cos(a2) * TT * 1.7, cy + Math.sin(a2) * TT * 1.19); g.stroke();
+          g.fillStyle = 'rgba(200,255,210,.9)'; g.fillRect(cx + Math.cos(a) * TT * 1.95 - 2, cy + Math.sin(a) * TT * 1.36 - 2, 4, 4);
+        }
       }
     }
     // 葉の かたまりを かべの 上に かさねる（となりの マスへ すこし はみだして つながる）
@@ -58,7 +80,7 @@ export function forestGround(m: TileMap): HTMLCanvasElement[] {
     }
     return c;
   });
-  groundCache.set(m, frames);
+  if (!boss) groundCache.set(m, frames); else bossCache.set(m, frames);
   return frames;
 }
 
@@ -127,8 +149,47 @@ export function dungeonMinimap(m: TileMap, s = 3): HTMLCanvasElement {
   for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) {
     const ch = m.tiles[y][x];
     if (isWallCh(ch)) continue;
-    g.fillStyle = ch === '~' ? '#3f92de' : ch === 'C' ? '#ffd84a' : ch === '>' || ch === 'E' ? '#6ad0ff' : ch === 'H' ? '#8fe8ff' : '#7aa0d8';
+    g.fillStyle = ch === 'B' ? '#e86ad8' : ch === '~' ? '#3f92de' : ch === 'C' ? '#ffd84a' : ch === '>' || ch === 'E' ? '#6ad0ff' : ch === 'H' ? '#8fe8ff' : '#7aa0d8';
     g.fillRect(x * s, y * s, s, s);
   }
   return c;
+}
+
+/** ボスの へやの もの：こけむした 石の 柱（I）と ひかる きのこ（f） */
+const objCache = new Map<string, HTMLCanvasElement>();
+export function pillarImg(): HTMLCanvasElement {
+  let c = objCache.get('pillar');
+  if (c) return c;
+  const [cv, g] = mkCanvas(32, 72);
+  g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(16, 68, 14, 4, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#6a6e74'; g.fillRect(6, 12, 20, 56);
+  g.fillStyle = '#8a8e94'; g.fillRect(6, 12, 7, 56);
+  g.fillStyle = '#4a4e54'; g.fillRect(21, 12, 5, 56);
+  g.fillStyle = '#9a9ea4'; g.fillRect(3, 6, 26, 8); g.fillRect(3, 62, 26, 6);
+  g.fillStyle = '#5a5e64'; g.fillRect(3, 12, 26, 2);
+  for (let i = 0; i < 4; i++) { g.fillStyle = '#4a4e54'; g.fillRect(7, 22 + i * 11, 18, 1); }
+  // こけ
+  for (const [x, y, r] of [[8, 8, 5], [14, 6, 4], [24, 9, 4], [7, 30, 3], [22, 44, 4], [9, 58, 5], [20, 62, 4]] as [number, number, number][]) {
+    g.fillStyle = '#3a7a34'; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#6ab84a'; g.beginPath(); g.arc(x - 1, y - 1, r * 0.5, 0, Math.PI * 2); g.fill();
+  }
+  objCache.set('pillar', cv);
+  return cv;
+}
+export function mushroomImg(f: number): HTMLCanvasElement {
+  const k = `mush${f % 8}`;
+  let c = objCache.get(k);
+  if (c) return c;
+  const [cv, g] = mkCanvas(48, 48);
+  const a = 0.35 + 0.2 * Math.sin((f % 8) / 8 * Math.PI * 2);
+  const gl = g.createRadialGradient(24, 26, 2, 24, 26, 24);
+  gl.addColorStop(0, `rgba(150,255,190,${a})`); gl.addColorStop(1, 'rgba(150,255,190,0)');
+  g.fillStyle = gl; g.fillRect(0, 0, 48, 48);
+  for (const [x, s] of [[18, 1], [30, 0.7]] as [number, number][]) {
+    g.fillStyle = '#e8e0c8'; g.fillRect(x - 2 * s, 30, 4 * s, 12 * s);
+    g.fillStyle = '#4ac88a'; g.beginPath(); g.ellipse(x, 30, 10 * s, 7 * s, 0, Math.PI, 0); g.fill();
+    g.fillStyle = '#b8ffd8'; g.fillRect(x - 5 * s, 25, 3, 2); g.fillRect(x + 2 * s, 27, 2, 2);
+  }
+  objCache.set(k, cv);
+  return cv;
 }

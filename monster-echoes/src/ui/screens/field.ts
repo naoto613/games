@@ -22,7 +22,7 @@ import { openGate } from './gate';
 import { displayName } from '../../domain/monster/MonsterFactory';
 import { forestTexture, hash, treeImg, labelImg, minimapImg, objectShadow, objectSprite, renderGround, TT } from '../gfx/townArt';
 import type { TownArt } from '../../data/towns/builder';
-import { dungeonMinimap, drawGimmick, forestGround, isWallCh } from '../gfx/dungeonArt';
+import { dungeonMinimap, drawGimmick, forestGround, isWallCh, mushroomImg, pillarImg } from '../gfx/dungeonArt';
 import type { RoomTileMap } from '../../domain/dungeon/RoomGen';
 import { overlaySprite } from '../gfx/tiles';
 
@@ -273,7 +273,7 @@ export class FieldScreen implements Screen {
     (this.dexBtn as HTMLButtonElement).disabled = !this.game.hasFeature('dex');
     const art = this.inTown ? this.game.currentTownMap().art : undefined;
     this.el.classList.toggle('arttown', !!art);
-    const artDun = !this.inTown && !this.game.floor?.floor.bossId && this.theme === 'forest';
+    const artDun = !this.inTown && this.theme === 'forest';
     this.el.classList.toggle('artdun', artDun);
     if (artDun) { this.miniName.textContent = `${this.game.floor!.index + 1}F`; this.miniClock.textContent = ''; }
     this.hudL.textContent = art ? `${s.player.gold} G` : this.inTown ? this.game.currentTownMap().name : this.game.floor!.floor.name;
@@ -686,7 +686,8 @@ export class FieldScreen implements Screen {
     if (pat) { g.save(); g.translate(ox % 64, oy % 64); g.fillStyle = pat; g.fillRect(-64, -64, W + 128, H + 128); g.restore(); }
     g.fillStyle = 'rgba(12,34,14,.4)'; g.fillRect(0, 0, W, H);
     const still = this.app.settings.reduceMotion;
-    g.drawImage(forestGround(m)[still ? 0 : Math.floor(this.frame / 16) % 4], ox, oy);
+    const bossId = this.game.floor?.floor.bossId;
+    g.drawImage(forestGround(m, !!bossId)[still ? 0 : Math.floor(this.frame / 16) % 4], ox, oy);
     const x0 = Math.floor(camX) - 2, y0 = Math.floor(camY) - 1, x1 = x0 + VW + 4, y1 = y0 + VH + 4;
     const gm = (m as RoomTileMap).gimmicks;
     const opened = ex.switches ?? [];
@@ -717,6 +718,23 @@ export class FieldScreen implements Screen {
         } });
         continue;
       }
+      if (ch === 'I') { items.push({ base: (y + 1) * TT - 4, draw: () => g.drawImage(pillarImg(), sx, sy + 32 - 72) }); continue; }
+      if (ch === 'f') { const im = mushroomImg(still ? 0 : Math.floor(this.frame / 6)); items.push({ base: (y + 1) * TT - 6, draw: () => g.drawImage(im, sx - 8, sy - 12) }); continue; }
+      if (ch === 'B' && bossId) {
+        const sp = monsterSprite(BOSSES[bossId].enemies.find((e) => e.distorted)?.speciesId ?? 'kinoborg', { distorted: true });
+        items.push({ base: (y + 1) * TT - 2, draw: () => {
+          const bob = still ? 0 : Math.round(Math.sin(this.frame / 12) * 1.5);
+          const pulse = 0.5 + 0.5 * Math.sin(this.frame / 14);
+          const aura = g.createRadialGradient(sx + 16, sy + 10, 4, sx + 16, sy + 10, 52 + pulse * 6);
+          aura.addColorStop(0, 'rgba(170,90,230,.55)'); aura.addColorStop(1, 'rgba(170,90,230,0)');
+          g.fillStyle = aura; g.fillRect(sx - 48, sy - 56, 128, 128);
+          shadow(sx, sy, 20);
+          g.imageSmoothingEnabled = true;
+          g.drawImage(sp, sx - 20, sy - 40 + bob, 72, 72);
+          g.imageSmoothingEnabled = false;
+        } });
+        continue;
+      }
       if ('CH>EV'.includes(ch)) {
         const ov = overlaySprite('forest', ch, x, y, anim, { open: ch === 'C' && this.game.isOpened({ x, y }), used: ch === 'H' && !!ex.springUsed, ev: ch === 'V' ? EVENT_BY_ID[m.events?.[`${x},${y}`] ?? '']?.kind : undefined });
         if (ov) items.push({ base: (y + 1) * TT - 6, draw: () => { if (ch === 'C' || ch === 'V') shadow(sx, sy, 12); g.drawImage(ov, sx, sy); } });
@@ -733,6 +751,11 @@ export class FieldScreen implements Screen {
     if (!still) {
       g.fillStyle = 'rgba(255,250,200,.06)';
       for (let i = 0; i < 3; i++) { const bx = ((i * 140 + this.frame * 0.2) % (W + 200)) - 100; g.beginPath(); g.moveTo(bx, 0); g.lineTo(bx + 40, 0); g.lineTo(bx - 60, H); g.lineTo(bx - 100, H); g.fill(); }
+    }
+    if (bossId) {
+      const rg = g.createRadialGradient(W / 2, H / 2, TILE * 3, W / 2, H / 2, TILE * 10);
+      rg.addColorStop(0, 'rgba(8,16,10,0)'); rg.addColorStop(1, 'rgba(8,16,10,.55)');
+      g.fillStyle = rg; g.fillRect(0, 0, W, H);
     }
     this.drawMiniDungeon();
   }
@@ -764,7 +787,7 @@ export class FieldScreen implements Screen {
     g.fillRect(0, 0, this.cv.width, this.cv.height);
     const art = !this.game.state.expedition ? this.game.currentTownMap().art : undefined;
     if (art) return this.drawArtTown(art, px, py, camX, camY);
-    if (this.game.state.expedition && !this.game.floor?.floor.bossId && this.theme === 'forest') return this.drawArtForest(px, py, camX, camY);
+    if (this.game.state.expedition && this.theme === 'forest') return this.drawArtForest(px, py, camX, camY);
     const th = this.theme;
     const x0 = Math.floor(camX) - 1, y0 = Math.floor(camY) - 1;
     const ex = this.game.state.expedition;
