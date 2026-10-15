@@ -173,32 +173,47 @@ input.name { font: inherit; font-size: 1.3em; padding: 10px; width: 100%; backgr
 @keyframes rfglow { from { transform: scale(.85); opacity: .7; } to { transform: scale(1.1); opacity: 1; } }
 @keyframes rfspark { 0% { transform: rotate(var(--a)) translateY(20px); opacity: 1; } 100% { transform: rotate(var(--a)) translateY(calc(var(--d) + 40px)); opacity: 0; } }
 
-/* ---- 戦闘（v2：参考画像2「戦闘画面」の 構成。上に 場面、ログ＋右の 縦コマンド、下に 味方の カード） */
-.battle .battle-mid { flex: 1; min-height: 0; display: flex; gap: 4px; padding: 0 4px; }
-.battle .battle-mid .log { margin: 4px 0; min-height: 0; }
-.battle .cmds { margin: 4px 0; padding: 0; flex: none; }
-.battle .cmds.vert { display: flex; flex-direction: column; width: 36%; max-width: 150px; gap: 0; padding: 4px; background: linear-gradient(180deg, #1c2a5c 0%, #101a3e 55%, #0c1430 100%); border: 3px solid var(--win-line); border-radius: 10px; box-shadow: 0 0 0 2px #050814, inset 0 0 0 2px #2a3c7a; }
-.battle .cmds.vert .btn { min-height: 0; flex: 1; justify-content: flex-start; padding: 2px 10px 2px 22px; background: none; border: none; border-bottom: 1px solid rgba(160,180,255,.18); border-radius: 0; box-shadow: none; font-size: 1em; position: relative; text-align: left; }
-.battle .cmds.vert .btn:last-child { border-bottom: none; }
-.battle .cmds.vert .btn.primary::before, .battle .cmds.vert .btn:focus-visible::before, .battle .cmds.vert .btn:hover::before { content: '▶'; position: absolute; left: 6px; font-size: .7em; color: var(--hl); }
-.battle .cmds.vert .btn.primary { color: var(--hl); }
-.battle .battle-mid.wide .log { display: none; }
-.battle .battle-mid.wide .cmds { flex: 1; align-content: start; overflow-y: auto; }
-.battle .party-bar { padding: 4px 4px calc(6px + var(--safe-b)); }
-.battle .pbox { padding: 4px 6px 3px; min-height: 0; font-size: .78em; line-height: 1.2; }
-.battle .pbox .phead { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
-.battle .pbox .face { width: 30px; height: 30px; flex: none; image-rendering: pixelated; background: rgba(255,255,255,.06); border-radius: 6px; }
-.battle .pbox .nm { flex: 1; min-width: 0; }
-.battle .pbox .lv { display: block; font-size: .85em; color: var(--sub); }
-.battle .pbox .gauge { display: grid; grid-template-columns: 2em 1fr 2.4em; align-items: center; gap: 3px; }
-.battle .pbox .gauge .k { font-size: .85em; color: var(--sub); }
-.battle .pbox .gauge .n { text-align: right; }
-.battle .pbox .gauge .bar { height: 6px; margin: 0; }
-.battle .pbox .gauge.mp .bar > i { background: var(--accent); }
-.battle .pbox .st { min-height: 1.1em; }
-.battle .bview { flex: 1; min-height: 200px; aspect-ratio: auto; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
-.battle .bview canvas { flex: none; width: auto; height: min(100%, 70vw); aspect-ratio: 352 / 224; }
-.battle .battle-mid { flex: none; height: min(290px, 36vh); }
+/* ---- 戦闘（参考画像3「戦闘画面」：場面に 味方と 敵、右上に 敵の HP、下に 2れつの コマンドと 味方の カード） */
+.battle { background: #0a1030; }
+.battle .bview { flex: 1; min-height: 220px; aspect-ratio: auto; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
+.battle .bview canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; }
+.battle .einfo { position: absolute; right: 6px; top: 6px; display: flex; flex-direction: column; gap: 4px; z-index: 3; pointer-events: none; max-width: 62%; }
+.battle .erow { min-width: 168px; padding: 4px 10px 6px; background: linear-gradient(180deg, rgba(22,34,82,.92), rgba(10,18,52,.94)); border: 2px solid #c8d4ff; border-radius: 8px; box-shadow: 0 2px 0 #060a1c, inset 0 0 0 1px rgba(80,110,200,.6); font-size: .8em; }
+.battle .erow .eh { display: flex; justify-content: space-between; gap: 10px; white-space: nowrap; }
+.battle .erow .en { overflow: hidden; text-overflow: ellipsis; }
+.battle .erow .el { color: #dfe6ff; }
+.battle .erow .eb { display: flex; align-items: center; gap: 6px; font-size: .85em; color: #ffb0b0; }
+.battle .erow .bar { flex: 1; height: 7px; margin: 0; background: #2a0c18; border: 1px solid #6a3a5a; border-radius: 4px; }
+.battle .erow .bar > i { background: linear-gradient(90deg, #ff3a5a, #ff6a7a); }
+.battle .blog { flex: none; min-height: calc(2.6em + 12px); margin: 0 0 5px; padding: 5px 12px; font-size: .86em; line-height: 1.3; justify-content: flex-start; background: linear-gradient(180deg, rgba(22,34,82,.95), rgba(10,18,52,.97)); border: 2px solid #c8d4ff; border-radius: 8px; }
+.battle .battle-mid { flex: none; display: flex; flex-direction: column; padding: 5px 6px 0; }
+.battle .cmds { margin: 0; padding: 0; flex: 1; }
+.battle .cmds.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 6px; background: linear-gradient(180deg, rgba(22,34,82,.95), rgba(10,18,52,.97)); border: 2px solid #c8d4ff; border-radius: 10px; box-shadow: 0 2px 0 #060a1c, inset 0 0 0 1px rgba(80,110,200,.6); }
+.battle .cmds.grid2 .btn { position: relative; min-height: 42px; padding: 2px 8px 2px 26px; justify-content: flex-start; font-size: 1em; background: linear-gradient(180deg, #24367a, #16245a); border: 1.5px solid #6a84d8; border-radius: 7px; box-shadow: inset 0 1px 0 rgba(255,255,255,.18); text-align: left; }
+.battle .cmds.grid2 .btn.primary { background: linear-gradient(180deg, #3a6ae0, #2448b0); border-color: #dfe8ff; color: #fff; box-shadow: 0 0 10px rgba(110,160,255,.6), inset 0 1px 0 rgba(255,255,255,.35); }
+.battle .cmds.grid2 .btn.primary::before, .battle .cmds.grid2 .btn:focus-visible::before, .battle .cmds.grid2 .btn:hover::before { content: '▶'; position: absolute; left: 8px; font-size: .7em; color: #fff; }
+.battle .cmds.grid2 .btn[disabled] { opacity: .45; }
+.battle .cmds.grid2 .tac { display: flex; align-items: baseline; gap: 6px; }
+.battle .cmds.grid2 .tac .hl { font-size: .75em; }
+.battle .battle-mid.wide { height: min(260px, 34vh); }
+.battle .battle-mid.wide .cmds { overflow-y: auto; align-content: start; }
+.battle .party-bar { padding: 5px 6px calc(6px + var(--safe-b)); gap: 5px; }
+.battle .pbox { padding: 3px 7px 3px; min-height: 0; font-size: .78em; line-height: 1.2; background: linear-gradient(180deg, rgba(22,34,82,.95), rgba(10,18,52,.97)); border: 2px solid #c8d4ff; border-radius: 8px; }
+.battle .pbox.act { border-color: var(--hl); box-shadow: 0 0 8px rgba(255,216,74,.6); }
+.battle .pbox .nm { font-size: 1em; text-align: center; padding-bottom: 1px; border-bottom: 1px solid rgba(160,180,240,.3); }
+.battle .pbox .pbody { display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+.battle .pbox .pface { display: flex; flex-direction: column; align-items: center; flex: none; width: 34px; }
+.battle .pbox .pface .lv { font-size: .8em; color: #dfe6ff; white-space: nowrap; }
+.battle .pbox .face { width: 32px; height: 32px; image-rendering: pixelated; }
+.battle .pbox .pg { flex: 1; min-width: 0; }
+.battle .pbox .gauge .gl { display: flex; justify-content: space-between; align-items: baseline; }
+.battle .pbox .gauge .k { font-size: .8em; color: #c8d4ff; }
+.battle .pbox .gauge .n { font-size: 1.08em; }
+.battle .pbox .gauge .bar { height: 5px; margin: 0 0 2px; }
+.battle .pbox .gauge.mp .bar > i { background: linear-gradient(90deg, #3a8ae8, #6ab8ff); }
+.battle .pbox .gauge.hp .bar > i { background: linear-gradient(90deg, #2ab84a, #7ae86a); }
+.battle .pbox .st { min-height: 0; text-align: center; color: var(--warn); }
+.battle .pbox .st:empty { display: none; }
 
 /* ---- アイコン */
 .ico { display: inline-flex; width: 22px; height: 22px; flex: none; color: #dfe8ff; }
