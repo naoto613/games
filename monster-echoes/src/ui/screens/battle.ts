@@ -7,11 +7,11 @@ import type { AllyCommand, BattleEvent, BattleState, Combatant, PlayerAction, Tu
 import { playBgm, sfx } from '../../infrastructure/audio/Sound';
 import type { App, Key, Screen } from '../App';
 import { btn, clear, h, sleep } from '../dom';
-import { flashSprite, monsterSprite, spriteFoot } from '../gfx/monsters';
+import { flashSprite, monsterSprite, needFlip, spriteFoot } from '../gfx/monsters';
 import { drawWithPose, motionPose, MOTION_LENGTH } from '../gfx/motion';
 import { MONSTER2_BY_ID } from '../../data/v2/monsters';
 import { mkCanvas } from '../gfx/Pix';
-import { BD_H, BD_W, backdrop } from '../gfx/backdrops';
+import { BD_H, BD_W, backdrop, type Backdrop } from '../gfx/backdrops';
 import { TACTICS, welcomeMonster, resolvePending } from './menus';
 import { FieldScreen, rewardText } from './field';
 import { monIcon, STAT_LABEL } from '../components/monster';
@@ -49,16 +49,20 @@ class BattleScreen implements Screen {
   private keyHandler: ((k: Key) => void) | null = null;
   private activeAlly = -1;
   private mid!: HTMLElement;
+  private einfo: HTMLElement;
   private skyTheme = '';
+  private skyCol = '#000';
+  private skyTop = '#000';
 
   constructor(private app: App, private session: BattleSession, private after?: AfterBattle) {
     this.st = session.state;
     [this.cv, this.g] = mkCanvas(BW, BH);
     this.partyBar = h('div', { class: 'party-bar' });
-    this.logEl = h('div', { class: 'win log' });
+    this.logEl = h('div', { class: 'win log blog' });
     this.cmds = h('div', { class: 'cmds' });
-    const view = h('div', { class: 'bview' }, this.cv);
-    // 参考画像2「戦闘画面」：上に 戦闘の 場面、まんなかに ログと 右の 縦コマンド、下に 味方の カード
+    this.einfo = h('div', { class: 'einfo' });
+    const view = h('div', { class: 'bview' }, this.cv, this.einfo);
+    // 参考画像3「戦闘画面」：場面に 味方（左）と 敵（右）、右上に 敵の 名前と HP、下に 2れつの コマンドと 味方の カード
     this.mid = h('div', { class: 'battle-mid' }, this.logEl, this.cmds);
     this.el = h('div', { class: 'layer battle' }, view, this.mid, this.partyBar);
     // 再生中にタップすると早送り
@@ -88,9 +92,12 @@ class BattleScreen implements Screen {
 
   enter() {
     playBgm('battle');
+    window.addEventListener('resize', this.fitCanvas);
+    this.fitCanvas();
     const loop = () => {
       this.raf = requestAnimationFrame(loop);
       this.frame++;
+      if (this.frame % 20 === 1) this.fitCanvas();
       this.draw();
     };
     loop();
@@ -116,6 +123,7 @@ class BattleScreen implements Screen {
     })();
   }
   leave() {
+    window.removeEventListener('resize', this.fitCanvas);
     cancelAnimationFrame(this.raf);
   }
   key(k: Key, down: boolean) {
@@ -127,9 +135,8 @@ class BattleScreen implements Screen {
     for (const l of text.split('\n')) this.lines.push(l);
     if (this.lines.length > 40) this.lines.splice(0, this.lines.length - 40);
     clear(this.logEl);
-    const max = Math.max(4, Math.floor((this.logEl.clientHeight - 16) / 24));
-    const show = this.lines.slice(-max);
-    show.forEach((l, i) => this.logEl.append(h('p', { class: i < show.length - 3 ? 'old' : '' }, l)));
+    const show = this.lines.slice(-2);
+    show.forEach((l, i) => this.logEl.append(h('p', { class: i < show.length - 1 ? 'old' : '' }, l)));
   }
 
   private renderParty() {
@@ -137,35 +144,102 @@ class BattleScreen implements Screen {
     this.st.allies.forEach((c, i) => {
       const v = this.views.get(c.key)!;
       const low = !v.dead && v.hp < v.maxHp * 0.3;
-      // 顔・名前・Lv・HP／MP の バー（参考画像2 の 下段の カード）
+      // 参考画像3 の 下段の カード：名前・Lv・顔・HP／MP の 数字と バー
+      const gauge = (k: string, n: number, max: number, cls: string) => h('div', { class: `gauge ${cls}` },
+        h('div', { class: 'gl' }, h('span', { class: 'k' }, k), h('span', { class: 'n' }, String(n))),
+        h('div', { class: 'bar' }, h('i', { style: `width:${max ? (100 * n) / max : 0}%;${cls === 'hp' && low ? 'background:var(--warn)' : ''}` })));
       const box = h('div', { class: `win pbox${v.dead ? ' dead' : low ? ' low' : ''}${this.activeAlly === i ? ' act' : ''}`, 'data-key': c.key },
-        h('div', { class: 'phead' }, monIcon(c.speciesId, 'face'), h('div', { class: 'nm' }, c.name, h('span', { class: 'lv' }, `Lv${c.level}`))),
-        h('div', { class: 'gauge' }, h('span', { class: 'k' }, 'HP'), h('div', { class: 'bar' }, h('i', { style: `width:${(100 * v.hp) / v.maxHp}%;${low ? 'background:var(--warn)' : ''}` })), h('span', { class: 'n' }, String(v.hp))),
-        h('div', { class: 'gauge mp' }, h('span', { class: 'k' }, 'MP'), h('div', { class: 'bar' }, h('i', { style: `width:${v.maxMp ? (100 * v.mp) / v.maxMp : 0}%` })), h('span', { class: 'n' }, String(v.mp))),
+        h('div', { class: 'nm' }, c.name),
+        h('div', { class: 'pbody' },
+          h('div', { class: 'pface' }, h('span', { class: 'lv' }, `Lv ${c.level}`), monIcon(c.speciesId, 'face')),
+          h('div', { class: 'pg' }, gauge('HP', v.hp, v.maxHp, 'hp'), gauge('MP', v.mp, v.maxMp, 'mp'))),
         h('div', { class: 'st small' }, v.dead ? 'たおれている' : v.status.join(' ')),
       );
       this.partyBar.append(box);
     });
     for (let i = this.st.allies.length; i < 3; i++) this.partyBar.append(h('div'));
+    this.renderEnemies();
   }
 
+  /** 右上の 敵の 名前・Lv（参考画像3。HP は 見せない） */
+  private renderEnemies() {
+    clear(this.einfo);
+    for (const e of this.st.enemies) {
+      const v = this.views.get(e.key);
+      if (!v || v.dead) continue;
+      // 敵の HP は 見せない（名前と Lv だけ）
+      this.einfo.append(h('div', { class: 'erow' },
+        h('div', { class: 'eh' }, h('span', { class: 'en' }, e.name), h('span', { class: 'el' }, `Lv ${e.level}`))));
+    }
+  }
+
+  /** 敵は 右の おく、味方は 左の 手前（参考画像3） */
   private enemyPos(c: Combatant) {
     const n = this.st.enemies.length;
-    const big = (c.distorted ? 1.3 : 1) * (n === 1 ? 1.3 : n === 2 ? 1.15 : 1);
-    const spread = n === 1 ? 0 : n === 2 ? 86 : n === 3 ? 104 : 118;
-    return { x: BW / 2 + (n === 1 ? 0 : (c.slot / (n - 1) - 0.5) * 2 * spread), y: 190, s: big };
+    const big = (c.distorted ? 1.25 : 1) * (n === 1 ? 1.35 : n === 2 ? 1.1 : n === 3 ? 0.92 : 0.85);
+    const xs = n === 1 ? [262] : n === 2 ? [222, 302] : n === 3 ? [214, 272, 326] : [200, 246, 292, 334];
+    const ys = n <= 2 ? [212, 222] : [204, 220, 208, 222];
+    return { x: xs[c.slot % xs.length] ?? 260, y: ys[c.slot % ys.length] ?? 214, s: big };
+  }
+  private allyPos(i: number) {
+    return { x: [42, 98, 152][i] ?? 42, y: [266, 252, 274][i] ?? 266, s: 0.95 };
+  }
+
+  private drawAllies(now: number) {
+    const g = this.g;
+    this.st.allies.forEach((a, i) => {
+      const v = this.views.get(a.key);
+      if (!v) return;
+      const p = this.allyPos(i);
+      const sp = monsterSprite(a.speciesId);
+      let w = Math.round(sp.width * p.s), hgt = Math.round(sp.height * p.s);
+      if (hgt > 96) { const k = 96 / hgt; w = Math.round(w * k); hgt = Math.round(hgt * k); }
+      const k = hgt / sp.height;
+      const foot = spriteFoot(a.speciesId) ?? sp.height - 4;
+      const by = p.y + Math.round((sp.height - foot) * k);
+      const still = this.app.settings.reduceMotion;
+      const pose = v.dead ? motionPose('faint', Math.min(now - v.deadT, MOTION_LENGTH.faint - 8))
+        : now - v.hitT < MOTION_LENGTH.hit ? motionPose('hit', now - v.hitT)
+        : now - v.actT < MOTION_LENGTH.attack && !still ? motionPose('attack', now - v.actT)
+        : still ? motionPose('idle', 0) : motionPose('idle', now, i * 17);
+      if (still) { pose.dx = 0; pose.dy = Math.min(pose.dy, 0); }
+      // 攻撃の ふみこみは 右（敵の ほう）へ
+      if (now - v.actT < MOTION_LENGTH.attack && !v.dead) { pose.dx += pose.dy * 0.8; pose.dy = -pose.dy * 0.2; }
+      g.save();
+      g.fillStyle = 'rgba(0,0,0,.28)';
+      g.beginPath(); g.ellipse(p.x, p.y - 2, w * 0.3, 6, 0, 0, Math.PI * 2); g.fill();
+      g.restore();
+      g.save();
+      if (v.dead) g.globalAlpha = 0.45;
+      if (needFlip(a.speciesId, true)) { g.translate(p.x * 2, 0); g.scale(-1, 1); pose.dx = -pose.dx; }
+      g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+      drawWithPose(g, sp, flashSprite(sp), p.x, by, w, hgt, pose);
+      g.restore();
+    });
   }
 
   private draw() {
     const g = this.g;
-    const theme = this.session.context.kind === 'arena' || this.session.context.kind === 'practice' ? 'arena' : this.game.state.expedition ? getArea(this.game.state.expedition.areaId).theme : 'forest';
-    g.drawImage(backdrop(theme), 0, 0);
-    // 場面の 上の あまりを 空の 色で うめる（画面が たて長でも 場面が きれない）
+    const base = this.session.context.kind === 'arena' || this.session.context.kind === 'practice' ? 'arena' : this.game.state.expedition ? getArea(this.game.state.expedition.areaId).theme : 'forest';
+    const boss = this.session.context.kind === 'boss';
+    const theme: Backdrop = boss && base === 'forest' ? 'grove' : (base as Backdrop);
+    // 画面が たて長なら 空を 上へ のばす（場面は 下に そろえる）
+    const off = this.cv.height - BH;
     if (this.skyTheme !== theme) {
       this.skyTheme = theme;
       const [r, gg, bb] = backdrop(theme).getContext('2d')!.getImageData(BW / 2, 0, 1, 1).data;
-      this.cv.parentElement!.style.background = `rgb(${r},${gg},${bb})`;
+      this.skyCol = `rgb(${r},${gg},${bb})`;
+      this.skyTop = `rgb(${Math.round(r * 0.7 + 16 * 0.3)},${Math.round(gg * 0.7 + 32 * 0.3)},${Math.round(bb * 0.7 + 96 * 0.3)})`;
+      this.cv.parentElement!.style.background = this.skyCol;
     }
+    if (off > 0) {
+      const gr = g.createLinearGradient(0, 0, 0, off + 2);
+      gr.addColorStop(0, this.skyTop); gr.addColorStop(1, this.skyCol);
+      g.fillStyle = gr; g.fillRect(0, 0, BW, off + 2);
+    }
+    g.save();
+    g.translate(0, off);
+    g.drawImage(backdrop(theme), 0, 0);
     const now = this.frame;
     const order = [...this.st.enemies].sort((a, b) => (a.slot === 1 ? 1 : 0) - (b.slot === 1 ? 1 : 0));
     for (const e of order) {
@@ -202,7 +276,9 @@ class BattleScreen implements Screen {
         gl.addColorStop(0, `rgba(255,240,170,${a})`); gl.addColorStop(1, 'rgba(255,240,170,0)');
         g.fillStyle = gl; g.fillRect(p.x - hgt, p.y - hgt * 1.2, hgt * 2, hgt * 1.4);
       }
+      g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
       drawWithPose(g, sp, flashSprite(sp), p.x, by, w, hgt, pose);
+      g.imageSmoothingEnabled = false;
       const top = p.y - hgt + 6;
       // なつき（にく）
       const c = this.st.enemies.find((x) => x.key === e.key)!;
@@ -222,13 +298,15 @@ class BattleScreen implements Screen {
         g.fillText(v.status[0], p.x, p.y + 18);
       }
     }
+    this.drawAllies(now);
     // ダメージの数字
     this.pops = this.pops.filter((pp) => now - pp.t0 < 40);
     for (const pp of this.pops) {
       const e = this.st.enemies.find((x) => x.key === pp.key);
-      if (!e) continue;
-      const p = this.enemyPos(e);
-      const y = p.y - 60 * p.s - Math.min(12, (now - pp.t0) * 1.2);
+      const ai = this.st.allies.findIndex((x) => x.key === pp.key);
+      if (!e && ai < 0) continue;
+      const p = e ? this.enemyPos(e) : this.allyPos(ai);
+      const y = p.y - (e ? 60 : 50) * p.s - Math.min(12, (now - pp.t0) * 1.2);
       g.font = 'bold 22px "DotGothic16", monospace';
       g.textAlign = 'center';
       g.lineWidth = 4;
@@ -255,14 +333,23 @@ class BattleScreen implements Screen {
         g.restore();
       }
     }
+    g.restore();
   }
+
+  /** 場面の 高さを 表示わくに あわせる（たて長の 画面で 上が あかない） */
+  private fitCanvas = () => {
+    const r = this.cv.parentElement?.getBoundingClientRect();
+    if (!r || !r.width || !r.height) return;
+    const hh = Math.max(BH, Math.min(620, Math.round((BW * r.height) / r.width)));
+    if (this.cv.height !== hh) { this.cv.height = hh; this.g.imageSmoothingEnabled = false; }
+  };
 
   // ---------------------------------------------------------------- コマンド
   private setCmds(buttons: HTMLElement[], cls = '') {
     clear(this.cmds);
     this.cmds.className = `cmds ${cls}`;
     // 縦の コマンド（ふだん）は ログの 右、えらぶ リストは ログの かわりに ひろく
-    this.mid.classList.toggle('wide', !cls.includes('vert') && buttons.length > 0);
+    this.mid.classList.toggle('wide', !cls.includes('grid2') && buttons.length > 0);
     this.cmds.append(...buttons);
     // キーボード: 1つ目のボタンを A、もどるを B に
     this.keyHandler = (k) => {
@@ -280,14 +367,15 @@ class BattleScreen implements Screen {
     const hasItem = ITEM_LIST.some((i) => i.battle && i.category !== 'meat' && (this.game.state.inventory[i.id] ?? 0) > 0);
     const tset = new Set(this.st.allies.map((c) => c.tactic ?? this.st.tactic));
     const tacLabel = tset.size === 1 ? TACTICS.find((t) => t.id === [...tset][0])!.short : 'こべつ';
+    // 参考画像3：たたかう／にく、めいれい／さくせん、どうぐ／にげる の 2れつ
     this.setCmds([
       btn('たたかう', () => this.run({ mode: 'auto', player: { kind: 'none' } }), 'primary'),
-      btn('めいれい', () => this.orderPhase([], 0)),
-      btn('どうぐ', () => this.itemPhase(), st.canUseItems && hasItem ? '' : 'off'),
       btn('にく', () => this.meatPhase(), st.canRecruit && hasMeat ? '' : 'off'),
-      btn(h('span', { class: 'small' }, 'さくせん', h('br'), h('span', { class: 'hl' }, tacLabel)), () => this.tacticPhase()),
+      btn('めいれい', () => this.orderPhase([], 0)),
+      btn(h('span', { class: 'tac' }, 'さくせん', h('span', { class: 'hl' }, tacLabel)), () => this.tacticPhase()),
+      btn('どうぐ', () => this.itemPhase(), st.canUseItems && hasItem ? '' : 'off'),
       btn('にげる', () => this.run({ mode: 'auto', player: { kind: 'escape' } }), st.canEscape ? '' : 'off'),
-    ], 'vert');
+    ], 'grid2');
     for (const b of this.cmds.querySelectorAll('.off')) (b as HTMLButtonElement).disabled = true;
   }
 
@@ -413,7 +501,7 @@ class BattleScreen implements Screen {
     switch (ev.t) {
       case 'act': {
         const av = this.views.get(ev.actor);
-        if (av && ev.actor.startsWith('e')) av.actT = this.frame;
+        if (av) av.actT = this.frame;
         const s = getSkill(ev.skillId);
         sfx(s.category === 'magic' || s.category === 'breath' ? 'magic' : s.category === 'heal' || s.category === 'revive' ? 'heal' : 'cursor');
         break;
@@ -422,7 +510,8 @@ class BattleScreen implements Screen {
         if (v) {
           v.hp = ev.hp;
           v.hitT = this.frame;
-          if (isEnemy) this.pops.push({ key: ev.target, text: String(ev.amount), color: ev.weak ? '#ffe040' : '#ffffff', t0: this.frame });
+          this.pops.push({ key: ev.target, text: String(ev.amount), color: isEnemy ? (ev.weak ? '#ffe040' : '#ffffff') : '#ff9a8a', t0: this.frame });
+          if (isEnemy) this.renderEnemies();
         }
         sfx(ev.crit ? 'crit' : 'hit');
         if (!isEnemy) {
@@ -436,7 +525,7 @@ class BattleScreen implements Screen {
       case 'heal':
       case 'revive':
         if (v) { v.hp = ev.hp; if (ev.t === 'revive') { v.dead = false; v.deadT = -1; } }
-        if (isEnemy && ev.t === 'heal') this.pops.push({ key: ev.target, text: `+${ev.amount}`, color: '#80ff9a', t0: this.frame });
+        if (ev.t === 'heal') this.pops.push({ key: ev.target, text: `+${ev.amount}`, color: '#80ff9a', t0: this.frame });
         this.renderParty();
         break;
       case 'mp':

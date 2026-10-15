@@ -41,7 +41,7 @@ await shot('05-ranch-after');
 await p.evaluate(() => window.app.closeAllPanels()); await wait(200);
 // 地図タップで 歩く（ふんすいの そばへ）
 const pos0 = await p.evaluate(() => ({ ...window.app.game.state.player.townPos }));
-const box = await p.locator('.view canvas').boundingBox();
+const box = await p.locator('.view > canvas').boundingBox();
 await p.mouse.click(box.x + box.width * 0.5, box.y + box.height * 0.25); await wait(1500);
 const pos1 = await p.evaluate(() => ({ ...window.app.game.state.player.townPos }));
 console.log('tap walk', pos0, '->', pos1);

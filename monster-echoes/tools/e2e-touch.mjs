@@ -28,7 +28,7 @@ const p1 = await pos();
 console.log('drag down', p0, '->', p1);
 // タップ: 2マス 右へ
 const tile = box.width / 11;
-const hero = await p.evaluate(() => { const c = document.querySelector('.view canvas').getBoundingClientRect(); return { x: c.x, y: c.y, w: c.width, h: c.height }; });
+const hero = await p.evaluate(() => { const c = document.querySelector('.view > canvas').getBoundingClientRect(); return { x: c.x, y: c.y, w: c.width, h: c.height }; });
 await p.mouse.click(hero.x + hero.w / 2 + tile * 2, hero.y + hero.h / 2); await wait(1200);
 const p2 = await pos();
 console.log('tap right2', p1, '->', p2);

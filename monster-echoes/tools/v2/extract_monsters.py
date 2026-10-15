@@ -16,7 +16,7 @@ sys.path.insert(0, HERE)
 from slugs import SLUGS  # noqa: E402
 
 SRC = os.path.join(ROOT, 'docs', 'v2', 'ref', 'monster-zukan-200.png')
-OUT = os.path.join(ROOT, 'assets', 'monsters')
+OUT = os.environ.get('MON_OUT') or os.path.join(ROOT, 'assets', 'monsters')
 CANVAS = 64
 FOOT = 58  # 足もとの 高さ（キャンバスの 上から）
 LARGE, LARGE_FOOT = 96, 88  # 大型モンスター（表示領域が 48 を こえる もの）
@@ -87,10 +87,19 @@ def cut(img, box, pad=3, enclosed=0):
             if (tl == k).sum() >= enclosed:
                 bgm |= tl == k
     fg = ~bgm
-    # ふちの にじみを けずる
+    # ふちの にじみを けずる（もとの 絵が ぼやけて いて、背景色と くらい 輪郭の まざった 色が ふちに のこる）
     for _ in range(2):
         halo = fg & ndimage.binary_dilation(~fg) & (dist < 70) & (lum > 150)
         fg &= ~halo
+    # 背景と 輪郭の 中間色：ふちに あって、内がわに ずっと くらい ドットが ある もの（白い つばさ などの 明るい ふちは のこす）
+    for _ in range(3):
+        bnd = fg & ndimage.binary_dilation(~fg)
+        inner = np.where(fg & ~bnd, lum, 999.0)
+        darker = ndimage.minimum_filter(inner, size=3, mode='constant', cval=999.0)
+        mixed = bnd & (lum > 85) & (darker < lum - 35) & (dist < 150)
+        if not mixed.any():
+            break
+        fg &= ~mixed
     # ちいさい ゴミを のぞく（ただし 本体の ちかくの キラキラは のこす）
     lab2, n2 = ndimage.label(fg, structure=np.ones((3, 3)))
     if n2 == 0:
@@ -140,7 +149,35 @@ def outline(rgba):
     return out
 
 
+def fix_halo(rgba):
+    """輪郭の すぐ 内がわに のこった 明るい にじみ（本体より 明るく、色の うすい もの）を 輪郭の 色に する"""
+    out = rgba.copy()
+    for _ in range(2):
+        a = out[..., 3] > 0
+        rgb = out[..., :3].astype(int)
+        lum = rgb.mean(-1)
+        sat = rgb.max(-1) - rgb.min(-1)
+        dist = ndimage.distance_transform_cdt(np.pad(a, 1), metric='taxicab')[1:-1, 1:-1]
+        outer_dark = a & (lum < 70)
+        near_dark = ndimage.binary_dilation(outer_dark & (dist <= 2), structure=[[0, 1, 0], [1, 1, 1], [0, 1, 0]])
+        inner = np.where(a & (dist >= 3), lum, -1.0)
+        inner_max = ndimage.maximum_filter(inner, size=3, mode='constant', cval=-1.0)
+        inner_min = np.where(a & (dist >= 3), lum, 999.0)
+        inner_min = ndimage.minimum_filter(inner_min, size=3, mode='constant', cval=999.0)
+        halo = a & (dist >= 2) & (dist <= 3) & near_dark & (lum > 100) & (sat < 90) & (inner_min < 999) & (lum > inner_max + 12)
+        if not halo.any():
+            break
+        out[halo] = (28, 20, 36, 255)
+    return out
+
+
 def main():
+    old = {}
+    try:
+        for x in json.load(open(os.path.join(ROOT, 'assets', 'monsters', 'manifest.json'), encoding='utf-8'))['monsters']:
+            old[x['no']] = x['canvas']
+    except FileNotFoundError:
+        pass
     img = np.asarray(Image.open(SRC).convert('RGB')).astype(np.int32)
     names = json.load(open(os.path.join(ROOT, 'tools', 'v2', 'names.json'), encoding='utf-8'))
     os.makedirs(OUT, exist_ok=True)
@@ -158,6 +195,7 @@ def main():
         size = CANVAS
         if m is not None and max(m.shape) > 46:  # りんかく 1px ずつを ふくめて 48 を こえる もの
             size = LARGE  # 大型モンスター（仕様 13.1）
+        size = old.get(no, size)  # 作りなおしても 大きさの くべつは かえない
         foot = FOOT if size == CANVAS else LARGE_FOOT
         canvas = np.zeros((size, size, 4), np.uint8)
         if rgb is None or m.sum() < 120:
@@ -171,7 +209,7 @@ def main():
                 ox, oy = (size - w) // 2, foot - h
                 canvas[oy:oy + h, ox:ox + w, :3] = q
                 canvas[oy:oy + h, ox:ox + w, 3] = m * 255
-                canvas = outline(canvas)
+                canvas = fix_halo(outline(canvas))
         file = f'mon_{no:03d}_{SLUGS[no]}.png'
         Image.fromarray(canvas, 'RGBA').save(os.path.join(OUT, file))
         manifest.append({'id': f'm{no:03d}', 'no': no, 'name': names[str(no)], 'file': file, 'canvas': size, 'foot': foot, 'large': size != CANVAS,
