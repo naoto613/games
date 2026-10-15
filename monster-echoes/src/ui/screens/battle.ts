@@ -161,16 +161,15 @@ class BattleScreen implements Screen {
     this.renderEnemies();
   }
 
-  /** 右上の 敵の 名前・Lv・HP バー（参考画像3） */
+  /** 右上の 敵の 名前・Lv（参考画像3。HP は 見せない） */
   private renderEnemies() {
     clear(this.einfo);
     for (const e of this.st.enemies) {
       const v = this.views.get(e.key);
       if (!v || v.dead) continue;
-      const r = v.maxHp ? v.hp / v.maxHp : 0;
+      // 敵の HP は 見せない（名前と Lv だけ）
       this.einfo.append(h('div', { class: 'erow' },
-        h('div', { class: 'eh' }, h('span', { class: 'en' }, e.name), h('span', { class: 'el' }, `Lv ${e.level}`)),
-        h('div', { class: 'eb' }, h('span', null, 'HP'), h('div', { class: 'bar' }, h('i', { style: `width:${Math.round(r * 100)}%` })))));
+        h('div', { class: 'eh' }, h('span', { class: 'en' }, e.name), h('span', { class: 'el' }, `Lv ${e.level}`))));
     }
   }
 
@@ -213,6 +212,7 @@ class BattleScreen implements Screen {
       g.save();
       if (v.dead) g.globalAlpha = 0.45;
       if (needFlip(a.speciesId, true)) { g.translate(p.x * 2, 0); g.scale(-1, 1); pose.dx = -pose.dx; }
+      g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
       drawWithPose(g, sp, flashSprite(sp), p.x, by, w, hgt, pose);
       g.restore();
     });
@@ -276,7 +276,9 @@ class BattleScreen implements Screen {
         gl.addColorStop(0, `rgba(255,240,170,${a})`); gl.addColorStop(1, 'rgba(255,240,170,0)');
         g.fillStyle = gl; g.fillRect(p.x - hgt, p.y - hgt * 1.2, hgt * 2, hgt * 1.4);
       }
+      g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
       drawWithPose(g, sp, flashSprite(sp), p.x, by, w, hgt, pose);
+      g.imageSmoothingEnabled = false;
       const top = p.y - hgt + 6;
       // なつき（にく）
       const c = this.st.enemies.find((x) => x.key === e.key)!;

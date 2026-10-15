@@ -5,11 +5,13 @@ import { expToNextLevel, maxLevelOf } from '../../domain/monster/Growth';
 import { displayName } from '../../domain/monster/MonsterFactory';
 import type { MonsterInstance } from '../../domain/monster/types';
 import { h } from '../dom';
-import { isV2Id, monsterSprite } from '../gfx/monsters';
+import { isV2Id, monsterSprite, scale2x } from '../gfx/monsters';
 
 export function monIcon(speciesId: string, cls = 'icon', opts: { distorted?: boolean; silhouette?: boolean } = {}) {
   // v2 の 絵は 原寸が ちいさい（約40px）ので、アイコンは 絵の はんいだけを 切りだして 大きく 見せる（大型でも ちいさく ならない）
-  const src = monsterSprite(speciesId, { ...opts, small: isV2Id(speciesId) || !/\b(big|mid)\b/.test(cls) });
+  const raw = monsterSprite(speciesId, { ...opts, small: isV2Id(speciesId) || !/\b(big|mid)\b/.test(cls) });
+  // v2 の 絵は ドット絵むけの 拡大で なめらかに（アイコンを 大きく 見せても ガタガタしない）
+  const src = isV2Id(speciesId) && raw.width > 8 ? scale2x(raw) : raw;
   const c = document.createElement('canvas');
   c.width = src.width;
   c.height = src.height;
