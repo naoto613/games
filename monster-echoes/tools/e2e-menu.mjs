@@ -1,4 +1,4 @@
-// メニュー（じゅもん・どうぐ・さくせん・なまえ）を撮影: node tools/e2e-menu.mjs <出力dir>
+// メニュー（とくぎ・もちもの・作戦・なまえ）を撮影: node tools/e2e-menu.mjs <出力dir>
 import { chromium } from 'playwright';
 import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path';
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
@@ -17,26 +17,25 @@ await p.locator('button', { hasText: 'けってい' }).click(); await wait(300);
 await msgs();
 await p.waitForSelector('input.name'); await shot('01-name-input');
 await p.fill('input.name', 'ポン太'); await p.locator('.panel-foot button', { hasText: 'けってい' }).click(); await wait(300);
-await p.waitForSelector('input.name'); await p.fill('input.name', 'コゲ'); await p.locator('.panel-foot button', { hasText: 'けってい' }).click(); await wait(300);
-await msgs(); await p.waitForSelector('.fmenu');
-await p.evaluate(() => { const g = window.app.game; g.state.monsters = g.state.monsters.map((m) => ({ ...m, hp: 4 })); });
+await msgs(); await p.waitForSelector('.fbtns');
+await p.evaluate(() => { const g = window.app.game; g.acceptRecruit('m023', 5); g.state.monsters = g.state.monsters.map((m) => ({ ...m, hp: 4 })); });
 await p.evaluate(() => window.app.dispatch('menu', true)); await wait(200);
-await p.locator('.panel .item', { hasText: 'じゅもん' }).click(); await wait(200);
+await p.locator('.panel .item', { hasText: 'とくぎ' }).click(); await wait(200);
 await shot('03-spells');
 await p.locator('.panel').last().locator('button', { hasText: 'ヒール' }).click(); await wait(200);
 await shot('04-spell-target');
 await p.locator('.choices .item').first().click(); await wait(300);
 await shot('05-spell-result');
 await msgs(); await p.locator('.panel').last().locator('button', { hasText: 'もどる' }).click(); await wait(200);
-await p.evaluate(() => { const it = [...document.querySelectorAll('.panel .item')].find((e) => e.textContent.trim() === 'どうぐ'); it?.click(); }); await wait(300);
+await p.evaluate(() => { const it = [...document.querySelectorAll('.panel .item')].find((e) => e.textContent.trim() === 'もちもの'); it?.click(); }); await wait(300);
 await shot('06-items');
 await p.locator('.panel').last().locator('button', { hasText: 'つかう' }).first().click(); await wait(200);
 await shot('07-item-target');
 await p.locator('.choices .item').nth(1).click(); await wait(300); await msgs();
 await p.locator('.panel').last().locator('button', { hasText: 'もどる' }).click(); await wait(200);
-await p.locator('.panel .item', { hasText: 'さくせん' }).click(); await wait(200);
+await p.locator('.panel .item', { hasText: '作戦' }).click(); await wait(200);
 await shot('08-tactics');
 // 戦闘で 名前の見分け
-await p.evaluate(() => { window.app.closeAllPanels(); const g = window.app.game; g.healAll(); g.startExpedition('forest'); window.app.show(new (window.app.screen.constructor)(window.app)); });
+await p.evaluate(() => { window.app.closeAllPanels(); const g = window.app.game; g.healAll(); g.clearStage('1-1'); g.startExpedition('komorebi'); g.takeStory(); window.app.show(new (window.app.screen.constructor)(window.app)); });
 await p.evaluate(async () => { const m = await import('./game.js').catch(() => null); });
 console.log(errors.join('\n') || 'no errors'); await b.close(); srv.close();

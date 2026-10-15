@@ -222,3 +222,7 @@ input.name { font: inherit; font-size: 1.3em; padding: 10px; width: 100%; backgr
 .fbtn .ico { width: 24px; height: 24px; }
 .fbtn:active { transform: translateY(1px); }
 .fbtn[disabled] { opacity: .4; pointer-events: none; }
+/* ---- 配合（仕様 12.4） */
+.pcompare { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pcompare .stats { font-size: .78em; }
+.rank { color: #ffd84a; letter-spacing: -1px; }

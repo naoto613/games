@@ -438,7 +438,7 @@ export class FieldScreen implements Screen {
           if (await playStory(this.app, this.game)) return;
           break;
         case 'exit':
-          if (await this.app.confirm('まちへ もどりますか？')) {
+          if (await this.app.confirm(`${this.game.currentTownMap().name}へ もどりますか？`)) {
             await this.fade(() => {
               this.game.leaveExpedition();
               this.reloadMap();
