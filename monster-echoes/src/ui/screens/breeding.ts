@@ -8,6 +8,8 @@ import type { App } from '../App';
 import { welcomeMonster } from './menus';
 import { btn, h, item, sleep } from '../dom';
 import { monIcon, monLabel, plusMark, resistList, statsGrid } from '../components/monster';
+import { BREEDING_RECIPES } from '../../data/breeding';
+import { maxLevelOf } from '../../domain/monster/Growth';
 
 const MIN = BALANCE.breeding.minLevel;
 
@@ -33,6 +35,8 @@ export function openBreeding(app: App, onClose: () => void) {
     if (a && b) body.append(h('div', { class: 'row' }, btn('⇄ おやA と おやB を いれかえる', () => { [aId, bId] = [bId, aId]; sfx('cursor'); p.refresh(); }, 'wide')));
     body.append(h('div', { class: 'small muted' }, `うまれる こは、だいたい けっとう（おやA）の けいとうを うけつぎます。レベル${MIN}いじょうの ♂と♀で 配合できます。`));
     if (!a || !b) return;
+    // 親A・親B の 能力と スキルを ならべて くらべる（仕様 12.4）
+    body.append(compareParents(a, b));
 
     const pr = g.breedCheck(a.id, b.id);
     if (!pr.ok) {
@@ -51,13 +55,27 @@ export function openBreeding(app: App, onClose: () => void) {
         h('div', { class: 'grow' },
           h('div', { style: 'font-size:1.15em' }, known ? sp.name : '？？？', ' ', plusMark(pv.plusValue)),
           h('div', { class: 'small muted' }, known ? `${FAMILIES[sp.familyId].name}けい` : 'まだ みたことの ない モンスター！'),
-          pv.recipeKind === 'special' ? h('div', { class: 'small hl' }, '★ とくべつな くみあわせ') : null,
+          h('div', { class: 'small' }, h('span', { class: 'rank' }, '★'.repeat(sp.rank ?? 1)), h('span', { class: 'muted' }, `　ランク${sp.rank ?? 1}`)),
+          pv.recipeKind === 'special' ? h('div', { class: 'small hl' }, '◆ とくべつな くみあわせ（特殊配合）') : h('div', { class: 'small muted' }, '通常配合（けっとうの 系統 × ランク）'),
           h('div', { class: 'small' }, `レベルの じょうげん ${pv.maxLevel}`, h('span', { class: 'muted' }, `（+${pv.plusValue}）`)),
           h('div', { class: 'small muted' }, `だい${pv.generation}せだい・Lv1 から そだてなおし`))),
       h('div', { class: 'small muted', style: 'margin-top:6px' }, 'Lv1 の のうりょく（よそう）'),
       statsGrid(pv.stats),
-      h('div', { class: 'small muted', style: 'margin-top:6px' }, 'たいせい（よそう）'),
-      resistList(pv.resistances)));
+      h('div', { class: 'small muted', style: 'margin-top:6px' }, 'ひきつがれる たいせい（よそう）'),
+      resistList(pv.resistances),
+      strongerNote(a, b, pv.maxLevel, sp.rank ?? 1)));
+    // 生まれる 候補：おやを いれかえた ときの こ も みせる
+    const sw = g.breedCheck(b.id, a.id);
+    if (sw.ok && sw.value.speciesId !== pv.speciesId) {
+      const s2 = getSpecies(sw.value.speciesId);
+      const k2 = g.state.ownedSpeciesIds.includes(s2.id) || g.state.discoveredSpeciesIds.includes(s2.id);
+      body.append(h('div', { class: 'win small' }, h('div', { class: 'muted' }, 'ほかの 候補（おやA と おやB を いれかえると）'),
+        h('div', { class: 'row' }, monIcon(s2.id, 'icon', { silhouette: !k2 }), h('span', null, k2 ? s2.name : '？？？', ' ', h('span', { class: 'rank' }, '★'.repeat(s2.rank ?? 1))))));
+    }
+    // 未発見レシピの ヒント（おやの どちらかが かかわる 特殊配合で、まだ うまれていない もの）
+    const hints = BREEDING_RECIPES.filter((r) => r.kind === 'special' && r.hint && !g.state.ownedSpeciesIds.includes(r.resultSpeciesId)
+      && [r.parentA, r.parentB].some((m) => 'speciesId' in m && (m.speciesId === a.speciesId || m.speciesId === b.speciesId)) && r.resultSpeciesId !== pv.speciesId);
+    if (hints.length) body.append(h('div', { class: 'win small' }, h('div', { class: 'hl' }, '未発見の 配合の ヒント'), hints.slice(0, 3).map((r) => h('div', { class: 'muted', style: 'margin-top:4px' }, '・' + r.hint))));
     for (const r of pv.nearMiss) if (r.hint) body.append(h('div', { class: 'win small hl' }, '…なにかが たりない きがする。', h('br'), h('span', { class: 'muted' }, r.hint)));
 
     // 特技の継承
@@ -122,6 +140,26 @@ export function openBreeding(app: App, onClose: () => void) {
   }
 }
 
+/** 親A・親B の 能力と スキルの くらべ */
+function compareParents(a: MonsterInstance, b: MonsterInstance) {
+  const col = (m: MonsterInstance, label: string) => h('div', { class: 'pcol' },
+    h('div', { class: 'small hl' }, label),
+    h('div', { class: 'small' }, getSpecies(m.speciesId).name, ' ', h('span', { class: 'rank' }, '★'.repeat(getSpecies(m.speciesId).rank ?? 1))),
+    statsGrid(m.stats),
+    h('div', { class: 'small muted', style: 'margin-top:4px' }, m.skills.map((id) => getSkill(id).name).join('・') || 'とくぎ なし'));
+  return h('div', { class: 'win pcompare' }, col(a, 'おやA の のうりょく'), col(b, 'おやB の のうりょく'));
+}
+
+/** 親より 強くなる 可能性（ランク・＋値・レベルの じょうげん で 目安を だす） */
+function strongerNote(a: MonsterInstance, b: MonsterInstance, childMax: number, childRank: number) {
+  const pr = Math.max(getSpecies(a.speciesId).rank ?? 1, getSpecies(b.speciesId).rank ?? 1);
+  const pmax = Math.max(maxLevelOf(a), maxLevelOf(b));
+  const score = (childRank > pr ? 2 : childRank === pr ? 1 : 0) + (childMax > pmax ? 1 : 0);
+  const [word, cls] = score >= 3 ? ['とても たかい', 'good'] : score === 2 ? ['たかい', 'good'] : score === 1 ? ['ふつう', ''] : ['ひくい', 'bad'];
+  return h('div', { class: 'small', style: 'margin-top:6px' }, '親より 強く なる 可能性：', h('span', { class: cls }, word),
+    h('span', { class: 'muted' }, `（ランク${childRank}・じょうげん Lv${childMax}）`));
+}
+
 async function birth(app: App, child: MonsterInstance, isNew: boolean) {
   sfx('breed');
   const icon = monIcon(child.speciesId, 'icon big birth');
@@ -130,7 +168,16 @@ async function birth(app: App, child: MonsterInstance, isNew: boolean) {
     body.append(icon, h('div', { style: 'text-align:center;font-size:1.2em' }, `${getSpecies(child.speciesId).name}が うまれた！`));
   }, { noBack: true });
   await sleep(1500);
-  await app.say([`${getSpecies(child.speciesId).name}が うまれた！${isNew ? '\n（はじめて みる モンスターだ！）' : ''}`, child.plusValue ? `この こは +${child.plusValue}。 おやより よく そだつぞ。` : 'たいせつに そだててあげよう。'], { speaker: undefined });
+  await app.say([`${getSpecies(child.speciesId).name}が うまれた！${isNew ? '\n（ずかんに あたらしく とうろくされた！）' : ''}`, child.plusValue ? `この こは +${child.plusValue}。 おやより よく そだつぞ。` : 'たいせつに そだててあげよう。'], { speaker: undefined });
   bp.close();
+  // 継承内容と 初期能力（仕様 12.4：配合後に みせる もの）
+  const ip = app.panel('うけついだ もの', (body) => {
+    body.append(h('div', { class: 'win' }, h('div', { class: 'row' }, monIcon(child.speciesId, 'icon big'), h('div', null, getSpecies(child.speciesId).name, ' ', plusMark(child.plusValue), h('div', { class: 'small muted' }, `Lv1・だい${child.generation}せだい`))),
+      h('div', { class: 'small muted', style: 'margin-top:6px' }, 'はじめの のうりょく'), statsGrid(child.stats),
+      h('div', { class: 'small muted', style: 'margin-top:6px' }, 'おぼえている とくぎ'), h('div', { class: 'small' }, child.skills.map((id) => getSkill(id).name).join('・') || 'なし'),
+      h('div', { class: 'small muted', style: 'margin-top:6px' }, 'たいせい'), resistList(child.resistances)));
+  });
+  await app.say('うまれた こは、おやの とくぎと たいせいの 一部を うけついでいる。');
+  ip.close();
   await welcomeMonster(app, child.id, 'うまれた こ');
 }

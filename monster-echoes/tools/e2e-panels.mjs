@@ -22,12 +22,13 @@ const skip = async () => { await wait(300); for (let i = 0; i < 40; i++) { const
 await p.locator('button', { hasText: 'はじめから' }).click(); await wait(200);
 await p.locator('button', { hasText: 'けってい' }).click();
 await skip();
-await p.waitForSelector('.fmenu');
+await p.waitForSelector('.fbtns');
 // 進行を進めた状態にする
 await p.evaluate(() => {
   const s = window.app.game.state;
   s.progress.defeatedBossIds.push('boss_forest'); s.progress.unlockedAreas.push('cave'); s.progress.unlockedArenaRanks.push('arenaF');
-  s.discoveredSpeciesIds.push('frostbird', 'leafant', 'darkeye'); s.player.gold = 500;
+  s.discoveredSpeciesIds.push('m081', 'm042', 'm181'); s.player.gold = 500;
+  const g = window.app.game; for (const id of ['1-1', '1-2', '1-3', '2-1']) g.clearStage(id); g.takeStory();
 });
 const talk = async (map, x, y, dir, name) => {
   await p.evaluate(([m, x, y, d]) => { const s = window.app.game.state; s.player.townMap = m; s.player.townPos = { x, y }; s.player.townDir = d; window.app.show(new (window.app.screen.constructor)(window.app)); }, [map, x, y, dir]);
@@ -39,12 +40,12 @@ const talk = async (map, x, y, dir, name) => {
   await p.evaluate(() => window.app.closeAllPanels());
   await skip();
 };
-await talk('lab1', 5, 2, 'up', 'doctor-breed');
-await talk('ranch1', 5, 5, 'down', 'ranch');
-await talk('shop', 4, 2, 'up', 'shop');
-await talk('arena1', 5, 2, 'up', 'arena');
+await talk('mizuna_lab', 5, 2, 'up', 'minamo-breed');
+await talk('liefel_ranch', 5, 5, 'down', 'ranch');
+await talk('mizuna_shop', 4, 2, 'up', 'shop');
+await talk('liefel_hut', 5, 2, 'up', 'sora');
 // 図鑑
-await p.evaluate(() => { const s = window.app.game.state; s.player.townMap = 'lab1'; s.player.townPos = { x: 5, y: 2 }; s.player.townDir = 'up'; window.app.show(new (window.app.screen.constructor)(window.app)); });
+await p.evaluate(() => { const s = window.app.game.state; s.player.townMap = 'mizuna_lab'; s.player.townPos = { x: 5, y: 2 }; s.player.townDir = 'up'; window.app.show(new (window.app.screen.constructor)(window.app)); });
 await wait(200);
 await p.evaluate(() => window.app.dispatch('a', true));
 if ((await skip()) === 'choice') await p.locator('.choices .item').nth(1).click();

@@ -14,7 +14,7 @@ import { mkCanvas } from '../gfx/Pix';
 import { BD_H, BD_W, backdrop } from '../gfx/backdrops';
 import { TACTICS, welcomeMonster, resolvePending } from './menus';
 import { FieldScreen, rewardText } from './field';
-import { STAT_LABEL } from '../components/monster';
+import { monIcon, STAT_LABEL } from '../components/monster';
 import { recruitFx } from '../components/fx';
 
 const BW = BD_W, BH = BD_H;
@@ -48,6 +48,8 @@ class BattleScreen implements Screen {
   private st: BattleState;
   private keyHandler: ((k: Key) => void) | null = null;
   private activeAlly = -1;
+  private mid!: HTMLElement;
+  private skyTheme = '';
 
   constructor(private app: App, private session: BattleSession, private after?: AfterBattle) {
     this.st = session.state;
@@ -56,7 +58,9 @@ class BattleScreen implements Screen {
     this.logEl = h('div', { class: 'win log' });
     this.cmds = h('div', { class: 'cmds' });
     const view = h('div', { class: 'bview' }, this.cv);
-    this.el = h('div', { class: 'layer' }, this.partyBar, view, this.logEl, this.cmds);
+    // 参考画像2「戦闘画面」：上に 戦闘の 場面、まんなかに ログと 右の 縦コマンド、下に 味方の カード
+    this.mid = h('div', { class: 'battle-mid' }, this.logEl, this.cmds);
+    this.el = h('div', { class: 'layer battle' }, view, this.mid, this.partyBar);
     // 再生中にタップすると早送り
     this.el.addEventListener('pointerdown', (e) => {
       if (!(e.target as HTMLElement).closest('.cmds')) this.ff = true;
@@ -99,7 +103,7 @@ class BattleScreen implements Screen {
       // とくべつな せんとう（はじめて であう モンスター／はじめての ボス）は 演出を つよく。2回目からは みじかく
       const fresh = this.session.firstSeen.map((id) => getSpecies(id).name);
       if (this.session.firstBoss) {
-        this.banner = { lines: ['ゆがみとの けっせん！'], until: this.frame + 110 };
+        this.banner = { lines: [`${this.st.enemies.find((e) => e.script || e.distorted)?.name ?? 'ボス'}との けっせん！`], until: this.frame + 110 };
         sfx('encounter');
         await sleep(this.ff ? 200 : 900);
       } else if (fresh.length) {
@@ -133,12 +137,12 @@ class BattleScreen implements Screen {
     this.st.allies.forEach((c, i) => {
       const v = this.views.get(c.key)!;
       const low = !v.dead && v.hp < v.maxHp * 0.3;
+      // 顔・名前・Lv・HP／MP の バー（参考画像2 の 下段の カード）
       const box = h('div', { class: `win pbox${v.dead ? ' dead' : low ? ' low' : ''}${this.activeAlly === i ? ' act' : ''}`, 'data-key': c.key },
-        h('div', { class: 'nm' }, c.name),
-        h('div', null, `HP ${v.hp}`),
-        h('div', { class: 'bar' }, h('i', { style: `width:${(100 * v.hp) / v.maxHp}%;${low ? 'background:var(--warn)' : ''}` })),
-        h('div', null, `MP ${v.mp}`, h('span', { class: 'muted' }, ` Lv${c.level}`)),
-        h('div', { class: 'small' }, v.dead ? 'たおれている' : v.status.join(' ')),
+        h('div', { class: 'phead' }, monIcon(c.speciesId, 'face'), h('div', { class: 'nm' }, c.name, h('span', { class: 'lv' }, `Lv${c.level}`))),
+        h('div', { class: 'gauge' }, h('span', { class: 'k' }, 'HP'), h('div', { class: 'bar' }, h('i', { style: `width:${(100 * v.hp) / v.maxHp}%;${low ? 'background:var(--warn)' : ''}` })), h('span', { class: 'n' }, String(v.hp))),
+        h('div', { class: 'gauge mp' }, h('span', { class: 'k' }, 'MP'), h('div', { class: 'bar' }, h('i', { style: `width:${v.maxMp ? (100 * v.mp) / v.maxMp : 0}%` })), h('span', { class: 'n' }, String(v.mp))),
+        h('div', { class: 'st small' }, v.dead ? 'たおれている' : v.status.join(' ')),
       );
       this.partyBar.append(box);
     });
@@ -148,7 +152,7 @@ class BattleScreen implements Screen {
   private enemyPos(c: Combatant) {
     const n = this.st.enemies.length;
     const big = (c.distorted ? 1.3 : 1) * (n === 1 ? 1.3 : n === 2 ? 1.15 : 1);
-    const spread = n === 1 ? 0 : n === 2 ? 90 : 112;
+    const spread = n === 1 ? 0 : n === 2 ? 86 : n === 3 ? 104 : 118;
     return { x: BW / 2 + (n === 1 ? 0 : (c.slot / (n - 1) - 0.5) * 2 * spread), y: 190, s: big };
   }
 
@@ -156,6 +160,12 @@ class BattleScreen implements Screen {
     const g = this.g;
     const theme = this.session.context.kind === 'arena' || this.session.context.kind === 'practice' ? 'arena' : this.game.state.expedition ? getArea(this.game.state.expedition.areaId).theme : 'forest';
     g.drawImage(backdrop(theme), 0, 0);
+    // 場面の 上の あまりを 空の 色で うめる（画面が たて長でも 場面が きれない）
+    if (this.skyTheme !== theme) {
+      this.skyTheme = theme;
+      const [r, gg, bb] = backdrop(theme).getContext('2d')!.getImageData(BW / 2, 0, 1, 1).data;
+      this.cv.parentElement!.style.background = `rgb(${r},${gg},${bb})`;
+    }
     const now = this.frame;
     const order = [...this.st.enemies].sort((a, b) => (a.slot === 1 ? 1 : 0) - (b.slot === 1 ? 1 : 0));
     for (const e of order) {
@@ -251,6 +261,8 @@ class BattleScreen implements Screen {
   private setCmds(buttons: HTMLElement[], cls = '') {
     clear(this.cmds);
     this.cmds.className = `cmds ${cls}`;
+    // 縦の コマンド（ふだん）は ログの 右、えらぶ リストは ログの かわりに ひろく
+    this.mid.classList.toggle('wide', !cls.includes('vert') && buttons.length > 0);
     this.cmds.append(...buttons);
     // キーボード: 1つ目のボタンを A、もどるを B に
     this.keyHandler = (k) => {
@@ -275,7 +287,7 @@ class BattleScreen implements Screen {
       btn('にく', () => this.meatPhase(), st.canRecruit && hasMeat ? '' : 'off'),
       btn(h('span', { class: 'small' }, 'さくせん', h('br'), h('span', { class: 'hl' }, tacLabel)), () => this.tacticPhase()),
       btn('にげる', () => this.run({ mode: 'auto', player: { kind: 'escape' } }), st.canEscape ? '' : 'off'),
-    ]);
+    ], 'vert');
     for (const b of this.cmds.querySelectorAll('.off')) (b as HTMLButtonElement).disabled = true;
   }
 
