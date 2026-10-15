@@ -8,7 +8,7 @@ const list: BossScript[] = [
     id: 'morg',
     rules: [
       { id: 'open', when: { kind: 'start' }, once: true, steps: [{ kind: 'message', text: 'キノコ王モルグは どくの ほうしを まきちらした！' }, { kind: 'useSkill', skillId: 'poisonmist' }] },
-      { id: 'call', when: { kind: 'turn', every: 3, from: 2 }, steps: [{ kind: 'summon', speciesId: 'm044', level: 6, count: 1, max: 3, name: 'キノコへい' }] },
+      { id: 'call', when: { kind: 'turn', every: 4, from: 3 }, steps: [{ kind: 'summon', speciesId: 'm044', level: 6, count: 1, max: 2, name: 'キノコへい' }] },
       { id: 'rage', when: { kind: 'hpBelow', ratio: 0.4 }, once: true, steps: [{ kind: 'message', text: 'モルグの かさが まっかに ふくらんだ！' }, { kind: 'buff', stat: 'attack', stages: 1, target: 'self' }] },
     ],
   },

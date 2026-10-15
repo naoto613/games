@@ -100,8 +100,9 @@ describe('Game から 使う', () => {
   it('章の 進行が セーブに のこる', async () => {
     const repo = new MemorySaveRepository();
     const g = new Game(newGameState('テスト', createRng(1), 0), { rng: createRng(2), sink: repo });
-    expect(g.hasFeature('save')).toBe(false);
-    expect(g.enterStage('1-1').ok).toBe(true);
+    // はじめから リーフェル（1-1）に いて、基本の 機能が つかえる
+    expect(g.hasFeature('save')).toBe(true);
+    expect(g.hasFeature('recruit')).toBe(false);
     for (const id of ['1-1', '1-2', '1-3']) expect(g.clearStage(id).ok).toBe(true);
     expect(g.hasFeature('recruit')).toBe(true);
     await g.save();

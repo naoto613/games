@@ -67,6 +67,8 @@ export type MonsterSpecies = {
   rank?: number;
   /** true なら resistances が 系統こみの 最終的な 耐性（系統の 耐性を 足さない） */
   resistAbsolute?: boolean;
+  /** 通常配合では うまれない（特殊配合・物語でのみ） */
+  noBreed?: boolean;
 };
 
 export type SkillCategory = 'physical' | 'magic' | 'breath' | 'heal' | 'revive' | 'buff' | 'debuff' | 'status' | 'cure';
@@ -126,7 +128,8 @@ export type BreedingCondition =
 
 export type BreedingRecipe = {
   id: string;
-  kind: 'special' | 'familyCombination' | 'fallback';
+  /** rule：v2 の 通常配合（系統 × ランクで きまる。仕様 12.2） */
+  kind: 'special' | 'familyCombination' | 'rule' | 'fallback';
   /** 血統（はじめに選ぶ親） */
   parentA: SpeciesMatcher;
   /** 相手 */
@@ -143,7 +146,10 @@ export type BreedingRecipe = {
 export type Condition =
   | { type: 'flag'; id: string }
   | { type: 'boss'; id: string }
-  | { type: 'arena'; id: string };
+  | { type: 'arena'; id: string }
+  // ---- v2：章の 進行（domain/progression/ChapterEngine）
+  | { type: 'stage'; id: string }
+  | { type: 'feature'; id: string };
 
 export type EncounterEntry = { speciesId: string; weight: number; minLevel: number; maxLevel: number };
 export type EncounterTable = { id: string; entries: EncounterEntry[]; groupSize: { weight: number; value: number }[] };
@@ -209,6 +215,13 @@ export type FloorDefinition = {
   /** 宝箱から出るもの */
   chestTable: { weight: number; value: Reward }[];
   bossId?: string;
+  // ---- v2 の ダンジョン（部屋テンプレート型の 生成 RoomGen）
+  /** この 階の ギミック（毒の床・水流 など） */
+  gimmicks?: ('poison' | 'current' | 'ice' | 'switchGate')[];
+  /** しらべると おこる 物語イベント（data/story の ID。行き止まりの 部屋に 置く） */
+  storyEvents?: string[];
+  /** いやしの いずみを 置くか */
+  spring?: boolean;
 };
 
 export type AreaDefinition = {
@@ -219,6 +232,8 @@ export type AreaDefinition = {
   floors: FloorDefinition[];
   unlockConditions: Condition[];
   theme: 'forest' | 'cave' | 'highland' | 'tower' | 'snow' | 'volcano';
+  /** v2：章の ステージ（'1-2' など）。入れるかは 章の 進行で きまる */
+  stageId?: string;
 };
 
 export type ArenaBattleDefinition = { trainer: string; enemies: EnemySpec[]; tactic?: Tactic };

@@ -6,6 +6,8 @@ export const BALANCE = {
   growth: {
     /** 早熟・晩成の伸び方（t=0→1 で倍率が a→b に変わる） */
     curves: { early: [1.45, 0.55], normal: [1, 1], late: [0.55, 1.45] } as Record<string, [number, number]>,
+    /** v2 の 種族（レベル上限が 30〜70 と ながいので、はやい・おそいの 差を ゆるめる） */
+    curvesV2: { early: [1.25, 0.75], normal: [1, 1], late: [0.8, 1.2] } as Record<string, [number, number]>,
     /** 1レベルの伸びのばらつき */
     varianceMin: 0.75,
     varianceMax: 1.25,
@@ -34,7 +36,7 @@ export const BALANCE = {
     /** 呪文の 威力に 足す 魔力の 割合 */
     magicScale: 0.12,
     /** 呪文・息の ダメージを 精神で へらす 割合（Q13：はじめは 0 ＝ v1 と おなじ ダメージ。バランス調整で あげる） */
-    spiritScale: 0,
+    spiritScale: 0.08,
     healMagicScale: 0.25,
     /** 回復量に 足す 精神の 割合（はじめは 0） */
     healSpiritScale: 0,

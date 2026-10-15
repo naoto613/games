@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { createRng } from '../../src/core/Random';
 import { Game, newGameState } from '../../src/application/Game';
 import { MemorySaveRepository } from '../../src/infrastructure/save/SaveRepository';
+import { getSpecies } from '../../src/data/monsters';
 import { createMonster } from '../../src/domain/monster/MonsterFactory';
-import { findTile } from '../../src/domain/dungeon/DungeonEngine';
+import { findTile, isPassable } from '../../src/domain/dungeon/DungeonEngine';
 import type { Dir } from '../../src/domain/dungeon/DungeonEngine';
 
 function fight(g: Game, meat?: string) {
@@ -43,7 +44,7 @@ function walkTo(g: Game, target: string): ReturnType<Game['move']> | null {
           first = dir;
           break outer;
         }
-        if (!ch || '#~CHBT'.includes(ch)) continue;
+        if (!ch || !isPassable(map, x, y)) continue;
         prev.set(k, d);
         q.push({ x, y });
       }
@@ -64,27 +65,37 @@ function walkTo(g: Game, target: string): ReturnType<Game['move']> | null {
 }
 
 describe('ゲームループ（探索→戦闘→仲間化→配合→保存→再開）', () => {
-  it('一連の流れが成立する', async () => {
+  it('一連の流れが成立する（第1章：石碑 → 木漏れ日の小道 → ささやきの森 → モルグ）', async () => {
     const repo = new MemorySaveRepository();
     const g = new Game(newGameState('テスト', createRng(1), 0), { rng: createRng(2), sink: repo });
     // フローの確認が目的なので、じゅうぶん強い パーティで 進む
-    const strong = [0, 1, 2].map((i) => createMonster('lightningleo', createRng(70 + i), { level: 15 }));
+    const strong = [0, 1, 2].map((i) => createMonster('m033', createRng(70 + i), { level: 20 }));
     g.state.monsters.push(...strong);
     g.setParty(strong.map((m) => m.id));
-    expect(g.startExpedition('forest').ok).toBe(true);
-    // 1F → 2F → 3F → ボスの へや
-    for (let f = 0; f < 3; f++) {
+    expect(g.inspect('forest_stone')).toBe(true);
+    g.takeStory();
+    expect(g.startExpedition('komorebi').ok).toBe(true);
+    for (let f = 0; f < 2; f++) {
       const r = walkTo(g, '>');
-      expect(r?.kind, `floor ${f}`).toBe('stairs');
+      expect(r?.kind, `komorebi floor ${f}`).toBe('stairs');
       g.descend();
     }
-    // ボスの前にパーティを全回復（テストを安定させるため）
+    expect(walkTo(g, '>')?.kind).toBe('stageClear');
+    g.finishStage();
+    expect(g.chapters.clearedStages).toContain('1-2');
+    expect(g.startExpedition('sasayaki').ok).toBe(true);
+    for (let f = 0; f < 4; f++) {
+      const r = walkTo(g, '>');
+      expect(r?.kind, `sasayaki floor ${f}`).toBe('stairs');
+      g.descend();
+    }
     g.healAll();
     const br = walkTo(g, 'B');
     expect(br?.kind).toBe('boss');
-    g.startBossBattle('boss_forest');
+    g.startBossBattle('morg');
     const sum = fight(g);
-    expect(['win', 'lose']).toContain(sum.outcome);
+    expect(sum.outcome).toBe('win');
+    expect(g.chapters.chapter).toBe(2);
     await g.save();
     // 再開
     const loaded = await repo.load();
@@ -93,32 +104,34 @@ describe('ゲームループ（探索→戦闘→仲間化→配合→保存→�
     const g2 = new Game(loaded.data, { rng: createRng(3), sink: repo });
     expect(g2.state.monsters).toEqual(g.state.monsters);
     expect(g2.state.inventory).toEqual(g.state.inventory);
-    expect(g2.state.progress).toEqual(g.state.progress);
+    expect(g2.state.chapters).toEqual(g.state.chapters);
   });
 
   it('配合プレビュー → 確定 → 子が戦闘に出られる → 保存して再開', async () => {
     const repo = new MemorySaveRepository();
     const s = newGameState('テスト', createRng(1), 0);
     const g = new Game(s, { rng: createRng(5), sink: repo });
-    const a = createMonster('frostbird', createRng(10), { level: 12, sex: 'A' });
-    const b = createMonster('magmadog', createRng(11), { level: 12, sex: 'B' });
+    const a = createMonster('m081', createRng(10), { level: 12, sex: 'A' });
+    const b = createMonster('m023', createRng(11), { level: 12, sex: 'B' });
     g.state.monsters.push(a, b);
     expect(g.setParty([a.id, b.id]).ok).toBe(true);
     const pv = g.breedCheck(a.id, b.id);
     if (!pv.ok) throw new Error(pv.error);
-    expect(pv.value.speciesId).toBe('windcat');
+    const child = pv.value.speciesId;
+    expect(getSpecies(child).familyId).toBe('bird');
     const r = g.breed(a.id, b.id, pv.value.skills.recommended);
     if (!r.ok) throw new Error(r.error);
     expect(g.state.partyIds).toEqual([r.value.id]);
     expect(g.monster(a.id)).toBeUndefined();
-    expect(g.state.ownedSpeciesIds).toContain('windcat');
-    g.startExpedition('forest');
-    g.startWildBattle([{ speciesId: 'leafant', level: 1 }]);
-    expect(g.battle!.state.allies[0].speciesId).toBe('windcat');
+    expect(g.state.ownedSpeciesIds).toContain(child);
+    g.clearStage('1-1');
+    g.startExpedition('komorebi');
+    g.startWildBattle([{ speciesId: 'm041', level: 1 }]);
+    expect(g.battle!.state.allies[0].speciesId).toBe(child);
     fight(g);
     await g.save();
     const l = await repo.load();
-    expect(l.kind === 'ok' && l.data.monsters.find((m) => m.id === r.value.id)?.speciesId).toBe('windcat');
+    expect(l.kind === 'ok' && l.data.monsters.find((m) => m.id === r.value.id)?.speciesId).toBe(child);
   });
 
   it('保存に失敗してもエラーを握りつぶさず、状態は壊れない', async () => {
@@ -141,15 +154,17 @@ describe('ゲームループ（探索→戦闘→仲間化→配合→保存→�
 
   it('全滅するとお金を一部失って町へ。図鑑・進行は残る', () => {
     const g = new Game(newGameState('テスト', createRng(1), 0), { rng: createRng(2) });
-    g.startExpedition('forest');
-    g.state.discoveredSpeciesIds.push('kinoborg');
-    g.startWildBattle([{ speciesId: 'lightningleo', level: 30 }, { speciesId: 'lightningleo', level: 30 }]);
+    g.clearStage('1-1');
+    g.startExpedition('komorebi');
+    g.state.discoveredSpeciesIds.push('m044');
+    g.startWildBattle([{ speciesId: 'm033', level: 30 }, { speciesId: 'm033', level: 30 }]);
     const s = fight(g);
     expect(s.outcome).toBe('lose');
     expect(s.goldLost).toBe(60);
     expect(g.state.player.gold).toBe(60);
     expect(g.state.expedition).toBeNull();
-    expect(g.state.discoveredSpeciesIds).toContain('kinoborg');
+    expect(g.state.discoveredSpeciesIds).toContain('m044');
+    expect(g.currentTownMap().id).toBe('liefel');
     expect(g.party.every((m) => m.hp === m.stats.hp)).toBe(true);
   });
 
@@ -174,11 +189,13 @@ describe('ゲームループ（探索→戦闘→仲間化→配合→保存→�
 describe('フィードバック対応', () => {
   it('モンスターごとの作戦が戦闘に反映され、戦闘中にも変えられる', () => {
     const g = new Game(newGameState('テスト', createRng(1), 0), { rng: createRng(2) });
+    g.acceptRecruit('m041', 3);
     const [a, b] = g.party;
     g.setMonsterTactic(a.id, 'support');
     g.setMonsterTactic(b.id, 'save');
-    g.startExpedition('forest');
-    g.startWildBattle([{ speciesId: 'leafant', level: 1 }]);
+    g.clearStage('1-1');
+    g.startExpedition('komorebi');
+    g.startWildBattle([{ speciesId: 'm041', level: 1 }]);
     expect(g.battle!.state.allies.map((c) => c.tactic)).toEqual(['support', 'save']);
     g.setMonsterTactic(b.id, 'attack');
     expect(g.battle!.state.allies[1].tactic).toBe('attack');
@@ -187,8 +204,9 @@ describe('フィードバック対応', () => {
   });
   it('仲間にしたモンスターをパーティの誰かと入れかえられる', () => {
     const g = new Game(newGameState('テスト', createRng(1), 0), { rng: createRng(2) });
-    g.acceptRecruit('leafant', 3);
-    const r = g.acceptRecruit('frostbird', 3);
+    g.acceptRecruit('m041', 3);
+    g.acceptRecruit('m023', 3);
+    const r = g.acceptRecruit('m043', 3);
     if (!r.ok) throw new Error(r.error);
     expect(g.state.partyIds).not.toContain(r.value.id);
     const out = g.state.partyIds[0];
@@ -201,15 +219,16 @@ describe('フィードバック対応', () => {
 describe('フィードバック対応 2', () => {
   it('メニューで回復のじゅもんを使える（MPが減ってHPが回復する）', () => {
     const g = new Game(newGameState('テスト', createRng(1), 0), { rng: createRng(2) });
-    const lumi = g.party.find((m) => m.speciesId === 'lunaslime')!;
-    const koge = g.party.find((m) => m.speciesId === 'magmadog')!;
+    g.acceptRecruit('m023', 3);
+    const lumi = g.party.find((m) => m.speciesId === 'm001')!;
+    const koge = g.party.find((m) => m.speciesId === 'm023')!;
     g.state.monsters = g.state.monsters.map((m) => (m.id === koge.id ? { ...m, hp: 3 } : m));
     const r = g.useFieldSkill(lumi.id, 'heal', koge.id);
     if (!r.ok) throw new Error(r.error);
     expect(g.monster(koge.id)!.hp).toBeGreaterThan(3);
     expect(g.monster(lumi.id)!.mp).toBe(lumi.mp - 3);
     expect(g.useFieldSkill(lumi.id, 'heal', lumi.id).ok).toBe(false); // まんたん
-    expect(g.useFieldSkill(koge.id, 'bite', lumi.id).ok).toBe(false); // 攻撃の特技は使えない
+    expect(g.useFieldSkill(koge.id, koge.skills.find((k) => k !== 'heal') ?? 'bite', lumi.id).ok).toBe(false); // 攻撃の特技は使えない
   });
   it('じゅもんつかうな: MPを使う特技を選ばない', async () => {
     const { chooseAction } = await import('../../src/domain/battle/BattleAI');
@@ -221,7 +240,7 @@ describe('フィードバック対応 2', () => {
   });
   it('味方と同じ名前の敵には A がつく', async () => {
     const { createBattle } = await import('../../src/domain/battle/BattleEngine');
-    const s = createBattle('wild', [createMonster('lunaslime', createRng(3), { level: 3 })], [{ speciesId: 'lunaslime', level: 2 }], 'attack');
+    const s = createBattle('wild', [createMonster('m001', createRng(3), { level: 3 })], [{ speciesId: 'm001', level: 2 }], 'attack');
     expect(s.allies[0].name).toBe('ルナスライム');
     expect(s.enemies[0].name).toBe('ルナスライムA');
   });

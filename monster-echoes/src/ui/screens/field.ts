@@ -11,11 +11,12 @@ import { mkCanvas } from '../gfx/Pix';
 import { bossAccent, personSprite, TILE, tileSprite, type Theme } from '../gfx/tiles';
 import { startBattle } from './battle';
 import { talkTo } from './town';
-import { getArea as areaOf } from '../../data/areas';
 import { openFieldMenu, openParty } from './menus';
 import { buildingAt, TOWN_BUILDINGS } from '../../data/town';
 import { EVENT_BY_ID } from '../../data/events';
 import { runEvent } from './events';
+import { playStory } from './story';
+import { openGate } from './gate';
 import { displayName } from '../../domain/monster/MonsterFactory';
 
 const VW = 11;
@@ -158,6 +159,8 @@ export class FieldScreen implements Screen {
     this.reloadMap();
     playBgm(this.bgm());
     this.updateHud();
+    // 戦闘の あとなどに たまった 物語を みせる
+    void this.pendingStory();
     if (!this.game.state.progress.tutorialFlags.touchHint) {
       this.game.setTutorial('touchHint');
       this.app.toast('タップで いどう／なぞって あるく', 3200);
@@ -171,6 +174,14 @@ export class FieldScreen implements Screen {
     loop();
   }
   private onResize = () => this.fit();
+  private async pendingStory() {
+    if (this.busy) return;
+    this.busy = true;
+    try {
+      if (await playStory(this.app, this.game)) return;
+      this.reloadMap();
+    } finally { this.busy = false; this.updateHud(); }
+  }
   leave() {
     window.removeEventListener('resize', this.onResize);
     cancelAnimationFrame(this.raf);
@@ -244,7 +255,7 @@ export class FieldScreen implements Screen {
     if (t === '#' || t === 'T' || t === 'W' || t === 'R' || t === '~') {
       return;
     }
-    if (/[0-9CHBFG]/.test(t)) {
+    if (/[0-9CHBFGVZ]/.test(t)) {
       const r = this.inTown ? this.game.townMove(this.dir) : this.game.move(this.dir);
       await this.handle(r);
     }
@@ -324,28 +335,57 @@ export class FieldScreen implements Screen {
         case 'warp':
           sfx('stairs');
           await this.fade(() => { this.reloadMap(); });
+          playBgm(this.bgm());
+          if (await playStory(this.app, this.game)) return;
           break;
         case 'locked':
           sfx('bump');
           await this.app.say(r.text);
           break;
         case 'gate': {
-          const area = areaOf(r.areaId);
-          const ok = this.game.canStartExpedition(r.areaId);
-          if (!this.game.state.progress.unlockedAreas.includes(r.areaId)) { await this.app.say('たびのとびらは しずかに うずまいている。まだ むこうへは いけないようだ…。'); break; }
+          if (!r.areaIds.length) { await this.app.say(r.closed ?? 'とびらは しずかに うずまいている。まだ むこうへは いけないようだ…。'); break; }
+          const pick = await new Promise<string | null>((res) => openGate(this.app, r.areaIds, (id) => res(id), () => res(null)));
+          if (!pick) break;
+          const ok = this.game.canStartExpedition(pick);
           if (!ok.ok) { await this.app.say(ok.error); break; }
-          if (this.game.state.monsters.length >= this.game.state.capacity) await this.app.say('ぼくじょうが いっぱいだ。なかまが ふえても つれて かえれない。');
-          if (!(await this.app.confirm(`「${area.name}」への たびのとびらだ。\nとびこみますか？`))) break;
           sfx('stairs');
-          await this.fade(() => { this.game.startExpedition(r.areaId); this.reloadMap(); });
+          await this.fade(() => { this.game.startExpedition(pick); this.reloadMap(); });
           playBgm(this.bgm());
           this.app.toast(this.game.floor!.floor.name);
+          if (await playStory(this.app, this.game)) return;
+          break;
+        }
+        case 'spot':
+          if (!this.game.inspect(r.target)) {
+            const luna = this.game.lunaSays('emblem');
+            await this.app.say(luna ?? 'ふるい 石碑が しずかに たっている。');
+          } else {
+            sfx('discover');
+            if (await playStory(this.app, this.game)) return;
+          }
+          break;
+        case 'storyEvent':
+          if (!this.game.inspect(r.id)) await this.app.say('ここには もう なにも ないようだ。');
+          else {
+            sfx('discover');
+            if (await playStory(this.app, this.game)) return;
+          }
+          break;
+        case 'stageClear': {
+          const area = this.game.floor!.area;
+          if (!(await this.app.confirm(`${area.name}の 出口だ。\nリーフェルへ もどりますか？`))) break;
+          await this.fade(() => { this.game.finishStage(); this.reloadMap(); });
+          playBgm('town');
+          sfx('levelup');
+          await this.app.say(`${area.name}を ぬけた！`);
+          if (await playStory(this.app, this.game)) return;
           break;
         }
         case 'event':
           await runEvent(this.app, this.game, r.eventId, () => { this.map = this.loadCurrentMap(); });
           break;
         case 'moved':
+          if (r.poison) { sfx('bump'); this.app.toast('どくの はなを ふんだ！', 900); }
           if (r.encounter) {
             sfx('encounter');
             await this.flash();
@@ -375,6 +415,7 @@ export class FieldScreen implements Screen {
           });
           playBgm(this.bgm());
           this.app.toast(this.game.floor!.floor.name);
+          if (await playStory(this.app, this.game)) return;
           break;
         case 'exit':
           if (await this.app.confirm('まちへ もどりますか？')) {
@@ -427,7 +468,7 @@ export class FieldScreen implements Screen {
   private drawTownFx(g: CanvasRenderingContext2D, camX: number, camY: number) {
     if (this.app.settings.reduceMotion) return;
     const t = this.frame;
-    for (const b of TOWN_BUILDINGS) {
+    for (const b of TOWN_BUILDINGS[this.game.currentTownMap().id] ?? []) {
       if (b.style === 'lab' || b.style === 'ranch') {
         const cx = b.x0 + (b.style === 'lab' ? b.x1 - b.x0 - 1 : 1);
         const bx = (cx - camX) * TILE + TILE * 0.68, by = (b.y0 - camY) * TILE;
@@ -505,7 +546,7 @@ export class FieldScreen implements Screen {
         let ch = tileAt(this.map, x, y);
         if (th === 'town' && /[0-9]/.test(ch)) ch = tileAt(this.map, x, y - 1) === 'W' ? 'K' : '.';
         if (ch === 'B') ch = '.';
-        const b = th === 'town' ? buildingAt(x, y) : undefined;
+        const b = th === 'town' ? buildingAt(this.game.currentTownMap().id, x, y) : undefined;
         const bld = b && 'RWD'.includes(ch) ? { style: b.style, rel: x - b.x0, w: b.x1 - b.x0 + 1, sign: ch === 'R' && x === b.door } : undefined;
         const state = { open: ch === 'C' && this.game.isOpened({ x, y }), used: ch === 'H' && !!ex?.springUsed, boss: bossRoom, bld, ev: ch === 'V' || ch === 'Z' ? EVENT_BY_ID[this.map.events?.[`${x},${y}`] ?? '']?.kind : undefined };
         g.drawImage(tileSprite(th, ch, x, y, anim, state), Math.round((x - camX) * TILE), Math.round((y - camY) * TILE));

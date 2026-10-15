@@ -14,7 +14,7 @@ const X = (id: string, name: string, category: Sk['category'], target: Sk['targe
 
 export const V2_SKILLS: SkillDefinition[] = [
   // ---- 水（回復・防御・制御）
-  M('splash', 'みずでっぽう', 11, 2, { elementId: 'water', upgrade: { to: 'aquaburst', level: 13, stat: { magic: 42 } } }, 'いきおいの ある みずを ぶつける。'),
+  M('splash', 'みずでっぽう', 10, 2, { elementId: 'water', upgrade: { to: 'aquaburst', level: 13, stat: { magic: 42 } } }, 'いきおいの ある みずを ぶつける。'),
   M('aquaburst', 'アクアバースト', 34, 5, { elementId: 'water' }, 'うずまく みずの かたまりを ばくはつさせる。'),
   M('wave', 'なみのり', 10, 5, { elementId: 'water', target: 'allEnemies', upgrade: { to: 'tidalwave', level: 18, stat: { magic: 60 } } }, 'なみを よんで てき ぜんたいを おしながす。'),
   M('tidalwave', 'おおつなみ', 26, 13, { elementId: 'water', target: 'allEnemies' }, 'おおきな つなみが てき ぜんたいを のみこむ。'),
@@ -25,7 +25,7 @@ export const V2_SKILLS: SkillDefinition[] = [
   X('springheal', 'わきみずのいやし', 'heal', 'allAllies', 9, 34, {}, 'わきみずが みかた ぜんいんを いやす。'),
   X('mistveil', 'きりのベール', 'buff', 'allAllies', 4, 0, { buff: { stat: 'spirit', stages: 1 } }, 'きりの まくで みかた ぜんいんの せいしんを あげる。'),
   // ---- 影（弱体化・吸収）
-  M('shadowbolt', 'シャドウボルト', 12, 2, { elementId: 'shadow', upgrade: { to: 'nightmare', level: 14, stat: { magic: 48 } } }, 'かげの やを はなつ。'),
+  M('shadowbolt', 'シャドウボルト', 10, 2, { elementId: 'shadow', upgrade: { to: 'nightmare', level: 14, stat: { magic: 48 } } }, 'かげの やを はなつ。'),
   M('nightmare', 'ナイトメア', 36, 6, { elementId: 'shadow', statusEffectId: 'confusion', statusChance: 0.15 }, 'わるい ゆめで あいてを くるしめる。こんらんさせる ことも ある。'),
   M('souldrain', 'ソウルドレイン', 16, 4, { elementId: 'shadow', drain: 0.5 }, 'あいての いのちを すいとる。'),
   P('drainbite', 'ドレインバイト', 1.2, 3, { elementId: 'shadow', drain: 0.4 }, 'かみついて いのちを すいとる。'),
@@ -46,7 +46,7 @@ export const V2_SKILLS: SkillDefinition[] = [
   // ---- 地（防御・崩し）
   P('rocksmash', 'いわくだき', 1.5, 3, { elementId: 'earth', hitRate: 0.9 }, 'いわをも くだく いちげき。'),
   M('quake', 'じしん', 18, 9, { elementId: 'earth', target: 'allEnemies' }, 'じめんを ゆらして てき ぜんたいを うつ。'),
-  M('earthspike', 'だいちのとげ', 14, 3, { elementId: 'earth', upgrade: { to: 'terraburst', level: 16, stat: { magic: 52 } } }, 'じめんから とげを つきだす。'),
+  M('earthspike', 'だいちのとげ', 10, 3, { elementId: 'earth', upgrade: { to: 'terraburst', level: 16, stat: { magic: 52 } } }, 'じめんから とげを つきだす。'),
   M('terraburst', 'テラバースト', 38, 7, { elementId: 'earth' }, 'だいちの ちからを いっきに ばくはつさせる。'),
   X('stoneskin', 'いわのよろい', 'buff', 'self', 3, 0, { priority: 1, buff: { stat: 'defense', stages: 1 } }, 'いわを まとって しゅびりょくを あげる。'),
   X('crumble', 'じばんくずし', 'debuff', 'allEnemies', 4, 0, { hitRate: 0.85, buff: { stat: 'defense', stages: -1 } }, 'あしもとを くずして てき ぜんたいの しゅびりょくを さげる。'),

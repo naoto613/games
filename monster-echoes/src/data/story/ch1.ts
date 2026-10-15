@@ -24,7 +24,7 @@ export const CH1_EVENTS: StoryEvent[] = [
       L('', 'スライムは {name}の 手のひらで、ほのかに 光った。'),
       L('', 'ルナスライムが なかまに なった！'),
     ],
-    actions: [{ type: 'giveMonster', speciesId: 'm001', level: 1, partner: true }, { type: 'setFlag', id: 'partner_joined' }],
+    actions: [{ type: 'giveMonster', speciesId: 'm001', level: 3, partner: true }, { type: 'setFlag', id: 'partner_joined' }],
   },
   {
     id: 'ch1_stone_reacts', trigger: { kind: 'manual', target: 'forest_stone' }, conditions: [{ type: 'flag', id: 'partner_joined' }], priority: 5,
@@ -42,17 +42,19 @@ export const CH1_EVENTS: StoryEvent[] = [
     actions: [{ type: 'setFlag', id: 'ch1_pollen' }],
   },
   {
-    id: 'ch1_first_recruit', trigger: { kind: 'floor', target: '1-2', floor: 3 }, conditions: [{ type: 'flag', id: 'partner_joined' }], priority: 10,
+    // 3F の 古い 石碑（しらべると おこる）
+    id: 'ch1_first_recruit', trigger: { kind: 'manual', target: 'ch1_first_recruit' }, conditions: [], priority: 10,
     lines: [
-      L('', 'グリーンスプライトが、古い 石碑の まえで ないている。'),
+      L('', '古い 石碑の まえで、グリーンスプライトが ないている。'),
+      L('', '{luna}が ちかよると、グリーンスプライトは おどろいて とびかかってきた！'),
       L('調律師ソラ（思い出）', 'まものの こころが ゆらいだら、にくを わけて あげなさい。'),
-      L('', 'まものに にくを あげると、なかまに なってくれる ことが ある。'),
+      L('', 'せんとうで「にく」を なげてから たおすと、なかまに なってくれる ことが ある。'),
     ],
-    actions: [{ type: 'giveItem', itemId: 'jerky', count: 3 }, { type: 'setFlag', id: 'tutorial_recruit' }],
+    actions: [{ type: 'giveItem', itemId: 'jerky', count: 3 }, { type: 'setFlag', id: 'tutorial_recruit' }, { type: 'battle', enemies: [{ speciesId: 'm043', level: 3 }] }],
   },
   // ---- 1-3 ささやきの森：キノコ王モルグ
   {
-    id: 'ch1_trace', trigger: { kind: 'floor', target: '1-3', floor: 4 }, conditions: [], priority: 1,
+    id: 'ch1_trace', trigger: { kind: 'manual', target: 'ch1_trace' }, conditions: [], priority: 1,
     lines: [L('', '地面に 見なれない 足あとが のこっている。めずらしい まものが ちかくに いるようだ。')],
     actions: [{ type: 'setFlag', id: 'ch1_trace' }],
   },

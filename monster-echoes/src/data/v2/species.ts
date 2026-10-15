@@ -35,6 +35,8 @@ export function speciesFromDefinition(d: MonsterDefinition): MonsterSpecies {
     expRate: r.expRate, expYield: r.expYield, goldYield: r.goldYield, recruitBaseChance: r.recruit,
     spriteId: d.id, description: d.description,
     no: d.no, element: d.element, role: d.role, growthType: d.growthType, rank: d.rank,
+    // ボス由来・最終ボス系統は 通常配合では うまれない（特殊配合・伝説配合で）
+    noBreed: /ボス|最終/.test(d.note),
   };
 }
 
