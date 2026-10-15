@@ -13,7 +13,7 @@ import { startBattle } from './battle';
 import { talkTo } from './town';
 import { openFieldMenu, openParty } from './menus';
 import { openDex } from './dex';
-import { icon } from '../components/icons';
+import { icon, itemIcon } from '../components/icons';
 import { buildingAt, TOWN_BUILDINGS } from '../../data/town';
 import { EVENT_BY_ID } from '../../data/events';
 import { runEvent } from './events';
@@ -469,7 +469,8 @@ export class FieldScreen implements Screen {
           if (!r.reward) await this.app.say('たからばこは からっぽだ。');
           else {
             sfx('chest');
-            await this.app.say(`たからばこを あけた！\n${rewardText(r.reward)}を てにいれた！`);
+            const rw = r.reward;
+            await this.app.say(`たからばこを みつけた！\n「${rewardText(rw)}」を てにいれた！`, { icon: itemIcon(rw.type === 'item' ? getItem(rw.itemId).category : rw.type === 'gold' ? 'gold' : 'key') });
           }
           break;
         case 'spring':

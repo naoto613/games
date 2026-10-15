@@ -23,3 +23,23 @@ export function icon(name: string, cls = 'ico'): HTMLElement {
   s.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">${P[name] ?? ''}</svg>`;
   return s;
 }
+
+/** どうぐの アイコン（参考画像3「ダンジョンの画面」：てにいれた どうぐの 絵） */
+const ITEM_ICON: Record<string, [string, string]> = {
+  heal: ['#6ad86a', '<path d="M12 21c-1-4-6-6-6-11 0-3 2.5-6 6-7 3.5 1 6 4 6 7 0 5-5 7-6 11z"/><path d="M12 20V7" stroke="#1a5a1a" stroke-width="1.3"/>'],
+  mp: ['#6ab8ff', '<path d="M12 2.5c3.5 5 6.5 8.4 6.5 12a6.5 6.5 0 0 1-13 0c0-3.6 3-7 6.5-12z"/><ellipse cx="9.6" cy="14" rx="1.6" ry="2.4" fill="#e8f8ff"/>'],
+  revive: ['#ffd84a', '<path d="M12 21c-1-4-6-6-6-11 0-3 2.5-6 6-7 3.5 1 6 4 6 7 0 5-5 7-6 11z"/><path d="M12 20V7" stroke="#7a5a08" stroke-width="1.3"/>'],
+  cure: ['#b8f0c8', '<path d="M6 20c2-6 2-10 1-15 3 3 4 7 5 15M12 20c0-6 1-10 4-14 0 5 0 9-2 14M17 20c0-4 1-7 3-9-.5 4-1 6-1.5 9"/>'],
+  meat: ['#e88a6a', '<path d="M14 4c4 0 7 3 6 7-1 5-7 8-11 7l-3 3-2-2 1-1-2-2 2-1 1-1C5 10 9 4 14 4z"/><circle cx="15" cy="9" r="1.6" fill="#fff0e0"/>'],
+  escape: ['#e8f0ff', '<path d="M19 3C11 4 6 9 5 18l-1 3 2-1c1-4 3-7 6-9-2 3-3 5-3.5 7C15 17 19 10 19 3z"/>'],
+  key: ['#ffd84a', '<circle cx="8" cy="12" r="4.5"/><path d="M12 11h9v2.5h-2V16h-2.5v-2.5H12z"/><circle cx="8" cy="12" r="1.8" fill="#0c1430"/>'],
+  gold: ['#ffd84a', P.coin],
+};
+export function itemIcon(category: string): HTMLElement {
+  const [col, path] = ITEM_ICON[category] ?? ITEM_ICON.heal;
+  const s = document.createElement('span');
+  s.className = 'iico';
+  s.style.color = col;
+  s.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">${path}</svg>`;
+  return s;
+}

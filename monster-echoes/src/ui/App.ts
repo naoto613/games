@@ -117,20 +117,22 @@ export class App {
 
   // ---------------------------------------------------------------- メッセージ
   /** メッセージを1ページずつ表示。タップ（A）で次へ。 */
-  async say(lines: string | string[], opts: { auto?: number; speaker?: string } = {}) {
+  async say(lines: string | string[], opts: { auto?: number; speaker?: string; icon?: HTMLElement } = {}) {
     const pages = (Array.isArray(lines) ? lines : [lines]).filter(Boolean);
     if (!pages.length) return;
-    const box = h('div', { class: 'win msgbox' });
-    const text = h('div');
+    const box = h('div', { class: `win msgbox${opts.speaker ? ' talk' : ''}` });
+    const text = h('div', { class: 'mtext' });
     const more = h('div', { class: 'more' }, '▼');
-    box.append(text);
+    // 参考画像3：話す人の 名前は 左上の ふだに、てにいれた どうぐは 絵つきで
+    if (opts.speaker) box.append(h('div', { class: 'nametag' }, opts.speaker));
+    if (opts.icon) box.append(h('div', { class: 'mrow2' }, opts.icon, text)); else box.append(text);
     // 画面の どこを タップしても 次へ すすむ
     const catcher = h('div', { class: 'tap-catcher' });
     this.stage.append(catcher, box);
     const speed = { slow: 30, normal: 14, fast: 4 }[this.settings.textSpeed];
     try {
       for (const pg of pages) {
-        const full = opts.speaker ? `${opts.speaker}「${pg}」` : pg;
+        const full = opts.speaker ? `「${pg}」` : pg;
         let skip = false;
         let done = false;
         await new Promise<void>((resolve) => {

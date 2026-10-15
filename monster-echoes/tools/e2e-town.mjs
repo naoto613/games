@@ -30,6 +30,11 @@ for (const [vw, vh, tag] of (process.argv[3] === 'p' ? [[390, 844, 'p']] : [[390
     await reshow(); await p.waitForTimeout(500);
     await p.screenshot({ path: path.join(out, `town-${tag}-${town}-${x}-${y}.png`) });
   }
+  // 会話の 名前ふだ と どうぐの 絵
+  await p.evaluate(() => { void window.app.say('……よくぞ ここまで たどりついた。\nだが おまえたちだけでは この世界は すくえない。', { speaker: 'ノクティル' }); });
+  await p.waitForTimeout(600);
+  await p.screenshot({ path: path.join(out, `talk-${tag}.png`) });
+  await p.locator('.msgbox').click(); await p.waitForTimeout(300);
   // ステータス画面（つよさ・スキル・とくせい）
   await p.evaluate(() => { const g = window.app.game; g.acceptRecruit('m041', 12); g.state.monsters.forEach((m) => { m.level = Math.max(m.level, 12); }); });
   await reshow(); await p.waitForTimeout(300);
