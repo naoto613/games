@@ -38,13 +38,13 @@ await click('けってい');
 await skip();
 await shot('liefel');
 // 石碑（8,3）を しらべる
-await at(8, 4, 'up');
+await at(11, 4, 'up');
 await press('a');
 await shot('stone');
 await skip();
 console.log('after stone', JSON.stringify(await info()));
 // 森の入口（9,0）
-await at(9, 1, 'up');
+await at(13, 1, 'up');
 await press('a');
 await wait(300);
 await shot('gate');
@@ -80,7 +80,7 @@ await skip();
 console.log('after morg', JSON.stringify(await info()));
 await shot('after-morg');
 // ミズナへ
-await at(17, 9, 'right');
+await at(24, 10, 'right');
 await p.evaluate(() => window.app.screen.key('right', true)); await wait(400); await p.evaluate(() => window.app.screen.key('right', false));
 await wait(900);
 await shot('mizuna-arrive');

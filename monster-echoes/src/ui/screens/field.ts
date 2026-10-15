@@ -11,7 +11,7 @@ import { mkCanvas } from '../gfx/Pix';
 import { bossAccent, personSprite, TILE, tileSprite, type Theme } from '../gfx/tiles';
 import { startBattle } from './battle';
 import { talkTo } from './town';
-import { openFieldMenu, openItems, openParty } from './menus';
+import { openFieldMenu, openParty } from './menus';
 import { openDex } from './dex';
 import { icon } from '../components/icons';
 import { buildingAt, TOWN_BUILDINGS } from '../../data/town';
@@ -20,8 +20,23 @@ import { runEvent } from './events';
 import { playStory } from './story';
 import { openGate } from './gate';
 import { displayName } from '../../domain/monster/MonsterFactory';
+import { forestTexture, labelImg, minimapImg, objectShadow, objectSprite, renderGround, TT } from '../gfx/townArt';
+import type { TownArt } from '../../data/towns/builder';
 
-const VW = 11;
+/** 町の 地面（水の うごき 4まい）を おぼえておく */
+const groundCache = new WeakMap<TownArt, HTMLCanvasElement[]>();
+function groundFrames(art: TownArt) {
+  let a = groundCache.get(art);
+  if (!a) { a = [0, 1, 2, 3].map((f) => renderGround(art, f)); groundCache.set(art, a); }
+  return a;
+}
+/** ゲーム内の 時計（あさ 6:00 から、2びょうで 1ぷん すすむ） */
+export function clockText(playSec: number) {
+  const m = (360 + Math.floor(playSec / 2)) % 1440, hh = Math.floor(m / 60), mm = m % 60;
+  return `${hh < 12 ? 'AM' : 'PM'} ${String(hh % 12 || 12).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+}
+
+let VW = 11;
 let VH = 9;
 
 export function rewardText(r: Reward): string {
@@ -38,6 +53,10 @@ export class FieldScreen implements Screen {
   private hudL: HTMLElement;
   private hudR: HTMLElement;
   private strip: HTMLElement;
+  private mini: HTMLElement;
+  private miniCv: HTMLCanvasElement;
+  private miniName: HTMLElement;
+  private miniClock: HTMLElement;
   /** 地図タップで歩く道すじ */
   private path: Dir[] = [];
   private pathGoal: { x: number; y: number } | null = null;
@@ -56,8 +75,13 @@ export class FieldScreen implements Screen {
     this.hudL = h('div', { class: 'win hud' });
     this.hudR = h('div', { class: 'win hud right' });
     this.strip = h('div', { class: 'pstrip' });
+    // 右上の ミニマップ（参考画像3：町の名前・地図・時計）
+    this.miniCv = document.createElement('canvas');
+    this.miniName = h('div', { class: 'mm-name' });
+    this.miniClock = h('div', { class: 'mm-clock' });
+    this.mini = h('div', { class: 'minimap' }, this.miniName, h('div', { class: 'mm-map' }, this.miniCv), this.miniClock);
     this.strip.addEventListener('click', (e) => { e.stopPropagation(); if (this.busy || this.moving) return; sfx('ok'); openParty(this.app, () => this.afterMenu(), { viewOnly: !this.inTown }); });
-    const view = h('div', { class: 'view full' }, this.cv, this.hudL, this.hudR, this.strip);
+    const view = h('div', { class: 'view full' }, this.cv, this.hudL, this.hudR, this.mini, this.strip);
     this.buildTouch(view);
     this.reloadMap();
     this.el = h('div', { class: 'layer' }, view);
@@ -90,7 +114,7 @@ export class FieldScreen implements Screen {
   private buildTouch(view: HTMLElement) {
     const knob = h('div', { class: 'knob' });
     // 参考画像2「UI・操作イメージ」：左下に 仮想スティックを いつも 表示（ゆびを おいた ところに うごいて なぞれる）
-    const joy = h('div', { class: 'joy idle' }, knob);
+    const joy = h('div', { class: 'joy' }, knob);
     view.append(joy);
     let start: { x: number; y: number; id: number; t: number } | null = null;
     let dragging = false;
@@ -117,7 +141,6 @@ export class FieldScreen implements Screen {
         dragging = true;
         this.path = []; this.pathGoal = null;
         joy.classList.add('on');
-        joy.classList.remove('idle');
       }
       // スティックが にげないよう、ゆびが とおくまで いったら 中心を ひきよせる
       if (len > R * 1.8) { start.x = e.clientX - (dx / len) * R * 1.8; start.y = e.clientY - (dy / len) * R * 1.8; }
@@ -134,7 +157,6 @@ export class FieldScreen implements Screen {
       start = null;
       dragging = false;
       joy.classList.remove('on');
-      joy.classList.add('idle');
       joy.style.left = ''; joy.style.top = '';
       knob.style.transform = '';
       this.held = null;
@@ -142,31 +164,35 @@ export class FieldScreen implements Screen {
     };
     view.addEventListener('pointerup', (e) => end(e, false));
     view.addEventListener('pointercancel', (e) => end(e, true));
-    // 右がわの 縦ボタン（メニュー・図鑑・セーブ・もちもの）
+    // 左下の 縦メニュー（参考画像3：メニュー／図鑑／パーティ／セーブ）
     const fb = (ic: string, label: string, fn: () => void) => {
-      const b = h('button', { class: 'fbtn', type: 'button', 'aria-label': label }, icon(ic), h('span', null, label));
+      const b = h('button', { class: 'fmrow', type: 'button', 'aria-label': label }, icon(ic), h('span', null, label));
       b.addEventListener('pointerdown', (e) => e.stopPropagation());
       b.addEventListener('click', (e) => { e.stopPropagation(); if (this.busy || this.moving) return; sfx('ok'); this.held = null; fn(); });
       return b;
     };
-    this.dexBtn = fb('dex', 'ずかん', () => openDex(this.app));
+    this.dexBtn = fb('dex', '図鑑', () => openDex(this.app));
     view.append(h('div', { class: 'fbtns' },
       fb('option', 'メニュー', () => openFieldMenu(this.app, () => this.afterMenu())),
       this.dexBtn,
+      fb('monster', 'パーティ', () => openParty(this.app, () => this.afterMenu(), { viewOnly: !this.inTown })),
       fb('save', 'セーブ', () => void this.app.saveNow(true)),
-      fb('bag', 'もちもの', () => openItems(this.app)),
     ));
   }
 
   /** 画面いっぱいに マップを ひろげる（たて長でも よこ長でも あまらないように 行数を きめる） */
   private fit() {
     const w = this.el.clientWidth || 390, hgt = this.el.clientHeight || 700;
-    const tilePx = w / VW;
+    // 参考画像3 くらいの ひろさ：1タイル 30px ほどに なるよう よこの マス数を きめる（奇数）
+    let cols = Math.max(11, Math.min(19, Math.round(w / 30)));
+    if (cols % 2 === 0) cols--;
+    const tilePx = w / cols;
     let rows = Math.ceil(hgt / tilePx);
     if (rows % 2 === 0) rows++;
     rows = Math.max(9, Math.min(27, rows));
-    if (rows !== VH || this.cv.height !== rows * TILE) {
-      VH = rows;
+    if (rows !== VH || cols !== VW || this.cv.height !== rows * TILE || this.cv.width !== cols * TILE) {
+      VH = rows; VW = cols;
+      this.cv.width = VW * TILE;
       this.cv.height = VH * TILE;
       this.g.imageSmoothingEnabled = false;
     }
@@ -240,8 +266,16 @@ export class FieldScreen implements Screen {
   updateHud() {
     const s = this.game.state;
     (this.dexBtn as HTMLButtonElement).disabled = !this.game.hasFeature('dex');
-    this.hudL.textContent = this.inTown ? this.game.currentTownMap().name : this.game.floor!.floor.name;
+    const art = this.inTown ? this.game.currentTownMap().art : undefined;
+    this.el.classList.toggle('arttown', !!art);
+    this.hudL.textContent = art ? `${s.player.gold} G` : this.inTown ? this.game.currentTownMap().name : this.game.floor!.floor.name;
     this.hudR.textContent = `${s.player.gold} G`;
+    if (art) {
+      this.miniName.textContent = this.game.currentTownMap().name;
+      const mm = minimapImg(art, 4);
+      this.miniCv.width = mm.width; this.miniCv.height = mm.height;
+      this.miniClock.textContent = `☀ ${clockText(s.player.playTimeSec)}`;
+    }
     clear(this.strip);
     for (const m of this.game.party) {
       const r = m.stats.hp ? m.hp / m.stats.hp : 0;
@@ -252,13 +286,23 @@ export class FieldScreen implements Screen {
     }
   }
 
+  /** カメラ：ふつうは 主人公が まんなか。町（絵の ある 町）は 町の そとを なるべく みせない */
+  private cam(px: number, py: number) {
+    let camX = px - (VW - 1) / 2, camY = py - (VH - 1) / 2;
+    if (!this.inTown && this.game.floor?.floor.bossId && this.map.h <= VH) camY = (this.map.h - VH) / 2;
+    if (this.inTown && this.game.currentTownMap().art) {
+      const fitAxis = (c: number, size: number, view: number) => (size <= view ? (size - view) / 2 : Math.max(0, Math.min(size - view, c)));
+      camX = fitAxis(camX, this.map.w, VW); camY = fitAxis(camY, this.map.h, VH);
+    }
+    return { camX, camY };
+  }
+
   /** 地図をタップ: そこまで歩く（人・宝箱などなら となりまで歩いて 話しかける） */
   private tapMap(e: PointerEvent) {
     if (this.busy || this.moving || this.app.panels.length) return;
     const rect = this.cv.getBoundingClientRect();
     const cx = ((e.clientX - rect.left) / rect.width) * this.cv.width, cy = ((e.clientY - rect.top) / rect.height) * this.cv.height;
-    const camX = this.pos.x - (VW - 1) / 2;
-    const camY = !this.inTown && this.game.floor?.floor.bossId && this.map.h <= VH ? (this.map.h - VH) / 2 : this.pos.y - (VH - 1) / 2;
+    const { camX, camY } = this.cam(this.pos.x, this.pos.y);
     const tx = Math.floor(camX + cx / TILE), ty = Math.floor(camY + cy / TILE);
     if (tx === this.pos.x && ty === this.pos.y) return void this.key('a', true);
     const path = findPath(this.map, this.pos, { x: tx, y: ty });
@@ -541,6 +585,89 @@ export class FieldScreen implements Screen {
     });
   }
 
+  /** しゅじんこう と ついてくる なかま（y は タイル単位） */
+  private heroActors(px: number, py: number, camX: number, camY: number, shadow: (sx: number, sy: number, w?: number) => void) {
+    const g = this.g;
+    const walk = this.moving ? Math.floor(this.frame / 6) : 0;
+    const hx = Math.round((px - camX) * TILE), hy = Math.round((py - camY) * TILE);
+    const t = this.moving ? Math.min(1, (performance.now() - this.moving.t0) / this.moving.dur) : 1;
+    const followers = this.game.party.filter((m) => m.hp > 0).slice(0, 3);
+    const actors: { y: number; draw: () => void }[] = [{ y: py, draw: () => { shadow(hx, hy); g.drawImage(personSprite('hero', this.dir, walk), hx, hy - 10); } }];
+    followers.forEach((m, i) => {
+      const to = this.trail[i] ?? this.pos, fr = this.moving ? (this.prevTrail[i] ?? to) : to;
+      const fx = fr.x + (to.x - fr.x) * t, fy = fr.y + (to.y - fr.y) * t;
+      const mx = Math.round((fx - camX) * TILE), my = Math.round((fy - camY) * TILE);
+      const movingNow = this.moving && (fr.x !== to.x || fr.y !== to.y);
+      const hop = movingNow && !this.app.settings.reduceMotion ? Math.round(Math.abs(Math.sin(t * Math.PI)) * 3) : 0;
+      const faceRight = (to.x > fr.x) || (!movingNow && this.dir === 'right');
+      actors.push({ y: fy - 0.01 * (i + 1), draw: () => {
+        shadow(mx, my, 10);
+        const sp = monsterSprite(m.speciesId, { small: true });
+        g.save();
+        if (needFlip(m.speciesId, faceRight)) { g.translate(mx + TILE, 0); g.scale(-1, 1); g.drawImage(sp, -2, my - 8 - hop, 36, 36); }
+        else g.drawImage(sp, mx - 2, my - 8 - hop, 36, 36);
+        g.restore();
+      } });
+    });
+    return { actors, hx, hy };
+  }
+
+  /** 参考画像3「町の画面」の 描き方：地面 → 奥行きじゅんに 物体と 人 → 建物の 名前 */
+  private drawArtTown(art: TownArt, px: number, py: number, camX: number, camY: number) {
+    const g = this.g, W = this.cv.width, H = this.cv.height;
+    const ox = Math.round(-camX * TILE), oy = Math.round(-camY * TILE);
+    // 町の そと（森）
+    const pat = g.createPattern(forestTexture(), 'repeat');
+    if (pat) { g.save(); g.translate(ox % 64, oy % 64); g.fillStyle = pat; g.fillRect(-64, -64, W + 128, H + 128); g.restore(); }
+    const still = this.app.settings.reduceMotion;
+    const gf = groundFrames(art)[still ? 0 : Math.floor(this.frame / 16) % 4];
+    g.drawImage(gf, ox, oy);
+    const shadow = (sx: number, sy: number, w = 11) => {
+      g.fillStyle = 'rgba(0,0,0,.28)';
+      g.beginPath(); g.ellipse(sx + TILE / 2, sy + TILE - 3, w, 4, 0, 0, Math.PI * 2); g.fill();
+    };
+    const items: { base: number; draw: () => void }[] = [];
+    const vx0 = -ox - 4 * TT, vx1 = -ox + W + 4 * TT, vy0 = -oy - 3 * TT, vy1 = -oy + H + 6 * TT;
+    for (const o of art.objects) {
+      const wx = o.x * TT, wy = o.y * TT;
+      if (wx < vx0 - 8 * TT || wx > vx1 || wy < vy0 - 6 * TT || wy > vy1) continue;
+      const sp = objectSprite(o, still ? 0 : this.frame);
+      if (!sp) continue;
+      objectShadow(g, o, wx + ox, wy + oy);
+      items.push({ base: sp.base, draw: () => g.drawImage(sp.img, sp.dx + ox, sp.dy + oy) });
+    }
+    const def = this.game.currentTownMap();
+    const anim = Math.floor(this.frame / 10);
+    for (const [ch, npc] of Object.entries(def.npcs)) {
+      for (const p of findAll(this.map, ch)) {
+        const sx = Math.round((p.x - camX) * TILE), sy = Math.round((p.y - camY) * TILE);
+        items.push({ base: (p.y + 1) * TT - 3, draw: () => { shadow(sx, sy); g.drawImage(personSprite(npc.look, npc.facing ?? 'down', npc.idle ? anim : 0), sx, sy - 10); } });
+      }
+    }
+    const { actors } = this.heroActors(px, py, camX, camY, shadow);
+    for (const a of actors) items.push({ base: (a.y + 1) * TT - 3, draw: a.draw });
+    if (this.pathGoal && Math.floor(this.frame / 8) % 2 === 0) {
+      const gx = Math.round((this.pathGoal.x - camX) * TILE), gy = Math.round((this.pathGoal.y - camY) * TILE);
+      g.strokeStyle = '#ffe070'; g.lineWidth = 2; g.strokeRect(gx + 3, gy + 3, TILE - 6, TILE - 6);
+    }
+    items.sort((a, b) => a.base - b.base).forEach((it) => it.draw());
+    // 建物の 名前（青い ふだ）
+    for (const o of art.objects) {
+      if (o.kind !== 'building' || !o.label) continue;
+      const lb = labelImg(o.label);
+      const cx = (o.x + o.w / 2) * TT + ox, ly = (o.y + o.h) * TT + oy - TT - lb.height + 4;
+      g.drawImage(lb, Math.round(cx - lb.width / 2), Math.round(ly - TT * 0.6));
+    }
+    // ミニマップ（右上）
+    const mg = this.miniCv.getContext('2d');
+    if (mg) {
+      const mm = minimapImg(art, 4);
+      mg.drawImage(mm, 0, 0);
+      if (Math.floor(this.frame / 15) % 2 === 0) { mg.fillStyle = '#ff3b3b'; mg.fillRect(this.pos.x * 4 - 1, this.pos.y * 4 - 1, 6, 6); mg.fillStyle = '#fff'; mg.fillRect(this.pos.x * 4, this.pos.y * 4, 4, 4); }
+      if (this.frame % 30 === 0) this.miniClock.textContent = `☀ ${clockText(this.game.state.player.playTimeSec)}`;
+    }
+  }
+
   // ---------------------------------------------------------------- 描画（状態は読むだけ）
   private draw() {
     const g = this.g;
@@ -552,11 +679,12 @@ export class FieldScreen implements Screen {
       py = this.moving.from.y + (this.pos.y - this.moving.from.y) * t;
     }
     const bossRoom = !!this.game.floor?.floor.bossId;
-    const camX = px - (VW - 1) / 2;
+    const { camX, camY } = this.cam(px, py);
     // ボスの へやは ぜんたいが みえるように まんなかに おく
-    const camY = bossRoom && this.map.h <= VH ? (this.map.h - VH) / 2 : py - (VH - 1) / 2;
     g.fillStyle = '#000';
     g.fillRect(0, 0, this.cv.width, this.cv.height);
+    const art = !this.game.state.expedition ? this.game.currentTownMap().art : undefined;
+    if (art) return this.drawArtTown(art, px, py, camX, camY);
     const th = this.theme;
     const x0 = Math.floor(camX) - 1, y0 = Math.floor(camY) - 1;
     const ex = this.game.state.expedition;
@@ -612,28 +740,7 @@ export class FieldScreen implements Screen {
       const gx = Math.round((this.pathGoal.x - camX) * TILE), gy = Math.round((this.pathGoal.y - camY) * TILE);
       g.strokeStyle = '#ffe070'; g.lineWidth = 2; g.strokeRect(gx + 3, gy + 3, TILE - 6, TILE - 6);
     }
-    // しゅじんこう と ついてくる なかま（うしろから じゅんに 描く）
-    const walk = this.moving ? Math.floor(this.frame / 6) : 0;
-    const hx = Math.round((px - camX) * TILE), hy = Math.round((py - camY) * TILE);
-    const t = this.moving ? Math.min(1, (performance.now() - this.moving.t0) / this.moving.dur) : 1;
-    const followers = this.game.party.filter((m) => m.hp > 0).slice(0, 3);
-    const actors: { y: number; draw: () => void }[] = [{ y: py, draw: () => { shadow(hx, hy); g.drawImage(personSprite('hero', this.dir, walk), hx, hy - 10); } }];
-    followers.forEach((m, i) => {
-      const to = this.trail[i] ?? this.pos, fr = this.moving ? (this.prevTrail[i] ?? to) : to;
-      const fx = fr.x + (to.x - fr.x) * t, fy = fr.y + (to.y - fr.y) * t;
-      const mx = Math.round((fx - camX) * TILE), my = Math.round((fy - camY) * TILE);
-      const movingNow = this.moving && (fr.x !== to.x || fr.y !== to.y);
-      const hop = movingNow && !this.app.settings.reduceMotion ? Math.round(Math.abs(Math.sin(t * Math.PI)) * 3) : 0;
-      const faceRight = (to.x > fr.x) || (!movingNow && this.dir === 'right');
-      actors.push({ y: fy - 0.01 * (i + 1), draw: () => {
-        shadow(mx, my, 10);
-        const sp = monsterSprite(m.speciesId, { small: true });
-        g.save();
-        if (needFlip(m.speciesId, faceRight)) { g.translate(mx + TILE, 0); g.scale(-1, 1); g.drawImage(sp, -2, my - 8 - hop, 36, 36); }
-        else g.drawImage(sp, mx - 2, my - 8 - hop, 36, 36);
-        g.restore();
-      } });
-    });
+    const { actors, hx, hy } = this.heroActors(px, py, camX, camY, shadow);
     actors.sort((a, b) => a.y - b.y).forEach((a) => a.draw());
     // どうくつは 暗く、まわりだけ明るく
     if (bossRoom) {

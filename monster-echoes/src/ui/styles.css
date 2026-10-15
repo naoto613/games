@@ -82,7 +82,7 @@ canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
 .joy .knob { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.9), rgba(160,176,255,.75)); box-shadow: 0 2px 6px rgba(0,0,0,.4); }
 .fmenu { position: absolute; right: 8px; bottom: calc(66px + var(--safe-b)); z-index: 6; min-height: 48px; padding: 4px 14px; font-size: .9em; gap: 4px; opacity: .95; }
 .fmenu .ham { font-size: 1.3em; line-height: 1; }
-.savemark { position: absolute; right: 72px; bottom: calc(74px + var(--safe-b)); z-index: 70; font-size: .72em; padding: 2px 8px; border-radius: 10px; background: rgba(10,16,40,.75); border: 1px solid #8fa0ff; color: #cfe0ff; opacity: 0; transition: opacity .3s; pointer-events: none; }
+.savemark { position: absolute; right: 8px; bottom: calc(74px + var(--safe-b)); z-index: 70; font-size: .72em; padding: 2px 8px; border-radius: 10px; background: rgba(10,16,40,.75); border: 1px solid #8fa0ff; color: #cfe0ff; opacity: 0; transition: opacity .3s; pointer-events: none; }
 .savemark.on { opacity: 1; }
 .hud { position: absolute; left: 6px; top: 6px; padding: 2px 8px; font-size: 0.82em; z-index: 5; }
 .hud.right { left: auto; right: 6px; }
@@ -215,13 +215,21 @@ input.name { font: inherit; font-size: 1.3em; padding: 10px; width: 100%; backgr
 .gold-line { display: flex; align-items: center; gap: 8px; width: 100%; padding: 4px 6px; font-size: 1.05em; }
 .gold-line .grow { flex: 1; }
 
-/* ---- フィールドUI（参考画像2「UI・操作イメージ」：左下の 仮想スティックと 右の 縦ボタン） */
-.joy.idle { display: block; left: 18px; top: auto; bottom: calc(70px + var(--safe-b)); margin: 0; opacity: .75; }
-.fbtns { position: absolute; right: 6px; bottom: calc(70px + var(--safe-b)); z-index: 6; display: flex; flex-direction: column; gap: 6px; }
-.fbtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; width: 58px; height: 56px; padding: 4px 2px; background: linear-gradient(180deg, rgba(42,58,120,.92), rgba(20,30,80,.92)); border: 2px solid #dfe4ff; border-radius: 12px; box-shadow: 0 2px 0 #060a1c, inset 0 1px 0 rgba(255,255,255,.25); font-size: .66em; color: #fff; cursor: pointer; }
-.fbtn .ico { width: 24px; height: 24px; }
-.fbtn:active { transform: translateY(1px); }
-.fbtn[disabled] { opacity: .4; pointer-events: none; }
+/* ---- フィールドUI（参考画像3「町の画面」：左下の 縦メニュー・右上の ミニマップ） */
+.fbtns { position: absolute; left: 6px; bottom: calc(64px + var(--safe-b)); z-index: 6; display: flex; flex-direction: column; padding: 5px 4px; background: linear-gradient(180deg, rgba(22,34,82,.9), rgba(10,18,52,.92)); border: 2px solid #c8d4ff; border-radius: 10px; box-shadow: 0 2px 0 #060a1c, inset 0 0 0 1px rgba(80,110,200,.6); }
+.arttown .fbtns { bottom: calc(10px + var(--safe-b)); }
+.fmrow { display: flex; align-items: center; gap: 6px; min-width: 96px; height: 34px; padding: 0 8px 0 4px; background: none; border: 0; border-radius: 6px; color: #fff; font-size: .78em; cursor: pointer; text-align: left; }
+.fmrow + .fmrow { border-top: 1px solid rgba(160,180,240,.25); }
+.fmrow .ico { width: 22px; height: 22px; flex: none; }
+.fmrow:active { background: rgba(120,150,255,.25); }
+.fmrow[disabled] { opacity: .4; pointer-events: none; }
+.minimap { display: none; position: absolute; right: 6px; top: 6px; z-index: 5; padding: 3px 4px 4px; background: linear-gradient(180deg, rgba(22,34,82,.92), rgba(10,18,52,.94)); border: 2px solid #c8d4ff; border-radius: 8px; box-shadow: 0 2px 0 #060a1c; color: #fff; font-size: .66em; text-align: center; }
+.arttown .minimap { display: block; }
+.arttown .hud.right, .arttown .pstrip { display: none; }
+.minimap .mm-name { padding: 0 2px 2px; white-space: nowrap; }
+.minimap .mm-map { border: 1px solid #6a80c8; border-radius: 3px; overflow: hidden; line-height: 0; }
+.minimap canvas { width: 92px; height: auto; image-rendering: pixelated; }
+.minimap .mm-clock { padding-top: 2px; text-align: right; color: #ffe9a0; }
 /* ---- 配合（仕様 12.4） */
 .pcompare { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .pcompare .stats { font-size: .78em; }

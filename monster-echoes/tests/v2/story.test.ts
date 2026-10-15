@@ -118,7 +118,7 @@ describe('Game：第1章の 流れ', () => {
     expect(after.unlocked).toEqual(['recruit', 'dex', 'travelDoor']);
     expect(g.chapters.chapter).toBe(2);
     // 東の 道から ミズナへ：着くと 配合が 解放
-    g.setTownPos({ x: 17, y: 9 }, 'right');
+    g.setTownPos({ x: 24, y: 10 }, 'right');
     expect(g.townMove('right').kind).toBe('warp');
     expect(g.currentTownMap().id).toBe('mizuna');
     const mz = g.takeStory();

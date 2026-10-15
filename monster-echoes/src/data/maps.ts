@@ -3,6 +3,9 @@
 // C たからばこ  H いやしのいずみ  B ボス
 // まち: l ランプ、u はなだん、w いど、0〜9 は人、F ふんすい、D 出入り口、R やね、W かべ、T き、G 旅の扉、< > 階段、L 本だな、K カウンター、X つくえ
 
+import { LIEFEL } from './towns/liefel';
+import { MIZUNA } from './towns/mizuna';
+
 export type MapTemplate = { id: string; rows: string[] };
 
 const t = (id: string, rows: string[]): MapTemplate => ({ id, rows });
@@ -11,25 +14,8 @@ export const MAPS: Record<string, MapTemplate> = Object.fromEntries(
   [
     // ---- リーフェル集落（1-1）：主人公の家・調律師の小屋・集落の広場・小さな牧場・森の入口（仕様 14.1）
     // G 森の入口（ダンジョンへ）  V 森の入口の 石碑  東の はし（18,9）は ミズナへの 道
-    t('liefel', [
-      'TTTTTTTTTGTTTTTTTTT',
-      'T,,,,TT,,.,,TT,,,,T',
-      'T,u,,,,,,.,,,,,,u,T',
-      'T,,,,,,,V.,,,,,,,,T',
-      'T,RRRRR,,.,,RRRRR,T',
-      'T,WWDWW,,.,,WWDWW,T',
-      'T,,l.l,,,.,,,l.l,,T',
-      'T,,,.....,.....,,,T',
-      'Tu,,,,,,..F..,,,,uT',
-      'T,,6,w,.....,,,7,.,',
-      'T,,,,,,,,P,,,,,,,,T',
-      'T,RRRRR,,.,,,,,,,,T',
-      'T,WWDWW,,.,,,5,,,,T',
-      'T,,l.l,,,.,,,,,,,,T',
-      'T,,,......,,,TT,,,T',
-      'Tu,,,,,,,,,,,,,,,uT',
-      'TTTTTTTTTTTTTTTTTTT',
-    ]),
+    // リーフェル集落・水辺の街ミズナは data/towns の 組み立てから（地面と 物体を わけて 描く）
+    t('liefel', LIEFEL.rows),
     t('liefel_home', [
       '#########',
       '#LL...XX#',
@@ -61,23 +47,7 @@ export const MAPS: Record<string, MapTemplate> = Object.fromEntries(
     ]),
     // ---- 水辺の街ミズナ（2-1）：配合の館・魔物牧場・道具屋・旅の扉の祠・水路入口（仕様 14.2）
     // 西の はし（0,7）は リーフェルへの 道
-    t('mizuna', [
-      'TTTTTTTTTTTTTTTTTTT',
-      'T~~~~~~~~~~~~~~~~~T',
-      'T,RRRRR,,,,,RRRRR,T',
-      'T,WWDWW,,.,,WWDWW,T',
-      'T,,l.l,,,.,,,l.l,,T',
-      'T,,,.....,.....,,,T',
-      'T~~~,,,,,F,,,,,~~~T',
-      '.,,,,,,,,P,,,,,,,,T',
-      'T~~~,,,,,.,,,,,~~~T',
-      'T,RRRRR,,.,,RRRRR,T',
-      'T,WWDWW,,.,,WWDWW,T',
-      'T,,l.l,,,.,,,l.l,,T',
-      'T,,,,,,,6,,7,,,,,,T',
-      'T~~~~~~~~~~~~~~~~~T',
-      'TTTTTTTTTTTTTTTTTTT',
-    ]),
+    t('mizuna', MIZUNA.rows),
     t('mizuna_lab', [
       '###########',
       '#LL..1..LL#',
