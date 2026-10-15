@@ -72,6 +72,8 @@ export function chooseAction(s: BattleState, actor: Combatant, tactic: Tactic, r
       case 'heal': {
         // 敵は ひんしに なるまで回復せず、回復するたびに 回復したがらなくなる（戦闘が終わらなくなるのを防ぐ）
         const isEnemy = actor.side === 'enemy';
+        // 野生の 戦闘では 敵チームの 回復は wildMax 回まで
+        if (isEnemy && s.kind === 'wild' && teamHeals >= ENEMY_HEAL.wildMax) break;
         const limit = isEnemy ? ENEMY_HEAL.threshold : 0.6;
         const damp = isEnemy ? ENEMY_HEAL.weight * Math.pow(ENEMY_HEAL.decay, teamHeals) : 1;
         if (sk.target === 'allAllies') {
@@ -88,6 +90,7 @@ export function chooseAction(s: BattleState, actor: Combatant, tactic: Tactic, r
         break;
       }
       case 'revive': {
+        if (actor.side === 'enemy' && s.kind === 'wild' && teamHeals >= ENEMY_HEAL.wildMax) break;
         const dead = friends.filter((c) => c.hp <= 0);
         const damp = actor.side === 'enemy' ? ENEMY_HEAL.weight * Math.pow(ENEMY_HEAL.decay, teamHeals) : 1;
         for (const t of dead) options.push({ skillId: id, target: t.key, score: (t.maxHp * 0.6 + 12) * W.heal * damp - pen, reason: `${t.name}蘇生` });

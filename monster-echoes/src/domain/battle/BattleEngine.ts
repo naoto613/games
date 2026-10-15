@@ -285,7 +285,9 @@ function monsterAct(s: BattleState, a: Combatant, choice: { skillId: string; tar
       return;
     case 'heal':
       for (const t of ts) {
-        const amt = Math.min(t.maxHp - t.hp, healAmount(sk, a, rng));
+        // 敵の 回復は 1回で 最大HPの capRatio まで（序盤の 小さい 敵が まんたんに もどり つづけない）
+        const cap = a.side === 'enemy' ? Math.max(1, Math.round(t.maxHp * BALANCE.battle.enemyHeal.capRatio)) : Infinity;
+        const amt = Math.min(t.maxHp - t.hp, healAmount(sk, a, rng), cap);
         t.hp += amt;
         ev.push({ t: 'heal', target: t.key, amount: amt, hp: t.hp, text: `${t.name}の HPが ${amt} かいふくした！` });
       }
