@@ -52,6 +52,8 @@
     O('any', 'みんなで おどろう！', ['d_dance', 'd_parade', 'd_mimic'], ['music', 'drum']),
     O('any', 'おなかが すいたな', ['d_eat', 'd_mokoparty', 'd_meal', 'd_picnic', 'd_restaurant', 'd_cook'], ['apple', 'plate']),
     O('any', 'おともだちと なかよく しよう', ['d_hug', 'd_highfive', 'd_secret', 'd_tickle'], ['lulu', 'pon']),
+    O('any', 'かわいい いしょうに きがえよう', ['d_princess', 'd_cute', 'd_ballet', 'd_fairy', 'd_flowercrown', 'd_cat', 'd_love'], ['dress', 'ribbon']),
+    O('any', 'おしごとごっこを してみよう', ['d_fire', 'd_police', 'd_doctor', 'd_shop', 'd_chef', 'd_artist'], ['firehat', 'police']),
     O('any', 'ふしぎな ことを おこそう', ['d_star', 'd_rainbow', 'd_wand', 'd_balloon'], ['star', 'balloon']),
   ];
 

@@ -473,7 +473,7 @@
     st({ id: 'home', num: 1, name: 'みんなの おうち', bgm: 'home', floor: [560, 880], color: '#ffb36b',
       tools: ['blanket', 'box', 'flashlight', 'teddy', 'bunny', 'dino', 'cushion', 'book', 'chair', 'table', 'plate', 'apple', 'cake', 'onigiri', 'ball', 'bag'],
       rides: ['tent', 'train', 'tricycle', 'trampoline', 'car', 'slide'],
-      spawn: [['lulu', 760, 700], ['pon', 980, 760], ['mimi', 600, 780], ['gaku', 1180, 720]],
+      spawn: [['lulu', 760, 700], ['pon', 980, 760], ['mimi', 600, 780], ['gaku', 1180, 720], ['pyoko', 420, 790]],
       fixtures: [['lamp', 120, 600], ['sofa', 420, 640], ['lowtable', 980, 660], ['toybox', 1380, 610]],
       bg(c, r) {
         B.wallpaper(c, 580, '#fff1dc', '#ffe6c6');
@@ -493,7 +493,7 @@
     st({ id: 'park', num: 2, name: 'わくわく こうえん', bgm: 'park', floor: [540, 880], color: '#7cc56a',
       tools: ['ball', 'bucket', 'duck', 'bread', 'blanket', 'sheet', 'apple', 'onigiri', 'teddy', 'dino', 'box', 'bag', 'flashlight', 'parasol'],
       rides: ['slide', 'trampoline', 'tricycle', 'car', 'swimring', 'tent'],
-      spawn: [['lulu', 700, 640], ['pon', 900, 700], ['choco', 560, 720], ['moko', 1060, 650]],
+      spawn: [['lulu', 700, 640], ['pon', 900, 700], ['choco', 560, 720], ['moko', 1060, 650], ['pyoko', 1000, 760]],
       fixtures: [['swing', 260, 600], ['bigtree', 80, 560], ['slideP', 1240, 600], ['sandbox', 720, 820], ['pond', 1340, 840]],
       bg(c, r) {
         B.sky(c, '#8fd3ff', '#e8f7ff', 560);
@@ -538,7 +538,7 @@
     st({ id: 'beach', num: 4, name: 'ビーチで あそぼう', bgm: 'beach', floor: [590, 880], color: '#4fc3f7',
       tools: ['bucket', 'shell', 'parasol', 'sheet', 'ball', 'apple', 'onigiri', 'banana', 'box', 'blanket', 'duck', 'teddy'],
       rides: ['swimring', 'car', 'trampoline', 'tent'],
-      spawn: [['lulu', 620, 720], ['pon', 880, 680], ['gaku', 1100, 760], ['moko', 420, 790]],
+      spawn: [['lulu', 620, 720], ['pon', 880, 680], ['gaku', 1100, 760], ['moko', 420, 790], ['pyoko', 780, 800]],
       fixtures: [['sea', 800, 590], ['rock', 1440, 640]],
       ambient(c, t) {
         // なみうちぎわ
@@ -579,7 +579,7 @@
       } }),
     st({ id: 'fun', num: 6, name: 'ゆめの ゆうえんち', bgm: 'fun', floor: [580, 880], color: '#ba68c8',
       tools: null, rides: null,
-      spawn: [['lulu', 700, 760], ['pon', 900, 720], ['mimi', 1080, 780], ['choco', 560, 800], ['gaku', 1250, 770], ['moko', 400, 760]],
+      spawn: [['lulu', 700, 760], ['pon', 900, 720], ['mimi', 1080, 780], ['choco', 560, 800], ['gaku', 1250, 770], ['moko', 400, 760], ['pyoko', 980, 830]],
       fixtures: [['ferris', 270, 640], ['stageF', 800, 610], ['carousel', 1330, 660], ['stall', 1530, 760, { label: 'ふうせん', goods: 'balloon', col: '#58b9f0' }]],
       bg(c, r) {
         B.sky(c, '#a8dcff', '#fde8f6', 580);
@@ -593,7 +593,7 @@
     st({ id: 'clinic', num: 7, name: 'どうぶつ びょういん', bgm: 'home', floor: [570, 880], color: '#4db6ac',
       tools: ['teddy', 'bunny', 'dino', 'book', 'chair', 'apple', 'banana', 'blanket', 'cushion', 'plate', 'box', 'bag'],
       rides: ['car', 'tricycle'],
-      spawn: [['mimi', 760, 720], ['gaku', 1000, 760], ['choco', 560, 780]],
+      spawn: [['mimi', 760, 720], ['gaku', 1000, 760], ['choco', 560, 780], ['pyoko', 880, 820]],
       fixtures: [['bed', 360, 660], ['medshelf', 1180, 590], ['bed', 1420, 760]],
       bg(c, r) {
         B.wallpaper(c, 590, '#e3f6f0', '#d3efe6');
@@ -605,7 +605,7 @@
     st({ id: 'kinder', num: 8, name: 'どきどき ようちえん', bgm: 'park', floor: [580, 880], color: '#ffb74d',
       tools: ['book', 'chair', 'table', 'teddy', 'bunny', 'ball', 'box', 'blanket', 'cushion', 'plate', 'apple', 'onigiri', 'bag'],
       rides: ['slide', 'trampoline', 'train', 'tricycle'],
-      spawn: [['lulu', 620, 760], ['pon', 860, 780], ['mimi', 1040, 740], ['choco', 1240, 790]],
+      spawn: [['lulu', 620, 760], ['pon', 860, 780], ['mimi', 1040, 740], ['choco', 1240, 790], ['pyoko', 460, 800]],
       fixtures: [['blackboard', 620, 470], ['piano', 1310, 640], ['desk', 760, 720], ['cubby', 150, 600]],
       bg(c, r) {
         B.wallpaper(c, 600, '#fff6d6', '#ffefc0');
@@ -652,7 +652,7 @@
     st({ id: 'forest', num: 11, name: 'まほうの もり', bgm: 'camp', floor: [570, 880], color: '#26a69a',
       tools: ['acorn', 'flashlight', 'blanket', 'bag', 'teddy', 'bunny', 'book', 'apple', 'cake', 'box', 'duck', 'sheet'],
       rides: ['tent', 'trampoline'],
-      spawn: [['choco', 640, 760], ['mimi', 880, 740], ['moko', 1060, 790]],
+      spawn: [['choco', 640, 760], ['mimi', 880, 740], ['moko', 1060, 790], ['pyoko', 520, 820]],
       fixtures: [['mushroom', 360, 680], ['magictree', 1260, 620], ['fairypond', 780, 850]],
       bg(c, r) {
         B.sky(c, '#3fa39a', '#c9f0d8', 580);
