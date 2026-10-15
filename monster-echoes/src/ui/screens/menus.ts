@@ -13,6 +13,7 @@ import { openDex } from './dex';
 import type { App } from '../App';
 import { btn, h, item } from '../dom';
 import { monIcon, monsterDetailBody, sexMark } from '../components/monster';
+import { icon } from '../components/icons';
 
 export const TACTICS: { id: Tactic; name: string; short: string; desc: string }[] = [
   { id: 'attack', name: 'こうげき ゆうせん', short: 'こうげき', desc: 'てきへの ダメージを いちばんに かんがえる' },
@@ -25,35 +26,32 @@ export const TACTICS: { id: Tactic; name: string; short: string; desc: string }[
 // ---------------------------------------------------------------- フィールドメニュー
 export function openFieldMenu(app: App, onClose: () => void) {
   const g = app.game!;
-  app.panel('メニュー', (body) => {
+  // 参考画像2「メニュー画面」：右がわの 縦メニュー＋アイコン、下に 所持金
+  app.panel('メニュー', (body, foot) => {
     const inDungeon = !!g.state.expedition;
-    body.append(
-      h('div', { class: 'win small' }, h('div', null, `${g.state.player.name}  ${g.state.player.gold} G`), h('div', { class: 'muted' }, `さくせん: ${TACTICS.find((t) => t.id === g.state.player.tactic)!.name}`)),
-      h('div', { class: 'win list' },
-        item('つよさ', () => openParty(app, () => {}, { viewOnly: inDungeon })),
-        item('じゅもん', () => openFieldSkills(app)),
-        item('どうぐ', () => openItems(app)),
-        item('さくせん', () => openTactic(app)),
-        item('ぼうけんメモ', () => openNotes(app)),
-        inDungeon ? item('まちへ かえる（かえりのはね）', () => returnHome(app), { disabled: !(g.state.inventory.returnwing > 0), meta: `のこり ${g.state.inventory.returnwing ?? 0}` }) : null,
-        item('せってい', () => openSettings(app)),
-        item('きろくする', () => app.saveNow(true), { meta: 'オートセーブ ON' }),
-      ),
-    );
-    // まちでは しせつへ すぐ行ける（歩いて行かなくても よい）。章の 進行で 解放された ものだけ
-    if (!inDungeon) {
-      body.children[0].after(h('div', { class: 'small muted' }, 'しせつ（タップで すぐ いけます）'), h('div', { class: 'win list' },
-        item('ぼくじょう', () => openParty(app, () => {}), { meta: 'パーティ へんせい' }),
-        g.hasFeature('breeding') ? item('配合', () => openBreeding(app, () => {}), { meta: '配合の館' }) : null,
-        g.hasFeature('dex') ? item('モンスターずかん', () => openDex(app)) : null,
-        item('いやしの ふんすい', async () => { sfx('heal'); g.healAll(); await app.say('モンスターたちの HPと MPが すべて かいふくした！'); app.refreshPanels(); }, { meta: 'むりょう' }),
-      ));
-    }
-  }, { onClose });
+    const row = (ic: string, label: string, fn: () => void, o: { disabled?: boolean; meta?: string } = {}) => {
+      const r = item(h('span', { class: 'mrow' }, icon(ic), h('span', null, label)), fn, o);
+      return r;
+    };
+    body.append(h('div', { class: 'win list side-list' },
+      row('monster', 'モンスター', () => openParty(app, () => {}, { viewOnly: inDungeon })),
+      row('breed', '配合', () => openBreeding(app, () => {}), { disabled: inDungeon || !g.hasFeature('breeding'), meta: g.hasFeature('breeding') ? '' : 'ミズナで' }),
+      row('dex', '図鑑', () => openDex(app), { disabled: !g.hasFeature('dex'), meta: g.hasFeature('dex') ? '' : '第1章で' }),
+      row('bag', 'もちもの', () => openItems(app)),
+      row('tactic', '作戦', () => openTactic(app), { meta: TACTICS.find((t) => t.id === g.state.player.tactic)!.short }),
+      row('skill', 'とくぎ', () => openFieldSkills(app)),
+      row('memo', 'ぼうけんメモ', () => openNotes(app)),
+      inDungeon ? row('home', 'リーフェルへ かえる', () => returnHome(app), { disabled: !(g.state.inventory.returnwing > 0), meta: `のこり ${g.state.inventory.returnwing ?? 0}` }) : null,
+      !inDungeon ? row('spring', 'いやしの ふんすい', async () => { sfx('heal'); g.healAll(); await app.say('モンスターたちの HPと MPが すべて かいふくした！'); app.refreshPanels(); }) : null,
+      row('save', 'セーブ', () => app.saveNow(true), { meta: 'じどう ON' }),
+      row('option', 'オプション', () => openSettings(app)),
+    ));
+    foot.append(h('div', { class: 'gold-line' }, icon('coin', 'ico coin'), h('span', { class: 'grow' }, '所持金'), h('span', null, `${g.state.player.gold}G`)));
+  }, { onClose, cls: 'side' });
 }
 
 async function returnHome(app: App) {
-  if (!(await app.confirm('かえりのはねを つかって まちへ もどりますか？'))) return;
+  if (!(await app.confirm('かえりのはねを つかって リーフェルへ もどりますか？'))) return;
   const r = app.game!.useFieldItem('returnwing', null);
   if (!r.ok) return app.toast(r.error);
   app.closeAllPanels();

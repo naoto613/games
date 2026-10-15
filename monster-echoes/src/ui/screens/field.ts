@@ -11,7 +11,9 @@ import { mkCanvas } from '../gfx/Pix';
 import { bossAccent, personSprite, TILE, tileSprite, type Theme } from '../gfx/tiles';
 import { startBattle } from './battle';
 import { talkTo } from './town';
-import { openFieldMenu, openParty } from './menus';
+import { openFieldMenu, openItems, openParty } from './menus';
+import { openDex } from './dex';
+import { icon } from '../components/icons';
 import { buildingAt, TOWN_BUILDINGS } from '../../data/town';
 import { EVENT_BY_ID } from '../../data/events';
 import { runEvent } from './events';
@@ -46,6 +48,7 @@ export class FieldScreen implements Screen {
   private frame = 0;
   private paused = false;
   private map!: TileMap;
+  private dexBtn!: HTMLElement;
   private stepAnim = 0;
 
   constructor(private app: App) {
@@ -86,7 +89,8 @@ export class FieldScreen implements Screen {
    */
   private buildTouch(view: HTMLElement) {
     const knob = h('div', { class: 'knob' });
-    const joy = h('div', { class: 'joy' }, knob);
+    // 参考画像2「UI・操作イメージ」：左下に 仮想スティックを いつも 表示（ゆびを おいた ところに うごいて なぞれる）
+    const joy = h('div', { class: 'joy idle' }, knob);
     view.append(joy);
     let start: { x: number; y: number; id: number; t: number } | null = null;
     let dragging = false;
@@ -99,7 +103,7 @@ export class FieldScreen implements Screen {
       knob.style.transform = `translate(${dx * k}px, ${dy * k}px)`;
     };
     view.addEventListener('pointerdown', (e) => {
-      if (start || (e.target as HTMLElement).closest('.pstrip, .fmenu')) return;
+      if (start || (e.target as HTMLElement).closest('.pstrip, .fmenu, .fbtns')) return;
       start = { x: e.clientX, y: e.clientY, id: e.pointerId, t: performance.now() };
       dragging = false;
       view.setPointerCapture(e.pointerId);
@@ -113,6 +117,7 @@ export class FieldScreen implements Screen {
         dragging = true;
         this.path = []; this.pathGoal = null;
         joy.classList.add('on');
+        joy.classList.remove('idle');
       }
       // スティックが にげないよう、ゆびが とおくまで いったら 中心を ひきよせる
       if (len > R * 1.8) { start.x = e.clientX - (dx / len) * R * 1.8; start.y = e.clientY - (dy / len) * R * 1.8; }
@@ -129,14 +134,28 @@ export class FieldScreen implements Screen {
       start = null;
       dragging = false;
       joy.classList.remove('on');
+      joy.classList.add('idle');
+      joy.style.left = ''; joy.style.top = '';
+      knob.style.transform = '';
       this.held = null;
       if (!wasDrag && !cancel) this.tapMap(e);
     };
     view.addEventListener('pointerup', (e) => end(e, false));
     view.addEventListener('pointercancel', (e) => end(e, true));
-    const menu = h('button', { class: 'btn fmenu', type: 'button', 'aria-label': 'メニュー' }, h('span', { class: 'ham' }, '≡'), 'メニュー');
-    menu.addEventListener('click', (e) => { e.stopPropagation(); this.key('menu', true); });
-    view.append(menu);
+    // 右がわの 縦ボタン（メニュー・図鑑・セーブ・もちもの）
+    const fb = (ic: string, label: string, fn: () => void) => {
+      const b = h('button', { class: 'fbtn', type: 'button', 'aria-label': label }, icon(ic), h('span', null, label));
+      b.addEventListener('pointerdown', (e) => e.stopPropagation());
+      b.addEventListener('click', (e) => { e.stopPropagation(); if (this.busy || this.moving) return; sfx('ok'); this.held = null; fn(); });
+      return b;
+    };
+    this.dexBtn = fb('dex', 'ずかん', () => openDex(this.app));
+    view.append(h('div', { class: 'fbtns' },
+      fb('option', 'メニュー', () => openFieldMenu(this.app, () => this.afterMenu())),
+      this.dexBtn,
+      fb('save', 'セーブ', () => void this.app.saveNow(true)),
+      fb('bag', 'もちもの', () => openItems(this.app)),
+    ));
   }
 
   /** 画面いっぱいに マップを ひろげる（たて長でも よこ長でも あまらないように 行数を きめる） */
@@ -220,6 +239,7 @@ export class FieldScreen implements Screen {
 
   updateHud() {
     const s = this.game.state;
+    (this.dexBtn as HTMLButtonElement).disabled = !this.game.hasFeature('dex');
     this.hudL.textContent = this.inTown ? this.game.currentTownMap().name : this.game.floor!.floor.name;
     this.hudR.textContent = `${s.player.gold} G`;
     clear(this.strip);
