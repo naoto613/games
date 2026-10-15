@@ -1,3 +1,4 @@
+import { headStart } from '../../src/data/v2/species';
 import { describe, expect, it } from 'vitest';
 import { createRng, sequenceRng } from '../../src/core/Random';
 import { BALANCE } from '../../src/data/balance';
@@ -169,7 +170,9 @@ describe('セーブ v3 → v4（かしこさ → 魔力・精神）', () => {
     expect(r.value.schemaVersion).toBe(SCHEMA_VERSION);
     for (const m of r.value.monsters) {
       expect(m.stats.magic).toBeGreaterThan(0);
-      expect(m.stats.spirit).toBe(m.stats.magic);
+      // v4 では 精神 ＝ 魔力（そのあと v7 で 種族ごとの 上のせが 足される）
+      const add = headStart(getSpecies(m.speciesId).growth);
+      expect(m.stats.spirit - add.spirit).toBe(m.stats.magic - add.magic);
       expect((m.stats as unknown as Record<string, unknown>).wisdom).toBeUndefined();
     }
   });

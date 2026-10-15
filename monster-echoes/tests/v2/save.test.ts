@@ -1,3 +1,5 @@
+import { headStart } from '../../src/data/v2/species';
+import { getSpecies } from '../../src/data/monsters';
 import { describe, expect, it } from 'vitest';
 import { createRng } from '../../src/core/Random';
 import { SCHEMA_VERSION } from '../../src/application/GameState';
@@ -30,15 +32,15 @@ function oldSave(version: number) {
   return s;
 }
 
-describe('SCHEMA v6：古い セーブを 読みこめる（v2 の 世界へ 引き継ぎ）', () => {
-  it('現在の SCHEMA は 6', () => expect(SCHEMA_VERSION).toBe(6));
+describe('SCHEMA v7：古い セーブを 読みこめる（v2 の 世界へ 引き継ぎ）', () => {
+  it('現在の SCHEMA は 7', () => expect(SCHEMA_VERSION).toBe(7));
   for (const v of [1, 2, 3, 4, 5]) {
-    it(`v${v} → v6`, () => {
+    it(`v${v} → v7`, () => {
       const r = migrate(oldSave(v));
       expect(r.ok).toBe(true);
       if (!r.ok) return;
       const s = r.value;
-      expect(s.schemaVersion).toBe(6);
+      expect(s.schemaVersion).toBe(7);
       expect(s.monsters.map((m) => m.speciesId)).toEqual(['m001', 'm021']);
       for (const m of s.monsters) {
         expect(m.stats.magic).toBeGreaterThan(0);
@@ -56,7 +58,20 @@ describe('SCHEMA v6：古い セーブを 読みこめる（v2 の 世界へ 引
       expect(s.v2.equipment).toEqual({ owned: {}, equipped: {} });
     });
   }
-  it('すでに v6 なら そのまま。新しすぎる セーブは future', () => {
+  it('v6 → v7：v2 の モンスターの 能力に Lv1 の 上のせ（伸び × v2HeadStart）を 足す', () => {
+    const s = JSON.parse(JSON.stringify(newGameState('ミナ', createRng(1), 0)));
+    s.schemaVersion = 6;
+    const before = s.monsters[0];
+    const r = migrate(s);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const after = r.value.monsters[0];
+    const add = headStart(getSpecies(before.speciesId).growth);
+    expect(after.stats.attack).toBe(before.stats.attack + add.attack);
+    expect(after.stats.hp).toBe(before.stats.hp + add.hp);
+    expect(after.hp).toBe(Math.min(after.stats.hp, before.hp + add.hp));
+  });
+  it('すでに v7 なら そのまま。新しすぎる セーブは future', () => {
     const s = newGameState('ミナ', createRng(1), 0);
     const r = migrate(JSON.parse(JSON.stringify(s)));
     expect(r.ok && r.value).toEqual(s);
