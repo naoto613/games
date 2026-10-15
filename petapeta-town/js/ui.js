@@ -395,9 +395,8 @@
     setTimeout(() => t.remove(), 4300);
   }
   function toastDisc(id) {
-    const D = PT.DISC[id];
+    // ふきだしは 出さない（アルバムには きろくされる）。音と アルバムボタンの ゆれだけで しらせる
     A.sfx('discover');
-    toast('ふしぎ はっけん！', D.title, D.icons);
     const ab = $('.side-btns .round-btn'); ab.classList.add('pulse'); setTimeout(() => ab.classList.remove('pulse'), 2500);
   }
   function checkRewards() {
