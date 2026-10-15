@@ -42,6 +42,12 @@
       R.claim(ch, 3000).look(ch.x + (Math.random() < 0.5 ? -1 : 1)).face('puzzled', 900).say('なにか ないかな？', '?', 1300, 'hmm').pose('think', 900).face('happy').pose('point', 700).say('あっちに いこう！', '!', 1100, 'yay');
     },
     pon(ch) {
+      if (Math.random() < 0.4) {
+        R.claim(ch, 4000).pose('trip', 900).face('surprise', 600).say('わわっ！', 'sweat', 900, 'wow').pose('sit', 500).face('laugh', 1200).say('へっちゃら！', null, 1200, 'laugh').pose('cheer', 600).do(() => R.found('d_oops'));
+        const g = R.free(ch.x, ch.y, [ch], 500)[0];
+        if (g) W.after(900, () => R.claim(g, 2500).look(ch.x).say('だいじょうぶ？', 'heart', 1300).face('laugh', 1000));
+        return;
+      }
       R.claim(ch, 3000).face('silly', 1800).say('べー！', null, 1100, 'laugh').pose('tickle', 1200).face('laugh', 900);
       R.audience(ch.x, ch.y, [ch], 'laugh', 3, 500);
       W.after(800, () => R.found('d_funnyface'));
@@ -63,6 +69,10 @@
       R.claim(ch, 4000).say('いっしょに おどろう！', 'note', 1400, 'yay').pose('dance', 2600).face('laugh', 900);
       R.free(ch.x, ch.y, [ch], 1200).slice(0, 3).forEach((o, i) => W.after(600 + i * 250, () => R.claim(o, 3200).look(ch.x).pose('dance', 2200).say(i === 0 ? 'まねっこ！' : '', null, 1100, 'yay')));
       W.after(1200, () => R.found('d_mimic'));
+    },
+    pyoko(ch) {
+      R.claim(ch, 4000).pose('shy', 700).say('えへへ…', null, 1000, 'talk').jump(120, 700).say('ぴょーん！', 'star', 1200, 'yay').do(() => { const f = W.addProp('flower', ch.x + 50, ch.y + 6, { temp: true }); if (f) f.pop = W.t; PT.audio.sfx('sparkle'); }).say('おはな どうぞ', 'flower', 1300, 'yay').face('love', 1200);
+      R.mimic(ch, 'jump', 1000, 'ぴょーん まねっこ');
     },
     moko(ch) {
       if (ch.pose === 'sleep' || ch.rest === 'sleep') { ch.rest = 'idle'; R.claim(ch, 2000).face('surprise', 800).say('はっ！ おきた！', '!', 1200, 'wow').jump(40, 400).face('laugh', 800); return; }
@@ -142,77 +152,40 @@
   };
   R.add({ id: 'tag-tap', on: 'tapchar', pri: 90, test: (c) => (R.tagTok && c.e.lockUntil > W.t && Math.random() < 0.01 ? 1 : null), run() {} });
 
-  /* ---------- ふだんの行動（アンビエント） ---------- */
-  const social = (ch) => {
-    const o = R.free(ch.x, ch.y, [ch], 600)[0];
-    const r = Math.random();
-    if (ch.cid === 'pon' && r < 0.35) {
-      const p = W.randFloor(200);
-      R.claim(ch, 5000).go(p.x, p.y, true).pose('trip', 900).face('surprise', 600).say('わわっ！', 'sweat', 900, 'wow').pose('sit', 500).face('laugh', 1200).say('へっちゃら！', null, 1200, 'laugh').pose('cheer', 600).do(() => R.found('d_oops'));
-      const g = W.charOf('gaku') && W.isFree(W.charOf('gaku')) ? W.charOf('gaku') : o;
-      if (g) W.after(900, () => R.chars().includes(g) && R.claim(g, 3000).go(p.x + 90, p.y + 10, true).look(p.x).say('だいじょうぶ？', 'heart', 1300).face('laugh', 1000));
-      return true;
-    }
-    if (ch.cid === 'moko' && r < 0.3) { R.sleepy(ch); return true; }
-    if (!o) return false;
-    if (ch.cid === 'choco' || (r < 0.3 && W.charOf('choco') && W.isFree(W.charOf('choco')))) {
-      const src = ch.cid === 'choco' ? o : ch;
-      const pose = PT.pick(['wave', 'dance', 'point', 'cheer', 'think']);
-      R.claim(src, 3000).pose(pose, 1500).say(PT.pick(['ふんふん♪', 'やっほー', 'えへへ']), null, 1100);
-      return R.mimic(src, pose, 1500);
-    }
-    if (r < 0.65) {
-      const p = R.besides(o, ch.x < o.x ? -1 : 1, 80);
-      const icon = PT.pick(['heart', 'note', 'star', 'cake', 'ball', 'dino', 'balloon']);
-      R.claim(ch, 4500).go(p.x, p.y).look(o.x).pose('shy', 1200).say('ないしょ…', icon, 1500, 'talk');
-      R.claim(o, 4500).look(ch.x).wait(1300).face('surprise', 700).say('えー！ ほんと？', '!', 1300, 'wow').face('laugh', 1200).pose('tickle', 900);
-      W.after(2200, () => R.found('d_secret'));
-      return true;
-    }
-    R.claim(ch, 2400).look(o.x).pose('wave', 900).say(PT.pick(['あそぼ！', 'ねえねえ', 'たのしいね！']), null, 1200);
-    R.claim(o, 2400).look(ch.x).pose('wave', 900).say(PT.pick(['うん！', 'いいよ！', 'えへへ']), null, 1100);
-    return true;
-  };
-  const useProp = (ch) => {
-    // あたらしい物は ルルが みつけて みんなを よぶ
-    const lulu = W.charOf('lulu');
-    if (lulu && W.isFree(lulu) && R.chars().includes(lulu)) {
-      const fresh = R.newestUnnoticed(lulu);
-      if (fresh && W.t - fresh.bornT > 6000) {
-        fresh.noticed = true;
-        R.callFriends(lulu, fresh.x, fresh.y);
-        W.after(400, () => R.found('d_lulucall'));
-        W.after(1900, () => !fresh.removed && R.run('drop', { e: fresh, x: fresh.x, y: fresh.y, user: false, ambient: true }));
-        return true;
-      }
-    }
-    const p = nearP(ch.x, ch.y, 900, (q) => !q.temp && !q.hidden && !q.def.food && !q.def.oneShot && !q.def.wear && q.mode !== 'fort' && !q.rider && W.t - (q.lastUse || 0) > 15000 && !['castle', 'present'].includes(q.type))[0];
-    if (!p) return false;
-    p.lastUse = W.t; p.noticed = true;
-    R.run('drop', { e: p, x: p.x, y: p.y, user: false, ambient: true });
-    return true;
+  /* ふだんの ようす：その場で ちいさく うごくだけ（かってに あるきまわらない） */
+  const IDLE = {
+    lulu: [['think', 'なにかな？'], ['point', ''], ['wave', '']],
+    pon: [['dance', 'ふんふーん♪'], ['tickle', ''], ['cheer', '']],
+    mimi: [['wave', 'るんるん'], ['shy', ''], ['dance', '']],
+    gaku: [['think', 'ふむ'], ['hold', ''], ['wave', '']],
+    choco: [['jump', 'ぴょん！'], ['dance', ''], ['spin', '']],
+    moko: [['sit', 'のんびり〜'], ['eat', ''], ['sleep', 'ふわぁ']],
+    pyoko: [['jump', 'ぴょこ！'], ['shy', ''], ['wave', '']],
   };
   R.ambientTick = () => {
     if (W.t < R.ambAt) return;
-    R.ambAt = W.t + PT.rand(2200, 3800) + R.chars().length * -150;
-    if (W.t - R.lastUser < 2500) return;
+    R.ambAt = W.t + PT.rand(4000, 7000);
+    if (W.t - R.lastUser < 3000) return;
     if (PT.game && PT.game.paused) return;
     const idle = R.chars().filter((c) => W.isFree(c) && !c.cur && !c.queue.length && !c.riding && !c.stay);
     if (!idle.length) return;
     const ch = PT.pick(idle);
     const music = W.props().find((p) => p.playing);
     if (music) { R.claim(ch, 3000).look(music.x).pose('dance', 2600); return; }
-    const r = Math.random();
-    if (r < 0.28 && social(ch)) return;
-    if (r < 0.55 && useProp(ch)) return;
-    if (r < 0.7) {
-      const looks = { lulu: ['think', 'なにかな？'], pon: ['dance', 'ふんふーん♪'], mimi: ['wave', 'るんるん'], gaku: ['think', 'ふむ'], choco: ['jump', 'ぴょん！'], moko: ['sit', 'のんびり〜'] }[ch.cid];
-      R.claim(ch, 2500).pose(looks[0], 1400).say(Math.random() < 0.5 ? looks[1] : '', null, 1100, Math.random() < 0.5 ? 'talk' : null);
+    const o = R.free(ch.x, ch.y, [ch], 220)[0];
+    if (o && Math.random() < 0.3) {
+      // となりの子と その場で ないしょばなし
+      const icon = PT.pick(['heart', 'note', 'star', 'cake', 'ball', 'balloon']);
+      R.claim(ch, 3500).look(o.x).pose('shy', 1200).say('ないしょ…', icon, 1500, 'talk');
+      R.claim(o, 3500).look(ch.x).wait(1300).face('surprise', 700).say('えー！ ほんと？', '!', 1300, 'wow').face('laugh', 1200);
+      W.after(2200, () => R.found('d_secret'));
       return;
     }
-    const p = W.randFloor(160);
-    const d = Math.hypot(p.x - ch.x, p.y - ch.y);
-    const k = Math.min(1, 380 / Math.max(1, d));
-    R.claim(ch, 4000).go(ch.x + (p.x - ch.x) * k, ch.y + (p.y - ch.y) * k);
+    const [pose, line] = PT.pick(IDLE[ch.cid] || IDLE.lulu);
+    const a = R.claim(ch, 2800);
+    if (Math.random() < 0.3) a.look(ch.x + (Math.random() < 0.5 ? -1 : 1));
+    if (pose === 'jump') a.jump(30, 420); else a.pose(pose, 1400);
+    if (line && Math.random() < 0.5) a.say(line, null, 1100, 'talk');
+    if (ch.cid === 'moko' && pose === 'sleep') a.face('sleep', 1400);
   };
 })();
