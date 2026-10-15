@@ -209,7 +209,7 @@ export class App {
 
   // ---------------------------------------------------------------- パネル（全画面のメニュー）
   /** タイトルつきのパネルを開く。build は refresh のたびに呼ばれる。 */
-  panel(title: string, build: (body: HTMLElement, foot: HTMLElement, p: Panel) => void, opts: { onClose?: () => void; noBack?: boolean } = {}): Panel {
+  panel(title: string, build: (body: HTMLElement, foot: HTMLElement, p: Panel) => void, opts: { onClose?: () => void; noBack?: boolean; cls?: string } = {}): Panel {
     const body = h('div', { class: 'panel-body' });
     const foot = h('div', { class: 'panel-foot' });
     const titleEl = h('div', { class: 'title' }, title);
@@ -220,7 +220,7 @@ export class App {
       opts.onClose?.();
     };
     const back = btn('◀ もどる', () => { sfx('cancel'); p.onBack(); });
-    const el = h('div', { class: 'panel' }, h('div', { class: 'panel-head' }, opts.noBack ? null : back, titleEl), body, foot);
+    const el = h('div', { class: `panel${opts.cls ? ' ' + opts.cls : ''}` }, h('div', { class: 'panel-head' }, opts.noBack ? null : back, titleEl), body, foot);
     const p: Panel = {
       el, body, foot,
       refresh: () => {

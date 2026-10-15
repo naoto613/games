@@ -82,7 +82,7 @@ canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
 .joy .knob { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.9), rgba(160,176,255,.75)); box-shadow: 0 2px 6px rgba(0,0,0,.4); }
 .fmenu { position: absolute; right: 8px; bottom: calc(66px + var(--safe-b)); z-index: 6; min-height: 48px; padding: 4px 14px; font-size: .9em; gap: 4px; opacity: .95; }
 .fmenu .ham { font-size: 1.3em; line-height: 1; }
-.savemark { position: absolute; right: 8px; bottom: calc(122px + var(--safe-b)); z-index: 70; font-size: .72em; padding: 2px 8px; border-radius: 10px; background: rgba(10,16,40,.75); border: 1px solid #8fa0ff; color: #cfe0ff; opacity: 0; transition: opacity .3s; pointer-events: none; }
+.savemark { position: absolute; right: 72px; bottom: calc(74px + var(--safe-b)); z-index: 70; font-size: .72em; padding: 2px 8px; border-radius: 10px; background: rgba(10,16,40,.75); border: 1px solid #8fa0ff; color: #cfe0ff; opacity: 0; transition: opacity .3s; pointer-events: none; }
 .savemark.on { opacity: 1; }
 .hud { position: absolute; left: 6px; top: 6px; padding: 2px 8px; font-size: 0.82em; z-index: 5; }
 .hud.right { left: auto; right: 6px; }
@@ -128,9 +128,15 @@ canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
 @keyframes birth { 0% { transform: scale(0.2) rotate(-20deg); filter: brightness(5); } 60% { transform: scale(1.15); filter: brightness(2); } 100% { transform: none; filter: none; } }
 
 /* ---- タイトル */
-.titlescr { position: absolute; inset: 0; display: flex; flex-direction: column; }
-.titlescr canvas { width: 100%; flex: none; }
-.titlescr .menu { margin: auto 24px calc(24px + var(--safe-b)); display: flex; flex-direction: column; gap: 10px; }
+.titlescr { position: absolute; inset: 0; overflow: hidden; background: #2a5e2a; }
+.titlescr canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; }
+/* 参考画像2「タイトル画面」：右下の メニュー枠（▶ はじめから／つづきから／オプション） */
+.titlescr .tmenu { position: absolute; right: 14px; bottom: calc(48px + var(--safe-b)); display: flex; flex-direction: column; min-width: 172px; padding: 6px 4px; }
+.titlescr .titem { position: relative; background: none; border: none; color: #fff; font: inherit; font-size: 1.1em; text-align: left; padding: 8px 14px 8px 30px; cursor: pointer; }
+.titlescr .titem.sel::before, .titlescr .titem:hover::before, .titlescr .titem:focus-visible::before { content: '▶'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: .7em; color: var(--hl); }
+.titlescr .titem.sel { color: var(--hl); }
+.titlescr .tcopy { position: absolute; left: 10px; bottom: calc(10px + var(--safe-b)); font-size: .7em; color: #fff; text-shadow: 0 1px 2px #000; }
+.titlescr .terr { position: absolute; left: 10px; right: 10px; top: 10px; }
 input.name { font: inherit; font-size: 1.3em; padding: 10px; width: 100%; background: #000; color: #fff; border: 2px solid #fff; border-radius: 6px; -webkit-user-select: text; user-select: text; }
 
 /* ---- 牧場のカード */
@@ -166,3 +172,53 @@ input.name { font: inherit; font-size: 1.3em; padding: 10px; width: 100%; backgr
 @keyframes rfpop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes rfglow { from { transform: scale(.85); opacity: .7; } to { transform: scale(1.1); opacity: 1; } }
 @keyframes rfspark { 0% { transform: rotate(var(--a)) translateY(20px); opacity: 1; } 100% { transform: rotate(var(--a)) translateY(calc(var(--d) + 40px)); opacity: 0; } }
+
+/* ---- 戦闘（v2：参考画像2「戦闘画面」の 構成。上に 場面、ログ＋右の 縦コマンド、下に 味方の カード） */
+.battle .battle-mid { flex: 1; min-height: 0; display: flex; gap: 4px; padding: 0 4px; }
+.battle .battle-mid .log { margin: 4px 0; min-height: 0; }
+.battle .cmds { margin: 4px 0; padding: 0; flex: none; }
+.battle .cmds.vert { display: flex; flex-direction: column; width: 36%; max-width: 150px; gap: 0; padding: 4px; background: linear-gradient(180deg, #1c2a5c 0%, #101a3e 55%, #0c1430 100%); border: 3px solid var(--win-line); border-radius: 10px; box-shadow: 0 0 0 2px #050814, inset 0 0 0 2px #2a3c7a; }
+.battle .cmds.vert .btn { min-height: 0; flex: 1; justify-content: flex-start; padding: 2px 10px 2px 22px; background: none; border: none; border-bottom: 1px solid rgba(160,180,255,.18); border-radius: 0; box-shadow: none; font-size: 1em; position: relative; text-align: left; }
+.battle .cmds.vert .btn:last-child { border-bottom: none; }
+.battle .cmds.vert .btn.primary::before, .battle .cmds.vert .btn:focus-visible::before, .battle .cmds.vert .btn:hover::before { content: '▶'; position: absolute; left: 6px; font-size: .7em; color: var(--hl); }
+.battle .cmds.vert .btn.primary { color: var(--hl); }
+.battle .battle-mid.wide .log { display: none; }
+.battle .battle-mid.wide .cmds { flex: 1; align-content: start; overflow-y: auto; }
+.battle .party-bar { padding: 4px 4px calc(6px + var(--safe-b)); }
+.battle .pbox { padding: 4px 6px 3px; min-height: 0; font-size: .78em; line-height: 1.2; }
+.battle .pbox .phead { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
+.battle .pbox .face { width: 30px; height: 30px; flex: none; image-rendering: pixelated; background: rgba(255,255,255,.06); border-radius: 6px; }
+.battle .pbox .nm { flex: 1; min-width: 0; }
+.battle .pbox .lv { display: block; font-size: .85em; color: var(--sub); }
+.battle .pbox .gauge { display: grid; grid-template-columns: 2em 1fr 2.4em; align-items: center; gap: 3px; }
+.battle .pbox .gauge .k { font-size: .85em; color: var(--sub); }
+.battle .pbox .gauge .n { text-align: right; }
+.battle .pbox .gauge .bar { height: 6px; margin: 0; }
+.battle .pbox .gauge.mp .bar > i { background: var(--accent); }
+.battle .pbox .st { min-height: 1.1em; }
+.battle .bview { flex: 1; min-height: 200px; aspect-ratio: auto; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
+.battle .bview canvas { flex: none; width: auto; height: min(100%, 70vw); aspect-ratio: 352 / 224; }
+.battle .battle-mid { flex: none; height: min(290px, 36vh); }
+
+/* ---- アイコン */
+.ico { display: inline-flex; width: 22px; height: 22px; flex: none; color: #dfe8ff; }
+.ico svg { width: 100%; height: 100%; }
+.ico.coin { color: #ffd84a; }
+
+/* ---- メニュー（参考画像2「メニュー画面」：右がわの 縦メニュー） */
+.panel.side { left: auto; width: min(270px, 74vw); border-left: 3px solid var(--win-line); box-shadow: -6px 0 18px rgba(0,0,0,.55); background: linear-gradient(180deg, rgba(16,26,62,.97), rgba(8,12,32,.97)); }
+.panel.side .panel-body { padding: 8px 6px; }
+.panel.side .side-list { padding: 4px 4px; }
+.panel.side .item { min-height: 46px; }
+.mrow { display: inline-flex; align-items: center; gap: 10px; }
+.mrow .ico { width: 30px; height: 30px; padding: 4px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #3a5ab0, #1a2a62); box-shadow: inset 0 0 0 1.5px rgba(200,215,255,.55); }
+.gold-line { display: flex; align-items: center; gap: 8px; width: 100%; padding: 4px 6px; font-size: 1.05em; }
+.gold-line .grow { flex: 1; }
+
+/* ---- フィールドUI（参考画像2「UI・操作イメージ」：左下の 仮想スティックと 右の 縦ボタン） */
+.joy.idle { display: block; left: 18px; top: auto; bottom: calc(70px + var(--safe-b)); margin: 0; opacity: .75; }
+.fbtns { position: absolute; right: 6px; bottom: calc(70px + var(--safe-b)); z-index: 6; display: flex; flex-direction: column; gap: 6px; }
+.fbtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; width: 58px; height: 56px; padding: 4px 2px; background: linear-gradient(180deg, rgba(42,58,120,.92), rgba(20,30,80,.92)); border: 2px solid #dfe4ff; border-radius: 12px; box-shadow: 0 2px 0 #060a1c, inset 0 1px 0 rgba(255,255,255,.25); font-size: .66em; color: #fff; cursor: pointer; }
+.fbtn .ico { width: 24px; height: 24px; }
+.fbtn:active { transform: translateY(1px); }
+.fbtn[disabled] { opacity: .4; pointer-events: none; }
