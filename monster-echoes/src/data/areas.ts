@@ -1,5 +1,7 @@
 import type { AreaDefinition, ArenaRankDefinition, BossDefinition, EncounterTable, Reward } from './types';
 
+// v2 の ダンジョン（章の ステージ）。Phase 1：第1章（木漏れ日の小道・ささやきの森）。
+// 出現は 仕様 6 第1章の 階ごとの 表どおり（Q16：グリーンピクシー → 043 グリーンスプライト）。
 const enc = (id: string, entries: [string, number, number, number][], groupSize: [number, number][]): EncounterTable => ({
   id,
   entries: entries.map(([speciesId, weight, minLevel, maxLevel]) => ({ speciesId, weight, minLevel, maxLevel })),
@@ -8,26 +10,15 @@ const enc = (id: string, entries: [string, number, number, number][], groupSize:
 
 export const ENCOUNTERS: Record<string, EncounterTable> = Object.fromEntries(
   [
-    enc('forest1', [['lunaslime', 3, 1, 2], ['leafant', 3, 1, 2], ['thunderkids', 2, 1, 2], ['frostbird', 2, 1, 2], ['ghostbill', 1, 2, 2], ['mintslime', 2, 1, 2], ['rosefant', 2, 1, 2]], [[1, 6], [2, 2]]),
-    enc('forest2', [['lunaslime', 3, 3, 5], ['leafant', 3, 3, 5], ['thunderkids', 3, 3, 5], ['frostbird', 2, 3, 5], ['magmadog', 2, 3, 5], ['sandworm', 2, 3, 5], ['mintslime', 2, 3, 5], ['rosefant', 2, 3, 5], ['venomworm', 1, 4, 5]], [[1, 3], [2, 4], [3, 1]]),
-    enc('forest3', [['magmadog', 3, 5, 6], ['sandworm', 3, 5, 7], ['leafant', 2, 5, 7], ['ghostbill', 2, 5, 6], ['thunderkids', 2, 5, 7], ['greensprite', 1, 5, 6], ['rosefant', 1, 5, 7], ['shadowdog', 1, 5, 6]], [[1, 3], [2, 4], [3, 1]]),
-    enc('cave1', [['stonegolem', 3, 7, 9], ['devilcrab', 3, 7, 9], ['ghostbill', 2, 7, 9], ['lunaslime', 2, 7, 9], ['icekrill', 1, 7, 8], ['bluecrab', 2, 7, 9], ['shadowdog', 1, 8, 9]], [[1, 2], [2, 4], [3, 2]]),
-    enc('cave2', [['stonegolem', 2, 9, 11], ['devilcrab', 2, 9, 11], ['icekrill', 2, 9, 11], ['darkeye', 2, 9, 11], ['ghostbill', 2, 10, 12], ['claygolem', 2, 9, 11], ['bluecrab', 2, 9, 11]], [[1, 2], [2, 4], [3, 2]]),
-    enc('cave3', [['icekrill', 2, 10, 11], ['darkeye', 2, 10, 11], ['devilcrab', 3, 10, 12], ['stonegolem', 3, 11, 12], ['claygolem', 1, 11, 12], ['shadowdog', 1, 10, 11]], [[1, 3], [2, 4], [3, 1]]),
-    enc('highland1', [['frostbird', 3, 13, 15], ['windcat', 2, 13, 14], ['magmadog', 3, 14, 16], ['thunderkids', 2, 13, 15], ['kinoborg', 2, 13, 15], ['blazebird', 2, 13, 15], ['venomworm', 2, 13, 15]], [[1, 1], [2, 4], [3, 3]]),
-    enc('highland2', [['windcat', 3, 15, 17], ['lightningleo', 2, 15, 17], ['kinoborg', 2, 15, 17], ['sandworm', 2, 15, 17], ['blazebird', 2, 15, 17], ['claygolem', 1, 15, 17]], [[1, 1], [2, 4], [3, 3]]),
-    enc('highland3', [['windcat', 3, 17, 19], ['lightningleo', 3, 17, 19], ['frostbird', 2, 17, 19], ['kinoborg', 2, 17, 19], ['venomworm', 1, 17, 19]], [[2, 4], [3, 4]]),
-    enc('tower1', [['kinoborg', 2, 22, 24], ['lightningleo', 3, 24, 26], ['windcat', 3, 24, 26], ['darkeye', 2, 24, 26], ['metalspirit', 1, 20, 22]], [[2, 4], [3, 4]]),
-    enc('tower2', [['lightningleo', 3, 25, 27], ['icekrill', 2, 25, 27], ['greensprite', 2, 25, 27], ['kinoborg', 2, 26, 28], ['metalspirit', 1, 22, 24]], [[2, 3], [3, 5]]),
-    enc('tower3', [['darkdragon', 2, 27, 29], ['lightningleo', 3, 27, 29], ['darkeye', 2, 28, 30], ['metalspirit', 1, 24, 26]], [[2, 2], [3, 6]]),
-    // ---- こおりのゆきやま（ルナフィアたいかい ゆうしょうご）
-    enc('snow1', [['frostbird', 2, 20, 22], ['icewolf', 3, 20, 22], ['bluecrab', 2, 20, 22], ['icekrill', 2, 20, 22], ['mintslime', 1, 18, 20]], [[1, 1], [2, 4], [3, 3]]),
-    enc('snow2', [['icewolf', 3, 21, 23], ['aquasprite', 2, 21, 23], ['thunderbird', 2, 21, 23], ['icekrill', 2, 22, 24], ['rubykrill', 1, 22, 24]], [[2, 4], [3, 4]]),
-    enc('snow3', [['icedragon', 2, 23, 25], ['icewolf', 3, 23, 25], ['aquasprite', 2, 23, 25], ['thunderbird', 2, 23, 25], ['moonleo', 1, 24, 26]], [[2, 3], [3, 5]]),
-    // ---- ほのおのかざん（ひかりのとう・こおりのゆきやま せいはご）
-    enc('volcano1', [['flameslime', 3, 28, 30], ['blazebird', 3, 28, 30], ['redeye', 2, 28, 30], ['magmaworm', 2, 28, 30], ['shadowdog', 2, 26, 28]], [[2, 3], [3, 5]]),
-    enc('volcano2', [['magmaworm', 3, 29, 31], ['hellbill', 3, 29, 31], ['rubykrill', 2, 29, 31], ['redeye', 2, 30, 32], ['firedragon', 1, 30, 32]], [[2, 3], [3, 5]]),
-    enc('volcano3', [['crimsondragon', 1, 30, 31], ['hellbill', 3, 29, 31], ['magmaworm', 3, 29, 31], ['firedragon', 2, 30, 32], ['redeye', 2, 29, 31]], [[2, 3], [3, 5]]),
+    // ---- 1-2 木漏れ日の小道（1F ルナスライム・モスラット／2F バークボア／3F グリーンピクシー）
+    enc('komorebi1', [['m001', 3, 1, 2], ['m041', 4, 1, 1], ['m002', 1, 1, 1]], [[1, 1]]),
+    enc('komorebi2', [['m023', 4, 2, 2], ['m041', 2, 2, 3], ['m001', 2, 2, 3], ['m081', 1, 2, 3]], [[1, 4], [2, 1]]),
+    enc('komorebi3', [['m043', 4, 3, 4], ['m023', 2, 3, 4], ['m041', 2, 3, 4], ['m013', 2, 3, 4], ['m063', 1, 3, 4]], [[1, 2], [2, 3]]),
+    // ---- 1-3 ささやきの森（1F モスラット・バークボア／2F グリーンピクシー・コケゴーレム／3F 毒花／4F キノコ兵）
+    enc('sasayaki1', [['m041', 3, 4, 5], ['m023', 3, 4, 5], ['m042', 2, 4, 5], ['m061', 1, 4, 5]], [[1, 2], [2, 3], [3, 1]]),
+    enc('sasayaki2', [['m043', 3, 5, 6], ['m121', 3, 5, 6], ['m042', 2, 5, 6], ['m085', 1, 5, 6]], [[1, 3], [2, 3], [3, 1]]),
+    enc('sasayaki3', [['m050', 1, 6, 6], ['m047', 1, 6, 6], ['m041', 3, 6, 7], ['m044', 2, 6, 7], ['m023', 2, 6, 7]], [[1, 3], [2, 3], [3, 1]]),
+    enc('sasayaki4', [['m044', 4, 6, 7], ['m141', 2, 6, 7], ['m121', 2, 6, 7], ['m181', 1, 7, 7]], [[1, 3], [2, 4], [3, 1]]),
   ].map((e) => [e.id, e]),
 );
 
@@ -38,81 +29,28 @@ const chest = (gold: number): { weight: number; value: Reward }[] => [
   { weight: 2, value: { type: 'gold', amount: gold } },
   { weight: 1, value: { type: 'item', itemId: 'bonemeat', count: 1 } },
   { weight: 1, value: { type: 'item', itemId: 'mpdrop', count: 1 } },
-  { weight: 1, value: { type: 'item', itemId: 'bigherb', count: 1 } },
-];
-const chest2 = (gold: number): { weight: number; value: Reward }[] => [
-  { weight: 2, value: { type: 'item', itemId: 'medal', count: 1 } },
-  { weight: 3, value: { type: 'item', itemId: 'bigherb', count: 1 } },
-  { weight: 3, value: { type: 'item', itemId: 'bonemeat', count: 1 } },
-  { weight: 2, value: { type: 'gold', amount: gold } },
-  { weight: 2, value: { type: 'item', itemId: 'mpdrop', count: 1 } },
-  { weight: 1, value: { type: 'item', itemId: 'lifeleaf', count: 1 } },
-  { weight: 1, value: { type: 'item', itemId: 'primemeat', count: 1 } },
+  { weight: 1, value: { type: 'item', itemId: 'curegrass', count: 2 } },
 ];
 
 export const AREAS: AreaDefinition[] = [
   {
-    id: 'forest', name: 'はじまりのもり', theme: 'forest', recommendedLevel: 1, unlockConditions: [],
-    description: 'まちの そばの あかるい もり。おくに ゆがみが うまれたらしい。',
+    id: 'komorebi', stageId: '1-2', name: '木漏れ日の小道', theme: 'forest', recommendedLevel: 1, unlockConditions: [],
+    description: 'リーフェルの 森の 入口から のびる、ひだまりの 小道。おとなしい まものが すんでいる。',
     floors: [
-      { id: 'forest1', name: 'はじまりのもり 1F', encounterTableId: 'forest1', chestTable: chest(30) },
-      { id: 'forest2', name: 'はじまりのもり 2F', encounterTableId: 'forest2', chestTable: chest(50) },
-      { id: 'forest3', name: 'はじまりのもり おく', encounterTableId: 'forest3', chestTable: chest(80) },
-      { id: 'forestBoss', name: 'はじまりのもり キノコの おうざ', encounterTableId: 'forest3', chestTable: [], bossId: 'boss_forest' },
+      { id: 'komorebi1', name: '木漏れ日の小道 1F', encounterTableId: 'komorebi1', chestTable: chest(20) },
+      { id: 'komorebi2', name: '木漏れ日の小道 2F', encounterTableId: 'komorebi2', chestTable: chest(30), spring: true },
+      { id: 'komorebi3', name: '木漏れ日の小道 3F', encounterTableId: 'komorebi3', chestTable: chest(40), storyEvents: ['ch1_first_recruit'] },
     ],
   },
   {
-    id: 'cave', name: 'しずくのどうくつ', theme: 'cave', recommendedLevel: 8, unlockConditions: [{ type: 'boss', id: 'boss_forest' }],
-    description: 'つめたい しずくが したたる どうくつ。かたい モンスターが おおい。',
+    id: 'sasayaki', stageId: '1-3', name: 'ささやきの森', theme: 'forest', recommendedLevel: 5, unlockConditions: [],
+    description: '木々が ささやく ふかい 森。おくで キノコ王モルグが まものたちを ひきいている。',
     floors: [
-      { id: 'cave1', name: 'しずくのどうくつ B1', encounterTableId: 'cave1', chestTable: chest(90) },
-      { id: 'cave2', name: 'しずくのどうくつ B2', encounterTableId: 'cave2', chestTable: chest2(120) },
-      { id: 'cave3', name: 'しずくのどうくつ ちていこ', encounterTableId: 'cave3', chestTable: chest2(150) },
-      { id: 'caveBoss', name: 'しずくのどうくつ ちていの みずうみ', encounterTableId: 'cave3', chestTable: [], bossId: 'boss_cave' },
-    ],
-  },
-  {
-    id: 'highland', name: 'かぜのこうげん', theme: 'highland', recommendedLevel: 14,
-    unlockConditions: [{ type: 'boss', id: 'boss_cave' }, { type: 'arena', id: 'arenaE' }],
-    description: 'つよい かぜが ふきぬける こうげん。すばやい モンスターに ちゅうい。',
-    floors: [
-      { id: 'highland1', name: 'かぜのこうげん ふもと', encounterTableId: 'highland1', chestTable: chest2(160) },
-      { id: 'highland2', name: 'かぜのこうげん なかほど', encounterTableId: 'highland2', chestTable: chest2(200) },
-      { id: 'highland3', name: 'かぜのこうげん いただき', encounterTableId: 'highland3', chestTable: chest2(260) },
-      { id: 'highlandBoss', name: 'かぜのこうげん いただきの だんじょう', encounterTableId: 'highland3', chestTable: [], bossId: 'boss_highland' },
-    ],
-  },
-  {
-    id: 'tower', name: 'ひかりのとう', theme: 'tower', recommendedLevel: 24,
-    unlockConditions: [{ type: 'flag', id: 'champion' }],
-    description: 'クリスタルの ひかりが さす とう。配合で うまれる はずの モンスターが すんでいる。',
-    floors: [
-      { id: 'tower1', name: 'ひかりのとう 1F', encounterTableId: 'tower1', chestTable: chest2(400) },
-      { id: 'tower2', name: 'ひかりのとう 2F', encounterTableId: 'tower2', chestTable: chest2(500) },
-      { id: 'tower3', name: 'ひかりのとう さいじょうかい', encounterTableId: 'tower3', chestTable: chest2(600) },
-      { id: 'towerBoss', name: 'ひかりのとう クリスタルの ぎょくざ', encounterTableId: 'tower3', chestTable: [], bossId: 'boss_tower' },
-    ],
-  },
-  {
-    id: 'snow', name: 'こおりのゆきやま', theme: 'snow', recommendedLevel: 20,
-    unlockConditions: [{ type: 'flag', id: 'champion' }],
-    description: 'ふぶきが ふきあれる ゆきやま。こおりの モンスターが すんでいる。',
-    floors: [
-      { id: 'snow1', name: 'こおりのゆきやま ふもと', encounterTableId: 'snow1', chestTable: chest2(450) },
-      { id: 'snow2', name: 'こおりのゆきやま ちゅうふく', encounterTableId: 'snow2', chestTable: chest2(550) },
-      { id: 'snow3', name: 'こおりのゆきやま ちょうじょう', encounterTableId: 'snow3', chestTable: chest2(700) },
-      { id: 'snowBoss', name: 'こおりのゆきやま ふぶきの ほこら', encounterTableId: 'snow3', chestTable: [], bossId: 'boss_snow' },
-    ],
-  },
-  {
-    id: 'volcano', name: 'ほのおのかざん', theme: 'volcano', recommendedLevel: 28,
-    unlockConditions: [{ type: 'boss', id: 'boss_snow' }, { type: 'flag', id: 'towerClear' }],
-    description: 'マグマが ふきだす かざん。ほのおの つよい モンスターが ひしめく。',
-    floors: [
-      { id: 'volcano1', name: 'ほのおのかざん ふもと', encounterTableId: 'volcano1', chestTable: chest2(800) },
-      { id: 'volcano2', name: 'ほのおのかざん ちゅうふく', encounterTableId: 'volcano2', chestTable: chest2(1000) },
-      { id: 'volcano3', name: 'ほのおのかざん ふんかこう', encounterTableId: 'volcano3', chestTable: chest2(1300) },
-      { id: 'volcanoBoss', name: 'ほのおのかざん ふんかこうの おく', encounterTableId: 'volcano3', chestTable: [], bossId: 'boss_volcano' },
+      { id: 'sasayaki1', name: 'ささやきの森 1F', encounterTableId: 'sasayaki1', chestTable: chest(50) },
+      { id: 'sasayaki2', name: 'ささやきの森 2F', encounterTableId: 'sasayaki2', chestTable: chest(60) },
+      { id: 'sasayaki3', name: 'ささやきの森 3F 毒花の群生地', encounterTableId: 'sasayaki3', chestTable: chest(70), gimmicks: ['poison'], spring: true },
+      { id: 'sasayaki4', name: 'ささやきの森 4F', encounterTableId: 'sasayaki4', chestTable: chest(80), storyEvents: ['ch1_trace'] },
+      { id: 'sasayakiBoss', name: 'ささやきの森 キノコ王の広間', encounterTableId: 'sasayaki4', chestTable: [], bossId: 'morg' },
     ],
   },
 ];
@@ -121,90 +59,25 @@ export const getArea = (id: string) => {
   if (!a) throw new Error(`unknown area: ${id}`);
   return a;
 };
+/** ステージID → ダンジョン */
+export const areaOfStage = (stageId: string) => AREAS.find((a) => a.stageId === stageId);
 
 export const BOSSES: Record<string, BossDefinition> = {
-  boss_forest: {
-    id: 'boss_forest', name: 'ゆがみの キノコボーグ',
-    intro: ['もりの おくで くろい もやが うずまいている…！', 'ゆがみに とりつかれた キノコボーグが おそいかかってきた！'],
+  // 第1章 キノコ王モルグ（台本：data/bosses/scripts.ts の morg。毒胞子・子分を よぶ・火が 弱点）
+  morg: {
+    id: 'morg', name: 'キノコ王モルグ',
+    intro: ['ひろまの まんなかで、おおきな キノコが ゆっくりと ふりかえった。', 'キノコ王モルグ「……ここから さきへは ゆかせぬ。森の こえが きこえぬ ものには な……！」'],
     enemies: [
-      { speciesId: 'kinoborg', level: 9, hpScale: 2.4, statScale: 1.12, skills: ['poisonmist', 'dazzle', 'heal', 'bite'], name: 'ゆがみキノコボーグ', distorted: true, recruitable: false },
-      { speciesId: 'leafant', level: 6, recruitable: false },
+      { speciesId: 'm044', level: 9, hpScale: 2.6, statScale: 1.1, skills: ['poisonmist', 'dazzle', 'headbutt', 'heal'], name: 'キノコ王モルグ', distorted: true, recruitable: false, script: 'morg' },
+      { speciesId: 'm044', level: 6, name: 'キノコへい', recruitable: false },
     ],
-    defeatText: ['くろい もやが はれていく…。', 'あとには あたたかく ひかる かけらが のこっていた。', 'ひかりのかけらを てにいれた！'],
-    rewards: [{ type: 'item', itemId: 'shard', count: 1 }, { type: 'gold', amount: 150 }, { type: 'item', itemId: 'medal', count: 2 }],
-    story: ['たおれた キノコボーグの ねもとで、ひかりの かけらが やさしく かがやいている。','……この ゆがみは、キノコボーグの せいでは なかった。','もりを まもる ために ふかく ねを はり、かけらの ゆがみを ひとりで うけとめていたのだ。','けれど ゆがみは ボスを のみこみ、やがて もり ぜんたいに あふれだした…。','もりを まもろうと した ばかりに、ゆがみに とりつかれて しまったらしい。','（ふと みると、ひかる あしあとが もりの おくへと きえていく。）'],
-  setFlags: ['shard1', 'truth_forest'],
-  },
-  boss_cave: {
-    id: 'boss_cave', name: 'ゆがみの アイスクリル',
-    intro: ['ちていこの ほとりで みずが くろく にごっている…！', 'ゆがみに とりつかれた アイスクリルが あらわれた！'],
-    enemies: [
-      { speciesId: 'icekrill', level: 15, hpScale: 1.8, statScale: 1.1, skills: ['tackle', 'rockfall', 'glare', 'icicle'], name: 'ゆがみアイスクリル', distorted: true, recruitable: false },
-      { speciesId: 'darkeye', level: 12, recruitable: false },
-      { speciesId: 'kinoborg', level: 12, recruitable: false },
-    ],
-    defeatText: ['にごった みずが すきとおっていく…。', 'ひかりのかけらを てにいれた！'],
-    rewards: [{ type: 'item', itemId: 'shard', count: 1 }, { type: 'gold', amount: 400 }, { type: 'item', itemId: 'medal', count: 3 }],
-    story: ['かけらに ふれた しゅんかん、ふるい きおくが ながれこんできた。','モンスターと ひとが ひかりの もとで ともに くらしていた、とおい むかしの けしき…。','アイスクリルは その きおくに とらわれて、みずうみを にごらせていたのだ。','クリスタルの かけらには、モンスターたちの きおくが やどっているらしい。'],
-  setFlags: ['shard2', 'truth_cave'],
-  },
-  boss_highland: {
-    id: 'boss_highland', name: 'ゆがみの ファイアドラゴン',
-    intro: ['いただきで くろい ほのおが ゆらめいている…！', 'ゆがみに とりつかれた ファイアドラゴンが あらわれた！'],
-    enemies: [
-      { speciesId: 'windcat', level: 16, recruitable: false },
-      { speciesId: 'firedragon', level: 21, hpScale: 2.4, statScale: 1.05, name: 'ゆがみファイアドラゴン', distorted: true, recruitable: false },
-      { speciesId: 'windcat', level: 16, recruitable: false },
-    ],
-    defeatText: ['くろい ほのおが しずかに きえていく…。', 'ひかりのかけらを てにいれた！'],
-    rewards: [{ type: 'item', itemId: 'shard', count: 1 }, { type: 'gold', amount: 800 }, { type: 'item', itemId: 'medal', count: 4 }],
-    story: ['ファイアドラゴンは、ゆがみが こうげんの いのちを うばうのを ふせごうと していた。','かぜは かれ、くさは しおれ、すむ いきものたちも ちりぢりに なっている…。','ゆがみは モンスターだけで なく、とちや いきものの くらしまで むしばんでいたのだ。'],
-  setFlags: ['shard3', 'truth_highland'],
+    defeatText: ['モルグの かさから くろい もやが ぬけていく…。'],
+    rewards: [{ type: 'gold', amount: 150 }, { type: 'item', itemId: 'medal', count: 2 }, { type: 'item', itemId: 'bonemeat', count: 2 }],
+    setFlags: ['boss_morg'],
   },
 };
 
-BOSSES.boss_tower = {
-  id: 'boss_tower', name: 'ゆがみの おう',
-  intro: ['とうの いただきに、クリスタルの かげが うずまいている…！', 'ゆがみが あつまって、でんせつの りゅうの すがたを とった！'],
-  enemies: [
-    { speciesId: 'greensprite', level: 28, recruitable: false },
-    { speciesId: 'chaosdragon', level: 32, hpScale: 2.6, statScale: 1.2, name: 'ゆがみの おう', distorted: true, recruitable: false },
-    { speciesId: 'greensprite', level: 28, recruitable: false },
-  ],
-  defeatText: ['かげは ひかりの つぶに なって きえていった…。', 'あしもとに ちいさなメダルが たくさん ちらばっている！'],
-  rewards: [{ type: 'gold', amount: 3000 }, { type: 'item', itemId: 'medal', count: 10 }],
-  story: ['ゆがみの おうが きえ、とうの さいじょうかいに ほんとうの ひかりが もどった。','クリスタルは だれかに こわされたのでは なく、じぶんの ちからを ふうじる ために くだけたのかも しれない。','……では、なぜ？ それは まだ ぜんぶは わからない。','あの ひかる あしあとの ぬしは、その ひかりの ことを しっているのだろうか。'],
-  setFlags: ['towerClear', 'truth_tower'],
-};
-
-BOSSES.boss_snow = {
-  id: 'boss_snow', name: 'ゆがみの アイスドラゴン',
-  intro: ['ふぶきの なかで、くろい こおりが きしんでいる…！', 'ゆがみに とりつかれた アイスドラゴンが ふぶきを まとって あらわれた！'],
-  enemies: [
-    { speciesId: 'icewolf', level: 24, recruitable: false },
-    { speciesId: 'icedragon', level: 27, hpScale: 2.8, statScale: 1.15, name: 'ゆがみアイスドラゴン', distorted: true, recruitable: false },
-    { speciesId: 'icewolf', level: 24, recruitable: false },
-  ],
-  defeatText: ['ふぶきが ぴたりと やんで、そらが はれわたっていく…。', 'こおりの なかから ひかりの かけらが あらわれた！'],
-  rewards: [{ type: 'item', itemId: 'shard', count: 1 }, { type: 'gold', amount: 1500 }, { type: 'item', itemId: 'medal', count: 5 }],
-  story: ['アイスドラゴンの こおりの なかに、むかしの クリスタルの いっぺんが とじこめられていた。','ふしぎな ことに、その かけらは「くだけた」と いうより「なにかに わられた」あとが ある。','ゆがみは クリスタルが こわれた だけでは おきない。ほかに げんいんが あるのかも しれない…。'],
-  setFlags: ['shard4', 'truth_snow'],
-};
-
-BOSSES.boss_volcano = {
-  id: 'boss_volcano', name: 'ゆがみの クリムゾンドラゴン',
-  intro: ['ふんかこうで まっかな ほのおが うずを まいている…！', 'ゆがみに とりつかれた クリムゾンドラゴンが ほえた！'],
-  enemies: [
-    { speciesId: 'hellbill', level: 31, recruitable: false },
-    { speciesId: 'crimsondragon', level: 34, hpScale: 2.2, statScale: 1.07, name: 'ゆがみクリムゾンドラゴン', distorted: true, recruitable: false },
-    { speciesId: 'hellbill', level: 31, recruitable: false },
-  ],
-  defeatText: ['マグマの いきおいが おさまり、かざんは しずかに なった…。', 'ひかりの かけらが あしもとで かがやいている！'],
-  rewards: [{ type: 'item', itemId: 'shard', count: 1 }, { type: 'gold', amount: 4000 }, { type: 'item', itemId: 'medal', count: 8 }],
-  story: ['マグマの おくで、せかいじゅうの かけらたちが ひとつの ほうこうへ ひかりを のばしている。','ゆがみは ばらばらに おきていたのでは なかった。','すべては ひかりのとうの さいじょうかいへ つながっている…！'],
-  setFlags: ['shard5', 'truth_volcano'],
-};
-
+// ---- 闘技場（v1 の データ。第4章で v2 の 闘技場に おきかえるまで 使わない）
 export const ARENA_RANKS: ArenaRankDefinition[] = [
   {
     id: 'arenaF', name: 'Fランク', description: 'しんじん ちょうりつしの ための たいかい。3れんせん、あいだに ぜんかいふく。',

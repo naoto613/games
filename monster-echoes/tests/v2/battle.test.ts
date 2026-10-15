@@ -72,12 +72,13 @@ describe('7能力・8属性・吸収', () => {
     expect(ab).toBeLessThan(0);
     expect(-ab).toBe(base);
   });
-  it('精神の 係数 0 の あいだは 精神が かわっても ダメージは v1 と おなじ', () => {
-    expect(BALANCE.battle.spiritScale).toBe(0);
-    const d1 = foe(); const d2 = { ...foe(), spirit: 999 };
-    expect(hit(d2)).toBe(hit(d1));
-    // v1 の 式: 威力 ＋ かしこさ(=魔力) × 0.12
-    expect(rawDamage(ember, a, d1)).toBeCloseTo(ember.power + a.magic * BALANCE.battle.magicScale);
+  it('精神が 0 なら v1 と おなじ 式（威力 ＋ 魔力 × 0.12）。精神の 係数は 第1章の 調整で 0.08', () => {
+    expect(BALANCE.battle.spiritScale).toBe(0.08);
+    const d0 = { ...foe(), spirit: 0 };
+    expect(rawDamage(ember, a, d0)).toBeCloseTo(ember.power + a.magic * BALANCE.battle.magicScale);
+    const old = BALANCE.battle.spiritScale;
+    BALANCE.battle.spiritScale = 0;
+    try { expect(hit({ ...foe(), spirit: 999 })).toBe(hit(foe())); } finally { BALANCE.battle.spiritScale = old; }
   });
   it('精神の 係数を あげると 呪文の ダメージが へる', () => {
     const old = BALANCE.battle.spiritScale;

@@ -19,7 +19,7 @@ export function expForLevel(sp: MonsterSpecies, level: number): number {
 }
 
 function curveMultiplier(sp: MonsterSpecies, stat: StatKey, level: number): number {
-  const [a, b] = G.curves[sp.growthCurves[stat] ?? 'normal'];
+  const [a, b] = (sp.rank ? G.curvesV2 : G.curves)[sp.growthCurves[stat] ?? 'normal'];
   const t = clamp((level - 2) / Math.max(1, sp.baseLevelCap - 2), 0, 1);
   return a + (b - a) * t;
 }

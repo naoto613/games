@@ -6,7 +6,10 @@ import type { SaveData } from '../../application/GameState';
 import { getSpecies } from '../../data/monsters';
 import { getSkill } from '../../data/skills';
 import { LEGACY_SPECIES_MAP } from '../../data/v2/monsters';
-import { initialChapterProgress } from '../../domain/progression/ChapterEngine';
+import { enterStage, initialChapterProgress } from '../../domain/progression/ChapterEngine';
+import { createRng } from '../../core/Random';
+import { findTile, loadMap } from '../../domain/dungeon/DungeonEngine';
+import { createMonster } from '../../domain/monster/MonsterFactory';
 import { initialProgress } from '../../domain/progression/ProgressionEngine';
 import { maxLevelOf } from '../../domain/monster/Growth';
 import { speciesResistances } from '../../domain/monster/MonsterFactory';
@@ -52,20 +55,35 @@ export function inheritLegacy(save: SaveData, now = Date.now()): SaveData {
   if (save.v2.legacy?.inherited) return save;
   const unknown = unknownLegacySpecies(save);
   if (unknown.length) throw new Error(`引き継げない 種族: ${unknown.join(', ')}`);
+  let monsters = save.monsters.map((m) => inheritMonster(m, now));
+  let partyIds = save.partyIds;
+  // 相棒の ルナスライムが いなければ（にがした など）あらためて 仲間に する
+  if (!monsters.some((m) => m.speciesId === 'm001')) {
+    const luna = createMonster('m001', createRng(now >>> 0), { level: 3, sex: 'B', obtainedFrom: 'story', existingIds: new Set(monsters.map((m) => m.id)), now });
+    monsters = [...monsters, luna];
+    partyIds = [luna.id, ...partyIds].slice(0, 3);
+  }
+  // 記念品：旧版で たおした ボスの かずに おうじて ちいさなメダル（Q9）
+  const medals = save.progress.defeatedBossIds.length * 2;
+  const ch = enterStage(initialChapterProgress(), '1-1');
+  const town = loadMap('liefel');
   return {
     ...save,
-    monsters: save.monsters.map((m) => inheritMonster(m, now)),
-    discoveredSpeciesIds: mapList(save.discoveredSpeciesIds),
-    ownedSpeciesIds: mapList(save.ownedSpeciesIds),
+    monsters,
+    partyIds,
+    discoveredSpeciesIds: mapList([...save.discoveredSpeciesIds, 'm001']),
+    ownedSpeciesIds: mapList([...save.ownedSpeciesIds, 'm001']),
     breedingHistory: save.breedingHistory.map((h) => ({
       ...h,
       childSpeciesId: toV2Species(h.childSpeciesId),
       parents: h.parents.map((p) => ({ ...p, speciesId: toV2Species(p.speciesId) })) as typeof h.parents,
     })),
-    // 物語は 第1章から（v1 の 進行も はじめから）。探索中なら 街へ もどす
-    progress: { ...initialProgress(), tutorialFlags: save.progress.tutorialFlags },
-    chapters: initialChapterProgress(),
-    story: { seen: [], records: [] },
+    inventory: medals ? { ...save.inventory, medal: (save.inventory.medal ?? 0) + medals } : save.inventory,
+    // 物語は 第1章から（はじめの 物語は 見た ことに して、リーフェルの 広場から）
+    player: { ...save.player, townMap: 'liefel', townPos: findTile(town, 'P')!, townDir: 'up' },
+    progress: { ...initialProgress(), unlockedAreas: [], tutorialFlags: save.progress.tutorialFlags, storyFlags: { ch1_light_seen: true, partner_joined: true } },
+    chapters: ch.ok ? ch.value.progress : initialChapterProgress(),
+    story: { seen: ['ch1_night_light', 'ch1_rescue_luna'], records: [] },
     expedition: null,
     v2: { ...save.v2, legacy: { fromSchema: save.v2.legacy?.fromSchema ?? save.schemaVersion, at: now, inherited: true } },
   };

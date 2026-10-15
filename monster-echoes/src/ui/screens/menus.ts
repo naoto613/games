@@ -8,11 +8,8 @@ import type { MonsterInstance } from '../../domain/monster/types';
 import { setSoundEnabled, sfx } from '../../infrastructure/audio/Sound';
 import { openNotes } from './notes';
 import { migrate } from '../../infrastructure/save/SaveMigration';
-import { openArena } from './arena';
 import { openBreeding } from './breeding';
 import { openDex } from './dex';
-import { openGate } from './gate';
-import { openShop } from './shop';
 import type { App } from '../App';
 import { btn, h, item } from '../dom';
 import { monIcon, monsterDetailBody, sexMark } from '../components/monster';
@@ -43,17 +40,12 @@ export function openFieldMenu(app: App, onClose: () => void) {
         item('きろくする', () => app.saveNow(true), { meta: 'オートセーブ ON' }),
       ),
     );
-    // まちでは しせつへ すぐ行ける（歩いて行かなくても よい）
+    // まちでは しせつへ すぐ行ける（歩いて行かなくても よい）。章の 進行で 解放された ものだけ
     if (!inDungeon) {
-      const go = () => app.closeAllPanels();
-      const arenaOpen = g.state.progress.unlockedArenaRanks.length > 0;
-      body.children[0].after(h('div', { class: 'small muted' }, 'まちの しせつ（タップで すぐ いけます）'), h('div', { class: 'win list' },
-        item('たびのとびら', () => openGate(app, go), { meta: 'でかける' }),
+      body.children[0].after(h('div', { class: 'small muted' }, 'しせつ（タップで すぐ いけます）'), h('div', { class: 'win list' },
         item('ぼくじょう', () => openParty(app, () => {}), { meta: 'パーティ へんせい' }),
-        item('配合', () => openBreeding(app, () => {}), { meta: 'はかせ' }),
-        item('どうぐや', () => openShop(app, 'buy', () => {})),
-        item('とうぎじょう', () => openArena(app, go), { disabled: !arenaOpen, meta: arenaOpen ? '' : 'まだ さんか できない' }),
-        item('モンスターずかん', () => openDex(app)),
+        g.hasFeature('breeding') ? item('配合', () => openBreeding(app, () => {}), { meta: '配合の館' }) : null,
+        g.hasFeature('dex') ? item('モンスターずかん', () => openDex(app)) : null,
         item('いやしの ふんすい', async () => { sfx('heal'); g.healAll(); await app.say('モンスターたちの HPと MPが すべて かいふくした！'); app.refreshPanels(); }, { meta: 'むりょう' }),
       ));
     }

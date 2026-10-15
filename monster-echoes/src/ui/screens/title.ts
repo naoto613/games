@@ -1,5 +1,8 @@
 import { createRng } from '../../core/Random';
-import { Game, newGameState } from '../../application/Game';
+import { Game, INTRO_EVENTS, newGameState } from '../../application/Game';
+import { STORY_EVENT_BY_ID } from '../../data/story';
+import { renderLines } from '../../domain/story/StoryEngine';
+import { sayLines } from './story';
 import type { SaveData } from '../../application/GameState';
 import { playBgm, sfx } from '../../infrastructure/audio/Sound';
 import type { App, Screen } from '../App';
@@ -140,10 +143,10 @@ export class TitleScreen implements Screen {
     const bob = this.app.settings.reduceMotion ? 0 : Math.round(Math.sin(t / 12) * 2);
     const shadow = (x: number, y: number, w: number) => { g.fillStyle = 'rgba(0,0,0,.25)'; g.beginPath(); g.ellipse(x, y, w, 5, 0, 0, Math.PI * 2); g.fill(); };
     shadow(84, 330, 30); shadow(186, 332, 22); shadow(262, 330, 30);
-    g.drawImage(monsterSprite('magmadog'), 36, 236 - bob, 96, 96);
+    g.drawImage(monsterSprite('m024'), 36, 236 - bob, 96, 96);
     g.drawImage(personSprite('hero', 'down', Math.floor(t / 24)), 154, 252, 64, 80);
-    g.drawImage(monsterSprite('lunaslime'), 214, 236 + bob, 96, 96);
-    g.drawImage(monsterSprite('frostbird'), 20, 150 + bob * 2, 64, 64);
+    g.drawImage(monsterSprite('m001'), 214, 236 + bob, 96, 96);
+    g.drawImage(monsterSprite('m082'), 20, 150 + bob * 2, 64, 64);
   }
 
   private async cont() {
@@ -172,16 +175,12 @@ export class TitleScreen implements Screen {
     this.app.applySettings();
     playBgm('town');
     const app = this.app;
-    await app.say([
-      'ここは ルナフィア。ひとと モンスターが ともに くらす せかい。',
-      'しかし あるひ、まちを まもる ひかりの クリスタルが くだけ、せかいの あちこちに「ゆがみ」が うまれた。',
-      `${name}は モンスターの ちからを ととのえる みならい「ちょうりつし」。`,
-    ]);
-    await app.say(['よく きた、' + name + '。', 'ゆがみは たびのとびらの むこうで モンスターたちを くるしめておる。', 'これは わしが そだてた ルナスライムと、リリィが そだてた マグマドッグじゃ。いっしょに つれていきなさい。'], { speaker: 'モンスターはかせ' });
+    // はじめの 物語（仕様 6 第1章：夜の光 → 傷ついた ルナスライムを たすける）
+    await app.say(['ここは ルナフィア。ひとと まものが ともに くらす せかい。', `${name}は 森の 集落リーフェルで くらす、調律師の 見習い。`]);
+    for (const id of INTRO_EVENTS) await sayLines(app, renderLines(game.storyContext(), STORY_EVENT_BY_ID[id].lines));
     sfx('recruit');
-    await app.say('ルナスライム と マグマドッグ が なかまに なった！');
-    for (const m of game.party) await welcomeMonster(app, m.id, 'なかまの なまえ');
-    await app.say(['やせいの モンスターに にくを なげてから たおすと、なかまに なってくれることが ある。', 'なかまを ふやし、そだて、配合して…ひかりの かけらを 3つ あつめてくるのじゃ！', 'まずは まちの きたの「たびのとびら」から はじまりのもりへ いってみなさい。'], { speaker: 'モンスターはかせ' });
+    for (const m of game.party) await welcomeMonster(app, m.id, '相棒の なまえ');
+    await app.say(['森の 入口の 石碑の まえで、{luna}が なにかを 気にしている。'.replace('{luna}', game.storyContext().partnerName), '（集落の きた、森の 入口の 石碑を しらべてみよう）']);
     await app.saveNow();
     app.show(new FieldScreen(app));
   }

@@ -1,6 +1,6 @@
 import { BALANCE } from '../../data/balance';
 import { BREEDING_RECIPES } from '../../data/breeding';
-import { getSpecies } from '../../data/monsters';
+import { getSpecies, SPECIES_LIST } from '../../data/monsters';
 import { getSkill } from '../../data/skills';
 import { RESIST_KEYS, STAT_KEYS, type BreedingRecipe, type MonsterSpecies, type Resistances, type SpeciesMatcher, type Stats } from '../../data/types';
 import { newId } from '../../core/Id';
@@ -28,7 +28,29 @@ function conditionsMet(r: BreedingRecipe, a: MonsterInstance, b: MonsterInstance
   });
 }
 
-const KIND_ORDER = { special: 0, familyCombination: 1, fallback: 2 } as const;
+const KIND_ORDER = { special: 0, familyCombination: 1, rule: 2, fallback: 3 } as const;
+
+/**
+ * 通常配合（v2・仕様 12.2）：血統（a）の 系統から えらぶ。
+ * ランク ＝ 親の 平均（切り上げ）。ちがう 系統どうしで、親の レベルの 合計が 20 × いまの ランク いじょうなら ＋1。
+ * 上限は ★3（高位配合の 解放 flags.highBreeding で ★4）。伝説級（★5）と ボス由来は うまれない。
+ * 同じ ランクに 何種も いるときは 相手（b）の 属性 → 血統の 属性 → 図鑑番号の じゅんで えらぶ。
+ */
+export function childByRule(a: MonsterInstance, b: MonsterInstance, flags: Record<string, boolean> = {}): string | null {
+  const sa = getSpecies(a.speciesId), sb = getSpecies(b.speciesId);
+  if (!sa.rank || !sb.rank) return null;
+  const base = Math.ceil((sa.rank + sb.rank) / 2);
+  const bump = sa.familyId !== sb.familyId && a.level + b.level >= 20 * base ? 1 : 0;
+  const rank = Math.min(base + bump, flags.highBreeding ? 4 : 3);
+  const pool = SPECIES_LIST.filter((x) => x.familyId === sa.familyId && x.rank && x.rank < 5 && !x.noBreed);
+  for (let r = rank; r >= 1; r--) {
+    const cand = pool.filter((x) => x.rank === r);
+    if (!cand.length) continue;
+    const pick = cand.find((x) => x.element === sb.element) ?? cand.find((x) => x.element === sa.element) ?? [...cand].sort((x, y) => (x.no ?? 0) - (y.no ?? 0))[0];
+    return pick.id;
+  }
+  return null;
+}
 
 /** 子の種族を一意に決める。a が血統（系統を受け継ぐ側）、b が相手。 */
 export function resolveChildSpecies(a: MonsterInstance, b: MonsterInstance, flags: Record<string, boolean> = {}, recipes = BREEDING_RECIPES): { speciesId: string; recipe: BreedingRecipe } {
@@ -37,6 +59,11 @@ export function resolveChildSpecies(a: MonsterInstance, b: MonsterInstance, flag
     const fwd = matches(r.parentA, a) && matches(r.parentB, b);
     const rev = !!r.symmetric && matches(r.parentA, b) && matches(r.parentB, a);
     if ((fwd || rev) && conditionsMet(r, a, b, flags)) {
+      if (r.kind === 'rule') {
+        const id = childByRule(a, b, flags);
+        if (id) return { speciesId: id, recipe: r };
+        continue;
+      }
       return { speciesId: r.kind === 'fallback' ? a.speciesId : r.resultSpeciesId, recipe: r };
     }
   }

@@ -83,36 +83,49 @@ describe('物語データの 整合性', () => {
 });
 
 describe('Game：第1章の 流れ', () => {
-  it('夜の光 → ルナスライムを たすける → 石碑 → モルグ撃破 → 第2章 ミズナ', async () => {
+  it('はじめの 物語 → 石碑 → 木漏れ日の小道 → モルグ撃破 → ミズナ（配合）', async () => {
     const repo = new MemorySaveRepository();
     const g = new Game(newGameState('アオ', createRng(1), 0), { rng: createRng(2), sink: repo });
-    g.enterStage('1-1');
-    const night = g.runStory({ kind: 'enterStage', target: '1-1' });
-    expect(night.map((e) => e.id)).toEqual(['ch1_night_light']);
-    expect(night[0].lines[1].text).toContain('アオ');
-    // 二度目は おこらない
+    // はじめの 物語（夜の光・ルナスライム）は 見た あと。相棒は パーティの 先頭
+    expect(g.party.map((m) => m.speciesId)).toEqual(['m001']);
     expect(g.runStory({ kind: 'enterStage', target: '1-1' })).toEqual([]);
-    // 石碑は ルナスライムを たすける まえは 反応しない
-    expect(g.runStory({ kind: 'manual', target: 'forest_stone' })).toEqual([]);
-    const before = g.state.monsters.length;
-    g.runStory({ kind: 'manual', target: 'forest_edge' });
-    expect(g.state.monsters.length).toBe(before + 1);
-    expect(g.party[0].speciesId).toBe('m001');
     expect(g.talkTo('mio')[0].text).toContain('ルナスライム');
     expect(g.lunaSays('distortion')).toContain('かくれた');
     expect(g.lunaSays('distortion')).toContain('ふるえて');
-    const stone = g.runStory({ kind: 'manual', target: 'forest_stone' });
-    expect(stone).toHaveLength(1);
+    // 森の 入口は 石碑を しらべるまで とじている
+    expect(g.canStartExpedition('komorebi').ok).toBe(false);
+    expect(g.inspect('forest_stone')).toBe(true);
+    expect(g.takeStory().story.map((e) => e.id)).toEqual(['ch1_stone_reacts']);
     expect(g.chapters.clearedStages).toContain('1-1');
     expect(g.story.records.map((r) => r.id)).toContain('rec_stone_ch1');
-    g.clearStage('1-2');
-    const morg = g.runStory({ kind: 'bossDefeated', target: 'morg' });
-    expect(morg[0].lines.some((l) => l.text.includes('泣いている 光'))).toBe(true);
+    expect(g.inspect('forest_stone')).toBe(false);
+    // 1-2 木漏れ日の小道：出口で ステージクリア
+    expect(g.startExpedition('komorebi').ok).toBe(true);
+    expect(g.canStartExpedition('sasayaki').ok).toBe(false);
+    g.finishStage();
+    expect(g.state.expedition).toBeNull();
+    expect(g.chapters.clearedStages).toContain('1-2');
+    // 1-3 ささやきの森：モルグを たおすと 章クリア
+    expect(g.startExpedition('sasayaki').ok).toBe(true);
+    const ses = g.startBossBattle('morg');
+    ses.state.outcome = 'win';
+    for (const e of ses.state.enemies) e.hp = 0;
+    const sum = g.finishBattle();
+    expect(sum.chapter?.chapter).toBe(1);
+    const after = g.takeStory();
+    expect(after.story.map((e) => e.id)).toEqual(['ch1_morg_defeated']);
+    expect(after.story[0].lines.some((l) => l.text.includes('泣いている 光'))).toBe(true);
+    expect(after.unlocked).toEqual(['recruit', 'dex', 'travelDoor']);
     expect(g.chapters.chapter).toBe(2);
-    expect(g.hasFeature('recruit')).toBe(true);
-    g.enterStage('2-1');
-    expect(g.runStory({ kind: 'enterStage', target: '2-1' })[0].id).toBe('ch2_mizuna_arrive');
+    // 東の 道から ミズナへ：着くと 配合が 解放
+    g.setTownPos({ x: 17, y: 9 }, 'right');
+    expect(g.townMove('right').kind).toBe('warp');
+    expect(g.currentTownMap().id).toBe('mizuna');
+    const mz = g.takeStory();
+    expect(mz.story[0].id).toBe('ch2_mizuna_arrive');
+    expect(mz.unlocked).toContain('breeding');
     expect(g.hasFeature('breeding')).toBe(true);
+    expect(g.chapters.clearedStages).toContain('2-1');
     // 見た ことは セーブに のこる
     await g.save();
     const loaded = await repo.load();
@@ -121,5 +134,17 @@ describe('Game：第1章の 流れ', () => {
     expect(g2.story.seen).toContain('ch1_morg_defeated');
     expect(g2.runStory({ kind: 'bossDefeated', target: 'morg' })).toEqual([]);
     expect(g2.talkTo('sora')[0].text).toContain('ミズナ');
+  });
+  it('ダンジョンの 物語イベント（石碑の グリーンスプライト）は しらべると 戦闘に なる', () => {
+    const g = new Game(newGameState('アオ', createRng(1), 0), { rng: createRng(2), sink: null });
+    g.inspect('forest_stone'); g.takeStory();
+    g.startExpedition('komorebi');
+    g.descend(); g.descend();
+    const map = g.currentMap()!;
+    expect(Object.values(map.events ?? {})).toContain('ch1_first_recruit');
+    expect(g.inspect('ch1_first_recruit')).toBe(true);
+    const t = g.takeStory();
+    expect(t.battle).toEqual([{ speciesId: 'm043', level: 3 }]);
+    expect(g.state.inventory.jerky).toBe(6);
   });
 });

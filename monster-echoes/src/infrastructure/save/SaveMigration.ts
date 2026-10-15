@@ -1,5 +1,6 @@
 import { SCHEMA_VERSION, defaultSettings, defaultV2State, type SaveData } from '../../application/GameState';
 import { initialChapterProgress } from '../../domain/progression/ChapterEngine';
+import { inheritLegacy } from './LegacyInherit';
 import { err, ok, type Result } from '../../core/Result';
 
 export type MigrationError = 'future' | 'corrupt';
@@ -23,6 +24,8 @@ const splitWisdom = (st: unknown) => {
 };
 
 const MIGRATIONS: Record<number, (d: Record<string, unknown>) => Record<string, unknown>> = {
+  // v5→v6：v2 の 世界（第1章）へ 引き継ぎ（Q9）。モンスター・道具・お金・図鑑は のこし、物語は 第1章から
+  5: (d) => inheritLegacy({ ...(d as unknown as SaveData), schemaVersion: 5 }) as unknown as Record<string, unknown>,
   // v4→v5: v2 の 進行（章・物語・装備・依頼・再戦・時計・生息地）と 個体の 履歴・ラベル・配合回数。
   // 物語は 第1章から（Q9 の 引き継ぎ）。v1 の 進行（エリア・闘技場）は いまの 遊べる 内容の ために のこす
   4: (d) => ({

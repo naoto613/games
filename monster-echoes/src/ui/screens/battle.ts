@@ -549,12 +549,11 @@ class BattleScreen implements Screen {
         await say(sum.boss.texts);
         for (const r of sum.boss.rewards) if (r.type !== 'item' || r.itemId !== 'shard') await say(`${rewardText(r)}を てにいれた！`);
         if (sum.boss.story.length) await say(sum.boss.story);
-        await say('ゆがみが はらわれ、ひかりの みちが まちへと つながった。');
       }
     } else if (outcome === 'lose') {
       sfx('lose');
       if (ctx.kind === 'arena') await say(['まけてしまった…。', 'モンスターたちは てあてを うけて げんきに なった。']);
-      else await say(['めのまえが まっくらに なった…。', `……ルナフィアの まちで めを さました。${sum.goldLost ? `\nおかねを ${sum.goldLost}ゴールド なくしてしまった…。` : ''}`]);
+      else await say(['めのまえが まっくらに なった…。', `……${this.game.currentTownMap().name}で めを さました。${sum.goldLost ? `\nおかねを ${sum.goldLost}ゴールド なくしてしまった…。` : ''}`]);
     }
     for (const a of sum.unlocked.areas) await say(`たびのとびらの しんでんの ちかへ すすめるように なった！\n（あたらしい とびら「${getArea(a).name}」）`);
     if (sum.unlocked.ranks.length) await say('とうぎじょうで あたらしい ランクに さんか できるように なった！');
