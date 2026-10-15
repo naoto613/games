@@ -12,7 +12,7 @@ const srv = http.createServer((q, s) => {
 }).listen(0);
 const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
 const errors = [];
-for (const [vw, vh, tag] of [[390, 844, 'p'], [844, 390, 'l']]) {
+for (const [vw, vh, tag] of (process.argv[3] === 'p' ? [[390, 844, 'p']] : [[390, 844, 'p'], [844, 390, 'l']])) {
   const p = await b.newPage({ viewport: { width: vw, height: vh }, deviceScaleFactor: 1, hasTouch: true, isMobile: true });
   p.on('pageerror', (e) => errors.push('PAGEERROR: ' + e.message));
   await p.goto(`http://localhost:${srv.address().port}/index.html`);
@@ -29,6 +29,12 @@ for (const [vw, vh, tag] of [[390, 844, 'p'], [844, 390, 'l']]) {
     await p.evaluate(([t, x, y]) => { const g = window.app.game; for (const id of ['1-1', '1-2', '1-3']) g.clearStage(id); g.takeStory(); g.state.player.townMap = t; g.setTownPos({ x, y }, 'down'); }, [town, x, y]);
     await reshow(); await p.waitForTimeout(500);
     await p.screenshot({ path: path.join(out, `town-${tag}-${town}-${x}-${y}.png`) });
+  }
+  // ダンジョン（森 1F・3F・ボスの へや）
+  for (const [fl, nm] of [[0, 'f1'], [2, 'f3'], [4, 'boss']]) {
+    await p.evaluate((fl) => { const g = window.app.game; g.leaveExpedition?.(); g.startExpedition('sasayaki'); for (let i = 0; i < fl; i++) g.descend(); g.takeStory(); }, fl);
+    await reshow(); await p.waitForTimeout(500);
+    await p.screenshot({ path: path.join(out, `dun-${tag}-${nm}.png`) });
   }
   await p.close();
 }

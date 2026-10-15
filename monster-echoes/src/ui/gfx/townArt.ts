@@ -8,7 +8,7 @@ export const TT = 32;
 type G = CanvasRenderingContext2D;
 
 /** 0〜1 の ゆらぎ（座標から きまる） */
-const hash = (x: number, y: number, s = 0) => {
+export const hash = (x: number, y: number, s = 0) => {
   let n = (x * 374761393 + y * 668265263 + s * 2147483647) | 0;
   n = Math.imul(n ^ (n >>> 13), 1274126177);
   return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
@@ -26,7 +26,7 @@ export const C = {
 };
 
 // ---------------------------------------------------------------- 地面
-function grass(g: G, ox: number, oy: number, tx: number, ty: number) {
+export function grass(g: G, ox: number, oy: number, tx: number, ty: number) {
   const k = C.grass;
   rect(g, ox, oy, TT, TT, k[1]);
   // まだらの 明暗（となりと つながる ように 世界座標で ゆらぐ）
@@ -97,7 +97,7 @@ function cobble(g: G, ox: number, oy: number, tx: number, ty: number, pal: strin
   }
 }
 
-function dirt(g: G, ox: number, oy: number, tx: number, ty: number) {
+export function dirt(g: G, ox: number, oy: number, tx: number, ty: number) {
   const k = C.dirt;
   rect(g, ox, oy, TT, TT, k[0]);
   for (let y = 0; y < TT; y += 2) for (let x = 0; x < TT; x += 2) {
@@ -112,7 +112,7 @@ function dirt(g: G, ox: number, oy: number, tx: number, ty: number) {
 }
 
 /** 水（波の きらめきは frame で うごく）。岸の ふちに 土手と あわ */
-function water(g: G, ox: number, oy: number, tx: number, ty: number, f: number, isW: (x: number, y: number) => boolean) {
+export function water(g: G, ox: number, oy: number, tx: number, ty: number, f: number, isW: (x: number, y: number) => boolean) {
   const k = C.water;
   const grd = g.createLinearGradient(0, oy, 0, oy + TT);
   grd.addColorStop(0, k[1]); grd.addColorStop(1, k[0]);
@@ -216,11 +216,11 @@ export type Sprite = { img: HTMLCanvasElement; dx: number; dy: number; /** 奥�
 const cache = new Map<string, HTMLCanvasElement>();
 const memo = (key: string, make: () => HTMLCanvasElement) => { let c = cache.get(key); if (!c) { c = make(); cache.set(key, c); } return c; };
 
-function shadowEllipse(g: G, cx: number, cy: number, rx: number, ry: number, a = 0.28) {
+export function shadowEllipse(g: G, cx: number, cy: number, rx: number, ry: number, a = 0.28) {
   g.fillStyle = `rgba(20,30,10,${a})`; g.beginPath(); g.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); g.fill();
 }
 
-function treeImg(v: number) {
+export function treeImg(v: number) {
   return memo(`tree${v}`, () => {
     const p = new Pix(52, 70, 1);
     const leaf = ['#3f9a3a', '#4aa840', '#368c34', '#56b246'][v];
@@ -240,7 +240,7 @@ function treeImg(v: number) {
   });
 }
 
-function bushImg(v: number) {
+export function bushImg(v: number) {
   return memo(`bush${v}`, () => {
     const p = new Pix(36, 28, 1);
     const leaf = ['#4aa840', '#3f9a3a', '#5ab048'][v];

@@ -20,8 +20,13 @@ import { runEvent } from './events';
 import { playStory } from './story';
 import { openGate } from './gate';
 import { displayName } from '../../domain/monster/MonsterFactory';
-import { forestTexture, labelImg, minimapImg, objectShadow, objectSprite, renderGround, TT } from '../gfx/townArt';
+import { forestTexture, hash, treeImg, labelImg, minimapImg, objectShadow, objectSprite, renderGround, TT } from '../gfx/townArt';
 import type { TownArt } from '../../data/towns/builder';
+import { dungeonMinimap, drawGimmick, forestGround, isWallCh } from '../gfx/dungeonArt';
+import type { RoomTileMap } from '../../domain/dungeon/RoomGen';
+import { overlaySprite } from '../gfx/tiles';
+
+const miniCache = new WeakMap<TileMap, HTMLCanvasElement>();
 
 /** 町の 地面（水の うごき 4まい）を おぼえておく */
 const groundCache = new WeakMap<TownArt, HTMLCanvasElement[]>();
@@ -268,6 +273,9 @@ export class FieldScreen implements Screen {
     (this.dexBtn as HTMLButtonElement).disabled = !this.game.hasFeature('dex');
     const art = this.inTown ? this.game.currentTownMap().art : undefined;
     this.el.classList.toggle('arttown', !!art);
+    const artDun = !this.inTown && !this.game.floor?.floor.bossId && this.theme === 'forest';
+    this.el.classList.toggle('artdun', artDun);
+    if (artDun) { this.miniName.textContent = `${this.game.floor!.index + 1}F`; this.miniClock.textContent = ''; }
     this.hudL.textContent = art ? `${s.player.gold} G` : this.inTown ? this.game.currentTownMap().name : this.game.floor!.floor.name;
     this.hudR.textContent = `${s.player.gold} G`;
     if (art) {
@@ -668,6 +676,76 @@ export class FieldScreen implements Screen {
     }
   }
 
+  /** 森の ダンジョン（参考画像3「ダンジョンの画面」）：地面 → ギミック → 木と 宝箱と 人を 奥行きじゅんに → ミニマップ */
+  private drawArtForest(px: number, py: number, camX: number, camY: number) {
+    const g = this.g, W = this.cv.width, H = this.cv.height, m = this.map;
+    const ex = this.game.state.expedition!;
+    const ox = Math.round(-camX * TILE), oy = Math.round(-camY * TILE);
+    const pat = g.createPattern(forestTexture(), 'repeat');
+    if (pat) { g.save(); g.translate(ox % 64, oy % 64); g.fillStyle = pat; g.fillRect(-64, -64, W + 128, H + 128); g.restore(); }
+    g.fillStyle = 'rgba(12,34,14,.4)'; g.fillRect(0, 0, W, H);
+    const still = this.app.settings.reduceMotion;
+    g.drawImage(forestGround(m)[still ? 0 : Math.floor(this.frame / 16) % 4], ox, oy);
+    const x0 = Math.floor(camX) - 2, y0 = Math.floor(camY) - 1, x1 = x0 + VW + 4, y1 = y0 + VH + 4;
+    const gm = (m as RoomTileMap).gimmicks;
+    const opened = ex.switches ?? [];
+    if (gm) for (const [k, v] of Object.entries(gm)) {
+      const [gx, gy] = k.split(',').map(Number);
+      if (gx < x0 || gx > x1 || gy < y0 || gy > y1) continue;
+      drawGimmick(g, v, gx * TT + ox, gy * TT + oy, still ? 0 : this.frame, opened);
+    }
+    const shadow = (sx: number, sy: number, w = 11) => {
+      g.fillStyle = 'rgba(0,0,0,.28)';
+      g.beginPath(); g.ellipse(sx + TILE / 2, sy + TILE - 3, w, 4, 0, 0, Math.PI * 2); g.fill();
+    };
+    const items: { base: number; draw: () => void }[] = [];
+    const anim = still ? 0 : Math.floor(this.frame / 10);
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+      if (x < 0 || y < 0 || x >= m.w || y >= m.h) continue;
+      const ch = m.tiles[y][x];
+      const sx = x * TT + ox, sy = y * TT + oy;
+      if (isWallCh(ch)) {
+        // 手前（下が 道）の かべだけ 1本の 木として 立たせる。おくは 地面の 葉の かたまり
+        const front = y + 1 < m.h && !isWallCh(m.tiles[y + 1][x]);
+        if (!front && ch !== 'Z') continue;
+        const img = treeImg(Math.floor(hash(x, y, 5) * 4));
+        const jx = Math.round((hash(x, y, 6) - 0.5) * 6);
+        items.push({ base: (y + 1) * TT - 4, draw: () => {
+          if (front) g.drawImage(img, sx + 16 - 21 + jx, sy + 32 - 56, 42, 56);
+          if (ch === 'Z') { const ov = overlaySprite('forest', 'Z', x, y, anim); if (ov) g.drawImage(ov, sx, sy); }
+        } });
+        continue;
+      }
+      if ('CH>EV'.includes(ch)) {
+        const ov = overlaySprite('forest', ch, x, y, anim, { open: ch === 'C' && this.game.isOpened({ x, y }), used: ch === 'H' && !!ex.springUsed, ev: ch === 'V' ? EVENT_BY_ID[m.events?.[`${x},${y}`] ?? '']?.kind : undefined });
+        if (ov) items.push({ base: (y + 1) * TT - 6, draw: () => { if (ch === 'C' || ch === 'V') shadow(sx, sy, 12); g.drawImage(ov, sx, sy); } });
+      }
+    }
+    const { actors } = this.heroActors(px, py, camX, camY, shadow);
+    for (const a of actors) items.push({ base: (a.y + 1) * TT - 3, draw: a.draw });
+    if (this.pathGoal && Math.floor(this.frame / 8) % 2 === 0) {
+      const gx = Math.round((this.pathGoal.x - camX) * TILE), gy = Math.round((this.pathGoal.y - camY) * TILE);
+      g.strokeStyle = '#ffe070'; g.lineWidth = 2; g.strokeRect(gx + 3, gy + 3, TILE - 6, TILE - 6);
+    }
+    items.sort((a, b) => a.base - b.base).forEach((it) => it.draw());
+    // こもれび
+    if (!still) {
+      g.fillStyle = 'rgba(255,250,200,.06)';
+      for (let i = 0; i < 3; i++) { const bx = ((i * 140 + this.frame * 0.2) % (W + 200)) - 100; g.beginPath(); g.moveTo(bx, 0); g.lineTo(bx + 40, 0); g.lineTo(bx - 60, H); g.lineTo(bx - 100, H); g.fill(); }
+    }
+    this.drawMiniDungeon();
+  }
+
+  private drawMiniDungeon() {
+    const mg = this.miniCv.getContext('2d');
+    if (!mg) return;
+    let mm = miniCache.get(this.map);
+    if (!mm) { mm = dungeonMinimap(this.map, 3); miniCache.set(this.map, mm); }
+    if (this.miniCv.width !== mm.width || this.miniCv.height !== mm.height) { this.miniCv.width = mm.width; this.miniCv.height = mm.height; }
+    mg.drawImage(mm, 0, 0);
+    if (Math.floor(this.frame / 15) % 2 === 0) { mg.fillStyle = '#ff3b3b'; mg.fillRect(this.pos.x * 3 - 1, this.pos.y * 3 - 1, 5, 5); mg.fillStyle = '#fff'; mg.fillRect(this.pos.x * 3, this.pos.y * 3, 3, 3); }
+  }
+
   // ---------------------------------------------------------------- 描画（状態は読むだけ）
   private draw() {
     const g = this.g;
@@ -685,6 +763,7 @@ export class FieldScreen implements Screen {
     g.fillRect(0, 0, this.cv.width, this.cv.height);
     const art = !this.game.state.expedition ? this.game.currentTownMap().art : undefined;
     if (art) return this.drawArtTown(art, px, py, camX, camY);
+    if (this.game.state.expedition && !this.game.floor?.floor.bossId && this.theme === 'forest') return this.drawArtForest(px, py, camX, camY);
     const th = this.theme;
     const x0 = Math.floor(camX) - 1, y0 = Math.floor(camY) - 1;
     const ex = this.game.state.expedition;

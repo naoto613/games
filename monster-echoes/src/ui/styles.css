@@ -239,7 +239,10 @@ input.name { font: inherit; font-size: 1.3em; padding: 10px; width: 100%; backgr
 .fmrow:active { background: rgba(120,150,255,.25); }
 .fmrow[disabled] { opacity: .4; pointer-events: none; }
 .minimap { display: none; position: absolute; right: 6px; top: 6px; z-index: 5; padding: 3px 4px 4px; background: linear-gradient(180deg, rgba(22,34,82,.92), rgba(10,18,52,.94)); border: 2px solid #c8d4ff; border-radius: 8px; box-shadow: 0 2px 0 #060a1c; color: #fff; font-size: .66em; text-align: center; }
-.arttown .minimap { display: block; }
+.arttown .minimap, .artdun .minimap { display: block; }
+.artdun .minimap .mm-name { text-align: right; font-size: 1.15em; padding-right: 4px; }
+.artdun .minimap .mm-clock { display: none; }
+.artdun .hud.right { display: none; }
 .arttown .hud.right, .arttown .pstrip { display: none; }
 .minimap .mm-name { padding: 0 2px 2px; white-space: nowrap; }
 .minimap .mm-map { border: 1px solid #6a80c8; border-radius: 3px; overflow: hidden; line-height: 0; }

@@ -132,8 +132,8 @@ function waterTile(p: Pix, th: Theme, wx: number, wy: number, f: number) {
   }
 }
 
-function chestTile(p: Pix, th: Theme, wx: number, wy: number, open: boolean) {
-  grassTile(p, th, wx, wy, false);
+function chestTile(p: Pix, th: Theme, wx: number, wy: number, open: boolean, bg = true) {
+  if (bg) grassTile(p, th, wx, wy, false);
   p.part(E(8, 13.5, 6.5, 1.5), mix(PAL[th].g[0], '#000000', 0.4), { flat: true, noOl: true });
   if (open) {
     p.part(RR(2, 7, 12, 7, 1), '#9a5a24', { ol: '#3a1a08' });
@@ -150,8 +150,8 @@ function chestTile(p: Pix, th: Theme, wx: number, wy: number, open: boolean) {
 }
 
 /** 旅の扉（うずまき） */
-function portalTile(p: Pix, th: Theme, wx: number, wy: number, f: number, col: string) {
-  if (th === 'town') pathTile(p, wx, wy); else grassTile(p, th, wx, wy, false);
+function portalTile(p: Pix, th: Theme, wx: number, wy: number, f: number, col: string, bg = true) {
+  if (!bg) { /* 地面は 描かない */ } else if (th === 'town') pathTile(p, wx, wy); else grassTile(p, th, wx, wy, false);
   p.part(E(8, 8.5, 7.2, 6.4), shade(col, 0.45), { flat: true, ol: shade(col, 0.25) });
   p.part(E(8, 8.5, 5.8, 5), shade(col, 0.7), { flat: true, noOl: true });
   p.part(E(8, 8.5, 3.6, 3.1), shade(col, 1.0), { flat: true, noOl: true });
@@ -452,6 +452,26 @@ function bossTile(p: Pix, th: Theme, ch: string, x: number, y: number, f: number
     case 'H': springTile(p, th, x, y, f, !!state.used, () => bossFloor(p, th, x, y)); break;
     default: bossFloor(p, th, x, y);
   }
+}
+
+const ovCache = new Map<string, HTMLCanvasElement>();
+/** 地面を ぬかない ものだけの 絵（あたらしい ダンジョンの 描き方で 地面の 上に のせる） */
+export function overlaySprite(th: Theme, ch: string, x: number, y: number, frame: number, state: { open?: boolean; used?: boolean; ev?: EventTileKind } = {}): HTMLCanvasElement | null {
+  if (!'CH>EVZ'.includes(ch)) return null;
+  const f = ch === 'C' ? 0 : frame % 16;
+  const key = `${th}|${ch}|${f}|${state.open ? 1 : 0}${state.used ? 1 : 0}${state.ev ?? ''}`;
+  const hit = ovCache.get(key);
+  if (hit) return hit;
+  const p = new Pix(16, 16, S);
+  if (ch === 'C') chestTile(p, th, x, y, !!state.open, false);
+  else if (ch === 'H') springTile(p, th, x, y, f, !!state.used, () => {});
+  else if (ch === '>') portalTile(p, th, x, y, f, '#3aa0ff', false);
+  else if (ch === 'E') portalTile(p, th, x, y, f, '#ffc030', false);
+  else if (ch === 'V') eventObject(p, state.ev ?? 'story', f, PAL[th].g[1]);
+  else hiddenDoorOverlay(p, f);
+  const c = p.canvas();
+  ovCache.set(key, c);
+  return c;
 }
 
 const cache = new Map<string, HTMLCanvasElement>();
