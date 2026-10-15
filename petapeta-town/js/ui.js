@@ -164,7 +164,6 @@
   /* ---------- 入力：パネルからドラッグ ---------- */
   const ghost = $('#drag-ghost');
   let drag = null; // { kind:'panel'|'ent', id, ent, startX, startY, sx, sy, started, timer, pointerId, offY }
-  const GHOST_OFF = 70; // ゆびの すこし うえに 表示
 
   function panelDown(e, id) {
     if (drag) return;
@@ -187,8 +186,10 @@
   function moveGhost() {
     const size = drag.isChar ? 130 : 110;
     ghost.style.width = ghost.style.height = size + 'px';
-    ghost.style.transform = `translate(${drag.x - size / 2}px, ${drag.y - GHOST_OFF - size * 0.85}px)`;
-    const wp = toWorld(drag.x, drag.y - GHOST_OFF);
+    // ゆびの いちに そのまま 表示（物の まんなか＝ゆび）。置く ばしょは 物の あしもと
+    ghost.style.transform = `translate(${drag.x - size / 2}px, ${drag.y - size / 2}px)`;
+    drag.baseOff = size * (drag.isChar ? 0.47 : 0.36);
+    const wp = toWorld(drag.x, drag.y + drag.baseOff);
     const tgt = W.pick(wp.x, wp.y, { pad: 10 });
     setHover(tgt);
     const onPanel = drag.y > vh - panelH;
@@ -261,6 +262,9 @@
     const e = press.ent;
     clearTimeout(press.timer);
     drag = { kind: 'ent', ent: e, x: press.x, y: press.y, started: true, pointerId: press.pointerId };
+    // つかんだ ところが ゆびに くっついたまま うごく
+    const g0 = toWorld(press.x, press.y);
+    drag.dx = e.x - g0.x; drag.dy = e.y - g0.y;
     press = null;
     if (e.kind === 'char') { R.claim(e, 0); if (e.riding) R.unride(e); e.dragging = true; e.hidden = false; e.stay = false; e.z = 0; e.pose = 'jump'; W.setFace(e, 'surprise', 0); W.say(e, PT.pick(['わわっ', 'どこいくの？', 'たかーい！']), null, 1000, 'wow'); }
     else { e.dragging = true; if (e.mode === 'fort') { e.mode = null; e.bw = e.bh = 0; W.props().forEach((p) => { if (p.coveredBy === e.id) { p.hidden = false; p.coveredBy = null; } }); } e.zTarget = undefined; e.vx = e.vy = 0; if (e.rider) { const ch = W.byId(e.rider); if (ch) R.unride(ch); } }
@@ -271,8 +275,9 @@
   }
   function entDragMove() {
     const e = drag.ent;
-    const wp = toWorld(drag.x, drag.y - GHOST_OFF);
-    e.x = wp.x; e.y = wp.y + (e.kind === 'char' ? 0 : 0);
+    const g = toWorld(drag.x, drag.y);
+    const wp = { x: g.x + drag.dx, y: g.y + drag.dy };
+    e.x = wp.x; e.y = wp.y;
     e.scale = W.depthScale(Math.max(W.stage.floor[0], wp.y));
     e.z = 0;
     const onPanel = drag.y > vh - panelH;
@@ -335,7 +340,7 @@
       return;
     }
     if (e.type === 'pointercancel' || !drop) { A.sfx('back'); return; } // パネルの上で はなした → なにも なくならない
-    const wp = toWorld(d.x, d.y - GHOST_OFF);
+    const wp = toWorld(d.x, d.y + (d.baseOff || 0));
     const area = W.areaAt(wp.x, wp.y);
     let ent;
     if (d.isChar) {

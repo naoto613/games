@@ -387,7 +387,8 @@
     c.restore();
   };
   const wearIcon = (kind, slot) => (c, t) => {
-    c.save(); c.translate(0, kind === 'helmet' ? 188 : slot === 'hat' ? 140 : slot === 'face' ? 108 : 20);
+    const OFF = { helmet: 50, frog: 108, bowtie: 92, yukata: 24, tutu: 28, mustache: 108, heartglasses: 102 };
+    c.save(); c.translate(0, OFF[kind] ?? (slot === 'hat' ? 140 : slot === 'face' ? 108 : slot === 'back' ? 40 : 20));
     PT.drawWearPiece(c, slot, kind, t);
     c.restore();
   };
@@ -400,6 +401,26 @@
   def('helmet', { name: 'うちゅうヘルメット', cat: 'dress', tags: ['hat', 'space'], w: 120, h: 130, wear: ['hat', 'helmet'], role: 'astro', draw: wearIcon('helmet', 'hat') });
   def('sunglasses', { name: 'サングラス', cat: 'dress', tags: ['face', 'cool'], w: 90, h: 40, wear: ['face', 'sunglasses'], role: 'cool', draw: wearIcon('sunglasses', 'face') });
   def('partyhat', { name: 'パーティーぼうし', cat: 'dress', tags: ['hat', 'party'], w: 60, h: 80, wear: ['hat', 'party'], role: 'party', draw: wearIcon('party', 'hat') });
+  const W2 = (id, name, slot, kind, role, w, h, lock) => def(id, { name, cat: 'dress', tags: [slot === 'hat' ? 'hat' : slot, role], w, h, wear: [slot, kind], role, lock, draw: wearIcon(kind, slot) });
+  W2('catears', 'ねこみみ', 'hat', 'catears', 'cat', 100, 60);
+  W2('flowercrown', 'はなかんむり', 'hat', 'flowercrown', 'flower', 110, 40);
+  W2('tiara', 'ティアラ', 'hat', 'tiara', 'princess', 80, 50);
+  W2('ribbon', 'おおきな リボン', 'hat', 'ribbon', 'cute', 100, 50);
+  W2('dress', 'ドレス', 'body', 'dress', 'princess', 110, 90);
+  W2('tutu', 'バレエの チュチュ', 'body', 'tutu', 'ballet', 110, 50);
+  W2('wings', 'ようせいの はね', 'back', 'wings', 'fairy', 130, 90);
+  W2('pirate', 'かいぞくの ぼうし', 'hat', 'pirate', 'pirate', 120, 70);
+  W2('firehat', 'しょうぼうしの ぼうし', 'hat', 'firehat', 'fire', 120, 70);
+  W2('police', 'おまわりさんの ぼうし', 'hat', 'police', 'police', 90, 60);
+  W2('santa', 'サンタさんの ぼうし', 'hat', 'santa', 'santa', 100, 70);
+  W2('nightcap', 'ナイトキャップ', 'hat', 'nightcap', 'sleepy', 110, 70);
+  W2('beret', 'ベレーぼう', 'hat', 'beret', 'artist', 100, 40);
+  W2('frog', 'かえるの フード', 'hat', 'frog', 'frog', 110, 80);
+  W2('yukata', 'ゆかた', 'body', 'yukata', 'yukata', 70, 70);
+  W2('raincoat', 'レインコート', 'body', 'raincoat', 'rain', 80, 70);
+  W2('bowtie', 'ちょうネクタイ', 'body', 'bowtie', 'gentle', 50, 30);
+  W2('heartglasses', 'ハートの めがね', 'face', 'heartglasses', 'love', 90, 40);
+  W2('mustache', 'おひげ', 'face', 'mustache', 'mustache', 80, 30);
   def('witch', { name: 'まほうつかいの ぼうし', cat: 'dress', tags: ['hat', 'magic'], w: 120, h: 100, wear: ['hat', 'witch'], role: 'wizard', lock: 25, draw: wearIcon('witch', 'hat') });
   def('robotsuit', { name: 'ロボットスーツ', cat: 'dress', tags: ['robot'], w: 80, h: 80, wear: ['body', 'robot'], role: 'robot', lock: 15, draw: wearIcon('robot', 'body') });
 
@@ -493,6 +514,7 @@
   /* 衣装パーツ単体（アイコン用。キャラ描画と同じ見た目） */
   PT.drawWearPiece = (c, slot, kind, t) => {
     const ch = { wear: { [slot]: kind }, pose: 'idle', def: PT.CHARS.lulu };
+    if (slot === 'back') { PT._wearBack(c, ch, t || 0); return; }
     if (slot === 'body') {
       if (kind === 'cape') {
         c.beginPath(); c.moveTo(-24, -86); c.quadraticCurveTo(-36, -40, -30, -6); c.lineTo(30, -6); c.quadraticCurveTo(36, -40, 24, -86); c.closePath(); G.fillO(c, '#e2434b', 3);
