@@ -52,6 +52,7 @@ class BattleScreen implements Screen {
   private einfo: HTMLElement;
   private skyTheme = '';
   private skyCol = '#000';
+  private ro: ResizeObserver | null = null;
   private skyTop = '#000';
 
   constructor(private app: App, private session: BattleSession, private after?: AfterBattle) {
@@ -92,16 +93,19 @@ class BattleScreen implements Screen {
 
   enter() {
     playBgm('battle');
-    window.addEventListener('resize', this.fitCanvas);
+    // 場面の 大きさは 表示わくが かわった ときだけ あわせる（とちゅうで 場面が ゆれない）
+    this.ro = new ResizeObserver(() => this.fitCanvas());
+    this.ro.observe(this.cv.parentElement!);
     this.fitCanvas();
+    this.renderParty();
+    // はじめから コマンドの わくを 出しておく（あとから 出て 画面が ずれない）
+    this.commandPhase(true);
     const loop = () => {
       this.raf = requestAnimationFrame(loop);
       this.frame++;
-      if (this.frame % 20 === 1) this.fitCanvas();
       this.draw();
     };
     loop();
-    this.renderParty();
     (async () => {
       const names = this.st.enemies.map((e) => e.name);
       if (this.session.context.kind === 'boss') this.log(`${this.st.enemies.find((e) => e.distorted)?.name ?? names[0]}が たちはだかった！`);
@@ -123,7 +127,7 @@ class BattleScreen implements Screen {
     })();
   }
   leave() {
-    window.removeEventListener('resize', this.fitCanvas);
+    this.ro?.disconnect();
     cancelAnimationFrame(this.raf);
   }
   key(k: Key, down: boolean) {
@@ -359,7 +363,8 @@ class BattleScreen implements Screen {
     };
   }
 
-  private commandPhase() {
+  /** busy＝ターンの 再生中（おなじ コマンドを うすく 出したまま、おせない ように する） */
+  private commandPhase(busy = false) {
     this.activeAlly = -1;
     this.renderParty();
     const st = this.st;
@@ -375,8 +380,9 @@ class BattleScreen implements Screen {
       btn(h('span', { class: 'tac' }, 'さくせん', h('span', { class: 'hl' }, tacLabel)), () => this.tacticPhase()),
       btn('どうぐ', () => this.itemPhase(), st.canUseItems && hasItem ? '' : 'off'),
       btn('にげる', () => this.run({ mode: 'auto', player: { kind: 'escape' } }), st.canEscape ? '' : 'off'),
-    ], 'grid2');
-    for (const b of this.cmds.querySelectorAll('.off')) (b as HTMLButtonElement).disabled = true;
+    ], busy ? 'grid2 busy' : 'grid2');
+    for (const b of this.cmds.querySelectorAll(busy ? 'button' : '.off')) (b as HTMLButtonElement).disabled = true;
+    if (busy) this.keyHandler = null;
   }
 
   /** さくせん: みんなまとめて、または 1体ずつ */
@@ -473,8 +479,7 @@ class BattleScreen implements Screen {
   // ---------------------------------------------------------------- ターンの実行と再生
   private async run(input: TurnInput) {
     this.keyHandler = null;
-    this.activeAlly = -1;
-    this.setCmds([]);
+    this.commandPhase(true);
     const r = this.game.battleTurn(input);
     if (!r.ok) {
       this.app.toast(r.error);
