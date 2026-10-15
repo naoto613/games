@@ -54,6 +54,11 @@
     O('any', 'おともだちと なかよく しよう', ['d_hug', 'd_highfive', 'd_secret', 'd_tickle'], ['lulu', 'pon']),
     O('any', 'かわいい いしょうに きがえよう', ['d_princess', 'd_cute', 'd_ballet', 'd_fairy', 'd_flowercrown', 'd_cat', 'd_love'], ['dress', 'ribbon']),
     O('any', 'おしごとごっこを してみよう', ['d_fire', 'd_police', 'd_doctor', 'd_shop', 'd_chef', 'd_artist'], ['firehat', 'police']),
+    O('any', 'たねを うえて そだてよう', ['d_seed', 'd_garden'], ['seed', 'wateringcan']),
+    O('any', 'がっきで えんそう しよう', ['d_band', 'd_instrument', 'd_musicbox'], ['guitar', 'trumpet']),
+    O('any', 'のりもので おでかけ しよう', ['d_bus', 'd_airplane', 'd_carpet', 'd_drive', 'd_horse', 'd_skate'], ['bus', 'airplane']),
+    O('any', 'ふしぎな はこを あけてみよう', ['d_chest', 'd_egg', 'd_lamp'], ['chest', 'egg']),
+    O('any', 'みんなで たべよう', ['d_pizza', 'd_kanpai', 'd_suikawari', 'd_picnic'], ['pizza', 'juice']),
     O('any', 'ふしぎな ことを おこそう', ['d_star', 'd_rainbow', 'd_wand', 'd_balloon'], ['star', 'balloon']),
   ];
 

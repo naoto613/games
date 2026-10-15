@@ -90,7 +90,8 @@
     cv.width = Math.round(vw * dpr); cv.height = Math.round(vh * dpr);
     panelH = Math.round(PT.clamp(vh * 0.27, 112, 190));
     document.documentElement.style.setProperty('--panel-h', panelH + 'px');
-    const avail = vh - panelH;
+    // 床の いちばん手前は 半透明パネルの 下に すこし かくす（そのぶん 上が ひろく 見える）
+    const avail = vh - panelH + Math.min(70, panelH * 0.45);
     const sH = avail / (PT.H - 150);
     const s = Math.max(sH, vw / PT.W);
     W.scale = s;
@@ -107,7 +108,7 @@
   };
   function updateVis() {
     W.visLeft = -W.ox / W.scale; W.visRight = (vw - W.ox) / W.scale;
-    W.visTop = -W.oy / W.scale; W.visBottom = Math.min(PT.H, (vh - panelH - W.oy) / W.scale + 40);
+    W.visTop = -W.oy / W.scale; W.visBottom = Math.min(PT.H, (vh - panelH - W.oy) / W.scale + 10);
   }
   const toWorld = (x, y) => ({ x: (x - W.ox) / W.scale, y: (y - W.oy) / W.scale });
   game.toScreen = (x, y) => ({ x: x * W.scale + W.ox, y: y * W.scale + W.oy });
@@ -116,6 +117,7 @@
   /* ---------- パネル ---------- */
   const TABS = [
     { id: 'friends', name: 'なかま', icon: 'lulu' },
+    { id: 'food', name: 'たべもの', icon: 'strawberry' },
     { id: 'tools', name: 'どうぐ', icon: 'teddy' },
     { id: 'rides', name: 'のりもの', icon: 'slide' },
     { id: 'dress', name: 'へんしん', icon: 'crown' },
@@ -126,11 +128,9 @@
     const st = game.stage;
     if (tab === 'friends') return PT.CHAR_IDS.slice();
     const all = Object.values(PT.ITEMS).filter((i) => i.cat === tab && unlocked(i.id)).map((i) => i.id);
-    if ((tab === 'tools' || tab === 'rides') && st[tab]) {
-      const extra = all.filter((id) => PT.ITEMS[id].lock && !st[tab].includes(id));
-      return st[tab].filter((id) => PT.ITEMS[id]).concat(extra);
-    }
-    return all;
+    // そのステージに あう物を まえに、ほかの物も ぜんぶ つかえる
+    const fav = (st.favs || []).concat(st.tools || [], st.rides || []).filter((id) => PT.ITEMS[id] && all.includes(id));
+    return [...new Set(fav.concat(all))];
   };
   function buildTabs() {
     const t = $('#tabs'); t.innerHTML = '';
@@ -491,14 +491,14 @@
 
   /* ヒント */
   function clearHints() { hintIds = []; W.fixes().forEach((f) => { f.glow = false; }); game.refreshPanel(); $('.hint-btn').classList.remove('pulse'); }
-  const SUGGEST = ['blanket', 'box', 'ball', 'teddy', 'music', 'bubbles', 'apron', 'crown', 'cake', 'flashlight', 'drum', 'balloon', 'dino', 'book', 'star'];
+  const SUGGEST = ['blocks', 'camera', 'seed', 'snow', 'egg', 'chest', 'guitar', 'bus', 'carpet', 'watermelon', 'pizza', 'kite', 'blanket', 'box', 'ball', 'teddy', 'music', 'bubbles', 'apron', 'crown', 'cake', 'flashlight', 'drum', 'balloon', 'dino', 'book', 'star'];
   game.hint = () => {
     A.init();
     let ids;
     if (game.mode === 'odai' && game.odai) { ids = game.odai.hint; showCard('odai'); }
     else if (game.mode === 'story' && game.story && game.storyStep < game.story.steps.length) { ids = game.story.steps[game.storyStep].hint; showCard('story'); }
     else {
-      const avail = SUGGEST.filter((id) => ['tools', 'rides', 'dress', 'magic'].some((t) => game.itemsFor(t).includes(id)));
+      const avail = SUGGEST.filter((id) => ['food', 'tools', 'rides', 'dress', 'magic'].some((t) => game.itemsFor(t).includes(id)));
       const fixT = W.fixes().filter((f) => !f.def.area && !f.def.deco && !f.def.hidden && f.type !== 'skystar');
       ids = [Math.random() < 0.35 && fixT.length ? PT.pick(fixT).type : PT.pick(avail)];
       const ch = PT.pick(R.chars());
@@ -509,7 +509,7 @@
     W.fixes().forEach((f) => { f.glow = fx.includes(f.type); });
     if (hintIds.length) {
       const tab = PT.CHARS[hintIds[0]] ? 'friends' : PT.ITEMS[hintIds[0]].cat;
-      if (['tools', 'rides', 'dress', 'magic', 'friends'].includes(tab)) { game.tab = tab; buildTabs(); }
+      if (['food', 'tools', 'rides', 'dress', 'magic', 'friends'].includes(tab)) { game.tab = tab; buildTabs(); }
       buildItems();
       const el = $(`.item[data-id="${hintIds[0]}"]`); if (el) el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
     }

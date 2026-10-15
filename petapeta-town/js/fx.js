@@ -75,6 +75,7 @@
       G.rr(c, -12, -6, 30, 8, 3); c.fillStyle = '#e8424a'; c.fill();
     },
   };
+  X.CRIT = CRIT;
   /* いきものを出す：path は [[x,y,ms], ...] */
   X.critter = (kind, path, o = {}) => {
     const total = path.reduce((s, p) => s + (p[2] || 1000), 0);
