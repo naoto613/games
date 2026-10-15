@@ -30,6 +30,17 @@ for (const [vw, vh, tag] of (process.argv[3] === 'p' ? [[390, 844, 'p']] : [[390
     await reshow(); await p.waitForTimeout(500);
     await p.screenshot({ path: path.join(out, `town-${tag}-${town}-${x}-${y}.png`) });
   }
+  // ステータス画面（つよさ・スキル・とくせい）
+  await p.evaluate(() => { const g = window.app.game; g.acceptRecruit('m041', 12); g.state.monsters.forEach((m) => { m.level = Math.max(m.level, 12); }); });
+  await reshow(); await p.waitForTimeout(300);
+  await p.locator('.fmrow', { hasText: 'パーティ' }).click(); await p.waitForTimeout(300);
+  await p.locator('.mcard').first().click(); await p.waitForTimeout(300);
+  await p.locator('button', { hasText: 'くわしく' }).first().click(); await p.waitForTimeout(300);
+  for (const t of ['つよさ', 'スキル', 'とくせい']) {
+    await p.locator('.stab', { hasText: t }).click(); await p.waitForTimeout(250);
+    await p.screenshot({ path: path.join(out, `status-${tag}-${t}.png`) });
+  }
+  await p.evaluate(() => window.app.closeAllPanels()); await p.waitForTimeout(200);
   // ダンジョン（森 1F・3F・ボスの へや）
   for (const [fl, nm] of [[0, 'f1'], [2, 'f3'], [4, 'boss']]) {
     await p.evaluate((fl) => { const g = window.app.game; g.leaveExpedition?.(); g.startExpedition('sasayaki'); for (let i = 0; i < fl; i++) g.descend(); g.takeStory(); }, fl);

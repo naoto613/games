@@ -252,3 +252,39 @@ input.name { font: inherit; font-size: 1.3em; padding: 10px; width: 100%; backgr
 .pcompare { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .pcompare .stats { font-size: .78em; }
 .rank { color: #ffd84a; letter-spacing: -1px; }
+
+/* ---- ステータス画面（参考画像3「モンスターのステータス画面」） */
+.stscreen { display: flex; flex-direction: column; gap: 8px; }
+.stscreen .st-head { display: flex; align-items: baseline; gap: 8px; padding: 4px 10px 6px; border-bottom: 1px solid rgba(160,180,240,.35); font-size: 1.12em; }
+.stscreen .st-head .st-name { flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stscreen .st-head .st-lv { margin-left: auto; }
+.stscreen .st-card { display: flex; gap: 10px; align-items: center; }
+.stscreen .st-portrait { flex: none; width: 112px; height: 104px; display: flex; align-items: center; justify-content: center; border: 2px solid #6a84d8; border-radius: 8px; background: radial-gradient(circle at 50% 40%, #2a4290, #101a44 75%); }
+.stscreen .st-portrait .icon.big { width: 92px; height: 92px; image-rendering: pixelated; }
+.stscreen .st-desc { flex: 1; font-size: .86em; line-height: 1.6; }
+.stscreen .st-main { display: flex; flex-direction: column; gap: 8px; }
+.st-box { padding: 6px 10px; border: 2px solid #6a84d8; border-radius: 8px; background: linear-gradient(180deg, rgba(22,34,82,.85), rgba(10,18,52,.9)); }
+.st-box .st-cap { font-size: .86em; color: #cfe0ff; margin-bottom: 4px; padding-bottom: 2px; border-bottom: 1px solid rgba(160,180,240,.25); }
+.st-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 18px; }
+.st-stats .srow { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px dotted rgba(160,180,240,.2); }
+.st-stats .srow:first-child, .st-stats .srow:nth-child(2) { font-size: 1.05em; }
+.st-stats .k, .st-info .k { color: #c8d4ff; }
+.st-info .irow { display: flex; align-items: center; gap: 12px; padding: 2px 0; }
+.st-info .irow .k { width: 5.5em; flex: none; }
+.eico { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; flex: none; border-radius: 50%; font-size: 11px; line-height: 1; color: #fff; background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 55%, #fff), var(--c) 60%, color-mix(in srgb, var(--c) 60%, #000)); box-shadow: 0 0 0 1.5px rgba(255,255,255,.55); text-shadow: 0 1px 0 rgba(0,0,0,.5); }
+.rgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 14px; }
+.rcell { display: flex; align-items: center; gap: 6px; font-size: .86em; }
+.rcell .rk { flex: 1; }
+.rcell .rv { width: 1.4em; text-align: center; }
+.skrow { display: grid; grid-template-columns: 1fr auto; gap: 0 8px; padding: 3px 0; border-bottom: 1px dotted rgba(160,180,240,.2); }
+.skrow .skn { color: var(--hl); }
+.skrow .skm { color: #9ac8ff; font-size: .85em; }
+.skrow .skd { grid-column: 1 / -1; font-size: .78em; color: var(--sub); }
+.lrow { display: flex; align-items: center; gap: 10px; padding: 3px 0; border-bottom: 1px dotted rgba(160,180,240,.2); font-size: .9em; }
+.lrow .ldot { width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #9ad8ff, #2a6ad8); box-shadow: 0 0 0 1px #dfe8ff; }
+.lrow .llv { width: 3.6em; color: #c8d4ff; }
+.lrow.future { opacity: .5; }
+.lrow.on span:last-child { color: var(--hl); }
+.stabs { position: sticky; bottom: -10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; padding: 6px 0; background: linear-gradient(180deg, rgba(8,12,32,0), rgba(8,12,32,.95) 30%); }
+.stab { min-height: 40px; border-radius: 8px; border: 1.5px solid #6a84d8; background: linear-gradient(180deg, #24367a, #16245a); color: #fff; font: inherit; font-size: .86em; cursor: pointer; }
+.stab.on { background: linear-gradient(180deg, #4a8ae8, #2a5ab8); border-color: #dfe8ff; box-shadow: 0 0 10px rgba(110,160,255,.6); }

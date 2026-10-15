@@ -12,7 +12,7 @@ import { openBreeding } from './breeding';
 import { openDex } from './dex';
 import type { App } from '../App';
 import { btn, h, item } from '../dom';
-import { monIcon, monsterDetailBody, sexMark } from '../components/monster';
+import { monIcon, monsterStatusBody, sexMark, type StatusTab } from '../components/monster';
 import { icon } from '../components/icons';
 
 export const TACTICS: { id: Tactic; name: string; short: string; desc: string }[] = [
@@ -167,10 +167,27 @@ function emptyCard(target: boolean, onTap: () => void) {
 
 export function openDetail(app: App, id: string, opts: { viewOnly?: boolean } = {}) {
   const g = app.game!;
-  const p = app.panel('モンスターの ようす', (body, foot) => {
-    const m = g.monster(id);
+  let tab: StatusTab = 'stats';
+  let cur = id;
+  const p = app.panel('ステータス', (body, foot) => {
+    const m = g.monster(cur);
     if (!m) return p.close();
-    body.append(monsterDetailBody(m));
+    body.append(monsterStatusBody(m, tab));
+    // 参考画像3：下の タブ（きりかえ／つよさ／スキル／とくせい）
+    const tb = (label: string, t: StatusTab | null) => {
+      const b = h('button', { class: `stab${t === tab ? ' on' : ''}`, type: 'button' }, label);
+      b.addEventListener('click', () => {
+        sfx('cursor');
+        if (t) tab = t;
+        else {
+          const order = [...g.state.partyIds, ...g.state.monsters.map((x) => x.id).filter((x) => !g.state.partyIds.includes(x))];
+          cur = order[(order.indexOf(cur) + 1) % order.length] ?? cur;
+        }
+        app.refreshPanels();
+      });
+      return b;
+    };
+    body.append(h('div', { class: 'stabs' }, tb('きりかえ', null), tb('つよさ', 'stats'), tb('スキル', 'skills'), tb('とくせい', 'traits')));
     if (m.pendingSkills.length) body.prepend(h('div', { class: 'win' }, h('div', { class: 'hl' }, 'あたらしい とくぎを おぼえようとしている！'), btn('とくぎを えらぶ', () => resolvePending(app, m))));
     const nameBtn = btn('なまえ', async () => { await askName(app, m.id); app.refreshPanels(); });
     if (opts.viewOnly) { foot.append(nameBtn); return; }
@@ -225,7 +242,7 @@ export function welcomeMonster(app: App, id: string, title: string): Promise<voi
     h('div', { class: 'small muted' }, '8もじまで。「けってい」で このまま すすみます。あとから「つよさ」でも かえられます。'));
   return new Promise((resolve) => {
     const p = app.panel(title, (body, foot) => {
-      body.append(nameBox, monsterDetailBody(g.monster(id) ?? m));
+      body.append(nameBox, monsterStatusBody(g.monster(id) ?? m, 'stats'));
       foot.append(btn('けってい', () => { g.rename(id, input.value); sfx('ok'); p.close(); }, 'primary grow'));
     }, { onClose: () => resolve(), noBack: true });
   });
