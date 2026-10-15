@@ -387,7 +387,7 @@
     c.restore();
   };
   const wearIcon = (kind, slot) => (c, t) => {
-    const OFF = { helmet: 50, frog: 108, bowtie: 92, yukata: 24, tutu: 28, mustache: 108, heartglasses: 102 };
+    const OFF = { helmet: 50, frog: 108, bowtie: 70, yukata: 24, tutu: 28, mustache: 108, heartglasses: 102 };
     c.save(); c.translate(0, OFF[kind] ?? (slot === 'hat' ? 140 : slot === 'face' ? 108 : slot === 'back' ? 40 : 20));
     PT.drawWearPiece(c, slot, kind, t);
     c.restore();
