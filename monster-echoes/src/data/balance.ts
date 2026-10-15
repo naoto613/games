@@ -16,6 +16,10 @@ export const BALANCE = {
     /** 経験値テーブル: 必要累計経験値 = expBase * rate * (L-1)^expPow */
     expBase: 4,
     expPow: 2.5,
+    /** 経験値テーブルの 1次の 項（はじめの 数レベルが 1戦ごとに あがらない ように） */
+    expLinear: 10,
+    /** v2 の 種族の Lv1 能力に「伸び × この レベル数」を 足す（1レベルごとの 強さの 差を ちいさく する） */
+    v2HeadStart: 4,
   },
   breeding: {
     plusLevelBonus: 2,

@@ -11,12 +11,12 @@ const enc = (id: string, entries: [string, number, number, number][], groupSize:
 export const ENCOUNTERS: Record<string, EncounterTable> = Object.fromEntries(
   [
     // ---- 1-2 木漏れ日の小道（1F ルナスライム・モスラット／2F バークボア／3F グリーンピクシー）
-    enc('komorebi1', [['m001', 3, 1, 2], ['m041', 4, 1, 1], ['m002', 1, 1, 1]], [[1, 1]]),
+    enc('komorebi1', [['m001', 3, 1, 1], ['m041', 1, 1, 1], ['m002', 3, 1, 1]], [[1, 1]]),
     enc('komorebi2', [['m023', 4, 2, 2], ['m041', 2, 2, 3], ['m001', 2, 2, 3], ['m081', 1, 2, 3]], [[1, 4], [2, 1]]),
     enc('komorebi3', [['m043', 4, 3, 4], ['m023', 2, 3, 4], ['m041', 2, 3, 4], ['m013', 2, 3, 4], ['m063', 1, 3, 4]], [[1, 2], [2, 3]]),
     // ---- 1-3 ささやきの森（1F モスラット・バークボア／2F グリーンピクシー・コケゴーレム／3F 毒花／4F キノコ兵）
     enc('sasayaki1', [['m041', 3, 4, 5], ['m023', 3, 4, 5], ['m042', 2, 4, 5], ['m061', 1, 4, 5]], [[1, 2], [2, 3], [3, 1]]),
-    enc('sasayaki2', [['m043', 3, 5, 6], ['m121', 3, 5, 6], ['m042', 2, 5, 6], ['m085', 1, 5, 6]], [[1, 3], [2, 3], [3, 1]]),
+    enc('sasayaki2', [['m043', 3, 5, 6], ['m121', 2, 5, 5], ['m042', 2, 5, 6], ['m085', 1, 5, 6]], [[1, 4], [2, 3], [3, 1]]),
     enc('sasayaki3', [['m050', 1, 6, 6], ['m047', 1, 6, 6], ['m041', 3, 6, 7], ['m044', 2, 6, 7], ['m023', 2, 6, 7]], [[1, 3], [2, 3], [3, 1]]),
     enc('sasayaki4', [['m044', 4, 6, 7], ['m141', 2, 6, 7], ['m121', 2, 6, 7], ['m181', 1, 7, 7]], [[1, 3], [2, 4], [3, 1]]),
   ].map((e) => [e.id, e]),
@@ -68,7 +68,7 @@ export const BOSSES: Record<string, BossDefinition> = {
     id: 'morg', name: 'キノコ王モルグ',
     intro: ['ひろまの まんなかで、おおきな キノコが ゆっくりと ふりかえった。', 'キノコ王モルグ「……ここから さきへは ゆかせぬ。森の こえが きこえぬ ものには な……！」'],
     enemies: [
-      { speciesId: 'm044', level: 9, hpScale: 2.6, statScale: 1.1, skills: ['poisonmist', 'dazzle', 'headbutt', 'heal'], name: 'キノコ王モルグ', distorted: true, recruitable: false, script: 'morg' },
+      { speciesId: 'm044', level: 9, hpScale: 3.0, statScale: 1.12, skills: ['poisonmist', 'dazzle', 'headbutt', 'heal'], name: 'キノコ王モルグ', distorted: true, recruitable: false, script: 'morg' },
       { speciesId: 'm044', level: 6, name: 'キノコへい', recruitable: false },
     ],
     defeatText: ['モルグの かさから くろい もやが ぬけていく…。'],
