@@ -3,6 +3,7 @@
 ブラウザで遊べるゲームを GitHub Pages で公開するリポジトリです。
 
 - 一覧ページ: https://naoto613.github.io/games/
+- LayerX Radar: https://naoto613.github.io/games/layerx-radar/
 - ぺたぺた！あそびタウン: https://naoto613.github.io/games/petapeta-town/
 - モンスター・エコーズ 〜ルナフィアと ひかりのクリスタル〜: https://naoto613.github.io/games/monster-echoes/
 - ハーモニーランド攻略ナビ（非公式）: https://naoto613.github.io/games/harmonyland-guide/
@@ -42,6 +43,12 @@
 ├── thumbs/                 # 一覧ページ用サムネイル（<ゲームフォルダ名>.jpg、800×500）
 ├── .nojekyll               # Jekyll 処理を無効化（ファイルをそのまま配信）
 ├── README.md
+├── layerx-radar/
+│   ├── index.html          # LayerX Radar（LayerX の公開技術情報を横断キャッチアップする静的ダッシュボード。検索・絞り込み・既読・あとで読む・学びのメモ・手動追加は localStorage、状態のエクスポート／インポート可。データが空のときはサンプル表示）
+│   ├── app.js / styles.css
+│   ├── data/               # items.json（収集結果）・sources.json（情報源と取得状況）・meta.json（最終収集時刻）
+│   ├── scripts/fetch_sources.py  # APIキー不要の収集（RSS/Atom・YouTube 公開チャンネルフィード・ページからのフィード自動検出、テーマはキーワード推定）
+│   └── requirements.txt    # .github/workflows/layerx-radar-update.yml が 6 時間ごとに実行して main へコミット
 ├── petapeta-town/
 │   ├── index.html          # ぺたぺた！あそびタウン（5歳前後向けの ごっこあそび。キャラ・道具を パネルから ドラッグで置くと、見立て・役割・組み合わせ・掛け合い・連鎖で反応する。12ステージ・オリジナルキャラ7体（うさぎのピョコを含む）・アイテム130種（たべもの20・どうぐ・がっき・のりもの・ふしぎ・へんしん衣装30）をどのステージでも使える（ステージに合う物が先頭）・発見182種。各ステージに かざり（花だん・噴水・時計・水そう・ヤシの木・ジェットコースター・のぼり等）と うごく演出（ちょうちょ・鳥・ほたる・流れ星・UFO・イルカ等）。キャラは かってに歩きまわらず、その場で ちいさく しぐさをするだけ。ドラッグ中の物は ゆびの位置に ぴったり。じゆう／ふしぎはっけん（お題）／おはなし の3モード、発見アルバム・きねんスタンプ・ごほうびアイテム、保護者メニューは長押し。IndexedDB 自動保存、Service Worker でオフライン可。ビルド不要）
 │   ├── css/style.css

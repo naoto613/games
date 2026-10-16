@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#202c3a">
+  <title>LayerX Radar — Engineering Intelligence Hub</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="LayerX Radar ホーム">
+      <span class="brand-mark">L</span>
+      <span><strong>LayerX Radar</strong><small>Engineering Intelligence Hub</small></span>
+    </a>
+    <div class="header-actions">
+      <button id="refreshBtn" class="button button-quiet" title="データを再読み込み">↻ <span>再読み込み</span></button>
+      <button id="settingsBtn" class="button button-quiet">⚙ <span>設定</span></button>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="side-label">WORKSPACE</div>
+      <button class="nav-item active" data-view="dashboard">▦ <span>ダッシュボード</span></button>
+      <button class="nav-item" data-view="all">☷ <span>すべての情報</span><span class="nav-count" id="unreadNavCount">0</span></button>
+      <button class="nav-item" data-view="saved">☆ <span>あとで読む</span></button>
+      <button class="nav-item" data-view="notes">✎ <span>学びのメモ</span></button>
+      <div class="side-label side-label-spaced">MEDIA</div>
+      <button class="nav-item" data-source="blog">▤ <span>エンジニアブログ</span></button>
+      <button class="nav-item" data-source="youtube">▶ <span>YouTube</span></button>
+      <button class="nav-item" data-source="slides">▧ <span>Speaker Deck</span></button>
+      <button class="nav-item" data-source="official">◎ <span>公式ニュース・イベント</span></button>
+      <div class="sidebar-footer">
+        <div class="status-dot"></div>
+        <div><strong id="syncStatus">ローカルデータ</strong><small id="lastUpdated">最終更新を確認中</small></div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="welcome-row">
+        <div>
+          <div class="eyebrow">ENGINEERING INTELLIGENCE</div>
+          <h1 id="pageTitle">おかえりなさい</h1>
+          <p id="pageSubtitle">LayerXの技術的な学びを、ひとつの場所へ。</p>
+        </div>
+        <div class="today-chip"><span class="live-dot"></span> <span id="todayLabel">キャッチアップ</span></div>
+      </section>
+
+      <div id="demoBanner" class="demo-banner hidden">いまは<strong>サンプル表示</strong>です。GitHub Actions が6時間ごとに公開フィード（ブログRSS・Speaker Deck・YouTube）を集めると、実際の記事・動画に切り替わります。</div>
+
+      <section class="stats-grid" aria-label="サマリー">
+        <article class="stat-card"><span>未読</span><strong id="unreadCount">0</strong><small>まだ確認していない情報</small></article>
+        <article class="stat-card"><span>今週の新着</span><strong id="weekCount">0</strong><small>過去7日間に公開</small></article>
+        <article class="stat-card"><span>あとで読む</span><strong id="savedCount">0</strong><small>保存したコンテンツ</small></article>
+        <article class="stat-card"><span>情報源</span><strong id="sourceCount">0</strong><small>登録済みの情報源</small></article>
+      </section>
+
+      <section class="toolbar">
+        <label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="タイトル・概要・タグを検索…" autocomplete="off"><kbd>検索</kbd></label>
+        <div class="filter-row">
+          <select id="typeFilter" aria-label="媒体で絞り込み">
+            <option value="">すべての媒体</option><option value="blog">ブログ</option><option value="youtube">YouTube</option><option value="slides">スライド</option><option value="official">公式ニュース・イベント</option><option value="external">社員・外部発信</option>
+          </select>
+          <select id="tagFilter" aria-label="テーマで絞り込み"><option value="">すべてのテーマ</option></select>
+          <select id="statusFilter" aria-label="既読状態で絞り込み"><option value="unread">未読を優先</option><option value="">すべて</option><option value="read">既読のみ</option><option value="saved">あとで読む</option></select>
+          <select id="sortFilter" aria-label="並び順"><option value="newest">新しい順</option><option value="oldest">古い順</option><option value="title">タイトル順</option></select>
+        </div>
+      </section>
+
+      <section id="dashboardHighlights" class="dashboard-highlights">
+        <div class="section-heading"><div><h2>今日のキャッチアップ</h2><p>優先して確認したい情報</p></div><button class="text-button" data-go="all">すべて見る →</button></div>
+        <div id="highlightGrid" class="highlight-grid"></div>
+      </section>
+
+      <section class="feed-section">
+        <div class="section-heading"><div><h2 id="feedTitle">新着情報</h2><p id="resultSummary">情報を読み込み中…</p></div><button id="clearFiltersBtn" class="text-button">絞り込みを解除</button></div>
+        <div id="feedList" class="feed-list"></div>
+        <div id="emptyState" class="empty-state hidden"><div class="empty-icon">⌕</div><h3>該当する情報がありません</h3><p>検索語や絞り込み条件を変えてみてください。</p></div>
+      </section>
+      <footer class="main-footer">LayerX Radar <span>公開情報を継続的に学ぶための個人用ダッシュボード</span></footer>
+    </main>
+  </div>
+
+  <dialog id="settingsDialog" class="modal">
+    <form method="dialog" class="modal-header"><div><div class="eyebrow">CONFIGURATION</div><h2>設定・情報源</h2></div><button class="icon-button" aria-label="閉じる">✕</button></form>
+    <div class="modal-body">
+      <p class="settings-note">このアプリは静的なページです。GitHub Actions が6時間ごとに公開フィードを集めて <code>data/items.json</code> を更新し、それを読み込みます。APIキーは使っていません。テーマは記事のキーワードからの自動推定です。</p>
+      <div class="settings-block"><h3>登録済みの情報源</h3><div id="sourceSettingsList" class="source-settings-list"></div></div>
+      <div class="settings-block"><h3>データのバックアップ</h3><p>既読・ブックマーク・メモはこのブラウザ内に保存されます。</p><div class="button-row"><button id="exportStateBtn" class="button button-secondary" type="button">状態をエクスポート</button><label class="button button-secondary file-label">状態をインポート<input type="file" id="importStateInput" accept="application/json"></label><button id="resetStateBtn" class="button button-danger" type="button">状態をリセット</button></div></div>
+      <div class="settings-block"><h3>手動で情報を追加</h3><p>自動取得に対応していないページもURLを登録して記録できます。</p><form id="manualAddForm" class="manual-form"><input id="manualTitle" placeholder="タイトル" required><input id="manualUrl" type="url" placeholder="https://…" required><select id="manualType"><option value="external">社員・外部発信</option><option value="blog">ブログ</option><option value="youtube">YouTube</option><option value="slides">スライド</option><option value="official">公式ニュース・イベント</option></select><button class="button button-primary" type="submit">追加</button></form></div>
+      <div class="settings-block"><h3>自動収集のセットアップ</h3><p>収集は <code>layerx-radar/scripts/fetch_sources.py</code>、定期実行は <code>.github/workflows/layerx-radar-update.yml</code> です。情報源の追加・修正は <code>data/sources.json</code> を編集します（RSS/Atom・YouTubeチャンネルID・ページURLのみで、キーは不要）。</p></div>
+    </div>
+  </dialog>
+
+  <dialog id="noteDialog" class="modal note-modal">
+    <form method="dialog" class="modal-header"><div><div class="eyebrow">LEARNING NOTE</div><h2 id="noteDialogTitle">学びのメモ</h2></div><button class="icon-button" aria-label="閉じる">✕</button></form>
+    <div class="modal-body">
+      <p id="noteItemTitle" class="note-item-title"></p>
+      <label class="field-label" for="noteText">学んだこと・仕事への応用・追加で調べたいこと</label>
+      <textarea id="noteText" rows="7" placeholder="・重要だと思ったこと&#10;・自分のチームに応用するなら？&#10;・追加で確認したいこと"></textarea>
+      <div class="button-row end"><button id="saveNoteBtn" class="button button-primary" type="button">メモを保存</button></div>
+    </div>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
