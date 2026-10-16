@@ -7,20 +7,24 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://tech.layerx.co.jp/feed",
-    "lastFetchedAt": null,
-    "notes": "はてなブログの公開RSS。キー不要。"
+    "lastFetchedAt": "2026-10-16T05:55:29+00:00",
+    "notes": "はてなブログの公開RSS。キー不要。",
+    "lastSuccessAt": "2026-10-16T05:55:29+00:00",
+    "lastError": null,
+    "lastCount": 30
   },
   {
     "id": "layerx-youtube",
     "name": "LayerX YouTube",
     "type": "youtube",
-    "url": "https://www.youtube.com/watch?v=_rjFdRnYiso",
+    "url": "https://www.youtube.com/channel/UCKu0R6kOcqd62QstxKxoNhA",
     "enabled": true,
     "fetchMethod": "youtube",
-    "channelId": "",
+    "channelId": "UCKu0R6kOcqd62QstxKxoNhA",
     "resolveFromVideo": "_rjFdRnYiso",
-    "lastFetchedAt": null,
-    "notes": "YouTubeの公開チャンネルフィード（APIキー不要・最新15本）。channelIdはLayerX Lunch Liveのアーカイブ動画から自動で調べて保存する。別のチャンネルになった場合はchannelIdを直接書き換える。"
+    "lastFetchedAt": "2026-10-16T05:55:29+00:00",
+    "notes": "YouTubeの公開チャンネルフィード（APIキー不要・最新15本）。channelIdはLayerX Lunch Liveのアーカイブ動画から自動で調べて保存する。別のチャンネルになった場合はchannelIdを直接書き換える。",
+    "lastError": "404 Client Error: Not Found for url: https://www.youtube.com/feeds/videos.xml?channel_id=UCKu0R6kOcqd62QstxKxoNhA"
   },
   {
     "id": "layerx-speakerdeck",
@@ -30,8 +34,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://speakerdeck.com/layerx.atom",
-    "lastFetchedAt": null,
-    "notes": "Speaker Deckの公開Atomフィード。キー不要。"
+    "lastFetchedAt": "2026-10-16T05:55:29+00:00",
+    "notes": "Speaker Deckの公開Atomフィード。キー不要。",
+    "lastSuccessAt": "2026-10-16T05:55:29+00:00",
+    "lastError": null,
+    "lastCount": 18
   },
   {
     "id": "layerx-official-news",
@@ -40,7 +47,11 @@
     "url": "https://layerx.co.jp/news/",
     "enabled": true,
     "fetchMethod": "auto",
-    "lastFetchedAt": null,
-    "notes": "ページ内の<link rel=alternate>からRSS/Atomを自動検出する。見つからない場合はエラーとして記録されるだけで、他の情報源には影響しない。"
+    "lastFetchedAt": "2026-10-16T05:55:29+00:00",
+    "notes": "ページ内の<link rel=alternate>からRSS/Atomを自動検出する。見つからない場合はエラーとして記録されるだけで、他の情報源には影響しない。",
+    "feedUrl": "https://layerx.co.jp/news/feed/",
+    "lastSuccessAt": "2026-10-16T05:55:29+00:00",
+    "lastError": null,
+    "lastCount": 10
   }
 ]
