@@ -1,7 +1,7 @@
 // まちの たてもの（外観）。ばしょごとに 屋根・かべ・とびら・かんばんが ちがう。
 import { E, P, Pix, R, RR, Sub, mix } from './Pix';
 
-export type BuildingStyle = 'lab' | 'ranch' | 'shop' | 'arena' | 'shrine';
+export type BuildingStyle = 'lab' | 'ranch' | 'shop' | 'arena' | 'shrine' | 'house';
 export type BldState = { style: BuildingStyle; /** たてものの ひだりはしから 何タイル目か */ rel: number; /** たてものの はば */ w: number; /** かんばんを かける タイルか */ sign?: boolean; /** とびらの 位置か */ door?: boolean };
 
 const h2 = (x: number, y: number) => {
@@ -44,6 +44,10 @@ function emblem(p: Pix, st: BuildingStyle) {
     case 'shrine': // ひかりの けっしょう
       p.part(P(8, 4.2, 11, 7.6, 8, 12.2, 5, 7.6), '#6ad0ff', { ol: '#1a4a8a', hi: '#e8fcff' });
       p.part(P(8, 4.2, 9.6, 7.6, 8, 12.2), '#3aa0e8', { flat: true, noOl: true });
+      break;
+    case 'house': // はっぱ（リーフェルの しるし）
+      p.part(E(8, 8, 3.4, 2.2), '#58b848', { ol: '#1a4a14', hi: '#b8f0a0' });
+      p.line(5, 9.6, 11, 6.4, '#1a4a14', 0.6);
       break;
   }
 }
@@ -101,6 +105,18 @@ export function roofStyled(p: Pix, b: BldState, f: number) {
         p.rect(7.6, 0, 0.9, 9, '#c8c8d8');
         p.part(P(8.5, 0.6, 14, 2 + fl, 8.5, 4.6), '#ffd860', { ol: '#6a4a08' });
       }
+      break;
+    }
+    case 'house': {
+      // だいだいいろの かわら屋根
+      p.rect(0, 0, 16, 16, '#7a2e14');
+      for (let row = 0; row < 4; row++)
+        for (let i = -1; i < 3; i++) {
+          const x = i * 8 + (row % 2) * 4, y = row * 4;
+          p.part(Sub(E(x + 4, y + 2.5, 4.2, 3.4), R(x - 1, y - 2, 10, 2.2)), (row + i + rel) % 2 ? '#d8682e' : '#e87a3a', { ol: '#5a1e0a', hi: '#ffb070' });
+        }
+      p.rect(0, 14.4, 16, 1.6, '#5a3a1e');
+      if (rel === 1) { p.part(R(8.6, 0, 4, 8), '#8a6a5a', { ol: '#3a2a20', hi: '#c8a890' }); p.rect(8.2, 0, 4.8, 1.4, '#4a3428'); }
       break;
     }
     case 'shrine': {
@@ -194,6 +210,20 @@ export function wallStyled(p: Pix, b: BldState, wx: number) {
       }
       break;
     }
+    case 'house': {
+      // いたばりの かべと まるい まど
+      p.rect(0, 0, 16, 16, '#c89a62');
+      for (let y = 0; y < 16; y += 3) { p.rect(0, y + 2.4, 16, 0.6, '#8a6236'); }
+      p.rect(0, 14, 16, 2, '#6a4a2a');
+      if (even) {
+        p.part(E(8, 7.6, 3.6, 3.6), '#6a4a2a', { ol: '#2a1808' });
+        p.part(E(8, 7.6, 2.7, 2.7), '#ffe8a0', { flat: true, noOl: true });
+        p.rect(7.7, 4.9, 0.6, 5.4, '#6a4a2a'); p.rect(5.3, 7.3, 5.4, 0.6, '#6a4a2a');
+        p.part(R(4.4, 11.4, 7.2, 2), '#7a5028', { ol: '#3a2008' });
+        for (const [x, c] of [[5.6, '#ff6a8a'], [8, '#fff070'], [10.4, '#ff9ad0']] as [number, string][]) p.part(E(x, 11, 0.9, 0.9), c, { flat: true, noOl: true });
+      }
+      break;
+    }
     case 'shrine': {
       p.rect(0, 0, 16, 16, '#eef0fa');
       p.rect(0, 14, 16, 2, '#3a5ac0'); p.rect(0, 13.4, 16, 0.7, '#e8c860'); p.rect(0, 0, 16, 1.2, '#c8d0ec');
@@ -239,6 +269,11 @@ export function doorStyled(p: Pix, b: BldState, wx: number) {
       p.part(RR(3.4, 3, 9.2, 13, 4.4), '#22242e', { ol: '#0a0a12' });
       for (const x of [5.2, 7.4, 9.6, 11.4]) p.rect(x, 3.6, 0.6, 12.4, '#8a8aa0');
       p.rect(3.4, 8, 9.2, 0.7, '#8a8aa0');
+      break;
+    case 'house':
+      p.part(RR(3.4, 3, 9.2, 13, 4), '#7a4a22', { ol: '#2a1608', hi: '#a86a38' });
+      p.rect(7.7, 3.6, 0.6, 12.4, '#4a2a12');
+      p.part(E(10.6, 10, 0.7, 0.7), '#f0d040', { flat: true, ol: '#6a4a08' });
       break;
     case 'shrine':
       p.part(RR(2.6, 1, 10.8, 15, 5.4), '#fafaff', { ol: '#8a9ac8', hi: '#ffffff' });

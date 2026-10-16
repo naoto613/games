@@ -13,7 +13,7 @@ await p.evaluate(() => localStorage.setItem('me-settings', JSON.stringify({ text
 await p.reload(); const wait = (ms) => p.waitForTimeout(ms);
 await p.locator('button', { hasText: 'はじめから' }).click(); await wait(200);
 await p.locator('button', { hasText: 'けってい' }).click();
-for (let i = 0; i < 40; i++) { const nm = p.locator('.panel-foot button', { hasText: 'けってい' }); if (await nm.count() && await p.$('input.name')) { await nm.last().click(); await wait(150); continue; } const later = p.locator('.choices .item', { hasText: 'あとで' }); if (await later.count()) await later.click(); const m = await p.$('.msgbox:not(:has(+ .choices))'); if (m && !(await p.$('.choices'))) await m.click(); await wait(80); if (await p.$('.fmenu') && !(await p.$('.msgbox'))) break; }
+for (let i = 0; i < 40; i++) { const nm = p.locator('.panel-foot button', { hasText: 'けってい' }); if (await nm.count() && await p.$('input.name')) { await nm.last().click(); await wait(150); continue; } const later = p.locator('.choices .item', { hasText: 'あとで' }); if (await later.count()) await later.click(); const m = await p.$('.msgbox:not(:has(+ .choices))'); if (m && !(await p.$('.choices'))) await m.click(); await wait(80); if (await p.$('.fbtns') && !(await p.$('.msgbox'))) break; }
 await wait(300);
 await p.screenshot({ path: path.join(out, '01-town.png') });
 const pos = () => p.evaluate(() => ({ ...window.app.game.state.player.townPos }));
@@ -28,12 +28,12 @@ const p1 = await pos();
 console.log('drag down', p0, '->', p1);
 // タップ: 2マス 右へ
 const tile = box.width / 11;
-const hero = await p.evaluate(() => { const c = document.querySelector('.view canvas').getBoundingClientRect(); return { x: c.x, y: c.y, w: c.width, h: c.height }; });
+const hero = await p.evaluate(() => { const c = document.querySelector('.view > canvas').getBoundingClientRect(); return { x: c.x, y: c.y, w: c.width, h: c.height }; });
 await p.mouse.click(hero.x + hero.w / 2 + tile * 2, hero.y + hero.h / 2); await wait(1200);
 const p2 = await pos();
 console.log('tap right2', p1, '->', p2);
 // ダンジョンで うごいて、オートセーブされた きろくから 再開できるか
-await p.evaluate(() => { const g = window.app.game; g.startExpedition('forest'); window.app.show(new (window.app.screen.constructor)(window.app)); });
+await p.evaluate(() => { const g = window.app.game; g.clearStage('1-1'); g.startExpedition('komorebi'); g.takeStory(); window.app.show(new (window.app.screen.constructor)(window.app)); });
 await wait(300);
 for (const d of ['down', 'right', 'up', 'left']) { await p.evaluate((d) => { window.app.game.state.expedition.stepsSinceBattle = -999; window.app.dispatch(d, true); }, d); await wait(200); await p.evaluate((d) => window.app.screen.key(d, false), d); await wait(100); }
 const before = await p.evaluate(() => JSON.stringify(window.app.game.state.expedition));

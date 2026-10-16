@@ -14,7 +14,7 @@ describe('マスタデータの検証', () => {
       for (const k of STAT_KEYS) expect(sp.baseStats[k]).toBeLessThanOrEqual(sp.statCaps[k]);
     }
     for (const s of Object.values(SKILLS)) if (s.upgrade) expect(SKILLS[s.upgrade.to]).toBeTruthy();
-    for (const r of BREEDING_RECIPES) if (r.kind !== 'fallback') expect(getSpecies(r.resultSpeciesId)).toBeTruthy();
+    for (const r of BREEDING_RECIPES) if (r.kind !== 'fallback' && r.kind !== 'rule') expect(getSpecies(r.resultSpeciesId)).toBeTruthy();
   });
 });
 

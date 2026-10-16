@@ -1,6 +1,7 @@
 // 物語イベント・NPC の 会話・ルナスライムの 反応の 型（仕様 3.4・17.3）。
 // 台詞の なかの {name} は 主人公の 名前、{luna} は 相棒（ルナスライム）の 名前に おきかわる。
 import type { FeatureId } from '../world/chapters';
+import type { EnemySpec } from '../types';
 
 export type StoryCond =
   | { type: 'chapterAtLeast'; n: number }
@@ -36,7 +37,9 @@ export type StoryAction =
   | { type: 'heal' }
   | { type: 'clearStage'; id: string }
   /** 記録室に のこす 伏線（あとから 読みかえせる） */
-  | { type: 'record'; id: string; title: string };
+  | { type: 'record'; id: string; title: string }
+  /** 台詞の あとで 戦闘に なる（なかま化の 練習 など） */
+  | { type: 'battle'; enemies: EnemySpec[] };
 
 export type StoryEvent = {
   id: string;

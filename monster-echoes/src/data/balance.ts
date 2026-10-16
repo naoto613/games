@@ -6,6 +6,8 @@ export const BALANCE = {
   growth: {
     /** 早熟・晩成の伸び方（t=0→1 で倍率が a→b に変わる） */
     curves: { early: [1.45, 0.55], normal: [1, 1], late: [0.55, 1.45] } as Record<string, [number, number]>,
+    /** v2 の 種族（レベル上限が 30〜70 と ながいので、はやい・おそいの 差を ゆるめる） */
+    curvesV2: { early: [1.25, 0.75], normal: [1, 1], late: [0.8, 1.2] } as Record<string, [number, number]>,
     /** 1レベルの伸びのばらつき */
     varianceMin: 0.75,
     varianceMax: 1.25,
@@ -14,6 +16,10 @@ export const BALANCE = {
     /** 経験値テーブル: 必要累計経験値 = expBase * rate * (L-1)^expPow */
     expBase: 4,
     expPow: 2.5,
+    /** 経験値テーブルの 1次の 項（はじめの 数レベルが 1戦ごとに あがらない ように） */
+    expLinear: 10,
+    /** v2 の 種族の Lv1 能力に「伸び × この レベル数」を 足す（1レベルごとの 強さの 差を ちいさく する） */
+    v2HeadStart: 4,
   },
   breeding: {
     plusLevelBonus: 2,
@@ -34,7 +40,7 @@ export const BALANCE = {
     /** 呪文の 威力に 足す 魔力の 割合 */
     magicScale: 0.12,
     /** 呪文・息の ダメージを 精神で へらす 割合（Q13：はじめは 0 ＝ v1 と おなじ ダメージ。バランス調整で あげる） */
-    spiritScale: 0,
+    spiritScale: 0.08,
     healMagicScale: 0.25,
     /** 回復量に 足す 精神の 割合（はじめは 0） */
     healSpiritScale: 0,
@@ -63,7 +69,9 @@ export const BALANCE = {
     maxDisobey: 0.5,
     /** 敵が「いちばん良い行動」ではなく気まぐれに行動する確率 */
     /** 敵の回復: HPがこの割合を下回るまで回復しない／回復の重み／1回使うごとの減衰 */
-    enemyHeal: { threshold: 0.35, weight: 0.6, decay: 0.4 },
+    /** 敵の 回復：threshold いかで 回復を かんがえる・回復するたびに decay 倍 したがらなく なる。
+     *  capRatio＝1回で 回復する のは 最大HPの この割合まで、wildMax＝野生の 戦闘で 敵チームが 回復できる 回数 */
+    enemyHeal: { threshold: 0.35, weight: 0.6, decay: 0.4, capRatio: 0.4, wildMax: 2 },
     /** 同じ戦闘で状態異常にかかるたびに、次にかかる確率に掛ける値 */
     statusRepeatFactor: 0.6,
     /** 敵が同じ補助・状態異常の特技を使うたびに評価に掛ける値 */

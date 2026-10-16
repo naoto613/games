@@ -114,6 +114,31 @@ function placeholder(size: number): HTMLCanvasElement {
   return c;
 }
 
+/**
+ * ドット絵むけの 2倍 拡大（Scale2x / EPX）。ななめの 段々を なめらかに し、色は もとの 絵の ものだけ つかう（ぼやけない）。
+ */
+export function scale2x(src: HTMLCanvasElement): HTMLCanvasElement {
+  const w = src.width, h = src.height;
+  const si = src.getContext('2d')!.getImageData(0, 0, w, h).data;
+  const px = new Uint32Array(si.buffer.slice(0));
+  const [c, g] = mkCanvas(w * 2, h * 2);
+  const out = g.createImageData(w * 2, h * 2);
+  const po = new Uint32Array(out.data.buffer);
+  const at = (x: number, y: number) => px[Math.min(h - 1, Math.max(0, y)) * w + Math.min(w - 1, Math.max(0, x))];
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const P = at(x, y), A = at(x, y - 1), B = at(x + 1, y), C = at(x - 1, y), D = at(x, y + 1);
+    let e0 = P, e1 = P, e2 = P, e3 = P;
+    if (C === A && C !== D && A !== B) e0 = A;
+    if (A === B && A !== C && B !== D) e1 = B;
+    if (D === C && D !== B && C !== A) e2 = C;
+    if (B === D && B !== A && D !== C) e3 = D;
+    const o = y * 2 * w * 2 + x * 2;
+    po[o] = e0; po[o + 1] = e1; po[o + w * 2] = e2; po[o + w * 2 + 1] = e3;
+  }
+  g.putImageData(out, 0, 0);
+  return c;
+}
+
 /** v2: アトラスから 切りだす。ふつうは 2倍（キャンバス 64→128、大型 96→192）、small は 絵の はんいだけ 原寸で */
 function v2Canvas(id: string, small: boolean): HTMLCanvasElement | null {
   const cell = atlasCell(id), img = atlasImage();
@@ -125,11 +150,9 @@ function v2Canvas(id: string, small: boolean): HTMLCanvasElement | null {
     g.drawImage(img, cell.x + x0, cell.y + y0, w, h, Math.floor((size - w) / 2), size - 1 - h, w, h);
     return c;
   }
-  const size = cell.size * V2_SCALE;
-  const [c, g] = mkCanvas(size, size);
-  g.imageSmoothingEnabled = false;
-  g.drawImage(img, cell.x, cell.y, cell.size, cell.size, 0, 0, size, size);
-  return c;
+  const [o, og] = mkCanvas(cell.size, cell.size);
+  og.drawImage(img, cell.x, cell.y, cell.size, cell.size, 0, 0, cell.size, cell.size);
+  return scale2x(o); // V2_SCALE（2倍）を なめらかに
 }
 
 /** v2 の 絵の 足もとの 高さ（monsterSprite の キャンバスの 上から） */

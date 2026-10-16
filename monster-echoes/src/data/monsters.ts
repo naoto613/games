@@ -109,9 +109,12 @@ const list: MonsterSpecies[] = [
     lore: 'ひかりの クリスタルが くだけた ときの「こだま」から うまれた と いわれる。ゆがみの ない ばしょを えらんで あるき、ひかる あしあとを のこす。ふるい きおくを やどし、そだてると ひかりの とくぎを おぼえる。' }),
 ];
 
-/** v1 の 種族と v2 の 200種（m001〜m200）。図鑑・出現・配合の 切りかえは 引き継ぎ（0-10）で おこなう */
+/** v2 の 200種（m001〜m200）と v1 の 種族（旧セーブの 引き継ぎ用） */
 export const SPECIES: Record<string, MonsterSpecies> = Object.fromEntries([...list, ...SPECIES2_LIST].map((s) => [s.id, s]));
-export const SPECIES_LIST = list;
+/** 図鑑に のる 種族（v2 の 200種） */
+export const SPECIES_LIST = SPECIES2_LIST;
+/** v1 の 40種（旧セーブの 引き継ぎ・休眠中の 闘技場データ用） */
+export const SPECIES_V1_LIST = list;
 export { SPECIES2_LIST };
 
 export function getSpecies(id: string): MonsterSpecies {

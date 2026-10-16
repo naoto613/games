@@ -39,5 +39,26 @@ export const NPCS: NpcDefinition[] = [
       { conditions: [{ type: 'chapterAtLeast', n: 3 }], lines: [L('水の 響晶が もどってから、館の 水も すんだ 気が するわ。')] },
     ],
   },
+  {
+    id: 'mother', name: 'おかあさん', townId: 'liefel',
+    talks: [
+      { conditions: [], lines: [L('{name}、ゆうべは ねむれた？ 森へ いくなら、いやしそうを わすれずにね。')] },
+      { conditions: [{ type: 'stageCleared', id: '1-2' }], lines: [L('木漏れ日の小道を ぬけたの？ {luna}も すこし たくましく なったわね。')] },
+      { conditions: [{ type: 'chapterAtLeast', n: 2 }], lines: [L('ミズナへ いくのね。つかれたら いつでも かえって おいで。')] },
+    ],
+  },
+  {
+    id: 'nagi', name: 'ミズナの 子ナギ', townId: 'mizuna',
+    talks: [
+      { conditions: [], lines: [L('配合の館には ミナモさんが いるよ。まものと まものを あわせると、あたらしい こが うまれるんだって！')] },
+      { conditions: [{ type: 'flag', id: 'tutorial_breeding' }], lines: [L('ちがう 系統どうしを あわせると、ちょっと つよい こが うまれやすいんだよ。')] },
+    ],
+  },
+  {
+    id: 'boatman', name: '船頭のトマ', townId: 'mizuna',
+    talks: [
+      { conditions: [], lines: [L('ちかごろ 水路の みずが にごってな……。水音の洞穴の ほうから、へんな 音が するんじゃ。')] },
+    ],
+  },
 ];
 export const NPC_BY_ID: Record<string, NpcDefinition> = Object.fromEntries(NPCS.map((n) => [n.id, n]));

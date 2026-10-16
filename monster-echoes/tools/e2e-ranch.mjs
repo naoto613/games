@@ -15,22 +15,22 @@ const msgs = async () => { for (let i = 0; i < 80; i++) { const nm = p.locator('
 const party = () => p.evaluate(() => window.app.game.party.map((m) => m.speciesId));
 await p.locator('button', { hasText: 'はじめから' }).click(); await wait(200);
 await p.locator('button', { hasText: 'けってい' }).click(); await wait(300);
-await msgs(); await p.waitForSelector('.fmenu');
+await msgs(); await p.waitForSelector('.fbtns');
 await shot('01-field-strip');
-await p.evaluate(() => { const g = window.app.game; for (const s of ['leafant', 'frostbird', 'stonegolem', 'darkeye']) g.acceptRecruit(s, 4); });
+await p.evaluate(() => { const g = window.app.game; for (const s of ['m041', 'm081', 'm121', 'm023']) g.acceptRecruit(s, 4); });
 // まちメニュー → ぼくじょう
 await p.evaluate(() => window.app.dispatch('menu', true)); await wait(200);
 await shot('02-menu');
-await p.locator('.panel .item', { hasText: 'ぼくじょう' }).click(); await wait(200);
+await p.locator('.panel .item', { hasText: 'モンスター' }).click(); await wait(200);
 console.log('party before', await party());
 await shot('03-ranch');
 // パーティ1番 → 牧場の フロストバード で いれかえ
 await p.locator('.panel').last().locator('.mcard').nth(0).click(); await wait(150);
 await shot('04-ranch-selected');
-await p.locator('.panel').last().locator('.mcard', { hasText: 'フロストバード' }).click(); await wait(200);
+await p.locator('.panel').last().locator('.mcard', { hasText: 'フェザーバット' }).click(); await wait(200);
 console.log('after swap', await party());
 // 牧場の ストーンゴーレム → パーティ2番
-await p.locator('.panel').last().locator('.mcard', { hasText: 'ストーンゴーレム' }).click(); await wait(150);
+await p.locator('.panel').last().locator('.mcard', { hasText: 'コケゴーレム' }).click(); await wait(150);
 await p.locator('.panel').last().locator('.mcard').nth(1).click(); await wait(200);
 console.log('after box->party', await party());
 // パーティどうし ならびかえ（1と3）
@@ -41,7 +41,7 @@ await shot('05-ranch-after');
 await p.evaluate(() => window.app.closeAllPanels()); await wait(200);
 // 地図タップで 歩く（ふんすいの そばへ）
 const pos0 = await p.evaluate(() => ({ ...window.app.game.state.player.townPos }));
-const box = await p.locator('.view canvas').boundingBox();
+const box = await p.locator('.view > canvas').boundingBox();
 await p.mouse.click(box.x + box.width * 0.5, box.y + box.height * 0.25); await wait(1500);
 const pos1 = await p.evaluate(() => ({ ...window.app.game.state.player.townPos }));
 console.log('tap walk', pos0, '->', pos1);

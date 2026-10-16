@@ -1,5 +1,8 @@
 import { SCHEMA_VERSION, defaultSettings, defaultV2State, type SaveData } from '../../application/GameState';
 import { initialChapterProgress } from '../../domain/progression/ChapterEngine';
+import { inheritLegacy } from './LegacyInherit';
+import { getSpecies } from '../../data/monsters';
+import { headStart } from '../../data/v2/species';
 import { err, ok, type Result } from '../../core/Result';
 
 export type MigrationError = 'future' | 'corrupt';
@@ -22,7 +25,24 @@ const splitWisdom = (st: unknown) => {
   return { ...rest, magic: rest.magic ?? wisdom, spirit: rest.spirit ?? wisdom };
 };
 
+/** v6→v7：v2 の 種族の Lv1 能力を あげた（v2HeadStart）ぶんを、いまいる モンスターにも 足す */
+const addHeadStart = (m: Record<string, unknown>) => {
+  const id = m.speciesId;
+  if (typeof id !== 'string' || !/^m\d{3}$/.test(id) || !m.stats || typeof m.stats !== 'object') return m;
+  let sp;
+  try { sp = getSpecies(id); } catch { return m; }
+  const add = headStart(sp.growth);
+  const st = m.stats as Record<string, number>;
+  const stats = Object.fromEntries(Object.entries(st).map(([k, v]) => [k, Math.min(sp.statCaps[k as keyof typeof sp.statCaps] ?? 9999, v + (add[k as keyof typeof add] ?? 0))]));
+  const hp = typeof m.hp === 'number' ? (m.hp > 0 ? Math.min(stats.hp, m.hp + (stats.hp - st.hp)) : 0) : m.hp;
+  const mp = typeof m.mp === 'number' ? Math.min(stats.mp, m.mp + (stats.mp - st.mp)) : m.mp;
+  return { ...m, stats, hp, mp };
+};
+
 const MIGRATIONS: Record<number, (d: Record<string, unknown>) => Record<string, unknown>> = {
+  6: (d) => ({ ...d, monsters: Array.isArray(d.monsters) ? (d.monsters as Record<string, unknown>[]).map(addHeadStart) : d.monsters }),
+  // v5→v6：v2 の 世界（第1章）へ 引き継ぎ（Q9）。モンスター・道具・お金・図鑑は のこし、物語は 第1章から
+  5: (d) => inheritLegacy({ ...(d as unknown as SaveData), schemaVersion: 5 }) as unknown as Record<string, unknown>,
   // v4→v5: v2 の 進行（章・物語・装備・依頼・再戦・時計・生息地）と 個体の 履歴・ラベル・配合回数。
   // 物語は 第1章から（Q9 の 引き継ぎ）。v1 の 進行（エリア・闘技場）は いまの 遊べる 内容の ために のこす
   4: (d) => ({

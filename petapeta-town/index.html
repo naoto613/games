@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#8fd3ff">
+<meta name="description" content="キャラクターや道具を自由に置いて、自分だけのごっこ遊びを作る5歳前後向けのブラウザゲーム。">
+<title>ぺたぺた！あそびタウン</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800;900&display=swap">
+<link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- SCR-001 タイトル -->
+  <section id="scr-title" class="screen on">
+    <canvas id="title-cv" class="title-cv"></canvas>
+    <div class="title-wrap">
+      <h1 class="logo" aria-label="ぺたぺた！あそびタウン">
+        <span class="logo-l1"><b class="c1">ぺ</b><b class="c2">た</b><b class="c3">ぺ</b><b class="c4">た</b><b class="c5">！</b></span>
+        <span class="logo-l2"><b class="c6">あ</b><b class="c7">そ</b><b class="c8">び</b><b class="c9">タ</b><b class="c10">ウ</b><b class="c11">ン</b></span>
+        <svg class="logo-roof" viewBox="0 0 60 40" aria-hidden="true"><path d="M4 30 L30 6 L56 30" fill="none" stroke="#ff8a65" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M38 14 L38 4 L46 4 L46 20" fill="none" stroke="#4c9be8" stroke-width="6" stroke-linecap="round"/></svg>
+      </h1>
+      <p class="ribbon">〜 おいてみたら、あそびが はじまる。〜</p>
+      <button class="btn-big btn-play" data-act="start"><span class="ico ico-play"></span>あそぶ</button>
+      <div class="title-sub">
+        <button class="btn-pill" data-act="album"><span class="ico ico-album"></span>はっけんアルバム</button>
+      </div>
+    </div>
+    <div class="title-foot"><span class="spark">✦</span> きみの アイデアが、いちばん すごい！ <span class="spark">✦</span></div>
+    <button class="corner-parent" data-hold="parent" aria-label="ほごしゃメニュー（ながおし）"><span class="ico ico-parent"></span><i class="hold-ring"></i></button>
+  </section>
+
+  <!-- モード選択 -->
+  <section id="scr-mode" class="screen">
+    <div class="sky-bg"></div>
+    <header class="head">
+      <button class="round-btn" data-act="back-title" aria-label="もどる"><span class="ico ico-back"></span></button>
+      <h2 class="head-title">どうやって あそぶ？</h2>
+      <span></span>
+    </header>
+    <div class="modes">
+      <button class="mode-card mode-free" data-mode="free">
+        <span class="mode-badge"><span class="ico ico-star"></span></span>
+        <span class="mode-txt"><b>じゆうに あそぶ</b><small>すきに おいて、なんどでも あそべる！</small></span>
+      </button>
+      <button class="mode-card mode-odai" data-mode="odai">
+        <span class="mode-badge"><span class="ico ico-q"></span></span>
+        <span class="mode-txt"><b>ふしぎ はっけん</b><small>おだいに チャレンジして、とくべつな はんのうを みつけよう！</small></span>
+      </button>
+      <button class="mode-card mode-story" data-mode="story">
+        <span class="mode-badge"><span class="ico ico-book"></span></span>
+        <span class="mode-txt"><b>おはなし</b><small>みじかい おはなしに そって、キャラクターたちと あそびを すすめよう！</small></span>
+      </button>
+    </div>
+  </section>
+
+  <!-- SCR-002 タウンマップ -->
+  <section id="scr-map" class="screen">
+    <div class="sky-bg"></div>
+    <header class="head">
+      <button class="round-btn" data-act="back-mode" aria-label="もどる"><span class="ico ico-back"></span></button>
+      <h2 class="head-title"><span class="ico ico-map"></span>あそびタウン マップ <em id="map-mode" class="mode-chip"></em></h2>
+      <button class="round-btn" data-act="album" aria-label="アルバム"><span class="ico ico-album"></span></button>
+    </header>
+    <div id="map-grid" class="map-grid"></div>
+  </section>
+
+  <!-- SCR-003 ステージ遊び画面 -->
+  <section id="scr-play" class="screen">
+    <canvas id="game"></canvas>
+    <div class="topbar">
+      <div class="tb-left">
+        <button class="round-btn" data-act="back-map" aria-label="マップへ もどる"><span class="ico ico-back"></span></button>
+        <div class="stage-pill"><span id="stage-icon" class="stage-icon"></span><span id="stage-name"></span></div>
+      </div>
+      <div class="tb-right">
+        <button class="sq-btn" data-act="reset" aria-label="リセット"><span class="ico ico-reset"></span></button>
+        <button class="sq-btn" data-act="bgm" aria-label="おんがく"><span class="ico ico-music"></span></button>
+        <button class="sq-btn" data-act="sfx" aria-label="おと"><span class="ico ico-sound"></span></button>
+        <button class="sq-btn" data-hold="parent" aria-label="ほごしゃメニュー（ながおし）"><span class="ico ico-parent"></span><i class="hold-ring"></i></button>
+      </div>
+    </div>
+    <div id="card" class="task-card hidden">
+      <div class="tc-icon" id="tc-icon"></div>
+      <div class="tc-body"><small id="tc-kind"></small><b id="tc-text"></b><div id="tc-dots" class="tc-dots"></div></div>
+      <button class="tc-btn" id="tc-speak" aria-label="よみあげ"><span class="ico ico-sound"></span></button>
+      <button class="tc-btn" id="tc-next" aria-label="つぎへ"><span class="ico ico-next"></span></button>
+    </div>
+    <div class="side-btns">
+      <button class="round-btn big" data-act="album" aria-label="アルバム"><span class="ico ico-album"></span></button>
+      <button class="hint-btn" data-act="hint" aria-label="ヒント"><span class="ico ico-globe"></span></button>
+    </div>
+    <div id="tutorial" class="tutorial hidden"><div class="tut-bubble">ドラッグ＆ドロップで<br>すきな ばしょに おこう！</div><div class="tut-hand"></div></div>
+    <div id="panel" class="panel">
+      <div class="trash" id="trash"><span class="ico ico-trash"></span><small>おかたづけ</small></div>
+      <div class="tabs" id="tabs"></div>
+      <div class="items" id="items"></div>
+    </div>
+    <div id="toast-area" class="toast-area"></div>
+  </section>
+
+  <!-- SCR-006 アルバム -->
+  <section id="ov-album" class="overlay">
+    <div class="sheet album">
+      <header class="sheet-head">
+        <h3><span class="ico ico-album"></span>ふしぎ はっけんアルバム</h3>
+        <span id="album-count" class="count"></span>
+        <button class="round-btn" data-act="close-album" aria-label="とじる"><span class="ico ico-close"></span></button>
+      </header>
+      <div id="album-stamps" class="stamps"></div>
+      <div id="album-tabs" class="album-tabs"></div>
+      <div id="album-grid" class="album-grid"></div>
+    </div>
+    <div id="album-detail" class="detail hidden"></div>
+  </section>
+
+  <!-- SCR-007 保護者メニュー -->
+  <section id="ov-parent" class="overlay">
+    <div class="sheet parent">
+      <header class="sheet-head">
+        <h3><span class="ico ico-parent"></span>ほごしゃメニュー</h3>
+        <span></span>
+        <button class="round-btn" data-act="close-parent" aria-label="とじる"><span class="ico ico-close"></span></button>
+      </header>
+      <div class="parent-body">
+        <label class="row">おとの おおきさ <input type="range" id="vol" min="0" max="1" step="0.05"></label>
+        <label class="row"><input type="checkbox" id="opt-bgm"> おんがく（BGM）</label>
+        <label class="row"><input type="checkbox" id="opt-sfx"> こうかおん・こえ</label>
+        <label class="row"><input type="checkbox" id="opt-speak"> おだい・おはなしを よみあげる（対応端末のみ）</label>
+        <div class="row btns">
+          <button class="btn-pill" data-act="to-title">タイトルへ</button>
+          <button class="btn-pill warn" data-act="wipe">はっけんの きろくを ぜんぶ けす</button>
+        </div>
+        <p class="note">このゲームは 広告・外部リンク・課金・個人情報の収集が ありません。進み具合と はっけんの記録は この端末の中だけ（IndexedDB）に自動保存されます。「リセット」は置いた物の おかたづけだけで、はっけんの記録は消えません。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 確認ダイアログ -->
+  <section id="ov-confirm" class="overlay">
+    <div class="sheet confirm">
+      <div id="confirm-icon" class="confirm-icon"></div>
+      <p id="confirm-text"></p>
+      <div class="confirm-btns">
+        <button class="yes" data-act="confirm-yes" aria-label="はい"><span class="ico ico-ok"></span></button>
+        <button class="no" data-act="confirm-no" aria-label="いいえ"><span class="ico ico-close"></span></button>
+      </div>
+    </div>
+  </section>
+
+  <div id="drag-ghost" class="drag-ghost hidden"></div>
+  <div id="rotate" class="rotate"><div><span class="ico ico-rotate"></span><p>よこむきに すると あそびやすいよ</p><button class="btn-pill" data-act="dismiss-rotate">このまま あそぶ</button></div></div>
+</div>
+
+<script src="./js/core.js"></script>
+<script src="./js/audio.js"></script>
+<script src="./js/art-chars.js"></script>
+<script src="./js/art-items.js"></script>
+<script src="./js/art-items2.js"></script>
+<script src="./js/stages.js"></script>
+<script src="./js/stages-deco.js"></script>
+<script src="./js/save.js"></script>
+<script src="./js/world.js"></script>
+<script src="./js/fx.js"></script>
+<script src="./js/react-core.js"></script>
+<script src="./js/react-items.js"></script>
+<script src="./js/react-stage.js"></script>
+<script src="./js/react-social.js"></script>
+<script src="./js/react-dress.js"></script>
+<script src="./js/react-items2.js"></script>
+<script src="./js/data.js"></script>
+<script src="./js/icons.js"></script>
+<script src="./js/ui.js"></script>
+<script src="./js/main.js"></script>
+</body>
+</html>

@@ -15,11 +15,11 @@ export function maxLevelOf(m: Pick<MonsterInstance, 'speciesId' | 'plusValue'>):
 /** レベル L に到達するのに必要な累計経験値 */
 export function expForLevel(sp: MonsterSpecies, level: number): number {
   if (level <= 1) return 0;
-  return Math.floor(G.expBase * sp.expRate * Math.pow(level - 1, G.expPow));
+  return Math.floor(sp.expRate * (G.expBase * Math.pow(level - 1, G.expPow) + G.expLinear * (level - 1)));
 }
 
 function curveMultiplier(sp: MonsterSpecies, stat: StatKey, level: number): number {
-  const [a, b] = G.curves[sp.growthCurves[stat] ?? 'normal'];
+  const [a, b] = (sp.rank ? G.curvesV2 : G.curves)[sp.growthCurves[stat] ?? 'normal'];
   const t = clamp((level - 2) / Math.max(1, sp.baseLevelCap - 2), 0, 1);
   return a + (b - a) * t;
 }

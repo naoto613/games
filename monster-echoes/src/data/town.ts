@@ -1,4 +1,7 @@
 import type { Condition } from './types';
+import type { TownArt } from './towns/builder';
+import { LIEFEL } from './towns/liefel';
+import { MIZUNA } from './towns/mizuna';
 
 // まちの へや・たてもの。出入り口（D）・階段（< >）の つながりと、進行で ひらく条件をデータで持つ。
 export type TownTheme = 'town' | 'interior' | 'shrine' | 'ranch' | 'lab' | 'shop' | 'arena';
@@ -11,110 +14,86 @@ export type TownMapDef = {
   theme: TownTheme;
   npcs: Record<string, TownNpc>;
   links: TownLink[];
-  /** 旅の扉（G）で行ける エリア */
-  gate?: string;
+  /** 旅の扉・森の入口（G）から 行ける ダンジョン（data/areas の ID） */
+  gates?: string[];
+  /** G の 先に まだ 行けない ときの ことば */
+  gateClosed?: string;
+  /** はじめて 着いたら 章の ステージに 着いた ことに なる（'2-1' など） */
+  stageId?: string;
+  /** しらべられる もの（V）→ 物語イベントの きっかけ（manual の target） */
+  spots?: Record<string, string>;
+  /** 地面と 物体を わけて 描く 町（参考画像3）。ない 町は タイルで 描く */
+  art?: TownArt;
 };
 
 const D = (x: number, y: number, to: string, tx: number, ty: number, dir: Facing4, cond?: Condition[], locked?: string): TownLink => ({ x, y, to, tx, ty, dir, cond, locked });
 
+// v2：第1章 リーフェル集落と 第2章 水辺の街ミズナ（仕様 14.1・14.2）
 export const TOWN_MAPS: Record<string, TownMapDef> = {
-  town: {
-    id: 'town', name: 'ルナフィアの まち', theme: 'town',
-    npcs: { '5': { id: 'scribe', look: 'scribe' }, '6': { id: 'kid', look: 'kid', idle: true }, '7': { id: 'granny', look: 'granny', idle: true } },
+  liefel: {
+    id: 'liefel', name: 'リーフェル集落', theme: 'town', stageId: '1-1', art: LIEFEL.art,
+    npcs: { '5': { id: 'elder', look: 'scribe' }, '6': { id: 'mio', look: 'kid', idle: true }, '7': { id: 'merchant', look: 'shop', idle: true } },
+    gates: ['komorebi', 'sasayaki'],
+    spots: { '11,3': 'forest_stone' },
     links: [
-      D(9, 2, 'shrine1', 5, 5, 'up'),
-      D(4, 5, 'lab1', 5, 6, 'up'),
-      D(14, 5, 'ranch1', 6, 7, 'up'),
-      D(4, 12, 'shop', 4, 5, 'up'),
-      D(14, 12, 'arena1', 5, 4, 'up'),
+      D(5, 6, 'liefel_hut', 5, 5, 'up'),
+      D(19, 6, 'liefel_ranch', 6, 7, 'up'),
+      D(5, 16, 'liefel_home', 4, 5, 'up'),
+      D(25, 10, 'mizuna', 1, 10, 'right', [{ type: 'stage', id: '1-3' }], 'ミズナへ つづく 道だ。森の 異変を しずめてから 旅に 出よう。'),
+      D(25, 11, 'mizuna', 1, 11, 'right', [{ type: 'stage', id: '1-3' }], 'ミズナへ つづく 道だ。森の 異変を しずめてから 旅に 出よう。'),
     ],
   },
-  lab1: {
-    id: 'lab1', name: '配合の やかた 1F', theme: 'lab',
-    npcs: { '1': { id: 'doctor', look: 'doctor' }, '8': { id: 'librarian', look: 'scribe', facing: 'right' } },
-    links: [
-      D(5, 7, 'town', 4, 6, 'down'),
-      D(9, 5, 'lab2', 2, 5, 'right', [{ type: 'boss', id: 'boss_forest' }], 'うえの かいは けんきゅうちゅう。もりの ゆがみを はらったら おいで、と かいてある。'),
-    ],
+  liefel_home: {
+    id: 'liefel_home', name: '主人公の家', theme: 'interior',
+    npcs: { '2': { id: 'mother', look: 'granny', facing: 'left' } },
+    links: [D(4, 6, 'liefel', 5, 17, 'down')],
   },
-  lab2: {
-    id: 'lab2', name: '配合の やかた 2F けんきゅうしつ', theme: 'lab',
-    npcs: { '2': { id: 'researcher', look: 'guard' } },
-    links: [D(1, 5, 'lab1', 8, 5, 'left')],
+  liefel_hut: {
+    id: 'liefel_hut', name: '調律師の小屋', theme: 'interior',
+    npcs: { '1': { id: 'sora', look: 'doctor' } },
+    links: [D(5, 6, 'liefel', 5, 7, 'down')],
   },
-  ranch1: {
-    id: 'ranch1', name: 'ぼくじょう', theme: 'ranch',
+  liefel_ranch: {
+    id: 'liefel_ranch', name: '小さな牧場', theme: 'ranch',
     npcs: { '2': { id: 'lily', look: 'lily' } },
+    links: [D(6, 8, 'liefel', 19, 7, 'down')],
+  },
+  mizuna: {
+    id: 'mizuna', name: '水辺の街ミズナ', theme: 'town', stageId: '2-1', art: MIZUNA.art,
+    npcs: { '6': { id: 'nagi', look: 'kid', idle: true }, '7': { id: 'boatman', look: 'granny', idle: true } },
     links: [
-      D(6, 8, 'town', 14, 6, 'down'),
-      D(12, 4, 'ranch2', 1, 4, 'right', [{ type: 'arena', id: 'arenaE' }], 'さくの むこうは まだ せいびちゅう。とうぎじょう Eランクを ゆうしょうしたら ひろげるわ。'),
+      D(5, 6, 'mizuna_lab', 5, 6, 'up'),
+      D(17, 7, 'mizuna_shrine', 5, 5, 'up'),
+      D(4, 16, 'mizuna_shop', 4, 5, 'up'),
+      D(18, 16, 'mizuna_ranch', 7, 6, 'up'),
+      D(0, 10, 'liefel', 24, 10, 'left'),
+      D(0, 11, 'liefel', 24, 11, 'left'),
     ],
   },
-  ranch2: {
-    id: 'ranch2', name: 'おくの まきば', theme: 'ranch',
-    npcs: { '9': { id: 'farmer', look: 'shop' } },
-    links: [D(0, 4, 'ranch1', 11, 4, 'left')],
+  mizuna_lab: {
+    id: 'mizuna_lab', name: '配合の館', theme: 'lab',
+    npcs: { '1': { id: 'minamo', look: 'lily' }, '8': { id: 'librarian', look: 'scribe', facing: 'right' } },
+    links: [D(5, 7, 'mizuna', 5, 7, 'down')],
   },
-  shop: {
-    id: 'shop', name: 'どうぐや', theme: 'shop',
+  mizuna_shop: {
+    id: 'mizuna_shop', name: 'ミズナの 道具屋', theme: 'shop',
     npcs: { '3': { id: 'shop', look: 'shop' }, '9': { id: 'medal', look: 'arena', facing: 'left' } },
-    links: [D(4, 6, 'town', 4, 13, 'down')],
+    links: [D(4, 6, 'mizuna', 4, 17, 'down')],
   },
-  arena1: {
-    id: 'arena1', name: 'とうぎじょう ロビー', theme: 'arena',
-    npcs: { '4': { id: 'arena', look: 'arena' } },
-    links: [
-      D(5, 5, 'town', 14, 13, 'down'),
-      D(1, 3, 'arena2', 2, 3, 'right', [{ type: 'arena', id: 'arenaF' }], 'かんきゃくせきへの かいだん。Fランクを ゆうしょうした ちょうりつしだけが はいれる。'),
-    ],
+  mizuna_ranch: {
+    id: 'mizuna_ranch', name: '魔物牧場', theme: 'ranch',
+    npcs: { '2': { id: 'farmer', look: 'shop' } },
+    links: [D(7, 7, 'mizuna', 18, 17, 'down')],
   },
-  arena2: {
-    id: 'arena2', name: 'とうぎじょう かんきゃくせき', theme: 'arena',
-    npcs: { '2': { id: 'coach', look: 'guard' } },
-    links: [D(1, 3, 'arena1', 2, 3, 'right')],
-  },
-  shrine1: {
-    id: 'shrine1', name: 'たびのとびらの しんでん B1', theme: 'shrine', gate: 'forest', npcs: {},
-    links: [
-      D(5, 6, 'town', 9, 3, 'down'),
-      D(9, 4, 'shrine2', 2, 4, 'right', [{ type: 'boss', id: 'boss_forest' }], 'ふしぎな ちからで とざされている…。はじまりのもりの ゆがみを はらえば ひらきそうだ。'),
-    ],
-  },
-  shrine2: {
-    id: 'shrine2', name: 'たびのとびらの しんでん B2', theme: 'shrine', gate: 'cave', npcs: {},
-    links: [
-      D(1, 4, 'shrine1', 8, 4, 'left'),
-      D(9, 4, 'shrine3', 2, 4, 'right', [{ type: 'boss', id: 'boss_cave' }, { type: 'arena', id: 'arenaE' }], 'とざされている…。どうくつの ゆがみを はらい、とうぎじょう Eランクで みとめられれば ひらきそうだ。'),
-    ],
-  },
-  shrine3: {
-    id: 'shrine3', name: 'たびのとびらの しんでん B3', theme: 'shrine', gate: 'highland', npcs: {},
-    links: [
-      D(1, 4, 'shrine2', 8, 4, 'left'),
-      D(9, 4, 'shrine4', 2, 4, 'right', [{ type: 'flag', id: 'champion' }], 'つよい ひかりで とざされている…。ルナフィアたいかいの ゆうしょうしゃだけが すすめるらしい。'),
-    ],
-  },
-  shrine4: {
-    id: 'shrine4', name: 'たびのとびらの しんでん B4', theme: 'shrine', gate: 'tower', npcs: {},
-    links: [
-      D(1, 4, 'shrine3', 8, 4, 'left'),
-      D(9, 4, 'shrine5', 2, 4, 'right', [{ type: 'flag', id: 'champion' }], 'ひんやりした かぜが ふきこんで、とびらが とざされている…。ルナフィアたいかいの ゆうしょうしゃなら すすめそうだ。'),
-    ],
-  },
-  shrine5: {
-    id: 'shrine5', name: 'たびのとびらの しんでん B5', theme: 'shrine', gate: 'snow', npcs: {},
-    links: [
-      D(1, 4, 'shrine4', 8, 4, 'left'),
-      D(9, 4, 'shrine6', 2, 4, 'right', [{ type: 'boss', id: 'boss_snow' }, { type: 'flag', id: 'towerClear' }], 'あつい ひかりが もれている…。こおりの ゆがみを はらい、ひかりのとうを せいはすれば ひらきそうだ。'),
-    ],
-  },
-  shrine6: {
-    id: 'shrine6', name: 'たびのとびらの しんでん B6', theme: 'shrine', gate: 'volcano', npcs: {},
-    links: [D(1, 4, 'shrine5', 8, 4, 'left')],
+  mizuna_shrine: {
+    id: 'mizuna_shrine', name: '旅の扉の祠', theme: 'shrine', npcs: {},
+    gates: [],
+    gateClosed: '扉の むこうから、つよい 水の 音が きこえる……。水音の洞穴への 道は、まだ ひらいていないようだ。（第2章の つづきは つぎの アップデートで あそべます）',
+    links: [D(5, 6, 'mizuna', 17, 8, 'down')],
   },
 };
 
-export const getTownMap = (id: string): TownMapDef => TOWN_MAPS[id] ?? TOWN_MAPS.town;
+export const getTownMap = (id: string): TownMapDef => TOWN_MAPS[id] ?? TOWN_MAPS.liefel;
 
 // ---------------------------------------------------------------- やりこみ: ちいさなメダル・図鑑のごほうび
 export type MedalPrize = { id: string; cost: number; name: string; desc: string };
@@ -137,12 +116,7 @@ export const DEX_REWARDS: { count: number; medals: number; items: Record<string,
 ];
 
 // ---------------------------------------------------------------- まちの たてもの（外観のスタイルと ばしょ）
-export type TownBuilding = { style: 'lab' | 'ranch' | 'shop' | 'arena' | 'shrine'; x0: number; x1: number; y0: number; y1: number; door: number };
-export const TOWN_BUILDINGS: TownBuilding[] = [
-  { style: 'shrine', x0: 5, x1: 13, y0: 1, y1: 2, door: 9 },
-  { style: 'lab', x0: 2, x1: 6, y0: 4, y1: 5, door: 4 },
-  { style: 'ranch', x0: 12, x1: 16, y0: 4, y1: 5, door: 14 },
-  { style: 'shop', x0: 2, x1: 6, y0: 11, y1: 12, door: 4 },
-  { style: 'arena', x0: 12, x1: 16, y0: 11, y1: 12, door: 14 },
-];
-export const buildingAt = (x: number, y: number) => TOWN_BUILDINGS.find((b) => x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1);
+export type TownBuilding = { style: 'lab' | 'ranch' | 'shop' | 'arena' | 'shrine' | 'house'; x0: number; x1: number; y0: number; y1: number; door: number };
+/** タイルで 描く 町の 建物（いまは なし。地面と 物体で 描く 町は TownArt）*/
+export const TOWN_BUILDINGS: Record<string, TownBuilding[]> = {};
+export const buildingAt = (mapId: string, x: number, y: number) => (TOWN_BUILDINGS[mapId] ?? []).find((b) => x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1);

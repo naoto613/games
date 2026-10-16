@@ -1,47 +1,58 @@
-// まちの へや めぐり: node tools/e2e-town.mjs <出力dir>
+// 町の 見た目の 撮影（参考画像3「町の画面」と くらべる）  node tools/e2e-town.mjs <出力dir>
 import { chromium } from 'playwright';
-import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path';
+import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
-const out = process.argv[2] || '/tmp/e2e-t'; fs.mkdirSync(out, { recursive: true });
-const srv = http.createServer((q, s) => { const f = path.join(root, q.url.split('?')[0].replace(/\/$/, '/index.html')); fs.readFile(f, (e, d) => { if (e) { s.writeHead(404); s.end(); return; } s.writeHead(200, { 'content-type': f.endsWith('.js') ? 'text/javascript' : 'text/html' }); s.end(d); }); }).listen(0);
+const out = process.argv[2] || '/tmp/e2e';
+fs.mkdirSync(out, { recursive: true });
+const srv = http.createServer((q, s) => {
+  const f = path.join(root, decodeURIComponent(q.url.split('?')[0]).replace(/\/$/, '/index.html'));
+  fs.readFile(f, (e, d) => { if (e) { s.writeHead(404); s.end(); return; } s.writeHead(200, { 'content-type': f.endsWith('.js') ? 'text/javascript' : 'text/html' }); s.end(d); });
+}).listen(0);
 const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
-const p = await b.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
-const errors = []; p.on('pageerror', (e) => errors.push(e.message));
-await p.goto(`http://localhost:${srv.address().port}/index.html`);
-await p.evaluate(() => localStorage.setItem('me-settings', JSON.stringify({ textSpeed: 'fast', sound: false, reduceMotion: true })));
-await p.reload(); const wait = (ms) => p.waitForTimeout(ms);
-const shot = (n) => p.screenshot({ path: path.join(out, n + '.png') });
-const msgs = async () => { for (let i = 0; i < 80; i++) { const ok = p.locator('.panel-foot button', { hasText: 'けってい' }); if (await ok.count()) { await shot('00-name'); await ok.last().click(); await wait(150); continue; } if (await p.$('.choices')) return; const m = await p.$('.msgbox'); if (!m) { await wait(200); if (!(await p.$('.msgbox')) && !(await p.locator('.panel-foot button', { hasText: 'けってい' }).count())) return; continue; } await m.click(); await wait(60); } };
-await p.locator('button', { hasText: 'はじめから' }).click(); await wait(200);
-await p.locator('button', { hasText: 'けってい' }).click(); await wait(300);
-await msgs(); await p.waitForSelector('.fmenu');
-await shot('01-town');
-const go = async (map, x, y, dir, name) => {
-  await p.evaluate(([m, x, y, d]) => { const s = window.app.game.state; s.player.townMap = m; s.player.townPos = { x, y }; s.player.townDir = d; window.app.show(new (window.app.screen.constructor)(window.app)); }, [map, x, y, dir]);
-  await wait(400); await shot(name);
-};
-const step = async (dir) => { await p.evaluate((d) => window.app.dispatch(d, true), dir); await wait(250); await p.evaluate((d) => window.app.screen.key(d, false), dir); await wait(500); };
-// まちの とびら → 神殿
-await go('town', 9, 3, 'up', '02-before-shrine');
-await step('up');
-await shot('03-shrine1');
-console.log('map', await p.evaluate(() => window.app.game.state.player.townMap));
-// 鍵のかかった階段
-await go('shrine1', 8, 4, 'right', '04-shrine-stairs'); await step('right'); await shot('05-locked'); await msgs();
-// やかた・ぼくじょう・みせ・とうぎじょう
-await p.evaluate(() => { const g = window.app.game; for (const s of ['leafant', 'frostbird', 'stonegolem', 'darkeye', 'kinoborg']) g.acceptRecruit(s, 4); });
-await go('lab1', 5, 4, 'up', '06-lab1');
-await go('ranch1', 6, 4, 'down', '07-ranch1');
-await go('shop', 4, 3, 'up', '08-shop');
-await go('arena1', 5, 3, 'up', '09-arena');
-// メダルこうかん
-await p.evaluate(() => { window.app.game.state.inventory.medal = 9; });
-await go('shop', 6, 4, 'right', '10-shop-medal'); await p.evaluate(() => window.app.dispatch('a', true)); await wait(400); await shot('11-medal');
-await p.evaluate(() => window.app.closeAllPanels());
-// 進行後: 2Fへ
-await p.evaluate(() => { const g = window.app.game; g.state.progress.defeatedBossIds.push('boss_forest'); g.state.discoveredSpeciesIds.push('kazetsubame', 'homurawolf'); });
-await go('lab1', 8, 5, 'right', '12-lab-stairs'); await step('right'); await shot('13-lab2');
-console.log('map', await p.evaluate(() => window.app.game.state.player.townMap));
-await go('lab1', 2, 5, 'left', '14-librarian'); await p.evaluate(() => window.app.dispatch('a', true)); await wait(300); await msgs(); await shot('15-dex-reward');
-console.log('medals', await p.evaluate(() => window.app.game.state.inventory.medal));
-console.log(errors.join('\n') || 'no errors'); await b.close(); srv.close();
+const errors = [];
+for (const [vw, vh, tag] of (process.argv[3] === 'p' ? [[390, 844, 'p']] : [[390, 844, 'p'], [844, 390, 'l']])) {
+  const p = await b.newPage({ viewport: { width: vw, height: vh }, deviceScaleFactor: 1, hasTouch: true, isMobile: true });
+  p.on('pageerror', (e) => errors.push('PAGEERROR: ' + e.message));
+  await p.goto(`http://localhost:${srv.address().port}/index.html`);
+  await p.evaluate(() => localStorage.setItem('me-settings', JSON.stringify({ textSpeed: 'fast', battleSpeed: 'instant', reduceMotion: true, sound: false, largeText: false })));
+  await p.reload();
+  await p.waitForTimeout(600);
+  await p.locator('button', { hasText: 'はじめから' }).first().click(); await p.waitForTimeout(150);
+  await p.locator('button', { hasText: 'けってい' }).first().click(); await p.waitForTimeout(300);
+  const wait = (ms) => p.waitForTimeout(ms);
+  const skip = async (max = 80) => { await wait(350); for (let i = 0; i < max; i++) { const nm = p.locator('.panel-foot button', { hasText: 'けってい' }); if (await nm.count() && await p.$('input.name')) { await nm.last().click(); await wait(150); continue; } const has = await p.$('.msgbox:not(:has(+ .choices))'); const ch = await p.$('.choices'); if (ch) { const later = p.locator('.choices .item', { hasText: 'あとで' }); if (await later.count()) { await later.click(); await wait(100); continue; } return 'choice'; } if (!has) { await wait(120); if (!(await p.$('.msgbox'))) return; continue; } await has.click(); await wait(60); } };
+  await skip();
+  const reshow = () => p.evaluate(() => { window.__Field ??= window.app.screen.constructor; window.app.show(new window.__Field(window.app)); });
+  for (const [town, x, y] of [['liefel', 13, 13], ['mizuna', 13, 14], ['mizuna', 8, 6], ['mizuna', 18, 12]]) {
+    await p.evaluate(([t, x, y]) => { const g = window.app.game; for (const id of ['1-1', '1-2', '1-3']) g.clearStage(id); g.takeStory(); g.state.player.townMap = t; g.setTownPos({ x, y }, 'down'); }, [town, x, y]);
+    await reshow(); await p.waitForTimeout(500);
+    await p.screenshot({ path: path.join(out, `town-${tag}-${town}-${x}-${y}.png`) });
+  }
+  // 会話の 名前ふだ と どうぐの 絵
+  await p.evaluate(() => { void window.app.say('……よくぞ ここまで たどりついた。\nだが おまえたちだけでは この世界は すくえない。', { speaker: 'ノクティル' }); });
+  await p.waitForTimeout(600);
+  await p.screenshot({ path: path.join(out, `talk-${tag}.png`) });
+  await p.locator('.msgbox').click(); await p.waitForTimeout(300);
+  // ステータス画面（つよさ・スキル・とくせい）
+  await p.evaluate(() => { const g = window.app.game; g.acceptRecruit('m041', 12); g.state.monsters.forEach((m) => { m.level = Math.max(m.level, 12); }); });
+  await reshow(); await p.waitForTimeout(300);
+  await p.locator('.fmrow', { hasText: 'パーティ' }).click(); await p.waitForTimeout(300);
+  await p.locator('.mcard').first().click(); await p.waitForTimeout(300);
+  await p.locator('button', { hasText: 'くわしく' }).first().click(); await p.waitForTimeout(300);
+  for (const t of ['つよさ', 'スキル', 'とくせい']) {
+    await p.locator('.stab', { hasText: t }).click(); await p.waitForTimeout(250);
+    await p.screenshot({ path: path.join(out, `status-${tag}-${t}.png`) });
+  }
+  await p.evaluate(() => window.app.closeAllPanels()); await p.waitForTimeout(200);
+  // ダンジョン（森 1F・3F・ボスの へや）
+  for (const [fl, nm] of [[0, 'f1'], [2, 'f3'], [4, 'boss']]) {
+    await p.evaluate((fl) => { const g = window.app.game; g.leaveExpedition?.(); g.startExpedition('sasayaki'); for (let i = 0; i < fl; i++) g.descend(); g.takeStory(); }, fl);
+    await reshow(); await p.waitForTimeout(500);
+    await p.screenshot({ path: path.join(out, `dun-${tag}-${nm}.png`) });
+  }
+  await p.close();
+}
+console.log(errors.join('\n') || 'ok');
+await b.close(); srv.close();

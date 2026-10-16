@@ -1,8 +1,9 @@
 import { AREAS, BOSSES, getArea, getArenaRank } from '../data/areas';
+import { canWalk, generateRoomFloor, step as roomStep, type RoomTileMap } from '../domain/dungeon/RoomGen';
 import { BALANCE } from '../data/balance';
 import { getItem, ITEM_LIST } from '../data/items';
 import { getSpecies } from '../data/monsters';
-import type { EnemySpec, Reward, Tactic } from '../data/types';
+import type { Condition, EnemySpec, Reward, Tactic } from '../data/types';
 import { createRng, type Rng } from '../core/Random';
 import { err, ok, type Result } from '../core/Result';
 import { battleRewards, createBattle, expForMember, resolveTurn } from '../domain/battle/BattleEngine';
@@ -15,7 +16,7 @@ import { createMonster, displayName } from '../domain/monster/MonsterFactory';
 import type { MonsterInstance } from '../domain/monster/types';
 import { useFieldSkill as useFieldSkillDomain } from '../domain/monster/FieldSkills';
 import { getSkill } from '../data/skills';
-import { allMet, initialProgress, refreshUnlocks } from '../domain/progression/ProgressionEngine';
+import { allMet, conditionMet, initialProgress, refreshUnlocks } from '../domain/progression/ProgressionEngine';
 import { recruitChance, rollRecruit } from '../domain/recruitment/RecruitmentEngine';
 import { weightedPick } from '../core/Random';
 import { DEX_REWARDS, MEDAL_PRIZES, getTownMap } from '../data/town';
@@ -23,9 +24,9 @@ import { SPECIES_LIST } from '../data/monsters';
 import { eventsOnFloor, EVENT_BY_ID, type EventContext, type EventDef } from '../data/events';
 import { eventAvailable, overlayEvents, type EventState } from '../domain/events/EventEngine';
 import { defaultSettings, defaultV2State, GAME_VERSION, SCHEMA_VERSION, type SaveData, type StoryLog } from './GameState';
-import { clearStage, enterStage, hasFeature, initialChapterProgress, type ChapterProgress, type Unlocked } from '../domain/progression/ChapterEngine';
+import { canEnterStage, clearStage, enterStage, hasFeature, initialChapterProgress, type ChapterProgress, type Unlocked } from '../domain/progression/ChapterEngine';
 import type { FeatureId } from '../data/world/chapters';
-import { LUNA_REACTIONS, NPC_BY_ID, STORY_EVENTS } from '../data/story';
+import { LUNA_REACTIONS, NPC_BY_ID, STORY_EVENT_BY_ID, STORY_EVENTS } from '../data/story';
 import type { LunaSituation, StoryAction, StoryLine, StoryTrigger } from '../data/story/types';
 import { allCond, eventsFor, lunaReaction, markSeen, npcLines, renderLines, type StoryContext } from '../domain/story/StoryEngine';
 
@@ -50,11 +51,13 @@ export type BattleSummary = {
   boss: { bossId: string; texts: string[]; story: string[]; rewards: Reward[] } | null;
   arena: { rankId: string; index: number; cleared: boolean; rewards: Reward[] } | null;
   unlocked: { areas: string[]; ranks: string[] };
+  /** v2：章の 進行で 解放された もの（ボスを たおして 章クリア など） */
+  chapter: Unlocked | null;
 };
 
 export type MoveResult =
   | { kind: 'blocked' }
-  | { kind: 'moved'; encounter: EnemySpec[] | null }
+  | { kind: 'moved'; encounter: EnemySpec[] | null; /** 毒の床を ふんだ 回数 */ poison?: number; /** すべった・ながされた */ slid?: boolean }
   | { kind: 'stairs' }
   | { kind: 'exit' }
   | { kind: 'chest'; reward: Reward | null; pos: Pos }
@@ -63,7 +66,13 @@ export type MoveResult =
   | { kind: 'npc'; id: string }
   | { kind: 'warp'; to: string }
   | { kind: 'locked'; text: string }
-  | { kind: 'gate'; areaId: string }
+  | { kind: 'gate'; areaIds: string[]; closed?: string }
+  /** 町の しらべられる もの（石碑 など） */
+  | { kind: 'spot'; target: string }
+  /** ダンジョンの 物語イベント（しらべると おこる） */
+  | { kind: 'storyEvent'; id: string }
+  /** ボスの いない ステージの さいごの 出口（ステージクリア） */
+  | { kind: 'stageClear' }
   | { kind: 'event'; eventId: string };
 
 export interface SaveSink {
@@ -76,41 +85,50 @@ export function floorMap(areaId: string, floorIndex: number, seed: number): Tile
   const area = getArea(areaId);
   const f = area.floors[floorIndex];
   const last = floorIndex === area.floors.length - 1;
+  if (area.stageId) {
+    // v2：ボスの へやは 専用、それ いがいは 部屋テンプレート型（Q14）。さいごの 階の > は ステージの 出口
+    if (f.bossId) return generateFloor({ id: f.id, theme: area.theme, first: false, last: true, boss: true, spring: false }, seed);
+    return generateRoomFloor({ id: f.id, theme: area.theme, first: floorIndex === 0, last: false, spring: !!f.spring, gimmicks: f.gimmicks, events: (f.storyEvents ?? []).map((id) => ({ id, kind: 'story' })) }, seed);
+  }
   const events = eventsOnFloor(areaId, floorIndex).filter((e) => e.kind !== 'vault').map((e) => ({ id: e.id, kind: e.kind, vaultId: e.vaultId }));
   return generateFloor({ id: f.id, theme: area.theme, first: floorIndex === 0, last, boss: !!f.bossId, spring: floorIndex === 1 && !last, events }, seed);
 }
 
 export function shopItems(s: SaveData): string[] {
   const list = ['herb', 'curegrass', 'jerky', 'returnwing', 'bonemeat', 'mpdrop'];
-  if (s.progress.defeatedBossIds.includes('boss_forest')) list.push('bigherb', 'lifeleaf');
-  if (s.progress.defeatedBossIds.includes('boss_cave')) list.push('primemeat');
+  // 第1章を こえると つよい 回復と にくも ならぶ
+  if (s.chapters.chapter >= 2) list.push('bigherb', 'lifeleaf');
+  if (s.chapters.chapter >= 3) list.push('primemeat');
   return ITEM_LIST.filter((i) => list.includes(i.id)).map((i) => i.id);
 }
 
+/** はじめの 物語（夜の光 → ルナスライムを たすける）は 名前を きめた あとに タイトル画面で みせる */
+export const INTRO_EVENTS = ['ch1_night_light', 'ch1_rescue_luna'];
+
 export function newGameState(name: string, rng: Rng, now = Date.now()): SaveData {
-  const ids = new Set<string>();
-  const a = createMonster('lunaslime', rng, { level: 3, sex: 'B', obtainedFrom: 'gift', existingIds: ids, now });
-  ids.add(a.id);
-  const b = createMonster('magmadog', rng, { level: 3, sex: 'A', obtainedFrom: 'gift', existingIds: ids, now });
-  const town = loadMap('town');
+  // 相棒の ルナスライム（はじめの 物語で なかまに なる。ここでは その あとの 状態を つくる）
+  const luna = createMonster('m001', rng, { level: 3, sex: 'B', obtainedFrom: 'story', existingIds: new Set(), now });
+  luna.history = [{ at: now, kind: 'join', text: 'リーフェルの 森の 入口で たすけられ、相棒に なった' }];
+  const town = loadMap('liefel');
+  const ch = enterStage(initialChapterProgress(), '1-1');
   return {
     schemaVersion: SCHEMA_VERSION,
     gameVersion: GAME_VERSION,
     savedAt: now,
-    player: { name, gold: 120, tactic: 'attack', playTimeSec: 0, townMap: 'town', townPos: findTile(town, 'P')!, townDir: 'up' },
-    monsters: [a, b],
-    partyIds: [a.id, b.id],
+    player: { name, gold: 120, tactic: 'attack', playTimeSec: 0, townMap: 'liefel', townPos: findTile(town, 'P')!, townDir: 'up' },
+    monsters: [luna],
+    partyIds: [luna.id],
     storageIds: [],
     capacity: BALANCE.storageCapacityStart,
     inventory: { herb: 5, jerky: 3, returnwing: 2 },
-    progress: initialProgress(),
-    discoveredSpeciesIds: ['lunaslime', 'magmadog'],
-    ownedSpeciesIds: ['lunaslime', 'magmadog'],
+    progress: { ...initialProgress(), unlockedAreas: [], storyFlags: { ch1_light_seen: true, partner_joined: true } },
+    discoveredSpeciesIds: ['m001'],
+    ownedSpeciesIds: ['m001'],
     breedingHistory: [],
     expedition: null,
     settings: defaultSettings(),
-    chapters: initialChapterProgress(),
-    story: { seen: [], records: [] },
+    chapters: ch.ok ? ch.value.progress : initialChapterProgress(),
+    story: { seen: [...INTRO_EVENTS], records: [] },
     v2: defaultV2State(),
   };
 }
@@ -304,6 +322,7 @@ export class Game {
       case 'gold': this.update((s) => (s.player = { ...s.player, gold: s.player.gold + a.amount })); return;
       case 'heal': this.healAll(); return;
       case 'clearStage': this.clearStage(a.id); return;
+      case 'battle': this.storyBattle = a.enemies; return;
       case 'record':
         this.update((s) => {
           const st = this.story;
@@ -499,16 +518,21 @@ export class Game {
     // 出入り口・階段
     const link = def.links.find((l) => l.x === nx && l.y === ny);
     if (link) {
-      if (link.cond && !allMet(this.state.progress, link.cond)) {
+      if (link.cond && !link.cond.every((c) => this.condMet(c))) {
         this.setTownPos(townPos, dir);
         return { kind: 'locked', text: link.locked ?? 'とびらは かたく とざされている。' };
       }
       this.update((s) => { s.player.townMap = link.to; s.player.townPos = { x: link.tx, y: link.ty }; s.player.townDir = link.dir; });
+      this.arriveTown(link.to);
       return { kind: 'warp', to: link.to };
     }
-    if (t === 'G' && def.gate) {
+    if (t === 'G' && def.gates) {
       this.setTownPos(townPos, dir);
-      return { kind: 'gate', areaId: def.gate };
+      return { kind: 'gate', areaIds: def.gates, closed: def.gateClosed };
+    }
+    if (t === 'V' && def.spots?.[`${nx},${ny}`]) {
+      this.setTownPos(townPos, dir);
+      return { kind: 'spot', target: def.spots[`${nx},${ny}`] };
     }
     if (/[0-9]/.test(t)) {
       this.setTownPos(townPos, dir);
@@ -527,6 +551,50 @@ export class Game {
   }
   currentTownMap() {
     return getTownMap(this.state.player.townMap);
+  }
+  /** 条件（v1 の フラグ・ボス・闘技場と、v2 の ステージ・機能） */
+  condMet(c: Condition): boolean {
+    if (c.type === 'stage') return this.chapters.clearedStages.includes(c.id);
+    if (c.type === 'feature') return hasFeature(this.chapters, c.id as FeatureId);
+    return conditionMet(this.state.progress, c);
+  }
+  /** 町に 着いた：はじめて なら 章の ステージに 着いた ことに して 物語を おこす（街の ステージは 着けば クリア） */
+  private arriveTown(mapId: string) {
+    const stageId = getTownMap(mapId).stageId;
+    if (!stageId || this.chapters.clearedStages.includes(stageId) || !canEnterStage(this.chapters, stageId).ok) return;
+    const before = this.chapters.features;
+    this.enterStage(stageId);
+    this.queueStory(this.runStory({ kind: 'enterStage', target: stageId }));
+    if (stageId !== '1-1') this.clearStage(stageId);
+    this.noteUnlocked(before);
+  }
+
+  // ---- 画面に みせる 物語（台詞の じゅんばん）と 物語から はじまる 戦闘
+  private storyQueue: { id: string; lines: StoryLine[] }[] = [];
+  private storyBattle: EnemySpec[] | null = null;
+  /** 新しく 解放された 機能（画面で 「〜が つかえるように なった」を 出す） */
+  private unlockedQueue: FeatureId[] = [];
+  private queueStory(xs: { id: string; lines: StoryLine[] }[]) {
+    this.storyQueue.push(...xs);
+  }
+  private noteUnlocked(before: readonly FeatureId[]) {
+    this.unlockedQueue.push(...this.chapters.features.filter((f) => !before.includes(f)));
+  }
+  /** まだ 見せていない 物語・解放・戦闘を とりだす（とりだすと きえる） */
+  takeStory(): { story: { id: string; lines: StoryLine[] }[]; unlocked: FeatureId[]; battle: EnemySpec[] | null } {
+    const out = { story: this.storyQueue, unlocked: this.unlockedQueue, battle: this.storyBattle };
+    this.storyQueue = [];
+    this.unlockedQueue = [];
+    this.storyBattle = null;
+    return out;
+  }
+  /** 町や ダンジョンで しらべる 物語イベント */
+  inspect(target: string): boolean {
+    const before = this.chapters.features;
+    const r = this.runStory({ kind: 'manual', target });
+    this.queueStory(r);
+    this.noteUnlocked(before);
+    return r.length > 0;
   }
 
   // ---------------------------------------------------------------- やりこみ
@@ -591,12 +659,14 @@ export class Game {
 
   // ---------------------------------------------------------------- 配合
   breedingWorld() {
-    return { monsters: this.state.monsters, partyIds: this.state.partyIds, capacity: this.state.capacity, flags: this.flags };
+    // 配合の 条件に つかう フラグ（物語の フラグ＋章で 解放された 機能）
+    const flags = { ...this.flags, highBreeding: this.hasFeature('highBreeding'), legendBreeding: this.hasFeature('legendBreeding') };
+    return { monsters: this.state.monsters, partyIds: this.state.partyIds, capacity: this.state.capacity, flags };
   }
   breedCheck(aId: string, bId: string): Result<BreedingPreview> {
     const c = checkBreedable(this.breedingWorld(), aId, bId);
     if (!c.ok) return err(BREEDING_ERROR_TEXT[c.error]);
-    return ok(previewBreeding(c.value.a, c.value.b, this.flags));
+    return ok(previewBreeding(c.value.a, c.value.b, this.breedingWorld().flags));
   }
   breed(aId: string, bId: string, skills: string[]): Result<MonsterInstance> {
     const r = executeBreeding(this.breedingWorld(), aId, bId, skills, this.rng);
@@ -615,7 +685,11 @@ export class Game {
 
   // ---------------------------------------------------------------- 探索
   canStartExpedition(areaId: string): Result<void> {
-    if (!this.state.progress.unlockedAreas.includes(areaId)) return err('まだ その とびらは ひらいていない。');
+    const area = getArea(areaId);
+    if (area.stageId) {
+      const c = canEnterStage(this.chapters, area.stageId);
+      if (!c.ok) return c;
+    } else if (!this.state.progress.unlockedAreas.includes(areaId)) return err('まだ その とびらは ひらいていない。');
     if (!this.party.some((m) => m.hp > 0)) return err('うごける モンスターが いません。いずみで かいふくしましょう。');
     return ok(undefined);
   }
@@ -626,7 +700,15 @@ export class Game {
     const mapSeed = Math.floor(this.rng.next() * 0x7fffffff);
     const map = floorMap(areaId, 0, mapSeed);
     this.update((s) => (s.progress.storyFlags.ranchGift = true));
-    this.update((s) => (s.expedition = { areaId, floorIndex: 0, mapSeed, pos: findTile(map, 'S')!, dir: 'down', openedChests: [], springUsed: false, stepsSinceBattle: 0, eventsDone: [] }));
+    this.update((s) => (s.expedition = { areaId, floorIndex: 0, mapSeed, pos: findTile(map, 'S')!, dir: 'down', openedChests: [], springUsed: false, stepsSinceBattle: 0, eventsDone: [], switches: [] }));
+    const stageId = getArea(areaId).stageId;
+    if (stageId) {
+      const before = this.chapters.features;
+      this.enterStage(stageId);
+      this.queueStory(this.runStory({ kind: 'enterStage', target: stageId }));
+      this.queueStory(this.runStory({ kind: 'floor', target: stageId, floor: 1 }));
+      this.noteUnlocked(before);
+    }
     this.autosave();
     return ok(undefined);
   }
@@ -638,7 +720,16 @@ export class Game {
   }
   currentMap(): TileMap | null {
     const ex = this.state.expedition;
-    return ex ? overlayEvents(floorMap(ex.areaId, ex.floorIndex, ex.mapSeed), this.eventState()) : null;
+    if (!ex) return null;
+    const map = floorMap(ex.areaId, ex.floorIndex, ex.mapSeed);
+    if (!getArea(ex.areaId).stageId) return overlayEvents(map, this.eventState());
+    // v2：見おわった 物語イベント（一度きり）は 消える
+    const done = Object.entries(map.events ?? {}).filter(([, id]) => STORY_EVENT_BY_ID[id] && STORY_EVENT_BY_ID[id].once !== false && this.story.seen.includes(id));
+    if (!done.length) return map;
+    const tiles = map.tiles.map((r) => r.slice());
+    const events = { ...map.events };
+    for (const [k] of done) { const [x, y] = k.split(',').map(Number); tiles[y][x] = '.'; delete events[k]; }
+    return { ...map, tiles, events };
   }
   private eventState(): EventState {
     return { flags: this.state.progress.storyFlags, owned: this.state.ownedSpeciesIds, done: this.state.expedition?.eventsDone ?? [] };
@@ -691,21 +782,35 @@ export class Game {
     if (t === 'V' || t === 'Z') {
       setDir();
       const id = map.events?.[`${nx},${ny}`];
+      if (id && STORY_EVENT_BY_ID[id]) return { kind: 'storyEvent', id };
       return id ? { kind: 'event', eventId: id } : { kind: 'blocked' };
     }
-    if (!isPassable(map, nx, ny)) {
+    // v2 の ギミック（水流・氷で すべる、扉は スイッチで ひらく、毒の床）
+    const room = 'gimmicks' in map ? (map as RoomTileMap) : null;
+    let to = { x: nx, y: ny }, poison = 0, slid = false, switched: string[] = [];
+    if (room) {
+      if (!canWalk(room, nx, ny, ex.switches ?? [])) { setDir(); return { kind: 'blocked' }; }
+      const r = roomStep(room, ex.pos, dir, ex.switches ?? []);
+      to = r.pos; poison = r.poisonSteps; slid = r.path.length > 1; switched = r.switched;
+    } else if (!isPassable(map, nx, ny)) {
       setDir();
       return { kind: 'blocked' };
     }
     let encounter: EnemySpec[] | null = null;
     this.update((s) => {
       const e = s.expedition!;
-      e.pos = { x: nx, y: ny };
+      e.pos = to;
       e.dir = dir;
       e.stepsSinceBattle += 1;
+      if (switched.length) e.switches = [...(e.switches ?? []), ...switched];
+      // 毒の床：最大HP の 割合ずつ へる（たおれは しない）
+      if (poison) s.monsters = s.monsters.map((m) => (s.partyIds.includes(m.id) && m.hp > 0 ? { ...m, hp: Math.max(1, m.hp - Math.max(1, Math.floor(m.stats.hp * BALANCE.dungeon.poisonFloorRate)) * poison) } : m));
     });
-    if (t === '>') return { kind: 'stairs' };
-    if (t === 'E') return { kind: 'exit' };
+    const tt = tileAt(map, to.x, to.y);
+    const lastFloor = this.floor!.index === this.floor!.area.floors.length - 1;
+    if (tt === '>' && lastFloor) return { kind: 'stageClear' };
+    if (tt === '>') return { kind: 'stairs' };
+    if (tt === 'E') return { kind: 'exit' };
     const e = this.state.expedition!;
     // ボスの へやには やせいの てきは でない
     if (!this.floor!.floor.bossId && this.rng.next() < encounterChance(e.stepsSinceBattle)) {
@@ -715,7 +820,20 @@ export class Game {
         s.expedition!.lastLead = encounter![0].speciesId;
       });
     }
-    return { kind: 'moved', encounter };
+    return { kind: 'moved', encounter, poison, slid };
+  }
+  /** ボスの いない ステージを さいごまで すすんだ：ステージクリアして 町へ もどる */
+  finishStage(): Unlocked | null {
+    const ex = this.state.expedition;
+    const stageId = ex ? getArea(ex.areaId).stageId : undefined;
+    if (!ex || !stageId) return null;
+    const before = this.chapters.features;
+    const r = this.clearStage(stageId);
+    this.queueStory(this.runStory({ kind: 'clearStage', target: stageId }));
+    this.noteUnlocked(before);
+    this.update((s) => (s.expedition = null));
+    this.autosave();
+    return r.ok ? r.value : null;
   }
   private openChest(pos: Pos): MoveResult {
     const ex = this.state.expedition!;
@@ -745,8 +863,10 @@ export class Game {
     if (ex.floorIndex + 1 >= area.floors.length) return false;
     const map = floorMap(ex.areaId, ex.floorIndex + 1, ex.mapSeed);
     this.update((s) => {
-      s.expedition = { ...s.expedition!, floorIndex: ex.floorIndex + 1, pos: findTile(map, 'S')!, dir: 'down', springUsed: false, stepsSinceBattle: 0 };
+      s.expedition = { ...s.expedition!, floorIndex: ex.floorIndex + 1, pos: findTile(map, 'S')!, dir: 'down', springUsed: false, stepsSinceBattle: 0, switches: [] };
     });
+    const stageId = area.stageId;
+    if (stageId) this.queueStory(this.runStory({ kind: 'floor', target: stageId, floor: ex.floorIndex + 2 }));
     if (BALANCE.dungeon.autosaveAtFloorChange) this.autosave();
     return true;
   }
@@ -818,7 +938,7 @@ export class Game {
     const b = this.battle!;
     const st = b.state;
     const outcome = st.outcome ?? 'escape';
-    const summary: BattleSummary = { outcome, exp: 0, gold: 0, levelUps: [], recruit: null, recruitBlocked: false, goldLost: 0, boss: null, arena: null, unlocked: { areas: [], ranks: [] } };
+    const summary: BattleSummary = { outcome, exp: 0, gold: 0, levelUps: [], recruit: null, recruitBlocked: false, goldLost: 0, boss: null, arena: null, unlocked: { areas: [], ranks: [] }, chapter: null };
     const s = structuredClone(this.state);
     // HP/MP を個体へ戻す
     for (const c of st.allies) {
@@ -890,6 +1010,19 @@ export class Game {
     s.storageIds = s.monsters.map((m) => m.id).filter((id) => !s.partyIds.includes(id));
     this.state = s;
     this.battle = null;
+    // v2：ボスを たおしたら 物語（章の 決着）と ステージクリア
+    if (outcome === 'win' && b.context.kind === 'boss') {
+      const bossId = b.context.bossId;
+      const before = this.chapters.features;
+      const chapterBefore = this.chapters.chapter;
+      this.queueStory(this.runStory({ kind: 'bossDefeated', target: bossId }));
+      const area = AREAS.find((a) => a.floors.some((f) => f.bossId === bossId));
+      if (area?.stageId && !this.chapters.clearedStages.includes(area.stageId)) this.clearStage(area.stageId);
+      const added = this.chapters.features.filter((f) => !before.includes(f));
+      this.noteUnlocked(before);
+      if (added.length || this.chapters.chapter !== chapterBefore) summary.chapter = { features: added, towns: [], stages: [], chapter: this.chapters.chapter !== chapterBefore ? chapterBefore : undefined };
+    }
+    // 物語から はじまった 戦闘（なかま化の 練習）の あとも 物語の つづきを みせられるように
     this.autosave();
     return summary;
   }

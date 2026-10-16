@@ -1,5 +1,6 @@
 // v2 の モンスター定義（MonsterDefinition）を 戦闘・成長・配合の エンジンが つかう 種族（MonsterSpecies）に かえる。
 import type { GrowthCurve, MonsterSpecies, StatKey, Stats } from '../types';
+import { BALANCE } from '../balance';
 import { generateLearnset } from './learnsets';
 import { MONSTERS2 } from './monsters';
 import type { MonsterDefinition, Stats2 } from './types';
@@ -23,18 +24,27 @@ function curvesOf(d: MonsterDefinition): Partial<Record<StatKey, GrowthCurve>> {
   return {};
 }
 
+/** Lv1 の 能力に 足す ぶん（伸び × v2HeadStart）。セーブの 移行でも つかう */
+export function headStart(growth: Stats): Stats {
+  const k = BALANCE.growth.v2HeadStart;
+  return Object.fromEntries(Object.entries(growth).map(([s, v]) => [s, Math.round(v * k)])) as Stats;
+}
+const addStats = (a: Stats, b: Stats): Stats => Object.fromEntries(Object.entries(a).map(([k, v]) => [k, v + b[k as keyof Stats]])) as Stats;
+
 export function speciesFromDefinition(d: MonsterDefinition): MonsterSpecies {
   const r = RANK[d.rank];
   const caps: Stats = { hp: Math.round(r.cap * 1.4), mp: r.cap, attack: r.cap, defense: r.cap, speed: r.cap, magic: r.cap, spirit: r.cap };
   return {
     id: d.id, name: d.name, familyId: d.family, rarity: Math.min(4, d.rank),
-    baseStats: toStats(d.baseStats), growth: toStats(d.growthRates), growthCurves: curvesOf(d), statCaps: caps,
+    baseStats: addStats(toStats(d.baseStats), headStart(toStats(d.growthRates))), growth: toStats(d.growthRates), growthCurves: curvesOf(d), statCaps: caps,
     resistances: { ...d.resistances }, resistAbsolute: true,
     learnset: generateLearnset(d),
     baseLevelCap: d.levelCap, absoluteLevelCap: 99,
     expRate: r.expRate, expYield: r.expYield, goldYield: r.goldYield, recruitBaseChance: r.recruit,
     spriteId: d.id, description: d.description,
     no: d.no, element: d.element, role: d.role, growthType: d.growthType, rank: d.rank,
+    // ボス由来・最終ボス系統は 通常配合では うまれない（特殊配合・伝説配合で）
+    noBreed: /ボス|最終/.test(d.note),
   };
 }
 

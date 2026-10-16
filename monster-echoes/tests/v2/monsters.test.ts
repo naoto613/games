@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { LEGACY_SPECIES_MAP, MONSTER2_BY_ID, MONSTERS2, WILD_ALIASES, monsterIdOf } from '../../src/data/v2/monsters';
 import { ELEMENTS2, FAMILIES2, STAT_KEYS2, type Role2 } from '../../src/data/v2/types';
-import { SPECIES_LIST } from '../../src/data/monsters';
+import { SPECIES_V1_LIST as SPECIES_LIST } from '../../src/data/monsters';
 
 const total = (s: Record<string, number>) => Object.values(s).reduce((a, b) => a + b, 0);
 

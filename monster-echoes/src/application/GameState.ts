@@ -5,7 +5,7 @@ import type { MonsterInstance } from '../domain/monster/types';
 import type { ProgressState } from '../domain/progression/ProgressionEngine';
 import type { ChapterProgress } from '../domain/progression/ChapterEngine';
 
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 7;
 export const GAME_VERSION = '0.1.0';
 
 export type GameSettings = {
@@ -42,6 +42,8 @@ export type Expedition = {
   /** この たびで すでに おわった 固有イベント（かくし とびら・めずらしい すみか など） */
   eventsDone: string[];
   lastLead?: string;
+  /** v2 の ギミック：ふんだ スイッチ（扉が ひらく）。フロアが かわると もどる */
+  switches?: string[];
 };
 
 export type SaveData = {

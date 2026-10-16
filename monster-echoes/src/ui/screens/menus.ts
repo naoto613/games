@@ -8,14 +8,12 @@ import type { MonsterInstance } from '../../domain/monster/types';
 import { setSoundEnabled, sfx } from '../../infrastructure/audio/Sound';
 import { openNotes } from './notes';
 import { migrate } from '../../infrastructure/save/SaveMigration';
-import { openArena } from './arena';
 import { openBreeding } from './breeding';
 import { openDex } from './dex';
-import { openGate } from './gate';
-import { openShop } from './shop';
 import type { App } from '../App';
 import { btn, h, item } from '../dom';
-import { monIcon, monsterDetailBody, sexMark } from '../components/monster';
+import { monIcon, monsterStatusBody, sexMark, type StatusTab } from '../components/monster';
+import { icon } from '../components/icons';
 
 export const TACTICS: { id: Tactic; name: string; short: string; desc: string }[] = [
   { id: 'attack', name: 'こうげき ゆうせん', short: 'こうげき', desc: 'てきへの ダメージを いちばんに かんがえる' },
@@ -28,40 +26,32 @@ export const TACTICS: { id: Tactic; name: string; short: string; desc: string }[
 // ---------------------------------------------------------------- フィールドメニュー
 export function openFieldMenu(app: App, onClose: () => void) {
   const g = app.game!;
-  app.panel('メニュー', (body) => {
+  // 参考画像2「メニュー画面」：右がわの 縦メニュー＋アイコン、下に 所持金
+  app.panel('メニュー', (body, foot) => {
     const inDungeon = !!g.state.expedition;
-    body.append(
-      h('div', { class: 'win small' }, h('div', null, `${g.state.player.name}  ${g.state.player.gold} G`), h('div', { class: 'muted' }, `さくせん: ${TACTICS.find((t) => t.id === g.state.player.tactic)!.name}`)),
-      h('div', { class: 'win list' },
-        item('つよさ', () => openParty(app, () => {}, { viewOnly: inDungeon })),
-        item('じゅもん', () => openFieldSkills(app)),
-        item('どうぐ', () => openItems(app)),
-        item('さくせん', () => openTactic(app)),
-        item('ぼうけんメモ', () => openNotes(app)),
-        inDungeon ? item('まちへ かえる（かえりのはね）', () => returnHome(app), { disabled: !(g.state.inventory.returnwing > 0), meta: `のこり ${g.state.inventory.returnwing ?? 0}` }) : null,
-        item('せってい', () => openSettings(app)),
-        item('きろくする', () => app.saveNow(true), { meta: 'オートセーブ ON' }),
-      ),
-    );
-    // まちでは しせつへ すぐ行ける（歩いて行かなくても よい）
-    if (!inDungeon) {
-      const go = () => app.closeAllPanels();
-      const arenaOpen = g.state.progress.unlockedArenaRanks.length > 0;
-      body.children[0].after(h('div', { class: 'small muted' }, 'まちの しせつ（タップで すぐ いけます）'), h('div', { class: 'win list' },
-        item('たびのとびら', () => openGate(app, go), { meta: 'でかける' }),
-        item('ぼくじょう', () => openParty(app, () => {}), { meta: 'パーティ へんせい' }),
-        item('配合', () => openBreeding(app, () => {}), { meta: 'はかせ' }),
-        item('どうぐや', () => openShop(app, 'buy', () => {})),
-        item('とうぎじょう', () => openArena(app, go), { disabled: !arenaOpen, meta: arenaOpen ? '' : 'まだ さんか できない' }),
-        item('モンスターずかん', () => openDex(app)),
-        item('いやしの ふんすい', async () => { sfx('heal'); g.healAll(); await app.say('モンスターたちの HPと MPが すべて かいふくした！'); app.refreshPanels(); }, { meta: 'むりょう' }),
-      ));
-    }
-  }, { onClose });
+    const row = (ic: string, label: string, fn: () => void, o: { disabled?: boolean; meta?: string } = {}) => {
+      const r = item(h('span', { class: 'mrow' }, icon(ic), h('span', null, label)), fn, o);
+      return r;
+    };
+    body.append(h('div', { class: 'win list side-list' },
+      row('monster', 'モンスター', () => openParty(app, () => {}, { viewOnly: inDungeon })),
+      row('breed', '配合', () => openBreeding(app, () => {}), { disabled: inDungeon || !g.hasFeature('breeding'), meta: g.hasFeature('breeding') ? '' : 'ミズナで' }),
+      row('dex', '図鑑', () => openDex(app), { disabled: !g.hasFeature('dex'), meta: g.hasFeature('dex') ? '' : '第1章で' }),
+      row('bag', 'もちもの', () => openItems(app)),
+      row('tactic', '作戦', () => openTactic(app), { meta: TACTICS.find((t) => t.id === g.state.player.tactic)!.short }),
+      row('skill', 'とくぎ', () => openFieldSkills(app)),
+      row('memo', 'ぼうけんメモ', () => openNotes(app)),
+      inDungeon ? row('home', 'リーフェルへ かえる', () => returnHome(app), { disabled: !(g.state.inventory.returnwing > 0), meta: `のこり ${g.state.inventory.returnwing ?? 0}` }) : null,
+      !inDungeon ? row('spring', 'いやしの ふんすい', async () => { sfx('heal'); g.healAll(); await app.say('モンスターたちの HPと MPが すべて かいふくした！'); app.refreshPanels(); }) : null,
+      row('save', 'セーブ', () => app.saveNow(true), { meta: 'じどう ON' }),
+      row('option', 'オプション', () => openSettings(app)),
+    ));
+    foot.append(h('div', { class: 'gold-line' }, icon('coin', 'ico coin'), h('span', { class: 'grow' }, '所持金'), h('span', null, `${g.state.player.gold}G`)));
+  }, { onClose, cls: 'side' });
 }
 
 async function returnHome(app: App) {
-  if (!(await app.confirm('かえりのはねを つかって まちへ もどりますか？'))) return;
+  if (!(await app.confirm('かえりのはねを つかって リーフェルへ もどりますか？'))) return;
   const r = app.game!.useFieldItem('returnwing', null);
   if (!r.ok) return app.toast(r.error);
   app.closeAllPanels();
@@ -177,10 +167,27 @@ function emptyCard(target: boolean, onTap: () => void) {
 
 export function openDetail(app: App, id: string, opts: { viewOnly?: boolean } = {}) {
   const g = app.game!;
-  const p = app.panel('モンスターの ようす', (body, foot) => {
-    const m = g.monster(id);
+  let tab: StatusTab = 'stats';
+  let cur = id;
+  const p = app.panel('ステータス', (body, foot) => {
+    const m = g.monster(cur);
     if (!m) return p.close();
-    body.append(monsterDetailBody(m));
+    body.append(monsterStatusBody(m, tab));
+    // 参考画像3：下の タブ（きりかえ／つよさ／スキル／とくせい）
+    const tb = (label: string, t: StatusTab | null) => {
+      const b = h('button', { class: `stab${t === tab ? ' on' : ''}`, type: 'button' }, label);
+      b.addEventListener('click', () => {
+        sfx('cursor');
+        if (t) tab = t;
+        else {
+          const order = [...g.state.partyIds, ...g.state.monsters.map((x) => x.id).filter((x) => !g.state.partyIds.includes(x))];
+          cur = order[(order.indexOf(cur) + 1) % order.length] ?? cur;
+        }
+        app.refreshPanels();
+      });
+      return b;
+    };
+    body.append(h('div', { class: 'stabs' }, tb('きりかえ', null), tb('つよさ', 'stats'), tb('スキル', 'skills'), tb('とくせい', 'traits')));
     if (m.pendingSkills.length) body.prepend(h('div', { class: 'win' }, h('div', { class: 'hl' }, 'あたらしい とくぎを おぼえようとしている！'), btn('とくぎを えらぶ', () => resolvePending(app, m))));
     const nameBtn = btn('なまえ', async () => { await askName(app, m.id); app.refreshPanels(); });
     if (opts.viewOnly) { foot.append(nameBtn); return; }
@@ -235,7 +242,7 @@ export function welcomeMonster(app: App, id: string, title: string): Promise<voi
     h('div', { class: 'small muted' }, '8もじまで。「けってい」で このまま すすみます。あとから「つよさ」でも かえられます。'));
   return new Promise((resolve) => {
     const p = app.panel(title, (body, foot) => {
-      body.append(nameBox, monsterDetailBody(g.monster(id) ?? m));
+      body.append(nameBox, monsterStatusBody(g.monster(id) ?? m, 'stats'));
       foot.append(btn('けってい', () => { g.rename(id, input.value); sfx('ok'); p.close(); }, 'primary grow'));
     }, { onClose: () => resolve(), noBack: true });
   });

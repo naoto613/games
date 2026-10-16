@@ -2,7 +2,7 @@
 // npm run sim で表を表示する。数値は「おおむねこの範囲」に入っていることだけを確認する。
 import { describe, expect, it } from 'vitest';
 import { createRng, type Rng } from '../../src/core/Random';
-import { BOSSES, ARENA_RANKS } from '../../src/data/areas';
+import { BOSSES } from '../../src/data/areas';
 import type { EnemySpec, Tactic } from '../../src/data/types';
 import { createBattle, resolveTurn } from '../../src/domain/battle/BattleEngine';
 import { rollEncounter } from '../../src/domain/dungeon/DungeonEngine';
@@ -13,7 +13,7 @@ import type { BattleState } from '../../src/domain/battle/types';
 type P = [string, number, number?][]; // species, level, plus
 const mkParty = (p: P, rng: Rng) => p.map(([id, lv, plus]) => createMonster(id, rng, { level: lv, plusValue: plus ?? 0 }));
 
-function run(party: MonsterInstance[], enemies: EnemySpec[], kind: 'wild' | 'boss' | 'arena', rng: Rng, tactic: Tactic = 'attack', enemyTactic?: Tactic) {
+function run(party: MonsterInstance[], enemies: EnemySpec[], kind: 'wild' | 'boss', rng: Rng, tactic: Tactic = 'attack', enemyTactic?: Tactic) {
   let s: BattleState = createBattle(kind, party, enemies, tactic);
   if (enemyTactic) s.enemyTactic = enemyTactic;
   while (!s.outcome && s.turn < 60) s = resolveTurn(s, { mode: 'auto', player: { kind: 'none' } }, rng).state;
@@ -44,27 +44,18 @@ function rate(f: (rng: Rng) => boolean, seed: number) {
 }
 
 const report: string[] = [];
-const STAGES: { name: string; party: P; table?: string; boss?: string; arena?: string; expect: [number, number] }[] = [
-  { name: 'もり1F 6連戦', party: [['lunaslime', 3], ['magmadog', 3]], table: 'forest1', expect: [0.85, 1] },
-  { name: 'もり2F 6連戦', party: [['lunaslime', 5], ['magmadog', 5], ['leafant', 4]], table: 'forest2', expect: [0.7, 1] },
-  { name: 'もり3F 6連戦', party: [['lunaslime', 7], ['magmadog', 7], ['leafant', 6]], table: 'forest3', expect: [0.45, 1] },
-  { name: 'ボス: ゆがみキノコボーグ', party: [['lunaslime', 9], ['magmadog', 9], ['leafant', 8]], boss: 'boss_forest', expect: [0.5, 0.95] },
-  { name: '闘技場F', party: [['windcat', 9, 1], ['magmadog', 11], ['leafant', 10]], arena: 'arenaF', expect: [0.4, 0.97] },
-  { name: 'どうくつB1 6連戦', party: [['windcat', 10, 1], ['magmadog', 11], ['leafant', 10]], table: 'cave1', expect: [0.6, 1] },
-  { name: 'どうくつB3 6連戦', party: [['windcat', 13, 1], ['lightningleo', 12, 1], ['stonegolem', 12]], table: 'cave3', expect: [0.3, 1] },
-  { name: 'ボス: ゆがみアイスクリル', party: [['windcat', 15, 1], ['lightningleo', 15, 1], ['stonegolem', 14]], boss: 'boss_cave', expect: [0.12, 0.7] },
-  { name: '闘技場E', party: [['windcat', 16, 1], ['lightningleo', 16, 1], ['stonegolem', 15]], arena: 'arenaE', expect: [0.3, 0.95] },
-  { name: 'こうげん ふもと 6連戦', party: [['firedragon', 14, 1], ['lightningleo', 16, 1], ['icekrill', 16]], table: 'highland1', expect: [0.5, 1] },
-  { name: 'ボス: ゆがみファイアドラゴン', party: [['firedragon', 19, 1], ['lightningleo', 20, 1], ['icekrill', 19]], boss: 'boss_highland', expect: [0.3, 0.97] },
-  { name: 'ルナフィアたいかい', party: [['darkdragon', 22, 2], ['metalspirit', 21, 2], ['greensprite', 22, 2]], arena: 'arenaD', expect: [0.25, 0.95] },
-  { name: 'こおりのゆきやま ふもと 6連戦', party: [['darkdragon', 24, 2], ['metalspirit', 23, 2], ['greensprite', 24, 2]], table: 'snow1', expect: [0.5, 1] },
-  { name: 'こおりのゆきやま ちょうじょう 6連戦', party: [['darkdragon', 26, 2], ['metalspirit', 25, 2], ['greensprite', 26, 2]], table: 'snow3', expect: [0.4, 1] },
-  { name: 'ボス: ゆがみアイスドラゴン', party: [['darkdragon', 26, 2], ['metalspirit', 25, 2], ['greensprite', 26, 2]], boss: 'boss_snow', expect: [0.3, 0.95] },
-  { name: 'ほのおのかざん ふもと 6連戦', party: [['darkdragon', 31, 3], ['icedragon', 30, 2], ['moonleo', 30, 2]], table: 'volcano1', expect: [0.5, 1] },
-  { name: 'ほのおのかざん ふんかこう 6連戦', party: [['darkdragon', 34, 3], ['icedragon', 33, 2], ['moonleo', 33, 2]], table: 'volcano3', expect: [0.4, 1] },
-  { name: 'ボス: ゆがみクリムゾンドラゴン', party: [['darkdragon', 34, 3], ['icedragon', 33, 3], ['moonleo', 33, 3]], boss: 'boss_volcano', expect: [0.3, 0.95] },
-  { name: 'マスターたいかい', party: [['chaosdragon', 36, 4], ['goldslime', 36, 3], ['moonleo', 36, 4]], arena: 'arenaX', expect: [0.25, 0.95] },
-  { name: '(参考)配合なし R1 Lv20 でルナフィアたいかい', party: [['lunaslime', 20], ['magmadog', 20], ['stonegolem', 20]], arena: 'arenaD', expect: [0, 0.4] },
+// 第1章（仕様 6・Q15：Lv1〜10）。目標：通常フロア連戦 60〜100%、章ボス 50〜90%（計画書 §9・1-11）
+// パーティは 第1章で なかまに できる 種族から（1F モスラット → 2F バークボア → 3F ブロンズスライム／グリーンスプライト → 森 リーフアント）
+const STAGES: { name: string; party: P; table?: string; boss?: string; expect: [number, number] }[] = [
+  { name: '木漏れ日の小道 1F 6連戦（ルナスライムだけ）', party: [['m001', 3]], table: 'komorebi1', expect: [0.75, 1] },
+  { name: '木漏れ日の小道 2F 6連戦', party: [['m001', 4], ['m041', 3]], table: 'komorebi2', expect: [0.65, 1] },
+  { name: '木漏れ日の小道 3F 6連戦', party: [['m001', 5], ['m041', 4], ['m023', 4]], table: 'komorebi3', expect: [0.6, 1] },
+  { name: 'ささやきの森 1F 6連戦', party: [['m001', 6], ['m023', 5], ['m013', 5]], table: 'sasayaki1', expect: [0.6, 1] },
+  { name: 'ささやきの森 2F 6連戦', party: [['m001', 7], ['m023', 6], ['m042', 6]], table: 'sasayaki2', expect: [0.55, 1] },
+  { name: 'ささやきの森 3F 6連戦', party: [['m001', 7], ['m042', 7], ['m023', 7]], table: 'sasayaki3', expect: [0.5, 1] },
+  { name: 'ささやきの森 4F 6連戦', party: [['m001', 8], ['m042', 8], ['m023', 8]], table: 'sasayaki4', expect: [0.45, 1] },
+  { name: 'ボス: キノコ王モルグ', party: [['m001', 9], ['m042', 9], ['m023', 9]], boss: 'morg', expect: [0.5, 0.9] },
+  { name: '(参考) ボス: モルグを Lv6 で', party: [['m001', 6], ['m041', 6], ['m043', 6]], boss: 'morg', expect: [0, 0.5] },
 ];
 
 
@@ -83,19 +74,9 @@ describe('難易度曲線', () => {
           turnsSum += s.turn; turnsN++;
           return s.outcome === 'win';
         }
-        const rank = ARENA_RANKS.find((x) => x.id === st.arena)!;
-        let party = mkParty(st.party, rng);
-        for (const b of rank.battles) {
-          const s = run(party, b.enemies, 'arena', rng, 'attack', b.tactic);
-          turnsSum += s.turn; turnsN++;
-          if (s.outcome !== 'win') return false;
-          party = sync(party, s).map((m) =>
-            rank.betweenBattleRecovery === 'full' ? { ...m, hp: m.stats.hp, mp: m.stats.mp }
-            : rank.betweenBattleRecovery === 'partial' ? { ...m, hp: Math.max(m.hp, Math.ceil(m.stats.hp * 0.4)), mp: Math.max(m.mp, Math.ceil(m.stats.mp * 0.3)) } : m);
-        }
-        return true;
+        return false;
       }, 1000 + i);
-      report.push(`${st.name.padEnd(28, '　')} 勝率 ${(r * 100).toFixed(0).padStart(3)}%  平均ターン ${(turnsSum / Math.max(1, turnsN)).toFixed(1)}`);
+      report.push(`${st.name.padEnd(30, '　')} 勝率 ${(r * 100).toFixed(0).padStart(3)}%  平均ターン ${(turnsSum / Math.max(1, turnsN)).toFixed(1)}`);
       expect(r).toBeGreaterThanOrEqual(st.expect[0]);
       expect(r).toBeLessThanOrEqual(st.expect[1]);
     });
