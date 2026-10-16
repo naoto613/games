@@ -97,7 +97,7 @@ function sourceStatus(s){
   return '<span class="src-badge off">未収集</span>';
 }
 function renderSources(){
-  $("#sourceSettingsList").innerHTML=state.sources.map(s=>`<div class="source-setting"><div><strong>${esc(s.name)} ${sourceStatus(s)}</strong><small>${esc(s.url)} · 取得方式: ${esc(METHOD_LABELS[s.fetchMethod]||s.fetchMethod||"手動")}</small>${s.lastError?`<small class="src-error">${esc(s.lastError)}</small>`:""}</div><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">開く ↗</a></div>`).join("");
+  $("#sourceSettingsList").innerHTML=state.sources.map(s=>`<div class="source-setting"><div><strong>${esc(s.name)} ${sourceStatus(s)}</strong><small>${esc(s.url)} · 取得方式: ${esc(METHOD_LABELS[s.fetchMethod]||s.fetchMethod||"手動")}${s.via==="channel page"?"（動画ページから取得・日付はおおよそ）":""}${s.channelName?` · チャンネル: ${esc(s.channelName)}`:""}</small>${s.lastError?`<small class="src-error">${esc(s.lastError)}</small>`:""}</div><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">開く ↗</a></div>`).join("");
 }
 function setView(view,source=""){state.view=view;state.sourceFilter=source;$$(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.view===view||!!source&&b.dataset.source===source));render();}
 function openNote(id){

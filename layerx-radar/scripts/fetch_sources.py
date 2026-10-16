@@ -144,7 +144,7 @@ def find_channel_id(html: str) -> str | None:
     return None
 
 
-def resolve_youtube_feed(source: dict) -> str:
+def resolve_youtube_channel(source: dict) -> str:
     if not source.get("channelId"):
         candidates = []
         if source.get("resolveFromVideo"):
@@ -153,17 +153,67 @@ def resolve_youtube_feed(source: dict) -> str:
             candidates.append(source["resolveFromUrl"])
         for url in candidates:
             try:
-                cid = find_channel_id(http_get(url).text)
+                html = http_get(url).text
+                cid = find_channel_id(html)
             except Exception as exc:
                 print(f"[WARN] channelId lookup failed at {url}: {exc}", file=sys.stderr)
                 continue
             if cid:
+                m = re.search(r'"ownerChannelName":"([^"]+)"', html) or re.search(r'"author":"([^"]+)"', html)
+                if m:
+                    source["channelName"] = json.loads('"' + m.group(1) + '"')
                 source["channelId"] = cid
                 source["url"] = "https://www.youtube.com/channel/" + cid
                 break
         if not source.get("channelId"):
             raise RuntimeError("YouTube channelId could not be resolved (set channelId in sources.json)")
-    return "https://www.youtube.com/feeds/videos.xml?channel_id=" + source["channelId"]
+    return source["channelId"]
+
+
+def youtube_feed_urls(cid: str) -> list[str]:
+    base = "https://www.youtube.com/feeds/videos.xml?"
+    # The channel feed sometimes returns 404; the uploads playlist (UU...) is the same list.
+    return [base + "channel_id=" + cid, base + "playlist_id=UU" + cid[2:]]
+
+
+def approx_date(text: str, now: datetime) -> str | None:
+    """Turn YouTube's relative "3日前" / "2 weeks ago" into an approximate date."""
+    m = re.search(r"(\d+)\s*(秒|分|時間|日|週間|か月|ヶ月|年|second|minute|hour|day|week|month|year)", text or "")
+    if not m:
+        return None
+    n, unit = int(m.group(1)), m.group(2)
+    days = {"秒": 0, "second": 0, "分": 0, "minute": 0, "時間": n / 24, "hour": n / 24, "日": n, "day": n,
+            "週間": 7 * n, "week": 7 * n, "か月": 30 * n, "ヶ月": 30 * n, "month": 30 * n, "年": 365 * n, "year": 365 * n}[unit]
+    from datetime import timedelta
+    return (now - timedelta(days=days)).isoformat(timespec="seconds")
+
+
+def scrape_youtube_videos(cid: str) -> list[dict]:
+    """Last resort without a key: read video ids and titles from the channel's videos page."""
+    html = http_get(f"https://www.youtube.com/channel/{cid}/videos?hl=ja").text
+    now = datetime.now(timezone.utc)
+    entries, seen = [], set()
+    for m in re.finditer(r'"videoRenderer":\{"videoId":"([\w-]{11})"', html):
+        vid = m.group(1)
+        if vid in seen:
+            continue
+        chunk = html[m.end():m.end() + 6000]
+        t = re.search(r'"title":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"', chunk)
+        if not t:
+            continue
+        seen.add(vid)
+        d = re.search(r'"publishedTimeText":\{"simpleText":"([^"]+)"', chunk)
+        desc = re.search(r'"descriptionSnippet":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"', chunk)
+        entries.append({
+            "link": "https://www.youtube.com/watch?v=" + vid,
+            "title": json.loads('"' + t.group(1) + '"'),
+            "summary": json.loads('"' + desc.group(1) + '"') if desc else "",
+            "publishedApprox": approx_date(d.group(1), now) if d else None,
+            "media_thumbnail": [{"url": f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg"}],
+        })
+    if not entries:
+        raise RuntimeError("no videos found on the channel page")
+    return entries
 
 
 def discover_feed(page_url: str) -> str:
@@ -182,8 +232,6 @@ def feed_url_for(source: dict) -> str:
         if not source.get("feedUrl"):
             raise RuntimeError("feedUrl is not configured")
         return source["feedUrl"]
-    if method == "youtube":
-        return resolve_youtube_feed(source)
     if method == "auto":
         if not source.get("feedUrl"):
             source["feedUrl"] = discover_feed(source["url"])
@@ -191,14 +239,41 @@ def feed_url_for(source: dict) -> str:
     raise RuntimeError(f"unsupported fetchMethod: {method}")
 
 
-def collect(source: dict, items: dict[str, dict], now: str) -> int:
-    feed_url = feed_url_for(source)
-    feed = feedparser.parse(http_get(feed_url).content)
+def parse_feed(url: str) -> list:
+    feed = feedparser.parse(http_get(url).content)
     if feed.bozo and not feed.entries:
         raise RuntimeError(f"RSS/Atom parse failed: {feed.bozo_exception}")
+    return feed.entries
+
+
+def youtube_entries(source: dict) -> list:
+    cid = resolve_youtube_channel(source)
+    errors = []
+    for url in youtube_feed_urls(cid):
+        try:
+            entries = parse_feed(url)
+            source["via"] = "feed"
+            return entries
+        except Exception as exc:
+            errors.append(str(exc)[:120])
+    try:
+        entries = scrape_youtube_videos(cid)
+        source["via"] = "channel page"
+        print(f"[WARN] {source.get('name')}: feed unavailable, used channel page ({'; '.join(errors)})", file=sys.stderr)
+        return entries
+    except Exception as exc:
+        errors.append(str(exc)[:120])
+        raise RuntimeError(" / ".join(errors))
+
+
+def collect(source: dict, items: dict[str, dict], now: str) -> int:
+    if source.get("fetchMethod") == "youtube":
+        entries = youtube_entries(source)
+    else:
+        entries = parse_feed(feed_url_for(source))
     keywords = [k.lower() for k in source.get("mustContain", [])]
     count = 0
-    for entry in feed.entries:
+    for entry in entries:
         link = canonical_url(entry.get("link", ""))
         if not link:
             continue
@@ -215,7 +290,7 @@ def collect(source: dict, items: dict[str, dict], now: str) -> int:
             "url": link,
             "sourceId": source["id"],
             "sourceType": source.get("type", "blog"),
-            "publishedAt": entry_date(entry) or previous.get("publishedAt") or now,
+            "publishedAt": entry_date(entry) or previous.get("publishedAt") or entry.get("publishedApprox") or now,
             "discoveredAt": previous.get("discoveredAt") or now,
             "description": summary[:400],
             "author": clean_html(entry.get("author", "")) or previous.get("author"),

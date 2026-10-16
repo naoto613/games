@@ -23,6 +23,7 @@ LayerX の公開技術情報を横断的にキャッチアップするための�
 | YouTube | `youtube` | `https://www.youtube.com/feeds/videos.xml?channel_id=…`（公開チャンネルフィード・最新15本） |
 | 公式ニュース | `auto` | ページの `<link rel="alternate">` から RSS/Atom を自動検出 |
 
+- YouTube はチャンネルフィード → アップロード再生リストのフィード → チャンネルの動画ページの順に試します（フィードは時々 404 を返すため。動画ページから取った場合の公開日は「3週間前」などからのおおよその日付）。
 - YouTube の `channelId` は空のままで、LayerX の動画ページ（`resolveFromVideo`）から自動で調べて `sources.json` に保存します。違うチャンネルになった場合は `channelId` を直接書き換えてください。
 - 公式ニュースにフィードが無い場合は「取得エラー」として記録されるだけで、他の情報源には影響しません。
 - テーマ（tags）と学びの種類（learningTypes）はタイトル・概要のキーワードからの推定です（`tagsEstimated: true`）。`items.json` で手直しした値は次回以降も保持されます。
