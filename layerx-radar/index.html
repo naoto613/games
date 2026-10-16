@@ -27,10 +27,10 @@
       <button class="nav-item" data-view="saved">☆ <span>あとで読む</span></button>
       <button class="nav-item" data-view="notes">✎ <span>学びのメモ</span></button>
       <div class="side-label side-label-spaced">MEDIA</div>
-      <button class="nav-item" data-source="blog">▤ <span>エンジニアブログ</span></button>
-      <button class="nav-item" data-source="youtube">▶ <span>YouTube</span></button>
-      <button class="nav-item" data-source="slides">▧ <span>Speaker Deck</span></button>
-      <button class="nav-item" data-source="official">◎ <span>公式ニュース・イベント</span></button>
+      <button class="nav-item" data-source="blog"><i class="dot dot-blog"></i> <span>エンジニアブログ</span></button>
+      <button class="nav-item" data-source="youtube"><i class="dot dot-youtube"></i> <span>YouTube</span></button>
+      <button class="nav-item" data-source="slides"><i class="dot dot-slides"></i> <span>Speaker Deck</span></button>
+      <button class="nav-item" data-source="official"><i class="dot dot-official"></i> <span>公式ニュース・イベント</span></button>
       <div class="sidebar-footer">
         <div class="status-dot"></div>
         <div><strong id="syncStatus">ローカルデータ</strong><small id="lastUpdated">最終更新を確認中</small></div>
@@ -75,6 +75,7 @@
 
       <section class="feed-section">
         <div class="section-heading"><div><h2 id="feedTitle">新着情報</h2><p id="resultSummary">情報を読み込み中…</p></div><button id="clearFiltersBtn" class="text-button">絞り込みを解除</button></div>
+        <div id="sourceChips" class="source-chips" aria-label="媒体で切り替え"></div>
         <div id="feedList" class="feed-list"></div>
         <div id="emptyState" class="empty-state hidden"><div class="empty-icon">⌕</div><h3>該当する情報がありません</h3><p>検索語や絞り込み条件を変えてみてください。</p></div>
       </section>

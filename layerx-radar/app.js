@@ -15,7 +15,8 @@ const DEFAULT_SOURCES = [
   {id:"layerx-official-news",name:"LayerX 公式ニュース",type:"official",url:"https://layerx.co.jp/news/",enabled:true,fetchMethod:"auto",lastFetchedAt:null}
 ];
 const TAGS = ["AI・LLM・Agent","アーキテクチャ","バックエンド","フロントエンド","Platform Engineering","SRE・インフラ","セキュリティ","品質・テスト","開発生産性","プロダクト開発","EM・組織設計","事業・技術戦略"];
-const ICONS = {blog:"▤",youtube:"▶",slides:"▧",official:"◎",external:"↗"};
+const ICONS = {blog:"✎",youtube:"▶",slides:"▧",official:"◎",external:"↗"};
+const SRC = {blog:{label:"ブログ",icon:"✎",open:"記事を読む"},youtube:{label:"YouTube",icon:"▶",open:"動画を見る"},slides:{label:"スライド",icon:"▧",open:"スライドを見る"},official:{label:"ニュース",icon:"◎",open:"ニュースを読む"},external:{label:"外部発信",icon:"↗",open:"ページを開く"}};
 const state = {items:[],manual:[],meta:null,sources:DEFAULT_SOURCES,read:new Set(),saved:new Set(),notes:{},view:"dashboard",sourceFilter:"",editingNoteId:null,realData:false};
 const METHOD_LABELS={rss:"RSS/Atom",youtube:"YouTube公開フィード",auto:"フィード自動検出",manual:"手動"};
 const STORAGE_KEY = "layerx-radar-state-v1";
@@ -64,13 +65,25 @@ function getFiltered(){
   return items;
 }
 function itemActions(i){const read=state.read.has(i.id),saved=state.saved.has(i.id);return `${i.id.startsWith("manual-")?`<button class="icon-action" data-action="delete" data-id="${esc(i.id)}" title="手動登録を削除" aria-label="手動登録を削除">🗑</button>`:""}<button class="icon-action ${saved?"active":""}" data-action="save" data-id="${esc(i.id)}" title="${saved?"あとで読むを解除":"あとで読む"}" aria-label="${saved?"あとで読むを解除":"あとで読む"}">${saved?"★":"☆"}</button><button class="icon-action ${read?"active":""}" data-action="read" data-id="${esc(i.id)}" title="${read?"未読に戻す":"既読にする"}" aria-label="${read?"未読に戻す":"既読にする"}">${read?"✓":"○"}</button><button class="icon-action" data-action="note" data-id="${esc(i.id)}" title="学びのメモ" aria-label="学びのメモ">✎</button>`;}
+function srcOf(i){return SRC[i.sourceType]||SRC.external;}
+function dispTitle(i){return i.sourceType==="youtube"?(i.title||"").replace(/(\s*#[^\s#]+)+\s*$/,"")||i.title:i.title;}
+function isShort(i){return i.sourceType==="youtube"&&/#shorts/i.test(i.title||"");}
+function srcPill(i){const s=srcOf(i);return `<span class="src-pill">${s.icon} ${esc(isShort(i)?"YouTube ショート":s.label)}</span>`;}
+function thumb(i,cls){const s=srcOf(i);const ph=`<span class="ph-icon">${s.icon}</span><span class="ph-label">${esc(s.label)}</span>`;
+  return `<a class="${cls}" href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}" tabindex="-1" aria-hidden="true">${i.thumbnailUrl?`<img src="${esc(i.thumbnailUrl)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-thumb>`:""}<span class="ph">${ph}</span>${i.sourceType==="youtube"?'<span class="play">▶</span>':""}</a>`;}
+function cleanDesc(i){return (i.description||"概要は未登録です。元のページを開いて内容を確認してください。").replace(/\s*▼?目次[\s\S]*$/,"").trim()||i.description;}
 function renderCard(i){
-  const type=i.sourceType||"external",isRead=state.read.has(i.id),saved=state.saved.has(i.id),tags=(i.tags||[]).slice(0,3);
-  return `<article class="highlight-card"><div class="highlight-art ${esc(type)}">${i.thumbnailUrl?`<img src="${esc(i.thumbnailUrl)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:(ICONS[type]||"↗")}</div><div class="highlight-body"><div class="meta-line"><span>${esc(typeName(type))}</span><span>·</span><span>${esc(formatDate(i.publishedAt))}</span></div><h3>${esc(i.title)}</h3><p>${esc(i.description||"概要は未登録です。元のページを開いて内容を確認してください。")}</p><div class="feed-tags">${tags.map(t=>`<span class="feed-tag">${esc(t)}</span>`).join("")}</div><div class="card-actions"><a href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}">元の情報を読む ↗</a><span style="flex:1"></span><button class="mini-action ${saved?"saved":""}" data-action="save" data-id="${esc(i.id)}">${saved?"★ 保存済み":"☆ 保存"}</button></div></div></article>`;
+  const saved=state.saved.has(i.id),tags=(i.tags||[]).slice(0,3);
+  return `<article class="highlight-card src-${esc(i.sourceType||"external")}">${thumb(i,"highlight-art")}<div class="highlight-body"><div class="meta-line">${srcPill(i)}<span>${esc(formatDate(i.publishedAt))}</span></div><h3><a href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}">${esc(dispTitle(i))}</a></h3><p class="clamp3">${esc(cleanDesc(i))}</p><div class="feed-tags">${tags.map(t=>`<span class="feed-tag">${esc(t)}</span>`).join("")}</div><div class="card-actions"><a href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}">${esc(srcOf(i).open)} ↗</a><span style="flex:1"></span><button class="mini-action ${saved?"saved":""}" data-action="save" data-id="${esc(i.id)}">${saved?"★ 保存済み":"☆ 保存"}</button></div></div></article>`;
 }
 function renderFeedItem(i){
-  const type=i.sourceType||"external",read=state.read.has(i.id),saved=state.saved.has(i.id),tags=(i.tags||[]).slice(0,5);
-  return `<article class="feed-item"><div class="feed-icon ${esc(type)}">${ICONS[type]||"↗"}</div><div class="feed-main"><div class="feed-title-row">${read?"":'<span class="unread-dot" title="未読"></span>'}<a class="feed-title" href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}">${esc(i.title)}</a>${i.isDemo?'<span class="tag">サンプル</span>':""}</div><div class="feed-meta"><span>${esc(sourceName(i.sourceId))}</span><span>·</span><span>${esc(formatDate(i.publishedAt))}</span><span>·</span><span>${esc(typeName(type))}</span></div><p class="feed-desc">${esc(i.description||"概要は未登録です。元のページを開いて内容を確認してください。")}</p><div class="feed-tags">${tags.map(t=>`<span class="feed-tag"${i.tagsEstimated?' title="タイトル・概要のキーワードから自動推定したテーマ"':""}>${esc(t)}</span>`).join("")}${(i.learningTypes||[]).slice(0,2).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div></div><div class="feed-actions">${itemActions(i)}</div></article>`;
+  const read=state.read.has(i.id),tags=(i.tags||[]).slice(0,4);
+  return `<article class="feed-item src-${esc(i.sourceType||"external")} ${read?"is-read":""}">${thumb(i,"feed-thumb")}<div class="feed-main"><div class="feed-meta">${srcPill(i)}<span>${esc(formatDate(i.publishedAt))}</span>${read?'<span class="read-mark">既読</span>':'<span class="unread-dot" title="未読"></span>'}${i.isDemo?'<span class="tag">サンプル</span>':""}</div><a class="feed-title" href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}">${esc(dispTitle(i))}</a><p class="feed-desc clamp2">${esc(cleanDesc(i))}</p><div class="feed-tags">${tags.map(t=>`<span class="feed-tag"${i.tagsEstimated?' title="タイトル・概要のキーワードから自動推定したテーマ"':""}>${esc(t)}</span>`).join("")}</div></div><div class="feed-actions">${itemActions(i)}</div></article>`;
+}
+function renderChips(){
+  const items=allItems(),count=t=>items.filter(i=>i.sourceType===t).length,cur=state.sourceFilter||$("#typeFilter").value;
+  const types=["blog","youtube","slides","official","external"].filter(t=>count(t)||t!=="external");
+  $("#sourceChips").innerHTML=`<button class="chip ${cur?"":"active"}" data-chip="">すべて <b>${items.length}</b></button>`+types.map(t=>`<button class="chip chip-${t} ${cur===t?"active":""}" data-chip="${t}">${SRC[t].icon} ${esc(SRC[t].label)} <b>${count(t)}</b></button>`).join("");
 }
 function updateStats(){
   const items=allItems(),unread=items.filter(i=>!state.read.has(i.id)).length,week=items.filter(i=>i.publishedAt&&daysAgo(i.publishedAt)>=0&&daysAgo(i.publishedAt)<=7).length;
@@ -82,7 +95,7 @@ function render(){
   const [title,subtitle]=titles[state.view]||["情報一覧",""];$("#pageTitle").textContent=title;$("#pageSubtitle").textContent=subtitle;
   $("#dashboardHighlights").classList.toggle("hidden",state.view!=="dashboard");
   $("#feedTitle").textContent=state.view==="saved"?"あとで読む":state.view==="notes"?"メモがある情報":state.sourceFilter?typeName(state.sourceFilter):state.view==="dashboard"?"新着情報":"すべての情報";
-  const filtered=getFiltered();$("#resultSummary").textContent=`${filtered.length}件の情報`;
+  renderChips();const filtered=getFiltered();$("#resultSummary").textContent=`${filtered.length}件の情報`;
   $("#feedList").innerHTML=filtered.map(renderFeedItem).join("");$("#emptyState").classList.toggle("hidden",filtered.length!==0);
   if(state.view==="dashboard"){
     const highlights=[...allItems()].filter(i=>!state.read.has(i.id)).sort((a,b)=>new Date(b.publishedAt)-new Date(a.publishedAt)).slice(0,3);
@@ -115,6 +128,7 @@ document.addEventListener("click",e=>{
     if(act==="delete"&&confirm("この手動登録を削除しますか？")){state.manual=state.manual.filter(x=>x.id!==id);state.saved.delete(id);state.read.delete(id);delete state.notes[id];persistState();render();showToast("削除しました");}
     return;
   }
+  const chip=e.target.closest("[data-chip]");if(chip){$("#typeFilter").value="";const t=chip.dataset.chip;if(t)setView(state.view==="dashboard"?"all":state.view,t);else{state.sourceFilter="";setView(state.view);}return;}
   const opened=e.target.closest("[data-open]");if(opened){state.read.add(opened.dataset.open);persistState();setTimeout(render,100);}
 });
 ["searchInput","typeFilter","tagFilter","statusFilter","sortFilter"].forEach(id=>$("#"+id).addEventListener(id==="searchInput"?"input":"change",()=>{if(state.view==="dashboard"&&id!=="searchInput"){}render();}));
@@ -128,3 +142,5 @@ $("#resetStateBtn").addEventListener("click",()=>{if(confirm("既読・ブック
 $("#manualAddForm").addEventListener("submit",e=>{e.preventDefault();const title=$("#manualTitle").value.trim(),url=$("#manualUrl").value.trim(),type=$("#manualType").value;if(!title||!url)return;let parsed;try{parsed=new URL(url);if(!["http:","https:"].includes(parsed.protocol))throw 0;}catch(err){showToast("有効なHTTP/HTTPS URLを入力してください");return;}const id="manual-"+(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36));state.manual.unshift({id,title,url,sourceId:"manual-entry",sourceType:type,publishedAt:new Date().toISOString(),discoveredAt:new Date().toISOString(),description:"手動で登録した情報です。",tags:[],learningTypes:[]});$("#manualTitle").value="";$("#manualUrl").value="";persistState();render();showToast("情報を追加しました");});
 $$("[data-go]").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.go)));
 loadLocalState();loadData();
+
+document.addEventListener("error",e=>{const img=e.target;if(img.tagName==="IMG"&&img.hasAttribute("data-thumb"))img.remove();},true);
