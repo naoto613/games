@@ -188,42 +188,66 @@ def approx_date(text: str, now: datetime) -> str | None:
     return (now - timedelta(days=days)).isoformat(timespec="seconds")
 
 
-def scrape_youtube_videos(cid: str) -> list[dict]:
-    """Last resort without a key: read video ids and titles from the channel's videos page."""
-    html = http_get(f"https://www.youtube.com/channel/{cid}/videos?hl=ja").text
+def walk(node):
+    if isinstance(node, dict):
+        yield node
+        for v in node.values():
+            yield from walk(v)
+    elif isinstance(node, list):
+        for v in node:
+            yield from walk(v)
+
+
+def text_of(node) -> str:
+    if not isinstance(node, dict):
+        return node if isinstance(node, str) else ""
+    if "simpleText" in node:
+        return node["simpleText"]
+    if "content" in node and isinstance(node["content"], str):
+        return node["content"]
+    return "".join(r.get("text", "") for r in node.get("runs", []))
+
+
+def scrape_youtube_videos(source: dict, cid: str) -> list[dict]:
+    """Last resort without a key: read videos from ytInitialData on the channel's videos page."""
+    html = http_get(f"https://www.youtube.com/channel/{cid}/videos?hl=ja&gl=JP").text
+    m = re.search(r"ytInitialData\s*=\s*(\{.*?\});\s*</script>", html, re.S)
+    if not m:
+        title = re.search(r"<title>(.*?)</title>", html, re.S)
+        raise RuntimeError(f"ytInitialData not found (page {len(html)} bytes, title={title.group(1)[:60] if title else '-'})")
+    data = json.loads(m.group(1))
     now = datetime.now(timezone.utc)
     entries, seen = [], set()
-    for m in re.finditer(r'"videoRenderer":\{"videoId":"([\w-]{11})"', html):
-        vid = m.group(1)
-        if vid in seen:
-            continue
-        chunk = html[m.end():m.end() + 6000]
-        t = re.search(r'"title":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"', chunk)
-        if not t:
+    for node in walk(data):
+        if "channelMetadataRenderer" in node:
+            source["channelName"] = node["channelMetadataRenderer"].get("title")
+        vid = title = when = desc = None
+        if "videoRenderer" in node:
+            r = node["videoRenderer"]
+            vid, title = r.get("videoId"), text_of(r.get("title"))
+            when, desc = text_of(r.get("publishedTimeText")), text_of(r.get("descriptionSnippet"))
+        elif "lockupViewModel" in node:
+            r = node["lockupViewModel"]
+            if "VIDEO" not in str(r.get("contentType", "VIDEO")):
+                continue
+            vid = r.get("contentId")
+            meta = (r.get("metadata") or {}).get("lockupMetadataViewModel") or {}
+            title = text_of(meta.get("title"))
+            rows = [text_of(p.get("text")) for n in walk(meta.get("metadata")) for p in n.get("metadataParts", [])]
+            when = next((t for t in rows if "前" in t or "ago" in t), None)
+        if not vid or not title or vid in seen or not re.fullmatch(r"[\w-]{11}", vid):
             continue
         seen.add(vid)
-        d = re.search(r'"publishedTimeText":\{"simpleText":"([^"]+)"', chunk)
-        desc = re.search(r'"descriptionSnippet":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"', chunk)
         entries.append({
             "link": "https://www.youtube.com/watch?v=" + vid,
-            "title": json.loads('"' + t.group(1) + '"'),
-            "summary": json.loads('"' + desc.group(1) + '"') if desc else "",
-            "publishedApprox": approx_date(d.group(1), now) if d else None,
+            "title": title,
+            "summary": desc or "",
+            "publishedApprox": approx_date(when, now) if when else None,
             "media_thumbnail": [{"url": f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg"}],
         })
     if not entries:
-        raise RuntimeError("no videos found on the channel page")
+        raise RuntimeError(f"no videos found on the channel page (channel={source.get('channelName') or '-'})")
     return entries
-
-
-def discover_feed(page_url: str) -> str:
-    html = http_get(page_url).text
-    for tag in re.findall(r"<link\b[^>]*>", html, flags=re.I):
-        if re.search(r'rel=["\']?alternate', tag, re.I) and re.search(r"application/(rss|atom)\+xml", tag, re.I):
-            m = re.search(r'href=["\']([^"\']+)', tag, re.I)
-            if m:
-                return urljoin(page_url, unescape(m.group(1)))
-    raise RuntimeError("no RSS/Atom <link rel=alternate> found on the page")
 
 
 def feed_url_for(source: dict) -> str:
@@ -257,7 +281,7 @@ def youtube_entries(source: dict) -> list:
         except Exception as exc:
             errors.append(str(exc)[:120])
     try:
-        entries = scrape_youtube_videos(cid)
+        entries = scrape_youtube_videos(source, cid)
         source["via"] = "channel page"
         print(f"[WARN] {source.get('name')}: feed unavailable, used channel page ({'; '.join(errors)})", file=sys.stderr)
         return entries
