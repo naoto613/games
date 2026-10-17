@@ -2,8 +2,8 @@
 'use strict';
 (() => {
   const G2 = PT.G, T = PT.TILE, E = PT.E;
-  const GR = 26, NC = 3, NF = 4, X0 = 40, RW = 5, PITCH = 5, RH = 4;
-  const H = (PT.house = { GR, NC, NF, X0, RW, state: null, lot: null, anim: new Map(), roofT: 0 });
+  const GR = 26, X0 = 44, RH = 4;
+  const H = (PT.house = { GR, X0, RH, state: null, lot: null, anim: new Map(), preview: null });
 
   /* ================= かべがみ・ゆか ================= */
   const clipR = (c, r) => { c.save(); c.beginPath(); c.rect(r.x, r.y, r.w, r.h); c.clip(); };
@@ -147,178 +147,251 @@
   });
   H.ROOF_LIST = Object.keys(ROOFS);
 
-  /* ================= かざり ================= */
-  H.DECO = { chimney: 'えんとつ', flag: 'はた', lights: 'イルミネーション', startop: 'おほしさま', planter: 'はなの プランター', sign: 'ハートの かんばん' };
-  H.DECO_LIST = Object.keys(H.DECO);
+  /* ================= かべの かざり・やねの かざり ================= */
+  H.RDECO = { chimney: 'えんとつ', flag: 'はた', lights: 'イルミネーション', startop: 'おほしさま' };
+  H.RDECO_LIST = Object.keys(H.RDECO);
+  const WD = (H.WD = {});
+  const wd = (id, name, draw) => { WD[id] = { id, name, draw }; };
+  wd('clock', 'かべどけい', (c, t) => { G2.circ(c, 0, 0, 30); G2.fillO(c, '#fff8e8', 3); c.strokeStyle = '#c27a3e'; c.lineWidth = 6; c.stroke(); const a = t * 0.0006; c.strokeStyle = '#2a1f35'; c.lineWidth = 3.5; c.lineCap = 'round'; c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.sin(a) * 12, -Math.cos(a) * 12); c.moveTo(0, 0); c.lineTo(Math.sin(a * 12) * 20, -Math.cos(a * 12) * 20); c.stroke(); });
+  wd('picture', 'え', (c) => { G2.rr(c, -36, -28, 72, 56, 6); G2.fillO(c, '#f5c242', 3); G2.rr(c, -28, -20, 56, 40, 3); c.fillStyle = '#bfe6ff'; c.fill(); G2.circ(c, 14, -8, 7); c.fillStyle = '#ffd23f'; c.fill(); c.fillStyle = '#7bd36a'; c.beginPath(); c.moveTo(-28, 20); c.lineTo(-8, -4); c.lineTo(10, 20); c.closePath(); c.fill(); });
+  wd('heartsign', 'ハートの かざり', (c, t) => { c.save(); c.rotate(Math.sin(t * 0.002) * 0.08); c.strokeStyle = '#c27a3e'; c.lineWidth = 2; c.beginPath(); c.moveTo(-14, -30); c.lineTo(0, -44); c.lineTo(14, -30); c.stroke(); G2.heart(c, 0, -2, 30); G2.fillO(c, '#ff6f91', 3); c.fillStyle = 'rgba(255,255,255,.7)'; G2.ell(c, -10, -14, 6, 3, -0.6); c.fill(); c.restore(); });
+  wd('shelf', 'かべの たな', (c) => { G2.rr(c, -46, 10, 92, 10, 4); G2.fillO(c, '#c27a3e', 2.5); G2.rr(c, -36, -16, 18, 26, 4); G2.fillO(c, '#ff8fb1', 2); G2.circ(c, 4, -2, 12); G2.fillO(c, '#7bd36a', 2); G2.rr(c, 22, -22, 14, 32, 3); G2.fillO(c, '#58b9f0', 2); });
+  wd('garland', 'ガーランド', (c) => { c.strokeStyle = '#c9a0a0'; c.lineWidth = 2; c.beginPath(); c.moveTo(-70, -16); c.quadraticCurveTo(0, 10, 70, -16); c.stroke(); for (let i = 0; i < 6; i++) { const x = -58 + i * 23, y = -10 + Math.sin((i / 5) * Math.PI) * 12; c.beginPath(); c.moveTo(x - 9, y); c.lineTo(x + 9, y); c.lineTo(x, y + 20); c.closePath(); c.fillStyle = ['#ff6f91', '#ffd23f', '#58b9f0', '#7bd36a', '#9b8cff', '#ff9a3d'][i]; c.fill(); } });
+  H.WD_LIST = Object.keys(WD);
+
+  /* ================= へやの パーツ ================= */
+  const FRAME = { princess: '#ffc4d6', candy: '#e3a75a', space: '#d9c9ff', green: '#bfeccf', kids: '#ffd6e2', bath: '#cfe9ff' };
+  const frameOf = (k) => ({ id: 'f', col: FRAME[k] || '#fff1d6', pat: k === 'candy' ? 'chip' : null });
+  H.SIZES = { S: 3, M: 5, L: 7 };
+  H.ROOM_PIECES = [];
+  H.ROOM_LIST.forEach((k) => H.ROOM_PIECES.push([k, 'M']));
+  [['kids', 'S'], ['bath', 'S'], ['library', 'S'], ['living', 'L'], ['princess', 'L'], ['play', 'L']].forEach((p) => H.ROOM_PIECES.push(p));
+  H.SET_LIST = H.ROOM_LIST.slice();
 
   /* ================= じょうたい ================= */
-  const fresh = () => ({ rooms: Array.from({ length: NF }, () => Array(NC).fill(null)), roof: 'red', wall: 'cream', win: 'cross', door: 'wood', deco: { chimney: true, planter: true } });
-  H.fresh = () => { const s = fresh(); s.rooms[0][1] = 'living'; return s; };
-  H.slotRect = (f, k) => ({ x: (X0 + k * RW) * T, y: (GR - f * PITCH - RH) * T, w: RW * T, h: RH * T });
-  H.floorY = (f) => (GR - f * PITCH) * T;
   const S = () => H.state;
-  H.canAdd = (f, k) => !S().rooms[f][k] && (f === 0 || !!S().rooms[f - 1][k]);
-  H.count = () => S().rooms.flat().filter(Boolean).length;
-  H.topOf = (k) => { let t = -1; for (let f = 0; f < NF; f++) if (S().rooms[f][k]) t = f; return t; };
-  H.slotAt = (wx, wy) => { for (let f = 0; f < NF; f++) for (let k = 0; k < NC; k++) { const r = H.slotRect(f, k); if (wx >= r.x && wx < r.x + r.w && wy >= r.y - T && wy < r.y + r.h + 10) return [f, k]; } return null; };
-  H.roomAt = (wx, wy) => { const s = H.slotAt(wx, wy); return s && S().rooms[s[0]][s[1]] ? s : null; };
-  H.nextSlot = () => {
-    // まずは よこに、そのあと うえに（まんなかから）
-    for (let f = 0; f < NF; f++) for (const k of [1, 0, 2]) if (H.canAdd(f, k)) return [f, k];
-    return null;
+  H.fresh = () => {
+    const s = { pieces: [], nid: 1 };
+    const add = (o) => { o.id = s.nid++; s.pieces.push(o); return o; };
+    const r = add({ t: 'room', k: 'living', x: X0, y: GR - RH, w: 5 });
+    add({ t: 'roof', k: 'red', on: r.id, deco: { chimney: true } });
+    add({ t: 'win', k: 'cross', on: r.id, dx: 200 });
+    add({ t: 'door', k: 'wood', on: r.id, dx: 48 });
+    return s;
   };
+  H.add = (o) => { o.id = S().nid++; S().pieces.push(o); return o; };
+  H.byId = (id) => S().pieces.find((p) => p.id === id);
+  H.rooms = () => S().pieces.filter((p) => p.t === 'room');
+  H.kids = (id) => S().pieces.filter((p) => p.on === id);
+  H.count = () => H.rooms().length;
+  const posOf = (r) => (r.drag ? { x: r.drag.x, y: r.drag.y } : { x: r.x * T, y: r.y * T });
+  H.rectOf = (r) => { const p = posOf(r); return { x: p.x, y: p.y, w: r.w * T, h: RH * T }; };
+  H.inside = (r) => { const p = posOf(r); return { x: p.x, y: p.y + T, w: r.w * T, h: (RH - 1) * T }; };
+  H.floorOf = (r) => (r.y + RH) * T;
 
-  /* マス目（あしば）を つくりなおす */
+  /* マスの うまり（へや） */
+  const occ = (except) => { const o = new Set(); for (const r of H.rooms()) if (r.id !== except) for (let y = r.y; y < r.y + RH; y++) for (let x = r.x; x < r.x + r.w; x++) o.add(x + ',' + y); return o; };
+  const overlaps = (o, x, y, w) => { for (let yy = y; yy < y + RH; yy++) for (let xx = x; xx < x + w; xx++) if (o.has(xx + ',' + yy)) return true; return false; };
+  const fall = (o, x, y, w) => {
+    for (let n = 0; n < 60; n++) {
+      if (y + RH >= GR) return GR - RH;
+      let sup = false; for (let xx = x; xx < x + w; xx++) if (o.has(xx + ',' + (y + RH))) sup = true;
+      if (sup) return y;
+      y++;
+    }
+    return y;
+  };
+  H.LOT = [X0 - 18, X0 + 28];
+  H.landing = (x, y, w, except) => {
+    x = PT.clamp(x, H.LOT[0], H.LOT[1] - w); y = Math.min(y, GR - RH);
+    const o = occ(except);
+    let n = 0; while (overlaps(o, x, y, w) && n++ < 40) y--;
+    return { x, y: fall(o, x, y, w) };
+  };
+  /* なかに いる もの */
+  H.entsIn = (r) => { const R2 = { x: r.x * T, y: r.y * T, w: r.w * T }; return E.ents.filter((e) => !e.held && e.x >= R2.x - 4 && e.x <= R2.x + R2.w + 4 && e.y > R2.y + T && e.y <= R2.y + RH * T + 4); };
+  /* うえの へやを おとす・やねを うえに うつす */
+  H.settle = () => {
+    for (let loop = 0; loop < 8; loop++) {
+      let moved = false;
+      const rs = H.rooms().slice().sort((a, b) => b.y - a.y);
+      for (const r of rs) {
+        const o = occ(r.id); const ny = fall(o, r.x, r.y, r.w);
+        if (ny !== r.y) { const ins = H.entsIn(r); const dy = (ny - r.y) * T; ins.forEach((e) => { e.y += dy; }); r.y = ny; moved = true; }
+      }
+      if (!moved) break;
+    }
+    // やね
+    for (const rf of S().pieces.filter((p) => p.t === 'roof')) {
+      let r = H.byId(rf.on); if (!r) { S().pieces = S().pieces.filter((p) => p !== rf); continue; }
+      for (let n = 0; n < 10; n++) {
+        const cx = r.x + r.w / 2;
+        const up = H.rooms().find((o) => o.y + RH === r.y && o.x <= cx && cx <= o.x + o.w);
+        if (!up) break; r = up;
+      }
+      if (r.id !== rf.on) { const other = S().pieces.find((p) => p.t === 'roof' && p.on === r.id && p !== rf); if (other) S().pieces = S().pieces.filter((p) => p !== rf); else rf.on = r.id; }
+    }
+  };
+  /* マス目（あしば） */
   H.rebuild = () => {
     const g = E.grid; g.fill(0);
     const slab = PT.BLOCK.slab.code, cols = PT.COLS, rows = PT.ROWS;
     for (let y = GR; y < rows; y++) for (let x = 0; x < cols; x++) g[y * cols + x] = slab;
-    for (let f = 0; f < NF; f++) for (let k = 0; k < NC; k++) if (S().rooms[f][k]) { const y = GR - f * PITCH - RH - 1; for (let x = X0 + k * RW; x < X0 + (k + 1) * RW; x++) g[y * cols + x] = slab; }
-    E.dirty = true; E.pushOut();
+    for (const r of H.rooms()) for (let x = r.x; x < r.x + r.w; x++) g[r.y * cols + x] = slab;
+    E.dirty = true;
+  };
+  /* ゆびの したの パーツ */
+  H.roomAt = (wx, wy) => H.rooms().find((r) => { const q = H.rectOf(r); return wx >= q.x && wx <= q.x + q.w && wy >= q.y && wy <= q.y + q.h; }) || null;
+  H.topRoomNear = (wx, wy) => {
+    let best = null;
+    for (const r of H.rooms()) { const q = H.rectOf(r); if (wx < q.x - 20 || wx > q.x + q.w + 20) continue; const d = wy < q.y ? q.y - wy : wy > q.y + q.h ? (wy - q.y - q.h) * 3 : 0; if (d < 420 && (!best || d < best.d || (d === best.d && q.y < best.q.y))) best = { r, d, q }; }
+    if (!best) return null;
+    let r = best.r;
+    for (let n = 0; n < 10; n++) { const cx = r.x + r.w / 2; const up = H.rooms().find((o) => o.y + RH === r.y && o.x <= cx && cx <= o.x + o.w); if (!up) break; r = up; }
+    return r;
+  };
+  const roofGeom = (rf) => { const r = H.byId(rf.on); if (!r) return null; const q = H.rectOf(r); const x0 = q.x - 26, x1 = q.x + q.w + 26; return { x0, x1, y: q.y + 8, h: Math.min(250, 120 + (x1 - x0) * 0.13) }; };
+  const attPos = (p) => {
+    if (p.drag) return { x: p.drag.x, y: p.drag.y };
+    const r = H.byId(p.on); if (!r) return null; const q = H.inside(r);
+    const dx = PT.clamp(p.dx, 34, q.w - 34);
+    if (p.t === 'door') return { x: q.x + dx, y: q.y + q.h };
+    if (p.t === 'win') return { x: q.x + dx, y: q.y + 70 };
+    return { x: q.x + dx, y: q.y + 52 };
+  };
+  H.attPos = attPos;
+  H.hitPiece = (wx, wy) => {
+    for (const p of S().pieces) {
+      if (p.t !== 'win' && p.t !== 'door' && p.t !== 'wd') continue;
+      const a = attPos(p); if (!a) continue;
+      if (p.t === 'door' ? (Math.abs(wx - a.x) < 30 && wy < a.y && wy > a.y - 110) : Math.hypot(wx - a.x, wy - a.y) < 46) return p;
+    }
+    for (const p of S().pieces) { if (p.t !== 'roof') continue; const g = roofGeom(p); if (g && wx > g.x0 && wx < g.x1 && wy < g.y && wy > g.y - g.h) return p; }
+    return H.roomAt(wx, wy);
   };
 
   /* ================= えがく ================= */
   const drawFloor = (c, x, y, w, fid) => {
     const [col, kind] = FL[fid] || FL.wood;
-    c.fillStyle = col; c.fillRect(x, y, w, 18);
-    if (kind === 'planks') { c.strokeStyle = PT.shade(col, -0.25); c.lineWidth = 2; for (let xx = x + 40; xx < x + w; xx += 64) { c.beginPath(); c.moveTo(xx, y); c.lineTo(xx, y + 18); c.stroke(); } }
-    if (kind === 'check') { c.fillStyle = PT.shade(col === '#ffffff' ? '#ff9fbd' : col, -0.1); for (let xx = x, i = 0; xx < x + w; xx += 18, i++) if (i % 2) c.fillRect(xx, y, 18, 9); else c.fillRect(xx, y + 9, 18, 9); }
-    if (kind === 'mat') { ['#ff6f91', '#ffd23f', '#58b9f0', '#7bd36a'].forEach((cc, i) => { c.fillStyle = cc; for (let xx = x + i * 40; xx < x + w; xx += 160) c.fillRect(xx, y, 40, 18); }); }
+    c.fillStyle = col; c.fillRect(x, y, w, 16);
+    if (kind === 'planks') { c.strokeStyle = PT.shade(col, -0.25); c.lineWidth = 2; for (let xx = x + 40; xx < x + w; xx += 64) { c.beginPath(); c.moveTo(xx, y); c.lineTo(xx, y + 16); c.stroke(); } }
+    if (kind === 'check') { c.fillStyle = PT.shade(col === '#ffffff' ? '#ff9fbd' : col, -0.1); for (let xx = x, i = 0; xx < x + w; xx += 16, i++) if (i % 2) c.fillRect(xx, y, 16, 8); else c.fillRect(xx, y + 8, 16, 8); }
+    if (kind === 'mat') { ['#ff6f91', '#ffd23f', '#58b9f0', '#7bd36a'].forEach((cc, i) => { c.fillStyle = cc; for (let xx = x + i * 40; xx < x + w; xx += 160) c.fillRect(xx, y, 40, 16); }); }
     c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(x, y, w, 3);
   };
-  const lamp = (c, x, y, t) => {
-    c.strokeStyle = '#8a7a6a'; c.lineWidth = 3; c.beginPath(); c.moveTo(x, y); c.lineTo(x, y + 26); c.stroke();
-    c.beginPath(); c.moveTo(x - 22, y + 44); c.quadraticCurveTo(x, y + 14, x + 22, y + 44); c.closePath(); G2._bb = { x0: x - 22, y0: y + 20, x1: x + 22, y1: y + 44 }; G2.fillO(c, '#ffd76a', 2.5);
-    G2.circ(c, x, y + 46, 7); c.fillStyle = E.nightK > 0.3 ? '#fff6c8' : '#fff1b0'; c.fill();
+  const lamp = (c, x, y) => {
+    c.strokeStyle = '#8a7a6a'; c.lineWidth = 3; c.beginPath(); c.moveTo(x, y); c.lineTo(x, y + 14); c.stroke();
+    c.beginPath(); c.moveTo(x - 20, y + 32); c.quadraticCurveTo(x, y + 4, x + 20, y + 32); c.closePath(); G2._bb = { x0: x - 20, y0: y + 10, x1: x + 20, y1: y + 32 }; G2.fillO(c, '#ffd76a', 2.5);
+    G2.circ(c, x, y + 34, 6); c.fillStyle = E.nightK > 0.3 ? '#fff6c8' : '#fff1b0'; c.fill();
   };
-  const drawRoomInside = (c, f, k, rid, t) => {
-    const rm = R[rid], r = H.slotRect(f, k), wl = WALLS[S().wall];
-    const a0 = H.anim.get(f + ':' + k); let sc = 1;
-    if (a0 !== undefined) { const kk = (E.t - a0) / 420; if (kk >= 1) H.anim.delete(f + ':' + k); else sc = PT.easeBack(Math.max(0.02, kk)); }
+  const popScale = (id) => { const a0 = H.anim.get(id); if (a0 === undefined) return 1; const k = (E.t - a0) / 380; if (k >= 1) { H.anim.delete(id); return 1; } return PT.easeBack(Math.max(0.02, k)); };
+  H.drawRoom = (c, r, t) => {
+    const q = H.rectOf(r), I = H.inside(r), fr = frameOf(r.k), rm = R[r.k];
+    const sc = popScale(r.id);
     c.save();
-    if (sc !== 1) { c.translate(r.x + r.w / 2, r.y + r.h); c.scale(1, sc); c.translate(-(r.x + r.w / 2), -(r.y + r.h)); }
-    clipR(c, r); rm.wall(c, r);
-    // こしかべ
-    c.fillStyle = 'rgba(255,255,255,.45)'; c.fillRect(r.x, r.y + r.h - 34, r.w, 4); c.fillStyle = 'rgba(120,80,60,.12)'; c.fillRect(r.x, r.y + r.h - 30, r.w, 30);
-    if (rid === 'library') { for (const bx of [r.x + 26, r.x + r.w - 96]) { c.fillStyle = '#b97a42'; c.fillRect(bx, r.y + 18, 70, 70); const cols = ['#ff6f91', '#58b9f0', '#ffd23f', '#7bd36a', '#9b8cff']; for (let i = 0; i < 7; i++) { c.fillStyle = cols[i % 5]; c.fillRect(bx + 5 + i * 9, r.y + 26 + (i % 2) * 4, 7, 26 - (i % 2) * 4); c.fillRect(bx + 5 + i * 9, r.y + 58 + (i % 3) * 3, 7, 24 - (i % 3) * 3); } } }
-    // まど
-    if (rid !== 'green' && rid !== 'space') { c.save(); c.translate(r.x + r.w / 2 + (rid === 'library' ? 0 : 0), r.y + 74); const ws = 0.95; c.scale(ws, ws); WINS[S().win].draw(c, t); c.restore(); }
-    // かげ（へやの すみ）
-    const g = c.createLinearGradient(r.x, 0, r.x + 24, 0); g.addColorStop(0, 'rgba(40,30,80,.18)'); g.addColorStop(1, 'rgba(40,30,80,0)'); c.fillStyle = g; c.fillRect(r.x, r.y, 24, r.h);
-    const g2 = c.createLinearGradient(0, r.y, 0, r.y + 20); g2.addColorStop(0, 'rgba(40,30,80,.2)'); g2.addColorStop(1, 'rgba(40,30,80,0)'); c.fillStyle = g2; c.fillRect(r.x, r.y, r.w, 20);
-    c.restore();
-    lamp(c, r.x + r.w / 2 + (rid === 'library' ? 0 : 0), r.y, t);
+    if (sc !== 1) { c.translate(q.x + q.w / 2, q.y + q.h); c.scale(sc, sc); c.translate(-(q.x + q.w / 2), -(q.y + q.h)); }
+    if (r.drag) c.globalAlpha = 0.85;
+    clipR(c, I); rm.wall(c, I);
+    c.fillStyle = 'rgba(255,255,255,.45)'; c.fillRect(I.x, I.y + I.h - 30, I.w, 4); c.fillStyle = 'rgba(120,80,60,.12)'; c.fillRect(I.x, I.y + I.h - 26, I.w, 26);
+    if (r.k === 'library') { const cols = ['#ff6f91', '#58b9f0', '#ffd23f', '#7bd36a', '#9b8cff']; for (let bx = I.x + 20; bx < I.x + I.w - 70; bx += 140) { c.fillStyle = '#b97a42'; c.fillRect(bx, I.y + 14, 60, 56); for (let i = 0; i < 6; i++) { c.fillStyle = cols[i % 5]; c.fillRect(bx + 4 + i * 9, I.y + 20 + (i % 2) * 4, 7, 20 - (i % 2) * 4); c.fillRect(bx + 4 + i * 9, I.y + 46 + (i % 3) * 2, 7, 20 - (i % 3) * 2); } } }
+    const g = c.createLinearGradient(I.x, 0, I.x + 22, 0); g.addColorStop(0, 'rgba(40,30,80,.18)'); g.addColorStop(1, 'rgba(40,30,80,0)'); c.fillStyle = g; c.fillRect(I.x, I.y, 22, I.h);
+    const g2 = c.createLinearGradient(0, I.y, 0, I.y + 18); g2.addColorStop(0, 'rgba(40,30,80,.2)'); g2.addColorStop(1, 'rgba(40,30,80,0)'); c.fillStyle = g2; c.fillRect(I.x, I.y, I.w, 18);
+    c.restore(); c.restore();
+    c.save(); if (r.drag) c.globalAlpha = 0.85;
+    if (sc !== 1) { c.translate(q.x + q.w / 2, q.y + q.h); c.scale(sc, sc); c.translate(-(q.x + q.w / 2), -(q.y + q.h)); }
+    lamp(c, I.x + I.w / 2, I.y);
+    wallFill(c, q.x - 8, q.y, q.w + 16, T, fr); c.fillStyle = 'rgba(255,255,255,.5)'; c.fillRect(q.x - 4, q.y + T - 8, q.w + 8, 3);
+    wallFill(c, q.x - 12, q.y, 24, q.h + 4, fr); wallFill(c, q.x + q.w - 12, q.y, 24, q.h + 4, fr);
+    drawFloor(c, I.x + 10, I.y + I.h, I.w - 20, rm.floor);
+    if (!r.drag && r.y + RH === GR) { G2.rr(c, q.x - 12, q.y + q.h + 14, q.w + 24, 18, 6); G2.fillO(c, PT.shade(fr.col, -0.15), 3); }
     c.restore();
   };
-  const beam = (c, x, y, w, wl) => { wallFill(c, x - 10, y, w + 20, T, wl); c.fillStyle = 'rgba(255,255,255,.5)'; c.fillRect(x - 6, y + T - 8, w + 12, 3); };
-
+  const drawAtt = (c, p, t) => {
+    const a = attPos(p); if (!a) return;
+    const sc = popScale(p.id);
+    c.save(); c.translate(a.x, a.y); c.scale(sc, sc); if (p.drag) c.globalAlpha = 0.9;
+    if (p.t === 'win') { c.scale(0.78, 0.78); WINS[p.k].draw(c, t); }
+    else if (p.t === 'door') { c.scale(0.9, 0.9); DOORS[p.k].draw(c, t); }
+    else WD[p.k].draw(c, t);
+    c.restore();
+  };
+  const drawRoofDeco = (c, g, deco, t) => {
+    const { x0, x1, y, h } = g, cx = (x0 + x1) / 2;
+    if (deco.lights) { const n = Math.max(4, Math.floor((x1 - x0) / 34)); for (let j = 0; j <= n; j++) { const fx = x0 + j * (x1 - x0) / n, fy = y + 6 + Math.sin((j / n) * Math.PI * 4) * 5; const on = (Math.floor(t / 400) + j) % 3 !== 0; G2.circ(c, fx, fy, 6); c.fillStyle = on ? ['#ff6f91', '#ffd23f', '#58b9f0', '#7bd36a'][j % 4] : 'rgba(255,255,255,.6)'; c.fill(); } }
+    if (deco.flag) { const fx = x1 - 46; c.strokeStyle = '#6a5a8a'; c.lineWidth = 4; c.beginPath(); c.moveTo(fx, y - 20); c.lineTo(fx, y - 100); c.stroke(); const wv = Math.sin(t * 0.006) * 5; c.beginPath(); c.moveTo(fx, y - 100); c.quadraticCurveTo(fx + 24, y - 96 + wv, fx + 44, y - 86); c.lineTo(fx, y - 70); c.closePath(); c.fillStyle = '#58b9f0'; c.fill(); G2.star(c, fx + 15, y - 86, 7, 3); c.fillStyle = '#fff'; c.fill(); }
+    if (deco.startop) { const tw = 1 + Math.sin(t * 0.004) * 0.08; c.save(); c.translate(cx, y - h - 28); c.scale(tw, tw); G2.star(c, 0, 0, 26, 12); G2.fillO(c, '#ffe066', 3); c.restore(); }
+  };
+  const drawChimney = (c, g, t) => { const cx = g.x0 + (g.x1 - g.x0) * 0.26, y = g.y, h = g.h; G2.rr(c, cx - 16, y - h * 0.72, 32, h * 0.58, 4); G2.fillO(c, '#c9645a', 3); G2.rr(c, cx - 22, y - h * 0.77, 44, 13, 4); G2.fillO(c, '#a8524a', 3); for (let j = 0; j < 3; j++) { const kk = ((t * 0.0004 + j / 3) % 1); G2.circ(c, cx + kk * 28, y - h * 0.83 - kk * 56, 9 + kk * 11); c.fillStyle = `rgba(255,255,255,${0.7 * (1 - kk)})`; c.fill(); } };
+  H.drawRoofPiece = (c, rf, t, g) => {
+    g = g || roofGeom(rf); if (!g) return;
+    const sc = popScale(rf.id);
+    if (rf.deco && rf.deco.chimney) drawChimney(c, g, t);
+    c.save(); c.translate((g.x0 + g.x1) / 2, g.y); c.scale(sc, sc); c.translate(-(g.x0 + g.x1) / 2, -g.y); if (rf.drag) c.globalAlpha = 0.9;
+    ROOFS[rf.k].draw(c, g.x0, g.x1, g.y, g.h, t);
+    c.restore();
+    drawRoofDeco(c, g, rf.deco || {}, t);
+  };
   H.drawHouse = (c, t) => {
-    const s = S(), wl = WALLS[s.wall];
-    // へやの なか
-    for (let f = 0; f < NF; f++) for (let k = 0; k < NC; k++) if (s.rooms[f][k]) drawRoomInside(c, f, k, s.rooms[f][k], t);
-    // ゆか と てんじょう
-    for (let f = 0; f < NF; f++) for (let k = 0; k < NC; k++) {
-      const rid = s.rooms[f][k]; if (!rid) continue;
-      const r = H.slotRect(f, k);
-      beam(c, r.x, r.y - T, r.w, wl);
-      drawFloor(c, r.x, r.y + r.h, r.w, R[rid].floor);
-      if (f === 0) { G2.rr(c, r.x - 10, r.y + r.h + 16, r.w + 20, 22, 6); G2.fillO(c, PT.shade(wl.col, -0.15), 3); }
-    }
-    // かべ（はしら）
-    for (let f = 0; f < NF; f++) for (let k = 0; k <= NC; k++) {
-      const L = k > 0 && s.rooms[f][k - 1], Rr = k < NC && s.rooms[f][k];
-      if (!L && !Rr) continue;
-      const r = H.slotRect(f, Math.min(k, NC - 1)); const x = (X0 + k * RW) * T, y = r.y - 4, h = r.h + 8;
-      if (L && Rr) { wallFill(c, x - 9, y, 18, h * 0.42, wl); c.strokeStyle = PT.shade(wl.col, -0.3); c.lineWidth = 3; c.beginPath(); c.moveTo(x - 9, y + h * 0.42); c.quadraticCurveTo(x, y + h * 0.36, x + 9, y + h * 0.42); c.stroke(); }
-      else wallFill(c, x - 14, y - 4, 28, h + 8, wl);
-    }
-    // げんかん
-    const fl = [0, 1, 2].find((k) => s.rooms[0][k]);
-    if (fl !== undefined) {
-      const x = (X0 + fl * RW) * T, gy = H.floorY(0);
-      G2.rr(c, x - 64, gy - 140, 70, 12, 5); G2.fillO(c, PT.shade(wl.col, -0.2), 3);
-      c.save(); c.translate(x - 30, gy); DOORS[s.door].draw(c, t); c.restore();
-      G2.rr(c, x - 74, gy - 4, 84, 14, 5); G2.fillO(c, '#c9ccd8', 2.5);
-      if (s.deco.sign) { c.save(); c.translate(x - 30, gy - 168); c.rotate(Math.sin(t * 0.002) * 0.06); G2.rr(c, -34, -18, 68, 36, 12); G2.fillO(c, '#fff8e8', 3); G2.heart(c, 0, 2, 12); c.fillStyle = '#ff5d78'; c.fill(); c.restore(); }
-      if (s.deco.planter) for (const px of [x - 100, (X0 + (([2, 1, 0].find((k) => s.rooms[0][k]) ?? fl) + 1) * RW) * T + 40]) { G2.rr(c, px - 30, gy - 30, 60, 30, 6); G2.fillO(c, '#c27a3e', 3); for (let i = 0; i < 4; i++) { G2.circ(c, px - 20 + i * 13, gy - 38 - (i % 2) * 6, 9); G2.fillO(c, ['#ff6f91', '#ffd23f', '#9b8cff', '#ff8a65'][i], 2); } }
-    }
-    // やね
-    let k = 0;
-    H.roofSpans = [];
-    while (k < NC) {
-      const top = H.topOf(k); if (top < 0) { k++; continue; }
-      let k2 = k; while (k2 + 1 < NC && H.topOf(k2 + 1) === top) k2++;
-      const x0 = (X0 + k * RW) * T - 30, x1 = (X0 + (k2 + 1) * RW) * T + 30, y = (GR - top * PITCH - RH - 1) * T + 8;
-      const h = Math.min(250, 130 + (x1 - x0) * 0.12);
-      H.roofSpans.push([x0, x1, y, h]);
-      k = k2 + 1;
-    }
-    const pop = H.roofT && E.t - H.roofT < 400 ? PT.easeBack((E.t - H.roofT) / 400) : 1;
-    H.roofSpans.forEach(([x0, x1, y, h], i) => {
-      if (i === 0 && s.deco.chimney && s.roof !== 'castle' && s.roof !== 'leaf') { const cx = x0 + (x1 - x0) * 0.24; G2.rr(c, cx - 18, y - h * 0.75, 36, h * 0.6, 4); G2.fillO(c, '#c9645a', 3); G2.rr(c, cx - 24, y - h * 0.8, 48, 14, 4); G2.fillO(c, '#a8524a', 3); for (let j = 0; j < 3; j++) { const kk = ((t * 0.0004 + j / 3) % 1); G2.circ(c, cx + kk * 30, y - h * 0.86 - kk * 60, 10 + kk * 12); c.fillStyle = `rgba(255,255,255,${0.7 * (1 - kk)})`; c.fill(); } }
-      c.save(); c.translate((x0 + x1) / 2, y); c.scale(pop, pop); c.translate(-(x0 + x1) / 2, -y);
-      ROOFS[s.roof].draw(c, x0, x1, y, h, t);
-      c.restore();
-      const cx = (x0 + x1) / 2;
-      if (i === 0 && s.deco.flag) { const fx = x1 - 50; c.strokeStyle = '#6a5a8a'; c.lineWidth = 4; c.beginPath(); c.moveTo(fx, y - 20); c.lineTo(fx, y - 110); c.stroke(); const wv = Math.sin(t * 0.006) * 5; c.beginPath(); c.moveTo(fx, y - 110); c.quadraticCurveTo(fx + 24, y - 106 + wv, fx + 46, y - 96); c.lineTo(fx, y - 80); c.closePath(); c.fillStyle = '#58b9f0'; c.fill(); G2.star(c, fx + 16, y - 96, 7, 3); c.fillStyle = '#fff'; c.fill(); }
-      if (s.deco.startop && s.roof !== 'star' && s.roof !== 'candy') { const tw = 1 + Math.sin(t * 0.004) * 0.08; c.save(); c.translate(cx, y - h - 30); c.scale(tw, tw); G2.star(c, 0, 0, 28, 13); G2.fillO(c, '#ffe066', 3); c.restore(); }
-      if (s.deco.lights) { const n = Math.floor((x1 - x0) / 34); for (let j = 0; j <= n; j++) { const fx = x0 + j * (x1 - x0) / n, fy = y + 8 + Math.sin((j / n) * Math.PI * 4) * 6; const on = (Math.floor(t / 400) + j) % 3 !== 0; G2.circ(c, fx, fy, 6); c.fillStyle = on ? ['#ff6f91', '#ffd23f', '#58b9f0', '#7bd36a'][j % 4] : 'rgba(255,255,255,.6)'; c.fill(); } }
-    });
+    const ps = S().pieces;
+    const rooms = ps.filter((p) => p.t === 'room').sort((a, b) => (a.drag ? 1 : 0) - (b.drag ? 1 : 0));
+    for (const r of rooms) H.drawRoom(c, r, t);
+    for (const p of ps) if ((p.t === 'win' || p.t === 'wd') && !p.drag) drawAtt(c, p, t);
+    for (const p of ps) if (p.t === 'door' && !p.drag) drawAtt(c, p, t);
+    for (const p of ps) if (p.t === 'roof' && !p.drag) H.drawRoofPiece(c, p, t);
   };
-  /* あいている ばしょの めじるし */
-  H.drawSlots = (c, t, strong) => {
-    for (let f = 0; f < NF; f++) for (let k = 0; k < NC; k++) {
-      if (!H.canAdd(f, k)) continue;
-      const r = H.slotRect(f, k), p = 0.5 + 0.5 * Math.sin(t * 0.006);
-      c.save(); c.globalAlpha = strong ? 0.7 + p * 0.3 : 0.35;
-      if (f === 0) { G2.rr(c, r.x + 10, r.y + 10, r.w - 20, r.h - 20, 22); c.fillStyle = 'rgba(255,255,255,.45)'; c.fill(); c.setLineDash([16, 12]); c.lineWidth = 6; c.strokeStyle = '#ff9a3d'; c.stroke(); c.setLineDash([]); }
-      const s2 = (strong ? 1 + p * 0.1 : 1) * Math.max(1, 0.5 / Math.max(0.1, E.cam.s)); c.translate(r.x + r.w / 2, r.y + r.h / 2 + (f ? 30 : 0)); c.scale(s2, s2);
-      G2.circ(c, 0, 0, 38); c.fillStyle = '#ffffff'; c.fill();
-      G2.circ(c, 0, 0, 34); c.fillStyle = '#ff9a3d'; c.fill(); c.strokeStyle = '#fff'; c.lineWidth = 9; c.lineCap = 'round'; c.beginPath(); c.moveTo(-15, 0); c.lineTo(15, 0); c.moveTo(0, -15); c.lineTo(0, 15); c.stroke();
+  /* うごかしている パーツと おちる ばしょ */
+  H.drawDrag = (c, t) => {
+    const pv = H.preview;
+    if (pv) {
+      c.save(); c.setLineDash([16, 10]); c.lineWidth = 6; c.strokeStyle = '#ff9a3d'; c.fillStyle = 'rgba(255,190,110,.18)';
+      if (pv.t === 'room') { G2.rr(c, pv.x * T, pv.y * T, pv.w * T, RH * T, 12); c.fill(); c.stroke(); }
+      if (pv.t === 'target' && pv.room) { const q = H.rectOf(pv.room); G2.rr(c, q.x - 6, q.y - 6, q.w + 12, q.h + 12, 16); c.fill(); c.stroke(); }
+      if (pv.t === 'roof' && pv.room) { const q = H.rectOf(pv.room); c.beginPath(); c.moveTo(q.x - 26, q.y + 8); c.lineTo(q.x + q.w / 2, q.y - 140); c.lineTo(q.x + q.w + 26, q.y + 8); c.closePath(); c.fill(); c.stroke(); }
       c.restore();
     }
+    for (const p of S().pieces) if (p.drag) {
+      if (p.t === 'roof') { const w = (H.byId(p.on) ? H.byId(p.on).w : 5) * T + 52; H.drawRoofPiece(c, p, t, { x0: p.drag.x - w / 2, x1: p.drag.x + w / 2, y: p.drag.y + 60, h: Math.min(250, 120 + w * 0.13) }); }
+      else if (p.t !== 'room') drawAtt(c, p, t);
+    }
   };
-  /* にわ（じめん） */
+  /* にわ */
   const YARD = { meadow: ['#7bc96a', '#b9844f'], beach: ['#f3d58f', '#e0b86a'], snow: ['#ffffff', '#c9dcf2'], candy: ['#ffd1e3', '#e3a75a'], sky: ['#ffffff', '#dfeaff'] };
-  H.drawYard = (c, t) => {
+  H.drawYard = (c) => {
     const [top, soil] = YARD[H.lot] || YARD.meadow;
-    const y = GR * T, x0 = (X0 - 30) * T, x1 = (X0 + 45) * T;
+    const y = GR * T, x0 = (X0 - 40) * T, x1 = (X0 + 50) * T;
     c.fillStyle = soil; c.fillRect(x0, y, x1 - x0, 8 * T);
     c.fillStyle = top; c.fillRect(x0, y - 4, x1 - x0, 30);
     c.fillStyle = PT.shade(top, -0.1); for (let x = x0; x < x1; x += 22) { c.beginPath(); c.moveTo(x, y + 26); c.quadraticCurveTo(x + 11, y + 40, x + 22, y + 26); c.fill(); }
-    const r = PT.seeded(5); c.fillStyle = 'rgba(255,255,255,.35)'; for (let i = 0; i < 80; i++) { G2.circ(c, x0 + r() * (x1 - x0), y + 40 + r() * 400, 2 + r() * 3); c.fill(); }
-    // こみち
-    const fl = [0, 1, 2].find((k) => S().rooms[0][k]); if (fl !== undefined) { const dx = (X0 + fl * RW) * T - 30; for (let i = 0; i < 5; i++) { G2.ell(c, dx - 40 - i * 70, y + 12 + (i % 2) * 6, 26, 9); c.fillStyle = '#e8e2d8'; c.fill(); c.strokeStyle = '#c9c0b0'; c.lineWidth = 2; c.stroke(); } }
+    const r = PT.seeded(5); c.fillStyle = 'rgba(255,255,255,.35)'; for (let i = 0; i < 120; i++) { G2.circ(c, x0 + r() * (x1 - x0), y + 40 + r() * 400, 2 + r() * 3); c.fill(); }
   };
-  H.holes = () => { const out = []; for (let f = 0; f < NF; f++) for (let k = 0; k < NC; k++) if (S().rooms[f][k]) { const r = H.slotRect(f, k); out.push([r.x + r.w / 2, r.y + r.h / 2, 260]); } if (S().deco.lights) H.roofSpans && H.roofSpans.forEach(([x0, x1, y]) => out.push([(x0 + x1) / 2, y, 200])); return out; };
+  H.holes = () => { const out = []; for (const r of H.rooms()) { const I = H.inside(r); out.push([I.x + I.w / 2, I.y + I.h / 2, Math.max(200, I.w * 0.7)]); } for (const p of S().pieces) if (p.t === 'roof' && p.deco && p.deco.lights) { const g = roofGeom(p); if (g) out.push([(g.x0 + g.x1) / 2, g.y, 180]); } return out; };
 
   /* ================= アイコン ================= */
   const mk = (size) => { const cv = document.createElement('canvas'); const dpr = Math.min(3, Math.max(2, window.devicePixelRatio || 1)); cv.width = cv.height = Math.round(size * dpr); const c = cv.getContext('2d'); c.scale(dpr, dpr); return [cv, c]; };
-  H.icon = (kind, id, size = 96) => {
+  H.icon = (kind, id, size = 96, extra) => {
     const [cv, c] = mk(size);
-    const keep = H.state; H.state = H.state || H.fresh();
+    const keep = H.state; H.state = { pieces: [], nid: 1 };
     try {
       if (kind === 'room') {
-        const r = { x: 0, y: 0, w: 320, h: 256 }, k = size / 340; c.translate(size * 0.03, size * 0.12); c.scale(k, k);
-        G2.rr(c, -6, -6, 332, 290, 18); c.fillStyle = '#ffffff'; c.fill();
-        c.save(); G2.rr(c, 0, 0, 320, 274, 14); c.clip(); R[id].wall(c, r); drawFloor(c, 0, 256, 320, R[id].floor); c.fillStyle = '#fff'; c.fillRect(0, 256 + 18, 320, 20);
-        R[id].props.forEach(([it, fx]) => { const d = PT.ITEMS[it]; if (!d) return; c.save(); c.translate(fx * 320, 258); c.scale(0.78, 0.78); try { d.draw(c, 300, {}); } catch (e) { /* */ } c.restore(); });
-        c.restore(); G2.rr(c, 0, 0, 320, 274, 14); c.strokeStyle = '#d6e6f8'; c.lineWidth = 8; c.stroke();
+        const w = H.SIZES[extra || 'M'], r = { id: -1, t: 'room', k: id, x: 0, y: 0, w };
+        const W = w * T + 30, k = size / Math.max(W, RH * T + 40); c.translate(size / 2 - (w * T / 2) * k, size / 2 - (RH * T / 2 + 8) * k); c.scale(k, k);
+        H.drawRoom(c, r, 300);
+      } else if (kind === 'set') {
+        const k = size / 330; c.translate(size * 0.02, size * 0.1); c.scale(k, k);
+        G2.rr(c, 0, 150, 320, 18, 8); c.fillStyle = (FL[R[id].floor] || FL.wood)[0]; c.fill();
+        R[id].props.forEach(([it, fx]) => { const d = PT.ITEMS[it]; if (!d) return; c.save(); c.translate(10 + fx * 300, 156); c.scale(0.8, 0.8); try { d.draw(c, 300, {}); } catch (e) { /* */ } c.restore(); });
       } else if (kind === 'roof') {
         const k = size / 420; c.translate(size / 2, size * 0.86); c.scale(k, k);
         wallFill(c, -150, -10, 300, 120, WALLS.cream); ROOFS[id].draw(c, -180, 180, 0, 170, 300);
-      } else if (kind === 'wall') {
-        const k = size / 120; c.scale(k, k); wallFill(c, 14, 20, 92, 86, WALLS[id]); G2.rr(c, 40, 46, 40, 34, 6); c.fillStyle = '#bfe6ff'; c.fill(); c.strokeStyle = '#fff'; c.lineWidth = 5; c.stroke();
       } else if (kind === 'win') { const k = size / 150; c.translate(size / 2, size / 2); c.scale(k, k); G2.rr(c, -72, -66, 144, 132, 18); c.fillStyle = '#fff4e4'; c.fill(); WINS[id].draw(c, 300); }
       else if (kind === 'door') { const k = size / 150; c.translate(size / 2, size * 0.9); c.scale(k, k); DOORS[id].draw(c, 300); }
-      else if (kind === 'deco') {
+      else if (kind === 'wd') { const k = size / 130; c.translate(size / 2, size / 2); c.scale(k, k); WD[id].draw(c, 300); }
+      else if (kind === 'rdeco') {
         const k = size / 120; c.translate(size / 2, size * 0.7); c.scale(k, k);
         if (id === 'chimney') { G2.rr(c, -16, -50, 32, 60, 4); G2.fillO(c, '#c9645a', 3); G2.rr(c, -22, -56, 44, 12, 4); G2.fillO(c, '#a8524a', 3); for (let j = 0; j < 3; j++) { G2.circ(c, 8 + j * 10, -66 - j * 12, 8 + j * 3); c.fillStyle = 'rgba(200,210,230,.9)'; c.fill(); } }
         if (id === 'flag') { c.strokeStyle = '#6a5a8a'; c.lineWidth = 4; c.beginPath(); c.moveTo(-20, 20); c.lineTo(-20, -70); c.stroke(); c.beginPath(); c.moveTo(-20, -70); c.quadraticCurveTo(10, -66, 34, -54); c.lineTo(-20, -36); c.closePath(); c.fillStyle = '#58b9f0'; c.fill(); }
         if (id === 'lights') { for (let j = 0; j < 7; j++) { G2.circ(c, -48 + j * 16, -20 + Math.sin(j * 1.3) * 8, 7); c.fillStyle = ['#ff6f91', '#ffd23f', '#58b9f0', '#7bd36a'][j % 4]; c.fill(); } }
         if (id === 'startop') { G2.star(c, 0, -24, 36, 16); G2.fillO(c, '#ffe066', 3); }
-        if (id === 'planter') { G2.rr(c, -36, -10, 72, 30, 6); G2.fillO(c, '#c27a3e', 3); for (let i = 0; i < 5; i++) { G2.circ(c, -28 + i * 14, -18 - (i % 2) * 8, 9); G2.fillO(c, ['#ff6f91', '#ffd23f', '#9b8cff', '#ff8a65', '#ff6f91'][i], 2); } }
-        if (id === 'sign') { G2.rr(c, -40, -50, 80, 46, 14); G2.fillO(c, '#fff8e8', 3); G2.heart(c, 0, -26, 14); c.fillStyle = '#ff5d78'; c.fill(); }
       }
     } finally { H.state = keep; }
     return cv;

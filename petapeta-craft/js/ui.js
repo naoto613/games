@@ -19,8 +19,8 @@
     if (spec.b) return PT.blockIcon(spec.b, size);
     if (spec.s) return PT.stampIcon(spec.s, size);
     if (spec.c) return PT.charIcon(spec.c, size);
-    if (spec.r) return H.icon('room', spec.r, size);
-    for (const k of ['roof', 'wall', 'win', 'door', 'deco']) if (spec[k]) return H.icon(k, spec[k], size);
+    if (spec.room) return H.icon('room', spec.room, size, spec.size);
+    for (const k of ['roof', 'win', 'door', 'wd', 'rdeco', 'set']) if (spec[k]) return H.icon(k, spec[k], size);
     return itemIcon(spec.i, size);
   };
   const itemIcon = (id, size = 96) => {
@@ -67,14 +67,15 @@
     return cv;
   };
   const houseThumb = (lot) => {
-    const wd = PT.WORLDS[lot], d = S.data.houses[lot];
+    const wd = PT.WORLDS[lot], d = S.data.homes[lot];
     const cv = document.createElement('canvas'); const W = 320, Hh = 180; cv.width = W * 2; cv.height = Hh * 2;
     const c = cv.getContext('2d'); c.scale(2, 2);
     const g = c.createLinearGradient(0, 0, 0, Hh); g.addColorStop(0, wd.sky[0]); g.addColorStop(1, wd.sky[1]); c.fillStyle = g; c.fillRect(0, 0, W, Hh);
     const keepS = H.state, keepL = H.lot, keepN = E.nightK;
     H.state = d && d.h ? d.h : H.fresh(); H.lot = lot; E.nightK = 0;
-    let top = 0; for (let k = 0; k < H.NC; k++) top = Math.max(top, H.topOf(k));
-    const x0 = (H.X0 - 4) * T, x1 = (H.X0 + 19) * T, yb = (H.GR + 1.2) * T, yt = (H.GR - (top + 1) * 5) * T - 320;
+    let x0 = (H.X0 - 3) * T, x1 = (H.X0 + 9) * T, yt = (H.GR - H.RH) * T;
+    H.rooms().forEach((r) => { x0 = Math.min(x0, (r.x - 2) * T); x1 = Math.max(x1, (r.x + r.w + 2) * T); yt = Math.min(yt, r.y * T); });
+    yt -= 300; const yb = (H.GR + 1.2) * T;
     const sc = Math.min(W / (x1 - x0), Hh / (yb - yt));
     c.save(); c.translate(W / 2 - ((x0 + x1) / 2) * sc, Hh - yb * sc); c.scale(sc, sc);
     PT.SHADE = false; try { H.drawYard(c, 0); H.drawHouse(c, 300); } catch (e) { console.error(e); } PT.SHADE = true;
@@ -88,14 +89,14 @@
     const hm = U.mode === 'house';
     $('#worlds-title').textContent = hm ? 'どこに たてる？' : 'どこで つくる？';
     (hm ? H.LOTS : PT.WORLD_LIST).forEach((wid) => {
-      const wd = PT.WORLDS[wid]; const saved = !!(hm ? S.data.houses[wid] : S.data.worlds[wid]);
+      const wd = PT.WORLDS[wid]; const saved = !!(hm ? S.data.homes[wid] : S.data.worlds[wid]);
       const card = document.createElement('button'); card.className = 'stage-card world-card';
       card.appendChild(hm ? houseThumb(wid) : thumb(wid));
       card.insertAdjacentHTML('beforeend', `<span class="sc-name"><span class="sc-num" style="background:${wd.color}">${wd.num}</span>${wd.name}${hm ? 'の おうち' : ''}</span>${saved ? '<span class="sc-found">つづきから</span>' : ''}`);
       card.addEventListener('click', () => { A.init(); A.sfx('ui'); enter(wid); });
       if (saved) {
         const rb = document.createElement('span'); rb.className = 'reset-chip'; rb.textContent = 'さいしょから';
-        rb.addEventListener('click', (ev) => { ev.stopPropagation(); A.sfx('ui'); confirmBox(`「${wd.name}」を さいしょから にする？`, cachedIcon('w-' + wid, { s: 'house' }, 90), () => { if (hm) delete S.data.houses[wid]; else delete S.data.worlds[wid]; S.write(); buildWorlds(); }); });
+        rb.addEventListener('click', (ev) => { ev.stopPropagation(); A.sfx('ui'); confirmBox(`「${wd.name}」を さいしょから にする？`, cachedIcon('w-' + wid, { s: 'house' }, 90), () => { if (hm) delete S.data.homes[wid]; else delete S.data.worlds[wid]; S.write(); buildWorlds(); }); });
         card.appendChild(rb);
       }
       grid.appendChild(card);
@@ -138,24 +139,24 @@
     A.playBgm(wd.bgm);
     setNightBtn(); setWalkBtn();
     U.tab = U.mode === 'house' ? 'rooms' : 'nature'; buildTabs(); buildItems();
-    if (U.mode === 'house') { setTool('hand', true); if (!S.data.tutH) showTut('したの へやを タップすると<br>おうちが おおきく なるよ！'); }
+    if (U.mode === 'house') { setTool('hand', true); if (!S.data.tutH2) showTut('したの へやや やねを<br>ドラッグして くっつけよう！'); }
     else { setTool(P.tool === 'break' ? 'break' : 'place', true); if (!S.data.tut) showTut('したの ブロックを えらんで<br>ゆびで なぞってね！'); }
   };
   const leave = () => { S.saveWorld(); E.preview = null; show('worlds'); buildWorlds(); };
 
   /* チュートリアル */
   const showTut = (html) => { $('#tut-text').innerHTML = html; $('#tutorial').classList.remove('hidden'); };
-  const hideTut = () => { const k = isHouse() ? 'tutH' : 'tut'; if (!S.data[k]) { S.data[k] = true; S.write(); } $('#tutorial').classList.add('hidden'); };
+  const hideTut = () => { const k = isHouse() ? 'tutH2' : 'tut'; if (!S.data[k]) { S.data[k] = true; S.write(); } $('#tutorial').classList.add('hidden'); };
 
   /* ---------- パネル ---------- */
   const HTABS = [
-    { id: 'rooms', name: 'へや', ic: { r: 'kids' } },
+    { id: 'rooms', name: 'へや', ic: { room: 'kids', size: 'M' } },
     { id: 'roof', name: 'やね', ic: { roof: 'red' } },
-    { id: 'wall', name: 'かべの いろ', ic: { wall: 'pink' } },
     { id: 'windoor', name: 'まど・ドア', ic: { win: 'heart' } },
-    { id: 'deco', name: 'かざり', ic: { deco: 'startop' } },
-    { id: 'garden', name: 'にわ', ic: { i: 'gtree' } },
+    { id: 'sets', name: 'かぐセット', ic: { set: 'living' } },
+    { id: 'deco', name: 'かざり', ic: { rdeco: 'startop' } },
     { id: 'home', name: 'かぐ', ic: { i: 'bed' } },
+    { id: 'garden', name: 'にわ', ic: { i: 'gtree' } },
     { id: 'friends', name: 'なかま', ic: { c: 'lulu' } },
     { id: 'items', name: 'どうぐ', ic: { i: 'strawberry' } },
     { id: 'dress', name: 'へんしん', ic: { i: 'crown' } },
@@ -172,11 +173,11 @@
     { id: 'dress', name: 'へんしん', ic: { i: 'crown' } },
   ];
   const itemsFor = (tab) => {
-    if (tab === 'rooms') return H.ROOM_LIST.map((r) => ({ key: 'r-' + r, r }));
+    if (tab === 'rooms') return H.ROOM_PIECES.map(([k, sz]) => ({ key: 'rm-' + k + '-' + sz, room: k, size: sz }));
     if (tab === 'roof') return H.ROOF_LIST.map((x) => ({ key: 'roof-' + x, roof: x }));
-    if (tab === 'wall') return H.WALL_LIST.map((x) => ({ key: 'wall-' + x, wall: x }));
     if (tab === 'windoor') return H.WIN_LIST.map((x) => ({ key: 'win-' + x, win: x })).concat(H.DOOR_LIST.map((x) => ({ key: 'door-' + x, door: x })));
-    if (tab === 'deco') return H.DECO_LIST.map((x) => ({ key: 'deco-' + x, deco: x }));
+    if (tab === 'sets') return H.SET_LIST.map((x) => ({ key: 'set-' + x, set: x }));
+    if (tab === 'deco') return H.RDECO_LIST.map((x) => ({ key: 'rdeco-' + x, rdeco: x })).concat(H.WD_LIST.map((x) => ({ key: 'wd-' + x, wd: x })));
     if (tab === 'garden') return PT.GARDEN_ITEMS.filter((i) => PT.ITEMS[i]).map((i) => ({ key: 'i-' + i, i }));
     if (PT.BLOCK_CATS[tab]) return PT.BLOCK_CATS[tab].map((b) => ({ key: 'b-' + b, b }));
     if (tab === 'stamp') return PT.STAMP_LIST.map((s) => ({ key: 's-' + s, s }));
@@ -202,9 +203,9 @@
       b.appendChild(cachedIcon(spec.key, spec, 96));
       if (spec.b) b.insertAdjacentHTML('beforeend', `<small class="nm">${PT.BLOCK[spec.b].name}</small>`);
       if (spec.s) b.insertAdjacentHTML('beforeend', `<small class="nm">${PT.STAMPS[spec.s].name}</small>`);
-      const nm = spec.r ? H.ROOMS[spec.r].name : spec.roof ? H.ROOFS[spec.roof].name : spec.wall ? H.WALLS[spec.wall].name : spec.win ? H.WINS[spec.win].name : spec.door ? H.DOORS[spec.door].name : spec.deco ? H.DECO[spec.deco] : null;
+      const nm = spec.room ? ({ S: 'ちいさい ', M: '', L: 'ひろい ' }[spec.size] + H.ROOMS[spec.room].name) : spec.set ? H.ROOMS[spec.set].name + 'の かぐ' : spec.roof ? H.ROOFS[spec.roof].name : spec.win ? H.WINS[spec.win].name : spec.door ? H.DOORS[spec.door].name : spec.wd ? H.WD[spec.wd].name : spec.rdeco ? H.RDECO[spec.rdeco] : null;
       if (nm) b.insertAdjacentHTML('beforeend', `<small class="nm">${nm}</small>`);
-      if (spec.r) b.classList.add('room');
+      if (spec.room || spec.set) b.classList.add('room');
       bindItem(b, spec);
       el.appendChild(b);
     });
@@ -213,8 +214,7 @@
   const markItems = () => {
     $$('#items .item').forEach((b) => {
       const k = b.dataset.key;
-      const hs = isHouse() && H.state;
-      b.classList.toggle('sel', hs ? (k === 'roof-' + hs.roof || k === 'wall-' + hs.wall || k === 'win-' + hs.win || k === 'door-' + hs.door || (k.startsWith('deco-') && !!hs.deco[k.slice(5)])) : ((P.tool === 'place' && !P.stamp && k === 'b-' + P.block) || (P.stamp && k === 's-' + P.stamp)));
+      b.classList.toggle('sel', isHouse() ? false : ((P.tool === 'place' && !P.stamp && k === 'b-' + P.block) || (P.stamp && k === 's-' + P.stamp)));
       b.classList.toggle('present', k.startsWith('c-') && E.chars().some((c) => 'c-' + c.cid === k));
     });
   };
@@ -239,21 +239,22 @@
     if (!pdrag || ev.pointerId !== pdrag.id) return;
     const dx = ev.clientX - pdrag.x0, dy = ev.clientY - pdrag.y0;
     if (!pdrag.on) {
-      if ((pdrag.spec.c || pdrag.spec.i || pdrag.spec.r) && dy < -14 && Math.abs(dy) > Math.abs(dx)) { pdrag.on = true; startGhost(pdrag.spec, ev.clientX, ev.clientY); A.sfx('pick'); if (pdrag.spec.r) U.draggingRoom = true; hideTutLater(); }
+      if ((pdrag.spec.c || pdrag.spec.i || H.isPiece(pdrag.spec)) && dy < -14 && Math.abs(dy) > Math.abs(dx)) { pdrag.on = true; startGhost(pdrag.spec, ev.clientX, ev.clientY); A.sfx('pick'); hideTutLater(); }
       else if (Math.abs(dx) > 12) { pdrag = null; }
       return;
     }
     moveGhost(ev.clientX, ev.clientY); panel.classList.toggle('over', overPanel(ev.clientY));
+    if (isHouse()) { if (overPanel(ev.clientY)) H.preview = null; else { const w = E.toWorld(ev.clientX, ev.clientY); H.previewSpec(pdrag.spec, w.x, w.y); } }
     U.edge(ev.clientX, ev.clientY);
   });
   const endPanel = (ev) => {
     if (!pdrag || ev.pointerId !== pdrag.id) return;
-    const d = pdrag; pdrag = null; U.panDir = 0; U.panY = 0; U.draggingRoom = false;
+    const d = pdrag; pdrag = null; U.panDir = 0; U.panY = 0; H.preview = null;
     if (!d.on) { if (ev.type === 'pointerup') tapItem(d.spec); return; }
     ghost.classList.add('hidden'); panel.classList.remove('dragging', 'over');
     if (overPanel(ev.clientY)) return;
     const w = E.toWorld(ev.clientX, ev.clientY);
-    if (d.spec.r) { H.dropRoom(d.spec.r, w.x, w.y); hideTutLater(); return; }
+    if (isHouse() && H.dropSpec(d.spec, w.x, w.y)) { hideTutLater(); return; }
     spawn(d.spec, w.x, w.y);
   };
   window.addEventListener('pointerup', endPanel); window.addEventListener('pointercancel', endPanel);
@@ -273,9 +274,7 @@
   };
   const tapItem = (spec) => {
     A.sfx('tap');
-    if (spec.r) { H.addRoom(spec.r); hideTutLater(); return; }
-    for (const k of ['roof', 'wall', 'win', 'door']) if (spec[k]) { H.setPart(k, spec[k]); return; }
-    if (spec.deco) { H.toggleDeco(spec.deco); return; }
+    if (isHouse() && H.isPiece(spec)) { H.tapSpec(spec); hideTutLater(); return; }
     if (spec.b) { P.block = spec.b; P.stamp = null; setTool('place'); }
     else if (spec.s) { P.stamp = spec.s; setTool('place'); }
     else { const c = E.toWorld(E.view.w / 2 + PT.rand(-80, 80), 90); spawn(spec, c.x, c.y); hideTutLater(); }
@@ -320,6 +319,8 @@
     if (isHouse()) {
       const hit = E.hitEnt(w.x, w.y);
       if (hit) { g.kind = 'ent'; g.ent = hit; g.off = { x: hit.x - w.x, y: hit.y - w.y }; return; }
+      const pc = H.hitPiece(w.x, w.y);
+      if (pc) { g.kind = 'piece'; g.piece = pc; g.w = w; return; }
       g.kind = 'pan'; g.cam = { ...E.cam }; g.w = w; return;
     }
     if (P.tool === 'place' && P.stamp) { g.kind = 'stamp'; E.preview = { stamp: P.stamp, x: cx, y: cy }; return; }
@@ -347,6 +348,13 @@
     const w = E.toWorld(p.x, p.y);
     const [cx, cy] = E.cellOf(w.x, w.y);
     if (g.kind === 'stamp') { E.preview = { stamp: P.stamp, x: cx, y: cy }; U.edge(ev.clientX, ev.clientY); return; }
+    if (g.kind === 'piece') {
+      if (!g.moved) return;
+      if (!g.started) { g.started = true; H.startDrag(g.piece, g.w.x, g.w.y); panel.classList.add('dragging'); hideTutLater(); }
+      H.moveDrag(w.x, w.y, overPanel(ev.clientY)); panel.classList.toggle('over', overPanel(ev.clientY));
+      U.edge(ev.clientX, ev.clientY);
+      return;
+    }
     if (g.kind === 'ent') {
       if (!g.moved) return;
       const e = g.ent;
@@ -373,6 +381,11 @@
     if (g.kind === 'pinch') { if (ptrs.size === 0) g = null; else g = { kind: 'none' }; return; }
     const cancel = ev.type === 'pointercancel';
     if (g.kind === 'stamp') { if (!cancel && E.preview) P.stampAt(P.stamp, E.preview.x, E.preview.y); E.preview = null; hideTutLater(); }
+    else if (g.kind === 'piece') {
+      panel.classList.remove('dragging', 'over');
+      if (g.started) { const w = E.toWorld(pos(ev).x, pos(ev).y); H.endDrag(w.x, w.y, overPanel(ev.clientY)); markItems(); }
+      else if (P.tool === 'break') H.removeAt(g.w.x, g.w.y); else H.tapAt(g.w.x, g.w.y);
+    }
     else if (g.kind === 'ent') {
       const e = g.ent;
       panel.classList.remove('dragging', 'over');
@@ -388,7 +401,7 @@
       }
     } else if (g.kind === 'paint' || g.kind === 'erase' || g.kind === 'pan') {
       if (g.kind !== 'pan') endStroke();
-      if (isHouse()) { if (!g.moved) { if (P.tool === 'break') H.removeAt(g.w.x, g.w.y); else H.tapRoom(g.w.x, g.w.y); } }
+      if (isHouse()) { /* にわを タップ */ }
       else if (!g.moved && !(g.rec && g.rec.length)) P.tapBlock(g.cell[0], g.cell[1]);
       if (g.kind === 'pan') S.soon();
     }
@@ -416,6 +429,7 @@
     if (!d && !dy) return;
     E.cam.x += (d * 0.75 * dt) / E.cam.s; E.cam.y += (dy * 0.5 * dt) / E.cam.s; E.clampCam();
     // ひっぱって いる ものも いっしょに
+    if (g && g.kind === 'piece' && g.started) { const last = [...ptrs.values()][0]; if (last) { const w = E.toWorld(last.x, last.y); H.moveDrag(w.x, w.y, false); } }
     if (g && g.ent && g.ent.held) { const last = [...ptrs.values()][0]; if (last) { const w = E.toWorld(last.x, last.y); g.ent.x = w.x + g.off.x; g.ent.y = w.y + g.off.y; } }
     if (g && (g.kind === 'paint' || g.kind === 'erase')) { const last = [...ptrs.values()][0]; if (last) { const w = E.toWorld(last.x, last.y); const [cx, cy] = E.cellOf(w.x, w.y); if (cx !== g.last[0] || cy !== g.last[1]) { P.line(g.last[0], g.last[1], cx, cy, (x, y) => (g.kind === 'paint' ? P.placeAt(x, y, g.rec) : P.breakAt(x, y, g.rec))); g.last = [cx, cy]; } } }
   };
