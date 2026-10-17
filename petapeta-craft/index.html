@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#8fd3ff">
+<meta name="description" content="ブロックを ゆびで なぞって おいて、おうちや おしろを つくる 5歳前後向けの ものづくり ゲーム。">
+<title>ぺたぺた！つくってワールド</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800;900&display=swap">
+<link rel="stylesheet" href="../petapeta-town/css/style.css">
+<link rel="stylesheet" href="./css/craft.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- タイトル -->
+  <section id="scr-title" class="screen on">
+    <canvas id="title-cv" class="title-cv"></canvas>
+    <div class="title-wrap">
+      <h1 class="logo" aria-label="ぺたぺた！つくってワールド">
+        <span class="logo-l1"><b class="c1">ぺ</b><b class="c2">た</b><b class="c3">ぺ</b><b class="c4">た</b><b class="c5">！</b></span>
+        <span class="logo-l2"><b class="c6">つ</b><b class="c7">く</b><b class="c8">っ</b><b class="c9">て</b><b class="c10">ワ</b><b class="c11">ー</b><b class="c12">ル</b><b class="c13">ド</b></span>
+        <span class="logo-blocks" aria-hidden="true"><i></i><i></i><i></i></span>
+      </h1>
+      <p class="ribbon">〜 なぞって つんで、じぶんだけの せかい。〜</p>
+      <button class="btn-big btn-play" data-act="start"><span class="ico ico-play"></span>つくる</button>
+      <div class="title-sub">
+        <button class="btn-pill" data-act="album"><span class="ico ico-album"></span>はっけんカード</button>
+      </div>
+    </div>
+    <div class="title-foot"><span class="spark">✦</span> きみの アイデアで せかいが ひろがる！ <span class="spark">✦</span></div>
+    <button class="corner-parent" data-hold="parent" aria-label="ほごしゃメニュー（ながおし）"><span class="ico ico-parent"></span><i class="hold-ring"></i></button>
+  </section>
+
+  <!-- せかい えらび -->
+  <section id="scr-worlds" class="screen">
+    <div class="sky-bg"></div>
+    <header class="head">
+      <button class="round-btn" data-act="back-title" aria-label="もどる"><span class="ico ico-back"></span></button>
+      <h2 class="head-title"><span class="ico ico-cube"></span>どこで つくる？</h2>
+      <button class="round-btn" data-act="album" aria-label="はっけんカード"><span class="ico ico-album"></span></button>
+    </header>
+    <div id="world-grid" class="map-grid"></div>
+  </section>
+
+  <!-- つくる がめん -->
+  <section id="scr-play" class="screen">
+    <canvas id="game"></canvas>
+    <div class="topbar">
+      <div class="tb-left">
+        <button class="round-btn" data-act="back-worlds" aria-label="もどる"><span class="ico ico-back"></span></button>
+        <div class="stage-pill"><span id="world-icon" class="stage-icon"></span><span id="world-name"></span></div>
+      </div>
+      <div class="tb-right">
+        <button class="sq-btn" data-act="walk" id="btn-walk" aria-label="おさんぽ"><span class="ico ico-feet"></span></button>
+        <button class="sq-btn" data-act="night" id="btn-night" aria-label="ひる・よる"><span class="ico ico-sun"></span></button>
+        <button class="sq-btn" data-act="bgm" aria-label="おんがく"><span class="ico ico-music"></span></button>
+        <button class="sq-btn" data-act="album" id="btn-album" aria-label="はっけんカード"><span class="ico ico-album"></span><i class="badge hidden" id="album-badge"></i></button>
+        <button class="sq-btn" data-hold="parent" aria-label="ほごしゃメニュー（ながおし）"><span class="ico ico-parent"></span><i class="hold-ring"></i></button>
+      </div>
+    </div>
+    <div class="toolbar" id="toolbar">
+      <button class="tool" data-tool="hand" aria-label="さわる"><span class="ico ico-hand"></span><small>さわる</small></button>
+      <button class="tool" data-tool="place" aria-label="おく"><span class="tool-cv" id="tool-block"></span><small>おく</small></button>
+      <button class="tool" data-tool="break" aria-label="こわす"><span class="ico ico-hammer"></span><small>こわす</small></button>
+      <button class="tool undo" data-act="undo" aria-label="もどす"><span class="ico ico-undo"></span><small>もどす</small></button>
+    </div>
+    <div class="zoom">
+      <button class="sq-btn" data-act="zoom-in" aria-label="おおきく"><span class="ico ico-plus"></span></button>
+      <button class="sq-btn" data-act="zoom-out" aria-label="ちいさく"><span class="ico ico-minus"></span></button>
+    </div>
+    <button class="edge edge-l" data-pan="-1" aria-label="ひだりへ"><span class="ico ico-back"></span></button>
+    <button class="edge edge-r" data-pan="1" aria-label="みぎへ"><span class="ico ico-next"></span></button>
+    <div id="tutorial" class="tutorial hidden"><div class="tut-bubble" id="tut-text"></div><div class="tut-hand"></div></div>
+    <div id="panel" class="panel">
+      <div class="trash" id="trash"><span class="ico ico-trash"></span><small>おかたづけ</small></div>
+      <div class="tabs" id="tabs"></div>
+      <div class="items" id="items"></div>
+    </div>
+  </section>
+
+  <!-- はっけんカード -->
+  <section id="ov-album" class="overlay">
+    <div class="sheet album">
+      <header class="sheet-head">
+        <h3><span class="ico ico-album"></span>はっけんカード</h3>
+        <span id="album-count" class="count"></span>
+        <button class="round-btn" data-act="close-album" aria-label="とじる"><span class="ico ico-close"></span></button>
+      </header>
+      <div id="album-grid" class="album-grid"></div>
+    </div>
+  </section>
+
+  <!-- ほごしゃメニュー -->
+  <section id="ov-parent" class="overlay">
+    <div class="sheet parent">
+      <header class="sheet-head">
+        <h3><span class="ico ico-parent"></span>ほごしゃメニュー</h3>
+        <span></span>
+        <button class="round-btn" data-act="close-parent" aria-label="とじる"><span class="ico ico-close"></span></button>
+      </header>
+      <div class="parent-body">
+        <label class="row">おとの おおきさ <input type="range" id="vol" min="0" max="1" step="0.05"></label>
+        <label class="row"><input type="checkbox" id="opt-bgm"> おんがく（BGM）</label>
+        <label class="row"><input type="checkbox" id="opt-sfx"> こうかおん・こえ</label>
+        <div class="row btns">
+          <button class="btn-pill" data-act="to-title">タイトルへ</button>
+          <button class="btn-pill warn" data-act="wipe">つくった せかいと カードを ぜんぶ けす</button>
+        </div>
+        <p class="note">このゲームは 広告・外部リンク・課金・個人情報の収集が ありません。つくった せかいは この端末の中だけ（localStorage）に自動保存されます。せかいを えらぶ がめんの「さいしょから」で ひとつずつ やりなおせます。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- かくにん -->
+  <section id="ov-confirm" class="overlay">
+    <div class="sheet confirm">
+      <div id="confirm-icon" class="confirm-icon"></div>
+      <p id="confirm-text"></p>
+      <div class="confirm-btns">
+        <button class="yes" data-act="confirm-yes" aria-label="はい"><span class="ico ico-ok"></span></button>
+        <button class="no" data-act="confirm-no" aria-label="いいえ"><span class="ico ico-close"></span></button>
+      </div>
+    </div>
+  </section>
+
+  <div id="drag-ghost" class="drag-ghost hidden"></div>
+  <div id="rotate" class="rotate"><div><span class="ico ico-rotate"></span><p>よこむきに すると あそびやすいよ</p><button class="btn-pill" data-act="dismiss-rotate">このまま あそぶ</button></div></div>
+</div>
+
+<!-- キャラクターと どうぐの え は あそびタウンと おなじ ものを つかう -->
+<script src="../petapeta-town/js/core.js"></script>
+<script src="./js/shim.js"></script>
+<script src="../petapeta-town/js/audio.js"></script>
+<script src="../petapeta-town/js/art-chars.js"></script>
+<script src="../petapeta-town/js/art-items.js"></script>
+<script src="../petapeta-town/js/art-items2.js"></script>
+<script src="../petapeta-town/js/royal.js"></script>
+<script src="../petapeta-town/js/royal2.js"></script>
+<script src="../petapeta-town/js/family.js"></script>
+<script src="../petapeta-town/js/chars2.js"></script>
+<script src="./js/blocks.js"></script>
+<script src="./js/furniture.js"></script>
+<script src="./js/stamps.js"></script>
+<script src="./js/worlds.js"></script>
+<script src="./js/engine.js"></script>
+<script src="./js/play.js"></script>
+<script src="./js/ui.js"></script>
+<script src="./js/main.js"></script>
+</body>
+</html>
