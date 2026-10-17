@@ -298,8 +298,12 @@
   }
 
   /* 衣装（ぼうし・からだ・かお） */
+  /* 追加衣装の 描画（あとから 登録。同じ名前なら こちらが 優先） */
+  const EXT = (PT.WEAR_EXT = { hat: {}, body: {}, back: {}, face: {} });
   function wearBack(c, ch, t) {
     const w = ch.wear || {};
+    if (EXT.back[w.back]) EXT.back[w.back](c, ch, t);
+    if (EXT.body[w.body] && EXT.body[w.body].back) EXT.body[w.body].back(c, ch, t);
     if (w.body === 'cape') {
       const fl = Math.sin(t * 0.01) * 6 + (ch.pose === 'run' || ch.pose === 'fly' ? 18 : 0);
       c.beginPath(); c.moveTo(-24, -86); c.quadraticCurveTo(-46 - fl, -40, -40 - fl, -6); c.lineTo(36 - fl * 0.3, -8); c.quadraticCurveTo(40, -50, 24, -86); c.closePath();
@@ -321,6 +325,7 @@
   }
   function wearBody(c, ch) {
     const w = ch.wear || {};
+    if (EXT.body[w.body]) { EXT.body[w.body](c, ch, ch._t || 0); return; }
     switch (w.body) {
       case 'apron':
         c.beginPath(); c.moveTo(-18, -80); c.lineTo(18, -80); c.lineTo(24, -26); c.quadraticCurveTo(0, -18, -24, -26); c.closePath();
@@ -395,6 +400,7 @@
       const mx = lx * 1.2;
       for (const sd of [-1, 1]) { c.beginPath(); c.moveTo(mx, -101); c.quadraticCurveTo(mx + sd * 14, -108, mx + sd * 26, -100); c.quadraticCurveTo(mx + sd * 32, -104, mx + sd * 30, -110); c.quadraticCurveTo(mx + sd * 36, -96, mx + sd * 22, -94); c.quadraticCurveTo(mx + sd * 10, -94, mx, -99); c.closePath(); G.fillO(c, '#6b4a2b', 2.5); }
     }
+    if (EXT.hat[w.hat]) { EXT.hat[w.hat](c, ch, t, lx); return; }
     switch (w.hat) {
       case 'explorer':
         G.ell(c, 0, -152, 60, 13); G.fillO(c, '#d7b56d', 3);
@@ -517,6 +523,7 @@
 
   /* メイン：キャラクターを描く（足元が原点） */
   PT.drawChar = (c, ch, t) => {
+    ch._t = t;
     const P = ch.def;
     const pp = poseParams(ch, t);
     const look = ch.look || 0;

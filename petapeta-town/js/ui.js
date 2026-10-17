@@ -129,7 +129,7 @@
     if (tab === 'friends') return PT.CHAR_IDS.slice();
     const all = Object.values(PT.ITEMS).filter((i) => i.cat === tab && unlocked(i.id)).map((i) => i.id);
     // そのステージに あう物を まえに、ほかの物も ぜんぶ つかえる
-    const fav = (st.favs || []).concat(st.tools || [], st.rides || []).filter((id) => PT.ITEMS[id] && all.includes(id));
+    const fav = (st.favs || []).concat(st.tools || [], st.rides || [], PT.ROYAL_FAVS || []).filter((id) => PT.ITEMS[id] && all.includes(id));
     return [...new Set(fav.concat(all))];
   };
   function buildTabs() {

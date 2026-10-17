@@ -62,6 +62,8 @@
     O('any', 'ふしぎな ことを おこそう', ['d_star', 'd_rainbow', 'd_wand', 'd_balloon'], ['star', 'balloon']),
   ];
 
+  (PT.ROYAL_ODAI || []).forEach(([text, goals, hint]) => PT.ODAI_ANY.push(O('any', text, goals, hint)));
+
   /* おはなしモード：3〜5この できごとを つなぐ。脱線しても OK */
   const S = (stage, id, title, steps, end) => ({ id, stage, title, steps, end });
   const st = (text, goals, hint) => ({ text, goals, hint });
@@ -108,6 +110,17 @@
       st('たいこで パレード！', ['d_parade'], ['drum']),
       st('さいごは はなびで おいわい', ['d_firework', 'd_allparty', 'd_confetti'], ['firework', 'confetti']),
     ], 'ゆめみたいな いちにち！'),
+    S('fun', 'st-princess', 'プリンセスの ぶとうかい', [
+      st('ドレスや ティアラで おめかし しよう', ['d_princess', 'd_jewel', 'd_mirror', 'd_snowprincess'], ['gown_rose', 'jewelbox']),
+      st('ばしゃか おうまで おしろへ', ['d_carriage', 'd_whitehorse'], ['carriage', 'whitehorse']),
+      st('ぶとうかいで ワルツを おどろう', ['d_ball', 'd_chandelier', 'd_prince'], ['invitation', 'chandelier']),
+      st('のこされた ガラスの くつ…もちぬしは だれ？', ['d_slipper'], ['slipper']),
+    ], 'いつまでも なかよく たのしく くらしましたとさ！'),
+    S('home', 'st-castle', 'おうちが おしろに', [
+      st('おうさまの いすを おいてみよう', ['d_throne'], ['throne']),
+      st('おしろの おちゃかいを ひらこう', ['d_royaltea', 'd_royalcake'], ['teaset', 'royalcake']),
+      st('レッドカーペットで パレード', ['d_redcarpet', 'd_royal'], ['redcarpet', 'royalcape']),
+    ], 'きょうから ここは みんなの おしろ！'),
     S('clinic', 'st-clinic', 'うさぎさんが おねつ', [
       st('うさぎさんを ベッドに ねかせよう', ['d_bedrest'], ['bunny', 'bed']),
       st('おくすりの じかん', ['d_medicine'], ['medshelf']),
