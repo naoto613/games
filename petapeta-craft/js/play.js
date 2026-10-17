@@ -11,7 +11,7 @@
   S.write = () => { try { localStorage.setItem(KEY, JSON.stringify(S.data)); } catch (e) { /* いっぱい */ } };
   let saveT = 0;
   S.soon = () => { clearTimeout(saveT); saveT = setTimeout(S.saveWorld, 1200); };
-  S.saveWorld = () => { if (!E.world) return; S.data.worlds[E.world.id] = E.serialize(); S.write(); };
+  S.saveWorld = () => { if (E.mode === 'house') { PT.house.save(); return; } if (!E.world) return; S.data.worlds[E.world.id] = E.serialize(); S.write(); };
 
   const P = (PT.play = { tool: 'place', block: 'grass', stamp: null, undo: [], onChange: null });
 
@@ -100,6 +100,7 @@
   P.push = (act) => { P.undo.push(act); if (P.undo.length > 60) P.undo.shift(); if (P.onChange) P.onChange(); };
   P.doUndo = () => {
     const act = P.undo.pop(); if (!act) { A.sfx('back'); return; }
+    if (act.snap) { PT.house.restore(act.snap); A.tone(660, 0.07, { type: 'triangle', vol: 0.18 }); A.tone(440, 0.12, { type: 'triangle', vol: 0.16, delay: 0.06 }); if (P.onChange) P.onChange(); PT.ui.markItems(); return; }
     for (let k = act.cells.length - 1; k >= 0; k--) { const [i, o] = act.cells[k]; E.grid[i] = o; E.anim.set(i, E.t); if (BL[o] && BL[o].plant) E.plants.set(i, E.t); else E.plants.delete(i); }
     for (const e of act.ents) if (E.ents.includes(e)) { E.puff(e.x, e.y - 30, 6); E.remove(e); }
     E.dirty = true; E.pushOut();
@@ -152,8 +153,9 @@
     ch.face = 'love'; ch.faceUntil = E.t + 1200;
     if (ch.taps >= 3) { ch.pose = 'dance'; ch.poseUntil = E.t + 1800; E.notes(ch.x, ch.y - ch.H, 3); say(ch, 'ルンルン♪'); A.sfx('jingle'); return; }
     ch.pose = 'cheer'; ch.poseUntil = E.t + 900;
-    let txt;
-    if (ch.inWater) { txt = 'およぐの たのしい！'; ch.pose = 'swim'; }
+    let txt = P.ctxLine ? P.ctxLine(ch) : null;
+    if (txt) { /* へやの ひとこと */ }
+    else if (ch.inWater) { txt = 'およぐの たのしい！'; ch.pose = 'swim'; }
     else if (indoor(ch)) { txt = PT.pick(['おうち だいすき！', 'すてきな おへや！', 'ここに すみたい！']); P.found('house', ch.x, ch.y - ch.H); }
     else if (ch.y < 9 * T) txt = PT.pick(['たかーい！', 'とおくまで みえる！', 'やっほー！']);
     else if (E.night) txt = PT.pick(['おほしさま きれい', 'よるも たのしいね', 'ねむく なってきた…']);

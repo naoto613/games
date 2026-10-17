@@ -25,7 +25,7 @@
         <span class="logo-l2"><b class="c6">つ</b><b class="c7">く</b><b class="c8">っ</b><b class="c9">て</b><b class="c10">ワ</b><b class="c11">ー</b><b class="c12">ル</b><b class="c13">ド</b></span>
         <span class="logo-blocks" aria-hidden="true"><i></i><i></i><i></i></span>
       </h1>
-      <p class="ribbon">〜 なぞって つんで、じぶんだけの せかい。〜</p>
+      <p class="ribbon">〜 えらんで くっつけて、じぶんだけの おうち。〜</p>
       <button class="btn-big btn-play" data-act="start"><span class="ico ico-play"></span>つくる</button>
       <div class="title-sub">
         <button class="btn-pill" data-act="album"><span class="ico ico-album"></span>はっけんカード</button>
@@ -35,12 +35,32 @@
     <button class="corner-parent" data-hold="parent" aria-label="ほごしゃメニュー（ながおし）"><span class="ico ico-parent"></span><i class="hold-ring"></i></button>
   </section>
 
+  <!-- あそびかた えらび -->
+  <section id="scr-modes" class="screen">
+    <div class="sky-bg"></div>
+    <header class="head">
+      <button class="round-btn" data-act="back-title" aria-label="もどる"><span class="ico ico-back"></span></button>
+      <h2 class="head-title">なにを つくる？</h2>
+      <span></span>
+    </header>
+    <div class="modes">
+      <button class="mode-card mode-free mode-house" data-act="mode-house">
+        <span class="mode-badge"><span class="ico ico-home"></span></span>
+        <span class="mode-txt"><b>おうちを つくる</b><small>へやや やねを えらんで タップ！<br>じぶんだけの おうちが できるよ</small></span>
+      </button>
+      <button class="mode-card mode-story" data-act="mode-block">
+        <span class="mode-badge"><span class="ico ico-cube"></span></span>
+        <span class="mode-txt"><b>ブロックで つくる</b><small>ブロックを なぞって つんで<br>すきな せかいを つくろう</small></span>
+      </button>
+    </div>
+  </section>
+
   <!-- せかい えらび -->
   <section id="scr-worlds" class="screen">
     <div class="sky-bg"></div>
     <header class="head">
-      <button class="round-btn" data-act="back-title" aria-label="もどる"><span class="ico ico-back"></span></button>
-      <h2 class="head-title"><span class="ico ico-cube"></span>どこで つくる？</h2>
+      <button class="round-btn" data-act="back-modes" aria-label="もどる"><span class="ico ico-back"></span></button>
+      <h2 class="head-title"><span class="ico ico-cube"></span><span id="worlds-title">どこで つくる？</span></h2>
       <button class="round-btn" data-act="album" aria-label="はっけんカード"><span class="ico ico-album"></span></button>
     </header>
     <div id="world-grid" class="map-grid"></div>
@@ -148,6 +168,8 @@
 <script src="./js/worlds.js"></script>
 <script src="./js/engine.js"></script>
 <script src="./js/play.js"></script>
+<script src="./js/house.js"></script>
+<script src="./js/houseplay.js"></script>
 <script src="./js/ui.js"></script>
 <script src="./js/main.js"></script>
 </body>

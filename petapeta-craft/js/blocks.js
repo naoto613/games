@@ -264,6 +264,9 @@
     c.strokeStyle = '#2a1f35'; c.lineWidth = 2; c.beginPath(); c.arc(32, 40, 5, 0.3, Math.PI - 0.3); c.stroke();
   } });
 
+  /* おうちづくりの あしば（みえない ゆか） */
+  def('slab', { name: 'ゆか', col: '#c9b8a0', hidden: true, draw() {} });
+
   /* ---- キャッシュ ---- */
   const cache = new Map();
   PT.tileImg = (b, v, px) => {

@@ -42,6 +42,7 @@
   const opaque = (b) => b && b.solid && !b.clear && !b.airy;
   E.recalc = () => {
     E.lights = [];
+    if (E.mode === 'house') { E.shade.fill(0); E.dirty = false; return; }
     for (let x = 0; x < COLS; x++) {
       let run = 0, gap = 99;
       for (let y = 0; y < ROWS; y++) {
@@ -333,6 +334,7 @@
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
     PT.SHADE = false; drawBg(c, W, Hh); PT.SHADE = true;
     c.setTransform(dpr * s, 0, 0, dpr * s, -cam.x * s * dpr, -cam.y * s * dpr);
+    if (E.hook && E.hook.back) E.hook.back(c);
     const x0 = Math.max(0, Math.floor(cam.x / T)), x1 = Math.min(COLS - 1, Math.floor((cam.x + W / s) / T));
     const y0 = Math.max(0, Math.floor(cam.y / T)), y1 = Math.min(ROWS - 1, Math.floor((cam.y + Hh / s) / T));
     const px = Math.max(8, Math.round(T * s * dpr));
@@ -340,6 +342,7 @@
     for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
       const code = E.grid[y * COLS + x]; if (!code) continue;
       const b = BL[code];
+      if (b.hidden) continue;
       if (b.liquid) { later.push([x, y, b]); continue; }
       if (b.solid && !b.clear && !b.bounce && b.id !== 'cloud' && b.id !== 'pumpkin') { c.fillStyle = PT.shade(b.col, -0.32); c.fillRect(x * T, y * T, T, T); }
       const img = PT.tileImg(b, variant(b, x, y), px);
@@ -359,6 +362,7 @@
     for (const e of list) drawEnt(c, e);
     // みず は まえに（およいで いるように みえる）
     for (const [x, y, b] of later) c.drawImage(PT.tileImg(b, variant(b, x, y), px), x * T, y * T, T, T);
+    if (E.hook && E.hook.front) E.hook.front(c);
     if (E.preview) drawPreview(c, E.preview);
     drawFx(c);
     for (const e of E.ents) if (e.kind === 'char' && e.bubble) drawBubble(c, e);
@@ -437,6 +441,9 @@
     const hole = (wx, wy, r, a = 1) => { const x = (wx - cam.x) * s / 2, y = (wy - cam.y) * s / 2, rr = (r * s) / 2; if (x < -rr || y < -rr || x > cw + rr || y > ch + rr) return; const g = n.createRadialGradient(x, y, 0, x, y, rr); g.addColorStop(0, `rgba(0,0,0,${a})`); g.addColorStop(1, 'rgba(0,0,0,0)'); n.fillStyle = g; n.fillRect(x - rr, y - rr, rr * 2, rr * 2); };
     for (const [x, y, r] of E.lights) hole(x * T + T / 2, y * T + T / 2, r + 60);
     for (const f of E.fx) if (f.k === 'spark' || f.k === 'rocket') hole(f.x, f.y, 70, 0.5);
+    const hh = E.hook && E.hook.holes ? E.hook.holes() : [];
+    for (const [x, y, r] of hh) hole(x, y, r, 0.85);
+    for (const e of E.ents) if (e.kind === 'prop' && e.def.glow) hole(e.x, e.y - e.H, 160, 0.9);
     for (const e of E.ents) if (e.kind === 'char') hole(e.x, e.y - e.H * 0.5, 110, 0.45);
     c.setTransform(1, 0, 0, 1, 0, 0);
     c.drawImage(nightCv, 0, 0, W * dpr, Hh * dpr);
@@ -444,6 +451,7 @@
     c.setTransform(dpr * s, 0, 0, dpr * s, -cam.x * s * dpr, -cam.y * s * dpr);
     c.globalCompositeOperation = 'lighter';
     for (const [x, y, r] of E.lights) { const cx = x * T + T / 2, cy = y * T + T / 2; const g = c.createRadialGradient(cx, cy, 0, cx, cy, r * 0.8); g.addColorStop(0, `rgba(255,200,90,${0.32 * E.nightK})`); g.addColorStop(1, 'rgba(255,200,90,0)'); c.fillStyle = g; c.fillRect(cx - r, cy - r, r * 2, r * 2); }
+    for (const [cx, cy, r] of hh) { const g = c.createRadialGradient(cx, cy, 0, cx, cy, r); g.addColorStop(0, `rgba(255,200,110,${0.22 * E.nightK})`); g.addColorStop(1, 'rgba(255,200,110,0)'); c.fillStyle = g; c.fillRect(cx - r, cy - r, r * 2, r * 2); }
     c.globalCompositeOperation = 'source-over';
   }
 
@@ -451,6 +459,7 @@
   E.clampCam = () => {
     const { w, h, panel } = E.view, s = E.cam.s;
     const vw = w / s, vh = (h - panel) / s;
+    if (E.bounds) { const b = E.bounds; E.cam.x = vw >= b.x1 - b.x0 ? (b.x0 + b.x1 - vw) / 2 : PT.clamp(E.cam.x, b.x0, b.x1 - vw); E.cam.y = vh >= b.y1 - b.y0 ? b.y1 - vh : PT.clamp(E.cam.y, b.y0, b.y1 - vh); return; }
     E.cam.x = vw >= WW ? (WW - vw) / 2 : PT.clamp(E.cam.x, 0, WW - vw);
     const top = -Math.max(0, 80 / s);
     E.cam.y = vh >= WH ? WH - vh : PT.clamp(E.cam.y, top, WH - vh);
@@ -469,6 +478,13 @@
   };
 
   /* ---------- セーブ用 ---------- */
+  E.entsData = () => E.ents.map((e) => (e.kind === 'char' ? { k: 'c', cid: e.cid, x: e.x | 0, y: e.y | 0, wear: e.wear, hold: e.holdType, sit: e.sitOn ? E.ents.indexOf(e.sitOn) : -1 } : { k: 'p', type: e.type, x: e.x | 0, y: e.y | 0, room: e.room }));
+  E.loadEnts = (list) => {
+    E.ents = [];
+    const made = list.map((d) => (d.k === 'c' ? E.addChar(d.cid, d.x, d.y, { wear: d.wear, hold: d.hold }) : E.addProp(d.type, d.x, d.y, d.room ? { room: d.room } : {})));
+    list.forEach((d, i) => { if (d.k === 'c' && d.sit >= 0 && made[d.sit] && made[i]) E.sit(made[i], made[d.sit], true); });
+    E.ents = E.ents.filter(Boolean);
+  };
   E.serialize = () => {
     let s = ''; for (let i = 0; i < E.grid.length; i++) s += String.fromCharCode(48 + E.grid[i]);
     return {
@@ -477,7 +493,7 @@
     };
   };
   E.load = (world, data) => {
-    E.world = world; E.ents = []; E.fx = []; E.anim.clear(); E.plants.clear(); E.t = 0;
+    E.world = world; E.ents = []; E.fx = []; E.anim.clear(); E.plants.clear(); E.t = 0; E.mode = 'block'; E.hook = null; E.bounds = null;
     if (data && data.g && data.g.length === COLS * ROWS) { for (let i = 0; i < data.g.length; i++) { const v = data.g.charCodeAt(i) - 48; E.grid[i] = BL[v] ? v : 0; } }
     else E.grid.set(world.gen());
     for (let i = 0; i < E.grid.length; i++) if (BL[E.grid[i]] && BL[E.grid[i]].plant) E.plants.set(i, -4000);
