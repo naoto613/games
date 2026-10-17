@@ -17,8 +17,10 @@
   PT.CHAR_IDS = Object.keys(PT.CHARS);
 
   const ln = (col) => PT.line(col);
+  const HX = (PT.HUMAN_EXT = { hairBack: {}, hairFront: {}, outfit: {} });
   /* ---------- かみがた（うしろ） ---------- */
   function hairBack(c, P, ch, t) {
+    if (HX.hairBack[ch.cid]) return HX.hairBack[ch.cid](c, P, ch, t);
     if (ch.cid === 'futan') {
       // みつあみ と あかい リボン
       for (const sd of [-1, 1]) {
@@ -39,6 +41,7 @@
   }
   /* ---------- かみがた（まえ） ---------- */
   function hairFront(c, P, ch, t) {
+    if (HX.hairFront[ch.cid]) return HX.hairFront[ch.cid](c, P, ch, t);
     if (ch.cid === 'futan') {
       c.beginPath(); c.moveTo(-44, -112); c.bezierCurveTo(-48, -170, 48, -170, 44, -112);
       c.quadraticCurveTo(30, -140, 10, -138); c.lineTo(4, -128); c.lineTo(-4, -138); c.quadraticCurveTo(-28, -142, -44, -112); c.closePath();
@@ -78,7 +81,7 @@
       c.fillStyle = '#1d1a22'; G.rr(c, -36 + lx, -126, 31, 22, 8); c.fill(); G.rr(c, 5 + lx, -126, 31, 22, 8); c.fill(); c.fillRect(-6 + lx, -120, 12, 4);
       c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 3; c.beginPath(); c.moveTo(-28 + lx, -120); c.lineTo(-22 + lx, -112); c.moveTo(13 + lx, -120); c.lineTo(19 + lx, -112); c.stroke();
       c.strokeStyle = '#2a1c1c'; c.lineWidth = 4; c.beginPath(); c.moveTo(-34 + lx, -134); c.lineTo(-12 + lx, -130); c.moveTo(34 + lx, -134); c.lineTo(12 + lx, -130); c.stroke();
-    } else if (f === 'laugh' || f === 'eat' || f === 'love' || (ch.cid === 'mama' && !['surprise', 'puzzled', 'sleep', 'silly'].includes(f))) { arc(-ex + lx, true); arc(ex + lx, true); }
+    } else if (f === 'laugh' || f === 'eat' || f === 'love' || ((ch.cid === 'mama' || P.smileEyes) && !['surprise', 'puzzled', 'sleep', 'silly'].includes(f))) { arc(-ex + lx, true); arc(ex + lx, true); }
     else if (f === 'sleep') { arc(-ex + lx, false); arc(ex + lx, false); }
     else if (f === 'silly') { c.beginPath(); c.moveTo(-ex + lx - 7, ey - 7); c.lineTo(-ex + lx + 6, ey); c.lineTo(-ex + lx - 7, ey + 7); c.moveTo(ex + lx + 7, ey - 7); c.lineTo(ex + lx - 6, ey); c.lineTo(ex + lx + 7, ey + 7); c.stroke(); }
     else if (blink) { c.beginPath(); c.moveTo(-ex + lx - 8, ey); c.lineTo(-ex + lx + 8, ey); c.moveTo(ex + lx - 8, ey); c.lineTo(ex + lx + 8, ey); c.stroke(); }
@@ -89,7 +92,7 @@
         if (f === 'puzzled' && sd === 1) { c.beginPath(); c.moveTo(x - 8, ey); c.lineTo(x + 8, ey - 2); c.stroke(); continue; }
         G.ell(c, x, ey, 9 * big, 11.5 * big); c.fillStyle = '#2a1c1c'; c.fill();
         // ふーたんは きらきらの ピンクの め
-        G.ell(c, x, ey + 4 * big, 6.5 * big, 5.5 * big); c.fillStyle = ch.cid === 'futan' ? '#c2386e' : 'rgba(120,80,60,.6)'; c.fill();
+        G.ell(c, x, ey + 4 * big, 6.5 * big, 5.5 * big); c.fillStyle = (P.iris || (ch.cid === 'futan' ? '#c2386e' : 'rgba(120,80,60,.6)')); c.fill();
         G.circ(c, x + 3.2 * big, ey - 4.4 * big, 3.8 * big); c.fillStyle = '#fff'; c.fill();
         G.circ(c, x - 3 * big, ey + 4.5 * big, 1.8 * big); c.fill();
         if (P.lash) { c.strokeStyle = '#2a1c1c'; c.lineWidth = 3; c.beginPath(); c.moveTo(x + sd * 8, ey - 8); c.lineTo(x + sd * 14, ey - 12); c.moveTo(x + sd * 9, ey - 3); c.lineTo(x + sd * 15, ey - 4); c.stroke(); c.lineWidth = 4; }
@@ -103,7 +106,7 @@
     if (ch.cid === 'ricky' && f !== 'laugh' && f !== 'surprise' && f !== 'eat') {
       // おしゃぶり
       G.circ(c, mx, -92, 8); G.fillO(c, '#ffd0e0', 2); G.circ(c, mx, -92, 3.6); c.fillStyle = '#ff9ccf'; c.fill();
-    } else if (f === 'laugh' || f === 'yay' || ch.cid === 'papa' || ch.cid === 'mama' || (ch.cid === 'futan' && f === 'happy')) {
+    } else if (f === 'laugh' || f === 'yay' || ch.cid === 'papa' || ch.cid === 'mama' || P.bigSmile || (ch.cid === 'futan' && f === 'happy')) {
       c.beginPath(); c.moveTo(mx - 10, -96); c.quadraticCurveTo(mx, -94, mx + 10, -96); c.quadraticCurveTo(mx + 9, -82, mx, -82); c.quadraticCurveTo(mx - 9, -82, mx - 10, -96); c.closePath();
       c.fillStyle = '#d8405a'; c.fill(); c.stroke();
       G.ell(c, mx, -86, 4, 2.4); c.fillStyle = '#ff9ab0'; c.fill();
@@ -117,6 +120,7 @@
   /* ---------- ふく ---------- */
   function outfit(c, P, ch, t) {
     const id = ch.cid;
+    if (HX.outfit[id]) return HX.outfit[id](c, P, ch, t);
     if (id === 'futan') {
       c.beginPath(); c.moveTo(-18, -88); c.lineTo(18, -88); c.lineTo(38, -18); c.quadraticCurveTo(0, -10, -38, -18); c.closePath();
       G.fillO(c, '#ff8cc0', 3);
@@ -162,8 +166,8 @@
   PT._drawHumanBody = (c, ch, t, pp, look) => {
     const P = ch.def;
     const L = P.legExt || 0;
-    const legCol = ch.cid === 'papa' ? '#2e2a33' : SKIN;
-    const shoe = ch.cid === 'futan' ? '#e8483a' : ch.cid === 'mama' ? '#5a3a6a' : ch.cid === 'papa' ? '#7a4a2a' : '#ffffff';
+    const legCol = P.legCol || (ch.cid === 'papa' ? '#2e2a33' : SKIN);
+    const shoe = P.shoe ? P.shoe : ch.cid === 'futan' ? '#e8483a' : ch.cid === 'mama' ? '#5a3a6a' : ch.cid === 'papa' ? '#7a4a2a' : '#ffffff';
     if (P.fairy) c.translate(0, -(P.hover || 30) - Math.sin(t * 0.004 + ch.seed) * 6);
     if (P.fairy) wings(c, ch, t);
     PT._wearBack(c, ch, t);
@@ -190,7 +194,7 @@
     outfit(c, P, ch, t);
     PT._wearBody(c, ch);
     // うで
-    const sleeve = ch.cid === 'papa' ? '#2f5fa8' : ch.cid === 'mama' ? '#e8483a' : ch.cid === 'futan' ? '#ff8cc0' : '#ffffff';
+    const sleeve = P.sleeve ? P.sleeve : ch.cid === 'papa' ? '#2f5fa8' : ch.cid === 'mama' ? '#e8483a' : ch.cid === 'futan' ? '#ff8cc0' : '#ffffff';
     const arm = (side, ang) => {
       const sx = side * 23, sy = -78;
       const ex = sx + Math.sin(ang) * 30, ey = sy + Math.cos(ang) * 30;

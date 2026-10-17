@@ -30,7 +30,7 @@
     B.bunting(ctx, 0, 30, 1600, 30, 70);
   }
   function resize() {
-    const d = Math.min(2, window.devicePixelRatio || 1);
+    const d = Math.min(2.5, window.devicePixelRatio || 1);
     cv.width = Math.round(innerWidth * d); cv.height = Math.round(innerHeight * d);
     bw = innerWidth; bh = innerHeight;
     const s = Math.max(bw / 1600, bh / 900) * d;
@@ -40,7 +40,7 @@
   PT.titleFrame = (dt) => {
     if (!bg || bw !== innerWidth || bh !== innerHeight) resize();
     t += dt;
-    const d = Math.min(2, window.devicePixelRatio || 1);
+    const d = Math.min(2.5, window.devicePixelRatio || 1);
     const s = Math.max(bw / 1600, bh / 900);
     c.setTransform(d, 0, 0, d, 0, 0);
     const ox = (bw - 1600 * s) / 2, oy = (bh - 900 * s);

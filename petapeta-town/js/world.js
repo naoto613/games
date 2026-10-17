@@ -362,6 +362,8 @@
       return;
     }
     if (e.def.hidden) return;
+    // ゆかに おちる かげ（ものが ういて 見えないように）
+    if (!e.def.area && !e.def.sky && !e.def.wall && e.type !== 'skystar') G.shadow(c, e.x, e.y + 4, Math.min(260, e.w * 0.46), 0.13);
     c.save(); c.translate(e.x, e.y);
     if (e.glow) { c.shadowColor = '#ffe066'; c.shadowBlur = 22; }
     if (e.wobbleUntil && Wd.t < e.wobbleUntil) c.rotate(Math.sin(Wd.t * 0.04) * 0.03);

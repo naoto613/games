@@ -85,8 +85,10 @@
     return p;
   }
 
+  PT.CHAR_EXT = { earBack: {}, earFront: {}, acc: {}, body: {}, tail: {} };
   /* 耳（頭の後ろ側） */
   function earsBack(c, P, t, ch) {
+    if (PT.CHAR_EXT.earBack[P.ear]) return PT.CHAR_EXT.earBack[P.ear](c, P, t, ch);
     const col = P.color, dk = P.dark, ln = PT.line(col);
     const wig = Math.sin(t * 0.006 + ch.seed) * 0.05;
     c.save();
@@ -129,6 +131,7 @@
   }
   /* 耳（頭の前側） */
   function earsFront(c, P, t, ch) {
+    if (PT.CHAR_EXT.earFront[P.ear]) return PT.CHAR_EXT.earFront[P.ear](c, P, t, ch);
     const col = P.color, dk = P.dark;
     const wig = Math.sin(t * 0.006 + ch.seed) * 0.06;
     switch (P.ear) {
@@ -177,7 +180,7 @@
     const f = ch.face || 'happy';
     const blink = ((t + ch.seed * 1000) % 4200) < 130;
     // 目のまわりの 明るい毛（やさしい表情に）
-    c.fillStyle = PT.shade(P.color, P.color === '#f7f2ec' ? 0.6 : 0.28);
+    c.fillStyle = P.eyePatch || PT.shade(P.color, P.color === '#f7f2ec' ? 0.6 : 0.28);
     G.ell(c, -ex + lx, ey + 1, 15, 16.5); c.fill();
     G.ell(c, ex + lx, ey + 1, 15, 16.5); c.fill();
     // ほっぺ
@@ -247,6 +250,7 @@
   }
 
   function accessory(c, P, ch, t, look) {
+    if (PT.CHAR_EXT.acc[P.acc]) PT.CHAR_EXT.acc[P.acc](c, P, ch, t, look * 7);
     const lx = look * 7;
     switch (P.acc) {
       case 'bow': {
@@ -286,6 +290,7 @@
   }
 
   function bodyAcc(c, P) {
+    if (PT.CHAR_EXT.body[P.acc]) PT.CHAR_EXT.body[P.acc](c, P);
     if (P.acc === 'scarf') {
       G.poly(c, [-24, -82, 24, -82, 0, -58]); G.fillO(c, P.accColor, 2.5);
       G.rr(c, -26, -88, 52, 11, 5); G.fillO(c, P.accColor, 2.5);
@@ -550,7 +555,8 @@
 
     if (P.human) { PT._drawHumanBody(c, ch, t, pp, look); } else {
     // しっぽ
-    if (P.tail === 'puff') { G.circ(c, -28, -40 + Math.sin(t * 0.01) * 2, 13); G.fillO(c, '#ffffff', 3); }
+    if (PT.CHAR_EXT.tail[P.tail]) PT.CHAR_EXT.tail[P.tail](c, P, t, ch, pp);
+    else if (P.tail === 'puff') { G.circ(c, -28, -40 + Math.sin(t * 0.01) * 2, 13); G.fillO(c, '#ffffff', 3); }
     else {
     c.save(); c.translate(-20, -40); c.rotate(-0.8 + pp.tail);
     c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(-24, -14, -26, -40);
@@ -636,7 +642,7 @@
   /* アイコン用：静止したキャラの顔＋体 */
   PT.charIcon = (cid, size = 96, opts = {}) => {
     const cv = document.createElement('canvas');
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const dpr = Math.min(3, Math.max(2, window.devicePixelRatio || 1));
     cv.width = cv.height = Math.round(size * dpr);
     const c = cv.getContext('2d');
     c.scale(dpr, dpr);

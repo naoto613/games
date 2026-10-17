@@ -685,7 +685,9 @@
     cv.width = Math.round(W * scale); cv.height = Math.round(H * scale);
     const c = cv.getContext('2d');
     c.scale(scale, scale);
+    PT._polishStage = stage.id;
     stage.bg(c, PT.seeded(stage.num * 977));
+    if (PT.polishBg) PT.polishBg(c, stage);
     return cv;
   };
 })();
