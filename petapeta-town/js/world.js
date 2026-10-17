@@ -82,7 +82,7 @@
   Wd.bounds = (e) => {
     if (e.kind === 'char') {
       const s = e.scale * e.def.size;
-      return { x: e.x - 50 * s, y: e.y - e.z - 180 * s, w: 100 * s, h: 185 * s };
+      const ex = (e.def.legExt || 0) + (e.def.hover || 0); return { x: e.x - 50 * s, y: e.y - e.z - (180 + ex) * s, w: 100 * s, h: (185 + ex) * s };
     }
     if (e.kind === 'prop') {
       const s = e.scale * (e.big || 1);
@@ -303,7 +303,7 @@
     const b = ch.bubble; if (!b) return;
     const s = Math.min(1.15, ch.scale * 1.05);
     const k = Math.min(1, (Wd.t - b.t0) / 160);
-    const hx = ch.x, hy = ch.y - ch.z - (205 + (ch.wear.hat ? 40 : 0)) * ch.scale * ch.def.size;
+    const hx = ch.x, hy = ch.y - ch.z - (205 + (ch.wear.hat ? 40 : 0) + (ch.def.legExt || 0) + (ch.def.hover || 0)) * ch.scale * ch.def.size;
     c.save();
     c.translate(hx, hy); c.scale(s * PT.easeBack(k), s * PT.easeBack(k));
     c.font = `800 26px ${PT.FONT}`;
