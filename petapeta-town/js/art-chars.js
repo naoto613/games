@@ -519,7 +519,7 @@
     }
   }
 
-  PT._wearBody = wearBody; PT._wearHead = wearHead; PT._wearFront = wearFront; PT._wearBack = wearBack;
+  PT._wearBody = wearBody; PT._wearHead = wearHead; PT._wearFront = wearFront; PT._wearBack = wearBack; PT._poseParams = poseParams;
 
   /* メイン：キャラクターを描く（足元が原点） */
   PT.drawChar = (c, ch, t) => {
@@ -548,6 +548,7 @@
       return;
     }
 
+    if (P.human) { PT._drawHumanBody(c, ch, t, pp, look); } else {
     // しっぽ
     if (P.tail === 'puff') { G.circ(c, -28, -40 + Math.sin(t * 0.01) * 2, 13); G.fillO(c, '#ffffff', 3); }
     else {
@@ -616,12 +617,13 @@
       c.save(); c.translate(0, -150); const k = Math.min(0.9, 80 / Math.max(it.w, it.h)); c.rotate(Math.sin(t * 0.004) * 0.08); c.scale(k, k); it.draw(c, t, {}); c.restore();
     }
     c.restore();
+    }
 
     // もっている物
     if (ch.holdType && PT.ITEMS[ch.holdType]) {
       const it = PT.ITEMS[ch.holdType];
       c.save();
-      const hx = ch.pose === 'carry' ? 0 : hR[0], hy = ch.pose === 'carry' ? -180 : hR[1] + 10;
+      const hR2 = ch._hand || [20, -60]; const hx = ch.pose === 'carry' ? 0 : hR2[0], hy = ch.pose === 'carry' ? -180 - (P.legExt || 0) : hR2[1] + 10;
       c.translate(hx, hy);
       const k = Math.min(0.75, 70 / Math.max(it.w, it.h));
       c.scale(k, k);
@@ -638,7 +640,11 @@
     cv.width = cv.height = Math.round(size * dpr);
     const c = cv.getContext('2d');
     c.scale(dpr, dpr);
-    const ch = { def: PT.CHARS[cid], cid, x: size / 2, y: size * (opts.full ? 0.98 : 1.32), pose: 'idle', poseT: 0, face: opts.face || 'happy', wear: {}, seed: 1.7, scale: size / (opts.full ? 215 : 150), look: 0 };
+    const D = PT.CHARS[cid], ext = (D.legExt || 0) + (D.hover || 0);
+    // かおの アイコンは 大人も こどもも おなじ おおきさに そろえる
+    const sc = opts.full ? size / (215 + ext) / D.size : size / 150 / (D.fairy ? D.size * 1.1 : Math.max(1, D.size));
+    const y = opts.full ? size * 0.98 : size * 1.32 + (ext ? ext + (D.fairy ? 0 : 10) : 0) * sc * D.size;
+    const ch = { def: D, cid, x: size / 2, y, pose: 'idle', poseT: 0, face: opts.face || 'happy', wear: {}, seed: 1.7, scale: sc, look: 0 };
     PT.drawChar(c, ch, 300);
     return cv;
   };
