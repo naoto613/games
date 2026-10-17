@@ -69,7 +69,9 @@ export const BALANCE = {
     maxDisobey: 0.5,
     /** 敵が「いちばん良い行動」ではなく気まぐれに行動する確率 */
     /** 敵の回復: HPがこの割合を下回るまで回復しない／回復の重み／1回使うごとの減衰 */
-    enemyHeal: { threshold: 0.35, weight: 0.6, decay: 0.4 },
+    /** 敵の 回復：threshold いかで 回復を かんがえる・回復するたびに decay 倍 したがらなく なる。
+     *  capRatio＝1回で 回復する のは 最大HPの この割合まで、wildMax＝野生の 戦闘で 敵チームが 回復できる 回数 */
+    enemyHeal: { threshold: 0.35, weight: 0.6, decay: 0.4, capRatio: 0.4, wildMax: 2 },
     /** 同じ戦闘で状態異常にかかるたびに、次にかかる確率に掛ける値 */
     statusRepeatFactor: 0.6,
     /** 敵が同じ補助・状態異常の特技を使うたびに評価に掛ける値 */

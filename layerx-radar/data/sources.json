@@ -1,0 +1,61 @@
+[
+  {
+    "id": "layerx-engineering-blog",
+    "name": "LayerX エンジニアブログ",
+    "type": "blog",
+    "url": "https://tech.layerx.co.jp/",
+    "enabled": true,
+    "fetchMethod": "rss",
+    "feedUrl": "https://tech.layerx.co.jp/feed",
+    "lastFetchedAt": "2026-10-17T04:37:46+00:00",
+    "notes": "はてなブログの公開RSS。キー不要。",
+    "lastSuccessAt": "2026-10-17T04:37:46+00:00",
+    "lastError": null,
+    "lastCount": 30
+  },
+  {
+    "id": "layerx-youtube",
+    "name": "LayerX YouTube",
+    "type": "youtube",
+    "url": "https://www.youtube.com/channel/UCKu0R6kOcqd62QstxKxoNhA",
+    "enabled": true,
+    "fetchMethod": "youtube",
+    "channelId": "UCKu0R6kOcqd62QstxKxoNhA",
+    "resolveFromVideo": "_rjFdRnYiso",
+    "lastFetchedAt": "2026-10-17T04:37:46+00:00",
+    "notes": "YouTubeの公開チャンネルフィード（APIキー不要・最新15本）。channelIdはLayerX Lunch Liveのアーカイブ動画から自動で調べて保存する。別のチャンネルになった場合はchannelIdを直接書き換える。",
+    "lastError": null,
+    "via": "channel page",
+    "lastSuccessAt": "2026-10-17T04:37:46+00:00",
+    "lastCount": 30,
+    "channelName": "LayerX 公式"
+  },
+  {
+    "id": "layerx-speakerdeck",
+    "name": "LayerX Speaker Deck",
+    "type": "slides",
+    "url": "https://speakerdeck.com/layerx",
+    "enabled": true,
+    "fetchMethod": "rss",
+    "feedUrl": "https://speakerdeck.com/layerx.atom",
+    "lastFetchedAt": "2026-10-17T04:37:46+00:00",
+    "notes": "Speaker Deckの公開Atomフィード。キー不要。",
+    "lastSuccessAt": "2026-10-17T04:37:46+00:00",
+    "lastError": null,
+    "lastCount": 18
+  },
+  {
+    "id": "layerx-official-news",
+    "name": "LayerX 公式ニュース",
+    "type": "official",
+    "url": "https://layerx.co.jp/news/",
+    "enabled": true,
+    "fetchMethod": "auto",
+    "lastFetchedAt": "2026-10-17T04:37:46+00:00",
+    "notes": "ページ内の<link rel=alternate>からRSS/Atomを自動検出する。見つからない場合はエラーとして記録されるだけで、他の情報源には影響しない。",
+    "feedUrl": "https://layerx.co.jp/news/feed/",
+    "lastSuccessAt": "2026-10-17T04:37:46+00:00",
+    "lastError": null,
+    "lastCount": 10
+  }
+]

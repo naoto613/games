@@ -64,7 +64,7 @@ await skip();
 await wait(800);
 await shot('recruit-battle');
 // 戦闘は おまかせで
-for (let i = 0; i < 30; i++) { const b = p.locator('.cmds button', { hasText: 'たたかう' }); if (await b.count()) { await b.first().click(); await wait(400); } const r = await skip(20); if (r === 'choice') { const yes = p.locator('.choices .item', { hasText: 'はい' }); if (await yes.count()) await yes.first().click(); await wait(200); } if (await p.$('.fmenu')) break; }
+for (let i = 0; i < 30; i++) { const b = p.locator('.cmds button:not([disabled])', { hasText: 'たたかう' }); if (await b.count()) { await b.first().click(); await wait(400); } const r = await skip(20); if (r === 'choice') { const yes = p.locator('.choices .item', { hasText: 'はい' }); if (await yes.count()) await yes.first().click(); await wait(200); } if (await p.$('.fmenu')) break; }
 await skip();
 console.log('after recruit battle', JSON.stringify(await info()));
 await shot('after-battle');
@@ -75,7 +75,7 @@ await shot('morg-room');
 await p.evaluate(() => { const g = window.app.game; const s = g.startBossBattle('morg'); for (const e of s.state.enemies) e.hp = 1; window.__debug.startBattle(window.app, s); });
 await wait(1200);
 await shot('morg-battle');
-for (let i = 0; i < 40; i++) { const b = p.locator('.cmds button', { hasText: 'たたかう' }); if (await b.count()) { await b.first().click(); await wait(400); } await skip(30); if (await p.$('.fmenu') && !(await p.$('.msgbox'))) break; }
+for (let i = 0; i < 40; i++) { const b = p.locator('.cmds button:not([disabled])', { hasText: 'たたかう' }); if (await b.count()) { await b.first().click(); await wait(400); } await skip(30); if (await p.$('.fmenu') && !(await p.$('.msgbox'))) break; }
 await skip();
 console.log('after morg', JSON.stringify(await info()));
 await shot('after-morg');
