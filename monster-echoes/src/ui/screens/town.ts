@@ -56,6 +56,27 @@ export async function talkTo(app: App, id: string, field: { updateHud(): void; a
       if (c === 0 || c === 1) openShop(app, c === 0 ? 'buy' : 'sell', done);
       break;
     }
+    case 'innkeeper': {
+      // 風見の宿：見はりの ゴウに みとめられると むりょう
+      const free = !!g.state.progress.storyFlags.ch3_trusted;
+      const price = 20;
+      const c = await app.ask(free ? 'ゴウから きいてるよ。むりょうで とまっていきな！' : `ひとばん ${price}ゴールドだよ。とまっていくかい？`, ['とまる', 'やめる'], { speaker: name });
+      if (c !== 0) break;
+      if (!free) {
+        if (g.state.player.gold < price) { await app.say('おかねが たりないみたいだね。', { speaker: name }); break; }
+        g.spendGold(price);
+      }
+      sfx('heal');
+      g.healAll();
+      await app.say('ぐっすり ねむった。\nモンスターたちの HPと MPが すべて かいふくした！');
+      break;
+    }
+    case 'hakase': {
+      if (!g.hasFeature('dex')) break;
+      const c = await app.ask('なにを する？', ['図鑑を 見る', 'やめる'], { speaker: name });
+      if (c === 0) openDex(app);
+      break;
+    }
     case 'fountain':
       sfx('heal');
       g.healAll();

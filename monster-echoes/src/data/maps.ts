@@ -5,6 +5,7 @@
 
 import { LIEFEL } from './towns/liefel';
 import { MIZUNA } from './towns/mizuna';
+import { KAZENO } from './towns/kazeno';
 
 export type MapTemplate = { id: string; rows: string[] };
 
@@ -48,6 +49,45 @@ export const MAPS: Record<string, MapTemplate> = Object.fromEntries(
     // ---- 水辺の街ミズナ（2-1）：配合の館・魔物牧場・道具屋・旅の扉の祠・水路入口（仕様 14.2）
     // 西の はし（0,7）は リーフェルへの 道
     t('mizuna', MIZUNA.rows),
+    // ---- 風見の村カゼノ（3-1）：風見台・魔物研究所・宿屋・旅の扉・高原入口（仕様 14.3）
+    t('kazeno', KAZENO.rows),
+    t('kazeno_lab', [
+      '###########',
+      '#LL..1..LL#',
+      '#.........#',
+      '#X.,,,,,.X#',
+      '#..,,,,,..#',
+      '#..,,,,,.2#',
+      '#.........#',
+      '#####D#####',
+    ]),
+    t('kazeno_inn', [
+      '#########',
+      '#LKK3KKL#',
+      '#.......#',
+      '#X.....X#',
+      '#.......#',
+      '#.......#',
+      '####D####',
+    ]),
+    t('kazeno_mill', [
+      '#########',
+      '#L..4..L#',
+      '#.......#',
+      '#.,,,,,.#',
+      '#.,,,,,.#',
+      '#.......#',
+      '####D####',
+    ]),
+    t('kazeno_shrine', [
+      '###########',
+      '#....G....#',
+      '#.,,,,,,,.#',
+      '#.,.....,.#',
+      '#.,.....,.#',
+      '#.,,,,,,,.#',
+      '#####D#####',
+    ]),
     t('mizuna_lab', [
       '###########',
       '#LL..1..LL#',

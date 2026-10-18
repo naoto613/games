@@ -66,5 +66,46 @@ export const NPCS: NpcDefinition[] = [
       { conditions: [{ type: 'chapterAtLeast', n: 3 }], lines: [L('みずが すみきって、ふねも よく すすむわい。北の 高原へ いくなら、風に 気を つけるんじゃぞ。')] },
     ],
   },
+  // ---- 風見の村カゼノ（第3章）
+  {
+    id: 'goh', name: '見はりのゴウ', townId: 'kazeno',
+    talks: [
+      { conditions: [], lines: [L('まもの使いか……。へんな まねは するなよ。')] },
+      { conditions: [{ type: 'flag', id: 'ch3_trusted' }], lines: [L('宿屋は むりょうだ。塔へ いく まえに よく やすんでいけ。')] },
+      { conditions: [{ type: 'chapterAtLeast', n: 4 }], lines: [L('風が もどってから、村の みんなも わらうように なった。また いつでも こいよ。')] },
+    ],
+  },
+  {
+    id: 'fuu', name: '村の子フウ', townId: 'kazeno',
+    talks: [
+      { conditions: [], lines: [L('風が さかさまに ふくから、たこあげが できないんだ……。')] },
+      { conditions: [{ type: 'stageCleared', id: '3-2' }], lines: [L('ねえねえ、谷の 番人を やっつけたって ほんと？ すっごーい！')] },
+      { conditions: [{ type: 'chapterAtLeast', n: 4 }], lines: [L('見て！ たこが 空まで とんでる！ {luna}も のってみる？')] },
+    ],
+  },
+  {
+    id: 'kazami', name: '村長カザミ', townId: 'kazeno',
+    talks: [
+      { conditions: [], lines: [L('この 村は 風と ともに 生きてきた。だが いまの 風は、まるで だれかに ひっぱられて いるようじゃ。')] },
+      { conditions: [{ type: 'stageCleared', id: '3-2' }], lines: [L('逆風の塔は 高原の いただき。北東の 高原入口から いけるぞ。')] },
+      { conditions: [{ type: 'chapterAtLeast', n: 4 }], lines: [L('旅の扉から、ほかの 町へも とべるように なった。つかれたら いつでも かえってきなさい。')] },
+    ],
+  },
+  {
+    id: 'hakase', name: '研究者ホルン', townId: 'kazeno',
+    talks: [
+      { conditions: [], lines: [L('図鑑を 系統ごとに ならべると、にた まものの ちがいが よく わかるよ。')] },
+      { conditions: [{ type: 'flag', id: 'ch3_hakase' }], lines: [L('戦闘で あいての 名前の よこに 弱点が 出るはずだ。かみなりや だいちの わざも うまく つかってね。')] },
+      { conditions: [{ type: 'chapterAtLeast', n: 4 }], lines: [L('黒い 結晶……あれは 響晶の なれのはて かもしれない。しらべておくよ。')] },
+    ],
+  },
+  {
+    id: 'watcher', name: '風見番のナギサ', townId: 'kazeno',
+    talks: [
+      { conditions: [], lines: [L('ここは 風見台。高原の 風の むきを 毎日 しらべているの。'), L('ひと月まえから、風は 谷から 塔へ むかって すいこまれているわ。まるで 塔の うえに なにかが いるみたい。')] },
+      { conditions: [{ type: 'stageCleared', id: '3-2' }], lines: [L('谷の 風は すこし もどった。でも 塔の まわりは まだ ぎゃくむきよ。')] },
+      { conditions: [{ type: 'chapterAtLeast', n: 4 }], lines: [L('風が ほんとうの むきに もどったわ！ ……でも 南の 空に、ときどき 黒い かげが 見えるの。')] },
+    ],
+  },
 ];
 export const NPC_BY_ID: Record<string, NpcDefinition> = Object.fromEntries(NPCS.map((n) => [n.id, n]));

@@ -29,6 +29,18 @@ export const ENCOUNTERS: Record<string, EncounterTable> = Object.fromEntries(
     enc('shinen3', [['m102', 2, 11, 12], ['m009', 2, 11, 12], ['m104', 2, 11, 12], ['m111', 1, 11, 12]], [[1, 4], [2, 3], [3, 1]]),
     enc('shinen4', [['m105', 1, 12, 12], ['m104', 3, 12, 13], ['m002', 2, 12, 13]], [[1, 4], [2, 3], [3, 1]]),
     enc('shinen5', [['m105', 1, 13, 13], ['m009', 2, 13, 14], ['m104', 2, 13, 14], ['m107', 1, 13, 13]], [[1, 4], [2, 3], [3, 1]]),
+    // ---- 3-2 風渡りの峡谷（1F ウインドキャット・フェザーバット／2F スカイモール・ストームビー／3F 風の橋／4F ライトニングキッド（サンダーリンクス）／5F 風見の番人）
+    enc('kaze1', [['m022', 3, 15, 16], ['m081', 3, 15, 16]], [[1, 4], [2, 3], [3, 1]]),
+    enc('kaze2', [['m085', 3, 16, 17], ['m061', 3, 16, 17], ['m022', 1, 16, 17]], [[1, 4], [2, 3], [3, 1]]),
+    enc('kaze3', [['m061', 2, 16, 17], ['m081', 2, 16, 17], ['m085', 2, 16, 17], ['m022', 2, 16, 17]], [[1, 4], [2, 3], [3, 1]]),
+    enc('kaze4', [['m028', 3, 17, 18], ['m061', 2, 17, 18], ['m081', 2, 17, 18]], [[1, 4], [2, 3], [3, 1]]),
+    // ---- 3-3 逆風の塔（1F ウインドキャット・フェザーバット／2F ストームビー・スカイモール／3F ライトニングキッド・雲の宝箱／4F サンダーレイヴン／5F 風の記憶／6F グリフォンの分身）
+    enc('gyakufu1', [['m022', 3, 18, 19], ['m081', 3, 18, 19]], [[1, 4], [2, 3], [3, 1]]),
+    enc('gyakufu2', [['m061', 3, 18, 19], ['m085', 3, 18, 19]], [[1, 4], [2, 3], [3, 1]]),
+    enc('gyakufu3', [['m028', 3, 19, 20], ['m022', 2, 19, 20], ['m061', 2, 19, 20]], [[1, 4], [2, 3], [3, 1]]),
+    enc('gyakufu4', [['m084', 3, 19, 20], ['m028', 2, 19, 20], ['m085', 2, 19, 20]], [[1, 4], [2, 3], [3, 1]]),
+    enc('gyakufu5', [['m084', 2, 20, 21], ['m087', 1, 20, 20], ['m061', 2, 20, 21], ['m028', 2, 20, 21]], [[1, 4], [2, 3], [3, 1]]),
+    enc('gyakufu6', [['m087', 2, 20, 21], ['m084', 2, 20, 21], ['m028', 2, 20, 21]], [[1, 4], [2, 3], [3, 1]]),
   ].map((e) => [e.id, e]),
 );
 
@@ -85,6 +97,30 @@ export const AREAS: AreaDefinition[] = [
       { id: 'shinenBoss', name: '深淵の水路 ウロコ王の淵', encounterTableId: 'shinen5', chestTable: [], bossId: 'uroko' },
     ],
   },
+  {
+    id: 'kaze', stageId: '3-2', name: '風渡りの峡谷', theme: 'highland', recommendedLevel: 15, unlockConditions: [],
+    description: 'カゼノの 北に ひらいた 深い 谷。さかさまに ふく 風が 谷を ふきぬけている。',
+    floors: [
+      { id: 'kaze1', name: '風渡りの峡谷 1F', encounterTableId: 'kaze1', chestTable: chest(200) },
+      { id: 'kaze2', name: '風渡りの峡谷 2F', encounterTableId: 'kaze2', chestTable: chest(220), spring: true },
+      { id: 'kaze3', name: '風渡りの峡谷 3F 風の橋', encounterTableId: 'kaze3', chestTable: chest(240), gimmicks: ['wind'], storyEvents: ['ch3_wind_bridge'] },
+      { id: 'kaze4', name: '風渡りの峡谷 4F', encounterTableId: 'kaze4', chestTable: chest(260), gimmicks: ['wind'] },
+      { id: 'kazeBoss', name: '風渡りの峡谷 見はらしの岩場', encounterTableId: 'kaze4', chestTable: [], bossId: 'kazami_guard' },
+    ],
+  },
+  {
+    id: 'gyakufu', stageId: '3-3', name: '逆風の塔', theme: 'tower', recommendedLevel: 18, unlockConditions: [],
+    description: '高原の いただきに たつ 古い 塔。うえへ のぼるほど 向かい風が つよくなる。',
+    floors: [
+      { id: 'gyakufu1', name: '逆風の塔 1F', encounterTableId: 'gyakufu1', chestTable: chest(280) },
+      { id: 'gyakufu2', name: '逆風の塔 2F', encounterTableId: 'gyakufu2', chestTable: chest(300), gimmicks: ['wind'] },
+      { id: 'gyakufu3', name: '逆風の塔 3F 雲の間', encounterTableId: 'gyakufu3', chestTable: chest(320), storyEvents: ['ch3_cloud_chest'] },
+      { id: 'gyakufu4', name: '逆風の塔 4F', encounterTableId: 'gyakufu4', chestTable: chest(340), spring: true },
+      { id: 'gyakufu5', name: '逆風の塔 5F 風の記憶', encounterTableId: 'gyakufu5', chestTable: chest(360), gimmicks: ['switchGate'], storyEvents: ['ch3_wind_memory'] },
+      { id: 'gyakufu6', name: '逆風の塔 6F', encounterTableId: 'gyakufu6', chestTable: chest(380), gimmicks: ['wind'], storyEvents: ['ch3_griffon_clone'] },
+      { id: 'gyakufuBoss', name: '逆風の塔 頂上', encounterTableId: 'gyakufu6', chestTable: [], bossId: 'griffon' },
+    ],
+  },
 ];
 export const getArea = (id: string) => {
   const a = AREAS.find((x) => x.id === id);
@@ -128,6 +164,39 @@ export const BOSSES: Record<string, BossDefinition> = {
     defeatText: ['ウロコ王の ウロコが 一枚 また 一枚と はがれ、くろい もやが 水に とけていく…。'],
     rewards: [{ type: 'gold', amount: 500 }, { type: 'item', itemId: 'medal', count: 3 }, { type: 'item', itemId: 'primemeat', count: 1 }],
     setFlags: ['boss_uroko'],
+  },
+  // 第3章 中ボス 風見の番人（ブレードイーグルの ゆがみ。むかい風で すばやさを さげる・おたけび）
+  kazami_guard: {
+    id: 'kazami_guard', name: '風見の番人',
+    intro: ['岩場の うえで、大きな 鷲が つばさを ひろげた。', '風見の番人「……この 谷の 風は さかさまに なった。とおす わけには いかぬ……！」'],
+    enemies: [
+      { speciesId: 'm087', level: 19, hpScale: 2.2, statScale: 1.0, skills: ['aircutter', 'wingstrike', 'chillwind', 'rampage'], name: '風見の番人', distorted: true, recruitable: false, script: 'kazami_guard' },
+    ],
+    defeatText: ['番人の つばさから くろい もやが ほどけ、谷の 風が すこし しずまった…。'],
+    rewards: [{ type: 'gold', amount: 600 }, { type: 'item', itemId: 'medal', count: 3 }, { type: 'item', itemId: 'bigherb', count: 2 }],
+    setFlags: ['boss_kazami_guard'],
+  },
+  // 第3章 6F グリフォンの分身（物語の 戦闘）
+  griffon_clone: {
+    id: 'griffon_clone', name: 'グリフォンの分身',
+    intro: [],
+    enemies: [
+      { speciesId: 'm096', level: 20, hpScale: 1.4, statScale: 0.95, skills: ['galeslash', 'peck', 'chillwind'], name: 'グリフォンの分身', distorted: true, recruitable: false, resist: { earth: -1 } },
+    ],
+    defeatText: ['分身は 風に とけて きえた…。'],
+    rewards: [{ type: 'gold', amount: 200 }],
+    setFlags: ['boss_griffon_clone'],
+  },
+  // 第3章 風喰いグリフォン：すばやい／むかい風で 行動順を みだす／地属性で 体勢を くずしやすい
+  griffon: {
+    id: 'griffon', name: '風喰いグリフォン',
+    intro: ['塔の いただきで、巨大な グリフォンが 風を のみこんでいる。', '風喰いグリフォン「……風を……もっと 風を……！ たりぬ、たりぬのだ……！」'],
+    enemies: [
+      { speciesId: 'm097', level: 22, hpScale: 2.4, statScale: 1.0, statMul: { attack: 0.8 }, skills: ['aircutter', 'wingstrike', 'cyclone', 'chillwind'], name: '風喰いグリフォン', distorted: true, recruitable: false, script: 'griffon', resist: { earth: -1 } },
+    ],
+    defeatText: ['グリフォンの からだから、のみこんだ 風が いっきに ふきだした…。'],
+    rewards: [{ type: 'gold', amount: 800 }, { type: 'item', itemId: 'medal', count: 3 }, { type: 'item', itemId: 'primemeat', count: 1 }],
+    setFlags: ['boss_griffon'],
   },
 };
 

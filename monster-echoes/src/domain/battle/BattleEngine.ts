@@ -45,6 +45,7 @@ export function enemyFromSpec(spec: EnemySpec, slot: number): Combatant {
   }
   const resist = { ...speciesResistances(sp) };
   if (spec.distorted) resist.light = -1; // ゆがんだモンスターは光に弱い
+  if (spec.resist) Object.assign(resist, spec.resist);
   const c: Combatant = {
     key: `e${slot}`, side: 'enemy', slot, speciesId: sp.id, name: spec.name ?? sp.name, level: spec.level,
     maxHp: hp, hp, maxMp: st.mp, mp: st.mp,

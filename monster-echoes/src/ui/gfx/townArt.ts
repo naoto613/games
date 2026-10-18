@@ -375,6 +375,9 @@ const BSTYLE: Record<BuildingStyle, BStyle> = {
   barn: { roof: '#d0483a', roofDark: '#8e2a22', wall: '#b2483a', trim: '#f4ecdc', door: '#7a3020' },
   cottage: { roof: '#e07a3a', roofDark: '#a04a1e', wall: '#f0e2c2', trim: '#7a5434', door: '#7a4a28' },
   hut: { roof: '#4a8a9a', roofDark: '#2a5a6a', wall: '#e8dcc0', trim: '#6a4a30', door: '#5a3a24' },
+  mill: { roof: '#6a4a8a', roofDark: '#3e2a5a', wall: '#c8c0b0', trim: '#6a5a4a', door: '#5a3a24' },
+  inn: { roof: '#b0602a', roofDark: '#7a3a18', wall: '#f2e6c8', trim: '#7a5434', door: '#7a4a28' },
+  lab: { roof: '#2f8a8a', roofDark: '#1a5a5a', wall: '#e8ecf0', trim: '#4a5a6a', door: '#3a4a5a' },
 };
 
 /** 瓦屋根（3/4 見おろし）。左右の はしは 影に して 奥行きを だす */
@@ -505,6 +508,22 @@ export function buildingImg(style: BuildingStyle, w: number, h: number, door: nu
       g.fillStyle = gl; g.fillRect(doorX - 18, Y + H - 56, 36, 40);
       return c;
     }
+    if (style === 'mill') {
+      // 風見台：石づみの 塔と とんがり屋根（はねは べつの 物体で うごかす）
+      const tw = Math.min(W - 16, 84), tx = X + (W - tw) / 2, ty = Y + 18;
+      rect(g, tx, ty, tw, H - 18, s.wall);
+      for (let yy = ty + 6; yy < Y + H - 6; yy += 9) for (let xx = tx + ((yy / 9) % 2) * 7; xx < tx + tw; xx += 14) rect(g, xx, yy, 1, 9, shade(s.wall, 0.75));
+      for (let yy = ty + 6; yy < Y + H; yy += 9) rect(g, tx, yy, tw, 1, shade(s.wall, 0.8));
+      rect(g, tx + tw - 10, ty, 10, H - 18, 'rgba(0,0,0,.15)'); rect(g, tx, ty, 6, H - 18, 'rgba(255,255,255,.18)');
+      windowAt(g, tx + tw / 2 - 7, ty + 40, 14, 18, false, s);
+      // 見はらし台の 手すり
+      rect(g, tx - 8, ty + 18, tw + 16, 6, s.trim); for (let xx = tx - 6; xx < tx + tw + 8; xx += 8) rect(g, xx, ty + 8, 2, 12, s.trim); rect(g, tx - 8, ty + 6, tw + 16, 3, s.trim);
+      g.fillStyle = s.roof; g.beginPath(); g.moveTo(tx - 6, ty + 6); g.lineTo(tx + tw / 2, Y - 46); g.lineTo(tx + tw + 6, ty + 6); g.fill();
+      g.fillStyle = s.roofDark; g.beginPath(); g.moveTo(tx + tw / 2, Y - 46); g.lineTo(tx + tw + 6, ty + 6); g.lineTo(tx + tw / 2 + 4, ty + 6); g.fill();
+      rect(g, tx + tw / 2 - 1, Y - 60, 2, 16, '#c8a040'); g.fillStyle = '#e8483a'; g.beginPath(); g.moveTo(tx + tw / 2 + 1, Y - 60); g.lineTo(tx + tw / 2 + 16, Y - 55); g.lineTo(tx + tw / 2 + 1, Y - 50); g.fill();
+      doorAt(g, doorX - 11, Y + H - 34, s);
+      return c;
+    }
     // ふつうの 家：下の 段が かべ、上が 屋根
     const wallH = style === 'barn' ? Math.min(H * 0.5, 64) : Math.min(H * 0.45, 56);
     const wallY = Y + H - wallH;
@@ -553,7 +572,16 @@ export function buildingImg(style: BuildingStyle, w: number, h: number, door: nu
       chimney(g, X + W - 34, roofTop - 14);
       emblemAt(g, doorX, wallY - 18, '袋');
     }
-    if (style === 'cottage' || style === 'hut') chimney(g, X + W * 0.72, roofTop - 14);
+    if (style === 'cottage' || style === 'hut' || style === 'inn') chimney(g, X + W * 0.72, roofTop - 14);
+    if (style === 'inn') { emblemAt(g, doorX, wallY - 6, '宿'); rect(g, X + 10, wallY - 2, W - 20, 3, '#7a5434'); }
+    if (style === 'lab') {
+      // 研究所：屋根の 上の 小さな 観測ドームと 望遠鏡
+      const cx = X + W * 0.3, cy = roofTop + 10;
+      g.fillStyle = '#c8d4e0'; g.beginPath(); g.ellipse(cx, cy + 6, 18, 16, 0, Math.PI, 0); g.fill();
+      g.fillStyle = '#8a9aaa'; g.beginPath(); g.ellipse(cx + 4, cy + 6, 14, 16, 0, Math.PI * 1.5, 0); g.fill();
+      rect(g, cx - 2, cy - 18, 4, 18, '#5a6a7a'); g.save(); g.translate(cx, cy - 12); g.rotate(-0.6); rect(g, -3, -16, 6, 20, '#4a5a6a'); g.restore();
+      emblemAt(g, doorX, wallY - 6, '研');
+    }
     if (style === 'hut') emblemAt(g, doorX, wallY - 6, '♪');
     if (style === 'barn') { /* 風見鶏 */ rect(g, X + W / 2 - 1, roofTop - 18, 2, 18, '#5a5e6e'); g.fillStyle = '#3a3e4e'; g.beginPath(); g.moveTo(X + W / 2 - 8, roofTop - 18); g.lineTo(X + W / 2 + 8, roofTop - 14); g.lineTo(X + W / 2 - 4, roofTop - 12); g.fill(); }
     return c;
@@ -581,6 +609,38 @@ export function labelImg(text: string): HTMLCanvasElement {
   });
 }
 
+/** 風車の はね（96×96、frame で まわる） */
+function bladesImg(f: number) {
+  return memo(`blades${f % 12}`, () => {
+    const [c, g] = mkCanvas(104, 104);
+    g.translate(52, 52); g.rotate(((f % 12) / 12) * (Math.PI / 2));
+    for (let i = 0; i < 4; i++) {
+      g.save(); g.rotate((i * Math.PI) / 2);
+      g.fillStyle = '#5a3a24'; g.fillRect(-2, -50, 4, 46);
+      g.fillStyle = '#f2ead8'; g.fillRect(2, -48, 12, 38);
+      g.strokeStyle = '#8a6a4a'; g.lineWidth = 1;
+      for (let yy = -46; yy < -10; yy += 6) { g.beginPath(); g.moveTo(2, yy); g.lineTo(14, yy); g.stroke(); }
+      g.strokeRect(2.5, -47.5, 11, 37);
+      g.restore();
+    }
+    g.fillStyle = '#4a3a2a'; g.beginPath(); g.arc(0, 0, 6, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#c8a040'; g.beginPath(); g.arc(0, 0, 3, 0, Math.PI * 2); g.fill();
+    return c;
+  });
+}
+
+/** 風に まがった 木（高原。葉が 右へ ながれる） */
+function windTreeImg(v: number) {
+  return memo(`wtree${v}`, () => {
+    const p = new Pix(56, 70, 1);
+    const leaf = ['#5a9a3a', '#4e8e36', '#68a842'][v];
+    p.part(P(24, 66, 30, 66, 30, 44, 38, 30, 34, 28, 26, 42), '#7a5432', { ol: '#3a2412', hi: '#a07448' });
+    const blobs: [number, number, number][] = [[34, 24, 16], [46, 28, 10], [24, 26, 10], [38, 14, 10], [50, 18, 7]];
+    for (const [x, y, r] of blobs) p.part(E(x, y, r, r * 0.8), leaf, { ol: '#1f4a1c', hi: mix(leaf, '#e8f8b0', 0.35), lo: mix(leaf, '#14361a', 0.45) });
+    return p.canvas();
+  });
+}
+
 /** 物体の 絵（frame は 噴水などの うごき）。ワールド座標の ピクセル位置と 奥行き */
 export function objectSprite(o: TownObject, frame: number): Sprite | null {
   const bx = o.x * TT, by = o.y * TT;
@@ -590,6 +650,8 @@ export function objectSprite(o: TownObject, frame: number): Sprite | null {
       return { img, dx: bx - PADX, dy: by - PADT, base: by + o.h * TT - 2 };
     }
     case 'tree': { const img = treeImg(o.variant); return { img, dx: bx + TT / 2 - 26, dy: by + TT - 66, base: by + TT - 4 }; }
+    case 'windtree': { const img = windTreeImg(o.variant); return { img, dx: bx + TT / 2 - 28, dy: by + TT - 68, base: by + TT - 4 }; }
+    case 'blades': { const img = bladesImg(Math.floor(frame / 5)); return { img, dx: bx + TT / 2 - 52, dy: by + TT / 2 - 52, base: by + TT * 12 }; }
     case 'bush': { const img = bushImg(o.variant); return { img, dx: bx - 2, dy: by + 4, base: by + TT - 4 }; }
     case 'fountain': { const img = fountainImg(Math.floor(frame / 8)); return { img, dx: bx + 48 - 56, dy: by + 96 - 112, base: by + 80 }; }
     case 'lamp': { const img = lampImg(true); return { img, dx: bx + 6, dy: by + TT - 58, base: by + TT - 4 }; }
@@ -606,7 +668,7 @@ export function objectSprite(o: TownObject, frame: number): Sprite | null {
 
 /** 影（物体の 足もと） */
 export function objectShadow(g: G, o: TownObject, sx: number, sy: number) {
-  if (o.kind === 'tree') shadowEllipse(g, sx + TT / 2 + 4, sy + TT - 4, 20, 7);
+  if (o.kind === 'tree' || o.kind === 'windtree') shadowEllipse(g, sx + TT / 2 + 4, sy + TT - 4, 20, 7);
   else if (o.kind === 'building') { g.fillStyle = 'rgba(20,30,10,.25)'; g.fillRect(sx + 6, sy + o.h * TT - 2, o.w * TT, 8); }
   else if (o.kind === 'fountain') shadowEllipse(g, sx + 48, sy + 84, 50, 14, 0.18);
   else if (o.kind === 'lamp' || o.kind === 'sign' || o.kind === 'bench' || o.kind === 'barrel' || o.kind === 'well' || o.kind === 'stone' || o.kind === 'bush' || o.kind === 'rock') shadowEllipse(g, sx + TT / 2, sy + TT - 4, 12, 4);
@@ -619,7 +681,7 @@ export function minimapImg(art: TownArt, s = 4): HTMLCanvasElement {
     const col: Record<string, string> = { ',': '#4f9e3c', '.': '#d6c6a2', 'o': '#e8dcc0', ':': '#c99a62', '~': '#3f92de', '=': '#c8c0b0', '_': '#c8c0b0' };
     for (let y = 0; y < art.h; y++) for (let x = 0; x < art.w; x++) { g.fillStyle = col[art.ground[y][x]] ?? '#4f9e3c'; g.fillRect(x * s, y * s, s, s); }
     for (const o of art.objects) {
-      if (o.kind === 'tree' || o.kind === 'bush') { g.fillStyle = '#2a6a2a'; g.fillRect(o.x * s, o.y * s, s, s); }
+      if (o.kind === 'tree' || o.kind === 'bush' || o.kind === 'windtree') { g.fillStyle = '#2a6a2a'; g.fillRect(o.x * s, o.y * s, s, s); }
       if (o.kind === 'building') { g.fillStyle = o.roof ?? BSTYLE[o.style].roof; g.fillRect(o.x * s, o.y * s, o.w * s, o.h * s); }
       if (o.kind === 'fountain') { g.fillStyle = '#8fd2f8'; g.fillRect((o.x + 1) * s - 1, (o.y + 1) * s - 1, s + 2, s + 2); }
     }

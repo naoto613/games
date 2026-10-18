@@ -319,6 +319,7 @@ export class Game {
     switch (a.type) {
       case 'setFlag': this.setFlag(a.id); return;
       case 'giveItem': this.update((s) => (s.inventory[a.itemId] = (s.inventory[a.itemId] ?? 0) + a.count)); return;
+      case 'giveEquip': this.update((s) => { const o = s.v2.equipment.owned; o[a.equipId] = (o[a.equipId] ?? 0) + a.count; }); return;
       case 'gold': this.update((s) => (s.player = { ...s.player, gold: s.player.gold + a.amount })); return;
       case 'heal': this.healAll(); return;
       case 'clearStage': {
@@ -377,6 +378,12 @@ export class Game {
     return ok(r.value.unlocked);
   }
 
+  /** おかねを はらう（たりなければ false） */
+  spendGold(n: number): boolean {
+    if (this.state.player.gold < n) return false;
+    this.update((s) => (s.player = { ...s.player, gold: s.player.gold - n }));
+    return true;
+  }
   healAll() {
     this.update((s) => {
       s.monsters = s.monsters.map((m) => ({ ...m, hp: m.stats.hp, mp: m.stats.mp }));

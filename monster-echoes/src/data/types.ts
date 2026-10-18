@@ -162,6 +162,8 @@ export type EnemySpec = {
   statScale?: number;
   /** 能力ごとの 倍率（statScale に かける。かたい ボスの 守備だけ さげる など） */
   statMul?: Partial<Record<'attack' | 'defense' | 'speed' | 'magic' | 'spirit', number>>;
+  /** 耐性の 上がき（ボスの 弱点 など） */
+  resist?: Resistances;
   skills?: string[];
   name?: string;
   distorted?: boolean;
@@ -219,7 +221,7 @@ export type FloorDefinition = {
   bossId?: string;
   // ---- v2 の ダンジョン（部屋テンプレート型の 生成 RoomGen）
   /** この 階の ギミック（毒の床・水流 など） */
-  gimmicks?: ('poison' | 'current' | 'ice' | 'switchGate')[];
+  gimmicks?: ('poison' | 'current' | 'ice' | 'switchGate' | 'wind')[];
   /** しらべると おこる 物語イベント（data/story の ID。行き止まりの 部屋に 置く） */
   storyEvents?: string[];
   /** いやしの いずみを 置くか */

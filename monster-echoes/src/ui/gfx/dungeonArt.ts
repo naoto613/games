@@ -120,6 +120,23 @@ export function drawGimmick(g: G, gm: Gimmick, sx: number, sy: number, frame: nu
       g.restore();
       break;
     }
+    case 'wind': {
+      // 風の 橋：谷に かかった 木の 橋と、ながれる 風の すじ
+      g.fillStyle = '#2a1e3a'; g.fillRect(sx, sy, TT, TT);
+      const gr = g.createLinearGradient(0, sy, 0, sy + TT); gr.addColorStop(0, 'rgba(140,180,230,.5)'); gr.addColorStop(1, 'rgba(40,60,110,.2)');
+      g.fillStyle = gr; g.fillRect(sx, sy, TT, TT);
+      const horiz = gm.dir === 'left' || gm.dir === 'right';
+      g.fillStyle = '#9a6a3a';
+      for (let i = 0; i < 4; i++) { if (horiz) g.fillRect(sx + 1 + i * 8, sy + 6, 6, 20); else g.fillRect(sx + 6, sy + 1 + i * 8, 20, 6); }
+      g.fillStyle = '#6a4424'; if (horiz) { g.fillRect(sx, sy + 5, TT, 2); g.fillRect(sx, sy + 25, TT, 2); } else { g.fillRect(sx + 5, sy, 2, TT); g.fillRect(sx + 25, sy, 2, TT); }
+      const ang = { up: -Math.PI / 2, down: Math.PI / 2, left: Math.PI, right: 0 }[gm.dir];
+      const k = (frame % 20) / 20;
+      g.save(); g.translate(sx + 16, sy + 16); g.rotate(ang);
+      g.strokeStyle = 'rgba(240,250,255,.9)'; g.lineWidth = 1.5;
+      for (const [o, yy] of [[-14, -7], [-4, 3], [-10, 9]] as [number, number][]) { const x = o + k * 20; g.beginPath(); g.moveTo(x, yy); g.quadraticCurveTo(x + 6, yy - 3, x + 12, yy); g.stroke(); }
+      g.restore();
+      break;
+    }
     case 'ice': {
       g.fillStyle = '#bfe6f8'; g.fillRect(sx, sy, TT, TT);
       g.fillStyle = '#e8f8ff'; g.fillRect(sx + 2, sy + 2, TT - 4, TT - 4);

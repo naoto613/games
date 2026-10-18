@@ -8,10 +8,12 @@ import { createRng, randomInt, type Rng } from '../../core/Random';
 import { DIRS, isPassable, type Dir, type Pos, type TileMap } from './DungeonEngine';
 import type { FloorTheme } from './FloorGen';
 
-export type GimmickKind = 'poison' | 'current' | 'ice' | 'switchGate';
+export type GimmickKind = 'poison' | 'current' | 'ice' | 'switchGate' | 'wind';
 export type Gimmick =
   | { kind: 'poison' }
   | { kind: 'current'; dir: Dir }
+  /** 風の 橋（第3章）：のると 風に ながされる（うごきは 水流と おなじ） */
+  | { kind: 'wind'; dir: Dir }
   | { kind: 'ice' }
   | { kind: 'switch'; id: string }
   | { kind: 'gate'; id: string };
@@ -221,7 +223,7 @@ function tryGenerate(spec: RoomFloorSpec, rng: Rng): RoomTileMap | null {
       if (r.t.rows[y][x] !== 'g') continue;
       const gx = r.ox + x, gy = r.oy + y;
       g[gy][gx] = '.';
-      gimmicks[k(gx, gy)] = kind === 'current' ? { kind: 'current', dir } : kind === 'ice' ? { kind: 'ice' } : { kind: 'poison' };
+      gimmicks[k(gx, gy)] = kind === 'current' ? { kind: 'current', dir } : kind === 'wind' ? { kind: 'wind', dir } : kind === 'ice' ? { kind: 'ice' } : { kind: 'poison' };
     }
   });
   for (const r of placed) if (!gimmickSlots.includes(r.slot)) for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) if (g[r.oy + y][r.ox + x] === 'g') g[r.oy + y][r.ox + x] = '.';
@@ -279,7 +281,7 @@ export function step(m: RoomTileMap, from: Pos, dir: Dir, opened: readonly strin
     const gm = m.gimmicks[k(p.x, p.y)];
     if (gm?.kind === 'poison') res.poisonSteps++;
     if (gm?.kind === 'switch' && !open.includes(gm.id)) { open.push(gm.id); res.switched.push(gm.id); }
-    if (gm?.kind === 'current') { [dx, dy] = DIRS[gm.dir]; continue; }
+    if (gm?.kind === 'current' || gm?.kind === 'wind') { [dx, dy] = DIRS[gm.dir]; continue; }
     if (gm?.kind === 'ice') continue;
     break;
   }

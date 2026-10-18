@@ -6,7 +6,7 @@
 export type Ground = ',' | '.' | 'o' | ':' | '~' | '=' | '_';
 // , 草  . 石畳  o 円形広場の 石  : 土の 道  ~ 水  = 橋（たて・よこは 自動）  _ 石だん
 
-export type BuildingStyle = 'manor' | 'dome' | 'shop' | 'barn' | 'cottage' | 'hut';
+export type BuildingStyle = 'manor' | 'dome' | 'shop' | 'barn' | 'cottage' | 'hut' | 'mill' | 'inn' | 'lab';
 export type TownObject =
   | { kind: 'building'; style: BuildingStyle; x: number; y: number; w: number; h: number; door: number; label?: string; roof?: string }
   | { kind: 'tree'; x: number; y: number; variant: number }
@@ -21,7 +21,11 @@ export type TownObject =
   | { kind: 'stone'; x: number; y: number }
   | { kind: 'arch'; x: number; y: number; w: number }
   | { kind: 'well'; x: number; y: number }
-  | { kind: 'rock'; x: number; y: number; variant: number };
+  | { kind: 'rock'; x: number; y: number; variant: number }
+  /** 風車の はね（うごく。x, y は 軸の マス） */
+  | { kind: 'blades'; x: number; y: number }
+  /** 風に まがった 木（高原） */
+  | { kind: 'windtree'; x: number; y: number; variant: number };
 
 export type TownArt = { w: number; h: number; ground: string[]; objects: TownObject[] };
 
@@ -92,6 +96,12 @@ export class TownBuilder {
   barrel(x: number, y: number) { this.objects.push({ kind: 'barrel', x, y }); return this.block(x, y); }
   sign(x: number, y: number) { this.objects.push({ kind: 'sign', x, y }); return this.block(x, y); }
   well(x: number, y: number) { this.objects.push({ kind: 'well', x, y }); return this.block(x, y); }
+  blades(x: number, y: number) { this.objects.push({ kind: 'blades', x, y }); return this; }
+  windtree(x: number, y: number) { this.objects.push({ kind: 'windtree', x, y, variant: (x * 5 + y * 3) % 3 }); return this.block(x, y); }
+  windtrees(x: number, y: number, w: number, h: number, density = 1) {
+    for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) if (((i * 31 + j * 17) % 100) / 100 < density) this.windtree(i, j);
+    return this;
+  }
   rock(x: number, y: number) { this.objects.push({ kind: 'rock', x, y, variant: (x * 3 + y) % 3 }); return this.block(x, y); }
   /** しらべられる 石碑（V） */
   stone(x: number, y: number) { this.objects.push({ kind: 'stone', x, y }); return this.mark(x, y, 'V'); }
