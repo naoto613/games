@@ -63,7 +63,10 @@ describe('配合可能条件', () => {
 describe('継承', () => {
   it('プラス値 = 親の平均 + レベル合計ボーナス', () => {
     expect(computeChildPlus(mk('m023', 'A', 10), mk('m001', 'B', 10))).toBe(1);
-    expect(computeChildPlus(mk('m023', 'A', 20, { plusValue: 3 }), mk('m001', 'B', 20, { plusValue: 2 }))).toBe(2 + 3);
+    // 親の ＋の 平均は 切り上げ（3 と 2 → 3）
+    expect(computeChildPlus(mk('m023', 'A', 20, { plusValue: 3 }), mk('m001', 'B', 20, { plusValue: 2 }))).toBe(3 + 3);
+    // ＋0 と ＋1 から うまれる 子は ＋2（親の ＋1 が きえない）
+    expect(computeChildPlus(mk('m023', 'A', 10), mk('m001', 'B', 10, { plusValue: 1 }))).toBe(1 + 1);
   });
   it('子の能力は種族基礎＋親の一部で、親の合算ではない', () => {
     const a = mk('m023', 'A', 15), b = mk('m001', 'B', 15);

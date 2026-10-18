@@ -114,7 +114,8 @@ export function checkBreedable(w: BreedingWorld, aId: string, bId: string): Resu
 // ---------------------------------------------------------------- 継承の計算
 /** プラス値 = 親の平均 + 親のレベル合計によるボーナス */
 export function computeChildPlus(a: MonsterInstance, b: MonsterInstance): number {
-  const avg = Math.floor((a.plusValue + b.plusValue) / 2);
+  // 親の ＋の 平均は 切り上げ（＋0 と ＋1 から ＋1 の ぶんが きえない）
+  const avg = Math.ceil((a.plusValue + b.plusValue) / 2);
   const bonus = Math.min(BR.maxLevelPlus, Math.floor((a.level + b.level) / BR.levelSumPerPlus));
   return avg + bonus;
 }
