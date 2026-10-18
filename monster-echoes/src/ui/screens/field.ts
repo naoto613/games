@@ -20,9 +20,9 @@ import { runEvent } from './events';
 import { playStory } from './story';
 import { openGate } from './gate';
 import { displayName } from '../../domain/monster/MonsterFactory';
-import { forestTexture, hash, treeImg, labelImg, minimapImg, objectShadow, objectSprite, renderGround, TT } from '../gfx/townArt';
+import { forestTexture, hash, treeImg, windTreeImg, labelImg, minimapImg, objectShadow, objectSprite, renderGround, TT } from '../gfx/townArt';
 import type { TownArt } from '../../data/towns/builder';
-import { ART_THEMES, caveTexture, crystalImg, crystalPillarImg, dungeonGround, dungeonMinimap, drawGimmick, isWallCh, mushroomImg, pillarImg, rockFaceImg, waterfallImg, type ArtTheme } from '../gfx/dungeonArt';
+import { ART_THEMES, caveTexture, crystalImg, torchImg, type RockTheme, crystalPillarImg, dungeonGround, dungeonMinimap, drawGimmick, isWallCh, mushroomImg, pillarImg, rockFaceImg, waterfallImg, type ArtTheme } from '../gfx/dungeonArt';
 import type { RoomTileMap } from '../../domain/dungeon/RoomGen';
 import { overlaySprite } from '../gfx/tiles';
 
@@ -691,9 +691,12 @@ export class FieldScreen implements Screen {
     const g = this.g, W = this.cv.width, H = this.cv.height, m = this.map;
     const ex = this.game.state.expedition!;
     const cave = theme === 'cave';
+    // 洞窟・峡谷・塔は 岩（石）の かべの 描き方
+    const rock = theme !== 'forest';
+    const rt = theme as RockTheme;
     const ox = Math.round(-camX * TILE), oy = Math.round(-camY * TILE);
-    if (cave) {
-      const pat = g.createPattern(caveTexture(), 'repeat');
+    if (rock) {
+      const pat = g.createPattern(caveTexture(rt), 'repeat');
       if (pat) { g.save(); g.translate(ox % 96, oy % 96); g.fillStyle = pat; g.fillRect(-96, -96, W + 192, H + 192); g.restore(); }
     }
     else {
@@ -722,18 +725,21 @@ export class FieldScreen implements Screen {
       if (x < 0 || y < 0 || x >= m.w || y >= m.h) continue;
       const ch = m.tiles[y][x];
       const sx = x * TT + ox, sy = y * TT + oy;
-      if (isWallCh(ch) && cave) {
+      if (isWallCh(ch) && rock) {
         // 洞窟：手前の かべは 岩の がけ。ときどき 水晶、下が 水なら 滝（参考画像3）
         const below = y + 1 < m.h ? m.tiles[y + 1][x] : '#';
         const front = !isWallCh(below);
         if (!front && ch !== 'Z') continue;
         const v = Math.floor(hash(x, y, 5) * 4);
-        const crystal = front && below !== '~' && hash(x, y, 8) < 0.22;
+        // かざり：洞窟は 水晶、峡谷は 風に まがった 木、塔は たいまつ
+        const deco = front && below !== '~' && hash(x, y, 8) < (cave ? 0.22 : theme === 'highland' ? 0.18 : 0.14);
         items.push({ base: (y + 1) * TT - 4, draw: () => {
-          if (front) g.drawImage(rockFaceImg(v), sx - 2, sy + 32 - 44);
-          if (below === '~') g.drawImage(waterfallImg(still ? 0 : Math.floor(this.frame / 4)), sx, sy + 32 - 40);
-          if (crystal) g.drawImage(crystalImg(v, still ? 0 : Math.floor(this.frame / 8) + x), sx - 8, sy + 32 - 60);
-          if (ch === 'Z') { const ov = overlaySprite('cave', 'Z', x, y, anim); if (ov) g.drawImage(ov, sx, sy); }
+          if (front) g.drawImage(rockFaceImg(v, rt), sx - 2, sy + 32 - 44);
+          if (below === '~' && theme !== 'tower') g.drawImage(waterfallImg(still ? 0 : Math.floor(this.frame / 4)), sx, sy + 32 - 40);
+          if (deco && cave) g.drawImage(crystalImg(v, still ? 0 : Math.floor(this.frame / 8) + x), sx - 8, sy + 32 - 60);
+          if (deco && theme === 'highland') g.drawImage(windTreeImg(v % 3), sx + 16 - 28, sy + 32 - 74);
+          if (deco && theme === 'tower') g.drawImage(torchImg(still ? 0 : Math.floor(this.frame / 7) + x), sx, sy + 32 - 56);
+          if (ch === 'Z') { const ov = overlaySprite(rt === 'tower' ? 'tower' : rt === 'highland' ? 'highland' : 'cave', 'Z', x, y, anim); if (ov) g.drawImage(ov, sx, sy); }
         } });
         continue;
       }
@@ -752,7 +758,7 @@ export class FieldScreen implements Screen {
       if (ch === 'I') { items.push({ base: (y + 1) * TT - 4, draw: () => (cave ? g.drawImage(crystalPillarImg(), sx, sy + 32 - 76) : g.drawImage(pillarImg(), sx, sy + 32 - 72)) }); continue; }
       if (ch === 'f') {
         const fr = still ? 0 : Math.floor(this.frame / 6);
-        items.push({ base: (y + 1) * TT - 6, draw: () => (cave ? g.drawImage(crystalImg(x + y, fr), sx - 8, sy + 32 - 60) : g.drawImage(mushroomImg(fr), sx - 8, sy - 12)) });
+        items.push({ base: (y + 1) * TT - 6, draw: () => (cave ? g.drawImage(crystalImg(x + y, fr), sx - 8, sy + 32 - 60) : rock ? g.drawImage(torchImg(fr), sx, sy + 32 - 56) : g.drawImage(mushroomImg(fr), sx - 8, sy - 12)) });
         continue;
       }
       if (ch === 'B' && bossId) {
@@ -770,7 +776,7 @@ export class FieldScreen implements Screen {
         } });
         continue;
       }
-      if (ch === 'V' && cave) {
+      if (ch === 'V' && rock) {
         // 洞窟の しらべる ところ：ひかる 水たまりと 水晶（森の きりかぶの かわり）
         const fr = still ? 0 : Math.floor(this.frame / 8);
         items.push({ base: (y + 1) * TT - 6, draw: () => {
@@ -800,13 +806,25 @@ export class FieldScreen implements Screen {
       rg.addColorStop(0, 'rgba(4,10,30,0)'); rg.addColorStop(1, 'rgba(4,10,30,.38)');
       g.fillStyle = rg; g.fillRect(0, 0, W, H);
       if (!still) { g.fillStyle = 'rgba(160,220,255,.5)'; for (let i = 0; i < 10; i++) { const t = (this.frame * 0.3 + i * 37) % H; g.fillRect((i * 97 + Math.sin((this.frame + i * 20) / 30) * 10) % W, H - t, 1, 2); } }
+    } else if (theme === 'highland') {
+      // 高原：ふきぬける 風の すじ
+      if (!still) {
+        g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 1.5;
+        for (let i = 0; i < 7; i++) {
+          const yy = (i * 131 + 40) % H, xx = ((this.frame * (2 + (i % 3)) + i * 97) % (W + 160)) - 80;
+          g.beginPath(); g.moveTo(xx, yy); g.quadraticCurveTo(xx + 25, yy - 6, xx + 50, yy); g.stroke();
+        }
+      }
+    } else if (theme === 'tower') {
+      const vg = g.createLinearGradient(0, 0, 0, H); vg.addColorStop(0, 'rgba(255,240,200,.08)'); vg.addColorStop(1, 'rgba(20,20,40,.18)');
+      g.fillStyle = vg; g.fillRect(0, 0, W, H);
     } else if (!still) {
       g.fillStyle = 'rgba(255,250,200,.06)';
       for (let i = 0; i < 3; i++) { const bx = ((i * 140 + this.frame * 0.2) % (W + 200)) - 100; g.beginPath(); g.moveTo(bx, 0); g.lineTo(bx + 40, 0); g.lineTo(bx - 60, H); g.lineTo(bx - 100, H); g.fill(); }
     }
     if (bossId) {
       const rg = g.createRadialGradient(W / 2, H / 2, TILE * 3, W / 2, H / 2, TILE * 10);
-      rg.addColorStop(0, 'rgba(8,16,10,0)'); rg.addColorStop(1, cave ? 'rgba(4,8,24,.55)' : 'rgba(8,16,10,.55)');
+      rg.addColorStop(0, 'rgba(8,16,10,0)'); rg.addColorStop(1, cave ? 'rgba(4,8,24,.55)' : rock ? 'rgba(10,10,20,.35)' : 'rgba(8,16,10,.55)');
       g.fillStyle = rg; g.fillRect(0, 0, W, H);
     }
     this.drawMiniDungeon();

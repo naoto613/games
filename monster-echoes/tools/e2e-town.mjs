@@ -58,6 +58,18 @@ for (const [vw, vh, tag] of (process.argv[3] === 'p' ? [[390, 844, 'p']] : [[390
     await reshow(); await p.waitForTimeout(500);
     await p.screenshot({ path: path.join(out, `cave-${tag}-${nm}.png`) });
   }
+  // 第3章（カゼノ・風渡りの峡谷・逆風の塔）
+  await p.evaluate(() => { const g = window.app.game; g.leaveExpedition?.(); for (const id of ['2-3', '3-1']) g.clearStage(id); g.state.player.townMap = 'kazeno'; g.setTownPos({ x: 13, y: 12 }, 'down'); g.takeStory(); });
+  await reshow(); await p.waitForTimeout(500);
+  await p.screenshot({ path: path.join(out, `kazeno-${tag}.png`) });
+  await p.evaluate(() => { const g = window.app.game; g.setTownPos({ x: 20, y: 4 }, 'up'); });
+  await reshow(); await p.waitForTimeout(400);
+  await p.screenshot({ path: path.join(out, `kazeno-${tag}-ne.png`) });
+  for (const [area, fl, nm] of [['kaze', 0, 'k1'], ['kaze', 2, 'k3'], ['kaze', 4, 'kboss'], ['gyakufu', 0, 'g1'], ['gyakufu', 4, 'g5'], ['gyakufu', 6, 'gboss']]) {
+    await p.evaluate(([area, fl]) => { const g = window.app.game; g.leaveExpedition?.(); for (const id of ['3-1', '3-2']) g.clearStage(id); g.startExpedition(area); for (let i = 0; i < fl; i++) g.descend(); g.takeStory(); }, [area, fl]);
+    await reshow(); await p.waitForTimeout(500);
+    await p.screenshot({ path: path.join(out, `ch3-${tag}-${nm}.png`) });
+  }
   await p.close();
 }
 console.log(errors.join('\n') || 'ok');

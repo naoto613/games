@@ -630,7 +630,7 @@ function bladesImg(f: number) {
 }
 
 /** 風に まがった 木（高原。葉が 右へ ながれる） */
-function windTreeImg(v: number) {
+export function windTreeImg(v: number) {
   return memo(`wtree${v}`, () => {
     const p = new Pix(56, 70, 1);
     const leaf = ['#5a9a3a', '#4e8e36', '#68a842'][v];
