@@ -7,9 +7,9 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://tech.layerx.co.jp/feed",
-    "lastFetchedAt": "2026-10-17T20:43:00+00:00",
+    "lastFetchedAt": "2026-10-18T02:58:09+00:00",
     "notes": "はてなブログの公開RSS。キー不要。",
-    "lastSuccessAt": "2026-10-17T20:43:00+00:00",
+    "lastSuccessAt": "2026-10-18T02:58:09+00:00",
     "lastError": null,
     "lastCount": 30
   },
@@ -22,12 +22,12 @@
     "fetchMethod": "youtube",
     "channelId": "UCKu0R6kOcqd62QstxKxoNhA",
     "resolveFromVideo": "_rjFdRnYiso",
-    "lastFetchedAt": "2026-10-17T20:43:00+00:00",
+    "lastFetchedAt": "2026-10-18T02:58:09+00:00",
     "notes": "YouTubeの公開チャンネルフィード（APIキー不要・最新15本）。channelIdはLayerX Lunch Liveのアーカイブ動画から自動で調べて保存する。別のチャンネルになった場合はchannelIdを直接書き換える。",
     "lastError": null,
-    "via": "feed",
-    "lastSuccessAt": "2026-10-17T20:43:00+00:00",
-    "lastCount": 15,
+    "via": "channel page",
+    "lastSuccessAt": "2026-10-18T02:58:09+00:00",
+    "lastCount": 30,
     "channelName": "LayerX 公式"
   },
   {
@@ -38,9 +38,9 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://speakerdeck.com/layerx.atom",
-    "lastFetchedAt": "2026-10-17T20:43:00+00:00",
+    "lastFetchedAt": "2026-10-18T02:58:09+00:00",
     "notes": "Speaker Deckの公開Atomフィード。キー不要。",
-    "lastSuccessAt": "2026-10-17T20:43:00+00:00",
+    "lastSuccessAt": "2026-10-18T02:58:09+00:00",
     "lastError": null,
     "lastCount": 18
   }
