@@ -18,6 +18,9 @@ export type TownMapDef = {
   gates?: string[];
   /** G の 先に まだ 行けない ときの ことば */
   gateClosed?: string;
+  /** この フラグが たつまで 扉は ひらかない（そのときの ことば） */
+  gateFlag?: string;
+  gateFlagText?: string;
   /** はじめて 着いたら 章の ステージに 着いた ことに なる（'2-1' など） */
   stageId?: string;
   /** しらべられる もの（V）→ 物語イベントの きっかけ（manual の target） */
@@ -87,8 +90,9 @@ export const TOWN_MAPS: Record<string, TownMapDef> = {
   },
   mizuna_shrine: {
     id: 'mizuna_shrine', name: '旅の扉の祠', theme: 'shrine', npcs: {},
-    gates: [],
-    gateClosed: '扉の むこうから、つよい 水の 音が きこえる……。水音の洞穴への 道は、まだ ひらいていないようだ。（第2章の つづきは つぎの アップデートで あそべます）',
+    gates: ['mizuoto', 'shinen'],
+    gateFlag: 'ch2_shrine_open',
+    gateFlagText: '扉の むこうから、つよい 水の 音が きこえる……。扉は かたく とざされている。配合の館の ミナモに はなしを きいてみよう。',
     links: [D(5, 6, 'mizuna', 17, 8, 'down')],
   },
 };

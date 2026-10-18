@@ -12,6 +12,22 @@ const list: BossScript[] = [
       { id: 'rage', when: { kind: 'hpBelow', ratio: 0.4 }, once: true, steps: [{ kind: 'message', text: 'モルグの かさが まっかに ふくらんだ！' }, { kind: 'buff', stat: 'attack', stages: 1, target: 'self' }] },
     ],
   },
+  // 第2章 中ボス 泡守りの騎士：はじめに 泡の よろい（守備↑）／HP はんぶんで バブルミニを よぶ
+  {
+    id: 'bubbleknight',
+    rules: [
+      { id: 'armor', when: { kind: 'start' }, once: true, steps: [{ kind: 'message', text: '泡守りの騎士は 泡の よろいを まとった！' }, { kind: 'buff', stat: 'defense', stages: 1, target: 'self' }] },
+      { id: 'call', when: { kind: 'hpBelow', ratio: 0.5 }, once: true, steps: [{ kind: 'message', text: '騎士の まわりに 泡が あつまっていく……！' }, { kind: 'summon', speciesId: 'm002', level: 10, count: 1, max: 2, name: 'あわの こ' }] },
+    ],
+  },
+  // 第2章 深淵のウロコ王：水の 全体攻撃／一定ターンごとに 守備が あがる（雷が 弱点）
+  {
+    id: 'uroko',
+    rules: [
+      { id: 'tide', when: { kind: 'turn', every: 4, from: 2 }, steps: [{ kind: 'message', text: 'ウロコ王が 水を まきあげた！' }, { kind: 'useSkill', skillId: 'wave' }] },
+      { id: 'scale', when: { kind: 'turn', every: 3, from: 3 }, steps: [{ kind: 'message', text: 'ウロコ王の ウロコが かたく かさなった！' }, { kind: 'buff', stat: 'defense', stages: 1, target: 'self' }] },
+    ],
+  },
   // 第4章 灰冠の騎士：物理防御が 高い／途中で 魔物を 召喚
   {
     id: 'ashcrown',

@@ -75,7 +75,9 @@ describe('ボスの へや', () => {
       expect(last.bossId, a.id).toBeTruthy();
       expect(a.floors.slice(0, -1).every((f) => !f.bossId), a.id).toBe(true);
       const g = new Game(newGameState('テスト', createRng(1)), { rng: createRng(5) });
-      for (const st of ['1-1', '1-2']) g.clearStage(st);
+      // その エリアの ステージの まえまで すすめておく
+      const { CHAPTERS } = await import('../../src/data/world/chapters');
+      for (const st of CHAPTERS.flatMap((c) => c.stages.map((x) => x.id))) { if (st === a.stageId) break; g.clearStage(st); }
       expect(g.startExpedition(a.id).ok).toBe(true);
       for (let i = 0; i < a.floors.length - 1; i++) g.descend();
       expect(g.floor!.floor.bossId).toBe(last.bossId);

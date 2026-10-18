@@ -321,7 +321,13 @@ export class Game {
       case 'giveItem': this.update((s) => (s.inventory[a.itemId] = (s.inventory[a.itemId] ?? 0) + a.count)); return;
       case 'gold': this.update((s) => (s.player = { ...s.player, gold: s.player.gold + a.amount })); return;
       case 'heal': this.healAll(); return;
-      case 'clearStage': this.clearStage(a.id); return;
+      case 'clearStage': {
+        const done = this.chapters.clearedStages.includes(a.id);
+        this.clearStage(a.id);
+        // ステージクリアで おこる 物語（章クリアの あとの 案内など）
+        if (!done) this.queueStory(this.runStory({ kind: 'clearStage', target: a.id }));
+        return;
+      }
       case 'battle': this.storyBattle = a.enemies; return;
       case 'record':
         this.update((s) => {
@@ -365,6 +371,8 @@ export class Game {
     const r = clearStage(this.chapters, stageId);
     if (!r.ok) return r;
     this.update((s) => (s.chapters = r.value.progress));
+    // 第2章クリア：牧場の 拡張（仕様 15）
+    if (r.value.unlocked.features.includes('ranchExpand')) this.update((s) => (s.capacity += BALANCE.ranchExpandAmount));
     this.autosave();
     return ok(r.value.unlocked);
   }
@@ -528,6 +536,8 @@ export class Game {
     }
     if (t === 'G' && def.gates) {
       this.setTownPos(townPos, dir);
+      // 物語で ひらく 扉（ミズナの 祠 など）
+      if (def.gateFlag && !this.state.progress.storyFlags[def.gateFlag]) return { kind: 'gate', areaIds: [], closed: def.gateFlagText ?? def.gateClosed };
       return { kind: 'gate', areaIds: def.gates, closed: def.gateClosed };
     }
     if (t === 'V' && def.spots?.[`${nx},${ny}`]) {
@@ -660,7 +670,7 @@ export class Game {
   // ---------------------------------------------------------------- 配合
   breedingWorld() {
     // 配合の 条件に つかう フラグ（物語の フラグ＋章で 解放された 機能）
-    const flags = { ...this.flags, highBreeding: this.hasFeature('highBreeding'), legendBreeding: this.hasFeature('legendBreeding') };
+    const flags = { ...this.flags, highBreeding: this.hasFeature('highBreeding'), legendBreeding: this.hasFeature('legendBreeding'), skillInherit: this.hasFeature('skillInherit'), skillInheritPlus: this.hasFeature('skillInheritPlus') };
     return { monsters: this.state.monsters, partyIds: this.state.partyIds, capacity: this.state.capacity, flags };
   }
   breedCheck(aId: string, bId: string): Result<BreedingPreview> {

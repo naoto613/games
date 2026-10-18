@@ -36,7 +36,9 @@ export const NPCS: NpcDefinition[] = [
     talks: [
       { conditions: [], lines: [L('配合には レベル 10 いじょうの まもの 2体が ひつようよ。')] },
       { conditions: [{ type: 'flag', id: 'tutorial_breeding' }], lines: [L('親の とくぎを えらんで うけつげるの。いろんな くみあわせを ためしてね。')] },
-      { conditions: [{ type: 'chapterAtLeast', n: 3 }], lines: [L('水の 響晶が もどってから、館の 水も すんだ 気が するわ。')] },
+      { conditions: [{ type: 'flag', id: 'ch2_shrine_open' }], lines: [L('祠の 扉は ひらいておいたわ。水音の洞穴は ミズナの 水の みなもと。気を つけてね。')] },
+      { conditions: [{ type: 'stageCleared', id: '2-2' }], lines: [L('泡守りの騎士が……？ 響晶を まもっていた ものまで おかしく なっていたのね。')] },
+      { conditions: [{ type: 'chapterAtLeast', n: 3 }], lines: [L('水の 響晶が もどってから、館の 水も すんだ 気が するわ。とくぎは 3つまで うけつげるわよ。')] },
     ],
   },
   {
@@ -52,12 +54,16 @@ export const NPCS: NpcDefinition[] = [
     talks: [
       { conditions: [], lines: [L('配合の館には ミナモさんが いるよ。まものと まものを あわせると、あたらしい こが うまれるんだって！')] },
       { conditions: [{ type: 'flag', id: 'tutorial_breeding' }], lines: [L('ちがう 系統どうしを あわせると、ちょっと つよい こが うまれやすいんだよ。')] },
+      { conditions: [{ type: 'flag', id: 'ch2_shrine_open' }], lines: [L('洞穴の まものは みずの こうげきが とくい。かみなりや くさの わざが あると らくだって！')] },
+      { conditions: [{ type: 'chapterAtLeast', n: 3 }], lines: [L('みずが きれいに なって、水路の さかなも もどってきたよ！ ありがとう！')] },
     ],
   },
   {
     id: 'boatman', name: '船頭のトマ', townId: 'mizuna',
     talks: [
       { conditions: [], lines: [L('ちかごろ 水路の みずが にごってな……。水音の洞穴の ほうから、へんな 音が するんじゃ。')] },
+      { conditions: [{ type: 'stageCleared', id: '2-2' }], lines: [L('洞穴の 下には、ふるい 水路が ある。わしの じいさまの ころには もう だれも ちかよらなかった 場所じゃ。')] },
+      { conditions: [{ type: 'chapterAtLeast', n: 3 }], lines: [L('みずが すみきって、ふねも よく すすむわい。北の 高原へ いくなら、風に 気を つけるんじゃぞ。')] },
     ],
   },
 ];

@@ -82,7 +82,9 @@ export function openBreeding(app: App, onClose: () => void) {
     const sk = pv.skills;
     const box = h('div', { class: 'win' },
       h('h3', null, `うけつぐ とくぎ（${chosen.length}/${sk.slots}）`),
-      h('div', { class: 'small muted' }, 'うまれた ときに おぼえている: ', sk.initial.map((s) => getSkill(s).name).join('、') || 'なし'));
+      h('div', { class: 'small muted' }, 'うまれた ときに おぼえている: ', sk.initial.map((s) => getSkill(s).name).join('、') || 'なし'),
+      // うけつげる 数が ふえる タイミング（仕様 15：第2章クリアで スキル継承・第5章で 拡張）
+      !g.hasFeature('skillInheritPlus') ? h('div', { class: 'small hl' }, g.hasFeature('skillInherit') ? 'もっと うけつげるように なるのは 第5章の 記憶の樹で。' : 'いまは 1つだけ。第2章を クリアすると 3つまで うけつげる。') : null);
     if (!sk.candidates.length) box.append(h('div', { class: 'muted small' }, 'うけつげる とくぎは ありません。'));
     for (const id of sk.candidates) {
       const s = getSkill(id);

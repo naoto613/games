@@ -19,6 +19,16 @@ export const ENCOUNTERS: Record<string, EncounterTable> = Object.fromEntries(
     enc('sasayaki2', [['m043', 3, 5, 6], ['m121', 2, 5, 5], ['m042', 2, 5, 6], ['m085', 1, 5, 6]], [[1, 4], [2, 3], [3, 1]]),
     enc('sasayaki3', [['m050', 1, 6, 6], ['m047', 1, 6, 6], ['m041', 3, 6, 7], ['m044', 2, 6, 7], ['m023', 2, 6, 7]], [[1, 3], [2, 3], [3, 1]]),
     enc('sasayaki4', [['m044', 4, 6, 7], ['m141', 2, 6, 7], ['m121', 2, 6, 7], ['m181', 1, 7, 7]], [[1, 3], [2, 4], [3, 1]]),
+    // ---- 2-2 水音の洞穴（1F バブルミニ・クラブリン／2F アクアバット・コーラルスネイル／3F 水流と 宝箱／4F 泡守りの騎士）
+    enc('mizuoto1', [['m002', 3, 8, 9], ['m101', 3, 8, 9], ['m001', 1, 8, 9]], [[1, 3], [2, 3], [3, 1]]),
+    enc('mizuoto2', [['m104', 4, 9, 10], ['m102', 3, 9, 10], ['m002', 1, 9, 10]], [[1, 2], [2, 3], [3, 1]]),
+    enc('mizuoto3', [['m104', 3, 10, 11], ['m101', 3, 10, 11], ['m102', 2, 10, 11], ['m009', 1, 10, 11]], [[1, 2], [2, 3], [3, 1]]),
+    // ---- 2-3 深淵の水路（1F バブルミニ・アクアバット／2F クラブリン・ミストジェリー／3F コーラルスネイル・氷の欠片／4F 深海の うなぎ（アビスイール）・回復泉／5F 水鏡の記憶）
+    enc('shinen1', [['m002', 3, 11, 12], ['m104', 3, 11, 12]], [[1, 2], [2, 3], [3, 1]]),
+    enc('shinen2', [['m101', 3, 12, 13], ['m009', 3, 12, 13], ['m104', 1, 12, 13]], [[1, 2], [2, 3], [3, 1]]),
+    enc('shinen3', [['m102', 3, 12, 13], ['m111', 2, 12, 13], ['m009', 2, 12, 13]], [[1, 2], [2, 3], [3, 1]]),
+    enc('shinen4', [['m105', 3, 13, 14], ['m101', 2, 13, 14], ['m104', 2, 13, 14]], [[1, 2], [2, 3], [3, 1]]),
+    enc('shinen5', [['m105', 2, 14, 15], ['m009', 2, 14, 15], ['m111', 2, 14, 15], ['m106', 1, 14, 14]], [[1, 2], [2, 3], [3, 1]]),
   ].map((e) => [e.id, e]),
 );
 
@@ -53,6 +63,28 @@ export const AREAS: AreaDefinition[] = [
       { id: 'sasayakiBoss', name: 'ささやきの森 キノコ王の広間', encounterTableId: 'sasayaki4', chestTable: [], bossId: 'morg' },
     ],
   },
+  {
+    id: 'mizuoto', stageId: '2-2', name: '水音の洞穴', theme: 'cave', recommendedLevel: 8, unlockConditions: [],
+    description: 'ミズナの 祠から つづく、しずくの 音が ひびく 洞穴。おくに 泡の よろいを まとった 騎士が いる。',
+    floors: [
+      { id: 'mizuoto1', name: '水音の洞穴 1F', encounterTableId: 'mizuoto1', chestTable: chest(90) },
+      { id: 'mizuoto2', name: '水音の洞穴 2F', encounterTableId: 'mizuoto2', chestTable: chest(100), spring: true },
+      { id: 'mizuoto3', name: '水音の洞穴 3F 水流の間', encounterTableId: 'mizuoto3', chestTable: chest(130), gimmicks: ['current'] },
+      { id: 'mizuotoBoss', name: '水音の洞穴 泡の祭壇', encounterTableId: 'mizuoto3', chestTable: [], bossId: 'bubbleknight' },
+    ],
+  },
+  {
+    id: 'shinen', stageId: '2-3', name: '深淵の水路', theme: 'cave', recommendedLevel: 11, unlockConditions: [],
+    description: '洞穴の さらに 下を ながれる 古い 水路。水の 響晶が ねむると いわれている。',
+    floors: [
+      { id: 'shinen1', name: '深淵の水路 1F', encounterTableId: 'shinen1', chestTable: chest(140) },
+      { id: 'shinen2', name: '深淵の水路 2F', encounterTableId: 'shinen2', chestTable: chest(150), gimmicks: ['current'] },
+      { id: 'shinen3', name: '深淵の水路 3F 凍えた水路', encounterTableId: 'shinen3', chestTable: chest(160), gimmicks: ['ice'], storyEvents: ['ch2_ice_shard'] },
+      { id: 'shinen4', name: '深淵の水路 4F', encounterTableId: 'shinen4', chestTable: chest(170), spring: true },
+      { id: 'shinen5', name: '深淵の水路 5F 水鏡の間', encounterTableId: 'shinen5', chestTable: chest(180), gimmicks: ['switchGate'], storyEvents: ['ch2_water_mirror'] },
+      { id: 'shinenBoss', name: '深淵の水路 ウロコ王の淵', encounterTableId: 'shinen5', chestTable: [], bossId: 'uroko' },
+    ],
+  },
 ];
 export const getArea = (id: string) => {
   const a = AREAS.find((x) => x.id === id);
@@ -74,6 +106,28 @@ export const BOSSES: Record<string, BossDefinition> = {
     defeatText: ['モルグの かさから くろい もやが ぬけていく…。'],
     rewards: [{ type: 'gold', amount: 150 }, { type: 'item', itemId: 'medal', count: 2 }, { type: 'item', itemId: 'bonemeat', count: 2 }],
     setFlags: ['boss_morg'],
+  },
+  // 第2章 中ボス 泡守りの騎士（シェルナイトの ゆがみ。泡の よろいで 守備を あげ、バブルミニを よぶ）
+  bubbleknight: {
+    id: 'bubbleknight', name: '泡守りの騎士',
+    intro: ['祭壇の まえで、泡の よろいを まとった 騎士が たちあがった。', '泡守りの騎士「……この さきは 水の 眠る ところ。ちかづく ものは ゆるさぬ……！」'],
+    enemies: [
+      { speciesId: 'm106', level: 12, hpScale: 2.6, statScale: 1.08, skills: ['shellguard', 'aquatail', 'shellbash', 'splash'], name: '泡守りの騎士', distorted: true, recruitable: false, script: 'bubbleknight' },
+    ],
+    defeatText: ['泡の よろいが はじけ、騎士の からだから くろい もやが ぬけていく…。'],
+    rewards: [{ type: 'gold', amount: 300 }, { type: 'item', itemId: 'medal', count: 2 }, { type: 'item', itemId: 'mpdrop', count: 2 }],
+    setFlags: ['boss_bubbleknight'],
+  },
+  // 第2章 深淵のウロコ王：水の 全体攻撃／一定ターンごとに 守備が あがる／雷が 弱点（耐性は 種族で）
+  uroko: {
+    id: 'uroko', name: '深淵のウロコ王',
+    intro: ['水の そこから、ぎらりと ひかる ウロコが うかびあがった。', '深淵のウロコ王「……響晶は わたさぬ。これは わが ねむりを まもる ひかり……！」'],
+    enemies: [
+      { speciesId: 'm119', level: 15, hpScale: 2.4, statScale: 1.0, skills: ['aquatail', 'pinch', 'wave', 'warcry'], name: '深淵のウロコ王', distorted: true, recruitable: false, script: 'uroko' },
+    ],
+    defeatText: ['ウロコ王の ウロコが 一枚 また 一枚と はがれ、くろい もやが 水に とけていく…。'],
+    rewards: [{ type: 'gold', amount: 500 }, { type: 'item', itemId: 'medal', count: 3 }, { type: 'item', itemId: 'primemeat', count: 1 }],
+    setFlags: ['boss_uroko'],
   },
 };
 

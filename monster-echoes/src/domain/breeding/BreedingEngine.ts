@@ -161,11 +161,17 @@ function skillValue(id: string): number {
   return tier + s.mpCost + (s.target === 'allEnemies' || s.target === 'allAllies' ? 4 : 0) + (s.category === 'revive' ? 8 : 0);
 }
 
-export function planInheritance(a: MonsterInstance, b: MonsterInstance, sp: MonsterSpecies): SkillPlan {
+/** うけつげる とくぎの 数（機能の 解放で ふえる） */
+export function inheritLimit(flags: Record<string, boolean> = {}): number {
+  if (flags.skillInheritPlus) return BALANCE.maxSkillSlots;
+  return flags.skillInherit ? BALANCE.breeding.inheritSkills.skillInherit : BALANCE.breeding.inheritSkills.base;
+}
+
+export function planInheritance(a: MonsterInstance, b: MonsterInstance, sp: MonsterSpecies, flags: Record<string, boolean> = {}): SkillPlan {
   const initial = learnedSkillsAtLevel(sp, 1);
   const pool = [...a.skills, ...b.skills].filter((id, i, arr) => arr.indexOf(id) === i && !getSkill(id).noInherit);
   const candidates = pool.filter((id) => !hasSkillOrUpgrade(initial, id) && !pool.some((o) => o !== id && hasSkillOrUpgrade([o], id)));
-  const slots = Math.max(0, BALANCE.maxSkillSlots - initial.length);
+  const slots = Math.max(0, Math.min(BALANCE.maxSkillSlots - initial.length, inheritLimit(flags)));
   const recommended = [...candidates].sort((x, y) => skillValue(y) - skillValue(x)).slice(0, slots);
   const future = sp.learnset.filter((e) => e.level > 1);
   return { initial, candidates, slots, recommended, future };
@@ -194,7 +200,7 @@ export function previewBreeding(a: MonsterInstance, b: MonsterInstance, flags: R
     maxLevel: childMaxLevel(sp, plusValue),
     stats: calculateChildStats(a, b, sp),
     resistances: calculateChildResistances(a, b, sp),
-    skills: planInheritance(a, b, sp),
+    skills: planInheritance(a, b, sp, flags),
     generation: Math.max(a.generation, b.generation) + 1,
     nearMiss: nearMissRecipes(a, b, flags),
   };
