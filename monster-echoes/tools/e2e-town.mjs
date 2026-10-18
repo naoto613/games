@@ -52,6 +52,12 @@ for (const [vw, vh, tag] of (process.argv[3] === 'p' ? [[390, 844, 'p']] : [[390
     await reshow(); await p.waitForTimeout(500);
     await p.screenshot({ path: path.join(out, `dun-${tag}-${nm}.png`) });
   }
+  // 第2章の 洞窟（水音の洞穴 1F・3F・泡の祭壇、深淵の水路 4F・ウロコ王の淵）
+  for (const [area, fl, nm] of [['mizuoto', 0, 'c1'], ['mizuoto', 2, 'c3'], ['mizuoto', 3, 'cboss'], ['shinen', 3, 's4'], ['shinen', 5, 'sboss']]) {
+    await p.evaluate(([area, fl]) => { const g = window.app.game; g.leaveExpedition?.(); for (const id of ['1-1', '1-2', '1-3', '2-1', '2-2']) g.clearStage(id); g.startExpedition(area); for (let i = 0; i < fl; i++) g.descend(); g.takeStory(); }, [area, fl]);
+    await reshow(); await p.waitForTimeout(500);
+    await p.screenshot({ path: path.join(out, `cave-${tag}-${nm}.png`) });
+  }
   await p.close();
 }
 console.log(errors.join('\n') || 'ok');
