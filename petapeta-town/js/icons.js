@@ -2,7 +2,7 @@
 'use strict';
 (() => {
   const cache = new Map();
-  const dpr = () => Math.min(2, window.devicePixelRatio || 1);
+  const dpr = () => Math.min(3, Math.max(2, window.devicePixelRatio || 1));
   const mk = (size) => {
     const cv = document.createElement('canvas');
     const d = dpr();
@@ -76,7 +76,7 @@
     const c = cv.getContext('2d');
     const s = (w / PT.W) * d;
     c.scale(s, s);
-    stage.bg(c, PT.seeded(stage.num * 977));
+    PT._polishStage = stage.id; stage.bg(c, PT.seeded(stage.num * 977)); if (PT.polishBg) PT.polishBg(c, stage);
     const ents = [];
     stage.fixtures.forEach(([type, x, y, o]) => ents.push({ y, draw: () => { const f = PT.FIX[type]; if (f.hidden) return; c.save(); c.translate(x, y); f.draw(c, 400, Object.assign({ type, w: f.w, h: f.h }, o || {})); c.restore(); } }));
     stage.spawn.forEach(([cid, x, y]) => ents.push({ y, draw: () => PT.drawChar(c, { def: PT.CHARS[cid], cid, x, y, z: 0, pose: 'idle', poseT: 0, face: 'happy', wear: {}, seed: x, scale: 1, look: 0 }, 300) }));

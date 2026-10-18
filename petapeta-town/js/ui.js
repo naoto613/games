@@ -86,7 +86,7 @@
     const nvw = window.innerWidth, nvh = window.innerHeight;
     if (!force && nvw === vw && nvh === vh) return;
     vw = nvw; vh = nvh;
-    dpr = Math.min(2, window.devicePixelRatio || 1);
+    dpr = Math.min(2.5, window.devicePixelRatio || 1);
     cv.width = Math.round(vw * dpr); cv.height = Math.round(vh * dpr);
     panelH = Math.round(PT.clamp(vh * 0.27, 112, 190));
     document.documentElement.style.setProperty('--panel-h', panelH + 'px');
@@ -101,7 +101,7 @@
     W.oy = avail - PT.H * s;
     updateVis();
     if (game.stage) {
-      const want = Math.min(2, Math.max(0.5, s * dpr));
+      const want = Math.min(3, Math.max(0.6, s * dpr * 1.15));
       if (!W.bg || Math.abs(W.bgScale - want) > 0.05) { W.bg = PT.renderStageBg(game.stage, want); W.bgScale = want; }
     }
     $('#rotate').classList.toggle('show', vh > vw && !game.rotateOk);
@@ -129,7 +129,7 @@
     if (tab === 'friends') return PT.CHAR_IDS.slice();
     const all = Object.values(PT.ITEMS).filter((i) => i.cat === tab && unlocked(i.id)).map((i) => i.id);
     // そのステージに あう物を まえに、ほかの物も ぜんぶ つかえる
-    const fav = (st.favs || []).concat(st.tools || [], st.rides || []).filter((id) => PT.ITEMS[id] && all.includes(id));
+    const fav = (st.favs || []).concat(st.tools || [], st.rides || [], PT.ROYAL_FAVS || []).filter((id) => PT.ITEMS[id] && all.includes(id));
     return [...new Set(fav.concat(all))];
   };
   function buildTabs() {

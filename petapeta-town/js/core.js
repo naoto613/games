@@ -43,7 +43,11 @@ PT.line = (hex) => PT.shade(hex, -0.48);
 
 /* ---------- 描画ヘルパー ---------- */
 const G = (PT.G = {});
+G._bb = null;
+const BB = (x0, y0, x1, y1, round) => { G._bb = { x0, y0, x1, y1, round }; };
+const BBpts = (pts) => { let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (let i = 0; i < pts.length; i += 2) { x0 = Math.min(x0, pts[i]); x1 = Math.max(x1, pts[i]); y0 = Math.min(y0, pts[i + 1]); y1 = Math.max(y1, pts[i + 1]); } BB(x0, y0, x1, y1); };
 G.rr = (c, x, y, w, h, r) => {
+  BB(x, y, x + w, y + h);
   r = Math.min(r, w / 2, h / 2);
   c.beginPath();
   c.moveTo(x + r, y);
@@ -54,17 +58,42 @@ G.rr = (c, x, y, w, h, r) => {
   c.closePath();
 };
 G.ell = (c, x, y, rx, ry, rot = 0) => {
+  BB(x - rx, y - ry, x + rx, y + ry, !rot || Math.abs(rx - ry) < 2);
   c.beginPath();
   c.ellipse(x, y, Math.max(0.1, rx), Math.max(0.1, ry), rot, 0, PT.TAU);
 };
-G.circ = (c, x, y, r) => { c.beginPath(); c.arc(x, y, Math.max(0.1, r), 0, PT.TAU); };
+G.circ = (c, x, y, r) => { BB(x - r, y - r, x + r, y + r, true); c.beginPath(); c.arc(x, y, Math.max(0.1, r), 0, PT.TAU); };
 G.paint = (c, fill, stroke, lw = 3) => {
   if (fill) { c.fillStyle = fill; c.fill(); }
   if (stroke) { c.strokeStyle = stroke; c.lineWidth = lw; c.lineJoin = 'round'; c.lineCap = 'round'; c.stroke(); }
 };
 /* 塗り色から自動でふち線 */
-G.fillO = (c, fill, lw = 3) => G.paint(c, fill, PT.line(fill), lw);
+/* ふち付きの ぬり：形に あわせて 上が あかるく 下が こい、まるい形は つやつやに（おもちゃの ような 立体感） */
+PT.SHADE = true;
+const _gc = new Map();
+G.fillO = (c, fill, lw = 3) => {
+  const bb = G._bb; G._bb = null;
+  let fs = fill;
+  if (PT.SHADE && bb && typeof fill === 'string' && fill[0] === '#' && fill.length === 7) {
+    const w = bb.x1 - bb.x0, h = bb.y1 - bb.y0;
+    if (w > 3 && h > 3) {
+      let k = _gc.get(fill);
+      if (!k) { k = [PT.shade(fill, 0.42), PT.shade(fill, 0.2), PT.shade(fill, -0.16)]; _gc.set(fill, k); }
+      if (bb.round) {
+        const cx = (bb.x0 + bb.x1) / 2, cy = (bb.y0 + bb.y1) / 2, r = Math.max(w, h) / 2;
+        fs = c.createRadialGradient(cx - r * 0.35, cy - r * 0.42, r * 0.05, cx, cy, r * 1.15);
+        fs.addColorStop(0, k[0]); fs.addColorStop(0.45, fill); fs.addColorStop(1, k[2]);
+      } else {
+        fs = c.createLinearGradient(0, bb.y0, 0, bb.y1);
+        fs.addColorStop(0, k[1]); fs.addColorStop(0.5, fill); fs.addColorStop(1, k[2]);
+      }
+    }
+  }
+  c.fillStyle = fs; c.fill();
+  c.strokeStyle = PT.line(fill); c.lineWidth = lw; c.lineJoin = 'round'; c.lineCap = 'round'; c.stroke();
+};
 G.poly = (c, pts) => {
+  BBpts(pts);
   c.beginPath();
   c.moveTo(pts[0], pts[1]);
   for (let i = 2; i < pts.length; i += 2) c.lineTo(pts[i], pts[i + 1]);
@@ -72,6 +101,7 @@ G.poly = (c, pts) => {
 };
 /* なめらかな閉曲線（点列を通る） */
 G.blob = (c, pts) => {
+  BBpts(pts);
   const n = pts.length / 2;
   c.beginPath();
   for (let i = 0; i < n; i++) {
@@ -92,6 +122,7 @@ G.limb = (c, x1, y1, x2, y2, w, fill, stroke) => {
   c.strokeStyle = fill; c.lineWidth = w; c.stroke();
 };
 G.star = (c, x, y, r1, r2, n = 5, rot = -Math.PI / 2) => {
+  BB(x - r1, y - r1, x + r1, y + r1, true);
   c.beginPath();
   for (let i = 0; i < n * 2; i++) {
     const r = i % 2 ? r2 : r1;
@@ -102,6 +133,7 @@ G.star = (c, x, y, r1, r2, n = 5, rot = -Math.PI / 2) => {
   c.closePath();
 };
 G.heart = (c, x, y, s) => {
+  BB(x - s, y - s, x + s, y + s * 0.4);
   c.beginPath();
   c.moveTo(x, y + s * 0.35);
   c.bezierCurveTo(x - s * 1.1, y - s * 0.35, x - s * 0.45, y - s * 1.05, x, y - s * 0.45);

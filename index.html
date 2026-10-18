@@ -9,21 +9,18 @@
   @media (prefers-color-scheme:dark){:root{--bg:#1e1624;--card:#2a2032;--ink:#f3e6f7;--sub:#bba8c6;--accent:#ff8cc0;--line:#4a3656;--tag:#3a2a44;}}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Maru Gothic ProN","Yu Gothic",system-ui,sans-serif;line-height:1.6}
-  main{max-width:1080px;margin:0 auto;padding:32px 16px 48px}
-  h1{font-size:28px;margin:0 0 4px}
-  .lead{color:var(--sub);margin:0 0 24px}
-  ul{list-style:none;padding:0;margin:0;display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
+  main{max-width:1080px;margin:0 auto;padding:24px 16px 40px}
+  h1{font-size:24px;margin:0 0 4px}
+  .lead{color:var(--sub);margin:0 0 18px;font-size:14px}
+  ul{list-style:none;padding:0;margin:0;display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr))}
   li{display:flex}
-  a.game{display:flex;flex-direction:column;width:100%;background:var(--card);border:2px solid var(--line);border-radius:18px;overflow:hidden;color:inherit;text-decoration:none;transition:transform .12s,border-color .12s,box-shadow .12s}
-  a.game:hover,a.game:focus-visible{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 20px rgba(255,95,162,.18)}
-  .thumb{position:relative;aspect-ratio:16/10;background:var(--line)}
+  a.game{display:flex;align-items:center;gap:12px;width:100%;padding:10px;background:var(--card);border:2px solid var(--line);border-radius:16px;color:inherit;text-decoration:none;transition:transform .12s,border-color .12s,box-shadow .12s}
+  a.game:hover,a.game:focus-visible{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 16px rgba(255,95,162,.16)}
+  .thumb{position:relative;flex:none;width:min(180px,50%);aspect-ratio:16/10;border-radius:10px;overflow:hidden;background:var(--line)}
   .thumb img{display:block;width:100%;height:100%;object-fit:cover}
-  .new{position:absolute;top:10px;left:10px;background:var(--accent);color:#fff;font-weight:800;font-size:13px;padding:2px 10px;border-radius:99px;box-shadow:0 2px 0 rgba(0,0,0,.15)}
-  .body{padding:12px 16px 16px;display:flex;flex-direction:column;gap:4px;flex:1}
-  .name{font-weight:800;font-size:18px;color:var(--accent);line-height:1.35}
-  .desc{color:var(--sub);font-size:14px}
-  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
-  .tags span{font-size:12px;font-weight:700;background:var(--tag);color:var(--sub);border-radius:99px;padding:1px 9px}
+  .new{position:absolute;top:5px;left:5px;background:var(--accent);color:#fff;font-weight:800;font-size:11px;line-height:1.5;padding:0 7px;border-radius:99px}
+  .body{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+  .name{font-weight:800;font-size:16px;color:var(--accent);line-height:1.35}
 </style>
 </head>
 <body>
@@ -31,125 +28,45 @@
   <h1>ゲームあつめ</h1>
   <p class="lead">ブラウザで遊べるゲームの一覧です。あそびたい ゲームを えらんでね。</p>
   <ul id="games">
+    <li><a class="game" href="./petapeta-craft/">
+      <div class="thumb"><img src="./thumbs/petapeta-craft.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
+      <div class="body"><div class="name">ぺたぺた！つくってワールド</div></div>
+    </a></li>
+    <li><a class="game" href="./layerx-radar/">
+      <div class="thumb"><img src="./thumbs/layerx-radar.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
+      <div class="body"><div class="name">LayerX Radar</div></div>
+    </a></li>
     <li><a class="game" href="./petapeta-town/">
       <div class="thumb"><img src="./thumbs/petapeta-town.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">ぺたぺた！あそびタウン</div><div class="desc">おいてみたら、あそびが はじまる。ルル・ポン・ミミ・ガク・チョコ・モコ・うさぎの ピョコと、もうふや だんボール、ぼうしや たいこを すきな ばしょに ドラッグで おくと、キャラクターたちが うごきだす。もうふは ひみつきちに、だんボールは くるまや ロケットに、エプロンで おみせやさん。ドレス・ティアラ・ようせいの はね・ねこみみ・しょうぼうしの ぼうしなど かわいい いしょうも いっぱい。たべもの・がっき・バスや ひこうき・たからばこや ふしぎな たまごなど 130しゅるいの アイテムを どの ステージでも つかえるよ。みんなが まねしたり、さそったり、ふざけあったりして あそびが ひろがるよ。おうち・こうえん・ビーチ・キャンプ・ゆうえんち・うちゅうなど 12の ステージ、お題の「ふしぎはっけん」と「おはなし」モード、はっけんアルバムつき。しっぱいも じかんぎれも ない、じぶんだけの ごっこあそび</div><div class="tags"><span>5さい〜</span><span>ごっこあそび</span><span>スマホ・タブレット</span></div></div>
+      <div class="body"><div class="name">ぺたぺた！あそびタウン</div></div>
     </a></li>
     <li><a class="game" href="./monster-echoes/">
       <div class="thumb"><img src="./thumbs/monster-echoes.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">モンスター・エコーズ 〜ルナフィアと ひかりのクリスタル〜</div><div class="desc">森の 集落リーフェルで 調律師見習いの 主人公と、傷ついた 相棒ルナスライムの 冒険が はじまる ドット絵 モンスター配合RPG。200しゅの まものが すむ せかいで、にくを なげて なかまに し、そだてて 配合！ 血統の 系統と ランクで うまれる こが かわり、とくべつな くみあわせも。いまは 第1章「はじまりの森」（キノコ王モルグ）と 水辺の街ミズナの 配合の館まで あそべます（章は じゅんに ふえていきます）</div><div class="tags"><span>小学生〜大人</span><span>育成・配合RPG</span><span>スマホ縦持ち</span></div></div>
-    </a></li>
-    <li><a class="game" href="./harmonyland-guide/">
-      <div class="thumb"><img src="./thumbs/harmonyland-guide.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">ハーモニーランド攻略ナビ（非公式）</div><div class="desc">2026年10月13日（火）に ハーモニーランドへ 行く日のための リンク集。営業時間・ショーの時刻・整理券・マップ・アトラクションの 条件・赤ちゃんの 設備など、見たい 公式ページへ 迷わず 行ける。ショーを 時間順に ならべた 参考の 予定表、施設の 場所が わかる 略図、☆で つくる プラン、子どもの 年齢で 乗れるかの 確認も</div><div class="tags"><span>おでかけ</span><span>攻略ナビ</span><span>スマホ・タブレット</span></div></div>
+      <div class="body"><div class="name">モンスター・エコーズ 〜ルナフィアと ひかりのクリスタル〜</div></div>
     </a></li>
     <li><a class="game" href="./futan-sagase/">
       <div class="thumb"><img src="./thumbs/futan-sagase.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">ふーたんを さがせ！</div><div class="desc">ひとが いっぱいの いちまいえの どこかに かくれた ふーたん（みつあみ・ピンクの みずたま・きいろい ハートの ポシェット）を さがす ウォーリーふう さがしもの。みつけたら ワープで つぎの ばしょへ！ はるの こうえん・なつの うみ・ゆうえんち・ゆきやま・よるの なつまつり・どうぶつえん・うみの そこ・つきの うちゅうきち・おとぎの おしろ・きょうりゅうの くに・うんどうかい・ハロウィン・えきまえの 13か所。せの ひくい ままや せの たかい パパを みつけると ふーたんが みつけやすく なり、リッキーを みつけると ステージが たのしく へんしん（クジラ・UFO・はなび…）。みつけたら すぐ ガチャガチャ（きせかえ・かくれキャラ・ひみつステージの カギ）。くらやみ・タイムアタックなどの とくべつルールと、かいとう クロニャンの ボスステージも</div><div class="tags"><span>4さい〜</span><span>さがしもの</span><span>スマホ・タブレット</span></div></div>
-    </a></li>
-    <li><a class="game" href="./mitsuketa-town/">
-      <div class="thumb"><img src="./thumbs/mitsuketa-town.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">みつけたタウン</div><div class="desc">お題の 人や 物や 動物を、にぎやかな 町の ジオラマから 見つけて タップする さがしものゲーム。3分の「どんどんさがし」、毎日 みんな 同じ町の「きょうの一枚」、時間なしの「のんびりさがし」。似たものを えらぶと「おしい！」で どこが 違うか 教えてくれる。見つけた人は 町の 住人になり、住人が ふえると ふうせん屋さん・花だん・メリーゴーランド…と 町が 育っていく</div><div class="tags"><span>こども〜おとな</span><span>さがしもの</span><span>3D</span></div></div>
+      <div class="body"><div class="name">ふーたんを さがせ！</div></div>
     </a></li>
     <li><a class="game" href="./mori-itazura/">
       <div class="thumb"><img src="./thumbs/mori-itazura.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">もりのいたずら日和</div><div class="desc">森に すむ ちいさな どうぶつ「コロ」になって、にんげんたちの キャンプじょうを じゆうに たんけんする 3D アドベンチャー。ピクニックの バスケットから ごはんを いただき、みつかったら しげみや テーブルの したに かくれて にげきろう。せんたくものの キャンパーふくで へんそうすれば、ばいてんで かいものも、レンジャーの アルバイトも できる。つり・ボート・たきびの やきマシュマロ・たからさがし・まいごの ぬいぐるみ さがし。ひるから よるへ じかんも ながれる</div><div class="tags"><span>小学生〜</span><span>3D たんけん・いたずら</span><span>スマホ・タブレット</span></div></div>
-    </a></li>
-    <li><a class="game" href="./obake-rusuban/">
-      <div class="thumb"><img src="./thumbs/obake-rusuban.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">おばけのるすばん</div><div class="desc">ちいさな おばけ「ぽわ」の 家に、放課後 子どもたちが あそびに くる。家具や 家電に のりうつって「カタッ」「ガタガタッ！」と おどかそう。こわすぎると 泣いて かえり、たいくつだと ほかの 部屋へ。めざすは「ちょっと こわいけど たのしい！」ちょうどいい ドキドキ。見られると「あやしい…」、3回で おばけさがしが はじまる。はる・なつ・あき・ふゆ、模様替えする 3D ドールハウスで 全16回。</div><div class="tags"><span>小学生〜</span><span>おどかしアクション</span><span>3D</span></div></div>
-    </a></li>
-    <li><a class="game" href="./osekkai-yokocho/">
-      <div class="thumb"><img src="./thumbs/osekkai-yokocho.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">おせっかい横丁</div><div class="desc">命令はできない。でも、きっかけなら置ける。退屈なココ、自信をなくした演奏家ネネ、宣伝が苦手なパン屋のマル。住人を観察して、風船・楽譜・新作パンを「だれに」使うか考えよう。小さなきっかけが連鎖して、広場に「小さな演奏会」が開かれたらクリア。パンの紹介のしかたで結末が変わり、空振りした介入にもそれぞれ反応がある観察型アドベンチャー。</div><div class="tags"><span>だれでも</span><span>観察アドベンチャー</span><span>スマホ縦持ち</span></div></div>
+      <div class="body"><div class="name">もりのいたずら日和</div></div>
     </a></li>
     <li><a class="game" href="./chokkai-snap/">
       <div class="thumb"><img src="./thumbs/chokkai-snap.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">ちょっかいスナップ</div><div class="desc">見て、撮って、ちょっかい。勝手に暮らす人たちを観察し、気になる物を「画像」に取りこんで、だれかに送ってみよう。メガネをふいた父、強火にした母、開いた窓から入ってきた虫……ひとつの出来事が次の出来事を呼ぶ。家の食卓・商店街・キャンプ場・動物園・駅・遊園地の6ステージ、全323イベント。排他の分かれ道、時間切れの結末、イベント図鑑とリプレイつき。</div><div class="tags"><span>だれでも</span><span>観察パズル</span><span>スマホ・タブレット</span></div></div>
-    </a></li>
-    <li><a class="game" href="./hitori-jinro/">
-      <div class="thumb"><img src="./thumbs/hitori-jinro.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">ひとり人狼 〜月影の村〜</div><div class="desc">ひとりで遊べる人狼ゲーム。9人の村に人狼が2匹。8人のCPUは性格・感情・人間関係を持ち、占い結果やかばい合いから本気で推理する。疑えば恨まれ、黙れば問い詰められ、嘘の理由は見抜かれる。人狼は仲間をかばったり、護衛成功の朝に口をすべらせたり……表情と仕草から“ボロ”を見抜こう。人狼なら相棒に作戦を指示。終了後は感想戦つき。</div><div class="tags"><span>だれでも</span><span>推理</span><span>人狼</span></div></div>
-    </a></li>
-    <li><a class="game" href="./hirameki-soup/">
-      <div class="thumb"><img src="./thumbs/hirameki-soup.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">ひらめき スープ屋 〜ひとりで あそべる 水平思考クイズ〜</div><div class="desc">店主の カメ吉が 出す ふしぎな お話の「真相」を、はい／いいえで 答えられる 質問を かさねて 推理しよう。質問リストから 選ぶほか、自由に 文章で 聞くことも できる。核心に せまると 手がかりが メモに たまり、新しい 質問が ひらく。真相は 2〜3つの なぞを ぜんぶ 正しく 組み立てて 答え、最後は 伏線回収で すっきり。前菜から 裏メニューまで 全26問・質問 約600</div><div class="tags"><span>小学生〜大人</span><span>水平思考クイズ</span><span>スマホ・PC</span></div></div>
-    </a></li>
-    <li><a class="game" href="./futan-remocolon/">
-      <div class="thumb"><img src="./thumbs/futan-remocolon.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">リモコロン 〜ふーたんと リッキーの ちょっかいタウン〜</div><div class="desc">PS2『リモココロン』ふうの ちょっかい アドベンチャー（よこがめん）。かってに うごく まちの ひとびとを みて、きになる ものを「ふたつ えらぶ チョッカイ」で つなぐと、こうどうが かわって つぎの できごとが おきる。れんさを みつけて、ものがたりの「さいごの ちょっかい」まで たどりつこう。ふーたんちの おなべ・しょうてんがい・キャンプじょう・どうぶつえん・えき・ゆうえんちの 6ステージ。それぞれ たくさんの ミニ ストーリーが からみあい、さいごの ちょっかいで なべ ばくはつ・かみなりで ファイヤー・だいだっそう・さらば ちきゅう…!?かくれた チョッカイや こまりごとも いっぱいで、みつけた かずで ランクが きまる</div><div class="tags"><span>ちょっかい アドベンチャー</span><span>なぞとき</span><span>スマホ・PC</span></div></div>
-    </a></li>
-    <li><a class="game" href="./stella-noctis/">
-      <div class="thumb"><img src="./thumbs/stella-noctis.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">STELLA NOCTIS ─宵星のレガリア─</div><div class="desc">結界の輪が空に輝く帝都。下町の噴水から盗まれた「星核」を追い、元騎士ジークは城を抜け出した令嬢リュシア、天才術士ノアと旅に出る――。テイルズ オブ ヴェスペリアを彷彿とさせるトゥーン調 3D のアクション RPG。敵とのライン上で戦うリアルタイムバトル（フリーラン・術技連携・オーバーリミット・バーストアーツ）、敵の★を見逃さずに放つフェイタルストライク、カットイン付きの秘奥義、顔ウィンドウで掛け合う「スキット」、隠れたシェフのレシピで料理も。</div><div class="tags"><span>中学生〜大人</span><span>3D アクション RPG</span><span>PC・ゲームパッド・スマホ横持ち</span></div></div>
-    </a></li>
-    <li><a class="game" href="./fumon-ruby/">
-      <div class="thumb"><img src="./thumbs/fumon-ruby.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">ふーモン ルビー 〜ふーたんと だいちの ルビドン〜</div><div class="desc">ひっこしの トラックで あたらしい まちに やってきた ようちえんじ ふーたん。 キノミはかせから もらった パートナーと いっしょに、 くさむらで やせいの ふーモンを つかまえて そだてよう！ 3つの ジムで バッジを あつめ、 だいちを ひろげようと する カザンだんを とめて、 でんせつの ルビドンを しずめろ！ 25しゅるいの ふーモン・ずかん・しんか・ライバル・チャンピオン戦まで、 なつかしい ドットえの ゲームボーイアドバンス ふう RPG</div><div class="tags"><span>5さい〜</span><span>ドットえ RPG</span><span>スマホ・PC</span></div></div>
-    </a></li>
-    <li><a class="game" href="./futan-kitchen/">
-      <div class="thumb"><img src="./thumbs/futan-kitchen.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">ふーたんの はちゃめちゃキッチン！</div><div class="desc">オーバークック風の協力クッキングアクション。腹ペコ大怪獣ハラペコンに幼稚園ごと食べられたふーたんとリッキーは、タマネギ園長の「タイム弁当箱」で7日前へ。食材を切り、鍋・フライパン・フライヤーで調理し、皿に盛って次々と注文をさばけ！ 焦げれば火事、皿は洗わないと足りない、チップ倍率は最大×4。離れるトラック、通行人の屋台、揺れる海賊船、ベルトコンベア、いかだ、氷の湖、ワープ床、溶岩の吊り橋、動くカウンターなど全17ステージ＋プロローグ。ひとり（シェフ交代）でも、ふたり（キーボード／ゲームパッド）でも遊べる</div><div class="tags"><span>協力クッキング</span><span>3D アクション</span><span>1〜2人</span><span>PC・タブレット・スマホ</span></div></div>
-    </a></li>
-    <li><a class="game" href="./futan-takuto/">
-      <div class="thumb"><img src="./thumbs/futan-takuto.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">ふーたんと そよかぜの タクト</div><div class="desc">きょうは ふーたんの 5さいの おたんじょうび。 ところが おおきな とり ガルガが おとうとの リッキーを さらって しまった！ しゃべる ふね レオンに のって、 タクトで かぜの むきを かえながら うみの しまじまを ぼうけん。 チュチュたいじ・はっぱの うちわで ふんわり ジャンプ・いわおし パズル・くじらと わっか レース・かいてんぎり！ 3つの しずくを あつめて まものの とりでへ。 トゥーン 3D の アクション アドベンチャー</div><div class="tags"><span>5さい〜</span><span>3D ぼうけん</span><span>タブレット・PC・スマホ</span></div></div>
-    </a></li>
-    <li><a class="game" href="./futan-quest/">
-      <div class="thumb"><img src="./thumbs/futan-quest.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">ふーたん クエスト 〜ねむれる おひさまと よふかし まおう〜</div><div class="desc">ようちえんじ ふーたんが ゆうしゃに なって ぼうけんする、リアルな 3D の ロールプレイング ゲーム。 よふかし まおうに とじこめられた おひさまを とりもどそう！ まちで ぶきや どうぐを かって、フィールドや どうくつで まものと コマンド バトル。 レベルを あげて じゅもんを おぼえ、おとうとの リッキーや いぬの ポチと なかまに なるよ。 「おまかせ」バトルと よみあげ こえで ちいさな こも あそべる！</div><div class="tags"><span>5さい〜</span><span>3D RPG</span><span>PC・タブレット・スマホ</span></div></div>
-    </a></li>
-    <li><a class="game" href="./chibikko-auto/">
-      <div class="thumb"><img src="./thumbs/chibikko-auto.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">GRAND CHIBIKKO AUTO（グランド ちびっこ オート）</div><div class="desc">リアルな 3D の まちを ちびっこが ぼうけん！ あるいたり、とまっている くるまや はしっている くるまに のって じゆうに ドライブ。 パトカー・しょうぼうしゃ・アイスクリーム カー・ようちえん バスなど 7つの ミッション、ジャンプ パークで スーパー ジャンプ、かくれ ほし あつめ、ラジオも きけるよ。 いたずらすると おまわりさんが おいかけて くる！</div><div class="tags"><span>5さい〜</span><span>3D オープンワールド</span><span>タブレット・PC</span></div></div>
-    </a></li>
-    <li><a class="game" href="./sky-glider/">
-      <div class="thumb"><img src="./thumbs/sky-glider.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">SKY GLIDER</div><div class="desc">リアルな 3D の けいこくを グライダーで とぶ アクション。 30この リングを くぐって ゴールの みずうみを めざそう。 じょうしょう きりゅうで たかく のぼり、ブーストで かっとぶ！ あさ・ひる・ゆうがたの 3つの じかんと、ぶつからない「かんたん」モードで だれでも あそべるよ</div><div class="tags"><span>ぜんねんれい</span><span>3D フライト</span><span>PC・スマホ</span></div></div>
-    </a></li>
-    <li><a class="game" href="./koe-asobi/">
-      <div class="thumb"><img src="./thumbs/koe-asobi.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">ふーたんと リッキーの こえあそびランド</div><div class="desc">じぶんの こえで あそぼう！ ろくおんした こえを ロボット・おばけ・かいじゅう・やまびこ など 15しゅるいに へんしん。 「だれが・どこで・なにを・どうした」を ろくおんして まぜまぜ すると へんてこ ぶんしょうに！ アカペラ カラオケでは こえだけで うたって てんすう＆かさねどりで ひとりがっしょう！ こえで ドレミの ピアノ、 こえで リズムの ビート、 さかさま ことば チャレンジ、 ちいさな こえで とばす ロケットも</div><div class="tags"><span>4さい〜</span><span>こえあそび</span><span>マイク</span><span>スマホ</span></div></div>
+      <div class="body"><div class="name">ちょっかいスナップ</div></div>
     </a></li>
     <li><a class="game" href="./cure-tantei/">
       <div class="thumb"><img src="./thumbs/cure-tantei.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">キュアたんてい ふーちゃん</div><div class="desc">たんていの ふーちゃんと リッキーが 16の じけんを かいけつ！ だい2ぶ（8わ）は おばけの モヤモヤンが とうじょう。 まちがいさがしや カードあわせも！ むしめがねで てがかり さがし、おいしゃさんで しんさつ、えいごや すうじの なぞとき、へんしんして モンスターと バトル！</div><div class="tags"><span>5さい〜</span><span>たんてい</span><span>えいご・すうじ</span><span>スマホ</span></div></div>
+      <div class="body"><div class="name">キュアたんてい ふーちゃん</div></div>
     </a></li>
     <li><a class="game" href="./fuchan-hospital/">
       <div class="thumb"><img src="./thumbs/fuchan-hospital.jpg" alt="" width="800" height="500" loading="lazy"><span class="new">NEW</span></div>
-      <div class="body"><div class="name">ふーちゃんと リッキーの キラキラびょういん</div><div class="desc">ふーちゃん せんせいと リッキーの びょういん！ しんさつ・レントゲン・きゅうきゅうしゃ・あかちゃんルーム・ぬいぐるみびょういん・めがねやさん・ドクターヘリ など 14の おへやを、 5かいだての びょういんを あるいて まわろう。 あそぶたびに かんじゃさんや びょうきが かわるよ。 ごほうびの おようふくで ふたりを おきがえ！ かんじゃさん ずかん・キラキラ かんじゃさん・まいにちの おねがいスタンプ・メダルで びょういんの そとが どんどん にぎやかに！ となりの しかいいんでは かばさんの はいしゃさん・けんしん・レントゲン・むしばちりょう・そめだし・フッそ・しせきとり・はえかわり・はの かたち・きょうせい・かぶせもの の 11しゅるいの はいしゃさんごっこ！ からだの ふしぎや えいご、 かずも まなべる</div><div class="tags"><span>5さい〜</span><span>おいしゃさん</span><span>はいしゃさん</span><span>えいご・かず</span><span>スマホ</span></div></div>
-    </a></li>
-    <li><a class="game" href="./futan-strike/">
-      <div class="thumb"><img src="./thumbs/futan-strike.jpg" alt="" width="800" height="500" loading="lazy"></div>
-      <div class="body"><div class="name">キュアふーたん ストライク</div><div class="desc">ひっぱって はなすと びゅーん！ キュアふーたんと あかちゃん リッキーが はねかえって てきを やっつける。ひっさつわざで ドーン！ クリアで レベルアップ＆なかまが ふえるよ</div><div class="tags"><span>5さい〜</span><span>ひっぱりアクション</span><span>スマホ</span></div></div>
-    </a></li>
-    <li><a class="game" href="./ricky-sukusuku/">
-      <div class="thumb"><img src="./thumbs/ricky-sukusuku.jpg" alt="" width="800" height="500" loading="lazy"></div>
-      <div class="body"><div class="name">ふーたんと リッキー すくすく にっき</div><div class="desc">おねえちゃんの ふーたんが あかちゃん リッキーを おせわ！ ミルク・おふろ・あそびで ほいくえん → がっこう → けっこん → あかちゃんへ。ふくや ずかん あつめも</div><div class="tags"><span>4さい〜</span><span>いくせい</span><span>スマホ</span></div></div>
-    </a></li>
-    <li><a class="game" href="./futan-kart/">
-      <div class="thumb"><img src="./thumbs/futan-kart.jpg" alt="" width="800" height="500" loading="lazy"></div>
-      <div class="body"><div class="name">キュアふーたんの キラキラカート</div><div class="desc">キュアふーたんと リッキーが 3Dの カートで レース！ アイテムを なげたり、スターで むてきに なったり。4つの コースを はしろう</div><div class="tags"><span>5さい〜</span><span>3D レース</span><span>タブレット</span></div></div>
-    </a></li>
-    <li><a class="game" href="./futan-block/">
-      <div class="thumb"><img src="./thumbs/futan-block.jpg" alt="" width="800" height="500" loading="lazy"></div>
-      <div class="body"><div class="name">ふーたんと リッキーの ブロックパズル</div><div class="desc">ブロックを おいて たて・よこ 1れつ そろえると きえるよ。コンボで キュアふーたんに へんしん！</div><div class="tags"><span>パズル</span></div></div>
-    </a></li>
-    <li><a class="game" href="./futan-stealth/">
-      <div class="thumb"><img src="./thumbs/futan-stealth.jpg" alt="" width="800" height="500" loading="lazy"></div>
-      <div class="body"><div class="name">ふーたんの こっそりミッション</div><div class="desc">かべや くさむらに かくれながら、みつからないように ゴールを めざす ステルスゲーム</div><div class="tags"><span>5さい〜</span><span>ステルス</span></div></div>
-    </a></li>
-    <li><a class="game" href="./futan-survivor/">
-      <div class="thumb"><img src="./thumbs/futan-survivor.jpg" alt="" width="800" height="500" loading="lazy"></div>
-      <div class="body"><div class="name">キュアふーたん サバイバー</div><div class="desc">わらわら でてくる てきを やっつけて、レベルアップで わざを えらんで どんどん つよくなる！</div><div class="tags"><span>5さい〜</span><span>アクション</span></div></div>
-    </a></li>
-    <li><a class="game" href="./fuchan-town/">
-      <div class="thumb"><img src="./thumbs/fuchan-town.jpg" alt="" width="800" height="500" loading="lazy"></div>
-      <div class="body"><div class="name">ふーちゃんのまち</div><div class="desc">3Dの しまを おさんぽして、56の アトラクションで あそぼう。あたらしい ゲームセンターには もぐらたたき・ピンボール・メダルおとし など 10しゅるいの アーケードゲーム！ もじの れんしゅうや おうちづくりも！</div><div class="tags"><span>4さい〜</span><span>いろいろ</span><span>スマホ</span></div></div>
+      <div class="body"><div class="name">ふーちゃんと リッキーの キラキラびょういん</div></div>
     </a></li>
     <li><a class="game" href="./kossori-treasure/">
       <div class="thumb"><img src="./thumbs/kossori-treasure.jpg" alt="" width="800" height="500" loading="lazy"></div>
-      <div class="body"><div class="name">こっそりトレジャー</div><div class="desc">見つからずに宝物を集めて、億万長者をめざそう！</div><div class="tags"><span>ぼうけん</span></div></div>
+      <div class="body"><div class="name">こっそりトレジャー</div></div>
     </a></li>
   </ul>
 </main>

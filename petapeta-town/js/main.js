@@ -8,7 +8,7 @@
   const kids = [
     { cid: 'lulu', x: 470, pose: 'wave' }, { cid: 'pon', x: 640, pose: 'cheer' },
     { cid: 'gaku', x: 960, pose: 'wave' }, { cid: 'choco', x: 1120, pose: 'dance' },
-    { cid: 'mimi', x: 300, pose: 'dance' }, { cid: 'moko', x: 1290, pose: 'cheer' }, { cid: 'pyoko', x: 800, pose: 'jump' },
+    { cid: 'mimi', x: 300, pose: 'dance' }, { cid: 'moko', x: 1290, pose: 'cheer' }, { cid: 'pyoko', x: 800, pose: 'jump' }, { cid: 'futan', x: 1450, pose: 'wave' }, { cid: 'ricky', x: 150, pose: 'cheer' },
   ].map((k, i) => ({ def: PT.CHARS[k.cid], cid: k.cid, x: k.x, y: 860, z: 0, pose: k.pose, poseT: 0, face: i % 2 ? 'laugh' : 'happy', wear: {}, seed: i * 1.7, scale: 1.15, look: 0, flip: k.x > 800 })).sort((a, b) => (a.cid === 'pyoko') - (b.cid === 'pyoko'));
 
   function drawBg(ctx) {
@@ -30,7 +30,7 @@
     B.bunting(ctx, 0, 30, 1600, 30, 70);
   }
   function resize() {
-    const d = Math.min(2, window.devicePixelRatio || 1);
+    const d = Math.min(2.5, window.devicePixelRatio || 1);
     cv.width = Math.round(innerWidth * d); cv.height = Math.round(innerHeight * d);
     bw = innerWidth; bh = innerHeight;
     const s = Math.max(bw / 1600, bh / 900) * d;
@@ -40,7 +40,7 @@
   PT.titleFrame = (dt) => {
     if (!bg || bw !== innerWidth || bh !== innerHeight) resize();
     t += dt;
-    const d = Math.min(2, window.devicePixelRatio || 1);
+    const d = Math.min(2.5, window.devicePixelRatio || 1);
     const s = Math.max(bw / 1600, bh / 900);
     c.setTransform(d, 0, 0, d, 0, 0);
     const ox = (bw - 1600 * s) / 2, oy = (bh - 900 * s);

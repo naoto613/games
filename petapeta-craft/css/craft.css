@@ -1,0 +1,61 @@
+/* つくってワールド の ための たしがき（きほんは あそびタウンの スタイル） */
+.c12 { color: #ff5d78; } .c13 { color: #3b7dd8; }
+.logo-blocks { position: absolute; right: -9%; top: -6%; display: grid; grid-template-columns: repeat(2, clamp(16px, 2.6vw, 28px)); gap: 3px; transform: rotate(10deg); }
+.logo-blocks i { display: block; aspect-ratio: 1; border-radius: 6px; border: 3px solid #fff; box-shadow: 0 3px 0 rgba(31, 63, 119, .2); }
+.logo-blocks i:nth-child(1) { background: #7bc96a; grid-column: 1 / 3; width: 50%; justify-self: center; }
+.logo-blocks i:nth-child(2) { background: #ff8fb1; } .logo-blocks i:nth-child(3) { background: #ffd23f; }
+.ico-cube { --m: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2l9 5v10l-9 5-9-5V7z M12 12l9-5M12 12L3 7M12 12v10" fill="none" stroke="black" stroke-width="2.4" stroke-linejoin="round"/></svg>'); }
+.ico-hand { --m: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 12V5a1.6 1.6 0 0 1 3.2 0v6V3.6a1.6 1.6 0 0 1 3.2 0V11V4.8a1.6 1.6 0 0 1 3.2 0V12V8.4a1.6 1.6 0 0 1 3.2 0V15c0 4-3 7-7 7h-1.4c-2.2 0-3.8-.9-5-2.6L3.6 14.6a1.7 1.7 0 0 1 2.7-2z" fill="black"/></svg>'); }
+.ico-hammer { --m: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.5 3.5l7 7-3 3-2-2-8.8 8.8a2 2 0 0 1-2.8-2.8L12.7 8.7l-2-2z" fill="black"/></svg>'); }
+.ico-undo { --m: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 9H14a6 6 0 0 1 0 12h-3" fill="none" stroke="black" stroke-width="3" stroke-linecap="round"/></svg>'); }
+.ico-sun { --m: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="black"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" stroke="black" stroke-width="2.4" stroke-linecap="round"/></svg>'); }
+.ico-moon { --m: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 15.5A8.5 8.5 0 1 1 9.5 3a7 7 0 0 0 10.5 12.5z" fill="black"/></svg>'); }
+.ico-feet { --m: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><ellipse cx="7" cy="14" rx="3.4" ry="5" fill="black" transform="rotate(-10 7 14)"/><ellipse cx="17" cy="9" rx="3.4" ry="5" fill="black" transform="rotate(10 17 9)"/><circle cx="6" cy="21.5" r="1.6" fill="black"/><circle cx="18" cy="16.5" r="1.6" fill="black"/></svg>'); }
+.ico-plus { --m: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="10" cy="10" r="7" fill="none" stroke="black" stroke-width="2.6"/><path d="M15 15l6 6M7 10h6M10 7v6" stroke="black" stroke-width="2.6" stroke-linecap="round"/></svg>'); }
+.ico-minus { --m: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="10" cy="10" r="7" fill="none" stroke="black" stroke-width="2.6"/><path d="M15 15l6 6M7 10h6" stroke="black" stroke-width="2.6" stroke-linecap="round"/></svg>'); }
+
+/* どうぐ ばこ（ひだり） */
+.toolbar { position: absolute; left: max(10px, env(safe-area-inset-left)); top: calc((100% - var(--panel-h, 150px)) / 2 + 34px); transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; }
+.tool { position: relative; width: 72px; height: 72px; border-radius: 22px; background: #fff; border: 3px solid var(--line); box-shadow: var(--shadow); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; color: var(--navy); font-size: 30px; transition: transform .1s; }
+.tool small { font-size: 12px; font-weight: 900; line-height: 1; margin-top: 3px; }
+.tool .tool-cv { width: 38px; height: 38px; display: block; }
+.tool .tool-cv canvas { width: 100%; height: 100%; }
+.tool.on { background: linear-gradient(#ffb04a, #ff8a1f); color: #fff; border-color: #fff; box-shadow: 0 4px 0 #d96a10, 0 8px 16px rgba(255, 138, 31, .35); transform: scale(1.06); }
+.tool[data-tool="break"].on { background: linear-gradient(#ff8a8a, #f25a5a); box-shadow: 0 4px 0 #c43b3b, 0 8px 16px rgba(242, 90, 90, .35); }
+.tool[data-tool="hand"].on { background: linear-gradient(#7ec4ff, #2f7fe0); box-shadow: 0 4px 0 #1f5fae, 0 8px 16px rgba(47, 127, 224, .35); }
+.tool.undo { color: var(--purple); }
+.tool.undo.dim { opacity: .5; }
+.tool:active { transform: scale(.94); }
+.zoom { position: absolute; right: max(14px, env(safe-area-inset-right)); bottom: calc(var(--panel-h, 150px) + 12px); display: flex; gap: 8px; }
+.edge { position: absolute; top: calc((100% - var(--panel-h, 150px)) / 2 + 30px); width: 46px; height: 86px; transform: translateY(-50%); border-radius: 22px; background: rgba(255, 255, 255, .55); color: var(--navy); font-size: 26px; display: grid; place-items: center; border: 3px solid rgba(255, 255, 255, .8); }
+.edge:active { background: rgba(255, 255, 255, .9); }
+.edge-l { left: 92px; } .edge-r { right: 10px; }
+.sq-btn.on { background: var(--green); color: #fff; border-color: #fff; }
+.sq-btn.night { background: #2f3f7a; color: #ffe066; border-color: #fff; }
+.sq-btn .badge { position: absolute; right: -4px; top: -4px; width: 16px; height: 16px; border-radius: 50%; background: var(--pink); border: 2px solid #fff; }
+.sq-btn.pop { animation: pulse .5s ease-in-out 3; }
+.item.sel { border-color: #ff8a1f; box-shadow: 0 0 0 4px rgba(255, 176, 74, .45), 0 3px 0 rgba(31, 63, 119, .1); background: #fff7ec; }
+.item .nm { position: absolute; left: 4px; right: 4px; bottom: 3px; background: rgba(255,255,255,.88); border-radius: 8px; text-align: center; font-size: 10px; font-weight: 900; color: #5a6f96; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 3px; pointer-events: none; }
+.item canvas { width: 80%; height: 80%; margin-bottom: 8px; }
+.tab { gap: 4px; }
+.world-card { position: relative; }
+.reset-chip { position: absolute; right: 8px; top: 8px; padding: 3px 10px; border-radius: 999px; background: rgba(255, 255, 255, .92); color: #d2384c; font-size: 12px; font-weight: 900; border: 2px solid #ffd0d6; }
+.tutorial { left: 90px; bottom: calc(var(--panel-h, 150px) - 10px); }
+@media (max-height: 460px) {
+  .tool { width: 52px; height: 52px; font-size: 22px; border-radius: 16px; }
+  .tool small { font-size: 9px; }
+  .tool .tool-cv { width: 26px; height: 26px; }
+  .toolbar { display: grid; grid-template-columns: 52px 52px; gap: 6px; }
+  .tool.on { transform: scale(1.04); }
+  .edge-l { left: 128px; } .edge { width: 36px; height: 60px; }
+  .zoom .sq-btn { width: 40px; height: 40px; font-size: 20px; }
+  .item .nm { font-size: 9px; }
+}
+
+.ico-home { --m: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 11.5L12 4l9 7.5V20a1.5 1.5 0 0 1-1.5 1.5H15v-6H9v6H4.5A1.5 1.5 0 0 1 3 20z" fill="black"/></svg>'); }
+.mode-house { border-color: #ffd8b0; background: linear-gradient(#fff6ec, #fff); } .mode-house .mode-badge { background: var(--orange); } .mode-house b { color: #d96a10; }
+.mode-house { transform: scale(1.04); }
+/* おうちモードでは ブロックの どうぐと やじるしは かくす */
+#scr-play.house .tool[data-tool="place"], #scr-play.house .edge { display: none; }
+.item.room { aspect-ratio: 1.15; }
+.item.room canvas { width: 92%; height: 80%; margin-bottom: 14px; }

@@ -82,7 +82,7 @@
   Wd.bounds = (e) => {
     if (e.kind === 'char') {
       const s = e.scale * e.def.size;
-      return { x: e.x - 50 * s, y: e.y - e.z - 180 * s, w: 100 * s, h: 185 * s };
+      const ex = (e.def.legExt || 0) + (e.def.hover || 0); return { x: e.x - 50 * s, y: e.y - e.z - (180 + ex) * s, w: 100 * s, h: (185 + ex) * s };
     }
     if (e.kind === 'prop') {
       const s = e.scale * (e.big || 1);
@@ -303,7 +303,7 @@
     const b = ch.bubble; if (!b) return;
     const s = Math.min(1.15, ch.scale * 1.05);
     const k = Math.min(1, (Wd.t - b.t0) / 160);
-    const hx = ch.x, hy = ch.y - ch.z - (205 + (ch.wear.hat ? 40 : 0)) * ch.scale * ch.def.size;
+    const hx = ch.x, hy = ch.y - ch.z - (205 + (ch.wear.hat ? 40 : 0) + (ch.def.legExt || 0) + (ch.def.hover || 0)) * ch.scale * ch.def.size;
     c.save();
     c.translate(hx, hy); c.scale(s * PT.easeBack(k), s * PT.easeBack(k));
     c.font = `800 26px ${PT.FONT}`;
@@ -362,6 +362,8 @@
       return;
     }
     if (e.def.hidden) return;
+    // ゆかに おちる かげ（ものが ういて 見えないように）
+    if (!e.def.area && !e.def.sky && !e.def.wall && e.type !== 'skystar') G.shadow(c, e.x, e.y + 4, Math.min(260, e.w * 0.46), 0.13);
     c.save(); c.translate(e.x, e.y);
     if (e.glow) { c.shadowColor = '#ffe066'; c.shadowBlur = 22; }
     if (e.wobbleUntil && Wd.t < e.wobbleUntil) c.rotate(Math.sin(Wd.t * 0.04) * 0.03);

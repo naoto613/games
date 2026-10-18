@@ -85,8 +85,10 @@
     return p;
   }
 
+  PT.CHAR_EXT = { earBack: {}, earFront: {}, acc: {}, body: {}, tail: {} };
   /* 耳（頭の後ろ側） */
   function earsBack(c, P, t, ch) {
+    if (PT.CHAR_EXT.earBack[P.ear]) return PT.CHAR_EXT.earBack[P.ear](c, P, t, ch);
     const col = P.color, dk = P.dark, ln = PT.line(col);
     const wig = Math.sin(t * 0.006 + ch.seed) * 0.05;
     c.save();
@@ -129,6 +131,7 @@
   }
   /* 耳（頭の前側） */
   function earsFront(c, P, t, ch) {
+    if (PT.CHAR_EXT.earFront[P.ear]) return PT.CHAR_EXT.earFront[P.ear](c, P, t, ch);
     const col = P.color, dk = P.dark;
     const wig = Math.sin(t * 0.006 + ch.seed) * 0.06;
     switch (P.ear) {
@@ -177,7 +180,7 @@
     const f = ch.face || 'happy';
     const blink = ((t + ch.seed * 1000) % 4200) < 130;
     // 目のまわりの 明るい毛（やさしい表情に）
-    c.fillStyle = PT.shade(P.color, P.color === '#f7f2ec' ? 0.6 : 0.28);
+    c.fillStyle = P.eyePatch || PT.shade(P.color, P.color === '#f7f2ec' ? 0.6 : 0.28);
     G.ell(c, -ex + lx, ey + 1, 15, 16.5); c.fill();
     G.ell(c, ex + lx, ey + 1, 15, 16.5); c.fill();
     // ほっぺ
@@ -247,6 +250,7 @@
   }
 
   function accessory(c, P, ch, t, look) {
+    if (PT.CHAR_EXT.acc[P.acc]) PT.CHAR_EXT.acc[P.acc](c, P, ch, t, look * 7);
     const lx = look * 7;
     switch (P.acc) {
       case 'bow': {
@@ -286,6 +290,7 @@
   }
 
   function bodyAcc(c, P) {
+    if (PT.CHAR_EXT.body[P.acc]) PT.CHAR_EXT.body[P.acc](c, P);
     if (P.acc === 'scarf') {
       G.poly(c, [-24, -82, 24, -82, 0, -58]); G.fillO(c, P.accColor, 2.5);
       G.rr(c, -26, -88, 52, 11, 5); G.fillO(c, P.accColor, 2.5);
@@ -298,8 +303,12 @@
   }
 
   /* 衣装（ぼうし・からだ・かお） */
+  /* 追加衣装の 描画（あとから 登録。同じ名前なら こちらが 優先） */
+  const EXT = (PT.WEAR_EXT = { hat: {}, body: {}, back: {}, face: {} });
   function wearBack(c, ch, t) {
     const w = ch.wear || {};
+    if (EXT.back[w.back]) EXT.back[w.back](c, ch, t);
+    if (EXT.body[w.body] && EXT.body[w.body].back) EXT.body[w.body].back(c, ch, t);
     if (w.body === 'cape') {
       const fl = Math.sin(t * 0.01) * 6 + (ch.pose === 'run' || ch.pose === 'fly' ? 18 : 0);
       c.beginPath(); c.moveTo(-24, -86); c.quadraticCurveTo(-46 - fl, -40, -40 - fl, -6); c.lineTo(36 - fl * 0.3, -8); c.quadraticCurveTo(40, -50, 24, -86); c.closePath();
@@ -321,6 +330,7 @@
   }
   function wearBody(c, ch) {
     const w = ch.wear || {};
+    if (EXT.body[w.body]) { EXT.body[w.body](c, ch, ch._t || 0); return; }
     switch (w.body) {
       case 'apron':
         c.beginPath(); c.moveTo(-18, -80); c.lineTo(18, -80); c.lineTo(24, -26); c.quadraticCurveTo(0, -18, -24, -26); c.closePath();
@@ -395,6 +405,7 @@
       const mx = lx * 1.2;
       for (const sd of [-1, 1]) { c.beginPath(); c.moveTo(mx, -101); c.quadraticCurveTo(mx + sd * 14, -108, mx + sd * 26, -100); c.quadraticCurveTo(mx + sd * 32, -104, mx + sd * 30, -110); c.quadraticCurveTo(mx + sd * 36, -96, mx + sd * 22, -94); c.quadraticCurveTo(mx + sd * 10, -94, mx, -99); c.closePath(); G.fillO(c, '#6b4a2b', 2.5); }
     }
+    if (EXT.hat[w.hat]) { EXT.hat[w.hat](c, ch, t, lx); return; }
     switch (w.hat) {
       case 'explorer':
         G.ell(c, 0, -152, 60, 13); G.fillO(c, '#d7b56d', 3);
@@ -513,10 +524,11 @@
     }
   }
 
-  PT._wearBody = wearBody; PT._wearHead = wearHead; PT._wearFront = wearFront; PT._wearBack = wearBack;
+  PT._wearBody = wearBody; PT._wearHead = wearHead; PT._wearFront = wearFront; PT._wearBack = wearBack; PT._poseParams = poseParams;
 
   /* メイン：キャラクターを描く（足元が原点） */
   PT.drawChar = (c, ch, t) => {
+    ch._t = t;
     const P = ch.def;
     const pp = poseParams(ch, t);
     const look = ch.look || 0;
@@ -541,8 +553,10 @@
       return;
     }
 
+    if (P.human) { PT._drawHumanBody(c, ch, t, pp, look); } else {
     // しっぽ
-    if (P.tail === 'puff') { G.circ(c, -28, -40 + Math.sin(t * 0.01) * 2, 13); G.fillO(c, '#ffffff', 3); }
+    if (PT.CHAR_EXT.tail[P.tail]) PT.CHAR_EXT.tail[P.tail](c, P, t, ch, pp);
+    else if (P.tail === 'puff') { G.circ(c, -28, -40 + Math.sin(t * 0.01) * 2, 13); G.fillO(c, '#ffffff', 3); }
     else {
     c.save(); c.translate(-20, -40); c.rotate(-0.8 + pp.tail);
     c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(-24, -14, -26, -40);
@@ -609,12 +623,13 @@
       c.save(); c.translate(0, -150); const k = Math.min(0.9, 80 / Math.max(it.w, it.h)); c.rotate(Math.sin(t * 0.004) * 0.08); c.scale(k, k); it.draw(c, t, {}); c.restore();
     }
     c.restore();
+    }
 
     // もっている物
     if (ch.holdType && PT.ITEMS[ch.holdType]) {
       const it = PT.ITEMS[ch.holdType];
       c.save();
-      const hx = ch.pose === 'carry' ? 0 : hR[0], hy = ch.pose === 'carry' ? -180 : hR[1] + 10;
+      const hR2 = ch._hand || [20, -60]; const hx = ch.pose === 'carry' ? 0 : hR2[0], hy = ch.pose === 'carry' ? -180 - (P.legExt || 0) : hR2[1] + 10;
       c.translate(hx, hy);
       const k = Math.min(0.75, 70 / Math.max(it.w, it.h));
       c.scale(k, k);
@@ -627,11 +642,15 @@
   /* アイコン用：静止したキャラの顔＋体 */
   PT.charIcon = (cid, size = 96, opts = {}) => {
     const cv = document.createElement('canvas');
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const dpr = Math.min(3, Math.max(2, window.devicePixelRatio || 1));
     cv.width = cv.height = Math.round(size * dpr);
     const c = cv.getContext('2d');
     c.scale(dpr, dpr);
-    const ch = { def: PT.CHARS[cid], cid, x: size / 2, y: size * (opts.full ? 0.98 : 1.32), pose: 'idle', poseT: 0, face: opts.face || 'happy', wear: {}, seed: 1.7, scale: size / (opts.full ? 215 : 150), look: 0 };
+    const D = PT.CHARS[cid], ext = (D.legExt || 0) + (D.hover || 0);
+    // かおの アイコンは 大人も こどもも おなじ おおきさに そろえる
+    const sc = opts.full ? size / (215 + ext) / D.size : size / 150 / (D.fairy ? D.size * 1.1 : Math.max(1, D.size));
+    const y = opts.full ? size * 0.98 : size * 1.32 + (ext ? ext + (D.fairy ? 0 : 10) : 0) * sc * D.size;
+    const ch = { def: D, cid, x: size / 2, y, pose: 'idle', poseT: 0, face: opts.face || 'happy', wear: {}, seed: 1.7, scale: sc, look: 0 };
     PT.drawChar(c, ch, 300);
     return cv;
   };
