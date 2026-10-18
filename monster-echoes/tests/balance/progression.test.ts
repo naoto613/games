@@ -36,7 +36,20 @@ function run(seed: number, verbose: boolean) {
   party[1] = createMonster('m042', rng, { level: 5, sex: 'A' }); // 森で リーフアント
   for (const fl of ['sasayaki2', 'sasayaki3', 'sasayaki4']) floor(fl);
   const b1 = fight(heal(party), BOSSES.morg.enemies, rng, 'boss');
-  return { b1, lv: party.map((m) => m.level).join('/'), battles };
+  const lv1 = party.map((m) => m.level).join('/');
+  // 第2章：水音の洞穴（クラブリン・アクアバットが なかまに）→ 泡守りの騎士 → 深淵の水路（アビスイール）→ ウロコ王
+  floor('mizuoto1');
+  party[2] = createMonster('m101', rng, { level: 8, sex: 'A' });
+  floor('mizuoto2');
+  party[1] = createMonster('m104', rng, { level: 9, sex: 'B' });
+  floor('mizuoto3');
+  const b2 = fight(heal(party), BOSSES.bubbleknight.enemies, rng, 'boss');
+  for (const fl of ['shinen1', 'shinen2', 'shinen3']) floor(fl);
+  floor('shinen4');
+  party[1] = createMonster('m105', rng, { level: 12, sex: 'B' });
+  floor('shinen5');
+  const b3 = fight(heal(party), BOSSES.uroko.enemies, rng, 'boss');
+  return { b1, b2, b3, lv: lv1, lv2: party.map((m) => m.level).join('/'), battles };
 }
 it('progression（第1章）', () => {
   run(5, false);
@@ -48,5 +61,18 @@ it('progression（第1章）', () => {
   expect(pct((r) => r.b1.win)).toBeLessThanOrEqual(92);
   const maxLv = Math.max(...rs.flatMap((r) => r.lv.split('/').map(Number)));
   expect(maxLv).toBeLessThanOrEqual(12);
-  console.log(`（第1章を 寄り道なしで）モルグ 勝率 ${pct((r) => r.b1.win)}% ${avg((r) => r.b1.turns)}ターン  レベル 例: ${rs[0].lv}（${rs[0].battles}戦）`);
+  console.log(`（第1章を 寄り道なしで）モルグ 勝率 ${pct((r) => r.b1.win)}% ${avg((r) => r.b1.turns)}ターン  レベル 例: ${rs[0].lv}`);
+});
+it('progression（第2章）', () => {
+  const rs = Array.from({ length: 30 }, (_, i) => run(300 + i, false));
+  const pct = (f: (r: any) => boolean) => Math.round((rs.filter(f).length / rs.length) * 100);
+  const avg = (f: (r: any) => number) => (rs.reduce((a, r) => a + f(r), 0) / rs.length).toFixed(1);
+  console.log(`（第2章を 寄り道なしで）泡守りの騎士 ${pct((r) => r.b2.win)}% ${avg((r) => r.b2.turns)}ターン ／ ウロコ王 ${pct((r) => r.b3.win)}% ${avg((r) => r.b3.turns)}ターン  レベル 例: ${rs[0].lv2}（${rs[0].battles}戦）`);
+  // 目標：中ボス 55〜95%・章ボス 50〜90%。レベルは 第2章の 想定 Lv8〜16（Q15）
+  expect(pct((r) => r.b2.win)).toBeGreaterThanOrEqual(55);
+  expect(pct((r) => r.b2.win)).toBeLessThanOrEqual(95);
+  expect(pct((r) => r.b3.win)).toBeGreaterThanOrEqual(50);
+  expect(pct((r) => r.b3.win)).toBeLessThanOrEqual(92);
+  const maxLv = Math.max(...rs.flatMap((r) => r.lv2.split('/').map(Number)));
+  expect(maxLv).toBeLessThanOrEqual(18);
 });

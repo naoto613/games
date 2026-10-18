@@ -17,7 +17,7 @@ const list: BossScript[] = [
     id: 'bubbleknight',
     rules: [
       { id: 'armor', when: { kind: 'start' }, once: true, steps: [{ kind: 'message', text: '泡守りの騎士は 泡の よろいを まとった！' }, { kind: 'buff', stat: 'defense', stages: 1, target: 'self' }] },
-      { id: 'call', when: { kind: 'hpBelow', ratio: 0.5 }, once: true, steps: [{ kind: 'message', text: '騎士の まわりに 泡が あつまっていく……！' }, { kind: 'summon', speciesId: 'm002', level: 10, count: 1, max: 2, name: 'あわの こ' }] },
+      { id: 'call', when: { kind: 'hpBelow', ratio: 0.5 }, once: true, steps: [{ kind: 'message', text: '騎士の まわりに 泡が あつまっていく……！' }, { kind: 'summon', speciesId: 'm104', level: 9, count: 1, max: 2, name: 'あわこうもり' }] },
     ],
   },
   // 第2章 深淵のウロコ王：水の 全体攻撃／一定ターンごとに 守備が あがる（雷が 弱点）

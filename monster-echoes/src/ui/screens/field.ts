@@ -761,6 +761,17 @@ export class FieldScreen implements Screen {
         } });
         continue;
       }
+      if (ch === 'V' && cave) {
+        // 洞窟の しらべる ところ：ひかる 水たまりと 水晶（森の きりかぶの かわり）
+        const fr = still ? 0 : Math.floor(this.frame / 8);
+        items.push({ base: (y + 1) * TT - 6, draw: () => {
+          const pulse = 0.5 + 0.5 * Math.sin(this.frame / 12);
+          g.fillStyle = `rgba(120,220,255,${0.35 + 0.25 * pulse})`; g.beginPath(); g.ellipse(sx + 16, sy + 24, 14, 6, 0, 0, Math.PI * 2); g.fill();
+          g.drawImage(crystalImg(2, fr), sx - 8, sy + 32 - 64);
+          if (!still && Math.floor(this.frame / 10) % 3 === 0) { g.fillStyle = '#ffffff'; g.fillRect(sx + 22, sy + 4, 2, 2); g.fillRect(sx + 6, sy + 12, 2, 2); }
+        } });
+        continue;
+      }
       if ('CH>EV'.includes(ch)) {
         const ov = overlaySprite(theme, ch, x, y, anim, { open: ch === 'C' && this.game.isOpened({ x, y }), used: ch === 'H' && !!ex.springUsed, ev: ch === 'V' ? EVENT_BY_ID[m.events?.[`${x},${y}`] ?? '']?.kind : undefined });
         if (ov) items.push({ base: (y + 1) * TT - 6, draw: () => { if (ch === 'C' || ch === 'V') shadow(sx, sy, 12); g.drawImage(ov, sx, sy); } });

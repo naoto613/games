@@ -160,6 +160,8 @@ export type EnemySpec = {
   /** ボス用の補正（HP 倍率など） */
   hpScale?: number;
   statScale?: number;
+  /** 能力ごとの 倍率（statScale に かける。かたい ボスの 守備だけ さげる など） */
+  statMul?: Partial<Record<'attack' | 'defense' | 'speed' | 'magic' | 'spirit', number>>;
   skills?: string[];
   name?: string;
   distorted?: boolean;

@@ -20,15 +20,15 @@ export const ENCOUNTERS: Record<string, EncounterTable> = Object.fromEntries(
     enc('sasayaki3', [['m050', 1, 6, 6], ['m047', 1, 6, 6], ['m041', 3, 6, 7], ['m044', 2, 6, 7], ['m023', 2, 6, 7]], [[1, 3], [2, 3], [3, 1]]),
     enc('sasayaki4', [['m044', 4, 6, 7], ['m141', 2, 6, 7], ['m121', 2, 6, 7], ['m181', 1, 7, 7]], [[1, 3], [2, 4], [3, 1]]),
     // ---- 2-2 水音の洞穴（1F バブルミニ・クラブリン／2F アクアバット・コーラルスネイル／3F 水流と 宝箱／4F 泡守りの騎士）
-    enc('mizuoto1', [['m002', 3, 8, 9], ['m101', 3, 8, 9], ['m001', 1, 8, 9]], [[1, 3], [2, 3], [3, 1]]),
-    enc('mizuoto2', [['m104', 4, 9, 10], ['m102', 3, 9, 10], ['m002', 1, 9, 10]], [[1, 2], [2, 3], [3, 1]]),
-    enc('mizuoto3', [['m104', 3, 10, 11], ['m101', 3, 10, 11], ['m102', 2, 10, 11], ['m009', 1, 10, 11]], [[1, 2], [2, 3], [3, 1]]),
+    enc('mizuoto1', [['m002', 3, 7, 8], ['m101', 2, 7, 8], ['m001', 1, 7, 8]], [[1, 4], [2, 3]]),
+    enc('mizuoto2', [['m104', 4, 8, 9], ['m102', 2, 8, 9], ['m002', 2, 8, 9]], [[1, 4], [2, 3]]),
+    enc('mizuoto3', [['m104', 3, 9, 10], ['m009', 2, 9, 10], ['m002', 2, 9, 10], ['m101', 1, 9, 10]], [[1, 4], [2, 3], [3, 1]]),
     // ---- 2-3 深淵の水路（1F バブルミニ・アクアバット／2F クラブリン・ミストジェリー／3F コーラルスネイル・氷の欠片／4F 深海の うなぎ（アビスイール）・回復泉／5F 水鏡の記憶）
-    enc('shinen1', [['m002', 3, 11, 12], ['m104', 3, 11, 12]], [[1, 2], [2, 3], [3, 1]]),
-    enc('shinen2', [['m101', 3, 12, 13], ['m009', 3, 12, 13], ['m104', 1, 12, 13]], [[1, 2], [2, 3], [3, 1]]),
-    enc('shinen3', [['m102', 3, 12, 13], ['m111', 2, 12, 13], ['m009', 2, 12, 13]], [[1, 2], [2, 3], [3, 1]]),
-    enc('shinen4', [['m105', 3, 13, 14], ['m101', 2, 13, 14], ['m104', 2, 13, 14]], [[1, 2], [2, 3], [3, 1]]),
-    enc('shinen5', [['m105', 2, 14, 15], ['m009', 2, 14, 15], ['m111', 2, 14, 15], ['m106', 1, 14, 14]], [[1, 2], [2, 3], [3, 1]]),
+    enc('shinen1', [['m002', 3, 10, 11], ['m104', 3, 10, 11]], [[1, 4], [2, 3], [3, 1]]),
+    enc('shinen2', [['m009', 3, 11, 12], ['m104', 3, 11, 12], ['m101', 1, 11, 12]], [[1, 4], [2, 3], [3, 1]]),
+    enc('shinen3', [['m102', 2, 11, 12], ['m009', 2, 11, 12], ['m104', 2, 11, 12], ['m111', 1, 11, 12]], [[1, 4], [2, 3], [3, 1]]),
+    enc('shinen4', [['m105', 1, 12, 12], ['m104', 3, 12, 13], ['m002', 2, 12, 13]], [[1, 4], [2, 3], [3, 1]]),
+    enc('shinen5', [['m105', 1, 13, 13], ['m009', 2, 13, 14], ['m104', 2, 13, 14], ['m107', 1, 13, 13]], [[1, 4], [2, 3], [3, 1]]),
   ].map((e) => [e.id, e]),
 );
 
@@ -112,7 +112,7 @@ export const BOSSES: Record<string, BossDefinition> = {
     id: 'bubbleknight', name: '泡守りの騎士',
     intro: ['祭壇の まえで、泡の よろいを まとった 騎士が たちあがった。', '泡守りの騎士「……この さきは 水の 眠る ところ。ちかづく ものは ゆるさぬ……！」'],
     enemies: [
-      { speciesId: 'm106', level: 12, hpScale: 2.6, statScale: 1.08, skills: ['shellguard', 'aquatail', 'shellbash', 'splash'], name: '泡守りの騎士', distorted: true, recruitable: false, script: 'bubbleknight' },
+      { speciesId: 'm106', level: 12, hpScale: 1.6, statScale: 1.0, statMul: { defense: 0.42, attack: 1.45 }, skills: ['aquatail', 'shellbash', 'splash'], name: '泡守りの騎士', distorted: true, recruitable: false, script: 'bubbleknight' },
     ],
     defeatText: ['泡の よろいが はじけ、騎士の からだから くろい もやが ぬけていく…。'],
     rewards: [{ type: 'gold', amount: 300 }, { type: 'item', itemId: 'medal', count: 2 }, { type: 'item', itemId: 'mpdrop', count: 2 }],
@@ -123,7 +123,7 @@ export const BOSSES: Record<string, BossDefinition> = {
     id: 'uroko', name: '深淵のウロコ王',
     intro: ['水の そこから、ぎらりと ひかる ウロコが うかびあがった。', '深淵のウロコ王「……響晶は わたさぬ。これは わが ねむりを まもる ひかり……！」'],
     enemies: [
-      { speciesId: 'm119', level: 15, hpScale: 2.4, statScale: 1.0, skills: ['aquatail', 'pinch', 'wave', 'warcry'], name: '深淵のウロコ王', distorted: true, recruitable: false, script: 'uroko' },
+      { speciesId: 'm119', level: 15, hpScale: 2.5, statScale: 1.0, statMul: { attack: 0.76, speed: 0.75 }, skills: ['aquatail', 'pinch', 'wave'], name: '深淵のウロコ王', distorted: true, recruitable: false, script: 'uroko' },
     ],
     defeatText: ['ウロコ王の ウロコが 一枚 また 一枚と はがれ、くろい もやが 水に とけていく…。'],
     rewards: [{ type: 'gold', amount: 500 }, { type: 'item', itemId: 'medal', count: 3 }, { type: 'item', itemId: 'primemeat', count: 1 }],
