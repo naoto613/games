@@ -415,8 +415,17 @@ export class FieldScreen implements Screen {
           await this.app.say(r.text);
           break;
         case 'gate': {
-          if (!r.areaIds.length) { await this.app.say(r.closed ?? 'とびらは しずかに うずまいている。まだ むこうへは いけないようだ…。'); break; }
-          const pick = await new Promise<string | null>((res) => openGate(this.app, r.areaIds, (id) => res(id), () => res(null)));
+          if (!r.areaIds.length && !r.warps?.length) { await this.app.say(r.closed ?? 'とびらは しずかに うずまいている。まだ むこうへは いけないようだ…。'); break; }
+          let warpTo: string | null = null;
+          const pick = await new Promise<string | null>((res) => openGate(this.app, r.areaIds, (id) => res(id), () => res(null), r.warps?.length ? { towns: r.warps, onWarp: (t) => { warpTo = t; res(null); } } : undefined));
+          if (warpTo) {
+            const to = warpTo;
+            sfx('stairs');
+            await this.fade(() => { this.game.warpTo(to); this.reloadMap(); });
+            playBgm(this.bgm());
+            this.app.toast(this.game.currentTownMap().name);
+            break;
+          }
           if (!pick) break;
           const ok = this.game.canStartExpedition(pick);
           if (!ok.ok) { await this.app.say(ok.error); break; }

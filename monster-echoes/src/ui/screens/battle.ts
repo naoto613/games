@@ -14,7 +14,8 @@ import { mkCanvas } from '../gfx/Pix';
 import { BD_H, BD_W, backdrop, type Backdrop } from '../gfx/backdrops';
 import { TACTICS, welcomeMonster, resolvePending } from './menus';
 import { FieldScreen, rewardText } from './field';
-import { monIcon, STAT_LABEL } from '../components/monster';
+import { elemIcon, monIcon, STAT_LABEL } from '../components/monster';
+import { ELEMENT_IDS } from '../../data/types';
 import { recruitFx } from '../components/fx';
 
 const BW = BD_W, BH = BD_H;
@@ -174,9 +175,11 @@ class BattleScreen implements Screen {
     for (const e of this.st.enemies) {
       const v = this.views.get(e.key);
       if (!v || v.dead) continue;
-      // 敵の HP は 見せない（名前と Lv だけ）
+      // 敵の HP は 見せない（名前と Lv だけ）。第3章の 魔物研究所で「耐性の 表示」が ひらくと 弱点の 属性を 出す
+      const weak = this.game.hasFeature('resistView') ? ELEMENT_IDS.filter((k) => (e.resist[k] ?? 0) < 0) : [];
       this.einfo.append(h('div', { class: 'erow' },
-        h('div', { class: 'eh' }, h('span', { class: 'en' }, e.name), h('span', { class: 'el' }, `Lv ${e.level}`))));
+        h('div', { class: 'eh' }, h('span', { class: 'en' }, e.name), h('span', { class: 'el' }, `Lv ${e.level}`)),
+        weak.length ? h('div', { class: 'ew' }, h('span', null, 'じゃくてん'), ...weak.map((k) => elemIcon(k))) : null));
     }
   }
 

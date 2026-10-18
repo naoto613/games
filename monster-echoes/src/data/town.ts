@@ -139,6 +139,13 @@ Object.assign(TOWN_MAPS, {
 
 export const getTownMap = (id: string): TownMapDef => TOWN_MAPS[id] ?? TOWN_MAPS.liefel;
 
+/** 旅の扉で とべる さき（扉間移動・第3章クリア）。町ごとに 着く ばしょ */
+export const WARP_POINTS: Record<string, { name: string; map: string; x: number; y: number; dir: Facing4 }> = {
+  liefel: { name: 'リーフェル集落', map: 'liefel', x: 13, y: 2, dir: 'down' },
+  mizuna: { name: '水辺の街ミズナ', map: 'mizuna_shrine', x: 5, y: 2, dir: 'down' },
+  kazeno: { name: '風見の村カゼノ', map: 'kazeno_shrine', x: 5, y: 2, dir: 'down' },
+};
+
 // ---------------------------------------------------------------- やりこみ: ちいさなメダル・図鑑のごほうび
 export type MedalPrize = { id: string; cost: number; name: string; desc: string };
 export const MEDAL_PRIZES: MedalPrize[] = [

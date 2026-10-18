@@ -19,7 +19,7 @@ import { getSkill } from '../data/skills';
 import { allMet, conditionMet, initialProgress, refreshUnlocks } from '../domain/progression/ProgressionEngine';
 import { recruitChance, rollRecruit } from '../domain/recruitment/RecruitmentEngine';
 import { weightedPick } from '../core/Random';
-import { DEX_REWARDS, MEDAL_PRIZES, getTownMap } from '../data/town';
+import { DEX_REWARDS, MEDAL_PRIZES, getTownMap, WARP_POINTS } from '../data/town';
 import { SPECIES_LIST } from '../data/monsters';
 import { eventsOnFloor, EVENT_BY_ID, type EventContext, type EventDef } from '../data/events';
 import { eventAvailable, overlayEvents, type EventState } from '../domain/events/EventEngine';
@@ -29,6 +29,8 @@ import type { FeatureId } from '../data/world/chapters';
 import { LUNA_REACTIONS, NPC_BY_ID, STORY_EVENT_BY_ID, STORY_EVENTS } from '../data/story';
 import type { LunaSituation, StoryAction, StoryLine, StoryTrigger } from '../data/story/types';
 import { allCond, eventsFor, lunaReaction, markSeen, npcLines, renderLines, type StoryContext } from '../domain/story/StoryEngine';
+import { EQUIP_BY_ID, type EquipDef } from '../data/v2/equipment';
+import { withEquipment } from '../domain/monster/Equipment';
 
 export type BattleContext =
   | { kind: 'wild' }
@@ -66,7 +68,7 @@ export type MoveResult =
   | { kind: 'npc'; id: string }
   | { kind: 'warp'; to: string }
   | { kind: 'locked'; text: string }
-  | { kind: 'gate'; areaIds: string[]; closed?: string }
+  | { kind: 'gate'; areaIds: string[]; closed?: string; warps?: string[] }
   /** 町の しらべられる もの（石碑 など） */
   | { kind: 'spot'; target: string }
   /** ダンジョンの 物語イベント（しらべると おこる） */
@@ -378,6 +380,64 @@ export class Game {
     return ok(r.value.unlocked);
   }
 
+  // ---- そうび（Q10：アクセサリ 1つ）
+  equipOf(monsterId: string): EquipDef | undefined {
+    const id = this.state.v2.equipment.equipped[monsterId];
+    return id ? EQUIP_BY_ID[id] : undefined;
+  }
+  /** もっているが だれも つけていない 数 */
+  equipFree(equipId: string): number {
+    const eq = this.state.v2.equipment;
+    const used = Object.entries(eq.equipped).filter(([mid, e]) => e === equipId && this.state.monsters.some((m) => m.id === mid)).length;
+    return Math.max(0, (eq.owned[equipId] ?? 0) - used);
+  }
+  /** そうびを つける（null で はずす）。ほかの こが つけている ものは つけられない */
+  equip(monsterId: string, equipId: string | null): Result<void> {
+    if (!this.hasFeature('equipment')) return err('まだ そうびは つかえない。');
+    if (!this.monster(monsterId)) return err('モンスターが いません。');
+    if (equipId) {
+      if (!EQUIP_BY_ID[equipId]) return err('そんな そうびは ない。');
+      if (this.state.v2.equipment.equipped[monsterId] !== equipId && this.equipFree(equipId) <= 0) return err('あまっている ものが ない。');
+    }
+    this.update((s) => {
+      const e = { ...s.v2.equipment.equipped };
+      if (equipId) e[monsterId] = equipId; else delete e[monsterId];
+      s.v2 = { ...s.v2, equipment: { ...s.v2.equipment, equipped: e } };
+    });
+    this.autosave();
+    return ok(undefined);
+  }
+  buyEquip(equipId: string): Result<void> {
+    const e = EQUIP_BY_ID[equipId];
+    if (!e) return err('そんな そうびは ない。');
+    if (!this.spendGold(e.price)) return err('おかねが たりない。');
+    this.update((s) => { const o = s.v2.equipment.owned; o[equipId] = (o[equipId] ?? 0) + 1; });
+    this.autosave();
+    return ok(undefined);
+  }
+  /** いなくなった モンスターの そうびを もどす（配合・にがす の あと） */
+  private tidyEquipment() {
+    const ids = new Set(this.state.monsters.map((m) => m.id));
+    const e = this.state.v2.equipment.equipped;
+    if (Object.keys(e).every((k) => ids.has(k))) return;
+    this.update((s) => { s.v2 = { ...s.v2, equipment: { ...s.v2.equipment, equipped: Object.fromEntries(Object.entries(e).filter(([k]) => ids.has(k))) } }; });
+  }
+
+  /** 旅の扉で とべる 町（着いた ことが あり、いま いる 町 いがい） */
+  warpTargets(): string[] {
+    // いま いる 町（'kazeno_shrine' → 'kazeno'）
+    const here = this.state.player.townMap.split('_')[0];
+    return Object.keys(WARP_POINTS).filter((t) => this.chapters.towns.includes(t) && t !== here);
+  }
+  warpTo(townId: string): Result<void> {
+    if (!this.hasFeature('doorWarp')) return err('まだ ほかの 扉へは とべない。');
+    const w = WARP_POINTS[townId];
+    if (!w || !this.chapters.towns.includes(townId)) return err('まだ いった ことの ない 町だ。');
+    this.update((s) => { s.player.townMap = w.map; s.player.townPos = { x: w.x, y: w.y }; s.player.townDir = w.dir; s.chapters = { ...s.chapters, currentTown: townId }; });
+    this.autosave();
+    return ok(undefined);
+  }
+
   /** おかねを はらう（たりなければ false） */
   spendGold(n: number): boolean {
     if (this.state.player.gold < n) return false;
@@ -499,6 +559,7 @@ export class Game {
       s.monsters = s.monsters.filter((x) => x.id !== monsterId);
       s.partyIds = s.partyIds.filter((x) => x !== monsterId);
     });
+    this.tidyEquipment();
     this.autosave();
     return ok(undefined);
   }
@@ -545,7 +606,9 @@ export class Game {
       this.setTownPos(townPos, dir);
       // 物語で ひらく 扉（ミズナの 祠 など）
       if (def.gateFlag && !this.state.progress.storyFlags[def.gateFlag]) return { kind: 'gate', areaIds: [], closed: def.gateFlagText ?? def.gateClosed };
-      return { kind: 'gate', areaIds: def.gates, closed: def.gateClosed };
+      // 旅の扉（祠）からは、ほかの 町の 扉へも とべる（扉間移動）
+      const warps = def.theme === 'shrine' && this.hasFeature('doorWarp') ? this.warpTargets() : undefined;
+      return { kind: 'gate', areaIds: def.gates, closed: def.gateClosed, warps };
     }
     if (t === 'V' && def.spots?.[`${nx},${ny}`]) {
       this.setTownPos(townPos, dir);
@@ -696,6 +759,7 @@ export class Game {
       s.discoveredSpeciesIds = addUnique(s.discoveredSpeciesIds, child.speciesId);
       s.ownedSpeciesIds = addUnique(s.ownedSpeciesIds, child.speciesId);
     });
+    this.tidyEquipment();
     this.autosave();
     return ok(child);
   }
@@ -900,7 +964,8 @@ export class Game {
 
   // ---------------------------------------------------------------- 戦闘
   private beginBattle(kind: BattleState['kind'], enemies: EnemySpec[], context: BattleContext) {
-    const st = createBattle(kind, this.party, enemies, this.state.player.tactic);
+    // そうび（アクセサリ）の こうかを かさねて 戦闘に はいる
+    const st = createBattle(kind, this.party.map((m) => withEquipment(m, this.equipOf(m.id))), enemies, this.state.player.tactic);
     const firstSeen = [...new Set(enemies.map((e) => e.speciesId))].filter((id) => !this.state.discoveredSpeciesIds.includes(id));
     const firstBoss = context.kind === 'boss' && !this.state.progress.defeatedBossIds.includes(context.bossId);
     this.update((s) => {

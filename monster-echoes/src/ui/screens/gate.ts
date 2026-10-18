@@ -1,11 +1,12 @@
 import { getArea } from '../../data/areas';
 import { STAGE_BY_ID } from '../../data/world/chapters';
+import { WARP_POINTS } from '../../data/town';
 import { sfx } from '../../infrastructure/audio/Sound';
 import type { App } from '../App';
 import { h, item } from '../dom';
 
 /** 森の入口・旅の扉：行き先（章の ステージ）を えらぶ。えらんだら onPick */
-export function openGate(app: App, areaIds: string[], onPick: (areaId: string) => void, onClose?: () => void) {
+export function openGate(app: App, areaIds: string[], onPick: (areaId: string) => void, onClose?: () => void, warp?: { towns: string[]; onWarp: (townId: string) => void }) {
   const g = app.game!;
   const p = app.panel('どこへ いく？', (body) => {
     if (g.state.monsters.length >= g.state.capacity) body.append(h('div', { class: 'win small bad' }, 'ぼくじょうが いっぱいです。モンスターが なかまに なっても つれて かえれません。'));
@@ -24,5 +25,11 @@ export function openGate(app: App, areaIds: string[], onPick: (areaId: string) =
       }, { disabled: !can.ok }));
     }
     body.append(list);
+    // 扉間移動（第3章クリア）：ほかの 町の 旅の扉へ
+    if (warp?.towns.length) {
+      const wl = h('div', { class: 'win list' }, h('div', { class: 'small hl', style: 'padding:4px 8px' }, 'ほかの 町の 扉へ とぶ'));
+      for (const t of warp.towns) wl.append(item(h('span', null, WARP_POINTS[t].name), () => { sfx('ok'); warp.onWarp(t); p.close(); }));
+      body.append(wl);
+    }
   }, { onClose });
 }
