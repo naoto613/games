@@ -36,6 +36,8 @@ class BattleScreen implements Screen {
   private partyBar: HTMLElement;
   private logEl: HTMLElement;
   private cmds: HTMLElement;
+  /** えらぶ リストの 下に いつも 出す ボタン（もどる・ぼうぎょ）。リストが ながくても かくれない */
+  private pin: HTMLElement;
   private lines: string[] = [];
   private views = new Map<string, View>();
   private pops: Pop[] = [];
@@ -61,14 +63,15 @@ class BattleScreen implements Screen {
     this.partyBar = h('div', { class: 'party-bar' });
     this.logEl = h('div', { class: 'win log blog' });
     this.cmds = h('div', { class: 'cmds' });
+    this.pin = h('div', { class: 'cmdpin' });
     this.einfo = h('div', { class: 'einfo' });
     const view = h('div', { class: 'bview' }, this.cv, this.einfo);
     // 参考画像3「戦闘画面」：場面に 味方（左）と 敵（右）、右上に 敵の 名前と HP、下に 2れつの コマンドと 味方の カード
-    this.mid = h('div', { class: 'battle-mid' }, this.logEl, this.cmds);
+    this.mid = h('div', { class: 'battle-mid' }, this.logEl, this.cmds, this.pin);
     this.el = h('div', { class: 'layer battle' }, view, this.mid, this.partyBar);
     // 再生中にタップすると早送り
     this.el.addEventListener('pointerdown', (e) => {
-      if (!(e.target as HTMLElement).closest('.cmds')) this.ff = true;
+      if (!(e.target as HTMLElement).closest('.cmds, .cmdpin')) this.ff = true;
     });
     for (const c of [...this.st.allies, ...this.st.enemies]) this.views.set(c.key, this.viewOf(c));
   }
@@ -351,13 +354,21 @@ class BattleScreen implements Screen {
   // ---------------------------------------------------------------- コマンド
   private setCmds(buttons: HTMLElement[], cls = '') {
     clear(this.cmds);
+    clear(this.pin);
     this.cmds.className = `cmds ${cls}`;
+    // リストの ときは「もどる」「ぼうぎょ」を 下に 固定（とくぎが おおくても スクロールせずに おせる）
+    if (!cls.includes('grid2')) {
+      const pinned = buttons.filter((b) => /^(もどる|ぼうぎょ)$/.test(b.textContent ?? ''));
+      buttons = buttons.filter((b) => !pinned.includes(b));
+      this.pin.append(...pinned);
+    }
+    this.cmds.scrollTop = 0;
     // 縦の コマンド（ふだん）は ログの 右、えらぶ リストは ログの かわりに ひろく
     this.mid.classList.toggle('wide', !cls.includes('grid2') && buttons.length > 0);
     this.cmds.append(...buttons);
     // キーボード: 1つ目のボタンを A、もどるを B に
     this.keyHandler = (k) => {
-      const bs = [...this.cmds.querySelectorAll('button:not([disabled])')] as HTMLButtonElement[];
+      const bs = [...this.cmds.querySelectorAll('button:not([disabled])'), ...this.pin.querySelectorAll('button:not([disabled])')] as HTMLButtonElement[];
       if (k === 'a' && bs[0]) bs[0].click();
       if (k === 'b') bs.find((b) => b.textContent?.includes('もどる'))?.click();
     };

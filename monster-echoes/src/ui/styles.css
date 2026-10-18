@@ -200,7 +200,11 @@ input.name { font: inherit; font-size: 1.3em; padding: 10px; width: 100%; backgr
 .battle .cmds.grid2 .tac { display: flex; align-items: baseline; gap: 6px; }
 .battle .cmds.grid2 .tac .hl { font-size: .75em; }
 
-.battle .battle-mid.wide .cmds { overflow-y: auto; align-content: start; }
+.battle .battle-mid.wide .cmds { overflow-y: auto; align-content: start; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+.battle .battle-mid.wide .cmds .btn { min-height: 46px; }
+.battle .cmdpin { display: none; flex: none; gap: 6px; padding-top: 5px; }
+.battle .battle-mid.wide .cmdpin:not(:empty) { display: flex; }
+.battle .cmdpin .btn { flex: 1; min-height: 44px; }
 .battle .party-bar { padding: 5px 6px calc(6px + var(--safe-b)); gap: 5px; }
 .battle .pbox { padding: 3px 7px 3px; min-height: 0; font-size: .78em; line-height: 1.2; background: linear-gradient(180deg, rgba(22,34,82,.95), rgba(10,18,52,.97)); border: 2px solid #c8d4ff; border-radius: 8px; }
 .battle .pbox.act { border-color: var(--hl); box-shadow: 0 0 8px rgba(255,216,74,.6); }
