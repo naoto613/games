@@ -30,17 +30,17 @@ export const ENCOUNTERS: Record<string, EncounterTable> = Object.fromEntries(
     enc('shinen4', [['m105', 1, 12, 12], ['m104', 3, 12, 13], ['m002', 2, 12, 13]], [[1, 4], [2, 3], [3, 1]]),
     enc('shinen5', [['m105', 1, 13, 13], ['m009', 2, 13, 14], ['m104', 2, 13, 14], ['m107', 1, 13, 13]], [[1, 4], [2, 3], [3, 1]]),
     // ---- 3-2 風渡りの峡谷（1F ウインドキャット・フェザーバット／2F スカイモール・ストームビー／3F 風の橋／4F ライトニングキッド（サンダーリンクス）／5F 風見の番人）
-    enc('kaze1', [['m022', 3, 15, 16], ['m081', 3, 15, 16]], [[1, 4], [2, 3], [3, 1]]),
-    enc('kaze2', [['m085', 3, 16, 17], ['m061', 3, 16, 17], ['m022', 1, 16, 17]], [[1, 4], [2, 3], [3, 1]]),
-    enc('kaze3', [['m061', 2, 16, 17], ['m081', 2, 16, 17], ['m085', 2, 16, 17], ['m022', 2, 16, 17]], [[1, 4], [2, 3], [3, 1]]),
-    enc('kaze4', [['m028', 3, 17, 18], ['m061', 2, 17, 18], ['m081', 2, 17, 18]], [[1, 4], [2, 3], [3, 1]]),
+    enc('kaze1', [['m022', 3, 17, 18], ['m081', 3, 17, 18]], [[1, 3], [2, 4], [3, 2]]),
+    enc('kaze2', [['m085', 3, 18, 19], ['m061', 3, 18, 19], ['m022', 1, 18, 19]], [[1, 3], [2, 4], [3, 2]]),
+    enc('kaze3', [['m061', 2, 18, 19], ['m081', 2, 18, 19], ['m085', 2, 18, 19], ['m022', 2, 18, 19]], [[1, 3], [2, 4], [3, 2]]),
+    enc('kaze4', [['m028', 1, 18, 19], ['m061', 2, 19, 20], ['m081', 2, 19, 20]], [[1, 3], [2, 4], [3, 2]]),
     // ---- 3-3 逆風の塔（1F ウインドキャット・フェザーバット／2F ストームビー・スカイモール／3F ライトニングキッド・雲の宝箱／4F サンダーレイヴン／5F 風の記憶／6F グリフォンの分身）
-    enc('gyakufu1', [['m022', 3, 18, 19], ['m081', 3, 18, 19]], [[1, 4], [2, 3], [3, 1]]),
-    enc('gyakufu2', [['m061', 3, 18, 19], ['m085', 3, 18, 19]], [[1, 4], [2, 3], [3, 1]]),
-    enc('gyakufu3', [['m028', 3, 19, 20], ['m022', 2, 19, 20], ['m061', 2, 19, 20]], [[1, 4], [2, 3], [3, 1]]),
-    enc('gyakufu4', [['m084', 3, 19, 20], ['m028', 2, 19, 20], ['m085', 2, 19, 20]], [[1, 4], [2, 3], [3, 1]]),
-    enc('gyakufu5', [['m084', 2, 20, 21], ['m087', 1, 20, 20], ['m061', 2, 20, 21], ['m028', 2, 20, 21]], [[1, 4], [2, 3], [3, 1]]),
-    enc('gyakufu6', [['m087', 2, 20, 21], ['m084', 2, 20, 21], ['m028', 2, 20, 21]], [[1, 4], [2, 3], [3, 1]]),
+    enc('gyakufu1', [['m022', 3, 20, 21], ['m081', 3, 20, 21]], [[1, 3], [2, 4], [3, 2]]),
+    enc('gyakufu2', [['m061', 3, 21, 22], ['m085', 2, 21, 22], ['m022', 2, 21, 22]], [[1, 2], [2, 4], [3, 3]]),
+    enc('gyakufu3', [['m028', 1, 20, 21], ['m022', 2, 21, 22], ['m061', 2, 21, 22]], [[1, 3], [2, 4], [3, 2]]),
+    enc('gyakufu4', [['m084', 3, 21, 22], ['m028', 2, 21, 22], ['m085', 2, 21, 22]], [[1, 3], [2, 4], [3, 2]]),
+    enc('gyakufu5', [['m084', 2, 21, 22], ['m087', 1, 21, 21], ['m061', 3, 21, 22], ['m028', 1, 21, 22]], [[1, 3], [2, 4], [3, 2]]),
+    enc('gyakufu6', [['m087', 2, 21, 22], ['m084', 3, 21, 22], ['m028', 1, 21, 21], ['m061', 2, 21, 22]], [[1, 3], [2, 4], [3, 2]]),
   ].map((e) => [e.id, e]),
 );
 
@@ -170,7 +170,7 @@ export const BOSSES: Record<string, BossDefinition> = {
     id: 'kazami_guard', name: '風見の番人',
     intro: ['岩場の うえで、大きな 鷲が つばさを ひろげた。', '風見の番人「……この 谷の 風は さかさまに なった。とおす わけには いかぬ……！」'],
     enemies: [
-      { speciesId: 'm087', level: 19, hpScale: 2.2, statScale: 1.0, skills: ['aircutter', 'wingstrike', 'chillwind', 'rampage'], name: '風見の番人', distorted: true, recruitable: false, script: 'kazami_guard' },
+      { speciesId: 'm087', level: 20, hpScale: 3.6, statScale: 1.05, statMul: { attack: 1.22 }, skills: ['aircutter', 'wingstrike', 'chillwind', 'rampage'], name: '風見の番人', distorted: true, recruitable: false, script: 'kazami_guard' },
     ],
     defeatText: ['番人の つばさから くろい もやが ほどけ、谷の 風が すこし しずまった…。'],
     rewards: [{ type: 'gold', amount: 600 }, { type: 'item', itemId: 'medal', count: 3 }, { type: 'item', itemId: 'bigherb', count: 2 }],
@@ -181,7 +181,7 @@ export const BOSSES: Record<string, BossDefinition> = {
     id: 'griffon_clone', name: 'グリフォンの分身',
     intro: [],
     enemies: [
-      { speciesId: 'm096', level: 20, hpScale: 1.4, statScale: 0.95, skills: ['galeslash', 'peck', 'chillwind'], name: 'グリフォンの分身', distorted: true, recruitable: false, resist: { earth: -1 } },
+      { speciesId: 'm096', level: 22, hpScale: 2.0, statScale: 1.0, skills: ['galeslash', 'peck', 'chillwind'], name: 'グリフォンの分身', distorted: true, recruitable: false, resist: { earth: -1, thunder: 0 } },
     ],
     defeatText: ['分身は 風に とけて きえた…。'],
     rewards: [{ type: 'gold', amount: 200 }],
@@ -192,7 +192,7 @@ export const BOSSES: Record<string, BossDefinition> = {
     id: 'griffon', name: '風喰いグリフォン',
     intro: ['塔の いただきで、巨大な グリフォンが 風を のみこんでいる。', '風喰いグリフォン「……風を……もっと 風を……！ たりぬ、たりぬのだ……！」'],
     enemies: [
-      { speciesId: 'm097', level: 22, hpScale: 2.4, statScale: 1.0, statMul: { attack: 0.8 }, skills: ['aircutter', 'wingstrike', 'cyclone', 'chillwind'], name: '風喰いグリフォン', distorted: true, recruitable: false, script: 'griffon', resist: { earth: -1 } },
+      { speciesId: 'm097', level: 23, hpScale: 2.6, statScale: 1.0, statMul: { attack: 0.95 }, skills: ['aircutter', 'wingstrike', 'cyclone', 'chillwind'], name: '風喰いグリフォン', distorted: true, recruitable: false, script: 'griffon', resist: { earth: -1, thunder: 0 } },
     ],
     defeatText: ['グリフォンの からだから、のみこんだ 風が いっきに ふきだした…。'],
     rewards: [{ type: 'gold', amount: 800 }, { type: 'item', itemId: 'medal', count: 3 }, { type: 'item', itemId: 'primemeat', count: 1 }],

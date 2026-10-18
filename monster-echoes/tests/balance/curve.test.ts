@@ -70,6 +70,21 @@ const STAGES: { name: string; party: P; table?: string; boss?: string; expect: [
   { name: '(参考) ボス: ウロコ王を Lv14 で', party: [['m001', 14], ['m105', 14], ['m101', 14]], boss: 'uroko', expect: [0.1, 0.7] },
   { name: '(参考) ボス: ウロコ王を Lv16 で', party: [['m001', 16], ['m105', 16], ['m101', 16]], boss: 'uroko', expect: [0.75, 1] },
   { name: '(参考) ボス: ウロコ王を 雷なしで', party: [['m001', 15], ['m104', 15], ['m101', 15]], boss: 'uroko', expect: [0.2, 0.85] },
+  // 第3章（Q15：Lv14〜22）。パーティは 第2章の なかまに、峡谷の サンダーリンクス、塔の サンダーレイヴンを くわえていく
+  { name: '風渡りの峡谷 1F 6連戦', party: [['m001', 16], ['m105', 16], ['m101', 16]], table: 'kaze1', expect: [0.6, 1] },
+  { name: '風渡りの峡谷 2F 6連戦', party: [['m001', 17], ['m105', 16], ['m101', 16]], table: 'kaze2', expect: [0.55, 1] },
+  { name: '風渡りの峡谷 3F 6連戦', party: [['m001', 17], ['m105', 17], ['m101', 17]], table: 'kaze3', expect: [0.5, 1] },
+  { name: '風渡りの峡谷 4F 6連戦', party: [['m001', 18], ['m105', 17], ['m101', 17]], table: 'kaze4', expect: [0.5, 1] },
+  { name: '中ボス: 風見の番人', party: [['m001', 19], ['m105', 18], ['m028', 18]], boss: 'kazami_guard', expect: [0.5, 0.92] },
+  { name: '逆風の塔 1F 6連戦', party: [['m001', 19], ['m105', 19], ['m028', 18]], table: 'gyakufu1', expect: [0.6, 1] },
+  { name: '逆風の塔 2F 6連戦', party: [['m001', 19], ['m105', 19], ['m028', 19]], table: 'gyakufu2', expect: [0.55, 1] },
+  { name: '逆風の塔 3F 6連戦', party: [['m001', 20], ['m105', 19], ['m028', 19]], table: 'gyakufu3', expect: [0.5, 1] },
+  { name: '逆風の塔 4F 6連戦', party: [['m001', 20], ['m105', 20], ['m028', 20]], table: 'gyakufu4', expect: [0.5, 1] },
+  { name: '逆風の塔 5F 6連戦', party: [['m001', 21], ['m105', 20], ['m028', 20]], table: 'gyakufu5', expect: [0.45, 1] },
+  { name: '逆風の塔 6F 6連戦', party: [['m001', 21], ['m105', 21], ['m028', 21]], table: 'gyakufu6', expect: [0.45, 1] },
+  { name: '6F: グリフォンの分身', party: [['m001', 21], ['m105', 21], ['m028', 21]], boss: 'griffon_clone', expect: [0.6, 1] },
+  { name: 'ボス: 風喰いグリフォン', party: [['m001', 22], ['m105', 22], ['m028', 22]], boss: 'griffon', expect: [0.5, 0.9] },
+  { name: '(参考) ボス: グリフォンを Lv20 で', party: [['m001', 20], ['m105', 20], ['m028', 20]], boss: 'griffon', expect: [0, 1] },
 ];
 
 
