@@ -8,24 +8,23 @@ LayerX の公開技術情報を横断的にキャッチアップするための�
 
 - ダッシュボード、全情報フィード、媒体別表示
 - タイトル・概要・タグの検索、媒体・テーマ・既読状態での絞り込み
-- 既読管理、あとで読む、学びのメモ、URL の手動追加（いずれもブラウザ内に保存）
+- 既読／未読の表示、ブックマーク（また見返したいものを残す）、学びのメモ、URL の手動追加（いずれもブラウザ内に保存）
 - 状態のエクスポート／インポート（別端末へ移すとき用）
 - 設定画面で情報源ごとの取得状況（最終成功時刻・件数・エラー）を確認
 
 ## 収集のしくみ（APIキー不要）
 
-`.github/workflows/layerx-radar-update.yml`（リポジトリ直下）が 6 時間ごと・手動実行・`sources.json` や収集スクリプトの変更時に `scripts/fetch_sources.py` を実行し、`data/` に変更があれば `main` へコミットします。GitHub Pages はそのまま新しい JSON を配信します。
+`.github/workflows/layerx-radar-update.yml`（リポジトリ直下）が毎朝6時（日本時間）・手動実行・`sources.json` や収集スクリプトの変更時に `scripts/fetch_sources.py` を実行し、`data/` に変更があれば `main` へコミットします。GitHub Pages はそのまま新しい JSON を配信します。
 
 | 情報源 | fetchMethod | 取得先 |
 | --- | --- | --- |
 | エンジニアブログ | `rss` | `https://tech.layerx.co.jp/feed` |
 | Speaker Deck | `rss` | `https://speakerdeck.com/layerx.atom` |
 | YouTube | `youtube` | `https://www.youtube.com/feeds/videos.xml?channel_id=…`（公開チャンネルフィード・最新15本） |
-| 公式ニュース | `auto` | ページの `<link rel="alternate">` から RSS/Atom を自動検出 |
 
 - YouTube はチャンネルフィード → アップロード再生リストのフィード → チャンネルの動画ページの順に試します（フィードは時々 404 を返すため。動画ページから取った場合の公開日は「3週間前」などからのおおよその日付）。
 - YouTube の `channelId` は空のままで、LayerX の動画ページ（`resolveFromVideo`）から自動で調べて `sources.json` に保存します。違うチャンネルになった場合は `channelId` を直接書き換えてください。
-- 公式ニュースにフィードが無い場合は「取得エラー」として記録されるだけで、他の情報源には影響しません。
+- 公式ニュースは収集しません。`sources.json` から外した（または `enabled: false` にした）情報源の項目は、次の収集で `items.json` から消えます。
 - テーマ（tags）と学びの種類（learningTypes）はタイトル・概要のキーワードからの推定です（`tagsEstimated: true`）。`items.json` で手直しした値は次回以降も保持されます。
 - 過去に取得した項目は残り続けます（最大 1500 件）。
 

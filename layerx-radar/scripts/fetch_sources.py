@@ -355,6 +355,9 @@ def main() -> int:
             source["lastError"] = str(exc)[:300]
             print(f'[ERROR] {source.get("name")}: {exc}', file=sys.stderr)
 
+    # Drop items from sources that were removed or disabled (e.g. official news).
+    active = {s["id"] for s in sources if s.get("enabled")}
+    items = {k: v for k, v in items.items() if v.get("sourceId") in active}
     ordered = sorted(items.values(), key=lambda x: x.get("publishedAt") or "", reverse=True)[:MAX_ITEMS]
     ITEMS_FILE.write_text(json.dumps(ordered, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     SOURCES_FILE.write_text(json.dumps(sources, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
