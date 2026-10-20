@@ -112,8 +112,9 @@ export const CHAPTERS: ChapterDefinition[] = [
     stages: [town('2-1', '水辺の街ミズナ', 'mizuna', ['breeding', 'ranch', 'familyCheck']), dun('2-2', '水音の洞穴', 4, '泡守りの騎士'), dun('2-3', '深淵の水路', 6, '深淵のウロコ王', 'chapter')],
     clearUnlocks: ['ranchExpand', 'skillInherit'] },
   { no: 3, title: '風鳴り高原', area: '風鳴り高原', goal: '風の異常を解決する', boss: '風喰いグリフォン', level: [14, 22],
-    stages: [town('3-1', '風見の村カゼノ', 'kazeno', ['doorWarp', 'familyDex', 'resistView', 'equipment']), dun('3-2', '風渡りの峡谷', 5, '風見の番人'), dun('3-3', '逆風の塔', 7, '風喰いグリフォン', 'chapter')],
-    clearUnlocks: [] },
+    stages: [town('3-1', '風見の村カゼノ', 'kazeno', ['familyDex', 'resistView', 'equipment']), dun('3-2', '風渡りの峡谷', 5, '風見の番人'), dun('3-3', '逆風の塔', 7, '風喰いグリフォン', 'chapter')],
+    // 仕様 15：第3章クリアで 扉間移動（3-1 の 説明にも あるが、物語では クリアで 旅の扉が みがかれる）
+    clearUnlocks: ['doorWarp'] },
   { no: 4, title: '灯火の街道', area: '灯火の街道', goal: '人間と魔物の対立を解く', boss: '灰冠の騎士', level: [20, 28],
     stages: [town('4-1', '灯火の街アカリス', 'akaris', ['arena', 'enhance', 'quests', 'training']), dun('4-2', '古戦場の道', 5, '古戦場の守護兵'), dun('4-3', '灰冠城', 7, '灰冠の騎士', 'chapter')],
     clearUnlocks: [] },

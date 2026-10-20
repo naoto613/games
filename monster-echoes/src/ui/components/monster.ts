@@ -103,7 +103,8 @@ export function resistGrid(r: Resistances) {
   }));
 }
 
-export function monsterStatusBody(m: MonsterInstance, tab: StatusTab) {
+export type EquipView = { name: string; summary: string } | null;
+export function monsterStatusBody(m: MonsterInstance, tab: StatusTab, equip?: { view: EquipView; onTap?: () => void }) {
   const sp = getSpecies(m.speciesId);
   const next = expToNextLevel(m);
   const head = h('div', { class: 'st-head' },
@@ -121,6 +122,14 @@ export function monsterStatusBody(m: MonsterInstance, tab: StatusTab) {
       h('div', { class: 'irow' }, h('span', { class: 'k' }, '属性'), sp.element ? h('span', { class: 'row', style: 'gap:6px' }, elemIcon(sp.element), RESIST_LABEL[sp.element]) : h('span', { class: 'muted' }, 'なし')),
       h('div', { class: 'irow' }, h('span', { class: 'k' }, 'ランク'), h('span', { class: 'rank' }, '★'.repeat(sp.rank ?? Math.min(5, sp.rarity)))),
       h('div', { class: 'irow small' }, h('span', { class: 'k' }, 'つぎのLv'), h('span', null, next === null ? `じょうげん（${maxLevelOf(m)}）` : `あと ${next}`)));
+    // そうび（アクセサリ 1つ）
+    if (equip) {
+      const row = h('div', { class: `irow eqrow${equip.onTap ? ' tap' : ''}` }, h('span', { class: 'k' }, 'そうび'),
+        equip.view ? h('span', { class: 'grow' }, h('span', { class: 'hl' }, equip.view.name), h('span', { class: 'small muted' }, ` ${equip.view.summary}`)) : h('span', { class: 'muted grow' }, 'なし'),
+        equip.onTap ? h('span', { class: 'small eqbtn' }, 'かえる') : null);
+      if (equip.onTap) row.addEventListener('click', () => equip.onTap!());
+      info.append(row);
+    }
     main = h('div', { class: 'st-main' },
       h('div', { class: 'st-box st-stats' }, rows), info,
       h('div', { class: 'st-box' }, h('div', { class: 'st-cap' }, '耐性'), resistGrid(m.resistances)));

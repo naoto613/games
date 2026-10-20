@@ -200,7 +200,11 @@ input.name { font: inherit; font-size: 1.3em; padding: 10px; width: 100%; backgr
 .battle .cmds.grid2 .tac { display: flex; align-items: baseline; gap: 6px; }
 .battle .cmds.grid2 .tac .hl { font-size: .75em; }
 
-.battle .battle-mid.wide .cmds { overflow-y: auto; align-content: start; }
+.battle .battle-mid.wide .cmds { overflow-y: auto; align-content: start; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+.battle .battle-mid.wide .cmds .btn { min-height: 46px; }
+.battle .cmdpin { display: none; flex: none; gap: 6px; padding-top: 5px; }
+.battle .battle-mid.wide .cmdpin:not(:empty) { display: flex; }
+.battle .cmdpin .btn { flex: 1; min-height: 44px; }
 .battle .party-bar { padding: 5px 6px calc(6px + var(--safe-b)); gap: 5px; }
 .battle .pbox { padding: 3px 7px 3px; min-height: 0; font-size: .78em; line-height: 1.2; background: linear-gradient(180deg, rgba(22,34,82,.95), rgba(10,18,52,.97)); border: 2px solid #c8d4ff; border-radius: 8px; }
 .battle .pbox.act { border-color: var(--hl); box-shadow: 0 0 8px rgba(255,216,74,.6); }
@@ -305,3 +309,12 @@ input.name { font: inherit; font-size: 1.3em; padding: 10px; width: 100%; backgr
 /* 戦闘の はじまりは ふわっと 出す（フィールドから いきなり きりかわらない） */
 .layer.battle { animation: bfade .28s ease-out; }
 @keyframes bfade { from { opacity: 0; } to { opacity: 1; } }
+.st-info .eqrow.tap { cursor: pointer; border-radius: 6px; }
+.st-info .eqrow.tap:active { background: rgba(120,150,255,.2); }
+.st-info .eqrow .grow { flex: 1; min-width: 0; }
+.st-info .eqrow .eqbtn { padding: 2px 8px; border: 1px solid #8fa0ff; border-radius: 6px; color: #cfe0ff; }
+.battle .erow .ew { display: flex; align-items: center; gap: 4px; margin-top: 3px; font-size: .78em; color: #ffd890; }
+.battle .erow .ew .eico { width: 16px; height: 16px; font-size: 9px; }
+.dtabs { display: flex; gap: 4px; overflow-x: auto; padding: 4px 0 6px; -webkit-overflow-scrolling: touch; }
+.dtab { flex: none; display: flex; flex-direction: column; align-items: center; min-width: 54px; padding: 4px 6px; border-radius: 8px; border: 1.5px solid #6a84d8; background: linear-gradient(180deg, #24367a, #16245a); color: #fff; font: inherit; font-size: .78em; cursor: pointer; }
+.dtab.on { background: linear-gradient(180deg, #4a8ae8, #2a5ab8); border-color: #dfe8ff; }

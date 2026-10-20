@@ -14,6 +14,7 @@ import type { App } from '../App';
 import { btn, h, item } from '../dom';
 import { monIcon, monsterStatusBody, sexMark, type StatusTab } from '../components/monster';
 import { icon } from '../components/icons';
+import { EQUIPS, equipSummary } from '../../data/v2/equipment';
 
 export const TACTICS: { id: Tactic; name: string; short: string; desc: string }[] = [
   { id: 'attack', name: 'こうげき ゆうせん', short: 'こうげき', desc: 'てきへの ダメージを いちばんに かんがえる' },
@@ -172,7 +173,8 @@ export function openDetail(app: App, id: string, opts: { viewOnly?: boolean } = 
   const p = app.panel('ステータス', (body, foot) => {
     const m = g.monster(cur);
     if (!m) return p.close();
-    body.append(monsterStatusBody(m, tab));
+    const ev = g.equipOf(m.id);
+    body.append(monsterStatusBody(m, tab, g.hasFeature('equipment') ? { view: ev ? { name: ev.name, summary: equipSummary(ev) } : null, onTap: opts.viewOnly ? undefined : () => openEquipPicker(app, m.id) } : undefined));
     // 参考画像3：下の タブ（きりかえ／つよさ／スキル／とくせい）
     const tb = (label: string, t: StatusTab | null) => {
       const b = h('button', { class: `stab${t === tab ? ' on' : ''}`, type: 'button' }, label);
@@ -228,6 +230,50 @@ export function openDetail(app: App, id: string, opts: { viewOnly?: boolean } = 
       }),
     );
   });
+}
+
+/** そうびを えらぶ（アクセサリ 1つ） */
+export function openEquipPicker(app: App, monsterId: string) {
+  const g = app.game!;
+  const p = app.panel('そうびを えらぶ', (body) => {
+    const cur = g.equipOf(monsterId);
+    const list = h('div', { class: 'win list' });
+    list.append(item(h('span', null, 'はずす', h('div', { class: 'small muted' }, cur ? `いまの そうび: ${cur.name}` : 'いまは なにも つけていない')), () => {
+      g.equip(monsterId, null); sfx('ok'); p.close(); app.refreshPanels();
+    }, { disabled: !cur }));
+    const owned = EQUIPS.filter((e) => (g.state.v2.equipment.owned[e.id] ?? 0) > 0);
+    if (!owned.length) list.append(h('div', { class: 'muted small', style: 'padding:8px' }, 'そうびを もっていない。カゼノの 行商人から かえる。'));
+    for (const e of owned) {
+      const free = g.equipFree(e.id), on = cur?.id === e.id;
+      list.append(item(h('span', null, e.name, on ? h('span', { class: 'hl' }, ' （そうびちゅう）') : null, h('div', { class: 'small muted' }, `${equipSummary(e)}　のこり ${free}`)), () => {
+        const r = g.equip(monsterId, e.id);
+        if (!r.ok) return app.toast(r.error);
+        sfx('ok'); p.close(); app.refreshPanels();
+      }, { disabled: !on && free <= 0 }));
+    }
+    body.append(list);
+  });
+}
+
+/** そうびの 店（行商人・武具工房） */
+export function openEquipShop(app: App, townId: string, onClose?: () => void) {
+  const g = app.game!;
+  app.panel('そうびを かう', (body) => {
+    body.append(h('div', { class: 'win gold-line' }, icon('coin', 'ico coin'), h('span', { class: 'grow' }, 'もちきん'), `${g.state.player.gold} G`));
+    const list = h('div', { class: 'win list' });
+    for (const e of EQUIPS.filter((x) => x.shops.includes(townId))) {
+      const have = g.state.v2.equipment.owned[e.id] ?? 0;
+      list.append(item(h('span', null, e.name, h('span', { class: 'muted small' }, `  ${e.price}G`), h('div', { class: 'small muted' }, `${e.description}　もっている ${have}`)), async () => {
+        if (!(await app.confirm(`${e.name}を ${e.price}ゴールドで かいますか？`))) return;
+        const r = g.buyEquip(e.id);
+        if (!r.ok) return app.toast(r.error);
+        sfx('buy');
+        app.toast(`${e.name}を かった！ モンスターの ようすから そうび できる。`, 2400);
+        app.refreshPanels();
+      }, { disabled: g.state.player.gold < e.price }));
+    }
+    body.append(list);
+  }, { onClose });
 }
 
 /** あたらしい なかま: ステータス・せいべつを みながら、その場で なまえを つける（閉じるまで待つ） */

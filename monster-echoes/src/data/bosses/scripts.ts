@@ -12,6 +12,38 @@ const list: BossScript[] = [
       { id: 'rage', when: { kind: 'hpBelow', ratio: 0.4 }, once: true, steps: [{ kind: 'message', text: 'モルグの かさが まっかに ふくらんだ！' }, { kind: 'buff', stat: 'attack', stages: 1, target: 'self' }] },
     ],
   },
+  // 第2章 中ボス 泡守りの騎士：はじめに 泡の よろい（守備↑）／HP はんぶんで バブルミニを よぶ
+  {
+    id: 'bubbleknight',
+    rules: [
+      { id: 'armor', when: { kind: 'start' }, once: true, steps: [{ kind: 'message', text: '泡守りの騎士は 泡の よろいを まとった！' }, { kind: 'buff', stat: 'defense', stages: 1, target: 'self' }] },
+      { id: 'call', when: { kind: 'hpBelow', ratio: 0.5 }, once: true, steps: [{ kind: 'message', text: '騎士の まわりに 泡が あつまっていく……！' }, { kind: 'summon', speciesId: 'm104', level: 9, count: 1, max: 2, name: 'あわこうもり' }] },
+    ],
+  },
+  // 第2章 深淵のウロコ王：水の 全体攻撃／一定ターンごとに 守備が あがる（雷が 弱点）
+  {
+    id: 'uroko',
+    rules: [
+      { id: 'tide', when: { kind: 'turn', every: 4, from: 2 }, steps: [{ kind: 'message', text: 'ウロコ王が 水を まきあげた！' }, { kind: 'useSkill', skillId: 'wave' }] },
+      { id: 'scale', when: { kind: 'turn', every: 3, from: 3 }, steps: [{ kind: 'message', text: 'ウロコ王の ウロコが かたく かさなった！' }, { kind: 'buff', stat: 'defense', stages: 1, target: 'self' }] },
+    ],
+  },
+  // 第3章 中ボス 風見の番人：はじめに むかい風（すばやさ↓）、HP はんぶんで おたけび
+  {
+    id: 'kazami_guard',
+    rules: [
+      { id: 'gust', when: { kind: 'start' }, once: true, steps: [{ kind: 'message', text: '谷に つよい むかい風が ふきこんだ！' }, { kind: 'useSkill', skillId: 'chillwind' }] },
+      { id: 'cry', when: { kind: 'hpBelow', ratio: 0.5 }, once: true, steps: [{ kind: 'message', text: '番人は するどく ないた！' }, { kind: 'buff', stat: 'attack', stages: 1, target: 'self' }] },
+    ],
+  },
+  // 第3章 風喰いグリフォン：すばやい／3ターンごとに むかい風（行動順を みだす）／HP 4割で 風を のみこみ すばやさ↑
+  {
+    id: 'griffon',
+    rules: [
+      { id: 'gale', when: { kind: 'turn', every: 3, from: 2 }, steps: [{ kind: 'message', text: 'グリフォンが はばたき、むかい風が ふきあれる！' }, { kind: 'useSkill', skillId: 'chillwind' }] },
+      { id: 'devour', when: { kind: 'hpBelow', ratio: 0.4 }, once: true, steps: [{ kind: 'message', text: 'グリフォンは まわりの 風を のみこんだ！' }, { kind: 'buff', stat: 'speed', stages: 1, target: 'self' }, { kind: 'buff', stat: 'attack', stages: 1, target: 'self' }] },
+    ],
+  },
   // 第4章 灰冠の騎士：物理防御が 高い／途中で 魔物を 召喚
   {
     id: 'ashcrown',

@@ -2,6 +2,7 @@ import type { Condition } from './types';
 import type { TownArt } from './towns/builder';
 import { LIEFEL } from './towns/liefel';
 import { MIZUNA } from './towns/mizuna';
+import { KAZENO } from './towns/kazeno';
 
 // まちの へや・たてもの。出入り口（D）・階段（< >）の つながりと、進行で ひらく条件をデータで持つ。
 export type TownTheme = 'town' | 'interior' | 'shrine' | 'ranch' | 'lab' | 'shop' | 'arena';
@@ -18,6 +19,9 @@ export type TownMapDef = {
   gates?: string[];
   /** G の 先に まだ 行けない ときの ことば */
   gateClosed?: string;
+  /** この フラグが たつまで 扉は ひらかない（そのときの ことば） */
+  gateFlag?: string;
+  gateFlagText?: string;
   /** はじめて 着いたら 章の ステージに 着いた ことに なる（'2-1' など） */
   stageId?: string;
   /** しらべられる もの（V）→ 物語イベントの きっかけ（manual の target） */
@@ -68,6 +72,9 @@ export const TOWN_MAPS: Record<string, TownMapDef> = {
       D(18, 16, 'mizuna_ranch', 7, 6, 'up'),
       D(0, 10, 'liefel', 24, 10, 'left'),
       D(0, 11, 'liefel', 24, 11, 'left'),
+      // 北の 道：第2章クリアで 風鳴り高原（カゼノ）へ
+      D(11, 0, 'kazeno', 13, 20, 'up', [{ type: 'stage', id: '2-3' }], '高原へ つづく 道だ。つよい 向かい風が ふいていて、いまは すすめない……。'),
+      D(12, 0, 'kazeno', 14, 20, 'up', [{ type: 'stage', id: '2-3' }], '高原へ つづく 道だ。つよい 向かい風が ふいていて、いまは すすめない……。'),
     ],
   },
   mizuna_lab: {
@@ -87,13 +94,57 @@ export const TOWN_MAPS: Record<string, TownMapDef> = {
   },
   mizuna_shrine: {
     id: 'mizuna_shrine', name: '旅の扉の祠', theme: 'shrine', npcs: {},
-    gates: [],
-    gateClosed: '扉の むこうから、つよい 水の 音が きこえる……。水音の洞穴への 道は、まだ ひらいていないようだ。（第2章の つづきは つぎの アップデートで あそべます）',
+    gates: ['mizuoto', 'shinen'],
+    gateFlag: 'ch2_shrine_open',
+    gateFlagText: '扉の むこうから、つよい 水の 音が きこえる……。扉は かたく とざされている。配合の館の ミナモに はなしを きいてみよう。',
     links: [D(5, 6, 'mizuna', 17, 8, 'down')],
   },
 };
 
+Object.assign(TOWN_MAPS, {
+  kazeno: {
+    id: 'kazeno', name: '風見の村カゼノ', theme: 'town', stageId: '3-1', art: KAZENO.art,
+    npcs: { '5': { id: 'goh', look: 'guard', facing: 'right' }, '6': { id: 'fuu', look: 'kid', idle: true }, '7': { id: 'merchant', look: 'shop', facing: 'left' }, '8': { id: 'kazami', look: 'elder', facing: 'left' } },
+    gates: ['kaze', 'gyakufu'],
+    links: [
+      D(14, 6, 'kazeno_mill', 4, 5, 'up'),
+      D(5, 9, 'kazeno_lab', 5, 6, 'up'),
+      D(22, 9, 'kazeno_inn', 4, 5, 'up'),
+      D(5, 18, 'kazeno_shrine', 5, 5, 'up'),
+      D(13, 21, 'mizuna', 11, 1, 'down'),
+      D(14, 21, 'mizuna', 12, 1, 'down'),
+    ],
+  },
+  kazeno_lab: {
+    id: 'kazeno_lab', name: '魔物研究所', theme: 'lab',
+    npcs: { '1': { id: 'hakase', look: 'scribe' }, '2': { id: 'librarian', look: 'scribe', facing: 'left' } },
+    links: [D(5, 7, 'kazeno', 5, 10, 'down')],
+  },
+  kazeno_inn: {
+    id: 'kazeno_inn', name: '風見の宿', theme: 'shop',
+    npcs: { '3': { id: 'innkeeper', look: 'shop' } },
+    links: [D(4, 6, 'kazeno', 22, 10, 'down')],
+  },
+  kazeno_mill: {
+    id: 'kazeno_mill', name: '風見台', theme: 'interior',
+    npcs: { '4': { id: 'watcher', look: 'elder' } },
+    links: [D(4, 6, 'kazeno', 14, 7, 'down')],
+  },
+  kazeno_shrine: {
+    id: 'kazeno_shrine', name: '旅の扉', theme: 'shrine', npcs: {},
+    gates: ['kaze', 'gyakufu'],
+    links: [D(5, 6, 'kazeno', 5, 19, 'down')],
+  },
+} satisfies Record<string, TownMapDef>);
+
 export const getTownMap = (id: string): TownMapDef => TOWN_MAPS[id] ?? TOWN_MAPS.liefel;
+
+/** 旅の扉で とべる さき（扉間移動・第3章クリア）。町ごとに 着く ばしょ */
+export const WARP_POINTS: Record<string, { name: string; map: string; x: number; y: number; dir: Facing4 }> = {
+  liefel: { name: 'リーフェル集落', map: 'liefel', x: 13, y: 2, dir: 'down' },
+  mizuna: { name: '水辺の街ミズナ', map: 'mizuna_shrine', x: 5, y: 2, dir: 'down' },
+  kazeno: { name: '風見の村カゼノ', map: 'kazeno_shrine', x: 5, y: 2, dir: 'down' },
+};
 
 // ---------------------------------------------------------------- やりこみ: ちいさなメダル・図鑑のごほうび
 export type MedalPrize = { id: string; cost: number; name: string; desc: string };

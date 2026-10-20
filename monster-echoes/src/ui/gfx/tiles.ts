@@ -575,6 +575,8 @@ export const LOOKS: Record<string, PersonLook> = {
   kid: { hair: '#3a2a1a', top: '#f0a030', bottom: '#4a6ab0', hat: '#e04040' },
   granny: { hair: '#d4d4dc', top: '#9a7258', bottom: '#6a4a3a' },
   scribe: { hair: '#6a4a3a', top: '#3e8a5a', bottom: '#2e5a44', hat: '#3e8a5a' },
+  elder: { hair: '#e8e8e8', top: '#7a9a5a', bottom: '#4a5a3a', beard: true, staff: true },
+  wind: { hair: '#4ab0c8', top: '#e8f0f8', bottom: '#5a8ab0', scarf: '#4ab0c8' },
 };
 
 function drawPerson(L: PersonLook, dir: Facing, frame: number): Pix {

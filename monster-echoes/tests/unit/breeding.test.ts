@@ -63,7 +63,10 @@ describe('配合可能条件', () => {
 describe('継承', () => {
   it('プラス値 = 親の平均 + レベル合計ボーナス', () => {
     expect(computeChildPlus(mk('m023', 'A', 10), mk('m001', 'B', 10))).toBe(1);
-    expect(computeChildPlus(mk('m023', 'A', 20, { plusValue: 3 }), mk('m001', 'B', 20, { plusValue: 2 }))).toBe(2 + 3);
+    // 親の ＋の 平均は 切り上げ（3 と 2 → 3）
+    expect(computeChildPlus(mk('m023', 'A', 20, { plusValue: 3 }), mk('m001', 'B', 20, { plusValue: 2 }))).toBe(3 + 3);
+    // ＋0 と ＋1 から うまれる 子は ＋2（親の ＋1 が きえない）
+    expect(computeChildPlus(mk('m023', 'A', 10), mk('m001', 'B', 10, { plusValue: 1 }))).toBe(1 + 1);
   });
   it('子の能力は種族基礎＋親の一部で、親の合算ではない', () => {
     const a = mk('m023', 'A', 15), b = mk('m001', 'B', 15);
@@ -78,7 +81,19 @@ describe('継承', () => {
     expect(p.skills.initial).toEqual(getSpecies('m050').learnset.filter((e) => e.level === 1).map((e) => e.skillId));
     expect(p.skills.candidates.length).toBeGreaterThan(0);
     for (const c of p.skills.candidates) expect(p.skills.initial).not.toContain(c);
-    expect(p.skills.slots).toBe(8 - p.skills.initial.length);
+    // 第5章（スキル継承の拡張）いこうは 空きいっぱい
+    expect(previewBreeding(a, b, { skillInheritPlus: true }).skills.slots).toBe(8 - p.skills.initial.length);
+  });
+  it('うけつげる とくぎの 数は 機能の 解放で ふえる（はじめ 1つ・第2章クリアで 3つ・第5章で 空きいっぱい）', () => {
+    const a = mk('m041', 'A', 12), b = mk('m044', 'B', 12);
+    expect(previewBreeding(a, b).skills.slots).toBe(1);
+    expect(previewBreeding(a, b, { skillInherit: true }).skills.slots).toBe(3);
+    expect(previewBreeding(a, b, { skillInherit: true, skillInheritPlus: true }).skills.slots).toBe(8 - previewBreeding(a, b).skills.initial.length);
+    // おすすめも 上限まで、上限を こえる 選びかたは 配合できない
+    expect(previewBreeding(a, b).skills.recommended.length).toBeLessThanOrEqual(1);
+    const w = { monsters: [a, b], partyIds: [a.id], capacity: 20, flags: {} };
+    const cands = previewBreeding(a, b).skills.candidates;
+    if (cands.length >= 2) expect(executeBreeding(w, a.id, b.id, cands.slice(0, 2), createRng(1), 0).ok).toBe(false);
   });
 });
 

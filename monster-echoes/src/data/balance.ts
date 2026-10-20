@@ -3,6 +3,8 @@ export const BALANCE = {
   partySize: 3,
   maxSkillSlots: 8,
   storageCapacityStart: 20,
+  /** 第2章クリアで ふえる 牧場の わく */
+  ranchExpandAmount: 10,
   growth: {
     /** 早熟・晩成の伸び方（t=0→1 で倍率が a→b に変わる） */
     curves: { early: [1.45, 0.55], normal: [1, 1], late: [0.55, 1.45] } as Record<string, [number, number]>,
@@ -31,6 +33,8 @@ export const BALANCE = {
     requireDifferentSex: true,
     /** 配合に必要なレベル */
     minLevel: 10,
+    /** うけつげる とくぎの 数（はじめ／第2章クリア：スキル継承／第5章：スキル継承の拡張 で 空きいっぱい） */
+    inheritSkills: { base: 1, skillInherit: 3 },
     /** 子の耐性は種族の耐性より最大これだけ高くなれる */
     resistInheritMaxBonus: 1,
   },

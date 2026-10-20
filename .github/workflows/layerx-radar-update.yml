@@ -2,7 +2,8 @@ name: layerx-radar data update
 on:
   workflow_dispatch:
   schedule:
-    - cron: "17 */6 * * *"
+    # 毎朝6時（日本時間）= 21:00 UTC。GitHub の混雑で数分〜数十分おくれることがある
+    - cron: "0 21 * * *"
   push:
     branches: [main]
     paths: ['layerx-radar/data/sources.json', 'layerx-radar/scripts/**']

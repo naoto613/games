@@ -32,6 +32,8 @@ export type StoryLine = { speaker: string; text: string };
 export type StoryAction =
   | { type: 'setFlag'; id: string }
   | { type: 'giveItem'; itemId: string; count: number }
+  /** そうび（アクセサリ）を もらう */
+  | { type: 'giveEquip'; equipId: string; count: number }
   | { type: 'giveMonster'; speciesId: string; level: number; nickname?: string; partner?: boolean }
   | { type: 'gold'; amount: number }
   | { type: 'heal' }

@@ -45,11 +45,12 @@ export function enemyFromSpec(spec: EnemySpec, slot: number): Combatant {
   }
   const resist = { ...speciesResistances(sp) };
   if (spec.distorted) resist.light = -1; // ゆがんだモンスターは光に弱い
+  if (spec.resist) Object.assign(resist, spec.resist);
   const c: Combatant = {
     key: `e${slot}`, side: 'enemy', slot, speciesId: sp.id, name: spec.name ?? sp.name, level: spec.level,
     maxHp: hp, hp, maxMp: st.mp, mp: st.mp,
-    attack: Math.round(st.attack * sc), defense: Math.round(st.defense * sc), speed: Math.round(st.speed * sc),
-    magic: Math.round(st.magic * sc), spirit: Math.round(st.spirit * sc),
+    attack: Math.round(st.attack * sc * (spec.statMul?.attack ?? 1)), defense: Math.round(st.defense * sc * (spec.statMul?.defense ?? 1)), speed: Math.round(st.speed * sc * (spec.statMul?.speed ?? 1)),
+    magic: Math.round(st.magic * sc * (spec.statMul?.magic ?? 1)), spirit: Math.round(st.spirit * sc * (spec.statMul?.spirit ?? 1)),
     stages: emptyStages(), status: emptyStatus(), charged: false, defending: false, variable: sp.growthType === 'variable',
     skills, resist, wildness: 0, affection: 0, recruitable: spec.recruitable ?? true, recruitBase: sp.recruitBaseChance,
     expYield: Math.round(sp.expYield * Math.max(1, spec.hpScale ?? 1)), goldYield: Math.round(sp.goldYield * Math.max(1, spec.hpScale ?? 1)),

@@ -36,7 +36,9 @@ export const NPCS: NpcDefinition[] = [
     talks: [
       { conditions: [], lines: [L('配合には レベル 10 いじょうの まもの 2体が ひつようよ。')] },
       { conditions: [{ type: 'flag', id: 'tutorial_breeding' }], lines: [L('親の とくぎを えらんで うけつげるの。いろんな くみあわせを ためしてね。')] },
-      { conditions: [{ type: 'chapterAtLeast', n: 3 }], lines: [L('水の 響晶が もどってから、館の 水も すんだ 気が するわ。')] },
+      { conditions: [{ type: 'flag', id: 'ch2_shrine_open' }], lines: [L('祠の 扉は ひらいておいたわ。水音の洞穴は ミズナの 水の みなもと。気を つけてね。')] },
+      { conditions: [{ type: 'stageCleared', id: '2-2' }], lines: [L('泡守りの騎士が……？ 響晶を まもっていた ものまで おかしく なっていたのね。')] },
+      { conditions: [{ type: 'chapterAtLeast', n: 3 }], lines: [L('水の 響晶が もどってから、館の 水も すんだ 気が するわ。とくぎは 3つまで うけつげるわよ。')] },
     ],
   },
   {
@@ -52,12 +54,57 @@ export const NPCS: NpcDefinition[] = [
     talks: [
       { conditions: [], lines: [L('配合の館には ミナモさんが いるよ。まものと まものを あわせると、あたらしい こが うまれるんだって！')] },
       { conditions: [{ type: 'flag', id: 'tutorial_breeding' }], lines: [L('ちがう 系統どうしを あわせると、ちょっと つよい こが うまれやすいんだよ。')] },
+      { conditions: [{ type: 'flag', id: 'ch2_shrine_open' }], lines: [L('洞穴の まものは みずの こうげきが とくい。かみなりや くさの わざが あると らくだって！')] },
+      { conditions: [{ type: 'chapterAtLeast', n: 3 }], lines: [L('みずが きれいに なって、水路の さかなも もどってきたよ！ ありがとう！')] },
     ],
   },
   {
     id: 'boatman', name: '船頭のトマ', townId: 'mizuna',
     talks: [
       { conditions: [], lines: [L('ちかごろ 水路の みずが にごってな……。水音の洞穴の ほうから、へんな 音が するんじゃ。')] },
+      { conditions: [{ type: 'stageCleared', id: '2-2' }], lines: [L('洞穴の 下には、ふるい 水路が ある。わしの じいさまの ころには もう だれも ちかよらなかった 場所じゃ。')] },
+      { conditions: [{ type: 'chapterAtLeast', n: 3 }], lines: [L('みずが すみきって、ふねも よく すすむわい。北の 高原へ いくなら、風に 気を つけるんじゃぞ。')] },
+    ],
+  },
+  // ---- 風見の村カゼノ（第3章）
+  {
+    id: 'goh', name: '見はりのゴウ', townId: 'kazeno',
+    talks: [
+      { conditions: [], lines: [L('まもの使いか……。へんな まねは するなよ。')] },
+      { conditions: [{ type: 'flag', id: 'ch3_trusted' }], lines: [L('宿屋は むりょうだ。塔へ いく まえに よく やすんでいけ。')] },
+      { conditions: [{ type: 'chapterAtLeast', n: 4 }], lines: [L('風が もどってから、村の みんなも わらうように なった。また いつでも こいよ。')] },
+    ],
+  },
+  {
+    id: 'fuu', name: '村の子フウ', townId: 'kazeno',
+    talks: [
+      { conditions: [], lines: [L('風が さかさまに ふくから、たこあげが できないんだ……。')] },
+      { conditions: [{ type: 'stageCleared', id: '3-2' }], lines: [L('ねえねえ、谷の 番人を やっつけたって ほんと？ すっごーい！')] },
+      { conditions: [{ type: 'chapterAtLeast', n: 4 }], lines: [L('見て！ たこが 空まで とんでる！ {luna}も のってみる？')] },
+    ],
+  },
+  {
+    id: 'kazami', name: '村長カザミ', townId: 'kazeno',
+    talks: [
+      { conditions: [], lines: [L('この 村は 風と ともに 生きてきた。だが いまの 風は、まるで だれかに ひっぱられて いるようじゃ。')] },
+      { conditions: [{ type: 'stageCleared', id: '3-2' }], lines: [L('逆風の塔は 高原の いただき。北東の 高原入口から いけるぞ。')] },
+      { conditions: [{ type: 'chapterAtLeast', n: 4 }], lines: [L('旅の扉から、ほかの 町へも とべるように なった。つかれたら いつでも かえってきなさい。')] },
+    ],
+  },
+  {
+    id: 'hakase', name: '研究者ホルン', townId: 'kazeno',
+    talks: [
+      { conditions: [], lines: [L('図鑑を 系統ごとに ならべると、にた まものの ちがいが よく わかるよ。')] },
+      { conditions: [{ type: 'flag', id: 'ch3_hakase' }], lines: [L('戦闘で あいての 名前の よこに 弱点が 出るはずだ。かみなりや だいちの わざも うまく つかってね。')] },
+      { conditions: [{ type: 'chapterAtLeast', n: 4 }], lines: [L('黒い 結晶……あれは 響晶の なれのはて かもしれない。しらべておくよ。')] },
+    ],
+  },
+  {
+    id: 'watcher', name: '風見番のナギサ', townId: 'kazeno',
+    talks: [
+      { conditions: [], lines: [L('ここは 風見台。高原の 風の むきを 毎日 しらべているの。'), L('ひと月まえから、風は 谷から 塔へ むかって すいこまれているわ。まるで 塔の うえに なにかが いるみたい。')] },
+      { conditions: [{ type: 'stageCleared', id: '3-2' }], lines: [L('谷の 風は すこし もどった。でも 塔の まわりは まだ ぎゃくむきよ。')] },
+      { conditions: [{ type: 'chapterAtLeast', n: 4 }], lines: [L('風が ほんとうの むきに もどったわ！ ……でも 南の 空に、ときどき 黒い かげが 見えるの。')] },
     ],
   },
 ];

@@ -3,7 +3,6 @@ const $$ = (s) => [...document.querySelectorAll(s)];
 const FALLBACK_ITEMS = [
   {id:"demo-ai-perf",title:"Coding AgentとはじめるMySQLパフォーマンスチューニング",url:"https://tech.layerx.co.jp/",sourceId:"layerx-engineering-blog",sourceType:"blog",publishedAt:"2026-10-05T09:00:00+09:00",description:"AIエージェントを活用した性能改善の実践を探るためのサンプルカードです。実際の最新記事データではありません。",tags:["AI・LLM・Agent","バックエンド","開発生産性"],learningTypes:["実践事例"],isDemo:true},
   {id:"demo-llm-wiki",title:"LLM Wikiの組織運用に向けて ── 陳腐化を防ぐ更新の仕組み",url:"https://tech.layerx.co.jp/",sourceId:"layerx-engineering-blog",sourceType:"blog",publishedAt:"2026-09-28T09:00:00+09:00",description:"ナレッジ管理やチーム運用の考え方を検討するためのUIサンプルです。リンク先はブログトップです。",tags:["AI・LLM・Agent","EM・組織設計"],learningTypes:["組織・プロセス"],isDemo:true},
-  {id:"demo-event",title:"Bet AI Day — AI活用とプロダクト開発",url:"https://layerx.co.jp/news/",sourceId:"layerx-official-news",sourceType:"official",publishedAt:"2026-09-20T10:00:00+09:00",description:"公式イベントの情報を並べるためのサンプルカードです。実際の開催情報やアーカイブを示すものではありません。",tags:["AI・LLM・Agent","プロダクト開発"],learningTypes:["思想・戦略"],isDemo:true},
   {id:"demo-platform",title:"開発基盤と開発生産性を考える",url:"https://tech.layerx.co.jp/",sourceId:"layerx-engineering-blog",sourceType:"blog",publishedAt:"2026-09-12T09:00:00+09:00",description:"Platform Engineering、CI/CD、開発体験の情報を整理するためのサンプルです。",tags:["Platform Engineering","開発生産性"],learningTypes:["実践事例"],isDemo:true},
   {id:"demo-slides",title:"技術選定のトレードオフを学ぶ — 登壇資料",url:"https://speakerdeck.com/layerx",sourceId:"layerx-speakerdeck",sourceType:"slides",publishedAt:"2026-09-08T09:00:00+09:00",description:"技術選定や設計判断に関するスライドを表示するためのサンプルです。",tags:["アーキテクチャ","事業・技術戦略"],learningTypes:["設計判断"],isDemo:true},
   {id:"demo-org",title:"プロダクト開発チームの成長と組織設計",url:"https://tech.layerx.co.jp/",sourceId:"layerx-engineering-blog",sourceType:"blog",publishedAt:"2026-08-30T09:00:00+09:00",description:"EM・チーム設計の知見を探す際のサンプルカードです。",tags:["EM・組織設計","プロダクト開発"],learningTypes:["組織・プロセス"],isDemo:true}
@@ -11,8 +10,7 @@ const FALLBACK_ITEMS = [
 const DEFAULT_SOURCES = [
   {id:"layerx-engineering-blog",name:"LayerX エンジニアブログ",type:"blog",url:"https://tech.layerx.co.jp/",enabled:true,fetchMethod:"rss",lastFetchedAt:null},
   {id:"layerx-youtube",name:"LayerX YouTube",type:"youtube",url:"https://www.youtube.com/",enabled:true,fetchMethod:"youtube",lastFetchedAt:null},
-  {id:"layerx-speakerdeck",name:"LayerX Speaker Deck",type:"slides",url:"https://speakerdeck.com/layerx",enabled:true,fetchMethod:"rss",lastFetchedAt:null},
-  {id:"layerx-official-news",name:"LayerX 公式ニュース",type:"official",url:"https://layerx.co.jp/news/",enabled:true,fetchMethod:"auto",lastFetchedAt:null}
+  {id:"layerx-speakerdeck",name:"LayerX Speaker Deck",type:"slides",url:"https://speakerdeck.com/layerx",enabled:true,fetchMethod:"rss",lastFetchedAt:null}
 ];
 const TAGS = ["AI・LLM・Agent","アーキテクチャ","バックエンド","フロントエンド","Platform Engineering","SRE・インフラ","セキュリティ","品質・テスト","開発生産性","プロダクト開発","EM・組織設計","事業・技術戦略"];
 const ICONS = {blog:"✎",youtube:"▶",slides:"▧",official:"◎",external:"↗"};
@@ -30,7 +28,7 @@ function formatDate(d){if(!d)return"日付不明";const date=new Date(d);if(Numb
 function daysAgo(d){return (Date.now()-new Date(d).getTime())/86400000;}
 function sourceName(id){return state.sources.find(s=>s.id===id)?.name||id||"情報源不明";}
 function typeName(t){return({blog:"ブログ",youtube:"YouTube",slides:"スライド",official:"公式ニュース・イベント",external:"社員・外部発信"})[t]||"その他";}
-function allItems(){return [...state.manual,...(state.items.length?state.items:FALLBACK_ITEMS)];}
+function allItems(){const off=new Set(state.sources.filter(s=>s.enabled===false).map(s=>s.id));return [...state.manual,...(state.items.length?state.items:FALLBACK_ITEMS).filter(i=>!off.has(i.sourceId))];}
 function formatDateTime(d){if(!d)return"";const date=new Date(d);if(Number.isNaN(date.getTime()))return"";return new Intl.DateTimeFormat("ja-JP",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}).format(date);}
 function showToast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.remove("show"),2600);}
 async function loadData(){
@@ -42,7 +40,7 @@ async function loadData(){
   }catch(e){/* file:// or unavailable fetch: show clearly marked demo data */}
   render();
   const updated=state.meta?.updatedAt||state.sources.map(s=>s.lastSuccessAt).filter(Boolean).sort().pop();
-  $("#lastUpdated").textContent=state.realData?(updated?`収集 ${formatDateTime(updated)}（6時間ごと）`:"JSONデータを読み込み済み"):"サンプル表示 / 収集前";
+  $("#lastUpdated").textContent=state.realData?(updated?`収集 ${formatDateTime(updated)}（毎朝6時に更新）`:"JSONデータを読み込み済み"):"サンプル表示 / 収集前";
   $("#syncStatus").textContent=state.realData?"公開フィードから収集済み":"デモモード";
   $("#demoBanner").classList.toggle("hidden",state.realData);
 }
@@ -64,7 +62,7 @@ function getFiltered(){
   items.sort((a,b)=>sort==="oldest"?new Date(a.publishedAt)-new Date(b.publishedAt):sort==="title"?a.title.localeCompare(b.title,"ja"):new Date(b.publishedAt)-new Date(a.publishedAt));
   return items;
 }
-function itemActions(i){const read=state.read.has(i.id),saved=state.saved.has(i.id);return `${i.id.startsWith("manual-")?`<button class="icon-action" data-action="delete" data-id="${esc(i.id)}" title="手動登録を削除" aria-label="手動登録を削除">🗑</button>`:""}<button class="icon-action ${saved?"active":""}" data-action="save" data-id="${esc(i.id)}" title="${saved?"あとで読むを解除":"あとで読む"}" aria-label="${saved?"あとで読むを解除":"あとで読む"}">${saved?"★":"☆"}</button><button class="icon-action ${read?"active":""}" data-action="read" data-id="${esc(i.id)}" title="${read?"未読に戻す":"既読にする"}" aria-label="${read?"未読に戻す":"既読にする"}">${read?"✓":"○"}</button><button class="icon-action" data-action="note" data-id="${esc(i.id)}" title="学びのメモ" aria-label="学びのメモ">✎</button>`;}
+function itemActions(i){const read=state.read.has(i.id),saved=state.saved.has(i.id);return `${i.id.startsWith("manual-")?`<button class="icon-action" data-action="delete" data-id="${esc(i.id)}" title="手動登録を削除" aria-label="手動登録を削除">🗑</button>`:""}<button class="icon-action ${saved?"active":""}" data-action="save" data-id="${esc(i.id)}" title="${saved?"ブックマークを外す":"ブックマーク"}" aria-label="${saved?"ブックマークを外す":"ブックマーク"}">${saved?"★":"☆"}</button><button class="icon-action ${read?"active":""}" data-action="read" data-id="${esc(i.id)}" title="${read?"未読に戻す":"既読にする"}" aria-label="${read?"未読に戻す":"既読にする"}">${read?"✓":"○"}</button><button class="icon-action" data-action="note" data-id="${esc(i.id)}" title="学びのメモ" aria-label="学びのメモ">✎</button>`;}
 function srcOf(i){return SRC[i.sourceType]||SRC.external;}
 function dispTitle(i){return i.sourceType==="youtube"?(i.title||"").replace(/(\s*#[^\s#]+)+\s*$/,"")||i.title:i.title;}
 function isShort(i){return i.sourceType==="youtube"&&/#shorts/i.test(i.title||"");}
@@ -74,32 +72,31 @@ function thumb(i,cls){const s=srcOf(i);const ph=`<span class="ph-icon">${s.icon}
 function cleanDesc(i){return (i.description||"概要は未登録です。元のページを開いて内容を確認してください。").replace(/\s*▼?目次[\s\S]*$/,"").trim()||i.description;}
 function renderCard(i){
   const saved=state.saved.has(i.id),tags=(i.tags||[]).slice(0,3);
-  return `<article class="highlight-card src-${esc(i.sourceType||"external")}">${thumb(i,"highlight-art")}<div class="highlight-body"><div class="meta-line">${srcPill(i)}<span>${esc(formatDate(i.publishedAt))}</span></div><h3><a href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}">${esc(dispTitle(i))}</a></h3><p class="clamp3">${esc(cleanDesc(i))}</p><div class="feed-tags">${tags.map(t=>`<span class="feed-tag">${esc(t)}</span>`).join("")}</div><div class="card-actions"><a href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}">${esc(srcOf(i).open)} ↗</a><span style="flex:1"></span><button class="mini-action ${saved?"saved":""}" data-action="save" data-id="${esc(i.id)}">${saved?"★ 保存済み":"☆ 保存"}</button></div></div></article>`;
+  return `<article class="highlight-card src-${esc(i.sourceType||"external")}">${thumb(i,"highlight-art")}<div class="highlight-body"><div class="meta-line">${srcPill(i)}<span>${esc(formatDate(i.publishedAt))}</span></div><h3><a href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}">${esc(dispTitle(i))}</a></h3><p class="clamp3">${esc(cleanDesc(i))}</p><div class="feed-tags">${tags.map(t=>`<span class="feed-tag">${esc(t)}</span>`).join("")}</div><div class="card-actions"><a href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}">${esc(srcOf(i).open)} ↗</a><span style="flex:1"></span><button class="mini-action ${saved?"saved":""}" data-action="save" data-id="${esc(i.id)}">${saved?"★ ブックマーク中":"☆ ブックマーク"}</button></div></div></article>`;
 }
 function renderFeedItem(i){
   const read=state.read.has(i.id),tags=(i.tags||[]).slice(0,4);
-  return `<article class="feed-item src-${esc(i.sourceType||"external")} ${read?"is-read":""}">${thumb(i,"feed-thumb")}<div class="feed-main"><div class="feed-meta">${srcPill(i)}<span>${esc(formatDate(i.publishedAt))}</span>${read?'<span class="read-mark">既読</span>':'<span class="unread-dot" title="未読"></span>'}${i.isDemo?'<span class="tag">サンプル</span>':""}</div><a class="feed-title" href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}">${esc(dispTitle(i))}</a><p class="feed-desc clamp2">${esc(cleanDesc(i))}</p><div class="feed-tags">${tags.map(t=>`<span class="feed-tag"${i.tagsEstimated?' title="タイトル・概要のキーワードから自動推定したテーマ"':""}>${esc(t)}</span>`).join("")}</div></div><div class="feed-actions">${itemActions(i)}</div></article>`;
+  return `<article class="feed-item src-${esc(i.sourceType||"external")} ${read?"is-read":""}">${thumb(i,"feed-thumb")}<div class="feed-main"><div class="feed-meta">${srcPill(i)}<span>${esc(formatDate(i.publishedAt))}</span>${read?'<span class="read-mark">既読</span>':'<span class="unread-mark">● 未読</span>'}${i.isDemo?'<span class="tag">サンプル</span>':""}</div><a class="feed-title" href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}">${esc(dispTitle(i))}</a><p class="feed-desc clamp2">${esc(cleanDesc(i))}</p><div class="feed-tags">${tags.map(t=>`<span class="feed-tag"${i.tagsEstimated?' title="タイトル・概要のキーワードから自動推定したテーマ"':""}>${esc(t)}</span>`).join("")}</div></div><div class="feed-actions">${itemActions(i)}</div></article>`;
 }
 function renderChips(){
   const items=allItems(),count=t=>items.filter(i=>i.sourceType===t).length,cur=state.sourceFilter||$("#typeFilter").value;
-  const types=["blog","youtube","slides","official","external"].filter(t=>count(t)||t!=="external");
+  const types=["blog","youtube","slides","external"].filter(t=>count(t)||t!=="external");
   $("#sourceChips").innerHTML=`<button class="chip ${cur?"":"active"}" data-chip="">すべて <b>${items.length}</b></button>`+types.map(t=>`<button class="chip chip-${t} ${cur===t?"active":""}" data-chip="${t}">${SRC[t].icon} ${esc(SRC[t].label)} <b>${count(t)}</b></button>`).join("");
 }
 function updateStats(){
-  const items=allItems(),unread=items.filter(i=>!state.read.has(i.id)).length,week=items.filter(i=>i.publishedAt&&daysAgo(i.publishedAt)>=0&&daysAgo(i.publishedAt)<=7).length;
-  $("#unreadCount").textContent=unread;$("#unreadNavCount").textContent=unread;$("#weekCount").textContent=week;$("#savedCount").textContent=state.saved.size;$("#sourceCount").textContent=state.sources.length;
+  $("#unreadNavCount").textContent=allItems().filter(i=>!state.read.has(i.id)).length;
 }
 function render(){
   populateTagFilter();updateStats();
-  const titles={dashboard:["おかえりなさい","LayerXの技術的な学びを、ひとつの場所へ。"],all:["すべての情報","媒体を横断して、新着・未読・テーマを検索。"],saved:["あとで読む","時間があるときに確認したい情報。"],notes:["学びのメモ","自分の言葉で残した学びと応用アイデア。"]};
+  const titles={dashboard:["おかえりなさい","LayerXの技術的な学びを、ひとつの場所へ。"],all:["すべての情報","媒体を横断して、新着・未読・テーマを検索。"],saved:["ブックマーク","また見返したい記事・動画・スライド。"],notes:["学びのメモ","自分の言葉で残した学びと応用アイデア。"]};
   const [title,subtitle]=titles[state.view]||["情報一覧",""];$("#pageTitle").textContent=title;$("#pageSubtitle").textContent=subtitle;
   $("#dashboardHighlights").classList.toggle("hidden",state.view!=="dashboard");
-  $("#feedTitle").textContent=state.view==="saved"?"あとで読む":state.view==="notes"?"メモがある情報":state.sourceFilter?typeName(state.sourceFilter):state.view==="dashboard"?"新着情報":"すべての情報";
+  $("#feedTitle").textContent=state.view==="saved"?"ブックマーク":state.view==="notes"?"メモがある情報":state.sourceFilter?typeName(state.sourceFilter):state.view==="dashboard"?"新着情報":"すべての情報";
   renderChips();const filtered=getFiltered();$("#resultSummary").textContent=`${filtered.length}件の情報`;
   $("#feedList").innerHTML=filtered.map(renderFeedItem).join("");$("#emptyState").classList.toggle("hidden",filtered.length!==0);
   if(state.view==="dashboard"){
-    const highlights=[...allItems()].filter(i=>!state.read.has(i.id)).sort((a,b)=>new Date(b.publishedAt)-new Date(a.publishedAt)).slice(0,3);
-    $("#highlightGrid").innerHTML=highlights.map(renderCard).join("")||'<p class="feed-desc">未読の情報はありません。情報源の更新を確認してください。</p>';
+    const highlights=[...allItems()].sort((a,b)=>new Date(b.publishedAt)-new Date(a.publishedAt)).slice(0,3);
+    $("#highlightGrid").innerHTML=highlights.map(renderCard).join("")||'<p class="feed-desc">まだ情報がありません。</p>';
   }
   renderSources();
 }
@@ -122,7 +119,7 @@ document.addEventListener("click",e=>{
   const source=e.target.closest("[data-source]");if(source){setView("all",source.dataset.source);return;}
   const go=e.target.closest("[data-go]");if(go){setView(go.dataset.go);return;}
   const action=e.target.closest("[data-action]");if(action){const id=action.dataset.id,act=action.dataset.action;
-    if(act==="save"){state.saved.has(id)?state.saved.delete(id):state.saved.add(id);persistState();render();showToast(state.saved.has(id)?"あとで読むに保存しました":"保存を解除しました");}
+    if(act==="save"){state.saved.has(id)?state.saved.delete(id):state.saved.add(id);persistState();render();showToast(state.saved.has(id)?"ブックマークしました":"ブックマークを外しました");}
     if(act==="read"){state.read.has(id)?state.read.delete(id):state.read.add(id);persistState();render();showToast(state.read.has(id)?"既読にしました":"未読に戻しました");}
     if(act==="note")openNote(id);
     if(act==="delete"&&confirm("この手動登録を削除しますか？")){state.manual=state.manual.filter(x=>x.id!==id);state.saved.delete(id);state.read.delete(id);delete state.notes[id];persistState();render();showToast("削除しました");}

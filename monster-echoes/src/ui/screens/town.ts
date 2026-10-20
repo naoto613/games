@@ -2,7 +2,7 @@ import { sfx } from '../../infrastructure/audio/Sound';
 import type { App } from '../App';
 import { openBreeding } from './breeding';
 import { openDex } from './dex';
-import { openParty, openSettings } from './menus';
+import { openEquipShop, openParty, openSettings } from './menus';
 import { openShop } from './shop';
 import { getItem } from '../../data/items';
 import { DEX_REWARDS, MEDAL_PRIZES } from '../../data/town';
@@ -52,8 +52,33 @@ export async function talkTo(app: App, id: string, field: { updateHud(): void; a
     }
     case 'merchant':
     case 'shop': {
-      const c = await app.ask(id === 'merchant' ? 'たびの 行商人だよ。なにか いるかい？' : 'いらっしゃい！ なんの ようだい？', ['かう', 'うる', 'やめる'], { speaker: name });
+      // カゼノの 行商人は そうび（アクセサリ）も あつかう（第3章）
+      const town = g.state.player.townMap;
+      const eq = id === 'merchant' && g.hasFeature('equipment') && town === 'kazeno';
+      const c = await app.ask(id === 'merchant' ? (eq ? '風の 高原へ ようこそ。そうびも あるよ！' : 'たびの 行商人だよ。なにか いるかい？') : 'いらっしゃい！ なんの ようだい？', eq ? ['どうぐを かう', 'うる', 'そうびを かう', 'やめる'] : ['かう', 'うる', 'やめる'], { speaker: name });
       if (c === 0 || c === 1) openShop(app, c === 0 ? 'buy' : 'sell', done);
+      if (eq && c === 2) openEquipShop(app, 'kazeno', done);
+      break;
+    }
+    case 'innkeeper': {
+      // 風見の宿：見はりの ゴウに みとめられると むりょう
+      const free = !!g.state.progress.storyFlags.ch3_trusted;
+      const price = 20;
+      const c = await app.ask(free ? 'ゴウから きいてるよ。むりょうで とまっていきな！' : `ひとばん ${price}ゴールドだよ。とまっていくかい？`, ['とまる', 'やめる'], { speaker: name });
+      if (c !== 0) break;
+      if (!free) {
+        if (g.state.player.gold < price) { await app.say('おかねが たりないみたいだね。', { speaker: name }); break; }
+        g.spendGold(price);
+      }
+      sfx('heal');
+      g.healAll();
+      await app.say('ぐっすり ねむった。\nモンスターたちの HPと MPが すべて かいふくした！');
+      break;
+    }
+    case 'hakase': {
+      if (!g.hasFeature('dex')) break;
+      const c = await app.ask('なにを する？', ['図鑑を 見る', 'やめる'], { speaker: name });
+      if (c === 0) openDex(app);
       break;
     }
     case 'fountain':

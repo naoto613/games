@@ -36,7 +36,28 @@ function run(seed: number, verbose: boolean) {
   party[1] = createMonster('m042', rng, { level: 5, sex: 'A' }); // 森で リーフアント
   for (const fl of ['sasayaki2', 'sasayaki3', 'sasayaki4']) floor(fl);
   const b1 = fight(heal(party), BOSSES.morg.enemies, rng, 'boss');
-  return { b1, lv: party.map((m) => m.level).join('/'), battles };
+  const lv1 = party.map((m) => m.level).join('/');
+  // 第2章：水音の洞穴（クラブリン・アクアバットが なかまに）→ 泡守りの騎士 → 深淵の水路（アビスイール）→ ウロコ王
+  floor('mizuoto1');
+  party[2] = createMonster('m101', rng, { level: 8, sex: 'A' });
+  floor('mizuoto2');
+  party[1] = createMonster('m104', rng, { level: 9, sex: 'B' });
+  floor('mizuoto3');
+  const b2 = fight(heal(party), BOSSES.bubbleknight.enemies, rng, 'boss');
+  for (const fl of ['shinen1', 'shinen2', 'shinen3']) floor(fl);
+  floor('shinen4');
+  party[1] = createMonster('m105', rng, { level: 12, sex: 'B' });
+  floor('shinen5');
+  const b3 = fight(heal(party), BOSSES.uroko.enemies, rng, 'boss');
+  const lv2 = party.map((m) => m.level).join('/');
+  // 第3章：風渡りの峡谷（4F の サンダーリンクスが なかまに）→ 風見の番人 → 逆風の塔（分身）→ 風喰いグリフォン
+  for (const fl of ['kaze1', 'kaze2', 'kaze3', 'kaze4']) floor(fl);
+  party[2] = createMonster('m028', rng, { level: 17, sex: 'A' });
+  const b4 = fight(heal(party), BOSSES.kazami_guard.enemies, rng, 'boss');
+  for (const fl of ['gyakufu1', 'gyakufu2', 'gyakufu3', 'gyakufu4', 'gyakufu5', 'gyakufu6']) floor(fl);
+  const b5 = fight(heal(party), BOSSES.griffon_clone.enemies, rng, 'boss');
+  const b6 = fight(heal(party), BOSSES.griffon.enemies, rng, 'boss');
+  return { b1, b2, b3, b4, b5, b6, lv: lv1, lv2, lv3: party.map((m) => m.level).join('/'), battles };
 }
 it('progression（第1章）', () => {
   run(5, false);
@@ -48,5 +69,33 @@ it('progression（第1章）', () => {
   expect(pct((r) => r.b1.win)).toBeLessThanOrEqual(92);
   const maxLv = Math.max(...rs.flatMap((r) => r.lv.split('/').map(Number)));
   expect(maxLv).toBeLessThanOrEqual(12);
-  console.log(`（第1章を 寄り道なしで）モルグ 勝率 ${pct((r) => r.b1.win)}% ${avg((r) => r.b1.turns)}ターン  レベル 例: ${rs[0].lv}（${rs[0].battles}戦）`);
+  console.log(`（第1章を 寄り道なしで）モルグ 勝率 ${pct((r) => r.b1.win)}% ${avg((r) => r.b1.turns)}ターン  レベル 例: ${rs[0].lv}`);
+});
+it('progression（第2章）', () => {
+  const rs = Array.from({ length: 30 }, (_, i) => run(300 + i, false));
+  const pct = (f: (r: any) => boolean) => Math.round((rs.filter(f).length / rs.length) * 100);
+  const avg = (f: (r: any) => number) => (rs.reduce((a, r) => a + f(r), 0) / rs.length).toFixed(1);
+  console.log(`（第2章を 寄り道なしで）泡守りの騎士 ${pct((r) => r.b2.win)}% ${avg((r) => r.b2.turns)}ターン ／ ウロコ王 ${pct((r) => r.b3.win)}% ${avg((r) => r.b3.turns)}ターン  レベル 例: ${rs[0].lv2}（${rs[0].battles}戦）`);
+  // 目標：中ボス 55〜95%・章ボス 50〜90%。レベルは 第2章の 想定 Lv8〜16（Q15）
+  expect(pct((r) => r.b2.win)).toBeGreaterThanOrEqual(55);
+  expect(pct((r) => r.b2.win)).toBeLessThanOrEqual(95);
+  expect(pct((r) => r.b3.win)).toBeGreaterThanOrEqual(50);
+  expect(pct((r) => r.b3.win)).toBeLessThanOrEqual(92);
+  const maxLv = Math.max(...rs.flatMap((r) => r.lv2.split('/').map(Number)));
+  expect(maxLv).toBeLessThanOrEqual(18);
+});
+
+it('progression（第3章）', () => {
+  const rs = Array.from({ length: 30 }, (_, i) => run(600 + i, false));
+  const pct = (f: (r: any) => boolean) => Math.round((rs.filter(f).length / rs.length) * 100);
+  const avg = (f: (r: any) => number) => (rs.reduce((a, r) => a + f(r), 0) / rs.length).toFixed(1);
+  console.log(`（第3章を 寄り道なしで）風見の番人 ${pct((r) => r.b4.win)}% ／ 分身 ${pct((r) => r.b5.win)}% ／ グリフォン ${pct((r) => r.b6.win)}% ${avg((r) => r.b6.turns)}ターン  レベル 例: ${rs[0].lv3}（${rs[0].battles}戦）`);
+  // 目標：中ボス 55〜95%・章ボス 50〜92%。レベルは 第3章の 想定 Lv14〜22（Q15）
+  expect(pct((r) => r.b4.win)).toBeGreaterThanOrEqual(55);
+  expect(pct((r) => r.b4.win)).toBeLessThanOrEqual(97);
+  expect(pct((r) => r.b6.win)).toBeGreaterThanOrEqual(50);
+  expect(pct((r) => r.b6.win)).toBeLessThanOrEqual(92);
+  const maxLv = Math.max(...rs.flatMap((r) => r.lv3.split('/').map(Number)));
+  // 各階 8戦の シミュレーションは レベルが あがりやすい（第4章の はじまり Lv20〜 と かさなる 範囲）
+  expect(maxLv).toBeLessThanOrEqual(26);
 });
