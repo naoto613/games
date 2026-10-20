@@ -47,6 +47,7 @@
     O('fest', 'よぞらに はなびを あげよう', ['d_firework'], ['firework']),
   ];
   // どのステージでも出せる お題
+  if (PT.ODAI2) PT.ODAI.push(...PT.ODAI2);
   PT.ODAI_ANY = [
     O('any', 'ぼうしを かぶせてみよう', ['d_hat', 'd_king', 'd_party', 'd_chef', 'd_space', 'd_witch'], ['explorer', 'crown']),
     O('any', 'みんなで おどろう！', ['d_dance', 'd_parade', 'd_mimic'], ['music', 'drum']),
