@@ -3,6 +3,7 @@
 ブラウザで遊べるゲームを GitHub Pages で公開するリポジトリです。
 
 - 一覧ページ: https://naoto613.github.io/games/
+- AI PM Radar: https://naoto613.github.io/games/ai-pm-radar/
 - LayerX Radar: https://naoto613.github.io/games/layerx-radar/
 - ぺたぺた！つくってワールド: https://naoto613.github.io/games/petapeta-craft/
 - ぺたぺた！あそびタウン: https://naoto613.github.io/games/petapeta-town/
@@ -22,6 +23,12 @@
 ├── thumbs/                 # 一覧ページ用サムネイル（<ゲームフォルダ名>.jpg、800×500）
 ├── .nojekyll               # Jekyll 処理を無効化（ファイルをそのまま配信）
 ├── README.md
+├── ai-pm-radar/
+│   ├── index.html          # AI PM Radar（AI を活用したプロダクトマネジメント・EM・プロダクト開発・組織づくりの公開情報を集める静的ダッシュボード。layerx-radar と同じつくり。テーマ・レーダー、AI×テーマの注目、FOCUS／媒体／言語／AI活用だけ の絞り込み、既読・ブックマーク・学びのメモ・手動追加は localStorage）
+│   ├── app.js / styles.css
+│   ├── data/               # items.json・sources.json（Zenn・Qiita・はてブ検索RSS・海外ニュースレター・YouTube）・meta.json
+│   ├── scripts/fetch_sources.py  # APIキー不要の収集（RSS/Atom・YouTube 公開フィード。テーマは日英キーワードで推定）
+│   └── requirements.txt    # .github/workflows/ai-pm-radar-update.yml が毎朝6時すぎに実行して main へコミット
 ├── layerx-radar/
 │   ├── index.html          # LayerX Radar（LayerX の公開技術情報を横断キャッチアップする静的ダッシュボード。検索・絞り込み・既読・ブックマーク・学びのメモ・手動追加は localStorage、状態のエクスポート／インポート可。データが空のときはサンプル表示）
 │   ├── app.js / styles.css
