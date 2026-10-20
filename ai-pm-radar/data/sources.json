@@ -8,7 +8,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://zenn.dev/topics/pdm/feed",
-    "notes": "Zennのトピック別RSS。キー不要。"
+    "notes": "Zennのトピック別RSS。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 20
   },
   {
     "id": "zenn-productmanagement",
@@ -19,7 +23,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://zenn.dev/topics/productmanagement/feed",
-    "notes": "Zennのトピック別RSS。キー不要。"
+    "notes": "Zennのトピック別RSS。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 20
   },
   {
     "id": "zenn-engineeringmanager",
@@ -30,7 +38,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://zenn.dev/topics/engineeringmanager/feed",
-    "notes": "Zennのトピック別RSS。キー不要。"
+    "notes": "Zennのトピック別RSS。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 20
   },
   {
     "id": "zenn-management",
@@ -41,7 +53,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://zenn.dev/topics/management/feed",
-    "notes": "Zennのトピック別RSS。キー不要。"
+    "notes": "Zennのトピック別RSS。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 20
   },
   {
     "id": "qiita-pdm",
@@ -52,7 +68,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://qiita.com/tags/PdM/feed",
-    "notes": "QiitaのタグAtomフィード。キー不要。"
+    "notes": "QiitaのタグAtomフィード。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 4
   },
   {
     "id": "qiita-productmanagement",
@@ -63,7 +83,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://qiita.com/tags/%E3%83%97%E3%83%AD%E3%83%80%E3%82%AF%E3%83%88%E3%83%9E%E3%83%8D%E3%82%B8%E3%83%A1%E3%83%B3%E3%83%88/feed",
-    "notes": "QiitaのタグAtomフィード。キー不要。"
+    "notes": "QiitaのタグAtomフィード。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 4
   },
   {
     "id": "qiita-em",
@@ -74,7 +98,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://qiita.com/tags/%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%83%AA%E3%83%B3%E3%82%B0%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC/feed",
-    "notes": "QiitaのタグAtomフィード。キー不要。"
+    "notes": "QiitaのタグAtomフィード。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 4
   },
   {
     "id": "qiita-orgdev",
@@ -85,7 +113,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://qiita.com/tags/%E7%B5%84%E7%B9%94%E9%96%8B%E7%99%BA/feed",
-    "notes": "QiitaのタグAtomフィード。キー不要。"
+    "notes": "QiitaのタグAtomフィード。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 4
   },
   {
     "id": "hatena-pdm",
@@ -96,7 +128,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://b.hatena.ne.jp/q/%E3%83%97%E3%83%AD%E3%83%80%E3%82%AF%E3%83%88%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC?target=all&sort=recent&users=5&safe=on&mode=rss",
-    "notes": "はてなブックマークの検索RSS（5users以上・新着順）。リンク先は元記事。キー不要。"
+    "notes": "はてなブックマークの検索RSS（5users以上・新着順）。リンク先は元記事。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 40
   },
   {
     "id": "hatena-em",
@@ -107,7 +143,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://b.hatena.ne.jp/q/%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%83%AA%E3%83%B3%E3%82%B0%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC?target=all&sort=recent&users=5&safe=on&mode=rss",
-    "notes": "はてなブックマークの検索RSS（5users以上・新着順）。リンク先は元記事。キー不要。"
+    "notes": "はてなブックマークの検索RSS（5users以上・新着順）。リンク先は元記事。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 40
   },
   {
     "id": "hatena-org",
@@ -118,7 +158,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://b.hatena.ne.jp/q/%E7%B5%84%E7%B9%94%E3%81%A5%E3%81%8F%E3%82%8A?target=all&sort=recent&users=5&safe=on&mode=rss",
-    "notes": "はてなブックマークの検索RSS（5users以上・新着順）。リンク先は元記事。キー不要。"
+    "notes": "はてなブックマークの検索RSS（5users以上・新着順）。リンク先は元記事。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 40
   },
   {
     "id": "hatena-ai-product",
@@ -129,7 +173,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://b.hatena.ne.jp/q/%E7%94%9F%E6%88%90AI%20%E3%83%97%E3%83%AD%E3%83%80%E3%82%AF%E3%83%88%E9%96%8B%E7%99%BA?target=all&sort=recent&users=5&safe=on&mode=rss",
-    "notes": "はてなブックマークの検索RSS（5users以上・新着順）。リンク先は元記事。キー不要。"
+    "notes": "はてなブックマークの検索RSS（5users以上・新着順）。リンク先は元記事。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 40
   },
   {
     "id": "lenny",
@@ -140,7 +188,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://www.lennysnewsletter.com/feed",
-    "notes": "プロダクト・グロース・キャリア。有料記事は冒頭のみ。 公開RSS。キー不要。"
+    "notes": "プロダクト・グロース・キャリア。有料記事は冒頭のみ。 公開RSS。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 20
   },
   {
     "id": "pragmatic-engineer",
@@ -151,7 +203,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://newsletter.pragmaticengineer.com/feed",
-    "notes": "エンジニアリング組織・EM・AIツールの実態。 公開RSS。キー不要。"
+    "notes": "エンジニアリング組織・EM・AIツールの実態。 公開RSS。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 20
   },
   {
     "id": "svpg",
@@ -162,7 +218,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://www.svpg.com/feed/",
-    "notes": "プロダクトオペレーティングモデル・エンパワードチーム。 公開RSS。キー不要。"
+    "notes": "プロダクトオペレーティングモデル・エンパワードチーム。 公開RSS。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 14
   },
   {
     "id": "product-talk",
@@ -173,7 +233,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://www.producttalk.org/feed/",
-    "notes": "継続的ディスカバリー。AIプロダクト開発の連載あり。 公開RSS。キー不要。"
+    "notes": "継続的ディスカバリー。AIプロダクト開発の連載あり。 公開RSS。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 15
   },
   {
     "id": "mind-the-product",
@@ -184,7 +248,9 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://www.mindtheproduct.com/feed/",
-    "notes": "PMコミュニティの記事・カンファレンス講演。 公開RSS。キー不要。"
+    "notes": "PMコミュニティの記事・カンファレンス講演。 公開RSS。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastError": "RSS/Atom parse failed: <unknown>:2:0: not well-formed (invalid token)"
   },
   {
     "id": "lethain",
@@ -195,7 +261,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://lethain.com/feeds/",
-    "notes": "エンジニアリング戦略・組織設計・スタッフエンジニア。 公開RSS。キー不要。"
+    "notes": "エンジニアリング戦略・組織設計・スタッフエンジニア。 公開RSS。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 11
   },
   {
     "id": "beautiful-mess",
@@ -206,7 +276,9 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://cutlefish.substack.com/feed",
-    "notes": "プロダクト組織のオペレーティングモデル。 公開RSS。キー不要。"
+    "notes": "プロダクト組織のオペレーティングモデル。 公開RSS。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastError": "403 Client Error: Forbidden for url: https://cutlefish.substack.com/feed"
   },
   {
     "id": "eng-leadership",
@@ -217,7 +289,11 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://newsletter.eng-leadership.com/feed",
-    "notes": "EM・テックリード向けの実践Tips。 公開RSS。キー不要。"
+    "notes": "EM・テックリード向けの実践Tips。 公開RSS。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 20
   },
   {
     "id": "aakash",
@@ -228,30 +304,44 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://www.news.aakashg.com/feed",
-    "notes": "AI PM・PMキャリア。 公開RSS。キー不要。"
+    "notes": "AI PM・PMキャリア。 公開RSS。キー不要。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 20
   },
   {
     "id": "lenny-youtube",
     "name": "Lenny's Podcast（YouTube）",
     "type": "youtube",
-    "url": "https://www.youtube.com/@LennysPodcast",
+    "url": "https://www.youtube.com/channel/UC6t1O76G0jYXOAoYCm153dA",
     "lang": "en",
     "enabled": true,
     "fetchMethod": "youtube",
-    "channelId": "",
+    "channelId": "UC6t1O76G0jYXOAoYCm153dA",
     "resolveFromUrl": "https://www.youtube.com/@LennysPodcast",
-    "notes": "YouTubeの公開チャンネルフィード（最新15本）。channelIdはチャンネルページから自動で調べて保存する。"
+    "notes": "YouTubeの公開チャンネルフィード（最新15本）。channelIdはチャンネルページから自動で調べて保存する。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "via": "feed",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 15
   },
   {
     "id": "pragmatic-youtube",
     "name": "The Pragmatic Engineer（YouTube）",
     "type": "youtube",
-    "url": "https://www.youtube.com/@pragmaticengineer",
+    "url": "https://www.youtube.com/channel/UCPbwhExawYrn9xxI21TFfyw",
     "lang": "en",
     "enabled": true,
     "fetchMethod": "youtube",
-    "channelId": "",
+    "channelId": "UCPbwhExawYrn9xxI21TFfyw",
     "resolveFromUrl": "https://www.youtube.com/@pragmaticengineer",
-    "notes": "YouTubeの公開チャンネルフィード（最新15本）。channelIdはチャンネルページから自動で調べて保存する。"
+    "notes": "YouTubeの公開チャンネルフィード（最新15本）。channelIdはチャンネルページから自動で調べて保存する。",
+    "lastFetchedAt": "2026-10-20T22:43:29+00:00",
+    "via": "feed",
+    "lastSuccessAt": "2026-10-20T22:43:29+00:00",
+    "lastError": null,
+    "lastCount": 15
   }
 ]
