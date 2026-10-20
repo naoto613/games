@@ -405,6 +405,7 @@
       const mx = lx * 1.2;
       for (const sd of [-1, 1]) { c.beginPath(); c.moveTo(mx, -101); c.quadraticCurveTo(mx + sd * 14, -108, mx + sd * 26, -100); c.quadraticCurveTo(mx + sd * 32, -104, mx + sd * 30, -110); c.quadraticCurveTo(mx + sd * 36, -96, mx + sd * 22, -94); c.quadraticCurveTo(mx + sd * 10, -94, mx, -99); c.closePath(); G.fillO(c, '#6b4a2b', 2.5); }
     }
+    if (EXT.face[w.face]) EXT.face[w.face](c, ch, t, lx);
     if (EXT.hat[w.hat]) { EXT.hat[w.hat](c, ch, t, lx); return; }
     switch (w.hat) {
       case 'explorer':
