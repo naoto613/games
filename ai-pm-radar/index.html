@@ -44,6 +44,11 @@
     </aside>
 
     <main class="main-content">
+      <nav class="lang-tabs" role="tablist" aria-label="言語">
+        <button class="lang-tab active" role="tab" data-lang="ja" aria-selected="true"><span class="lang-flag">あ</span> 日本語 <b>0</b></button>
+        <button class="lang-tab" role="tab" data-lang="en" aria-selected="false"><span class="lang-flag">A</span> English <b>0</b></button>
+        <span class="lang-tabs-note">未読数 · 日本語と英語は別々に表示</span>
+      </nav>
       <section class="welcome-row">
         <div>
           <div class="eyebrow">PRODUCT &amp; ORG INTELLIGENCE</div>
@@ -62,7 +67,6 @@
             <option value="">すべての媒体</option><option value="community">国内コミュニティ</option><option value="bookmark">はてブで話題</option><option value="newsletter">海外ニュースレター</option><option value="youtube">動画・Podcast</option><option value="external">手動で追加</option>
           </select>
           <select id="tagFilter" aria-label="テーマで絞り込み"><option value="">すべてのテーマ</option></select>
-          <select id="langFilter" aria-label="言語で絞り込み"><option value="">日本語＋英語</option><option value="ja">日本語だけ</option><option value="en">英語だけ</option></select>
           <select id="statusFilter" aria-label="既読状態で絞り込み"><option value="">すべて表示</option><option value="unread">未読だけ</option><option value="read">既読だけ</option><option value="saved">ブックマーク</option></select>
           <select id="sortFilter" aria-label="並び順"><option value="newest">新しい順</option><option value="popular">はてブ数順</option><option value="oldest">古い順</option><option value="title">タイトル順</option></select>
           <label class="ai-toggle" title="AI・LLM・エージェントに関係する情報だけにする"><input id="aiOnly" type="checkbox"> <span>✦ AI活用だけ</span></label>
@@ -90,7 +94,7 @@
   <dialog id="settingsDialog" class="modal">
     <form method="dialog" class="modal-header"><div><div class="eyebrow">CONFIGURATION</div><h2>設定・情報源</h2></div><button class="icon-button" aria-label="閉じる">✕</button></form>
     <div class="modal-body">
-      <p class="settings-note">このアプリは静的なページです。GitHub Actions が毎朝6時（日本時間）に公開フィードを集めて <code>data/items.json</code> を更新し、それを読み込みます。APIキーは使っていません。テーマは記事のキーワードからの自動推定です。</p>
+      <p class="settings-note">日本語と英語の情報は上の「日本語／English」タブで分けて表示します（既読・ブックマーク・メモもタブごとに表示。手動追加は今のタブに入ります）。このアプリは静的なページです。GitHub Actions が毎朝6時（日本時間）に公開フィードを集めて <code>data/items.json</code> を更新し、それを読み込みます。APIキーは使っていません。テーマは記事のキーワードからの自動推定です。</p>
       <div class="settings-block"><h3>登録済みの情報源</h3><div id="sourceSettingsList" class="source-settings-list"></div></div>
       <div class="settings-block"><h3>データのバックアップ</h3><p>既読・ブックマーク・メモはこのブラウザ内に保存されます。別の端末へ移すときはエクスポート／インポートしてください。</p><div class="button-row"><button id="exportStateBtn" class="button button-secondary" type="button">状態をエクスポート</button><label class="button button-secondary file-label">状態をインポート<input type="file" id="importStateInput" accept="application/json"></label><button id="resetStateBtn" class="button button-danger" type="button">状態をリセット</button></div></div>
       <div class="settings-block"><h3>手動で情報を追加</h3><p>note・社内勉強会の資料など、自動取得していないページもURLを登録して記録できます。</p><form id="manualAddForm" class="manual-form"><input id="manualTitle" placeholder="タイトル" required><input id="manualUrl" type="url" placeholder="https://…" required><select id="manualTag"><option value="">テーマなし</option></select><button class="button button-primary" type="submit">追加</button></form></div>
