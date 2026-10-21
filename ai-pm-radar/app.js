@@ -27,6 +27,7 @@ const METHOD_LABELS={rss:"RSS/Atom",youtube:"YouTube公開フィード",auto:"�
 const STORAGE_KEY = "ai-pm-radar-state-v1";
 const LANG_KEY = "ai-pm-radar-lang";
 const LANGS = {ja:"日本語",en:"English",layerx:"LayerX"};
+const TAB_MARKS = {ja:"あ",en:"A",layerx:"L"};
 const OLD_LAYERX_KEY = "layerx-radar-state-v1";
 
 function loadLocalState(){
@@ -121,6 +122,9 @@ function renderThemes(){
   $("#themeGrid").innerHTML=themesFor().map(t=>{const hit=recent.filter(i=>(i.tags||[]).includes(t)),ai=t===AI_TAG?null:hit.filter(hasAI).length;
     return `<button class="theme-card ${t===AI_TAG?"is-ai":""}" data-theme="${esc(t)}"><span class="theme-icon">${THEME_ICONS[t]||"●"}</span><span class="theme-name">${esc(t)}</span><span class="theme-count"><b>${hit.length}</b>件${ai?`<em>✦ ${ai}</em>`:""}</span></button>`;}).join("");
 }
+function renderTabs(){
+  $(".lang-tabs").innerHTML=Object.entries(LANGS).map(([l,name])=>`<button class="lang-tab" role="tab" data-lang="${l}" aria-selected="false"><span class="lang-flag">${TAB_MARKS[l]}</span> ${esc(name)} <b>0</b></button>`).join("")+'<span class="lang-tabs-note">未読数 · タブごとに別々に表示</span>';
+}
 function updateStats(){
   const items=langItems();
   $("#unreadNavCount").textContent=items.filter(i=>!state.read.has(i.id)).length;
@@ -199,6 +203,6 @@ $("#exportStateBtn").addEventListener("click",()=>downloadJson("ai-pm-radar-stat
 $("#importStateInput").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());state.read=new Set(d.read||[]);state.saved=new Set(d.saved||[]);state.notes=d.notes||{};if(Array.isArray(d.manual))state.manual=d.manual;persistState();render();showToast("状態をインポートしました");}catch(err){showToast("JSONファイルを読み込めませんでした");}e.target.value="";});
 $("#resetStateBtn").addEventListener("click",()=>{if(confirm("既読・ブックマーク・メモをすべて削除します。よろしいですか？")){state.read.clear();state.saved.clear();state.notes={};state.manual=[];persistState();render();showToast("状態をリセットしました");}});
 $("#manualAddForm").addEventListener("submit",e=>{e.preventDefault();const title=$("#manualTitle").value.trim(),url=$("#manualUrl").value.trim(),tag=$("#manualTag").value;if(!title||!url)return;let parsed;try{parsed=new URL(url);if(!["http:","https:"].includes(parsed.protocol))throw 0;}catch(err){showToast("有効なHTTP/HTTPS URLを入力してください");return;}const id="manual-"+(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36));state.manual.unshift({id,title,url,sourceId:"manual-entry",sourceType:"external",lang:state.lang==="en"?"en":"ja",tab:state.lang,publishedAt:new Date().toISOString(),discoveredAt:new Date().toISOString(),description:"手動で登録した情報です。",tags:tag?[tag]:[],learningTypes:[]});$("#manualTitle").value="";$("#manualUrl").value="";persistState();render();showToast("情報を追加しました");});
-loadLocalState();loadData();
+renderTabs();loadLocalState();loadData();
 
 document.addEventListener("error",e=>{const img=e.target;if(img.tagName==="IMG"&&img.hasAttribute("data-thumb"))img.remove();},true);
