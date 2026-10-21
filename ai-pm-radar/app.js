@@ -15,30 +15,45 @@ const DEFAULT_SOURCES = [
   {id:"lenny-youtube",name:"Lenny's Podcast（YouTube）",type:"youtube",url:"https://www.youtube.com/@LennysPodcast",enabled:true,fetchMethod:"youtube",lang:"en"}
 ];
 const TAGS = ["AI活用","プロダクトマネジメント","エンジニアリングマネジメント","プロダクト開発","ディスカバリー・UX","組織づくり","採用・育成・キャリア","戦略・経営","開発生産性","データ・指標"];
-const FOCUS = TAGS.filter(t=>t!=="AI活用");
+// LayerX タブ（旧 LayerX Radar）は技術寄りのテーマで分類する
+const TECH_TAGS = ["AI活用","アーキテクチャ","バックエンド","フロントエンド","Platform Engineering","SRE・インフラ","セキュリティ","品質・テスト","開発生産性","プロダクト開発","EM・組織設計","事業・技術戦略"];
+function themesFor(){return state.lang==="layerx"?TECH_TAGS:TAGS;}
 const AI_TAG = "AI活用";
-const THEME_ICONS = {"AI活用":"✦","プロダクトマネジメント":"◇","エンジニアリングマネジメント":"◈","プロダクト開発":"▷","ディスカバリー・UX":"◐","組織づくり":"⬡","採用・育成・キャリア":"↗","戦略・経営":"♜","開発生産性":"⚡","データ・指標":"▤"};
-const SRC = {community:{label:"国内コミュニティ",icon:"✎",open:"記事を読む"},bookmark:{label:"はてブ",icon:"B!",open:"記事を読む"},newsletter:{label:"ニュースレター",icon:"✉",open:"記事を読む"},youtube:{label:"YouTube",icon:"▶",open:"動画を見る"},external:{label:"手動追加",icon:"↗",open:"ページを開く"}};
+const THEME_ICONS = {"AI活用":"✦","プロダクトマネジメント":"◇","エンジニアリングマネジメント":"◈","プロダクト開発":"▷","ディスカバリー・UX":"◐","組織づくり":"⬡","採用・育成・キャリア":"↗","戦略・経営":"♜","開発生産性":"⚡","データ・指標":"▤","アーキテクチャ":"⌗","バックエンド":"⚙","フロントエンド":"▣","Platform Engineering":"⬢","SRE・インフラ":"☁","セキュリティ":"⛨","品質・テスト":"✓","EM・組織設計":"⬡","事業・技術戦略":"♜"};
+const SRC = {community:{label:"国内コミュニティ",icon:"✎",open:"記事を読む"},bookmark:{label:"はてブ",icon:"B!",open:"記事を読む"},newsletter:{label:"ニュースレター",icon:"✉",open:"記事を読む"},youtube:{label:"YouTube",icon:"▶",open:"動画を見る"},blog:{label:"ブログ",icon:"✎",open:"記事を読む"},slides:{label:"スライド",icon:"▧",open:"スライドを見る"},external:{label:"手動追加",icon:"↗",open:"ページを開く"}};
 const PAGE = 60;
 const state = {items:[],manual:[],meta:null,sources:DEFAULT_SOURCES,read:new Set(),saved:new Set(),notes:{},view:"dashboard",sourceFilter:"",focus:"",lang:"ja",limit:PAGE,editingNoteId:null,realData:false};
 const METHOD_LABELS={rss:"RSS/Atom",youtube:"YouTube公開フィード",auto:"フィード自動検出",manual:"手動"};
 const STORAGE_KEY = "ai-pm-radar-state-v1";
 const LANG_KEY = "ai-pm-radar-lang";
-const LANGS = {ja:"日本語",en:"English"};
+const LANGS = {ja:"日本語",en:"English",layerx:"LayerX"};
+const OLD_LAYERX_KEY = "layerx-radar-state-v1";
 
 function loadLocalState(){
   try{const l=localStorage.getItem(LANG_KEY);if(LANGS[l])state.lang=l;}catch(e){}
   try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");state.read=new Set(s.read||[]);state.saved=new Set(s.saved||[]);state.notes=s.notes||{};state.manual=Array.isArray(s.manual)?s.manual:[];}catch(e){}
+  migrateLayerxState();
+}
+// 旧 LayerX Radar（同じオリジン）の既読・ブックマーク・メモ・手動追加を一度だけ引き継ぐ
+function migrateLayerxState(){
+  try{
+    const raw=localStorage.getItem(OLD_LAYERX_KEY);if(!raw)return;const o=JSON.parse(raw);
+    (o.read||[]).forEach(id=>state.read.add(id));(o.saved||[]).forEach(id=>state.saved.add(id));
+    Object.entries(o.notes||{}).forEach(([id,t])=>{if(!state.notes[id])state.notes[id]=t;});
+    const have=new Set(state.manual.map(m=>m.id));(o.manual||[]).forEach(m=>{if(!have.has(m.id))state.manual.push({...m,lang:"ja",tab:"layerx"});});
+    persistState();localStorage.removeItem(OLD_LAYERX_KEY);
+  }catch(e){}
 }
 function persistState(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({read:[...state.read],saved:[...state.saved],notes:state.notes,manual:state.manual,updatedAt:new Date().toISOString()}));}catch(e){}}
 function esc(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function formatDate(d){if(!d)return"日付不明";const date=new Date(d);if(Number.isNaN(date.getTime()))return"日付不明";return new Intl.DateTimeFormat("ja-JP",{year:"numeric",month:"short",day:"numeric"}).format(date);}
 function daysAgo(d){return (Date.now()-new Date(d).getTime())/86400000;}
+function typeLabel(t){return({blog:"LayerX ブログ",slides:"Speaker Deck"})[t]||typeName(t);}
 function sourceName(id){return state.sources.find(s=>s.id===id)?.name||(id==="manual-entry"?"手動で追加":id)||"情報源不明";}
-function typeName(t){return({community:"国内コミュニティ",bookmark:"はてブで話題",newsletter:"海外ニュースレター",youtube:"動画・Podcast",external:"手動で追加"})[t]||"その他";}
+function typeName(t){return({community:"国内コミュニティ",bookmark:"はてブで話題",newsletter:"海外ニュースレター",youtube:"動画・Podcast",blog:"ブログ",slides:"スライド",external:"手動で追加"})[t]||"その他";}
 function allItems(){const off=new Set(state.sources.filter(s=>s.enabled===false).map(s=>s.id));return [...state.manual,...(state.items.length?state.items:FALLBACK_ITEMS).filter(i=>!off.has(i.sourceId))];}
-function langOf(i){return i.lang||"ja";}
-// 日本語と英語は混ぜずにタブで分けて扱う
+function langOf(i){return i.tab||i.lang||"ja";}
+// 日本語・英語・LayerX は混ぜずにタブで分けて扱う
 function langItems(){return allItems().filter(i=>langOf(i)===state.lang);}
 function hasAI(i){return (i.tags||[]).includes(AI_TAG);}
 function formatDateTime(d){if(!d)return"";const date=new Date(d);if(Number.isNaN(date.getTime()))return"";return new Intl.DateTimeFormat("ja-JP",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}).format(date);}
@@ -57,10 +72,10 @@ async function loadData(){
   $("#demoBanner").classList.toggle("hidden",state.realData);
 }
 function populateTagFilters(){
-  const used=new Set(TAGS);allItems().forEach(i=>(i.tags||[]).forEach(t=>used.add(t)));
+  const used=new Set(themesFor());langItems().forEach(i=>(i.tags||[]).forEach(t=>used.add(t)));
   const opts=[...used].map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
   const cur=$("#tagFilter").value;$("#tagFilter").innerHTML='<option value="">すべてのテーマ</option>'+opts;$("#tagFilter").value=cur;
-  if($("#manualTag").options.length<=1)$("#manualTag").innerHTML='<option value="">テーマなし</option>'+opts;
+  const mt=$("#manualTag").value;$("#manualTag").innerHTML='<option value="">テーマなし</option>'+opts;$("#manualTag").value=mt;
 }
 function getFiltered(){
   let items=langItems();const q=$("#searchInput").value.trim().toLowerCase(),type=$("#typeFilter").value,tag=$("#tagFilter").value,status=$("#statusFilter").value,sort=$("#sortFilter").value;
@@ -98,18 +113,19 @@ function renderFeedItem(i){
 }
 function renderChips(){
   const items=langItems(),count=t=>items.filter(i=>i.sourceType===t).length,cur=state.sourceFilter||$("#typeFilter").value;
-  const types=["community","bookmark","newsletter","youtube","external"].filter(t=>count(t)||t!=="external");
-  $("#sourceChips").innerHTML=`<button class="chip ${cur?"":"active"}" data-chip="">すべて <b>${items.length}</b></button>`+types.map(t=>`<button class="chip chip-${t} ${cur===t?"active":""}" data-chip="${t}">${SRC[t].icon} ${esc(typeName(t))} <b>${count(t)}</b></button>`).join("");
+  const types=["community","bookmark","newsletter","blog","slides","youtube","external"].filter(t=>count(t)||t!=="external");
+  $("#sourceChips").innerHTML=`<button class="chip ${cur?"":"active"}" data-chip="">すべて <b>${items.length}</b></button>`+types.map(t=>`<button class="chip chip-${t} ${cur===t?"active":""}" data-chip="${t}">${SRC[t].icon} ${esc(typeLabel(t))} <b>${count(t)}</b></button>`).join("");
 }
 function renderThemes(){
   const recent=langItems().filter(i=>daysAgo(i.publishedAt)<=30);
-  $("#themeGrid").innerHTML=TAGS.map(t=>{const hit=recent.filter(i=>(i.tags||[]).includes(t)),ai=t===AI_TAG?null:hit.filter(hasAI).length;
+  $("#themeGrid").innerHTML=themesFor().map(t=>{const hit=recent.filter(i=>(i.tags||[]).includes(t)),ai=t===AI_TAG?null:hit.filter(hasAI).length;
     return `<button class="theme-card ${t===AI_TAG?"is-ai":""}" data-theme="${esc(t)}"><span class="theme-icon">${THEME_ICONS[t]||"●"}</span><span class="theme-name">${esc(t)}</span><span class="theme-count"><b>${hit.length}</b>件${ai?`<em>✦ ${ai}</em>`:""}</span></button>`;}).join("");
 }
 function updateStats(){
   const items=langItems();
   $("#unreadNavCount").textContent=items.filter(i=>!state.read.has(i.id)).length;
   $$("[data-lang]").forEach(b=>{const l=b.dataset.lang,n=allItems().filter(i=>langOf(i)===l&&!state.read.has(i.id)).length;b.classList.toggle("active",l===state.lang);b.setAttribute("aria-selected",l===state.lang);b.querySelector("b").textContent=n;});
+  $$(".nav-item[data-focus]").forEach(b=>b.classList.toggle("hidden",!items.some(i=>(i.tags||[]).includes(b.dataset.focus))));
   $$(".nav-item[data-source]").forEach(b=>b.classList.toggle("hidden",!items.some(i=>i.sourceType===b.dataset.source)));
   const fresh=items.filter(i=>daysAgo(i.publishedAt)<=7).length;$("#todayLabel").textContent=`この7日で ${fresh}件`;
 }
@@ -117,17 +133,18 @@ function render(){
   populateTagFilters();updateStats();
   const titles={dashboard:["おかえりなさい","AI時代のプロダクトマネジメント・EM・組織づくりの学びを、ひとつの場所へ。"],all:["すべての情報","媒体・言語を横断して、新着・未読・テーマを検索。"],saved:["ブックマーク","また見返したい記事・動画。"],notes:["学びのメモ","自分の言葉で残した学びと応用アイデア。"]};
   let [title,subtitle]=titles[state.view]||["情報一覧",""];
+  if(state.lang==="layerx"&&state.view==="dashboard")subtitle="LayerXの公開技術情報（エンジニアブログ・YouTube・Speaker Deck）を、ひとつの場所へ。";
   if(state.focus){title=state.focus;subtitle=state.focus===AI_TAG?"AI・LLM・エージェントを仕事や組織にどう活かすか。":`${state.focus}に関する情報。✦ AI活用だけ にすると AI との掛け合わせに絞れます。`;}
   $("#pageTitle").textContent=title;$("#pageSubtitle").textContent=subtitle;
   $("#dashboardHighlights").classList.toggle("hidden",state.view!=="dashboard");
-  $("#feedTitle").textContent=state.view==="saved"?"ブックマーク":state.view==="notes"?"メモがある情報":state.focus?`${state.focus}の情報`:state.sourceFilter?typeName(state.sourceFilter):state.view==="dashboard"?"新着情報":"すべての情報";
+  $("#feedTitle").textContent=state.view==="saved"?"ブックマーク":state.view==="notes"?"メモがある情報":state.focus?`${state.focus}の情報`:state.sourceFilter?typeLabel(state.sourceFilter):state.view==="dashboard"?"新着情報":"すべての情報";
   renderChips();const filtered=getFiltered();$("#resultSummary").textContent=`${filtered.length}件の情報`;
   $("#feedList").innerHTML=filtered.slice(0,state.limit).map(renderFeedItem).join("");$("#emptyState").classList.toggle("hidden",filtered.length!==0);
   $("#moreBtn").classList.toggle("hidden",filtered.length<=state.limit);$("#moreBtn").textContent=`もっと見る（残り ${Math.max(0,filtered.length-state.limit)}件）`;
   if(state.view==="dashboard"){
     renderThemes();
     const sorted=langItems().sort((a,b)=>new Date(b.publishedAt)-new Date(a.publishedAt));
-    const cross=sorted.filter(i=>hasAI(i)&&(i.tags||[]).some(t=>FOCUS.includes(t)));
+    const focus=themesFor().filter(t=>t!==AI_TAG),cross=sorted.filter(i=>hasAI(i)&&(i.tags||[]).some(t=>focus.includes(t)));
     const highlights=[...cross,...sorted.filter(i=>!cross.includes(i))].slice(0,6);
     $("#highlightGrid").innerHTML=highlights.map(renderCard).join("")||'<p class="feed-desc">まだ情報がありません。</p>';
   }
@@ -181,7 +198,7 @@ $("#saveNoteBtn").addEventListener("click",()=>{const id=state.editingNoteId,tex
 $("#exportStateBtn").addEventListener("click",()=>downloadJson("ai-pm-radar-state.json",{read:[...state.read],saved:[...state.saved],notes:state.notes,manual:state.manual,exportedAt:new Date().toISOString()}));
 $("#importStateInput").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());state.read=new Set(d.read||[]);state.saved=new Set(d.saved||[]);state.notes=d.notes||{};if(Array.isArray(d.manual))state.manual=d.manual;persistState();render();showToast("状態をインポートしました");}catch(err){showToast("JSONファイルを読み込めませんでした");}e.target.value="";});
 $("#resetStateBtn").addEventListener("click",()=>{if(confirm("既読・ブックマーク・メモをすべて削除します。よろしいですか？")){state.read.clear();state.saved.clear();state.notes={};state.manual=[];persistState();render();showToast("状態をリセットしました");}});
-$("#manualAddForm").addEventListener("submit",e=>{e.preventDefault();const title=$("#manualTitle").value.trim(),url=$("#manualUrl").value.trim(),tag=$("#manualTag").value;if(!title||!url)return;let parsed;try{parsed=new URL(url);if(!["http:","https:"].includes(parsed.protocol))throw 0;}catch(err){showToast("有効なHTTP/HTTPS URLを入力してください");return;}const id="manual-"+(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36));state.manual.unshift({id,title,url,sourceId:"manual-entry",sourceType:"external",lang:state.lang,publishedAt:new Date().toISOString(),discoveredAt:new Date().toISOString(),description:"手動で登録した情報です。",tags:tag?[tag]:[],learningTypes:[]});$("#manualTitle").value="";$("#manualUrl").value="";persistState();render();showToast("情報を追加しました");});
+$("#manualAddForm").addEventListener("submit",e=>{e.preventDefault();const title=$("#manualTitle").value.trim(),url=$("#manualUrl").value.trim(),tag=$("#manualTag").value;if(!title||!url)return;let parsed;try{parsed=new URL(url);if(!["http:","https:"].includes(parsed.protocol))throw 0;}catch(err){showToast("有効なHTTP/HTTPS URLを入力してください");return;}const id="manual-"+(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36));state.manual.unshift({id,title,url,sourceId:"manual-entry",sourceType:"external",lang:state.lang==="en"?"en":"ja",tab:state.lang,publishedAt:new Date().toISOString(),discoveredAt:new Date().toISOString(),description:"手動で登録した情報です。",tags:tag?[tag]:[],learningTypes:[]});$("#manualTitle").value="";$("#manualUrl").value="";persistState();render();showToast("情報を追加しました");});
 loadLocalState();loadData();
 
 document.addEventListener("error",e=>{const img=e.target;if(img.tagName==="IMG"&&img.hasAttribute("data-thumb"))img.remove();},true);

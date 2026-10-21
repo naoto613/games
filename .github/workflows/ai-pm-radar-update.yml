@@ -2,7 +2,7 @@ name: ai-pm-radar data update
 on:
   workflow_dispatch:
   schedule:
-    # 毎朝6時すぎ（日本時間）= 21:07 UTC（layerx-radar とずらす）。GitHub の混雑で数分〜数十分おくれることがある
+    # 毎朝6時すぎ（日本時間）= 21:07 UTC。GitHub の混雑で数分〜数十分おくれることがある
     - cron: "7 21 * * *"
   push:
     branches: [main]

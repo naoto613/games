@@ -90,3 +90,10 @@
 .lang-flag{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;background:#eef1f4;font-size:12px;font-weight:800}.lang-tab.active .lang-flag{background:#2a2140;color:#fff}
 .lang-tabs-note{margin-left:auto;font-size:10px;color:#98a3b2}
 @media(max-width:760px){.lang-tabs{margin:-14px -15px 18px;padding:0 9px;background:#fff;position:sticky;top:115px;z-index:3}.lang-tab{flex:1;justify-content:center;padding:10px 6px 9px}.lang-tabs-note{display:none}}
+/* LayerX タブの媒体（旧 LayerX Radar） */
+:root{--c-blog:#2b8a6e;--c-slides:#00897b}
+.src-blog{--src:var(--c-blog);--src-soft:#e4f3ee}.src-slides{--src:var(--c-slides);--src-soft:#e2f4f1}
+.dot-blog{background:var(--c-blog)}.dot-slides{background:var(--c-slides)}
+.chip-blog{color:var(--c-blog)}.chip-slides{color:var(--c-slides)}
+.chip-blog.active{background:var(--c-blog);border-color:var(--c-blog)}.chip-slides.active{background:var(--c-slides);border-color:var(--c-slides)}
+@media(max-width:760px){.lang-tab{font-size:13px;gap:5px;padding-inline:4px}.lang-flag{display:none}}

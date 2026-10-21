@@ -12,7 +12,9 @@ Supported fetchMethod values (all keyless):
   manual   : not collected.
 
 Optional per-source fields:
-  lang         : "ja" / "en" (stored on each item for the language filter)
+  lang         : "ja" / "en" (stored on each item)
+  tab          : which tab of the app shows the items (default: lang; "layerx" for the LayerX tab)
+  tagRules     : "tech" to estimate tags with the engineering rules (LayerX tab)
   mustContain  : keep only entries whose title/summary contains one of these words
   maxAgeDays   : skip entries older than this (default 400)
 
@@ -77,6 +79,30 @@ LEARNING_RULES = {
     "インタビュー・対談": ["インタビュー", "interview", "対談", "podcast", "ポッドキャスト", "conversation", "ゲスト", "聞いた"],
     "組織・プロセス": ["組織", "チーム", "プロセス", "process", "採用", "文化", "culture", "マネジメント", "management", "team"],
     "トレンド・調査": ["トレンド", "trend", "trends", "調査", "survey", "report", "レポート", "state of", "未来", "future", "予測"],
+}
+
+
+# Engineering rules for the LayerX tab (formerly LayerX Radar).
+TECH_TAG_RULES = {
+    "AI活用": ["ai", "llm", "agent", "エージェント", "生成ai", "gpt", "claude", "gemini", "rag", "プロンプト", "mcp", "機械学習", "ml"],
+    "アーキテクチャ": ["アーキテクチャ", "architecture", "設計", "ddd", "ドメイン", "マイクロサービス", "モノリス", "モジュラー"],
+    "バックエンド": ["go", "golang", "api", "mysql", "postgres", "データベース", "db", "sql", "バックエンド", "backend", "grpc", "rails", "python"],
+    "フロントエンド": ["react", "typescript", "フロントエンド", "frontend", "next.js", "css", "ui", "デザインシステム", "javascript"],
+    "Platform Engineering": ["platform", "プラットフォーム", "kubernetes", "k8s", "terraform", "ci/cd", "github actions", "基盤"],
+    "SRE・インフラ": ["sre", "aws", "gcp", "インフラ", "監視", "observability", "オブザーバビリティ", "障害", "信頼性", "ecs", "インシデント"],
+    "セキュリティ": ["セキュリティ", "security", "脆弱性", "認証", "認可", "privacy", "プライバシー", "コンプライアンス"],
+    "品質・テスト": ["テスト", "test", "qa", "品質", "e2e", "playwright"],
+    "開発生産性": ["生産性", "productivity", "開発体験", "devex", "dx", "自動化", "効率化", "ai駆動"],
+    "プロダクト開発": ["プロダクト", "product", "pdm", "バクラク", "機能開発", "リリース", "ux"],
+    "EM・組織設計": ["em", "組織", "マネジメント", "採用", "チーム", "1on1", "オンボーディング", "キャリア", "育休", "カルチャー"],
+    "事業・技術戦略": ["戦略", "経営", "cto", "ceo", "事業", "ロードマップ", "fintech", "bet"],
+}
+TECH_LEARNING_RULES = {
+    "実践事例": ["やってみた", "導入", "事例", "実践", "取り組み", "運用", "移行", "改善"],
+    "設計判断": ["設計", "選定", "トレードオフ", "なぜ", "判断", "比較"],
+    "組織・プロセス": ["組織", "チーム", "プロセス", "採用", "文化", "カルチャー", "マネジメント"],
+    "思想・戦略": ["戦略", "構想", "ビジョン", "未来", "時代", "考え方"],
+    "イベント・登壇": ["登壇", "イベント", "カンファレンス", "勉強会", "meetup", "live", "ウェビナー", "資料"],
 }
 
 
@@ -326,6 +352,8 @@ def collect(source: dict, items: dict[str, dict], now: str, active: set[str]) ->
         entries = parse_feed(feed_url_for(source))
     keywords = [k.lower() for k in source.get("mustContain", [])]
     max_age = int(source.get("maxAgeDays") or DEFAULT_MAX_AGE_DAYS)
+    tech = source.get("tagRules") == "tech"
+    tag_rules, learning_rules = (TECH_TAG_RULES, TECH_LEARNING_RULES) if tech else (TAG_RULES, LEARNING_RULES)
     count = 0
     for entry in entries:
         link = canonical_url(entry.get("link", ""))
@@ -341,7 +369,8 @@ def collect(source: dict, items: dict[str, dict], now: str, active: set[str]) ->
         item_id = stable_id(link)
         previous = items.get(item_id, {})
         bookmarks = entry.get("hatena_bookmarkcount")
-        # The same article can come from several sources (e.g. Zenn and Hatena Bookmark):
+        # The same article can come from several sources (e.g. Zenn and Hatena Bookmark;
+        # LayerX sources are listed first in sources.json so their articles stay in the LayerX tab):
         # keep the first source and only refresh the bookmark count.
         if previous and previous.get("sourceId") != source["id"] and previous.get("sourceId") in active:
             if bookmarks:
@@ -357,11 +386,12 @@ def collect(source: dict, items: dict[str, dict], now: str, active: set[str]) ->
             "sourceType": source.get("type", "blog"),
             "publishedAt": entry_date(entry) or previous.get("publishedAt") or entry.get("publishedApprox") or now,
             "lang": source.get("lang") or previous.get("lang") or "ja",
+            "tab": source.get("tab") or source.get("lang") or previous.get("tab") or "ja",
             "discoveredAt": previous.get("discoveredAt") or now,
             "description": summary[:400],
             "author": clean_html(entry.get("author", "")) or previous.get("author"),
-            "tags": previous.get("tags") or estimate(text, TAG_RULES, 4),
-            "learningTypes": previous.get("learningTypes") or estimate(text, LEARNING_RULES, 2),
+            "tags": previous.get("tags") or estimate(text, tag_rules, 4),
+            "learningTypes": previous.get("learningTypes") or estimate(text, learning_rules, 2),
             "tagsEstimated": previous.get("tagsEstimated", True),
             "thumbnailUrl": entry_thumbnail(entry) or previous.get("thumbnailUrl"),
         }

@@ -4,7 +4,6 @@
 
 - 一覧ページ: https://naoto613.github.io/games/
 - AI PM Radar: https://naoto613.github.io/games/ai-pm-radar/
-- LayerX Radar: https://naoto613.github.io/games/layerx-radar/
 - ぺたぺた！つくってワールド: https://naoto613.github.io/games/petapeta-craft/
 - ぺたぺた！あそびタウン: https://naoto613.github.io/games/petapeta-town/
 - モンスター・エコーズ 〜ルナフィアと ひかりのクリスタル〜: https://naoto613.github.io/games/monster-echoes/
@@ -24,17 +23,11 @@
 ├── .nojekyll               # Jekyll 処理を無効化（ファイルをそのまま配信）
 ├── README.md
 ├── ai-pm-radar/
-│   ├── index.html          # AI PM Radar（AI を活用したプロダクトマネジメント・EM・プロダクト開発・組織づくりの公開情報を集める静的ダッシュボード。layerx-radar と同じつくり。日本語／English をタブで分けて表示、テーマ・レーダー、AI×テーマの注目、FOCUS／媒体／AI活用だけ の絞り込み、既読・ブックマーク・学びのメモ・手動追加は localStorage）
+│   ├── index.html          # AI PM Radar（AI を活用したプロダクトマネジメント・EM・プロダクト開発・組織づくりの公開情報を集める静的ダッシュボード。日本語／English／LayerX（旧 LayerX Radar：LayerX の公開技術情報）をタブで分けて表示、テーマ・レーダー、AI×テーマの注目、FOCUS／媒体／AI活用だけ の絞り込み、既読・ブックマーク・学びのメモ・手動追加は localStorage）
 │   ├── app.js / styles.css
-│   ├── data/               # items.json・sources.json（Zenn・Qiita・はてブ検索RSS・海外ニュースレター・YouTube）・meta.json
+│   ├── data/               # items.json・sources.json（Zenn・Qiita・はてブ検索RSS・海外ニュースレター・YouTube・LayerX のブログ／YouTube／Speaker Deck）・meta.json
 │   ├── scripts/fetch_sources.py  # APIキー不要の収集（RSS/Atom・YouTube 公開フィード。テーマは日英キーワードで推定）
 │   └── requirements.txt    # .github/workflows/ai-pm-radar-update.yml が毎朝6時すぎに実行して main へコミット
-├── layerx-radar/
-│   ├── index.html          # LayerX Radar（LayerX の公開技術情報を横断キャッチアップする静的ダッシュボード。検索・絞り込み・既読・ブックマーク・学びのメモ・手動追加は localStorage、状態のエクスポート／インポート可。データが空のときはサンプル表示）
-│   ├── app.js / styles.css
-│   ├── data/               # items.json（収集結果）・sources.json（情報源と取得状況）・meta.json（最終収集時刻）
-│   ├── scripts/fetch_sources.py  # APIキー不要の収集（RSS/Atom・YouTube 公開チャンネルフィード・ページからのフィード自動検出、テーマはキーワード推定）
-│   └── requirements.txt    # .github/workflows/layerx-radar-update.yml が毎朝6時に実行して main へコミット
 ├── petapeta-craft/
 │   ├── index.html          # ぺたぺた！つくってワールド（あそびタウンの なかまと どうぐで あそぶ、5歳前後向けの ものづくり。メインは「おうちを つくる」：あそびタウンと おなじ ドラッグ＆ドロップで、かたまりの パーツを おいて くみたてる ドールハウス。へや（12しゅの かべがみ×ちいさい／ふつう／ひろい、18こ）は おとすと ぽとんと よこに くっついたり うえに つみかさなったり し、やね9しゅは いちばん うえの へやに ぴたっと のり（うえに へやを つむと やねも うえへ）、まど6しゅ・ドア6しゅ・かべの かざり5しゅは へやの かべに くっつき、やねの かざり（えんとつ・はた・イルミネーション・おほしさま）も のせられる。かぐセット12しゅ（いま・だいどころ・ねるへや・おふろ 等）で かぐを いっきに ならべ、ひとつずつ うごかせる。おいた へやは ドラッグで なかの かぐや キャラごと うごかせ、パネルへ もどすと おかたづけ。タップだけでも おける。にわの もの・かぐ・なかま20体・たべもの・へんしん衣装も ドラッグで。もどす（アンドゥ）・ひる／よる（よるは へやに あかり）。5つの とちに それぞれ じどう ほぞん。サブの「ブロックで つくる」は よこから みた 96×32マスの せかいに ブロック40しゅを なぞって おく マインクラフト風（スタンプ15しゅ・しかけ ブロック・6つの せかい）。はっけんカード 30しゅ。キャラと どうぐの え は ../petapeta-town/js を そのまま よみこむ。ビルド不要）
 │   ├── css/craft.css       # あそびタウンの style.css に たしがき
