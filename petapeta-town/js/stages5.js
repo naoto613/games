@@ -476,7 +476,7 @@
   S({ id: 'ski', num: 56, name: 'シュプール スキーじょう', bgm: 'title', floor: [590, 880], color: '#5c9ded',
     tools: ['snow', 'snowman', 'blanket', 'juice', 'marshmallow', 'santa', 'camera', 'sunglasses', 'cookie'], rides: ['tricycle', 'slide'],
     spawn: [['penta', 860, 820], ['moko', 1000, 860], ['yume', 680, 860], ['kon', 1300, 860], ['papa', 1500, 820]],
-    fixtures: [['s5_slope', 420, 700], ['s5_skilift', 1100, 700], ['s5_kamakura', 1420, 830]], favs: ['snow', 'sunglasses', 'santa', 'marshmallow'],
+    fixtures: [['s5_slope', 420, 700], ['s5_skilift', 1100, 700], ['s5_kamakura', 1420, 770]], favs: ['snow', 'sunglasses', 'santa', 'marshmallow'],
     ambient: (c, t) => { c.fillStyle = 'rgba(255,255,255,.75)'; for (let i = 0; i < 26; i++) { const x = ((i * 137 + t * 0.012) % (W + 40)) - 20, y = ((i * 89 + t * 0.025) % (H + 20)) - 10; G.circ(c, x, y, 2 + (i % 2)); c.fill(); } },
     bg(c, r) {
       B.sky(c, '#7fb8f0', '#eaf4ff', 590);
@@ -512,7 +512,7 @@
   S({ id: 'picnic', num: 59, name: 'ぽかぽか ピクニック', bgm: 'park', floor: [590, 880], color: '#9ccc65',
     tools: ['sheet', 'bento', 'onigiri', 'juice', 'apple', 'strawberry', 'kite', 'bubbles', 'bugnet', 'basket', 'ball'], rides: ['bicycle', 'tricycle', 'tent'],
     spawn: [['mimi', 560, 820], ['pyoko', 1080, 830], ['mama', 680, 860], ['nyan', 1500, 860], ['choco', 420, 850]],
-    fixtures: [['s5_picnicsheet', 800, 820], ['s5_flowerfield', 300, 740], ['s5_dandelion', 1340, 750]], favs: ['bento', 'onigiri', 'kite', 'bubbles', 'sheet'],
+    fixtures: [['s5_picnicsheet', 800, 790], ['s5_flowerfield', 300, 740], ['s5_dandelion', 1340, 750]], favs: ['bento', 'onigiri', 'kite', 'bubbles', 'sheet'],
     bg(c, r) {
       B.sky(c, '#9fd8ff', '#f4fcff', 580); B.cloud(c, 220, 90, 1.1); B.cloud(c, 900, 60, 0.8); B.cloud(c, 1350, 120, 0.9);
       c.fillStyle = '#ffe066'; G.circ(c, 1450, 90, 46); c.fill();
