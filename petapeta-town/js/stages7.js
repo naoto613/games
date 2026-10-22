@@ -308,7 +308,7 @@
       G.blob(c, [-160, 0, -170, -200, -100, -320, 0, -340, 110, -310, 170, -190, 160, 0]); G.fillO(c, '#7a6a9a', 4);
       c.beginPath(); c.moveTo(-100, 0); c.lineTo(-100, -150); c.quadraticCurveTo(-100, -250, 0, -250); c.quadraticCurveTo(100, -250, 100, -150); c.lineTo(100, 0); c.closePath(); G._bb = null;
       c.fillStyle = G.rgrad(c, 0, -110, 10, 160, [[0, '#0a0818'], [1, '#3a2a5a']]); c.fill();
-      for (let i = 0; i < 6; i++) { const x = -80 + i * 32; G.poly(c, [x - 10, -232 + Math.abs(x) * 0.1, x, -200 + (i % 2) * 14, x + 10, -232 + Math.abs(x) * 0.1]); G.fillO(c, '#9a8aba', 2); }
+      for (const [x, y, col] of [[-130, -40, '#ff8fb1'], [-112, -24, '#ffd23f'], [128, -36, '#7fe0e0'], [112, -20, '#b39ae8']]) { G.rr(c, x - 4, y, 8, -y, 3); G.fillO(c, '#f0e6d0', 1.5); G.ell(c, x, y, 16, 11); G.fillO(c, col, 2); dot(c, x - 5, y - 3, 2.5, '#ffffff'); }
       const k = prog(f, 'echo', t, 3200);
       if (k >= 0) {
         const word = f.word || 'やっほー';

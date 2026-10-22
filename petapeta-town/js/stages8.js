@@ -246,7 +246,7 @@
       if (sv) for (let i = 0; i < 4; i++) { const a = t * 0.005 + i * 1.6; c.fillStyle = '#ffd23f'; G.star(c, -10 + Math.cos(a) * 90, -160 + Math.sin(a) * 40, 9, 4); c.fill(); }
     } };
   const bamboo = (c, x, h, col) => {
-    for (let y = 0; y < h; y += 70) { G.rr(c, x - 13, -y - 68, 26, Math.min(68, h - y), 6); G.fillO(c, col, 2.5); }
+    for (let y = 0; y < h; y += 70) { const sg = Math.min(68, h - y); G.rr(c, x - 13, -y - sg, 26, sg, 6); G.fillO(c, col, 2.5); }
     for (const d of [-1, 1]) { G.ell(c, x + d * 30, -h + 30, 34, 8, d * 0.5); G.fillO(c, '#6cc07a', 2); }
   };
   F.s8_bamboo = { w: 240, h: 460, tags: ['bamboo', 'light', 'story'], slots: [[-160, 20], [160, 20]],
@@ -255,7 +255,7 @@
       bamboo(c, -70, 430, '#7bc86a'); bamboo(c, 76, 380, '#8fd47a');
       const h = 150 + sh;
       if (gl || gk) { c.fillStyle = 'rgba(255,240,150,.4)'; G.circ(c, 0, -h + 20, 70 + Math.sin(t * 0.01) * 8); c.fill(); }
-      for (let y = 0; y < h - 10; y += 70) { G.rr(c, -18, -y - 68, 36, Math.min(68, h - y), 6); G.fillO(c, gl || gk ? '#c8f07a' : '#9be07a', 3); }
+      for (let y = 0; y < h - 10; y += 70) { const sg = Math.min(68, h - y); G.rr(c, -18, -y - sg, 36, sg, 6); G.fillO(c, gl || gk ? '#c8f07a' : '#9be07a', 3); }
       G.poly(c, [-18, -h + 10, 18, -h - 12, 18, -h + 30, -18, -h + 30]); G.fillO(c, gl ? '#fff6b0' : '#d8f0a0', 2.5);
       if (gl) for (let i = 0; i < 5; i++) { const a = t * 0.004 + i * 1.25; c.fillStyle = '#fff3a0'; G.star(c, Math.cos(a) * 60, -h + Math.sin(a) * 40, 8, 3.4); c.fill(); }
     } };
@@ -612,8 +612,8 @@
     } });
   S({ id: 'momotaro', num: 89, name: 'むかしばなしの むら', bgm: 'camp', floor: [600, 880], color: '#f06292',
     tools: ['marshmallow', 'onigiri', 'bucket', 'basket', 'broom', 'yukata', 'flower', 'acorn', 'book', 'moon'], rides: ['boat', 'horse', 'carriage'],
-    spawn: [['jiji', 600, 780], ['baba', 820, 760], ['pon', 1020, 800], ['kon', 420, 800], ['moko', 1240, 800]],
-    fixtures: [['s8_peach', 760, 880], ['s8_dango', 260, 700], ['s8_bamboo', 1380, 680]], favs: ['yukata', 'onigiri', 'marshmallow', 'book'],
+    spawn: [['jiji', 560, 650], ['baba', 760, 640], ['pon', 1020, 660], ['kon', 420, 860], ['moko', 1240, 860]],
+    fixtures: [['s8_peach', 800, 830], ['s8_dango', 260, 700], ['s8_bamboo', 1380, 680]], favs: ['yukata', 'onigiri', 'marshmallow', 'book'],
     bg(c, r) {
       B.sky(c, '#ffd8c8', '#fff6e8', 580); B.cloud(c, 300, 110, 0.9); B.cloud(c, 1200, 90, 1);
       c.fillStyle = '#9fc8a8'; G.ell(c, 300, 560, 500, 260); c.fill(); c.fillStyle = '#86b896'; G.ell(c, 1200, 570, 560, 300); c.fill();

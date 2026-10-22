@@ -107,7 +107,7 @@
   T('bamboo', 's7_pandaroll', 'd7_pandaroll', (f) => { f.roll = W.t + 2600; f.dizzy = W.t + 4600; A.sfx('boing'); lineUp(f, ['ころころ〜！', 'パンダさん まわってる']); },
     (ch, f) => { f.roll = W.t + 2900; f.dizzy = W.t + 4900; A.sfx('boing'); ride(ch, f, 2600, 'spin', (k, sx, sy) => { ch.x = sx + Math.sin(k * Math.PI) * 200; ch.y = sy + 20; ch.z = 0; }, (c2) => R.claim(c2, 2000).face('laugh', 1400).say('めが まわる〜', 'star', 1400, 'laugh')); });
   T('bamboo', 's7_takenoko', 'd7_takenoko', (f) => { f.grow = W.t + 4000; A.sfx('magic'); W.after(3400, () => { W.poof(f.x, f.y - 120); A.sfx('pop'); }); lineUp(f, ['ぐんぐん のびた！', 'たけに なった！']); },
-    (ch, f) => { f.grow = W.t + 4400; A.sfx('magic'); const TK = PT.FIX.s7_takenoko; ride(ch, f, 4200, 'hold', (k, sx, sy) => { ch.x = f.x + 20; ch.y = sy; ch.z = Math.max(0, TK.hAt(f, W.t) - 90); once(ch, '_s7t', k, 0.4, () => W.say(ch, 'たかーい！', 'star', 1200, 'yay')); }, (c2) => { c2._s7t = false; W.poof(f.x, f.y - 100); }); });
+    (ch, f) => { f.grow = W.t + 4400; A.sfx('magic'); const TK = PT.FIX.s7_takenoko; ride(ch, f, 4200, 'hold', (k, sx, sy) => { ch.x = f.x + 20; ch.y = sy; ch.z = Math.max(0, TK.hAt(f, W.t) - 140); once(ch, '_s7t', k, 0.4, () => W.say(ch, 'たかーい！', 'star', 1200, 'yay')); }, (c2) => { c2._s7t = false; W.poof(f.x, f.y - 100); }); });
   T('bamboo', 's7_pandaeat', 'd7_pandaeat', (f) => { f.munch = W.t + 3000; A.sfx('munch'); W.after(800, () => A.sfx('munch')); lineUp(f, ['もぐもぐ してる', 'おいしそう〜']); },
     (ch, f) => { f.hug = W.t + 3400; go(ch, f, 0, 40).hold('onigiri').pose('eat', 1400).say('いっしょに たべよう！', 'heart', 1400, 'yay').unhold(); A.sfx('munch'); hearts(f.x, f.y - 200); });
 
