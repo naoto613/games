@@ -176,7 +176,7 @@
     c.save(); c.translate(100, -100); c.rotate(up ? -1.4 : 0); c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(24, 20, 14, 52); c.lineWidth = 16; c.strokeStyle = '#b8c2d8'; c.stroke(); c.restore();
     eye(c, 86, -122); cheek(c, 92, -104); c.strokeStyle = '#8a95ad'; c.lineWidth = 3; c.beginPath(); c.moveTo(-86, -92); c.quadraticCurveTo(-100, -80, -94, -64); c.stroke();
   }, ['animal']);
-  V('whaleride', 'くじら', 240, 150, 74, (c, t, st) => {
+  V('whaleride', 'くじら', 240, 150, 96, (c, t, st) => {
     c.save(); c.translate(-104, -60); c.rotate(-0.4 + Math.sin(t * 0.004) * 0.15);
     G.blob(c, [0, 0, -30, -30, -6, -14, 0, -36, 8, -14, 30, -30]); G.fillO(c, '#58a8e8', 3); c.restore();
     G.ell(c, 6, -52, 104, 48); G.fillO(c, '#6bb8f0', 3);
@@ -185,7 +185,7 @@
     G.ell(c, 10, -16, 22, 9, 0.4); G.fillO(c, '#58a8e8', 2.5);
     if (st.spout && t < st.spout) { for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + (i - 2) * 0.35; c.strokeStyle = '#9fe0fb'; c.lineWidth = 6; c.beginPath(); c.moveTo(30, -100); c.quadraticCurveTo(30 + Math.cos(a) * 30, -150, 30 + Math.cos(a) * 60, -130 + Math.abs(i - 2) * 6); c.stroke(); } }
   }, ['water', 'animal']);
-  V('dragonride', 'やさしい ドラゴン', 220, 190, 80, (c, t, st) => {
+  V('dragonride', 'やさしい ドラゴン', 220, 190, 102, (c, t, st) => {
     const fl = Math.sin(t * (st.flap ? 0.03 : 0.004)) * 0.35;
     c.save(); c.translate(-20, -100); c.rotate(-0.5 + fl);
     G.blob(c, [0, 0, -40, -70, -10, -54, 10, -80, 20, -46, 40, -60, 30, -4]); G.fillO(c, '#ffb3cf', 3); c.restore();
@@ -201,7 +201,7 @@
     eye(c, 92, -142, 4); smile(c, 100, -128, 7); cheek(c, 82, -124);
     G.circ(c, 112, -136, 2); c.fillStyle = '#2b2440'; c.fill();
   }, ['fly', 'animal']);
-  V('pandacar', 'パンダカー', 160, 140, 54, (c, t, st) => {
+  V('pandacar', 'パンダカー', 160, 140, 80, (c, t, st) => {
     const r = st.rock ? Math.sin(t * 0.012) * 0.05 : 0;
     c.save(); c.rotate(r);
     for (const x of [-46, 46]) { G.circ(c, x, -10, 10); G.fillO(c, '#3e4a63', 2.5); }
@@ -214,7 +214,7 @@
     G.rr(c, -30, -84, 44, 12, 6); G.fillO(c, '#ff6f61', 2);
     c.restore();
   }, ['animal', 'car']);
-  V('ridecloud', 'のれる くも', 180, 100, 46, (c, t, st) => {
+  V('ridecloud', 'のれる くも', 180, 100, 64, (c, t, st) => {
     const b = Math.sin(t * 0.003) * 3;
     c.save(); c.translate(0, b);
     G.blob(c, [-84, -26, -78, -56, -44, -70, -10, -84, 30, -78, 62, -66, 86, -40, 70, -14, 0, -10, -60, -12]); G.fillO(c, '#ffffff', 3);
@@ -234,7 +234,7 @@
     c.save(); c.translate(-14, -98); c.rotate(-0.3 + fl);
     G.blob(c, [0, 0, -56, -40, -36, -44, -48, -66, -20, -58, -18, -80, 10, -40]); G.fillO(c, '#f4f0ff', 3); c.restore();
   }, ['fly', 'horse', 'magic']);
-  V('snailride', 'カタツムリ', 200, 160, 104, (c, t) => {
+  V('snailride', 'カタツムリ', 200, 160, 120, (c, t) => {
     const s = Math.sin(t * 0.003) * 3;
     c.beginPath(); c.moveTo(-90, -4); c.quadraticCurveTo(0, -18, 70, -10); c.quadraticCurveTo(96, -20, 92, -60); c.quadraticCurveTo(84, -80, 66, -70); c.quadraticCurveTo(60, -30, 0, -26); c.lineTo(-90, -10); c.closePath(); G.fillO(c, '#ffd6a5', 3);
     c.strokeStyle = '#e8b46a'; c.lineWidth = 4; c.lineCap = 'round';

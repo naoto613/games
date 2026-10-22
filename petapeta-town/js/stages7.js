@@ -133,12 +133,12 @@
     } };
 
   /* ================= 75 サバンナ ================= */
-  F.s7_kirin = { w: 260, h: 560, tags: ['giraffe', 'animal'], slots: [[-170, 20], [170, 20]],
-    neckAt: (f, t) => 190 + arc(f, 'neck', t, 3000) * 150,
+  F.s7_kirin = { w: 280, h: 520, tags: ['giraffe', 'animal'], slots: [[-170, 20], [170, 20]],
+    neckAt: (f, t) => 150 + arc(f, 'neck', t, 3000) * 100,
     draw(c, t, f) {
       // アカシアの えだ
-      c.strokeStyle = '#8a5a3a'; c.lineWidth = 10; c.beginPath(); c.moveTo(130, -380); c.quadraticCurveTo(120, -470, 60, -520); c.stroke();
-      G.ell(c, 70, -530, 110, 28); G.fillO(c, '#6fae4a', 3); G.ell(c, 130, -548, 60, 18); c.fillStyle = '#86c05a'; c.fill();
+      c.strokeStyle = '#8a5a3a'; c.lineWidth = 10; c.beginPath(); c.moveTo(150, -330); c.quadraticCurveTo(140, -420, 80, -470); c.stroke();
+      G.ell(c, 90, -480, 110, 28); G.fillO(c, '#6fae4a', 3); G.ell(c, 150, -498, 60, 18); c.fillStyle = '#86c05a'; c.fill();
       const L = this.neckAt(f, t), sw = Math.sin(t * 0.002) * 0.04;
       for (const x of [-60, -30, 30, 60]) { G.rr(c, x - 9, -170, 18, 170, 6); G.fillO(c, '#ffd36a', 2.5); G.rr(c, x - 10, -16, 20, 16, 4); G.fillO(c, '#8a5a3a', 2); }
       G.ell(c, 0, -180, 84, 54); G.fillO(c, '#ffd36a', 3.5);
@@ -243,7 +243,7 @@
       cheek(c, -90, -170, 14); cheek(c, 90, -170, 14);
       c.restore();
       if (k >= 0) {
-        for (let i = 0; i < 7; i++) { const q = Math.min(1, k * 1.6 - i * 0.07); if (q <= 0) continue; const x = Math.sin(i * 2.3) * (40 + q * 160), y = -350 - q * (220 + (i % 3) * 60), r = 20 + q * 34;
+        for (let i = 0; i < 7; i++) { const q = Math.min(1, k * 1.6 - i * 0.07); if (q <= 0) continue; const x = Math.sin(i * 2.3) * (60 + q * 260), y = -350 - q * (70 + (i % 3) * 30), r = 20 + q * 30;
           c.globalAlpha = k > 0.8 ? (1 - k) * 5 : 1; for (const [ox, oy, rr] of [[-r * 0.6, 4, 0.7], [r * 0.6, 4, 0.7], [0, -r * 0.3, 1]]) { G.circ(c, x + ox, y + oy, r * rr); c.fillStyle = ['#ffd1e0', '#ffffff', '#e3d4ff', '#ffe0f0'][i % 4]; c.fill(); } c.globalAlpha = 1; }
       } else { for (let i = 0; i < 3; i++) { const q = (t * 0.0005 + i * 0.33) % 1; G.circ(c, Math.sin(t * 0.001 + i) * 20, -350 - q * 90, 10 + q * 14); c.fillStyle = `rgba(255,255,255,${0.7 * (1 - q)})`; c.fill(); } }
     } };
@@ -528,7 +528,7 @@
         c.save(); c.translate(x0, y + 4); c.rotate(a); c.strokeStyle = '#ffffff'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(0, 0); c.lineTo(0, 12); c.stroke(); G.rr(c, -9, 12, 18, 54, 3); G.fillO(c, TANZ[i % TANZ.length], 2); c.strokeStyle = 'rgba(60,40,80,.4)'; c.lineWidth = 1.5; for (let l = 0; l < 3; l++) { c.beginPath(); c.moveTo(-1, 22 + l * 13); c.lineTo(3, 30 + l * 13); c.stroke(); } c.restore(); }
       for (const [x, y, col] of [[-90, -150, '#ff6f91'], [110, -310, '#ffd23f']]) { c.save(); c.translate(x + sw * 0.5, y); c.strokeStyle = col; c.lineWidth = 3; for (let j = 0; j < 7; j++) { c.beginPath(); c.moveTo(-14 + j * 4.6, 18); c.lineTo(-16 + j * 5 + Math.sin(t * 0.004 + j) * 2, 70); c.stroke(); } G.circ(c, 0, 8, 16); G.fillO(c, col, 2.5); c.restore(); }
       const k = prog(f, 'wish', t, 2800);
-      if (k >= 0) { const sx = -500 + k * 1000, sy = -760 + k * 260; c.strokeStyle = 'rgba(255,246,184,.7)'; c.lineWidth = 6; c.lineCap = 'round'; c.beginPath(); c.moveTo(sx - 160, sy - 42); c.lineTo(sx, sy); c.stroke(); G.star(c, sx, sy, 22, 9); c.fillStyle = '#fff6b8'; c.fill(); for (let i = 1; i < 5; i++) { G.circ(c, sx - i * 36, sy - i * 9 + Math.sin(t * 0.02 + i) * 6, 4); c.fill(); } }
+      if (k >= 0) { const sx = -500 + k * 1000, sy = -600 + k * 160; c.strokeStyle = 'rgba(255,246,184,.7)'; c.lineWidth = 6; c.lineCap = 'round'; c.beginPath(); c.moveTo(sx - 160, sy - 42); c.lineTo(sx, sy); c.stroke(); G.star(c, sx, sy, 22, 9); c.fillStyle = '#fff6b8'; c.fill(); for (let i = 1; i < 5; i++) { G.circ(c, sx - i * 36, sy - i * 9 + Math.sin(t * 0.02 + i) * 6, 4); c.fill(); } }
     } };
   F.s7_amanogawa = { w: 1000, h: 300, sky: true, tags: ['star', 'sky', 'tanabata'], slots: [],
     draw(c, t, f) {
@@ -590,7 +590,7 @@
   S({ id: 'savanna', num: 75, name: 'サバンナ', bgm: 'camp', floor: [590, 880], color: '#ff9800',
     tools: ['camera', 'explorer', 'bag', 'magnifier', 'banana', 'watermelon', 'juice', 'elephant', 'sunglasses'], rides: ['car', 'bus', 'horse'],
     spawn: [['ricky', 600, 780], ['gaku', 820, 760], ['papa', 1020, 800], ['choco', 420, 800], ['mimi', 1240, 800]],
-    fixtures: [['s7_kirin', 300, 700], ['s7_lion', 820, 740], ['s7_hippo', 1330, 760]], favs: ['explorer', 'camera', 'sunglasses', 'banana'],
+    fixtures: [['s7_kirin', 300, 760], ['s7_lion', 820, 740], ['s7_hippo', 1330, 760]], favs: ['explorer', 'camera', 'sunglasses', 'banana'],
     bg(c, r) {
       B.sky(c, '#ffb070', '#fff0c8', 570);
       G.circ(c, 1200, 300, 110); c.fillStyle = 'rgba(255,240,180,.9)'; c.fill(); G.circ(c, 1200, 300, 150); c.fillStyle = 'rgba(255,240,180,.3)'; c.fill();
@@ -602,7 +602,7 @@
   S({ id: 'treehouse', num: 76, name: 'ひみつきち', bgm: 'park', floor: [600, 880], color: '#43a047',
     tools: ['flashlight', 'book', 'bag', 'magnifier', 'acorn', 'bugnet', 'teddy', 'blanket', 'letter', 'onigiri'], rides: ['bicycle', 'skateboard', 'tent'],
     spawn: [['pon', 600, 780], ['yuto', 820, 760], ['kon', 1020, 800], ['sakura', 420, 800], ['moko', 1240, 800]],
-    fixtures: [['s7_treehut', 360, 700], ['s7_rope', 860, 720], ['s7_tire', 1300, 720]], favs: ['flashlight', 'book', 'magnifier', 'acorn'],
+    fixtures: [['s7_treehut', 360, 760], ['s7_rope', 860, 720], ['s7_tire', 1300, 720]], favs: ['flashlight', 'book', 'magnifier', 'acorn'],
     bg(c, r) {
       B.sky(c, '#a8dcff', '#eef9ff', 600); B.cloud(c, 700, 90, 0.9); B.cloud(c, 1300, 130, 0.7);
       for (let i = 0; i < 9; i++) B.tree(c, 40 + i * 200, 600, 1.1 + r() * 0.4, i % 2 ? '#5fae58' : '#4f9a4a');
@@ -612,7 +612,7 @@
   S({ id: 'volcano', num: 77, name: 'かざんの しま', bgm: 'beach', floor: [590, 880], color: '#e64a19',
     tools: ['shell', 'bucket', 'parasol', 'juice', 'watermelon', 'banana', 'swimring', 'sunglasses', 'camera', 'cloud'], rides: ['boat', 'swimring'],
     spawn: [['lulu', 600, 780], ['nyan', 820, 760], ['ricky', 1020, 800], ['pyoko', 420, 800], ['baba', 1240, 800]],
-    fixtures: [['s7_kazan', 800, 640], ['s7_onsen', 260, 760], ['s7_turtle', 1320, 780]], favs: ['sunglasses', 'swimring', 'cloud', 'shell'],
+    fixtures: [['s7_kazan', 800, 700], ['s7_onsen', 260, 760], ['s7_turtle', 1320, 780]], favs: ['sunglasses', 'swimring', 'cloud', 'shell'],
     bg(c, r) {
       B.sky(c, '#7fd0ff', '#fff4d8', 520); B.cloud(c, 200, 110, 1); B.cloud(c, 1350, 90, 0.9);
       c.fillStyle = G.grad(c, 0, 470, 0, 600, [[0, '#4fc3f7'], [1, '#2a9ad8']]); c.fillRect(0, 470, W, 130);
@@ -701,7 +701,7 @@
   S({ id: 'tanabata', num: 84, name: 'たなばた', bgm: 'night', floor: [600, 880], color: '#283593', night: true,
     tools: ['letter', 'crayons', 'star', 'moon', 'yukata', 'juice', 'camera', 'flashlight', 'starwand', 'tiara_moon'], rides: ['carpet', 'unicorn'],
     spawn: [['lulu', 600, 780], ['yuto', 820, 760], ['sakura', 1020, 800], ['yume', 420, 800], ['jiji', 1240, 800]],
-    fixtures: [['s7_amanogawa', 800, 340], ['s7_sasa', 300, 720], ['s7_telescope', 1320, 740]], favs: ['letter', 'yukata', 'star', 'starwand'],
+    fixtures: [['s7_amanogawa', 800, 520], ['s7_sasa', 300, 760], ['s7_telescope', 1320, 740]], favs: ['letter', 'yukata', 'star', 'starwand'],
     skyStars: [[160, 120], [420, 80], [1180, 90], [1460, 150], [1040, 200]],
     bg(c, r) {
       c.fillStyle = G.grad(c, 0, 0, 0, 600, [[0, '#0a0a3a'], [1, '#2a2a6a']]); c.fillRect(0, 0, W, 600); stars(c, r, 160, 560);
