@@ -48,7 +48,7 @@
         const o = Math.min(1, k * 5);
         for (const s of [-1, 1]) { P(c); c.moveTo(0, -160); c.quadraticCurveTo(s * 80 * o, -190, s * 165 * o, -170); c.lineTo(s * 165 * o, -300); c.quadraticCurveTo(s * 80 * o, -320, 0, -296); c.closePath(); G.fillO(c, '#fffaf0', 3); c.strokeStyle = '#d9cbb0'; c.lineWidth = 3; for (let i = 0; i < 4; i++) { c.beginPath(); c.moveTo(s * 30 * o, -270 + i * 26); c.lineTo(s * 140 * o, -264 + i * 26); c.stroke(); } }
         const s = k < 0.85 ? PT.easeBack(Math.min(1, Math.max(0, (k - 0.12) * 4))) : (1 - k) / 0.15;
-        if (s > 0.02) { c.save(); c.translate(0, -240); c.scale(s, s); popup(c, (f.kind || 0) % 4, t); c.restore(); }
+        if (s > 0.02) { c.save(); c.translate(0, -240); c.scale(s, s); popup(c, (f.pk || 0) % 4, t); c.restore(); }
       }
     } };
   F.s6_ladder = { w: 300, h: 430, tags: ['book', 'shelf', 'ladder', 'library'], slots: [[-210, 10], [210, 10]],

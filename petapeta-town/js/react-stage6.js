@@ -28,7 +28,7 @@
   D('d6_bookfly', 'とりに なった ほん', 'はしごを タップすると ほんが ぱたぱた とんでいく', ['s6_ladder', 'book'], 'library');
   D('d6_storytime', 'よみきかせ', 'いすに すわって むかし むかし…', ['s6_storychair', 'jiji'], 'library');
   T('library', 's6_bigbook', 'd6_popbook', (f, w) => {
-    f.open = W.t + 3400; f.kind = (f.kind || 0) + 1; A.sfx('magic'); W.after(500, () => { A.sfx('pop'); spark(f.x, f.y - 300, '#ffe066', 14); });
+    f.open = W.t + 3400; f.pk = (f.pk || 0) + 1; A.sfx('magic'); W.after(500, () => { A.sfx('pop'); spark(f.x, f.y - 300, '#ffe066', 14); });
     const ch = w; if (ch) R.claim(ch, 4000).go(f.x + 170, f.y + 20, true).look(f.x).face('surprise', 900).say('とびだした！', 'book', 1400, 'wow').pose('cheer', 900);
     lineUp(f, ['わあ！ とびだした！', 'えほん すごい！'], 'jump', ch ? [ch] : []);
   }, 'tap');
