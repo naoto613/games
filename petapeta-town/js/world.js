@@ -401,12 +401,17 @@
       G.rr(c, Math.max(20, Wd.visLeft + 20), a, Math.min(PT.W - 40, Wd.visRight - Wd.visLeft - 40), bottom - a + 10, 30); c.fill();
       c.restore();
     }
+    // てんき・かくれた ほし など（fun.js）：うしろの そう
+    const fun = PT.fun;
+    if (fun && fun.drawBack) { try { fun.drawBack(c); } catch (e) { console.error(e); } }
     const list = Wd.drawList();
     for (const e of list) if (e.type !== 'skystar') drawEnt(c, e);
     // 夜の暗さ（懐中電灯の明かり）
     if (st.night && Wd.dark) {
       c.save(); c.fillStyle = 'rgba(15,20,60,.35)'; c.fillRect(-400, 0, PT.W + 800, PT.H); c.restore();
     }
+    // てんき・ダンスの ライト（fun.js）：まえの そう
+    if (fun && fun.drawFront) { try { fun.drawFront(c); } catch (e) { console.error(e); } }
     drawFx(c);
     for (const e of list) if (e.kind === 'char' && !e.hidden && e.bubble) drawBubble(c, e);
     // ドロップ先の影とハイライト
@@ -439,6 +444,7 @@
     }
     stepFx(dt);
     PT.R && PT.R.tick(dt);
+    if (PT.fun && PT.fun.tick) PT.fun.tick(dt);
   };
   function stepProp(p, dt) {
     if (p.heldBy) { const ch = Wd.byId(p.heldBy); if (!ch || ch.removed) p.heldBy = null; else { p.x = ch.x; p.y = ch.y + 1; } return; }
@@ -470,6 +476,7 @@
     } else {
       stage.spawn.forEach(([cid, x, y]) => Wd.addChar(cid, x, y));
     }
+    if (PT.fun && PT.fun.onLoad) PT.fun.onLoad(stage);
   };
   Wd.snapshot = () => ({
     chars: Wd.chars().map((ch) => ({ cid: ch.cid, x: Math.round(ch.riding ? ch.homeX || ch.x : ch.x), y: Math.round(ch.riding ? ch.homeY || ch.y : ch.y), wear: ch.wear })),

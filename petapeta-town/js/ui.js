@@ -46,6 +46,9 @@
       const cnt = Object.values(d.discoveredReactionIds).filter((v) => v.stage === st.id).length;
       if (cnt) { const f = document.createElement('span'); f.className = 'sc-found'; f.textContent = `★ ${cnt}`; b.appendChild(f); }
       if (d.stamps[st.id]) { const s = document.createElement('span'); s.className = 'sc-stamp'; s.textContent = 'すたんぷ'; b.appendChild(s); }
+      // かくれた ほしを みつけた かず
+      const hs = (d.funStars || {})[st.id];
+      if (hs) { const h = document.createElement('span'); h.className = 'sc-hstar'; h.setAttribute('aria-label', `かくれた ほし ${hs}`); h.innerHTML = `<i></i>${hs}`; n.appendChild(h); }
       b.addEventListener('click', () => { A.sfx('ui'); game.enter(st.id); });
       g.appendChild(b);
     });
@@ -214,6 +217,8 @@
     A.init();
     cv.setPointerCapture(e.pointerId);
     const wp = toWorld(e.clientX, e.clientY);
+    // かくれた ほし（fun.js）
+    if (PT.fun && PT.fun.tapAt && PT.fun.tapAt(wp.x, wp.y)) return;
     // シャボン玉
     const b = W.bubbles.find((bb) => Math.hypot(bb.x - wp.x, bb.y - wp.y) < bb.r + 24);
     if (b) { W.popBubble(b); return; }
@@ -224,6 +229,7 @@
     }
   });
   cv.addEventListener('pointermove', (e) => {
+    if (drag && drag.kind === 'pet') { petMove(e.clientX, e.clientY); return; }
     if (drag && drag.kind === 'ent') { drag.x = e.clientX; drag.y = e.clientY; entDragMove(); return; }
     if (!press) return;
     press.x = e.clientX; press.y = e.clientY;
@@ -239,6 +245,7 @@
     }
   });
   const endPress = (e) => {
+    if (drag && drag.kind === 'pet') { const d = drag; drag = null; if (PT.fun && PT.fun.petEnd) PT.fun.petEnd(d.ent); game.lastAct = W.t; return; }
     if (drag && drag.kind === 'ent') { finishEntDrag(e.type === 'pointercancel'); return; }
     if (!press) return;
     clearTimeout(press.timer);
@@ -262,6 +269,8 @@
     const e = press.ent;
     clearTimeout(press.timer);
     drag = { kind: 'ent', ent: e, x: press.x, y: press.y, started: true, pointerId: press.pointerId };
+    // なでなで：キャラの うえで ゆびを ごしごし（左右に いったり きたり）したら ドラッグを やめて なでなでに する
+    if (e.kind === 'char' && PT.fun && PT.fun.pet) drag.rub = { x0: press.sx, y0: press.sy, lx: press.x, dir: 0, flips: 0, ex: e.x, ey: e.y };
     // つかんだ ところが ゆびに くっついたまま うごく
     const g0 = toWorld(press.x, press.y);
     drag.dx = e.x - g0.x; drag.dy = e.y - g0.y;
@@ -275,6 +284,15 @@
   }
   function entDragMove() {
     const e = drag.ent;
+    const rb = drag.rub;
+    if (rb) {
+      if (Math.hypot(drag.x - rb.x0, drag.y - rb.y0) > 90) drag.rub = null; // とおくへ うごかした → ふつうの ドラッグ
+      else {
+        const dx = drag.x - rb.lx;
+        if (Math.abs(dx) > 7) { const dir = Math.sign(dx); if (rb.dir && dir !== rb.dir) rb.flips++; rb.dir = dir; rb.lx = drag.x; }
+        if (rb.flips >= 3) { startPet(); return; }
+      }
+    }
     const g = toWorld(drag.x, drag.y);
     const wp = { x: g.x + drag.dx, y: g.y + drag.dy };
     e.x = wp.x; e.y = wp.y;
@@ -311,6 +329,20 @@
     if (!cancel) R.onDrop(e, { tgt: tgt && tgt !== e ? tgt : null, x: wp.x, y: wp.y, area });
     game.lastAct = W.t;
     game.saveStageSoon();
+  }
+
+  /* なでなで */
+  function startPet() {
+    const e = drag.ent, rb = drag.rub;
+    $('#panel').classList.remove('dragging', 'over');
+    e.dragging = false; setHover(null); W.dragGhost = null;
+    e.x = rb.ex; e.y = rb.ey; e.scale = W.depthScale(e.y); e.z = 0; e.pose = 'idle';
+    drag = { kind: 'pet', ent: e, lx: rb.lx, dir: rb.dir, pointerId: drag.pointerId };
+    PT.fun.pet(e);
+  }
+  function petMove(x, y) {
+    const dx = x - drag.lx;
+    if (Math.abs(dx) > 7) { const dir = Math.sign(dx); if (drag.dir && dir !== drag.dir && PT.fun.petMore) PT.fun.petMore(drag.ent); drag.dir = dir; drag.lx = x; }
   }
 
   /* パネルドラッグ：document で追う（パネル内の横スクロールと区別） */
@@ -611,6 +643,8 @@
       case 'close-album': A.sfx('back'); overlay('ov-album', false); $('#album-detail').classList.add('hidden'); game.paused = false; break;
       case 'close-parent': A.sfx('back'); overlay('ov-parent', false); game.paused = false; break;
       case 'hint': game.hint(); break;
+      case 'dance': if (PT.fun && PT.fun.dance) PT.fun.dance(); game.lastAct = W.t; break;
+      case 'weather': if (PT.fun && PT.fun.nextWeather) PT.fun.nextWeather(); game.lastAct = W.t; break;
       case 'bgm': S.data.settings.bgm = !S.data.settings.bgm; game.applySettings(); S.touch(); A.sfx('tap'); break;
       case 'sfx': S.data.settings.sfx = !S.data.settings.sfx; game.applySettings(); S.touch(); A.sfx('tap'); break;
       case 'reset':

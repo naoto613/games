@@ -13,6 +13,7 @@
     odaiDone: {},                // odaiId -> true
     storyDone: {},               // storyId -> true
     stamps: {},                  // stageId -> true
+    funStars: {},                // stageId -> かくれた ほしを みつけた かず
     seenTutorial: false,
     settings: { volume: 0.8, sfx: true, bgm: true, speak: true },
   });
