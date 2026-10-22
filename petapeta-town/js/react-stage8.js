@@ -40,12 +40,12 @@
 
   /* ---------- 86 こどもの ひ ---------- */
   D('d8_koinobori', 'こいのぼりに のって', 'こいのぼりに のって おおぞらを およぐ', ['s8_koinobori'], 'kodomonohi');
-  D('d8_kabuto', 'かぶとで えいえい おー', 'かぶとが ピカッ。みんな つよい こ！', ['s8_kabuto', 'knighthelm'], 'kodomonohi');
+  D('d8_kabuto', 'かぶとで えいえい おー', 'かぶとが ピカッ。みんな つよい こ！', ['s8_kabuto', 'kabuto'], 'kodomonohi');
   D('d8_shobu', 'しょうぶゆ ぽかぽか', 'しょうぶの おふろで ぽかぽか', ['s8_shobu'], 'kodomonohi');
   T('kodomonohi', 's8_koinobori', 'd8_koinobori', (f) => { f.wind = W.t + 3500; A.sfx('whoosh'); W.burst('leaf', f.x - 300, f.y - 400, 8, { sp: 0.25 }); lineUp(f, ['かぜが ふいた！', 'およいでる〜！']); },
     (ch, f) => { A.sfx('whoosh'); ride(ch, f, 3600, 'fly', (k, sx, sy) => { const u = Math.sin(k * Math.PI); ch.x = f.x - 120 + u * 120 + Math.sin(W.t * 0.006) * 12; ch.y = sy; ch.z = u * 400; }, (c2) => yay(c2, 'こいのぼり さいこう！'), () => { f.ride = W.t + 3600; }); });
   T('kodomonohi', 's8_kabuto', 'd8_kabuto', (f) => { f.shine = W.t + 2500; A.sfx('drumroll'); spark(f.x, f.y - 250, '#ffd23f', 14); near(f, 3).forEach((ch, i) => R.claim(ch, 3000).wait(i * 200).look(f.x).say('えいえい おー！', 'star', 1300, 'yay').pose('cheer', 1000)); },
-    (ch, f) => { f.shine = W.t + 2500; A.sfx('magic'); R.claim(ch, 4000).go(f.x + 150, f.y + 20, true).look(f.x).do(() => { wear(ch, { hat: 'knighthelm' }); spark(ch.x, ch.y - 140, '#ffd23f', 12); }).pose('cheer', 1000).say('つよく なるぞ！', 'star', 1400, 'yay'); });
+    (ch, f) => { f.shine = W.t + 2500; A.sfx('magic'); R.claim(ch, 4000).go(f.x + 150, f.y + 20, true).look(f.x).do(() => { wear(ch, { hat: PT.ITEMS.kabuto ? 'kabuto' : 'knighthelm' }); spark(ch.x, ch.y - 140, '#ffd23f', 12); }).pose('cheer', 1000).say('つよく なるぞ！', 'star', 1400, 'yay'); });
   T('kodomonohi', 's8_shobu', 'd8_shobu', (f) => { f.splash = W.t + 2500; A.sfx('splash'); W.addBubbles(f.x, f.y - 80, 6); lineUp(f, ['いい におい！', 'ぽかぽか〜']); },
     (ch, f) => { A.sfx('splash'); ride(ch, f, 3600, 'sit', (k, sx, sy) => { ch.x = f.x + Math.sin(k * 8) * 6; ch.y = f.y - 24; ch.z = 10; }, (c2) => { W.addBubbles(c2.x, c2.y - 80, 4); R.claim(c2, 1800).say('ぽかぽか〜', 'heart', 1400, 'yay'); }, () => { f.splash = W.t + 3600; X.splash && X.splash(f.x, f.y - 110); }); });
 

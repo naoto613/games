@@ -713,7 +713,7 @@
     bg(c, r) {
       B.wallpaper(c, 600, '#fff0f6', '#ffe3ef');
       B.bunting(c, 0, 40, 800, 60, 60); B.bunting(c, 800, 60, 1600, 40, 60);
-      G.rr(c, 470, 120, 660, 90, 40); G.fillO(c, '#ff8fb1', 4); c.font = `900 44px ${PT.FONT}`; c.fillStyle = '#ffffff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('おたんじょうび おめでとう', 800, 167);
+      G.rr(c, 470, 158, 660, 90, 40); G.fillO(c, '#ff8fb1', 4); c.font = `900 44px ${PT.FONT}`; c.fillStyle = '#ffffff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('おたんじょうび おめでとう', 800, 205);
       for (const [bx, by] of [[150, 260], [1450, 240]]) { for (let i = 0; i < 5; i++) { const x = bx + (i - 2) * 46, y = by + Math.abs(i - 2) * 30; c.strokeStyle = '#8a7a6a'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(x, y + 44); c.lineTo(bx, by + 300); c.stroke(); G.ell(c, x, y, 34, 42); G.fillO(c, RAIN[i], 3); c.fillStyle = 'rgba(255,255,255,.5)'; G.ell(c, x - 12, y - 14, 8, 12, -0.4); c.fill(); } }
       for (let i = 0; i < 6; i++) { c.strokeStyle = RAIN[i % 5]; c.lineWidth = 8; c.beginPath(); const x = 300 + i * 200; c.moveTo(x, 0); for (let y = 0; y < 120; y += 20) c.lineTo(x + (y % 40 ? 14 : -14), y); c.stroke(); }
       B.floorWood(c, 600, '#e8b98a');

@@ -723,7 +723,7 @@
     bg(c, r) {
       c.fillStyle = '#e8c79a'; c.fillRect(0, 0, W, 600); c.strokeStyle = 'rgba(140,90,40,.3)'; c.lineWidth = 3; for (let x = 0; x < W; x += 50) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, 600); c.stroke(); }
       G.rr(c, 0, 0, W, 60, 0); G.fillO(c, '#7a4a2a', 3);
-      ['しょうゆ', 'みそ', 'しお', 'とんこつ', 'ぎょうざ', 'チャーハン'].forEach((s, i) => { const x = 360 + i * 150; G.rr(c, x - 50, 120, 100, 180, 6); G.fillO(c, '#fff4dc', 3); c.save(); c.translate(x, 210); c.rotate(Math.PI / 2); txt(c, s, 0, 0, 28, '#2a1f35'); c.restore(); });
+      ['しょうゆ', 'みそ', 'しお', 'とんこつ', 'ぎょうざ', 'チャーハン'].forEach((s, i) => { const x = 360 + i * 150; G.rr(c, x - 50, 120, 100, 180, 6); G.fillO(c, '#fff4dc', 3); const cs = [...s], fs = Math.min(30, 150 / cs.length); cs.forEach((ch, j) => txt(c, ch === 'ー' ? '｜' : ch, x, 210 - ((cs.length - 1) * fs) / 2 + j * fs, fs, '#2a1f35')); });
       for (const x of [140, 1460]) { c.strokeStyle = '#3a3550'; c.lineWidth = 3; c.beginPath(); c.moveTo(x, 60); c.lineTo(x, 110); c.stroke(); G.ell(c, x, 170, 50, 66); G.fillO(c, '#e2433b', 4); G.rr(c, x - 24, 100, 48, 10, 3); c.fillStyle = '#2a2a3a'; c.fill(); G.rr(c, x - 24, 230, 48, 10, 3); c.fill(); txt(c, 'ら', x, 170, 40, '#ffffff'); }
       G.rr(c, 0, 400, W, 200, 0); c.fillStyle = '#7a4a2a'; c.fill(); G.rr(c, 0, 400, W, 24, 0); G.fillO(c, '#a8693d', 3);
       for (let i = 0; i < 10; i++) { const x = 80 + i * 160; G.circ(c, x, 470, 26); G.fillO(c, '#e2433b', 3); G.rr(c, x - 6, 490, 12, 110, 3); G.fillO(c, '#9aa3b8', 2); }
@@ -757,7 +757,7 @@
     } });
   S({ id: 'petshop', num: 71, name: 'なかよし ペットショップ', bgm: 'home', floor: [600, 880], color: '#ffa726',
     tools: ['teddy', 'ball', 'bunny', 'penguin', 'panda', 'duck', 'goldfish', 'catears', 'blackcat', 'owl', 'frog'], rides: ['car', 'tricycle'],
-    spawn: [['lulu', 600, 780], ['nyan', 820, 760], ['pyoko', 1020, 800], ['yuto', 420, 800], ['kon', 1240, 800]],
+    spawn: [['lulu', 560, 800], ['nyan', 1070, 800], ['pyoko', 1000, 860], ['yuto', 420, 820], ['kon', 1240, 820]],
     fixtures: [['s6_puppypen', 800, 760], ['s6_fishtank', 300, 700], ['s6_hamster', 1320, 720]], favs: ['ball', 'catears', 'goldfish', 'teddy'],
     bg(c, r) {
       B.wallpaper(c, 600, '#fff6dc', '#fff0c8');
