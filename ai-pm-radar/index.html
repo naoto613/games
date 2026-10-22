@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#2a2140">
   <title>AI PM Radar — Product &amp; Org Intelligence Hub</title>
-  <link rel="stylesheet" href="./styles.css?v=20261022">
+  <link rel="stylesheet" href="./styles.css?v=20261022b">
 </head>
 <body>
   <header class="topbar">
@@ -14,87 +14,39 @@
       <span><strong>AI PM Radar</strong><small>Product &amp; Org Intelligence Hub</small></span>
     </a>
     <div class="header-actions">
-      <button id="refreshBtn" class="button button-quiet" title="データを再読み込み">↻ <span>再読み込み</span></button>
-      <button id="settingsBtn" class="button button-quiet">⚙ <span>設定</span></button>
+      <button id="searchToggle" class="icon-btn" title="検索" aria-label="検索">⌕</button>
+      <button id="settingsBtn" class="icon-btn" title="設定" aria-label="設定">⚙</button>
     </div>
   </header>
 
-  <div class="app-shell">
-    <aside class="sidebar" id="sidebar">
-      <div class="side-label">WORKSPACE</div>
-      <button class="nav-item active" data-view="dashboard">▦ <span>ダッシュボード</span></button>
-      <button class="nav-item" data-view="all">☷ <span>すべての情報</span><span class="nav-count" id="unreadNavCount">0</span></button>
-      <button class="nav-item" data-view="saved">★ <span>ブックマーク</span></button>
-      <button class="nav-item" data-view="notes">✎ <span>学びのメモ</span></button>
-      <div class="side-label side-label-spaced">FOCUS</div>
-      <button class="nav-item" data-focus="AI活用">✦ <span>AI活用</span></button>
-      <button class="nav-item" data-focus="プロダクトマネジメント">◇ <span>プロダクトマネジメント</span></button>
-      <button class="nav-item" data-focus="エンジニアリングマネジメント">◈ <span>EM・リーダーシップ</span></button>
-      <button class="nav-item" data-focus="プロダクト開発">▷ <span>プロダクト開発</span></button>
-      <button class="nav-item" data-focus="組織づくり">⬡ <span>組織づくり</span></button>
-      <div class="side-label side-label-spaced">MEDIA</div>
-      <button class="nav-item" data-source="community"><i class="dot dot-community"></i> <span>国内コミュニティ</span></button>
-      <button class="nav-item" data-source="bookmark"><i class="dot dot-bookmark"></i> <span>はてブで話題</span></button>
-      <button class="nav-item" data-source="newsletter"><i class="dot dot-newsletter"></i> <span>海外ニュースレター</span></button>
-      <button class="nav-item" data-source="blog"><i class="dot dot-blog"></i> <span>LayerX ブログ</span></button>
-      <button class="nav-item" data-source="slides"><i class="dot dot-slides"></i> <span>Speaker Deck</span></button>
-      <button class="nav-item" data-source="youtube"><i class="dot dot-youtube"></i> <span>動画・Podcast</span></button>
-      <div class="sidebar-footer">
-        <div class="status-dot"></div>
-        <div><strong id="syncStatus">ローカルデータ</strong><small id="lastUpdated">最終更新を確認中</small></div>
-      </div>
-    </aside>
-
-    <main class="main-content">
-      <nav class="lang-tabs" role="tablist" aria-label="言語">
-        <!-- タブは app.js が LANGS から作る（古い HTML がキャッシュに残っても LayerX タブが出るように） -->
-      </nav>
-      <section class="welcome-row">
-        <div>
-          <div class="eyebrow">PRODUCT &amp; ORG INTELLIGENCE</div>
-          <h1 id="pageTitle">おかえりなさい</h1>
-          <p id="pageSubtitle">AI時代のプロダクトマネジメント・EM・組織づくりの学びを、ひとつの場所へ。</p>
-        </div>
-        <div class="today-chip"><span class="live-dot"></span> <span id="todayLabel">キャッチアップ</span></div>
-      </section>
-
-      <div id="demoBanner" class="demo-banner hidden">いまは<strong>サンプル表示</strong>です。毎朝6時に公開フィード（Zenn・Qiita・はてなブックマーク・海外ニュースレター・YouTube・LayerX）を集めると、実際の記事・動画に切り替わります。</div>
-
-      <section class="toolbar">
-        <label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="タイトル・概要・タグを検索…" autocomplete="off"><kbd>検索</kbd></label>
-        <div class="filter-row">
-          <select id="typeFilter" aria-label="媒体で絞り込み">
-            <option value="">すべての媒体</option><option value="community">国内コミュニティ</option><option value="bookmark">はてブで話題</option><option value="newsletter">海外ニュースレター</option><option value="blog">ブログ</option><option value="slides">スライド</option><option value="youtube">動画・Podcast</option><option value="external">手動で追加</option>
-          </select>
-          <select id="tagFilter" aria-label="テーマで絞り込み"><option value="">すべてのテーマ</option></select>
-          <select id="statusFilter" aria-label="既読状態で絞り込み"><option value="">すべて表示</option><option value="unread">未読だけ</option><option value="read">既読だけ</option><option value="saved">ブックマーク</option></select>
-          <select id="sortFilter" aria-label="並び順"><option value="newest">新しい順</option><option value="popular">はてブ数順</option><option value="oldest">古い順</option><option value="title">タイトル順</option></select>
-          <label class="ai-toggle" title="AI・LLM・エージェントに関係する情報だけにする"><input id="aiOnly" type="checkbox"> <span>✦ AI活用だけ</span></label>
-        </div>
-      </section>
-
-      <section id="dashboardHighlights" class="dashboard-highlights">
-        <div class="section-heading"><div><h2>テーマ・レーダー</h2><p>直近30日に集まった件数（✦ はそのうち AI活用に関係するもの）</p></div></div>
-        <div id="themeGrid" class="theme-grid"></div>
-        <div class="section-heading"><div><h2>AI × プロダクト・組織の注目</h2><p>AI活用と、PM・EM・開発・組織のテーマが重なる新着</p></div><button class="text-button" data-ai-all>すべて見る →</button></div>
-        <div id="highlightGrid" class="highlight-grid"></div>
-      </section>
-
-      <section class="feed-section">
-        <div class="section-heading"><div><h2 id="feedTitle">新着情報</h2><p id="resultSummary">情報を読み込み中…</p></div><button id="clearFiltersBtn" class="text-button">絞り込みを解除</button></div>
-        <div id="sourceChips" class="source-chips" aria-label="媒体で切り替え"></div>
-        <div id="feedList" class="feed-list"></div>
-        <div id="emptyState" class="empty-state hidden"><div class="empty-icon">⌕</div><h3>該当する情報がありません</h3><p>検索語や絞り込み条件を変えてみてください。</p></div>
-        <div class="more-row"><button id="moreBtn" class="button button-secondary hidden" type="button">もっと見る</button></div>
-      </section>
-      <footer class="main-footer">AI PM Radar <span>公開情報を継続的に学ぶための個人用ダッシュボード</span></footer>
-    </main>
+  <!-- 上に固定：タブ（日本語／English／LayerX）とテーマの切り替え -->
+  <div class="nav-stick">
+    <nav class="lang-tabs" role="tablist" aria-label="タブ">
+      <!-- タブは app.js が LANGS から作る（古い HTML がキャッシュに残っても LayerX タブが出るように） -->
+    </nav>
+    <div id="themeChips" class="theme-chips" aria-label="テーマで切り替え"></div>
+    <div id="searchRow" class="search-row hidden"><input id="searchInput" type="search" placeholder="タイトル・概要で検索" autocomplete="off"><button id="searchClose" class="icon-btn small" aria-label="検索を閉じる">✕</button></div>
   </div>
+
+  <main class="feed-wrap">
+    <div id="demoBanner" class="demo-banner hidden">いまは<strong>サンプル表示</strong>です。毎朝6時に公開フィード（Zenn・Qiita・はてなブックマーク・海外ニュースレター・YouTube・LayerX）を集めると、実際の記事・動画に切り替わります。</div>
+    <div class="list-bar">
+      <div id="statusSeg" class="seg" role="group" aria-label="表示">
+        <button data-status="all" class="active">すべて</button><button data-status="unread">未読</button><button data-status="saved">★ 保存</button><button data-status="notes">✎ メモ</button>
+      </div>
+      <select id="typeFilter" aria-label="媒体で絞り込み"><option value="">すべての媒体</option></select>
+    </div>
+    <p id="resultSummary" class="result-summary">情報を読み込み中…</p>
+    <div id="feedList" class="feed-list"></div>
+    <div id="emptyState" class="empty-state hidden"><div class="empty-icon">⌕</div><h3>該当する情報がありません</h3><p>テーマや表示の切り替えを変えてみてください。</p></div>
+    <div class="more-row"><button id="moreBtn" class="button button-secondary hidden" type="button">もっと見る</button></div>
+    <footer class="main-footer"><span class="status-dot"></span> <strong id="syncStatus">ローカルデータ</strong> · <span id="lastUpdated">最終更新を確認中</span></footer>
+  </main>
 
   <dialog id="settingsDialog" class="modal">
     <form method="dialog" class="modal-header"><div><div class="eyebrow">CONFIGURATION</div><h2>設定・情報源</h2></div><button class="icon-button" aria-label="閉じる">✕</button></form>
     <div class="modal-body">
-      <p class="settings-note">日本語・英語・LayerX の情報は上の「日本語／English／LayerX」タブで分けて表示します（LayerX タブは旧 LayerX Radar。以前の既読・ブックマーク・メモは自動で引き継ぎます。既読・ブックマーク・メモもタブごとに表示し、手動追加は今のタブに入ります）。このアプリは静的なページです。GitHub Actions が毎朝6時（日本時間）に公開フィードを集めて <code>data/items.json</code> を更新し、それを読み込みます。APIキーは使っていません。テーマは記事のキーワードからの自動推定です。</p>
+      <p class="settings-note">日本語・英語・LayerX の情報は上の「日本語／English／LayerX」タブで分けて表示し、その下のテーマで切り替えます（LayerX タブは旧 LayerX Radar。以前の既読・ブックマーク・メモは自動で引き継ぎます。既読・ブックマーク・メモもタブごとに表示し、手動追加は今のタブに入ります）。このアプリは静的なページです。GitHub Actions が毎朝6時（日本時間）に公開フィードを集めて <code>data/items.json</code> を更新し、それを読み込みます。APIキーは使っていません。テーマは記事のキーワードからの自動推定です。</p>
       <div class="settings-block"><h3>登録済みの情報源</h3><div id="sourceSettingsList" class="source-settings-list"></div></div>
       <div class="settings-block"><h3>データのバックアップ</h3><p>既読・ブックマーク・メモはこのブラウザ内に保存されます。別の端末へ移すときはエクスポート／インポートしてください。</p><div class="button-row"><button id="exportStateBtn" class="button button-secondary" type="button">状態をエクスポート</button><label class="button button-secondary file-label">状態をインポート<input type="file" id="importStateInput" accept="application/json"></label><button id="resetStateBtn" class="button button-danger" type="button">状態をリセット</button></div></div>
       <div class="settings-block"><h3>手動で情報を追加</h3><p>note・社内勉強会の資料など、自動取得していないページもURLを登録して記録できます。</p><form id="manualAddForm" class="manual-form"><input id="manualTitle" placeholder="タイトル" required><input id="manualUrl" type="url" placeholder="https://…" required><select id="manualTag"><option value="">テーマなし</option></select><button class="button button-primary" type="submit">追加</button></form></div>
@@ -112,6 +64,6 @@
     </div>
   </dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="./app.js?v=20261022"></script>
+  <script src="./app.js?v=20261022b"></script>
 </body>
 </html>
