@@ -518,7 +518,7 @@
     G.poly(c, [-10, -10, 34, -18, -14, -4]); G.fillO(c, '#bfe0f5', 2);
   }, ['paper']);
   T('toyhammer', 'ピコピコハンマー', 76, 76, (c) => {
-    c.save(); c.translate(0, -8); c.rotate(-0.5);
+    c.save(); c.translate(12, -4); c.rotate(-0.32); c.scale(0.92, 0.92);
     G.rr(c, -4, -54, 8, 56, 4); G.fillO(c, '#ffd23f', 2.5);
     G.rr(c, -24, -74, 48, 24, 8); G.fillO(c, '#ff5d6c', 3);
     c.strokeStyle = '#ffffff'; c.lineWidth = 2; for (const x of [-12, 0, 12]) { c.beginPath(); c.moveTo(x, -72); c.lineTo(x, -52); c.stroke(); }

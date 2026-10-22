@@ -106,7 +106,7 @@
     line(c, 'rgba(255,255,255,.75)', 4, [-34, -150, -10, -160, 14, -160, 36, -150]);
     c.fillStyle = '#ffd23f'; G.star(c, 22, -146, 7, 3); c.fill();
   };
-  EXT.hat.hachimaki = (c, ch, t) => {
+  EXT.hat.karateband = (c, ch, t) => {
     const fl = Math.sin(T(t) * 0.01) * 6;
     for (const s of [0, 1]) { c.beginPath(); c.moveTo(48, -142); c.quadraticCurveTo(62, -142 + s * 10 + fl * 0.5, 74, -134 + s * 16 + fl); c.lineTo(70, -128 + s * 16 + fl); c.quadraticCurveTo(58, -134 + s * 10, 46, -134); c.closePath(); BBX(46, -142, 74, -112); G.fillO(c, '#ffffff', 2); }
     c.lineCap = 'butt';
@@ -387,7 +387,7 @@
   WR('swimcap', 'すいえいキャップ', 'hat', 'r3swim', SP, 100, 50, 128);
   WR('swimgoggles', 'ゴーグル', 'face', 'r3swim', SP, 100, 40, 108);
   WR('swimkit', 'みずぎ', 'body', 'r3swim', SP, 70, 70, 22);
-  WR('hachimaki', 'はちまき', 'hat', 'r3karate', SP, 120, 50, 116);
+  WR('karateband', 'はちまき', 'hat', 'r3karate', SP, 120, 50, 116);
   WR('karategi', 'からての どうぎ', 'body', 'r3karate', SP, 80, 80, 18);
   WR('gymcap', 'あかしろぼう', 'hat', 'r3gym', SP, 100, 60, 148);
   WR('gymshirt', 'たいそうふく', 'body', 'r3gym', SP, 80, 80, 18);
@@ -445,7 +445,7 @@
   D('d3_soccer', 'シュート！ ゴール！', 'サッカーの ユニフォームで ボールを けったよ', ['soccerkit', 'ball']);
   D('d3_baseball', 'かっとばせ ホームラン', 'カキーン！ ボールが おそらの かなたへ', ['baseballcap', 'baseballkit']);
   D('d3_swim', 'すいすい すいえい', 'すいえいキャップで すいすい およいだよ', ['swimcap', 'swimgoggles']);
-  D('d3_karate', 'えいっ！ やあっ！', 'からての どうぎで かっこいい キック', ['karategi', 'hachimaki']);
+  D('d3_karate', 'えいっ！ やあっ！', 'からての どうぎで かっこいい キック', ['karategi', 'karateband']);
   D('d3_gym', 'みんなで たいそう', 'いち、に、さん、し！ みんなで たいそう', ['gymcap', 'gymshirt']);
   D('d3_sportset', 'スポーツの せんしゅ', 'ぼうしと ユニフォームを そろえて せんしゅに なったよ', ['baseballcap', 'soccerkit']);
 
@@ -457,7 +457,7 @@
   SET('job', 'うちゅうひこうし', 'astrohelmet', 'astrosuit'); SET('job', 'キャビンアテンダント', 'cabincap', 'cabinsuit'); SET('job', 'ゆうびんやさん', 'mailcap', 'mailsuit');
   SET('job', 'しいくいんさん', 'keepercap', 'keepersuit'); SET('job', 'アイドル', 'idolheadset', 'idoldress');
   ANIMALS.forEach(([k, nm]) => SET('animal', nm, k === 'frog' ? 'frog' : 'kigu' + k, 'kigu' + k + 'suit'));
-  SET('sport', 'サッカー', 'soccerband', 'soccerkit'); SET('sport', 'やきゅう', 'baseballcap', 'baseballkit'); SET('sport', 'すいえい', 'swimcap', 'swimkit'); SET('sport', 'からて', 'hachimaki', 'karategi'); SET('sport', 'たいそう', 'gymcap', 'gymshirt');
+  SET('sport', 'サッカー', 'soccerband', 'soccerkit'); SET('sport', 'やきゅう', 'baseballcap', 'baseballkit'); SET('sport', 'すいえい', 'swimcap', 'swimkit'); SET('sport', 'からて', 'karateband', 'karategi'); SET('sport', 'たいそう', 'gymcap', 'gymshirt');
   const KIGU = {};
   ANIMALS.forEach(([k]) => { KIGU['kigu' + k] = k; KIGU['kigu' + k + 'suit'] = k; });
   Object.assign(KIGU, { cattail: 'cat', dogtail: 'dog', bunnytail: 'bunny', beartail: 'bear', liontail: 'lion', dinotail: 'dino' });

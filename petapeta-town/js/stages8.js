@@ -312,8 +312,7 @@
       c.save(); c.translate(70, -130); c.rotate(k >= 0 ? -0.6 : -0.1); G.rr(c, -4, -50, 8, 50, 3); G.fillO(c, '#9aa3b8', 2); dot(c, 0, -52, 9, '#e2433b'); c.restore();
       G.rr(c, -90, -16, 180, 16, 6); G.fillO(c, '#c9ccd8', 2.5);
       cone(c, 0, -16, 56, 60);
-      for (let i = 0; i < n; i++) { G.ell(c, 0, -80 - i * 14, 30 - i * 5, 11); G.fillO(c, i % 2 ? '#ffb3c8' : '#fff8f0', 2.5); }
-      if (k >= 0 && k < 0.85) { c.fillStyle = '#fff8f0'; c.fillRect(-5, -100, 10, 100 - 80 - n * 14 + 10); }
+      for (let i = 0; i < n; i++) { G.ell(c, 0, -80 - i * 10, 30 - i * 5, 10); G.fillO(c, i % 2 ? '#ffb3c8' : '#fff8f0', 2.5); }
     } };
   F.s8_creamslide = { w: 460, h: 380, tags: ['slide', 'icecream', 'sweet'], slots: [[-280, 20], [280, 20]],
     draw(c, t, f) {

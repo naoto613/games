@@ -450,13 +450,13 @@
   S({ id: 'gym', num: 54, name: 'ぴょんぴょん たいいくかん', bgm: 'title', floor: [600, 880], color: '#ffa726',
     tools: ['ball', 'music', 'drum', 'juice', 'blocks', 'cushion', 'balloon', 'camera', 'tambourine'], rides: ['trampoline', 'tricycle', 'seesaw'],
     spawn: [['pyoko', 560, 800], ['yuto', 1000, 790], ['mimi', 1100, 840], ['gaku', 440, 860], ['choco', 1500, 800]],
-    fixtures: [['s5_bigball', 260, 720], ['s5_vaultbox', 820, 760], ['s5_mat', 1300, 850]], favs: ['ball', 'music', 'trampoline', 'drum'],
+    fixtures: [['s5_bigball', 260, 720], ['s5_vaultbox', 820, 760], ['s5_mat', 1300, 800]], favs: ['ball', 'music', 'trampoline', 'drum'],
     bg(c, r) {
       B.wallpaper(c, 600, '#f6e2c0', '#efd6ae');
       for (let i = 0; i < 6; i++) B.window(c, 60 + i * 260, 60, 180, 110, (c2, x, y, w, h) => { B.sky(c2, '#9fd8ff', '#e3f6ff', y + h); B.cloud(c2, x + 30, y + 40, 0.5); });
       G.rr(c, 560, 230, 480, 300, 10); G.fillO(c, '#8a5a3a', 4); for (const s of [-1, 1]) { c.fillStyle = '#c0304a'; c.beginPath(); c.moveTo(800 + s * 230, 240); c.quadraticCurveTo(800 + s * 160, 380, 800 + s * 230, 520); c.lineTo(800 + s * 230, 240); c.fill(); } G.rr(c, 580, 236, 440, 30, 6); G.fillO(c, '#c0304a', 2);
       for (const x of [200, 1400]) { G.rr(c, x - 70, 240, 140, 90, 6); G.fillO(c, '#ffffff', 3); c.strokeStyle = '#e2433b'; c.lineWidth = 3; c.strokeRect(x - 26, 280, 52, 40); G.ell(c, x, 340, 32, 8); c.strokeStyle = '#ff6f3d'; c.lineWidth = 5; c.stroke(); c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = 2; for (let k = 0; k < 5; k++) { c.beginPath(); c.moveTo(x - 30 + k * 15, 342); c.lineTo(x - 20 + k * 10, 380); c.stroke(); } }
-      c.fillStyle = '#ffffff'; for (const x of [460, 1120]) { G.rr(c, x - 50, 440, 100, 60, 8); c.fill(); txt(c, ['がんばれ', 'ファイト'][x > 800 ? 1 : 0], x, 470, 20, '#e2433b'); }
+      for (const x of [460, 1120]) { G.rr(c, x - 50, 440, 100, 60, 8); c.fillStyle = '#ffffff'; c.fill(); txt(c, ['がんばれ', 'ファイト'][x > 800 ? 1 : 0], x, 470, 20, '#e2433b'); }
       B.floorWood(c, 600, '#e0b070');
       c.strokeStyle = '#ffffff'; c.lineWidth = 4; G.ell(c, 800, 760, 200, 60); c.stroke(); c.strokeStyle = '#4c9be8'; c.beginPath(); c.moveTo(0, 650); c.lineTo(W, 650); c.stroke(); c.strokeStyle = '#e2433b'; c.beginPath(); c.moveTo(0, 870); c.lineTo(W, 870); c.stroke();
     } });
