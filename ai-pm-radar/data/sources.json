@@ -7,9 +7,9 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://tech.layerx.co.jp/feed",
-    "lastFetchedAt": "2026-10-24T01:10:14+00:00",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
     "notes": "はてなブログの公開RSS。キー不要。",
-    "lastSuccessAt": "2026-10-24T01:10:14+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
     "lastCount": 30,
     "lang": "ja",
@@ -26,11 +26,11 @@
     "fetchMethod": "youtube",
     "channelId": "UCKu0R6kOcqd62QstxKxoNhA",
     "resolveFromVideo": "_rjFdRnYiso",
-    "lastFetchedAt": "2026-10-24T01:10:14+00:00",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
     "notes": "YouTubeの公開チャンネルフィード（APIキー不要・最新15本）。channelIdはLayerX Lunch Liveのアーカイブ動画から自動で調べて保存する。別のチャンネルになった場合はchannelIdを直接書き換える。",
     "lastError": null,
     "via": "channel page",
-    "lastSuccessAt": "2026-10-24T01:10:14+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastCount": 30,
     "channelName": "LayerX 公式",
     "lang": "ja",
@@ -46,9 +46,9 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://speakerdeck.com/layerx.atom",
-    "lastFetchedAt": "2026-10-24T01:10:14+00:00",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
     "notes": "Speaker Deckの公開Atomフィード。キー不要。",
-    "lastSuccessAt": "2026-10-24T01:10:14+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
     "lastCount": 18,
     "lang": "ja",
@@ -69,7 +69,11 @@
     "baseTags": [
       "PdM"
     ],
-    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。"
+    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
+    "lastError": null,
+    "lastCount": 4
   },
   {
     "id": "zenn-productmanagement",
@@ -84,7 +88,11 @@
     "baseTags": [
       "PdM"
     ],
-    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。"
+    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
+    "lastError": null,
+    "lastCount": 0
   },
   {
     "id": "zenn-engineeringmanager",
@@ -99,7 +107,11 @@
     "baseTags": [
       "EM"
     ],
-    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。"
+    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
+    "lastError": null,
+    "lastCount": 8
   },
   {
     "id": "zenn-em",
@@ -114,7 +126,11 @@
     "baseTags": [
       "EM"
     ],
-    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。"
+    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
+    "lastError": null,
+    "lastCount": 8
   },
   {
     "id": "zenn-fde",
@@ -129,7 +145,11 @@
     "baseTags": [
       "FDE"
     ],
-    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。"
+    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
+    "lastError": null,
+    "lastCount": 4
   },
   {
     "id": "qiita-pdm",
@@ -144,7 +164,11 @@
     "baseTags": [
       "PdM"
     ],
-    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。"
+    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
+    "lastError": null,
+    "lastCount": 0
   },
   {
     "id": "qiita-productmanagement",
@@ -159,7 +183,11 @@
     "baseTags": [
       "PdM"
     ],
-    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。"
+    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
+    "lastError": null,
+    "lastCount": 0
   },
   {
     "id": "qiita-em",
@@ -174,7 +202,11 @@
     "baseTags": [
       "EM"
     ],
-    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。"
+    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
+    "lastError": null,
+    "lastCount": 0
   },
   {
     "id": "qiita-em2",
@@ -189,7 +221,11 @@
     "baseTags": [
       "EM"
     ],
-    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。"
+    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
+    "lastError": null,
+    "lastCount": 0
   },
   {
     "id": "qiita-fde",
@@ -204,7 +240,11 @@
     "baseTags": [
       "FDE"
     ],
-    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。"
+    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
+    "lastError": null,
+    "lastCount": 0
   },
   {
     "id": "hatena-pdm",
@@ -217,8 +257,8 @@
     "feedUrl": "https://b.hatena.ne.jp/q/%E3%83%97%E3%83%AD%E3%83%80%E3%82%AF%E3%83%88%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC?target=all&sort=recent&users=10&safe=on&mode=rss",
     "minBookmarks": 30,
     "notes": "PdM。はてなブックマーク検索RSS（30users以上だけ残す）。キー不要。",
-    "lastFetchedAt": "2026-10-24T01:10:14+00:00",
-    "lastSuccessAt": "2026-10-24T01:10:14+00:00",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
     "lastCount": 20
   },
@@ -233,8 +273,8 @@
     "feedUrl": "https://b.hatena.ne.jp/q/%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%83%AA%E3%83%B3%E3%82%B0%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC?target=all&sort=recent&users=10&safe=on&mode=rss",
     "minBookmarks": 30,
     "notes": "EM。はてなブックマーク検索RSS（30users以上だけ残す）。キー不要。",
-    "lastFetchedAt": "2026-10-24T01:10:14+00:00",
-    "lastSuccessAt": "2026-10-24T01:10:14+00:00",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
     "lastCount": 19
   },
@@ -249,8 +289,8 @@
     "feedUrl": "https://b.hatena.ne.jp/q/Forward%20Deployed%20Engineer?target=all&sort=recent&users=10&safe=on&mode=rss",
     "minBookmarks": 10,
     "notes": "FDE。はてなブックマーク検索RSS（10users以上だけ残す）。キー不要。",
-    "lastFetchedAt": "2026-10-24T01:10:14+00:00",
-    "lastSuccessAt": "2026-10-24T01:10:14+00:00",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
     "lastCount": 28
   },
@@ -265,8 +305,8 @@
     "feedUrl": "https://b.hatena.ne.jp/q/FDE%20%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2?target=all&sort=recent&users=10&safe=on&mode=rss",
     "minBookmarks": 10,
     "notes": "FDE。はてなブックマーク検索RSS（10users以上だけ残す）。キー不要。",
-    "lastFetchedAt": "2026-10-24T01:10:14+00:00",
-    "lastSuccessAt": "2026-10-24T01:10:14+00:00",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
     "lastCount": 31
   },
@@ -281,8 +321,8 @@
     "feedUrl": "https://b.hatena.ne.jp/q/%E7%94%9F%E6%88%90AI%20%E3%83%97%E3%83%AD%E3%83%80%E3%82%AF%E3%83%88%E9%96%8B%E7%99%BA?target=all&sort=recent&users=10&safe=on&mode=rss",
     "minBookmarks": 50,
     "notes": "AI活用。はてなブックマーク検索RSS（50users以上だけ残す）。キー不要。",
-    "lastFetchedAt": "2026-10-24T01:10:14+00:00",
-    "lastSuccessAt": "2026-10-24T01:10:14+00:00",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
     "lastCount": 7
   },
@@ -296,8 +336,8 @@
     "fetchMethod": "rss",
     "feedUrl": "https://www.lennysnewsletter.com/feed",
     "notes": "プロダクト・グロース・キャリア。有料記事は冒頭のみ。 公開RSS。キー不要。",
-    "lastFetchedAt": "2026-10-24T01:10:14+00:00",
-    "lastSuccessAt": "2026-10-24T01:10:14+00:00",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
     "lastCount": 13,
     "excludeTitle": [
@@ -314,8 +354,8 @@
     "fetchMethod": "rss",
     "feedUrl": "https://newsletter.pragmaticengineer.com/feed",
     "notes": "エンジニアリング組織・EM・AIツールの実態。 公開RSS。キー不要。",
-    "lastFetchedAt": "2026-10-24T01:10:14+00:00",
-    "lastSuccessAt": "2026-10-24T01:10:14+00:00",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
     "lastCount": 7,
     "excludeTitle": [
@@ -332,8 +372,8 @@
     "fetchMethod": "rss",
     "feedUrl": "https://www.svpg.com/feed/",
     "notes": "プロダクトオペレーティングモデル・エンパワードチーム。 公開RSS。キー不要。",
-    "lastFetchedAt": "2026-10-24T01:10:14+00:00",
-    "lastSuccessAt": "2026-10-24T01:10:14+00:00",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
     "lastCount": 6
   },
@@ -347,8 +387,8 @@
     "fetchMethod": "rss",
     "feedUrl": "https://www.producttalk.org/feed/",
     "notes": "継続的ディスカバリー。AIプロダクト開発の連載あり。 公開RSS。キー不要。",
-    "lastFetchedAt": "2026-10-24T01:10:14+00:00",
-    "lastSuccessAt": "2026-10-24T01:10:14+00:00",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
     "lastCount": 5
   },
@@ -362,8 +402,8 @@
     "fetchMethod": "rss",
     "feedUrl": "https://lethain.com/feeds/",
     "notes": "エンジニアリング戦略・組織設計・スタッフエンジニア。 公開RSS。キー不要。",
-    "lastFetchedAt": "2026-10-24T01:10:14+00:00",
-    "lastSuccessAt": "2026-10-24T01:10:14+00:00",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
     "lastCount": 3
   },
@@ -377,8 +417,8 @@
     "fetchMethod": "rss",
     "feedUrl": "https://newsletter.eng-leadership.com/feed",
     "notes": "EM・テックリード向けの実践Tips。 公開RSS。キー不要。",
-    "lastFetchedAt": "2026-10-24T01:10:14+00:00",
-    "lastSuccessAt": "2026-10-24T01:10:14+00:00",
+    "lastFetchedAt": "2026-10-24T02:32:37+00:00",
+    "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
     "lastCount": 7
   }
