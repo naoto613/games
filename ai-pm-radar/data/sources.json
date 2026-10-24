@@ -133,25 +133,6 @@
     "lastCount": 16
   },
   {
-    "id": "zenn-fde",
-    "name": "Zenn トピック「FDE」",
-    "type": "zenn",
-    "url": "https://zenn.dev/topics/fde",
-    "lang": "ja",
-    "enabled": true,
-    "fetchMethod": "zenn",
-    "topic": "fde",
-    "minLikes": 3,
-    "baseTags": [
-      "FDE"
-    ],
-    "notes": "Zennの公開API（キー不要）。いいね3以上を残す（画面の評価で絞り込める）。",
-    "lastFetchedAt": "2026-10-24T07:18:56+00:00",
-    "lastSuccessAt": "2026-10-24T07:18:56+00:00",
-    "lastError": null,
-    "lastCount": 16
-  },
-  {
     "id": "qiita-pdm",
     "name": "Qiita タグ「PdM」",
     "type": "qiita",
@@ -228,25 +209,6 @@
     "lastCount": 0
   },
   {
-    "id": "qiita-fde",
-    "name": "Qiita タグ「FDE」",
-    "type": "qiita",
-    "url": "https://qiita.com/tags/FDE",
-    "lang": "ja",
-    "enabled": true,
-    "fetchMethod": "qiita",
-    "tag": "FDE",
-    "minLikes": 2,
-    "baseTags": [
-      "FDE"
-    ],
-    "notes": "Qiita API v2（キー不要）。いいね2以上を残す（画面の評価で絞り込める）。",
-    "lastFetchedAt": "2026-10-24T07:18:56+00:00",
-    "lastSuccessAt": "2026-10-24T07:18:56+00:00",
-    "lastError": null,
-    "lastCount": 8
-  },
-  {
     "id": "hatena-pdm",
     "name": "はてブ「プロダクトマネージャー」",
     "type": "bookmark",
@@ -277,38 +239,6 @@
     "lastSuccessAt": "2026-10-24T07:18:56+00:00",
     "lastError": null,
     "lastCount": 26
-  },
-  {
-    "id": "hatena-fde",
-    "name": "はてブ「Forward Deployed Engineer」",
-    "type": "bookmark",
-    "url": "https://b.hatena.ne.jp/q/Forward%20Deployed%20Engineer?target=all&sort=recent&users=3",
-    "lang": "ja",
-    "enabled": true,
-    "fetchMethod": "rss",
-    "feedUrl": "https://b.hatena.ne.jp/q/Forward%20Deployed%20Engineer?target=all&sort=recent&users=3&safe=on&mode=rss",
-    "minBookmarks": 3,
-    "notes": "FDE。はてなブックマーク検索RSS（3users以上を残す。画面の評価で絞り込める）。キー不要。",
-    "lastFetchedAt": "2026-10-24T07:18:56+00:00",
-    "lastSuccessAt": "2026-10-24T07:18:56+00:00",
-    "lastError": null,
-    "lastCount": 34
-  },
-  {
-    "id": "hatena-fde-ja",
-    "name": "はてブ「FDE エンジニア」",
-    "type": "bookmark",
-    "url": "https://b.hatena.ne.jp/q/FDE%20%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2?target=all&sort=recent&users=3",
-    "lang": "ja",
-    "enabled": true,
-    "fetchMethod": "rss",
-    "feedUrl": "https://b.hatena.ne.jp/q/FDE%20%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2?target=all&sort=recent&users=3&safe=on&mode=rss",
-    "minBookmarks": 3,
-    "notes": "FDE。はてなブックマーク検索RSS（3users以上を残す。画面の評価で絞り込める）。キー不要。",
-    "lastFetchedAt": "2026-10-24T07:18:56+00:00",
-    "lastSuccessAt": "2026-10-24T07:18:56+00:00",
-    "lastError": null,
-    "lastCount": 32
   },
   {
     "id": "hatena-ai-product",

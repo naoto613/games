@@ -14,8 +14,8 @@ const DEFAULT_SOURCES = [
   {id:"lenny",name:"Lenny's Newsletter",type:"newsletter",url:"https://www.lennysnewsletter.com/",enabled:true,fetchMethod:"rss",lang:"en"},
   {id:"lenny-youtube",name:"Lenny's Podcast（YouTube）",type:"youtube",url:"https://www.youtube.com/@LennysPodcast",enabled:true,fetchMethod:"youtube",lang:"en"}
 ];
-// テーマは4つだけ（どのタブでも同じ並び・同じ位置）
-const TAGS = ["AI活用","FDE","PdM","EM"];
+// テーマは3つだけ（どのタブでも同じ並び・同じ位置）
+const TAGS = ["AI活用","PdM","EM"];
 const AI_TAG = "AI活用";
 const SRC = {zenn:{label:"Zenn",icon:"Z",open:"記事を読む"},qiita:{label:"Qiita",icon:"Q",open:"記事を読む"},community:{label:"国内コミュニティ",icon:"✎",open:"記事を読む"},bookmark:{label:"はてブ",icon:"B!",open:"記事を読む"},newsletter:{label:"ニュースレター",icon:"✉",open:"記事を読む"},youtube:{label:"YouTube",icon:"▶",open:"動画を見る"},blog:{label:"ブログ",icon:"✎",open:"記事を読む"},slides:{label:"スライド",icon:"▧",open:"スライドを見る"},external:{label:"手動追加",icon:"↗",open:"ページを開く"}};
 const PAGE = 60;

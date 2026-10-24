@@ -30,7 +30,7 @@
 │   ├── tests/              # Vitest（因果編集・戦闘・セーブ・全パズルの結末への到達可能性・区域とスクリプトの整合性・難易度表 tests/balance）
 │   └── tools/              # e2e.mjs（Playwright で序章〜第一章の結末まで通しプレイ）、shot.mjs
 ├── ai-pm-radar/
-│   ├── index.html          # AI Builders Radar（AI活用・FDE・PdM・EM の4テーマに絞って良質な公開情報を集める静的ダッシュボード。日本語／English／LayerX（旧 LayerX Radar：LayerX の公開技術情報）をタブで分けて表示し、その下の4つのテーマチップで切り替え。一覧はいつも新しい順、既読・ブックマーク・学びのメモ・手動追加は localStorage）
+│   ├── index.html          # AI Builders Radar（AI活用・PdM・EM の3テーマに絞って良質な公開情報を集める静的ダッシュボード。日本語／English／LayerX（旧 LayerX Radar：LayerX の公開技術情報）をタブで分けて表示し、その下の4つのテーマチップで切り替え。一覧はいつも新しい順、既読・ブックマーク・学びのメモ・手動追加は localStorage）
 │   ├── app.js / styles.css
 │   ├── data/               # items.json・sources.json（Zenn・Qiita（いいね数で足切り）・はてブ検索RSS（ブックマーク数で足切り）・海外ニュースレター・LayerX のブログ／YouTube／Speaker Deck）・meta.json
 │   ├── scripts/fetch_sources.py  # APIキー不要の収集（RSS/Atom・YouTube 公開フィード。テーマは日英キーワードで推定）

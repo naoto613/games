@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Collect a small set of good public sources on four themes -- AI活用, FDE
-(Forward Deployed Engineer), PdM and EM -- into data/items.json without any API key.
+"""Collect a small set of good public sources on three themes -- AI活用, PdM and EM --
+into data/items.json without any API key.
 
 Supported fetchMethod values (all keyless):
   rss      : RSS/Atom feed at feedUrl (blog, Speaker Deck .atom, etc.)
@@ -59,7 +59,6 @@ TAG_RULES = {
     "AI活用": ["ai", "llm", "llms", "生成ai", "agent", "agents", "agentic", "aiエージェント", "エージェント", "chatgpt", "claude", "claude code",
               "gemini", "copilot", "cursor", "rag", "プロンプト", "mcp", "vibe coding", "バイブコーディング", "ai駆動", "ai-native",
               "aiネイティブ", "openai", "anthropic", "evals", "コーディングエージェント", "coding agent", "coding agents"],
-    "FDE": ["fde", "fdes", "forward deployed", "forward-deployed", "フォワードデプロイド", "フォワード・デプロイド", "フォワードデプロイ"],
     "PdM": ["pdm", "pm", "pms", "product manager", "product managers", "product management", "product leader", "product leaders",
             "プロダクトマネージャー", "プロダクトマネジメント", "プロダクトオーナー", "product owner", "product strategy", "プロダクト戦略",
             "product discovery", "ディスカバリー", "product sense", "pmf", "product-market fit", "ロードマップ", "roadmap", "prd"],
