@@ -8,6 +8,7 @@ AI活用・FDE（Forward Deployed Engineer）・PdM・EM の4テーマに絞っ�
 
 - 上に固定したタブ（日本語／English／LayerX）で、日本語の情報・英語の記事・LayerX の公開技術情報を分けて表示（混ぜない。選んだタブはブラウザに記憶）
 - テーマは **AI活用・FDE・PdM・EM の4つだけ**。タブの下のチップ（件数つき）か、記事についたテーマをタップして切り替え
+- 収集の足切りは緩めにして、画面の「評価」（★1〜3）で絞り込む。評価ははてブ数（3／30／100）、Zenn のいいね（3／15／50）、Qiita のいいね（2／10／30）、YouTube の再生数（100／1万／5万）で段階を決め、数がない情報源（定評のあるニュースレター・LayerX）は ★2。選んだ評価はブラウザに記憶
 - 一覧はいつも新しい順。「すべて／未読／★ 保存／✎ メモ」の切り替えと媒体の絞り込みだけを置き、検索はヘッダーの ⌕ から開く
 - 既読／未読、保存（ブックマーク）、学びのメモ、URL の手動追加（いずれもブラウザ内に保存）、状態のエクスポート／インポート。旧 LayerX Radar の既読・ブックマーク・メモ・手動追加は、初めて開いたときに自動で引き継ぐ
 - 設定画面（⚙）で情報源ごとの取得状況（最終成功時刻・件数・エラー）を確認
@@ -16,11 +17,11 @@ AI活用・FDE（Forward Deployed Engineer）・PdM・EM の4テーマに絞っ�
 
 | タブ | 情報源 | 絞り方 |
 | --- | --- | --- |
-| 日本語 | Zenn トピック（pdm・productmanagement・engineeringmanager・em・fde。公開API）、Qiita タグ（PdM・プロダクトマネジメント・エンジニアリングマネージャー・EM・FDE。API v2） | いいね数で足切り（`minLikes`：Zenn 10、Qiita 5）。トピック／タグのテーマは必ず付く（`baseTags`） |
-| 日本語 | はてなブックマーク検索 RSS（プロダクトマネージャー・エンジニアリングマネージャー・Forward Deployed Engineer・FDE エンジニア・生成AI プロダクト開発） | 一定数以上ブックマークされた記事だけ（`minBookmarks`：PdM・EM 30、FDE 10、AI 50） |
+| 日本語 | Zenn トピック（pdm・productmanagement・engineeringmanager・em・fde。公開API）、Qiita タグ（PdM・プロダクトマネジメント・エンジニアリングマネージャー・EM・FDE。API v2） | いいね数で軽く足切り（`minLikes`：Zenn 3、Qiita 2）。トピック／タグのテーマは必ず付く（`baseTags`） |
+| 日本語 | はてなブックマーク検索 RSS（プロダクトマネージャー・エンジニアリングマネージャー・Forward Deployed Engineer・FDE エンジニア・生成AI プロダクト開発） | 3users以上（生成AIは10以上）で軽く足切り（`minBookmarks`） |
 | English | Lenny's Newsletter、The Pragmatic Engineer、SVPG、Product Talk、Irrational Exuberance、Engineering Leadership | 4テーマに当たる記事だけ。ニュースまとめ（The Pulse・Community Wisdom）は除外（`excludeTitle`） |
-| 日本語（動画） | YouTube：EM Conf JP | 4テーマに当たり、再生300回以上（`minViews`）。講演なので1年分 |
-| English（動画） | YouTube：Lenny's Podcast・The Pragmatic Engineer | 4テーマに当たり、再生数で足切り（3,000〜5,000回。チャンネルのフィードが取れずチャンネルページから読んだときは再生数が取れないことがあり、その場合は足切りしない）。日本語の自動吹き替えタイトルは除外（`titleLang: en`） |
+| 日本語（動画） | YouTube：EM Conf JP | 4テーマに当たり、再生100回以上（`minViews`）。講演なので1年分 |
+| English（動画） | YouTube：Lenny's Podcast・The Pragmatic Engineer | 4テーマに当たり、再生1,000回以上（チャンネルのフィードが取れずチャンネルページから読んだときは再生数が取れないことがあり、その場合は足切りしない）。日本語の自動吹き替えタイトルは除外（`titleLang: en`） |
 | LayerX | LayerX エンジニアブログ・YouTube・Speaker Deck | 全件（テーマ推定だけする） |
 
 - テーマはタイトル・概要のキーワードからの推定で、収集のたびに今のルールで付け直します。「AI活用」はどこにでも出てくるので、タイトルに AI の語があるときだけ付けます。

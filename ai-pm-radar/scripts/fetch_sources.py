@@ -353,9 +353,14 @@ def iso_date(value: str | None) -> str | None:
 
 def zenn_entries(source: dict) -> list[dict]:
     """Zenn has no likes in its RSS, so read the public JSON the site itself uses."""
-    data = http_get(f"https://zenn.dev/api/articles?topicname={source['topic']}&order=latest").json()
+    articles = []
+    for page in (1, 2, 3):  # a few pages so slower topics still reach back a few months
+        data = http_get(f"https://zenn.dev/api/articles?topicname={source['topic']}&order=latest&page={page}").json()
+        articles += data.get("articles", [])
+        if not data.get("next_page"):
+            break
     entries = []
-    for a in data.get("articles", []):
+    for a in articles:
         user = a.get("user") or {}
         entries.append({
             "link": "https://zenn.dev" + a["path"] if a.get("path") else f"https://zenn.dev/{user.get('username')}/articles/{a.get('slug')}",

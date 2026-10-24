@@ -19,16 +19,30 @@ const TAGS = ["AI活用","FDE","PdM","EM"];
 const AI_TAG = "AI活用";
 const SRC = {zenn:{label:"Zenn",icon:"Z",open:"記事を読む"},qiita:{label:"Qiita",icon:"Q",open:"記事を読む"},community:{label:"国内コミュニティ",icon:"✎",open:"記事を読む"},bookmark:{label:"はてブ",icon:"B!",open:"記事を読む"},newsletter:{label:"ニュースレター",icon:"✉",open:"記事を読む"},youtube:{label:"YouTube",icon:"▶",open:"動画を見る"},blog:{label:"ブログ",icon:"✎",open:"記事を読む"},slides:{label:"スライド",icon:"▧",open:"スライドを見る"},external:{label:"手動追加",icon:"↗",open:"ページを開く"}};
 const PAGE = 60;
-const state = {items:[],manual:[],meta:null,sources:DEFAULT_SOURCES,read:new Set(),saved:new Set(),notes:{},status:"all",theme:"",lang:"ja",limit:PAGE,editingNoteId:null,realData:false};
+const state = {items:[],manual:[],meta:null,sources:DEFAULT_SOURCES,read:new Set(),saved:new Set(),notes:{},status:"all",rating:1,theme:"",lang:"ja",limit:PAGE,editingNoteId:null,realData:false};
 const METHOD_LABELS={rss:"RSS/Atom",youtube:"YouTube公開フィード",auto:"フィード自動検出",manual:"手動"};
 const STORAGE_KEY = "ai-pm-radar-state-v1";
 const LANG_KEY = "ai-pm-radar-lang";
+const RATING_KEY = "ai-pm-radar-rating";
+// 評価（★1〜3）：媒体ごとの反応の数で段階を決める。数がない媒体（定評のあるニュースレター・LayerX など）は ★2
+const RATING_RULES = [
+  {key:"bookmarks",label:"はてブ",steps:[3,30,100]},
+  {key:"likes",when:i=>i.sourceType==="zenn",label:"Zenn いいね",steps:[3,15,50]},
+  {key:"likes",when:i=>i.sourceType==="qiita",label:"Qiita いいね",steps:[2,10,30]},
+  {key:"views",label:"YouTube 再生",steps:[100,10000,50000]}
+];
+function ratingOf(i){
+  let best=0;
+  RATING_RULES.forEach(r=>{const v=i[r.key];if(v==null||(r.when&&!r.when(i)))return;best=Math.max(best,r.steps.filter(s=>v>=s).length||1);});
+  return best||2;
+}
+function stars(n){return "★".repeat(n)+"☆".repeat(3-n);}
 const LANGS = {ja:"日本語",en:"English",layerx:"LayerX"};
 const TAB_MARKS = {ja:"あ",en:"A",layerx:"L"};
 const OLD_LAYERX_KEY = "layerx-radar-state-v1";
 
 function loadLocalState(){
-  try{const l=localStorage.getItem(LANG_KEY);if(LANGS[l])state.lang=l;}catch(e){}
+  try{const l=localStorage.getItem(LANG_KEY);if(LANGS[l])state.lang=l;const r=+localStorage.getItem(RATING_KEY);if(r>=1&&r<=3)state.rating=r;}catch(e){}
   try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");state.read=new Set(s.read||[]);state.saved=new Set(s.saved||[]);state.notes=s.notes||{};state.manual=Array.isArray(s.manual)?s.manual:[];}catch(e){}
   migrateLayerxState();
 }
@@ -73,6 +87,8 @@ function getFiltered(){
   if(state.status==="unread")items=items.filter(i=>!state.read.has(i.id));
   if(state.status==="saved")items=items.filter(i=>state.saved.has(i.id));
   if(state.status==="notes")items=items.filter(i=>state.notes[i.id]);
+  state.ratingBase=items;
+  if(state.rating>1)items=items.filter(i=>ratingOf(i)>=state.rating);
   if(type)items=items.filter(i=>i.sourceType===type);
   if(q)items=items.filter(i=>[i.title,i.description,i.author,sourceName(i.sourceId),...(i.tags||[])].join(" ").toLowerCase().includes(q));
   // いつも新しい順
@@ -82,7 +98,7 @@ function itemActions(i){const read=state.read.has(i.id),saved=state.saved.has(i.
 function srcOf(i){return SRC[i.sourceType]||SRC.external;}
 function dispTitle(i){return i.sourceType==="youtube"?(i.title||"").replace(/(\s*#[^\s#]+)+\s*$/,"")||i.title:i.title;}
 function srcPill(i){const s=srcOf(i);return `<span class="src-pill">${s.icon} ${esc(s.label)}</span>`;}
-function extraMeta(i){return `${i.likes?`<span class="like-mark" title="いいね数">♥ ${esc(i.likes)}</span>`:""}${i.bookmarks?`<span class="bm-mark" title="はてなブックマーク数">${esc(i.bookmarks)} users</span>`:""}<span class="src-name">${esc(sourceName(i.sourceId))}</span>`;}
+function extraMeta(i){const r=ratingOf(i);return `<span class="rating r${r}" title="評価 ★${r}">${stars(r)}</span>${i.likes?`<span class="like-mark" title="いいね数">♥ ${esc(i.likes)}</span>`:""}${i.bookmarks?`<span class="bm-mark" title="はてなブックマーク数">${esc(i.bookmarks)} users</span>`:""}<span class="src-name">${esc(sourceName(i.sourceId))}</span>`;}
 function thumb(i,cls){const s=srcOf(i);const ph=`<span class="ph-icon">${s.icon}</span><span class="ph-label">${esc(s.label)}</span>`;
   return `<a class="${cls}" href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}" tabindex="-1" aria-hidden="true">${i.thumbnailUrl?`<img src="${esc(i.thumbnailUrl)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-thumb>`:""}<span class="ph">${ph}</span>${i.sourceType==="youtube"?'<span class="play">▶</span>':""}</a>`;}
 function cleanDesc(i){return (i.description||"概要は未登録です。元のページを開いて内容を確認してください。").replace(/\s*▼?目次[\s\S]*$/,"").trim()||i.description;}
@@ -108,13 +124,17 @@ function renderTypeFilter(){
   const opts=TAGS.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join(""),mt=$("#manualTag").value;
   $("#manualTag").innerHTML='<option value="">テーマなし</option>'+opts;$("#manualTag").value=mt;
 }
+function renderRating(){
+  const base=state.ratingBase||[],n=k=>base.filter(i=>ratingOf(i)>=k).length;
+  $("#ratingSeg").innerHTML=[[1,"すべて"],[2,"★★ 以上"],[3,"★★★"]].map(([k,l])=>`<button data-rating="${k}" class="${state.rating===k?"active":""}">${l} <b>${n(k)}</b></button>`).join("");
+}
 function updateTabs(){
   $$("[data-lang]").forEach(b=>{const l=b.dataset.lang,n=allItems().filter(i=>langOf(i)===l&&!state.read.has(i.id)).length;b.classList.toggle("active",l===state.lang);b.setAttribute("aria-selected",l===state.lang);b.querySelector("b").textContent=n;b.title=`未読 ${n}件`;});
   $$("[data-status]").forEach(b=>b.classList.toggle("active",b.dataset.status===state.status));
 }
 function render(){
   updateTabs();renderThemeChips();renderTypeFilter();
-  const filtered=getFiltered(),unread=filtered.filter(i=>!state.read.has(i.id)).length;
+  const filtered=getFiltered(),unread=filtered.filter(i=>!state.read.has(i.id)).length;renderRating();
   $("#resultSummary").textContent=`${filtered.length}件${state.status==="all"?`（未読 ${unread}件）`:""} · 新しい順`;
   $("#feedList").innerHTML=filtered.slice(0,state.limit).map(renderFeedItem).join("");$("#emptyState").classList.toggle("hidden",filtered.length!==0);
   $("#moreBtn").classList.toggle("hidden",filtered.length<=state.limit);$("#moreBtn").textContent=`もっと見る（残り ${Math.max(0,filtered.length-state.limit)}件）`;
@@ -143,6 +163,8 @@ document.addEventListener("click",e=>{
   const langTab=e.target.closest("[data-lang]");if(langTab){setLang(langTab.dataset.lang);return;}
   const theme=e.target.closest("[data-theme]");if(theme){const t=theme.dataset.theme;update({theme:t===state.theme&&theme.classList.contains("feed-tag")?"":t});return;}
   const status=e.target.closest("[data-status]");if(status){update({status:status.dataset.status});return;}
+  const rating=e.target.closest("[data-rating]");if(rating){const r=+rating.dataset.rating;try{localStorage.setItem(RATING_KEY,r);}catch(err){}update({rating:r});return;}
+  if(e.target.closest("#ratingHelp")){alert("評価（★1〜3）は反応の数で決めています。\n"+RATING_RULES.map(r=>`・${r.label}：★2 は ${r.steps[1].toLocaleString()} 以上、★3 は ${r.steps[2].toLocaleString()} 以上`).join("\n")+"\n・数がない情報源（定評のあるニュースレター・LayerX など）は ★2");return;}
   const action=e.target.closest("[data-action]");if(action){const id=action.dataset.id,act=action.dataset.action;
     if(act==="save"){state.saved.has(id)?state.saved.delete(id):state.saved.add(id);persistState();render();showToast(state.saved.has(id)?"保存しました":"保存を外しました");}
     if(act==="read"){state.read.has(id)?state.read.delete(id):state.read.add(id);persistState();render();showToast(state.read.has(id)?"既読にしました":"未読に戻しました");}
