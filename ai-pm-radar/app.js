@@ -17,7 +17,7 @@ const DEFAULT_SOURCES = [
 // テーマは4つだけ（どのタブでも同じ並び・同じ位置）
 const TAGS = ["AI活用","FDE","PdM","EM"];
 const AI_TAG = "AI活用";
-const SRC = {community:{label:"国内コミュニティ",icon:"✎",open:"記事を読む"},bookmark:{label:"はてブ",icon:"B!",open:"記事を読む"},newsletter:{label:"ニュースレター",icon:"✉",open:"記事を読む"},youtube:{label:"YouTube",icon:"▶",open:"動画を見る"},blog:{label:"ブログ",icon:"✎",open:"記事を読む"},slides:{label:"スライド",icon:"▧",open:"スライドを見る"},external:{label:"手動追加",icon:"↗",open:"ページを開く"}};
+const SRC = {zenn:{label:"Zenn",icon:"Z",open:"記事を読む"},qiita:{label:"Qiita",icon:"Q",open:"記事を読む"},community:{label:"国内コミュニティ",icon:"✎",open:"記事を読む"},bookmark:{label:"はてブ",icon:"B!",open:"記事を読む"},newsletter:{label:"ニュースレター",icon:"✉",open:"記事を読む"},youtube:{label:"YouTube",icon:"▶",open:"動画を見る"},blog:{label:"ブログ",icon:"✎",open:"記事を読む"},slides:{label:"スライド",icon:"▧",open:"スライドを見る"},external:{label:"手動追加",icon:"↗",open:"ページを開く"}};
 const PAGE = 60;
 const state = {items:[],manual:[],meta:null,sources:DEFAULT_SOURCES,read:new Set(),saved:new Set(),notes:{},status:"all",theme:"",lang:"ja",limit:PAGE,editingNoteId:null,realData:false};
 const METHOD_LABELS={rss:"RSS/Atom",youtube:"YouTube公開フィード",auto:"フィード自動検出",manual:"手動"};
@@ -47,7 +47,7 @@ function esc(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt
 function formatDate(d){if(!d)return"日付不明";const date=new Date(d);if(Number.isNaN(date.getTime()))return"日付不明";return new Intl.DateTimeFormat("ja-JP",{year:"numeric",month:"short",day:"numeric"}).format(date);}
 function typeLabel(t){return({blog:"LayerX ブログ",slides:"Speaker Deck"})[t]||typeName(t);}
 function sourceName(id){return state.sources.find(s=>s.id===id)?.name||(id==="manual-entry"?"手動で追加":id)||"情報源不明";}
-function typeName(t){return({community:"国内コミュニティ",bookmark:"はてブで話題",newsletter:"海外ニュースレター",youtube:"動画・Podcast",blog:"ブログ",slides:"スライド",external:"手動で追加"})[t]||"その他";}
+function typeName(t){return({zenn:"Zenn",qiita:"Qiita",community:"国内コミュニティ",bookmark:"はてブで話題",newsletter:"海外ニュースレター",youtube:"動画・Podcast",blog:"ブログ",slides:"スライド",external:"手動で追加"})[t]||"その他";}
 function allItems(){const off=new Set(state.sources.filter(s=>s.enabled===false).map(s=>s.id));return [...state.manual,...(state.items.length?state.items:FALLBACK_ITEMS).filter(i=>!off.has(i.sourceId))];}
 function langOf(i){return i.tab||i.lang||"ja";}
 // 日本語・英語・LayerX は混ぜずにタブで分けて扱う
@@ -82,7 +82,7 @@ function itemActions(i){const read=state.read.has(i.id),saved=state.saved.has(i.
 function srcOf(i){return SRC[i.sourceType]||SRC.external;}
 function dispTitle(i){return i.sourceType==="youtube"?(i.title||"").replace(/(\s*#[^\s#]+)+\s*$/,"")||i.title:i.title;}
 function srcPill(i){const s=srcOf(i);return `<span class="src-pill">${s.icon} ${esc(s.label)}</span>`;}
-function extraMeta(i){return `${i.bookmarks?`<span class="bm-mark" title="はてなブックマーク数">${esc(i.bookmarks)} users</span>`:""}<span class="src-name">${esc(sourceName(i.sourceId))}</span>`;}
+function extraMeta(i){return `${i.likes?`<span class="like-mark" title="いいね数">♥ ${esc(i.likes)}</span>`:""}${i.bookmarks?`<span class="bm-mark" title="はてなブックマーク数">${esc(i.bookmarks)} users</span>`:""}<span class="src-name">${esc(sourceName(i.sourceId))}</span>`;}
 function thumb(i,cls){const s=srcOf(i);const ph=`<span class="ph-icon">${s.icon}</span><span class="ph-label">${esc(s.label)}</span>`;
   return `<a class="${cls}" href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}" tabindex="-1" aria-hidden="true">${i.thumbnailUrl?`<img src="${esc(i.thumbnailUrl)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-thumb>`:""}<span class="ph">${ph}</span>${i.sourceType==="youtube"?'<span class="play">▶</span>':""}</a>`;}
 function cleanDesc(i){return (i.description||"概要は未登録です。元のページを開いて内容を確認してください。").replace(/\s*▼?目次[\s\S]*$/,"").trim()||i.description;}
@@ -102,7 +102,7 @@ function renderThemeChips(){
   $("#themeChips .active")?.scrollIntoView({block:"nearest",inline:"nearest"});
 }
 function renderTypeFilter(){
-  const items=langItems(),types=["community","bookmark","newsletter","blog","slides","youtube","external"].filter(t=>items.some(i=>i.sourceType===t));
+  const items=langItems(),types=["zenn","qiita","community","bookmark","newsletter","blog","slides","youtube","external"].filter(t=>items.some(i=>i.sourceType===t));
   const cur=types.includes($("#typeFilter").value)?$("#typeFilter").value:"";
   $("#typeFilter").innerHTML='<option value="">すべての媒体</option>'+types.map(t=>`<option value="${t}">${SRC[t].icon} ${esc(typeLabel(t))}</option>`).join("");$("#typeFilter").value=cur;
   const opts=TAGS.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join(""),mt=$("#manualTag").value;

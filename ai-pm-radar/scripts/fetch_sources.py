@@ -9,6 +9,8 @@ Supported fetchMethod values (all keyless):
              channelId is resolved automatically from a known video
              (resolveFromVideo) or channel page (resolveFromUrl) and saved.
   auto     : fetch the page at url and use its <link rel="alternate"> feed.
+  zenn     : Zenn's public article API for a topic (topic), with like counts.
+  qiita    : Qiita API v2 search for a tag (tag), with like counts (60 requests/hour without a token).
   manual   : not collected.
 
 Optional per-source fields:
@@ -16,6 +18,8 @@ Optional per-source fields:
   tab          : which tab of the app shows the items (default: lang; "layerx" for the LayerX tab)
   requireTag   : keep only entries that match one of the four themes (default true)
   minBookmarks : keep only Hatena Bookmark entries with at least this many users
+  minLikes     : keep only Zenn / Qiita articles with at least this many likes
+  baseTags     : themes always given to the source's items (e.g. a Zenn topic "pdm" -> ["PdM"])
   mustContain  : keep only entries whose title/summary contains one of these words
   excludeTitle : skip entries whose title contains one of these words (news roundups etc.)
   maxAgeDays   : skip (and drop stored) entries older than this (default 180)
@@ -146,6 +150,10 @@ def estimate_tags(title: str, body: str) -> list[str]:
     title, text = title.lower(), f"{title} {body}".lower()
     return [name for name, words in TAG_RULES.items()
             if keyword_hits(title if name in TITLE_ONLY_TAGS else text, words)][:4]
+
+
+def with_base(tags: list[str], base: list[str]) -> list[str]:
+    return [t for t in TAG_RULES if t in tags or t in base]
 
 
 def http_get(url: str) -> requests.Response:
@@ -319,9 +327,63 @@ def is_too_old(published: str | None, max_age_days: int) -> bool:
     return age.days > max_age_days
 
 
+def iso_date(value: str | None) -> str | None:
+    try:
+        return datetime.fromisoformat((value or "").replace("Z", "+00:00")).astimezone(timezone.utc).isoformat(timespec="seconds")
+    except ValueError:
+        return None
+
+
+def zenn_entries(source: dict) -> list[dict]:
+    """Zenn has no likes in its RSS, so read the public JSON the site itself uses."""
+    data = http_get(f"https://zenn.dev/api/articles?topicname={source['topic']}&order=latest").json()
+    entries = []
+    for a in data.get("articles", []):
+        user = a.get("user") or {}
+        entries.append({
+            "link": "https://zenn.dev" + a["path"] if a.get("path") else f"https://zenn.dev/{user.get('username')}/articles/{a.get('slug')}",
+            "title": a.get("title", ""),
+            "summary": "",
+            "publishedApprox": iso_date(a.get("published_at")),
+            "author": user.get("name") or user.get("username") or "",
+            "likes": a.get("liked_count") or 0,
+        })
+    return entries
+
+
+def qiita_entries(source: dict) -> list[dict]:
+    """Qiita API v2 (no token: 60 requests/hour, enough for a daily run)."""
+    query = f"tag:{source['tag']}"
+    if source.get("minLikes"):
+        query += f" likes:>={int(source['minLikes'])}"
+    res = requests.get("https://qiita.com/api/v2/items", params={"query": query, "per_page": 50, "page": 1},
+                       headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT)
+    res.raise_for_status()
+    entries = []
+    for a in res.json():
+        user = a.get("user") or {}
+        body = re.sub(r"```.*?```", " ", a.get("body") or "", flags=re.S)
+        body = re.sub(r"[#>*`|\[\]()!-]+", " ", body)
+        entries.append({
+            "link": a.get("url", ""),
+            "title": a.get("title", ""),
+            "summary": re.sub(r"\s+", " ", body).strip()[:400],
+            "publishedApprox": iso_date(a.get("created_at")),
+            "author": user.get("name") or user.get("id") or "",
+            "likes": a.get("likes_count") or 0,
+            "tags": [{"term": t.get("name", "")} for t in a.get("tags") or []],
+        })
+    return entries
+
+
 def collect(source: dict, items: dict[str, dict], now: str, active: set[str]) -> int:
-    if source.get("fetchMethod") == "youtube":
+    method = source.get("fetchMethod")
+    if method == "youtube":
         entries = youtube_entries(source)
+    elif method == "zenn":
+        entries = zenn_entries(source)
+    elif method == "qiita":
+        entries = qiita_entries(source)
     else:
         entries = parse_feed(feed_url_for(source))
     keywords = [k.lower() for k in source.get("mustContain", [])]
@@ -329,6 +391,8 @@ def collect(source: dict, items: dict[str, dict], now: str, active: set[str]) ->
     max_age = int(source.get("maxAgeDays") or DEFAULT_MAX_AGE_DAYS)
     require_tag = source.get("requireTag", True)
     min_bookmarks = int(source.get("minBookmarks") or 0)
+    min_likes = int(source.get("minLikes") or 0)
+    base_tags = source.get("baseTags") or []
     count = 0
     for entry in entries:
         link = canonical_url(entry.get("link", ""))
@@ -348,6 +412,9 @@ def collect(source: dict, items: dict[str, dict], now: str, active: set[str]) ->
         bookmarks = entry.get("hatena_bookmarkcount")
         if min_bookmarks and int(bookmarks or 0) < min_bookmarks:
             continue
+        likes = entry.get("likes")
+        if min_likes and int(likes or 0) < min_likes:
+            continue
         # The same article can come from several sources (e.g. Zenn and Hatena Bookmark;
         # LayerX sources are listed first in sources.json so their articles stay in the LayerX tab):
         # keep the first source and only refresh the bookmark count.
@@ -358,7 +425,7 @@ def collect(source: dict, items: dict[str, dict], now: str, active: set[str]) ->
             continue
         text = f"{title} {summary} {' '.join(t.get('term', '') for t in entry.get('tags') or [])}"
         estimated = previous.get("tagsEstimated", True)
-        tags = estimate_tags(title, text) if estimated else previous.get("tags", [])
+        tags = with_base(estimate_tags(title, text), base_tags) if estimated else previous.get("tags", [])
         if require_tag and not tags:
             items.pop(item_id, None)
             continue
@@ -381,6 +448,8 @@ def collect(source: dict, items: dict[str, dict], now: str, active: set[str]) ->
         }
         if bookmarks or previous.get("bookmarks"):
             items[item_id]["bookmarks"] = int(bookmarks or previous.get("bookmarks"))
+        if likes is not None:
+            items[item_id]["likes"] = int(likes)
         count += 1
     return count
 
@@ -399,7 +468,7 @@ def prune(items: dict[str, dict], sources: dict[str, dict]) -> dict[str, dict]:
     for item_id, item in items.items():
         source = sources.get(item.get("sourceId"), {})
         if item.get("tagsEstimated", True):
-            item["tags"] = estimate_tags(item.get("title", ""), item.get("description", ""))
+            item["tags"] = with_base(estimate_tags(item.get("title", ""), item.get("description", "")), source.get("baseTags") or [])
         if any(k.lower() in item.get("title", "").lower() for k in source.get("excludeTitle", [])):
             continue
         if source.get("requireTag", True) and not item["tags"]:

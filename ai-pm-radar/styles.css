@@ -138,3 +138,8 @@
   .feed-actions .icon-action{width:32px;height:32px}
   .list-bar{flex-wrap:nowrap}.list-bar select{flex:1;min-width:0;max-width:none}
 }
+/* Zenn・Qiita */
+:root{--c-zenn:#3ea8ff;--c-qiita:#55c500}
+.src-zenn{--src:var(--c-zenn);--src-soft:#e6f3ff}.src-qiita{--src:var(--c-qiita);--src-soft:#ebf8e1}
+.dot-zenn{background:var(--c-zenn)}.dot-qiita{background:var(--c-qiita)}
+.like-mark{font-size:10px;font-weight:800;color:#d6456b;background:#fdecf1;border-radius:4px;padding:1px 6px}

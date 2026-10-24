@@ -57,6 +57,156 @@
     "requireTag": false
   },
   {
+    "id": "zenn-pdm",
+    "name": "Zenn トピック「PdM」",
+    "type": "zenn",
+    "url": "https://zenn.dev/topics/pdm",
+    "lang": "ja",
+    "enabled": true,
+    "fetchMethod": "zenn",
+    "topic": "pdm",
+    "minLikes": 15,
+    "baseTags": [
+      "PdM"
+    ],
+    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。"
+  },
+  {
+    "id": "zenn-productmanagement",
+    "name": "Zenn トピック「プロダクトマネジメント」",
+    "type": "zenn",
+    "url": "https://zenn.dev/topics/productmanagement",
+    "lang": "ja",
+    "enabled": true,
+    "fetchMethod": "zenn",
+    "topic": "productmanagement",
+    "minLikes": 15,
+    "baseTags": [
+      "PdM"
+    ],
+    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。"
+  },
+  {
+    "id": "zenn-engineeringmanager",
+    "name": "Zenn トピック「エンジニアリングマネージャー」",
+    "type": "zenn",
+    "url": "https://zenn.dev/topics/engineeringmanager",
+    "lang": "ja",
+    "enabled": true,
+    "fetchMethod": "zenn",
+    "topic": "engineeringmanager",
+    "minLikes": 15,
+    "baseTags": [
+      "EM"
+    ],
+    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。"
+  },
+  {
+    "id": "zenn-em",
+    "name": "Zenn トピック「EM」",
+    "type": "zenn",
+    "url": "https://zenn.dev/topics/em",
+    "lang": "ja",
+    "enabled": true,
+    "fetchMethod": "zenn",
+    "topic": "em",
+    "minLikes": 15,
+    "baseTags": [
+      "EM"
+    ],
+    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。"
+  },
+  {
+    "id": "zenn-fde",
+    "name": "Zenn トピック「FDE」",
+    "type": "zenn",
+    "url": "https://zenn.dev/topics/fde",
+    "lang": "ja",
+    "enabled": true,
+    "fetchMethod": "zenn",
+    "topic": "fde",
+    "minLikes": 15,
+    "baseTags": [
+      "FDE"
+    ],
+    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。"
+  },
+  {
+    "id": "qiita-pdm",
+    "name": "Qiita タグ「PdM」",
+    "type": "qiita",
+    "url": "https://qiita.com/tags/PdM",
+    "lang": "ja",
+    "enabled": true,
+    "fetchMethod": "qiita",
+    "tag": "PdM",
+    "minLikes": 10,
+    "baseTags": [
+      "PdM"
+    ],
+    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。"
+  },
+  {
+    "id": "qiita-productmanagement",
+    "name": "Qiita タグ「プロダクトマネジメント」",
+    "type": "qiita",
+    "url": "https://qiita.com/tags/%E3%83%97%E3%83%AD%E3%83%80%E3%82%AF%E3%83%88%E3%83%9E%E3%83%8D%E3%82%B8%E3%83%A1%E3%83%B3%E3%83%88",
+    "lang": "ja",
+    "enabled": true,
+    "fetchMethod": "qiita",
+    "tag": "プロダクトマネジメント",
+    "minLikes": 10,
+    "baseTags": [
+      "PdM"
+    ],
+    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。"
+  },
+  {
+    "id": "qiita-em",
+    "name": "Qiita タグ「エンジニアリングマネージャー」",
+    "type": "qiita",
+    "url": "https://qiita.com/tags/%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%83%AA%E3%83%B3%E3%82%B0%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC",
+    "lang": "ja",
+    "enabled": true,
+    "fetchMethod": "qiita",
+    "tag": "エンジニアリングマネージャー",
+    "minLikes": 10,
+    "baseTags": [
+      "EM"
+    ],
+    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。"
+  },
+  {
+    "id": "qiita-em2",
+    "name": "Qiita タグ「EM」",
+    "type": "qiita",
+    "url": "https://qiita.com/tags/EM",
+    "lang": "ja",
+    "enabled": true,
+    "fetchMethod": "qiita",
+    "tag": "EM",
+    "minLikes": 10,
+    "baseTags": [
+      "EM"
+    ],
+    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。"
+  },
+  {
+    "id": "qiita-fde",
+    "name": "Qiita タグ「FDE」",
+    "type": "qiita",
+    "url": "https://qiita.com/tags/FDE",
+    "lang": "ja",
+    "enabled": true,
+    "fetchMethod": "qiita",
+    "tag": "FDE",
+    "minLikes": 10,
+    "baseTags": [
+      "FDE"
+    ],
+    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。"
+  },
+  {
     "id": "hatena-pdm",
     "name": "はてブ「プロダクトマネージャー」",
     "type": "bookmark",
