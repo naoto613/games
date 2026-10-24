@@ -19,8 +19,8 @@ AI活用・FDE（Forward Deployed Engineer）・PdM・EM の4テーマに絞っ�
 | 日本語 | Zenn トピック（pdm・productmanagement・engineeringmanager・em・fde。公開API）、Qiita タグ（PdM・プロダクトマネジメント・エンジニアリングマネージャー・EM・FDE。API v2） | いいね数で足切り（`minLikes`：Zenn 10、Qiita 5）。トピック／タグのテーマは必ず付く（`baseTags`） |
 | 日本語 | はてなブックマーク検索 RSS（プロダクトマネージャー・エンジニアリングマネージャー・Forward Deployed Engineer・FDE エンジニア・生成AI プロダクト開発） | 一定数以上ブックマークされた記事だけ（`minBookmarks`：PdM・EM 30、FDE 10、AI 50） |
 | English | Lenny's Newsletter、The Pragmatic Engineer、SVPG、Product Talk、Irrational Exuberance、Engineering Leadership | 4テーマに当たる記事だけ。ニュースまとめ（The Pulse・Community Wisdom）は除外（`excludeTitle`） |
-| 日本語（動画） | YouTube：プロダクトマネージャーカンファレンス・EM Conf JP・Forkwell・Findy | 4テーマに当たり、再生300回以上（`minViews`） |
-| English（動画） | YouTube：Lenny's Podcast・The Pragmatic Engineer・Product School・LeadDev | 4テーマに当たり、再生数で足切り（500〜5,000回）。日本語の自動吹き替えタイトルは除外（`titleLang: en`） |
+| 日本語（動画） | YouTube：プロダクトマネージャーカンファレンス・EM Conf JP | 4テーマに当たり、再生300回以上（`minViews`）。講演なので1年分 |
+| English（動画） | YouTube：Lenny's Podcast・The Pragmatic Engineer | 4テーマに当たり、再生数で足切り（3,000〜5,000回）。日本語の自動吹き替えタイトルは除外（`titleLang: en`） |
 | LayerX | LayerX エンジニアブログ・YouTube・Speaker Deck | 全件（テーマ推定だけする） |
 
 - テーマはタイトル・概要のキーワードからの推定で、収集のたびに今のルールで付け直します。「AI活用」はどこにでも出てくるので、タイトルに AI の語があるときだけ付けます。

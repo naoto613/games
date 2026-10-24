@@ -240,6 +240,15 @@ def text_of(node) -> str:
     return "".join(r.get("text", "") for r in node.get("runs", []))
 
 
+def parse_views(text: str) -> int | None:
+    """'1.2万 回視聴' / '3,456 views' / '1.2K views' -> int."""
+    m = re.search(r"([\d.,]+)\s*(万|億|[kKmM])?", text or "")
+    if not m:
+        return None
+    n = float(m.group(1).replace(",", ""))
+    return int(n * {"万": 10_000, "億": 100_000_000, "k": 1_000, "K": 1_000, "m": 1_000_000, "M": 1_000_000}.get(m.group(2), 1))
+
+
 def scrape_youtube_videos(source: dict, cid: str) -> list[dict]:
     """Last resort without a key: read videos from ytInitialData on the channel's videos page."""
     html = http_get(f"https://www.youtube.com/channel/{cid}/videos?hl=ja&gl=JP").text
@@ -253,11 +262,12 @@ def scrape_youtube_videos(source: dict, cid: str) -> list[dict]:
     for node in walk(data):
         if "channelMetadataRenderer" in node:
             source["channelName"] = node["channelMetadataRenderer"].get("title")
-        vid = title = when = desc = None
+        vid = title = when = desc = views = None
         if "videoRenderer" in node:
             r = node["videoRenderer"]
             vid, title = r.get("videoId"), text_of(r.get("title"))
             when, desc = text_of(r.get("publishedTimeText")), text_of(r.get("descriptionSnippet"))
+            views = parse_views(text_of(r.get("viewCountText")))
         elif "lockupViewModel" in node:
             r = node["lockupViewModel"]
             if "VIDEO" not in str(r.get("contentType", "VIDEO")):
@@ -267,6 +277,7 @@ def scrape_youtube_videos(source: dict, cid: str) -> list[dict]:
             title = text_of(meta.get("title"))
             rows = [text_of(p.get("text")) for n in walk(meta.get("metadata")) for p in n.get("metadataParts", [])]
             when = next((t for t in rows if "前" in t or "ago" in t), None)
+            views = next((parse_views(t) for t in rows if "視聴" in t or "view" in t), None)
         if not vid or not title or vid in seen or not re.fullmatch(r"[\w-]{11}", vid):
             continue
         seen.add(vid)
@@ -276,6 +287,7 @@ def scrape_youtube_videos(source: dict, cid: str) -> list[dict]:
             "summary": desc or "",
             "publishedApprox": approx_date(when, now) if when else None,
             "media_thumbnail": [{"url": f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg"}],
+            "media_statistics": {"views": views} if views is not None else {},
         })
     if not entries:
         raise RuntimeError(f"no videos found on the channel page (channel={source.get('channelName') or '-'})")

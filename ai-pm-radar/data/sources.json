@@ -337,7 +337,7 @@
     "channelId": "UCfXvPweaLEOrnHxi-fGe7tw",
     "resolveFromUrl": "https://www.youtube.com/@pmconf",
     "minViews": 300,
-    "notes": "PdM。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生300回以上の動画だけ残す。",
+    "notes": "PdM。 YouTube公開チャンネルフィード（最新15本・キー不要）。カンファレンス講演なので1年分。4テーマに当たり、再生300回以上の動画だけ残す。",
     "baseTags": [
       "PdM"
     ],
@@ -345,7 +345,8 @@
     "via": "feed",
     "lastSuccessAt": "2026-10-24T02:46:13+00:00",
     "lastError": null,
-    "lastCount": 0
+    "lastCount": 0,
+    "maxAgeDays": 365
   },
   {
     "id": "yt-emconf",
@@ -358,7 +359,7 @@
     "channelId": "UCCdw8gWbfCn6oBziYtXjxaw",
     "resolveFromUrl": "https://www.youtube.com/@EMConfJP",
     "minViews": 300,
-    "notes": "EM。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生300回以上の動画だけ残す。",
+    "notes": "EM。 YouTube公開チャンネルフィード（最新15本・キー不要）。カンファレンス講演なので1年分。4テーマに当たり、再生300回以上の動画だけ残す。",
     "baseTags": [
       "EM"
     ],
@@ -367,37 +368,8 @@
     "via": "channel page",
     "lastSuccessAt": "2026-10-24T02:46:13+00:00",
     "lastError": null,
-    "lastCount": 0
-  },
-  {
-    "id": "yt-forkwell",
-    "name": "Forkwell",
-    "type": "youtube",
-    "url": "https://www.youtube.com/@forkwell",
-    "lang": "ja",
-    "enabled": true,
-    "fetchMethod": "youtube",
-    "channelId": "",
-    "resolveFromUrl": "https://www.youtube.com/@forkwell",
-    "minViews": 300,
-    "notes": "EM・組織の勉強会アーカイブ。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生300回以上の動画だけ残す。",
-    "lastFetchedAt": "2026-10-24T02:46:13+00:00",
-    "lastError": "YouTube channelId could not be resolved (set channelId in sources.json)"
-  },
-  {
-    "id": "yt-findy",
-    "name": "Findy",
-    "type": "youtube",
-    "url": "https://www.youtube.com/@FindyInc",
-    "lang": "ja",
-    "enabled": true,
-    "fetchMethod": "youtube",
-    "channelId": "",
-    "resolveFromUrl": "https://www.youtube.com/@FindyInc",
-    "minViews": 300,
-    "notes": "EM・開発組織のイベントアーカイブ。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生300回以上の動画だけ残す。",
-    "lastFetchedAt": "2026-10-24T02:46:13+00:00",
-    "lastError": "YouTube channelId could not be resolved (set channelId in sources.json)"
+    "lastCount": 0,
+    "maxAgeDays": 365
   },
   {
     "id": "lenny",
@@ -534,45 +506,5 @@
     "lastSuccessAt": "2026-10-24T02:46:13+00:00",
     "lastError": null,
     "lastCount": 1
-  },
-  {
-    "id": "yt-productschool",
-    "name": "Product School",
-    "type": "youtube",
-    "url": "https://www.youtube.com/channel/UCenQCdOLHgTWv7muEyk6ejw",
-    "lang": "en",
-    "enabled": true,
-    "fetchMethod": "youtube",
-    "channelId": "UCenQCdOLHgTWv7muEyk6ejw",
-    "resolveFromUrl": "https://www.youtube.com/@ProductSchool",
-    "minViews": 1000,
-    "titleLang": "en",
-    "notes": "PdM。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生1,000回以上の動画だけ残す。",
-    "lastFetchedAt": "2026-10-24T02:46:13+00:00",
-    "channelName": "Werner Müller",
-    "via": "channel page",
-    "lastSuccessAt": "2026-10-24T02:46:13+00:00",
-    "lastError": null,
-    "lastCount": 0
-  },
-  {
-    "id": "yt-leaddev",
-    "name": "LeadDev",
-    "type": "youtube",
-    "url": "https://www.youtube.com/channel/UCmM3eCpmWKLJj2PDW_jdGkg",
-    "lang": "en",
-    "enabled": true,
-    "fetchMethod": "youtube",
-    "channelId": "UCmM3eCpmWKLJj2PDW_jdGkg",
-    "resolveFromUrl": "https://www.youtube.com/@LeadDev",
-    "minViews": 500,
-    "titleLang": "en",
-    "notes": "EM。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生500回以上の動画だけ残す。",
-    "lastFetchedAt": "2026-10-24T02:46:13+00:00",
-    "channelName": "LeadDev",
-    "via": "channel page",
-    "lastSuccessAt": "2026-10-24T02:46:13+00:00",
-    "lastError": null,
-    "lastCount": 10
   }
 ]
