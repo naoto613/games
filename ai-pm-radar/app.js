@@ -1,12 +1,12 @@
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
 const FALLBACK_ITEMS = [
-  {id:"demo-ai-pm",title:"生成AI時代のPdMの役割 ── 仕様を書く人から「何を作らないか」を決める人へ",url:"https://zenn.dev/topics/pdm",sourceId:"zenn-pdm",sourceType:"community",lang:"ja",publishedAt:"2026-10-15T09:00:00+09:00",description:"AIエージェントと協働するプロダクトマネジメントの実践を探すためのサンプルカードです。実際の記事データではありません。",tags:["AI活用","プロダクトマネジメント"],learningTypes:["考え方・フレームワーク"],isDemo:true},
-  {id:"demo-ai-em",title:"Engineering managers in the age of coding agents",url:"https://newsletter.pragmaticengineer.com/",sourceId:"pragmatic-engineer",sourceType:"newsletter",lang:"en",publishedAt:"2026-10-12T09:00:00+09:00",description:"AIツールがEMの仕事・チーム構成・評価に与える影響を整理するためのサンプルです。リンク先はニュースレターのトップです。",tags:["AI活用","エンジニアリングマネジメント","組織づくり"],learningTypes:["トレンド・調査"],isDemo:true},
-  {id:"demo-ai-discovery",title:"AIでユーザーインタビューの分析を回す ── 継続的ディスカバリーの実践",url:"https://www.producttalk.org/",sourceId:"product-talk",sourceType:"newsletter",lang:"en",publishedAt:"2026-10-08T09:00:00+09:00",description:"ディスカバリーとAI活用が重なる情報を表示するためのサンプルです。",tags:["AI活用","ディスカバリー・UX","プロダクト開発"],learningTypes:["実践事例"],isDemo:true},
-  {id:"demo-org",title:"小さなチームを保ったまま組織を大きくする ── チームトポロジーの実践",url:"https://b.hatena.ne.jp/",sourceId:"hatena-org",sourceType:"bookmark",lang:"ja",publishedAt:"2026-10-02T09:00:00+09:00",description:"組織づくりの知見を探す際のサンプルカードです。",tags:["組織づくり","エンジニアリングマネジメント"],learningTypes:["組織・プロセス"],bookmarks:240,isDemo:true},
-  {id:"demo-podcast",title:"How AI is changing the PM role | Lenny's Podcast",url:"https://www.youtube.com/@LennysPodcast",sourceId:"lenny-youtube",sourceType:"youtube",lang:"en",publishedAt:"2026-09-28T09:00:00+09:00",description:"動画・Podcastを表示するためのサンプルです。",tags:["AI活用","プロダクトマネジメント","採用・育成・キャリア"],learningTypes:["インタビュー・対談"],isDemo:true},
-  {id:"demo-1on1",title:"1on1を仕組みにする ── EMが最初の90日でやったこと",url:"https://qiita.com/tags/%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%83%AA%E3%83%B3%E3%82%B0%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC",sourceId:"qiita-em",sourceType:"community",lang:"ja",publishedAt:"2026-09-20T09:00:00+09:00",description:"EM・リーダーシップの情報を整理するためのサンプルです。",tags:["エンジニアリングマネジメント","採用・育成・キャリア"],learningTypes:["実践事例"],isDemo:true}
+  {id:"demo-ai-pm",title:"生成AI時代のPdMの役割 ── 仕様を書く人から「何を作らないか」を決める人へ",url:"https://zenn.dev/topics/pdm",sourceId:"zenn-pdm",sourceType:"community",lang:"ja",publishedAt:"2026-10-15T09:00:00+09:00",description:"AIエージェントと協働するプロダクトマネジメントの実践を探すためのサンプルカードです。実際の記事データではありません。",tags:["AI活用","PdM"],learningTypes:["考え方・フレームワーク"],isDemo:true},
+  {id:"demo-ai-em",title:"Engineering managers in the age of coding agents",url:"https://newsletter.pragmaticengineer.com/",sourceId:"pragmatic-engineer",sourceType:"newsletter",lang:"en",publishedAt:"2026-10-12T09:00:00+09:00",description:"AIツールがEMの仕事・チーム構成・評価に与える影響を整理するためのサンプルです。リンク先はニュースレターのトップです。",tags:["AI活用","EM"],learningTypes:["トレンド・調査"],isDemo:true},
+  {id:"demo-ai-discovery",title:"AIでユーザーインタビューの分析を回す ── 継続的ディスカバリーの実践",url:"https://www.producttalk.org/",sourceId:"product-talk",sourceType:"newsletter",lang:"en",publishedAt:"2026-10-08T09:00:00+09:00",description:"ディスカバリーとAI活用が重なる情報を表示するためのサンプルです。",tags:["AI活用"],learningTypes:["実践事例"],isDemo:true},
+  {id:"demo-org",title:"小さなチームを保ったまま組織を大きくする ── チームトポロジーの実践",url:"https://b.hatena.ne.jp/",sourceId:"hatena-org",sourceType:"bookmark",lang:"ja",publishedAt:"2026-10-02T09:00:00+09:00",description:"組織づくりの知見を探す際のサンプルカードです。",tags:["EM"],learningTypes:["組織・プロセス"],bookmarks:240,isDemo:true},
+  {id:"demo-podcast",title:"How AI is changing the PM role | Lenny's Podcast",url:"https://www.youtube.com/@LennysPodcast",sourceId:"lenny-youtube",sourceType:"youtube",lang:"en",publishedAt:"2026-09-28T09:00:00+09:00",description:"動画・Podcastを表示するためのサンプルです。",tags:["AI活用","PdM"],learningTypes:["インタビュー・対談"],isDemo:true},
+  {id:"demo-1on1",title:"1on1を仕組みにする ── EMが最初の90日でやったこと",url:"https://qiita.com/tags/%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%83%AA%E3%83%B3%E3%82%B0%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC",sourceId:"qiita-em",sourceType:"community",lang:"ja",publishedAt:"2026-09-20T09:00:00+09:00",description:"EM・リーダーシップの情報を整理するためのサンプルです。",tags:["EM"],learningTypes:["実践事例"],isDemo:true}
 ];
 const DEFAULT_SOURCES = [
   {id:"zenn-pdm",name:"Zenn トピック「PdM」",type:"community",url:"https://zenn.dev/topics/pdm",enabled:true,fetchMethod:"rss",lang:"ja"},
@@ -14,12 +14,9 @@ const DEFAULT_SOURCES = [
   {id:"lenny",name:"Lenny's Newsletter",type:"newsletter",url:"https://www.lennysnewsletter.com/",enabled:true,fetchMethod:"rss",lang:"en"},
   {id:"lenny-youtube",name:"Lenny's Podcast（YouTube）",type:"youtube",url:"https://www.youtube.com/@LennysPodcast",enabled:true,fetchMethod:"youtube",lang:"en"}
 ];
-const TAGS = ["AI活用","プロダクトマネジメント","エンジニアリングマネジメント","プロダクト開発","ディスカバリー・UX","組織づくり","採用・育成・キャリア","戦略・経営","開発生産性","データ・指標"];
-// LayerX タブ（旧 LayerX Radar）は技術寄りのテーマで分類する
-const TECH_TAGS = ["AI活用","アーキテクチャ","バックエンド","フロントエンド","Platform Engineering","SRE・インフラ","セキュリティ","品質・テスト","開発生産性","プロダクト開発","EM・組織設計","事業・技術戦略"];
-function themesFor(){return state.lang==="layerx"?TECH_TAGS:TAGS;}
+// テーマは4つだけ（どのタブでも同じ並び・同じ位置）
+const TAGS = ["AI活用","FDE","PdM","EM"];
 const AI_TAG = "AI活用";
-const THEME_LABELS = {"エンジニアリングマネジメント":"EM・リーダーシップ","ディスカバリー・UX":"ディスカバリー","採用・育成・キャリア":"採用・育成","Platform Engineering":"Platform"};
 const SRC = {community:{label:"国内コミュニティ",icon:"✎",open:"記事を読む"},bookmark:{label:"はてブ",icon:"B!",open:"記事を読む"},newsletter:{label:"ニュースレター",icon:"✉",open:"記事を読む"},youtube:{label:"YouTube",icon:"▶",open:"動画を見る"},blog:{label:"ブログ",icon:"✎",open:"記事を読む"},slides:{label:"スライド",icon:"▧",open:"スライドを見る"},external:{label:"手動追加",icon:"↗",open:"ページを開く"}};
 const PAGE = 60;
 const state = {items:[],manual:[],meta:null,sources:DEFAULT_SOURCES,read:new Set(),saved:new Set(),notes:{},status:"all",theme:"",lang:"ja",limit:PAGE,editingNoteId:null,realData:false};
@@ -89,7 +86,7 @@ function extraMeta(i){return `${i.bookmarks?`<span class="bm-mark" title="はて
 function thumb(i,cls){const s=srcOf(i);const ph=`<span class="ph-icon">${s.icon}</span><span class="ph-label">${esc(s.label)}</span>`;
   return `<a class="${cls}" href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}" tabindex="-1" aria-hidden="true">${i.thumbnailUrl?`<img src="${esc(i.thumbnailUrl)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-thumb>`:""}<span class="ph">${ph}</span>${i.sourceType==="youtube"?'<span class="play">▶</span>':""}</a>`;}
 function cleanDesc(i){return (i.description||"概要は未登録です。元のページを開いて内容を確認してください。").replace(/\s*▼?目次[\s\S]*$/,"").trim()||i.description;}
-function tagHtml(t,i){return `<button class="feed-tag ${t===AI_TAG?"ai":""} ${t===state.theme?"on":""}" data-theme="${esc(t)}"${i.tagsEstimated?' title="キーワードから自動推定したテーマ（タップでこのテーマに切り替え）"':""}>${t===AI_TAG?"✦ ":""}${esc(THEME_LABELS[t]||t)}</button>`;}
+function tagHtml(t,i){return `<button class="feed-tag ${t===AI_TAG?"ai":""} ${t===state.theme?"on":""}" data-theme="${esc(t)}"${i.tagsEstimated?' title="キーワードから自動推定したテーマ（タップでこのテーマに切り替え）"':""}>${t===AI_TAG?"✦ ":""}${esc(t)}</button>`;}
 function renderFeedItem(i){
   const read=state.read.has(i.id),tags=(i.tags||[]).slice(0,4);
   return `<article class="feed-item src-${esc(i.sourceType||"external")} ${read?"is-read":""}">${thumb(i,"feed-thumb")}<div class="feed-main"><div class="feed-meta">${srcPill(i)}<span>${esc(formatDate(i.publishedAt))}</span>${extraMeta(i)}${read?"":'<span class="unread-mark">● 未読</span>'}${i.isDemo?'<span class="tag">サンプル</span>':""}</div><a class="feed-title" href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}">${esc(dispTitle(i))}</a><p class="feed-desc clamp2">${esc(cleanDesc(i))}</p>${state.notes[i.id]?`<p class="note-preview clamp2">✎ ${esc(state.notes[i.id])}</p>`:""}<div class="feed-tags">${tags.map(t=>tagHtml(t,i)).join("")}</div></div><div class="feed-actions">${itemActions(i)}</div></article>`;
@@ -100,16 +97,15 @@ function renderTabs(){
 // テーマはタブの下に横並びのチップで。件数が0のテーマは出さない
 function renderThemeChips(){
   const items=langItems(),count=t=>items.filter(i=>(i.tags||[]).includes(t)).length;
-  const themes=themesFor().filter(t=>count(t));
-  if(state.theme&&!themes.includes(state.theme))state.theme="";
-  $("#themeChips").innerHTML=`<button class="theme-chip ${state.theme?"":"active"}" data-theme="">すべて <b>${items.length}</b></button>`+themes.map(t=>`<button class="theme-chip ${t===AI_TAG?"is-ai":""} ${t===state.theme?"active":""}" data-theme="${esc(t)}">${t===AI_TAG?"✦ ":""}${esc(THEME_LABELS[t]||t)} <b>${count(t)}</b></button>`).join("");
+  const themes=TAGS;
+  $("#themeChips").innerHTML=`<button class="theme-chip ${state.theme?"":"active"}" data-theme="">すべて <b>${items.length}</b></button>`+themes.map(t=>`<button class="theme-chip ${t===AI_TAG?"is-ai":""} ${t===state.theme?"active":""}" data-theme="${esc(t)}">${t===AI_TAG?"✦ ":""}${esc(t)} <b>${count(t)}</b></button>`).join("");
   $("#themeChips .active")?.scrollIntoView({block:"nearest",inline:"nearest"});
 }
 function renderTypeFilter(){
   const items=langItems(),types=["community","bookmark","newsletter","blog","slides","youtube","external"].filter(t=>items.some(i=>i.sourceType===t));
   const cur=types.includes($("#typeFilter").value)?$("#typeFilter").value:"";
   $("#typeFilter").innerHTML='<option value="">すべての媒体</option>'+types.map(t=>`<option value="${t}">${SRC[t].icon} ${esc(typeLabel(t))}</option>`).join("");$("#typeFilter").value=cur;
-  const opts=themesFor().map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join(""),mt=$("#manualTag").value;
+  const opts=TAGS.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join(""),mt=$("#manualTag").value;
   $("#manualTag").innerHTML='<option value="">テーマなし</option>'+opts;$("#manualTag").value=mt;
 }
 function updateTabs(){

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Collect public sources on AI-era product management, engineering management,
-product development and org building into data/items.json without any API key.
+"""Collect a small set of good public sources on four themes -- AI活用, FDE
+(Forward Deployed Engineer), PdM and EM -- into data/items.json without any API key.
 
 Supported fetchMethod values (all keyless):
   rss      : RSS/Atom feed at feedUrl (blog, Speaker Deck .atom, etc.)
@@ -14,12 +14,14 @@ Supported fetchMethod values (all keyless):
 Optional per-source fields:
   lang         : "ja" / "en" (stored on each item)
   tab          : which tab of the app shows the items (default: lang; "layerx" for the LayerX tab)
-  tagRules     : "tech" to estimate tags with the engineering rules (LayerX tab)
+  requireTag   : keep only entries that match one of the four themes (default true)
+  minBookmarks : keep only Hatena Bookmark entries with at least this many users
   mustContain  : keep only entries whose title/summary contains one of these words
-  maxAgeDays   : skip entries older than this (default 400)
+  excludeTitle : skip entries whose title contains one of these words (news roundups etc.)
+  maxAgeDays   : skip (and drop stored) entries older than this (default 180)
 
-Tags are estimated by simple keyword rules (no AI / no key), and items keep
-any tags already stored.
+Tags are estimated by simple keyword rules (no AI / no key) and re-estimated on
+every run; items with tagsEstimated: false keep their hand-written tags.
 """
 from __future__ import annotations
 
@@ -43,66 +45,28 @@ ITEMS_FILE = ROOT / "data" / "items.json"
 META_FILE = ROOT / "data" / "meta.json"
 USER_AGENT = "Mozilla/5.0 (compatible; AI-PM-Radar/1.0; personal public-source aggregator)"
 TIMEOUT = 25
-MAX_ITEMS = 1500
-DEFAULT_MAX_AGE_DAYS = 400
+MAX_ITEMS = 600
+DEFAULT_MAX_AGE_DAYS = 180
 
-# Keyword rules for estimated tags (Japanese + English). Lower-case matching.
+# The four themes of the app. Lower-case matching; ASCII words match as whole words.
 TAG_RULES = {
-    "AI活用": ["ai", "llm", "生成ai", "agent", "agents", "agentic", "エージェント", "gpt", "chatgpt", "claude", "gemini", "copilot",
-              "cursor", "rag", "プロンプト", "prompt", "mcp", "vibe coding", "バイブコーディング", "ai駆動", "ai-native", "aiネイティブ",
-              "machine learning", "機械学習", "openai", "anthropic", "evals"],
-    "プロダクトマネジメント": ["pdm", "pm", "pms", "product manager", "product managers", "product management", "プロダクトマネージャー",
-                        "プロダクトマネジメント", "ロードマップ", "roadmap", "prd", "優先順位", "prioritization", "product strategy",
-                        "プロダクト戦略", "pmf", "product-market fit", "product sense", "product leader"],
-    "エンジニアリングマネジメント": ["em", "ems", "エンジニアリングマネージャー", "エンジニアリングマネジメント", "engineering manager",
-                            "engineering managers", "engineering management", "engineering leader", "engineering leadership",
-                            "1on1", "1on1s", "one-on-one", "テックリード", "tech lead", "vpoe", "cto", "staff engineer",
-                            "マネージャー", "managers", "リーダーシップ", "leadership"],
-    "プロダクト開発": ["プロダクト開発", "product development", "開発プロセス", "アジャイル", "agile", "スクラム", "scrum", "リリース",
-                "shipping", "delivery", "mvp", "プロトタイプ", "prototype", "prototyping", "仕様", "spec", "機能開発", "building products"],
-    "ディスカバリー・UX": ["discovery", "ディスカバリー", "ユーザーインタビュー", "customer interview", "ux", "ユーザー体験", "仮説検証",
-                    "仮説", "experiment", "experimentation", "user research", "ユーザーリサーチ", "jobs to be done", "jtbd", "デザイン"],
-    "組織づくり": ["組織", "組織づくり", "組織開発", "org design", "organization", "organizational", "チーム", "チームづくり", "team topologies",
-              "チームトポロジー", "カルチャー", "culture", "文化", "心理的安全性", "psychological safety", "オンボーディング", "onboarding",
-              "reorg", "re-org"],
-    "採用・育成・キャリア": ["採用", "hiring", "recruiting", "育成", "評価", "performance review", "performance reviews", "キャリア", "career",
-                    "promotion", "昇進", "昇格", "メンタリング", "mentoring", "コーチング", "coaching", "layoffs", "interviewing", "ジュニア"],
-    "戦略・経営": ["戦略", "strategy", "経営", "ceo", "founder", "founders", "事業", "okr", "okrs", "kpi", "意思決定", "decision-making",
-              "スタートアップ", "startup", "startups", "pricing", "価格", "growth", "グロース", "business model"],
-    "開発生産性": ["生産性", "productivity", "devex", "developer experience", "開発者体験", "dora", "four keys", "自動化", "automation",
-              "効率化", "velocity", "リードタイム", "lead time"],
-    "データ・指標": ["データ", "data", "metrics", "指標", "analytics", "分析", "a/b", "ab test", "ab testing", "north star", "kpi", "計測"],
+    "AI活用": ["ai", "llm", "llms", "生成ai", "agent", "agents", "agentic", "aiエージェント", "エージェント", "chatgpt", "claude", "claude code",
+              "gemini", "copilot", "cursor", "rag", "プロンプト", "mcp", "vibe coding", "バイブコーディング", "ai駆動", "ai-native",
+              "aiネイティブ", "openai", "anthropic", "evals", "コーディングエージェント", "coding agent", "coding agents"],
+    "FDE": ["fde", "fdes", "forward deployed", "forward-deployed", "フォワードデプロイド", "フォワード・デプロイド", "フォワードデプロイ"],
+    "PdM": ["pdm", "pm", "pms", "product manager", "product managers", "product management", "product leader", "product leaders",
+            "プロダクトマネージャー", "プロダクトマネジメント", "プロダクトオーナー", "product owner", "product strategy", "プロダクト戦略",
+            "product discovery", "ディスカバリー", "product sense", "pmf", "product-market fit", "ロードマップ", "roadmap", "prd"],
+    "EM": ["em", "ems", "エンジニアリングマネージャー", "エンジニアリングマネジメント", "engineering manager", "engineering managers",
+           "engineering management", "engineering leader", "engineering leaders", "engineering leadership", "1on1", "1on1s",
+           "one-on-one", "one-on-ones", "vpoe", "テックリード", "tech lead", "エンジニア組織", "開発組織", "engineering org",
+           "engineering organization", "managing engineers", "manager of managers"],
 }
 LEARNING_RULES = {
     "実践事例": ["やってみた", "導入", "事例", "実践", "取り組み", "運用", "移行", "改善", "how we", "case study", "lessons", "learned"],
     "考え方・フレームワーク": ["フレームワーク", "framework", "考え方", "原則", "principles", "mental model", "playbook", "how to", "guide", "入門"],
     "インタビュー・対談": ["インタビュー", "interview", "対談", "podcast", "ポッドキャスト", "conversation", "ゲスト", "聞いた"],
-    "組織・プロセス": ["組織", "チーム", "プロセス", "process", "採用", "文化", "culture", "マネジメント", "management", "team"],
     "トレンド・調査": ["トレンド", "trend", "trends", "調査", "survey", "report", "レポート", "state of", "未来", "future", "予測"],
-}
-
-
-# Engineering rules for the LayerX tab (formerly LayerX Radar).
-TECH_TAG_RULES = {
-    "AI活用": ["ai", "llm", "agent", "エージェント", "生成ai", "gpt", "claude", "gemini", "rag", "プロンプト", "mcp", "機械学習", "ml"],
-    "アーキテクチャ": ["アーキテクチャ", "architecture", "設計", "ddd", "ドメイン", "マイクロサービス", "モノリス", "モジュラー"],
-    "バックエンド": ["go", "golang", "api", "mysql", "postgres", "データベース", "db", "sql", "バックエンド", "backend", "grpc", "rails", "python"],
-    "フロントエンド": ["react", "typescript", "フロントエンド", "frontend", "next.js", "css", "ui", "デザインシステム", "javascript"],
-    "Platform Engineering": ["platform", "プラットフォーム", "kubernetes", "k8s", "terraform", "ci/cd", "github actions", "基盤"],
-    "SRE・インフラ": ["sre", "aws", "gcp", "インフラ", "監視", "observability", "オブザーバビリティ", "障害", "信頼性", "ecs", "インシデント"],
-    "セキュリティ": ["セキュリティ", "security", "脆弱性", "認証", "認可", "privacy", "プライバシー", "コンプライアンス"],
-    "品質・テスト": ["テスト", "test", "qa", "品質", "e2e", "playwright"],
-    "開発生産性": ["生産性", "productivity", "開発体験", "devex", "dx", "自動化", "効率化", "ai駆動"],
-    "プロダクト開発": ["プロダクト", "product", "pdm", "バクラク", "機能開発", "リリース", "ux"],
-    "EM・組織設計": ["em", "組織", "マネジメント", "採用", "チーム", "1on1", "オンボーディング", "キャリア", "育休", "カルチャー"],
-    "事業・技術戦略": ["戦略", "経営", "cto", "ceo", "事業", "ロードマップ", "fintech", "bet"],
-}
-TECH_LEARNING_RULES = {
-    "実践事例": ["やってみた", "導入", "事例", "実践", "取り組み", "運用", "移行", "改善"],
-    "設計判断": ["設計", "選定", "トレードオフ", "なぜ", "判断", "比較"],
-    "組織・プロセス": ["組織", "チーム", "プロセス", "採用", "文化", "カルチャー", "マネジメント"],
-    "思想・戦略": ["戦略", "構想", "ビジョン", "未来", "時代", "考え方"],
-    "イベント・登壇": ["登壇", "イベント", "カンファレンス", "勉強会", "meetup", "live", "ウェビナー", "資料"],
 }
 
 
@@ -172,6 +136,16 @@ def keyword_hits(text: str, words: list[str]) -> bool:
 def estimate(text: str, rules: dict[str, list[str]], limit: int) -> list[str]:
     text = text.lower()
     return [name for name, words in rules.items() if keyword_hits(text, words)][:limit]
+
+
+# AI is mentioned almost everywhere now, so "AI活用" needs the AI word in the title itself.
+TITLE_ONLY_TAGS = {"AI活用"}
+
+
+def estimate_tags(title: str, body: str) -> list[str]:
+    title, text = title.lower(), f"{title} {body}".lower()
+    return [name for name, words in TAG_RULES.items()
+            if keyword_hits(title if name in TITLE_ONLY_TAGS else text, words)][:4]
 
 
 def http_get(url: str) -> requests.Response:
@@ -351,9 +325,10 @@ def collect(source: dict, items: dict[str, dict], now: str, active: set[str]) ->
     else:
         entries = parse_feed(feed_url_for(source))
     keywords = [k.lower() for k in source.get("mustContain", [])]
+    excluded = [k.lower() for k in source.get("excludeTitle", [])]
     max_age = int(source.get("maxAgeDays") or DEFAULT_MAX_AGE_DAYS)
-    tech = source.get("tagRules") == "tech"
-    tag_rules, learning_rules = (TECH_TAG_RULES, TECH_LEARNING_RULES) if tech else (TAG_RULES, LEARNING_RULES)
+    require_tag = source.get("requireTag", True)
+    min_bookmarks = int(source.get("minBookmarks") or 0)
     count = 0
     for entry in entries:
         link = canonical_url(entry.get("link", ""))
@@ -363,12 +338,16 @@ def collect(source: dict, items: dict[str, dict], now: str, active: set[str]) ->
         summary = clean_html(entry.get("summary", "") or entry.get("description", ""))
         if keywords and not any(k in (title + " " + summary).lower() for k in keywords):
             continue
+        if any(k in title.lower() for k in excluded):
+            continue
         published = entry_date(entry) or entry.get("publishedApprox")
         if is_too_old(published, max_age):
             continue
         item_id = stable_id(link)
         previous = items.get(item_id, {})
         bookmarks = entry.get("hatena_bookmarkcount")
+        if min_bookmarks and int(bookmarks or 0) < min_bookmarks:
+            continue
         # The same article can come from several sources (e.g. Zenn and Hatena Bookmark;
         # LayerX sources are listed first in sources.json so their articles stay in the LayerX tab):
         # keep the first source and only refresh the bookmark count.
@@ -378,6 +357,11 @@ def collect(source: dict, items: dict[str, dict], now: str, active: set[str]) ->
             count += 1
             continue
         text = f"{title} {summary} {' '.join(t.get('term', '') for t in entry.get('tags') or [])}"
+        estimated = previous.get("tagsEstimated", True)
+        tags = estimate_tags(title, text) if estimated else previous.get("tags", [])
+        if require_tag and not tags:
+            items.pop(item_id, None)
+            continue
         items[item_id] = {
             "id": item_id,
             "title": title,
@@ -390,9 +374,9 @@ def collect(source: dict, items: dict[str, dict], now: str, active: set[str]) ->
             "discoveredAt": previous.get("discoveredAt") or now,
             "description": summary[:400],
             "author": clean_html(entry.get("author", "")) or previous.get("author"),
-            "tags": previous.get("tags") or estimate(text, tag_rules, 4),
-            "learningTypes": previous.get("learningTypes") or estimate(text, learning_rules, 2),
-            "tagsEstimated": previous.get("tagsEstimated", True),
+            "tags": tags,
+            "learningTypes": estimate(text, LEARNING_RULES, 2),
+            "tagsEstimated": estimated,
             "thumbnailUrl": entry_thumbnail(entry) or previous.get("thumbnailUrl"),
         }
         if bookmarks or previous.get("bookmarks"):
@@ -407,6 +391,23 @@ def existing_items() -> dict[str, dict]:
         return {x["id"]: x for x in data if isinstance(x, dict) and x.get("id")}
     except (FileNotFoundError, json.JSONDecodeError):
         return {}
+
+
+def prune(items: dict[str, dict], sources: dict[str, dict]) -> dict[str, dict]:
+    """Re-estimate stored tags with the current rules and drop off-theme or old items."""
+    kept = {}
+    for item_id, item in items.items():
+        source = sources.get(item.get("sourceId"), {})
+        if item.get("tagsEstimated", True):
+            item["tags"] = estimate_tags(item.get("title", ""), item.get("description", ""))
+        if any(k.lower() in item.get("title", "").lower() for k in source.get("excludeTitle", [])):
+            continue
+        if source.get("requireTag", True) and not item["tags"]:
+            continue
+        if is_too_old(item.get("publishedAt"), int(source.get("maxAgeDays") or DEFAULT_MAX_AGE_DAYS)):
+            continue
+        kept[item_id] = item
+    return kept
 
 
 def main() -> int:
@@ -432,6 +433,7 @@ def main() -> int:
 
     # Drop items from sources that were removed or disabled.
     items = {k: v for k, v in items.items() if v.get("sourceId") in active}
+    items = prune(items, {s["id"]: s for s in sources})
     ordered = sorted(items.values(), key=lambda x: x.get("publishedAt") or "", reverse=True)[:MAX_ITEMS]
     ITEMS_FILE.write_text(json.dumps(ordered, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     SOURCES_FILE.write_text(json.dumps(sources, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

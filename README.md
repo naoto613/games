@@ -23,9 +23,9 @@
 ├── .nojekyll               # Jekyll 処理を無効化（ファイルをそのまま配信）
 ├── README.md
 ├── ai-pm-radar/
-│   ├── index.html          # AI PM Radar（AI を活用したプロダクトマネジメント・EM・プロダクト開発・組織づくりの公開情報を集める静的ダッシュボード。日本語／English／LayerX（旧 LayerX Radar：LayerX の公開技術情報）をタブで分けて表示し、その下のテーマチップで切り替え。一覧はいつも新しい順、既読・ブックマーク・学びのメモ・手動追加は localStorage）
+│   ├── index.html          # AI PM Radar（AI活用・FDE・PdM・EM の4テーマに絞って良質な公開情報を集める静的ダッシュボード。日本語／English／LayerX（旧 LayerX Radar：LayerX の公開技術情報）をタブで分けて表示し、その下の4つのテーマチップで切り替え。一覧はいつも新しい順、既読・ブックマーク・学びのメモ・手動追加は localStorage）
 │   ├── app.js / styles.css
-│   ├── data/               # items.json・sources.json（Zenn・Qiita・はてブ検索RSS・海外ニュースレター・YouTube・LayerX のブログ／YouTube／Speaker Deck）・meta.json
+│   ├── data/               # items.json・sources.json（はてブ検索RSS（ブックマーク数で足切り）・海外ニュースレター・LayerX のブログ／YouTube／Speaker Deck）・meta.json
 │   ├── scripts/fetch_sources.py  # APIキー不要の収集（RSS/Atom・YouTube 公開フィード。テーマは日英キーワードで推定）
 │   └── requirements.txt    # .github/workflows/ai-pm-radar-update.yml が毎朝6時すぎに実行して main へコミット
 ├── petapeta-craft/
