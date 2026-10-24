@@ -353,10 +353,8 @@ def zenn_entries(source: dict) -> list[dict]:
 
 def qiita_entries(source: dict) -> list[dict]:
     """Qiita API v2 (no token: 60 requests/hour, enough for a daily run)."""
-    query = f"tag:{source['tag']}"
-    if source.get("minLikes"):
-        query += f" likes:>={int(source['minLikes'])}"
-    res = requests.get("https://qiita.com/api/v2/items", params={"query": query, "per_page": 50, "page": 1},
+    # minLikes is applied after fetching (like counts on these tags are small, so search-side filters miss).
+    res = requests.get("https://qiita.com/api/v2/items", params={"query": f"tag:{source['tag']}", "per_page": 100, "page": 1},
                        headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT)
     res.raise_for_status()
     entries = []

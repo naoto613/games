@@ -16,7 +16,7 @@ AI活用・FDE（Forward Deployed Engineer）・PdM・EM の4テーマに絞っ�
 
 | タブ | 情報源 | 絞り方 |
 | --- | --- | --- |
-| 日本語 | Zenn トピック（pdm・productmanagement・engineeringmanager・em・fde。公開API）、Qiita タグ（PdM・プロダクトマネジメント・エンジニアリングマネージャー・EM・FDE。API v2） | いいね数で足切り（`minLikes`：Zenn 15、Qiita 10）。トピック／タグのテーマは必ず付く（`baseTags`） |
+| 日本語 | Zenn トピック（pdm・productmanagement・engineeringmanager・em・fde。公開API）、Qiita タグ（PdM・プロダクトマネジメント・エンジニアリングマネージャー・EM・FDE。API v2） | いいね数で足切り（`minLikes`：Zenn 10、Qiita 5）。トピック／タグのテーマは必ず付く（`baseTags`） |
 | 日本語 | はてなブックマーク検索 RSS（プロダクトマネージャー・エンジニアリングマネージャー・Forward Deployed Engineer・FDE エンジニア・生成AI プロダクト開発） | 一定数以上ブックマークされた記事だけ（`minBookmarks`：PdM・EM 30、FDE 10、AI 50） |
 | English | Lenny's Newsletter、The Pragmatic Engineer、SVPG、Product Talk、Irrational Exuberance、Engineering Leadership | 4テーマに当たる記事だけ。ニュースまとめ（The Pulse・Community Wisdom）は除外（`excludeTitle`） |
 | LayerX | LayerX エンジニアブログ・YouTube・Speaker Deck | 全件（テーマ推定だけする） |

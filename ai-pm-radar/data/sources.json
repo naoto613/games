@@ -65,11 +65,11 @@
     "enabled": true,
     "fetchMethod": "zenn",
     "topic": "pdm",
-    "minLikes": 15,
+    "minLikes": 10,
     "baseTags": [
       "PdM"
     ],
-    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。",
+    "notes": "Zennの公開API（キー不要）。いいね10以上だけ残す。",
     "lastFetchedAt": "2026-10-24T02:32:37+00:00",
     "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
@@ -84,11 +84,11 @@
     "enabled": true,
     "fetchMethod": "zenn",
     "topic": "productmanagement",
-    "minLikes": 15,
+    "minLikes": 10,
     "baseTags": [
       "PdM"
     ],
-    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。",
+    "notes": "Zennの公開API（キー不要）。いいね10以上だけ残す。",
     "lastFetchedAt": "2026-10-24T02:32:37+00:00",
     "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
@@ -103,11 +103,11 @@
     "enabled": true,
     "fetchMethod": "zenn",
     "topic": "engineeringmanager",
-    "minLikes": 15,
+    "minLikes": 10,
     "baseTags": [
       "EM"
     ],
-    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。",
+    "notes": "Zennの公開API（キー不要）。いいね10以上だけ残す。",
     "lastFetchedAt": "2026-10-24T02:32:37+00:00",
     "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
@@ -122,11 +122,11 @@
     "enabled": true,
     "fetchMethod": "zenn",
     "topic": "em",
-    "minLikes": 15,
+    "minLikes": 10,
     "baseTags": [
       "EM"
     ],
-    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。",
+    "notes": "Zennの公開API（キー不要）。いいね10以上だけ残す。",
     "lastFetchedAt": "2026-10-24T02:32:37+00:00",
     "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
@@ -141,11 +141,11 @@
     "enabled": true,
     "fetchMethod": "zenn",
     "topic": "fde",
-    "minLikes": 15,
+    "minLikes": 10,
     "baseTags": [
       "FDE"
     ],
-    "notes": "Zennの公開API（キー不要）。いいね15以上だけ残す。",
+    "notes": "Zennの公開API（キー不要）。いいね10以上だけ残す。",
     "lastFetchedAt": "2026-10-24T02:32:37+00:00",
     "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
@@ -160,11 +160,11 @@
     "enabled": true,
     "fetchMethod": "qiita",
     "tag": "PdM",
-    "minLikes": 10,
+    "minLikes": 5,
     "baseTags": [
       "PdM"
     ],
-    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。",
+    "notes": "Qiita API v2（キー不要）。いいね5以上だけ残す。",
     "lastFetchedAt": "2026-10-24T02:32:37+00:00",
     "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
@@ -179,11 +179,11 @@
     "enabled": true,
     "fetchMethod": "qiita",
     "tag": "プロダクトマネジメント",
-    "minLikes": 10,
+    "minLikes": 5,
     "baseTags": [
       "PdM"
     ],
-    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。",
+    "notes": "Qiita API v2（キー不要）。いいね5以上だけ残す。",
     "lastFetchedAt": "2026-10-24T02:32:37+00:00",
     "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
@@ -198,11 +198,11 @@
     "enabled": true,
     "fetchMethod": "qiita",
     "tag": "エンジニアリングマネージャー",
-    "minLikes": 10,
+    "minLikes": 5,
     "baseTags": [
       "EM"
     ],
-    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。",
+    "notes": "Qiita API v2（キー不要）。いいね5以上だけ残す。",
     "lastFetchedAt": "2026-10-24T02:32:37+00:00",
     "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
@@ -217,11 +217,11 @@
     "enabled": true,
     "fetchMethod": "qiita",
     "tag": "EM",
-    "minLikes": 10,
+    "minLikes": 5,
     "baseTags": [
       "EM"
     ],
-    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。",
+    "notes": "Qiita API v2（キー不要）。いいね5以上だけ残す。",
     "lastFetchedAt": "2026-10-24T02:32:37+00:00",
     "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
@@ -236,11 +236,11 @@
     "enabled": true,
     "fetchMethod": "qiita",
     "tag": "FDE",
-    "minLikes": 10,
+    "minLikes": 5,
     "baseTags": [
       "FDE"
     ],
-    "notes": "Qiita API v2（キー不要）。いいね10以上だけ残す。",
+    "notes": "Qiita API v2（キー不要）。いいね5以上だけ残す。",
     "lastFetchedAt": "2026-10-24T02:32:37+00:00",
     "lastSuccessAt": "2026-10-24T02:32:37+00:00",
     "lastError": null,
