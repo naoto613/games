@@ -3,6 +3,7 @@
 ブラウザで遊べるゲームを GitHub Pages で公開するリポジトリです。
 
 - 一覧ページ: https://naoto613.github.io/games/
+- ブラスター・リオ 〜8つのギアと くろいいんせき〜: https://naoto613.github.io/games/blaster-rio/
 - Org Change Lab: https://naoto613.github.io/games/org-change-lab/
 - どうぶつ クイズ: https://naoto613.github.io/games/animal-quiz/
 - 余白のアーカイブ — 世界がそうなった理由 —: https://naoto613.github.io/games/yohaku-archive/
@@ -25,6 +26,9 @@
 ├── thumbs/                 # 一覧ページ用サムネイル（<ゲームフォルダ名>.jpg、800×500）
 ├── .nojekyll               # Jekyll 処理を無効化（ファイルをそのまま配信）
 ├── README.md
+├── blaster-rio/
+│   ├── index.html          # ブラスター・リオ（ロックマン8風の操作・構成をオマージュしたオリジナル横スクロールアクション。8体のボス＋序盤・中盤・最終ステージ、ボスを倒すと武器を入手、弱点武器、ためうち・スライディング・はしご、ボルトでショップ、ポーズでEカン、localStorage セーブ、キーボード/ゲームパッド/タッチ対応）
+│   └── js/                 # core（入力・音）/ data（武器・ボス・ステージDSL）/ world（マップ・背景）/ actors / bosses / render / main（ビルド不要）
 ├── org-change-lab/
 │   ├── index.html          # Org Change Lab（EM向けの組織変革ワークベンチ。詳細設計書 v1.0 の初期版。変革案件ごとに 事実・解釈・仮説・判断を分けた課題分析 → 介入案の比較と採否 → 関係者・合意 → 実行計画・成功条件・成果の4階層の指標 → 効果検証（効果と因果の不確実性を分離）→ 学習記録。AI は役割別の6エージェント（構造分析・批判的レビュー・介入設計・ステークホルダー・効果検証・学習記録）で、コピー＆ペースト方式（APIキー不要）か server/ 経由の Claude。AIの出力は確認・選択してから保存。IndexedDB 保存、JSON バックアップ・復元、Markdown レポート、指標 CSV 取り込み。PC・スマホ両対応）
 │   ├── src/                # Vanilla JS（ES Modules）：domain / repositories / services / ai / components / pages（ビルド不要）

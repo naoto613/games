@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>ブラスター・リオ 〜8つのギアと くろいいんせき〜</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap">
+<style>
+  :root{color-scheme:dark}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:#05040e;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:"DotGothic16",monospace;color:#cfd8ff}
+  #wrap{position:relative;display:flex;align-items:center;justify-content:center;width:100%;flex:1;min-height:0}
+  #cv{display:block;image-rendering:auto;background:#000;box-shadow:0 0 0 2px #1a1a3a,0 10px 40px rgba(0,0,0,.6);max-width:100%;max-height:100%;aspect-ratio:4/3}
+  #touch{display:none;width:100%;max-width:560px;padding:6px 14px calc(12px + env(safe-area-inset-bottom));flex-direction:column;gap:8px;flex:none}
+  #touch .row{display:flex;justify-content:space-between;align-items:center}
+  @media (pointer:coarse){#touch{display:flex}}
+  #dpad{position:relative;width:132px;height:132px;border-radius:50%;background:radial-gradient(circle,#24284a 0 30%,#181a34 31%);border:2px solid #34386a;touch-action:none}
+  #dpad::before,#dpad::after{content:"";position:absolute;background:#2e3360;border-radius:6px}
+  #dpad::before{left:44px;top:10px;width:44px;height:112px}
+  #dpad::after{top:44px;left:10px;height:44px;width:112px}
+  #dpad i{position:absolute;z-index:1;width:0;height:0;border:9px solid transparent;opacity:.7}
+  #dpad .u{left:57px;top:18px;border-bottom-color:#cfd8ff}
+  #dpad .d{left:57px;bottom:18px;border-top-color:#cfd8ff}
+  #dpad .l{top:57px;left:18px;border-right-color:#cfd8ff}
+  #dpad .r{top:57px;right:18px;border-left-color:#cfd8ff}
+  .mid{display:flex;gap:8px;justify-content:center}
+  .sm{white-space:nowrap;min-width:64px;padding:6px 8px;border-radius:999px;background:#22264a;border:2px solid #3a3f7a;color:#cfd8ff;font:inherit;font-size:12px;text-align:center;touch-action:none}
+  .btns{position:relative;width:170px;height:132px}
+  .b{position:absolute;width:62px;height:62px;border-radius:50%;border:3px solid rgba(255,255,255,.25);color:#fff;font:inherit;font-size:12px;white-space:nowrap;padding:0;display:flex;align-items:center;justify-content:center;touch-action:none;box-shadow:0 4px 0 rgba(0,0,0,.4)}
+  .b.jump{right:0;top:8px;background:#2a8a5a}
+  .b.shoot{right:72px;top:40px;background:#c8402a}
+  .b.slide{right:14px;top:74px;width:50px;height:50px;font-size:11px;background:#3a5ac0}
+  .on{filter:brightness(1.5);transform:translateY(2px)}
+  #hint{flex:none;padding:4px 8px 6px;text-align:center;font-size:11px;color:#667;pointer-events:none}
+  @media (pointer:coarse){#hint{display:none}}
+  #top{flex:none;width:100%;padding:4px 10px;font-size:11px}
+  a.back{color:#667;text-decoration:none}
+</style>
+</head>
+<body>
+<div id="top"><a class="back" href="../">← ゲームいちらん</a></div>
+<div id="wrap"><canvas id="cv" width="640" height="480"></canvas></div>
+<div id="hint">← → いどう ／ ↑↓ はしご ／ Z・スペース ジャンプ ／ X ショット（おしっぱなしで ためうち）／ C スライディング（↓＋ジャンプでも）／ A・S ぶき ／ Enter ポーズ</div>
+<div id="touch">
+  <div class="mid"><button class="sm" data-act="prev">◀ ぶき</button><button class="sm" data-act="start">ポーズ</button><button class="sm" data-act="next">ぶき ▶</button></div>
+  <div class="row">
+  <div id="dpad"><i class="u"></i><i class="d"></i><i class="l"></i><i class="r"></i></div>
+  <div class="btns">
+    <button class="b shoot" data-act="shoot">ショット</button>
+    <button class="b jump" data-act="jump">ジャンプ</button>
+    <button class="b slide" data-act="slide">スライド</button>
+  </div>
+  </div>
+</div>
+<script src="js/core.js"></script>
+<script src="js/data.js"></script>
+<script src="js/world.js"></script>
+<script src="js/actors.js"></script>
+<script src="js/bosses.js"></script>
+<script src="js/render.js"></script>
+<script src="js/main.js"></script>
+<script>
+  // キャンバスを画面に合わせて拡大（4:3）
+  function fit(){const w=document.getElementById('wrap'),c=document.getElementById('cv');const s=Math.min(w.clientWidth/320,w.clientHeight/240);c.style.width=Math.floor(320*s)+'px';c.style.height=Math.floor(240*s)+'px';}
+  addEventListener('resize',fit);fit();setTimeout(fit,100);
+</script>
+</body>
+</html>
