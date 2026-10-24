@@ -327,6 +327,64 @@
     "lastCount": 7
   },
   {
+    "id": "yt-pmconf",
+    "name": "プロダクトマネージャーカンファレンス",
+    "type": "youtube",
+    "url": "https://www.youtube.com/@pmconf",
+    "lang": "ja",
+    "enabled": true,
+    "fetchMethod": "youtube",
+    "channelId": "",
+    "resolveFromUrl": "https://www.youtube.com/@pmconf",
+    "minViews": 300,
+    "notes": "PdM。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生300回以上の動画だけ残す。",
+    "baseTags": [
+      "PdM"
+    ]
+  },
+  {
+    "id": "yt-emconf",
+    "name": "EM Conf JP",
+    "type": "youtube",
+    "url": "https://www.youtube.com/@EMConfJP",
+    "lang": "ja",
+    "enabled": true,
+    "fetchMethod": "youtube",
+    "channelId": "",
+    "resolveFromUrl": "https://www.youtube.com/@EMConfJP",
+    "minViews": 300,
+    "notes": "EM。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生300回以上の動画だけ残す。",
+    "baseTags": [
+      "EM"
+    ]
+  },
+  {
+    "id": "yt-forkwell",
+    "name": "Forkwell",
+    "type": "youtube",
+    "url": "https://www.youtube.com/@forkwell",
+    "lang": "ja",
+    "enabled": true,
+    "fetchMethod": "youtube",
+    "channelId": "",
+    "resolveFromUrl": "https://www.youtube.com/@forkwell",
+    "minViews": 300,
+    "notes": "EM・組織の勉強会アーカイブ。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生300回以上の動画だけ残す。"
+  },
+  {
+    "id": "yt-findy",
+    "name": "Findy",
+    "type": "youtube",
+    "url": "https://www.youtube.com/@FindyInc",
+    "lang": "ja",
+    "enabled": true,
+    "fetchMethod": "youtube",
+    "channelId": "",
+    "resolveFromUrl": "https://www.youtube.com/@FindyInc",
+    "minViews": 300,
+    "notes": "EM・開発組織のイベントアーカイブ。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生300回以上の動画だけ残す。"
+  },
+  {
     "id": "lenny",
     "name": "Lenny's Newsletter",
     "type": "newsletter",
@@ -421,5 +479,61 @@
     "lastSuccessAt": "2026-10-24T02:33:38+00:00",
     "lastError": null,
     "lastCount": 7
+  },
+  {
+    "id": "yt-lenny",
+    "name": "Lenny's Podcast",
+    "type": "youtube",
+    "url": "https://www.youtube.com/@LennysPodcast",
+    "lang": "en",
+    "enabled": true,
+    "fetchMethod": "youtube",
+    "channelId": "",
+    "resolveFromUrl": "https://www.youtube.com/@LennysPodcast",
+    "minViews": 5000,
+    "titleLang": "en",
+    "notes": "PdM・AI。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生5,000回以上の動画だけ残す。"
+  },
+  {
+    "id": "yt-pragmatic",
+    "name": "The Pragmatic Engineer",
+    "type": "youtube",
+    "url": "https://www.youtube.com/@pragmaticengineer",
+    "lang": "en",
+    "enabled": true,
+    "fetchMethod": "youtube",
+    "channelId": "",
+    "resolveFromUrl": "https://www.youtube.com/@pragmaticengineer",
+    "minViews": 3000,
+    "titleLang": "en",
+    "notes": "EM・AI。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生3,000回以上の動画だけ残す。"
+  },
+  {
+    "id": "yt-productschool",
+    "name": "Product School",
+    "type": "youtube",
+    "url": "https://www.youtube.com/@ProductSchool",
+    "lang": "en",
+    "enabled": true,
+    "fetchMethod": "youtube",
+    "channelId": "",
+    "resolveFromUrl": "https://www.youtube.com/@ProductSchool",
+    "minViews": 1000,
+    "titleLang": "en",
+    "notes": "PdM。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生1,000回以上の動画だけ残す。"
+  },
+  {
+    "id": "yt-leaddev",
+    "name": "LeadDev",
+    "type": "youtube",
+    "url": "https://www.youtube.com/@LeadDev",
+    "lang": "en",
+    "enabled": true,
+    "fetchMethod": "youtube",
+    "channelId": "",
+    "resolveFromUrl": "https://www.youtube.com/@LeadDev",
+    "minViews": 500,
+    "titleLang": "en",
+    "notes": "EM。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生500回以上の動画だけ残す。"
   }
 ]

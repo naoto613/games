@@ -19,11 +19,13 @@ AI活用・FDE（Forward Deployed Engineer）・PdM・EM の4テーマに絞っ�
 | 日本語 | Zenn トピック（pdm・productmanagement・engineeringmanager・em・fde。公開API）、Qiita タグ（PdM・プロダクトマネジメント・エンジニアリングマネージャー・EM・FDE。API v2） | いいね数で足切り（`minLikes`：Zenn 10、Qiita 5）。トピック／タグのテーマは必ず付く（`baseTags`） |
 | 日本語 | はてなブックマーク検索 RSS（プロダクトマネージャー・エンジニアリングマネージャー・Forward Deployed Engineer・FDE エンジニア・生成AI プロダクト開発） | 一定数以上ブックマークされた記事だけ（`minBookmarks`：PdM・EM 30、FDE 10、AI 50） |
 | English | Lenny's Newsletter、The Pragmatic Engineer、SVPG、Product Talk、Irrational Exuberance、Engineering Leadership | 4テーマに当たる記事だけ。ニュースまとめ（The Pulse・Community Wisdom）は除外（`excludeTitle`） |
+| 日本語（動画） | YouTube：プロダクトマネージャーカンファレンス・EM Conf JP・Forkwell・Findy | 4テーマに当たり、再生300回以上（`minViews`） |
+| English（動画） | YouTube：Lenny's Podcast・The Pragmatic Engineer・Product School・LeadDev | 4テーマに当たり、再生数で足切り（500〜5,000回）。日本語の自動吹き替えタイトルは除外（`titleLang: en`） |
 | LayerX | LayerX エンジニアブログ・YouTube・Speaker Deck | 全件（テーマ推定だけする） |
 
 - テーマはタイトル・概要のキーワードからの推定で、収集のたびに今のルールで付け直します。「AI活用」はどこにでも出てくるので、タイトルに AI の語があるときだけ付けます。
 - 4テーマのどれにも当たらない記事（LayerX 以外）と、180日より古い記事（LayerX 以外）は残しません。
-- 情報源ごとに `lang`、`tab`（表示するタブ。省略時は `lang`）、`minLikes`、`baseTags`、`requireTag`（4テーマに当たる記事だけ残す。既定 true）、`minBookmarks`、`excludeTitle`、`mustContain`、`maxAgeDays`（既定 180 日）を指定できます。
+- 情報源ごとに `lang`、`tab`（表示するタブ。省略時は `lang`）、`minLikes`、`minViews`、`titleLang`、`baseTags`、`requireTag`（4テーマに当たる記事だけ残す。既定 true）、`minBookmarks`、`excludeTitle`、`mustContain`、`maxAgeDays`（既定 180 日）を指定できます。
 - YouTube の `channelId` は空のままで、`resolveFromVideo`／`resolveFromUrl` から自動で調べて保存します。
 - 同じ記事が複数の情報源に出たときは、先に取った情報源のまま、はてブ数（`bookmarks`）だけ更新します（LayerX の情報源を先頭に置いているので、LayerX の記事は LayerX タブに入ります）。
 - `sources.json` から外した（または `enabled: false` にした）情報源の項目は、次の収集で `items.json` から消えます。

@@ -19,6 +19,8 @@ Optional per-source fields:
   requireTag   : keep only entries that match one of the four themes (default true)
   minBookmarks : keep only Hatena Bookmark entries with at least this many users
   minLikes     : keep only Zenn / Qiita articles with at least this many likes
+  minViews     : keep only YouTube videos with at least this many views (from the public feed)
+  titleLang    : "en" to skip entries whose title is Japanese (e.g. auto-dubbed copies on English channels)
   baseTags     : themes always given to the source's items (e.g. a Zenn topic "pdm" -> ["PdM"])
   mustContain  : keep only entries whose title/summary contains one of these words
   excludeTitle : skip entries whose title contains one of these words (news roundups etc.)
@@ -150,6 +152,9 @@ def estimate_tags(title: str, body: str) -> list[str]:
     title, text = title.lower(), f"{title} {body}".lower()
     return [name for name, words in TAG_RULES.items()
             if keyword_hits(title if name in TITLE_ONLY_TAGS else text, words)][:4]
+
+
+JAPANESE = re.compile(r"[\u3040-\u30ff\u4e00-\u9fff]")
 
 
 def with_base(tags: list[str], base: list[str]) -> list[str]:
@@ -390,6 +395,8 @@ def collect(source: dict, items: dict[str, dict], now: str, active: set[str]) ->
     require_tag = source.get("requireTag", True)
     min_bookmarks = int(source.get("minBookmarks") or 0)
     min_likes = int(source.get("minLikes") or 0)
+    min_views = int(source.get("minViews") or 0)
+    english_only = source.get("titleLang") == "en"
     base_tags = source.get("baseTags") or []
     count = 0
     for entry in entries:
@@ -401,6 +408,11 @@ def collect(source: dict, items: dict[str, dict], now: str, active: set[str]) ->
         if keywords and not any(k in (title + " " + summary).lower() for k in keywords):
             continue
         if any(k in title.lower() for k in excluded):
+            continue
+        if english_only and JAPANESE.search(title):
+            continue
+        views = (entry.get("media_statistics") or {}).get("views")
+        if min_views and views is not None and int(views) < min_views:
             continue
         published = entry_date(entry) or entry.get("publishedApprox")
         if is_too_old(published, max_age):
@@ -448,6 +460,8 @@ def collect(source: dict, items: dict[str, dict], now: str, active: set[str]) ->
             items[item_id]["bookmarks"] = int(bookmarks or previous.get("bookmarks"))
         if likes is not None:
             items[item_id]["likes"] = int(likes)
+        if views is not None:
+            items[item_id]["views"] = int(views)
         count += 1
     return count
 
