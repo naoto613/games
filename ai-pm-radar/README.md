@@ -1,4 +1,4 @@
-# AI PM Radar — Product & Org Intelligence Hub
+# AI Builders Radar — PdM・EM・FDE × AI
 
 AI活用・FDE（Forward Deployed Engineer）・PdM・EM の4テーマに絞って、良質な公開情報を集めて読むための静的 HTML アプリと、APIキーを使わない定期収集ジョブです。静的ページ＋`data/*.json`＋Python 収集スクリプト＋GitHub Actions のつくりです。旧 LayerX Radar（LayerX の公開技術情報）は「LayerX」タブとして統合しました。
 
