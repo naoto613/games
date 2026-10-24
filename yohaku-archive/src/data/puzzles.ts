@@ -206,8 +206,8 @@ export const PUZZLES: GraphDef[] = [
       { id: 'free', label: 'トワが自分の朝を迎える', x: 60, y: 64, base: true },
       { id: 'reasons', label: '住人それぞれの理由（日記・証言・帳簿）', x: 8, y: 60, base: true, tag: 'fact' },
       { id: 'own', label: '自分の理由で起きる', x: 34, y: 60 },
-      { id: 'signal', label: '鐘は合図である（礎石の言葉）', x: 60, y: 30, base: true, tag: 'fact', requires: ['r_signal'] },
-      { id: 'share', label: '朝が来たことを皆で分け合う', x: 76, y: 20, mode: 'all' },
+      { id: 'signal', label: '鐘は合図である（礎石の言葉）', x: 56, y: 32, base: true, tag: 'fact', requires: ['r_signal'] },
+      { id: 'share', label: '朝が来たことを皆で分け合う', x: 82, y: 22, mode: 'all' },
       { id: 'work', label: '住人が六時に一日を始める', x: 90, y: 42, base: true, needsCause: true },
     ],
     links: [

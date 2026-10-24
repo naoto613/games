@@ -8,7 +8,7 @@ import type { Cmd, Talk } from '../data/script';
 import { CHARS } from '../data/chars';
 import {
   addItem, addRecord, applyWorld, cond, condTerm, fullHeal, gainExp, joinParty, marginMax, newGame, partyObs, policyName,
-  tolerance, hasSkill, statsOf, type GameState,
+  tolerance, hasSkill, statsOf, unresolvedContras, type GameState,
 } from '../engine/state';
 import { emptyEdit, type EditEnv } from '../engine/causal';
 import { deserialize, metaOf, serialize, type SaveMeta } from '../engine/save';
@@ -198,7 +198,7 @@ export class Game implements FieldHost {
     const m = this.field.map;
     const main = QUESTS.filter(q => q.kind === 'main').map(q => ({ q, st: s.quests[q.id] ?? 0 })).filter(x => x.st > 0 && x.st < DONE);
     const cur = main[main.length - 1];
-    const obj = cur ? cur.q.stages[cur.st] : s.flags.chapter1_done ? '第一章クリア。街を歩き、残った謎を調べよう。' : s.flags.p_start ? '左奥の棚（第三区の死亡記録）を調べる' : '';
+    const obj = cur ? cur.q.stages[cur.st] : s.flags.chapter1_done || s.quests.mq3 === DONE ? '第一章クリア。街を歩き、残ったクエストや記録を調べよう。' : !s.flags.chapter1 && !s.quests.mq0 && s.flags.p_start ? '左奥の棚（第三区の死亡記録）を調べる' : '';
     this.hud.innerHTML = `
       <div class="hud-loc"><b>${esc(m.name)}</b><span>${esc(obj)}</span></div>
       <div class="hud-right"><span class="pill margin">余白 <b>${s.margin}</b>/${marginMax(s)}</span></div>`;
@@ -308,7 +308,7 @@ export class Game implements FieldHost {
         await this.run(c.opts[i].ev);
         break;
       }
-      case 'set': s.flags[c.f] = c.v ?? 1; this.field.refresh(); break;
+      case 'set': s.flags[c.f] = c.v ?? 1; this.field.refresh(); this.renderHud(); break;
       case 'rec': {
         if (addRecord(s, c.id)) {
           sfx('record');
@@ -415,7 +415,7 @@ export class Game implements FieldHost {
     const html = `<h2>灰鐘市の記録</h2>
       <div class="sum-row"><span>地域の安定度</span>${bar(w.stability, 100, 'stab')}<b>${w.stability}</b></div>
       <div class="sum-row"><span>修復した因果</span><b>${w.repaired}</b></div>
-      <div class="sum-row"><span>未解決の矛盾</span><b>${w.contras}</b></div>
+      <div class="sum-row"><span>未解決の矛盾</span><b>${unresolvedContras(s).length}</b></div>
       <div class="sum-row"><span>ドランとの信頼</span>${bar(w.trust, 100, 'trust')}<b>${w.trust}</b></div>
       <div class="sum-row"><span>発見した記録</span><b>${s.records.length}</b></div>
       <div class="sum-row"><span>世界簿への方針</span><b>${esc(policyName(s))}</b></div>

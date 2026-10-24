@@ -7,6 +7,9 @@ import { ITEM_MAP, SHOP_STOCK } from '../src/data/items';
 import { QUEST_MAP } from '../src/data/quests';
 import { PUZZLE_MAP } from '../src/data/puzzles';
 import type { Cmd, Talk } from '../src/data/script';
+import { nodeBox } from '../src/ui/layout';
+import { newGame } from '../src/engine/state';
+import { startBattle } from '../src/engine/battle';
 import {
   applyOp, availableOps, emptyEdit, evaluate, metOutcomes, opCost, validateGraph, type GraphDef, type GraphEdit, type Op,
 } from '../src/engine/causal';
@@ -184,5 +187,30 @@ describe('区域とイベントのデータ', () => {
       expect(e.intents[e.intents.length - 1].node, `${e.id} の最後の行動は無条件`).toBeUndefined();
     }
     for (const b of BATTLE_MAP.values()) for (const id of b.enemies) expect(ENEMIES.some(e => e.id === id), id).toBe(true);
+  });
+});
+
+describe('因果編集画面の配置', () => {
+  const overlaps = (nodes: import('../src/engine/causal').NodeDef[], portrait: boolean) => {
+    const out: string[] = [];
+    const boxes = nodes.map(n => ({ n, b: nodeBox(n, portrait) }));
+    for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) {
+      const a = boxes[i].b, c = boxes[j].b;
+      if (a.x < c.x + c.w - 0.5 && c.x < a.x + a.w - 0.5 && a.y < c.y + c.h - 0.5 && c.y < a.y + a.h - 0.5) out.push(`${boxes[i].n.id}×${boxes[j].n.id}`);
+    }
+    return out;
+  };
+  it('パズルのノードが重ならない（横長・縦長）', () => {
+    for (const g of PUZZLES) for (const p of [false, true]) expect(overlaps(g.nodes, p), `${g.id} ${p ? '縦' : '横'}`).toEqual([]);
+  });
+  it('戦闘の因果（敵ごとの表示）でノードが重ならない', () => {
+    for (const b of BATTLE_MAP.values()) {
+      const s = newGame();
+      const st = startBattle(b, s, 1);
+      for (const e of st.enemies) {
+        const nodes = st.graph.nodes.filter(n => n.id.startsWith(e.uid + '.') || n.id.startsWith('f.') || (n.id.startsWith('p.') && st.graph.links.some(l => (l.from === n.id || l.to === n.id) && l.id.startsWith(e.uid + '.'))));
+        for (const p of [false, true]) expect(overlaps(nodes, p), `${b.id}/${e.uid} ${p ? '縦' : '横'}`).toEqual([]);
+      }
+    }
   });
 });

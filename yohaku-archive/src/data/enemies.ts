@@ -95,7 +95,7 @@ export const ENEMIES: EnemyDef[] = [
       { id: 'anyc', label: '矛盾が存在する', x: 12, y: 48, sensor: 'contra>=1' },
       { id: 'buff', label: '断絶獣の強化（攻撃+40%）', x: 50, y: 48, effect: ['atkUp:40'] },
       { id: 'roar', label: '断絶の咆哮（全体攻撃）', x: 86, y: 30, tag: 'intent', mode: 'all' },
-      { id: 'broken', label: '崩れている', x: 50, y: 70, sensor: 'status:broken' },
+      { id: 'broken', label: '崩れている', x: 50, y: 76, sensor: 'status:broken' },
       { id: 'few', label: '矛盾が2つ未満', x: 86, y: 64, sensor: 'contraLt:2', obs: 10 },
     ],
     links: [

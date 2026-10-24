@@ -115,7 +115,7 @@ export class BattleUI {
     const it = intentOf(e, plan.intent)!;
     const env = battleEditEnv(this.b, this.s);
     const rule = ENEMY_MAP.get(e.tpl!)!.rule;
-    let html = `<div class="intent ${it.kind === 'aoe' ? 'danger' : ''}"><div class="it-name">▶ ${esc(it.name)}<small>${esc(it.desc)}</small></div>`;
+    let html = `<div class="b-intent ${it.kind === 'aoe' ? 'danger' : ''}"><div class="it-name">▶ ${esc(it.name)}<small>${esc(it.desc)}</small></div>`;
     if (rule && this.b.def.boss) html += `<div class="it-rule">${esc(rule)}</div>`;
     if (plan.carried) html += `<div class="it-cond carried">次のターンに持ち越し中</div>`;
     else if (it.node) {

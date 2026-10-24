@@ -3,7 +3,8 @@ import { CHARS, expToNext, MAX_LEVEL, type CharId, type StatKey } from '../data/
 import { ITEM_MAP, type Slot } from '../data/items';
 import { SKILL_MAP, START_SKILLS } from '../data/skills';
 import { evalCond, compare, CMP_RE } from './cond';
-import { emptyEdit, type GraphEdit, type Op } from './causal';
+import { emptyEdit, evaluate, type GraphEdit, type Op } from './causal';
+import { PUZZLE_MAP } from '../data/puzzles';
 
 export const SAVE_VERSION = 2;
 
@@ -281,7 +282,7 @@ export function condTerm(s: GameState, t: string): boolean {
     case 'w': {
       if (!m) return false;
       const w = s.world;
-      const v: Record<string, number> = { stability: w.stability, repaired: w.repaired, contras: w.contras, trust: w.trust, restore: w.policy.restore, free: w.policy.free, keep: w.policy.keep };
+      const v: Record<string, number> = { stability: w.stability, repaired: w.repaired, contras: unresolvedContras(s).length, trust: w.trust, restore: w.policy.restore, free: w.policy.free, keep: w.policy.keep };
       return compare(v[m[1]] ?? 0, m[2], Number(m[3]));
     }
     case 'g': return !!m && compare(s.gold, m[2], Number(m[3]));
@@ -292,6 +293,17 @@ export function condTerm(s: GameState, t: string): boolean {
     }
     default: return false;
   }
+}
+
+/** 確定した因果編集のうち、矛盾を抱えたまま残っているものの数 */
+export function unresolvedContras(s: GameState): { text: string; graph: string }[] {
+  const out: { text: string; graph: string }[] = [];
+  for (const [id, edit] of Object.entries(s.graphs)) {
+    const g = PUZZLE_MAP.get(id);
+    if (!g || g.kind === 'hypothesis' || !s.outcomes[id]) continue;
+    for (const c of evaluate(g, edit).contras) out.push({ text: c.text, graph: g.title });
+  }
+  return out;
 }
 
 export function setFlag(s: GameState, f: string, v = 1): void {

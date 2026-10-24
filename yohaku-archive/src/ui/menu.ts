@@ -6,9 +6,8 @@ import { SKILLS, SKILL_MAP } from '../data/skills';
 import { RECORDS, RECORD_MAP } from '../data/records';
 import { PUZZLE_MAP } from '../data/puzzles';
 import {
-  addItem, canLearn, cond, equip, hasSkill, learn, marginMax, policyName, statsOf, tolerance, useItemField,
+  addItem, canLearn, cond, equip, hasSkill, learn, marginMax, policyName, statsOf, tolerance, unresolvedContras, useItemField,
 } from '../engine/state';
-import { evaluate, emptyEdit } from '../engine/causal';
 import { deserialize, serialize } from '../engine/save';
 import { el, btn, esc, bar } from './dom';
 import { sfx } from './audio';
@@ -200,12 +199,7 @@ export class MenuUI {
     this.body.append(hyp);
     // 未解決の矛盾
     const contra = el('div', 'card');
-    const lines: string[] = [];
-    for (const [id, edit] of Object.entries(s.graphs)) {
-      const g = PUZZLE_MAP.get(id);
-      if (!g || g.kind === 'hypothesis' || !s.outcomes[id]) continue;
-      for (const c of evaluate(g, edit ?? emptyEdit()).contras) lines.push(`⚡ ${esc(c.text)}（${esc(g.title)}）`);
-    }
+    const lines = unresolvedContras(s).map(c => `⚡ ${esc(c.text)}（${esc(c.graph)}）`);
     contra.innerHTML = `<div class="card-h"><b>未解決の矛盾</b><span>${lines.length}</span></div>${lines.map(l => `<div class="small">${l}</div>`).join('') || '<div class="small">なし</div>'}`;
     this.body.append(contra);
     for (const cat of ['人物', '地域', '出来事', '世界'] as const) {
@@ -249,7 +243,7 @@ export class MenuUI {
     c.innerHTML = `<div class="card-h"><b>灰鐘市</b><span>世界の状態</span></div>
       <div class="sum-row"><span>地域の安定度</span>${bar(w.stability, 100, 'stab')}<b>${w.stability}</b></div>
       <div class="sum-row"><span>修復した因果</span><b>${w.repaired}</b></div>
-      <div class="sum-row"><span>未解決の矛盾</span><b>${w.contras}</b></div>
+      <div class="sum-row"><span>未解決の矛盾</span><b>${unresolvedContras(s).length}</b></div>
       <div class="sum-row"><span>ドランとの信頼</span>${bar(w.trust, 100, 'trust')}<b>${s.party.includes('dran') ? w.trust : '—'}</b></div>
       <div class="sum-row"><span>発見した重要記録</span><b>${s.records.filter(r => RECORD_MAP.get(r)?.key).length}</b></div>
       <div class="sum-row"><span>世界簿への方針</span><b>${esc(policyName(s))}</b></div>

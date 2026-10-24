@@ -113,7 +113,7 @@ export function buildBattleGraph(def: BattleDef, enemies: Fighter[]): GraphDef {
       links.push({ ...l, id: `${e.uid}.${l.id}`, from: pid(l.from, e.uid), to: pid(l.to, e.uid), steals: l.steals ? `${e.uid}.${l.steals}` : undefined });
     }
   });
-  if (usesParty) nodes.push({ id: 'p.atk', label: '味方の攻撃強化（+30%）', x: 50, y: 74, tag: 'party', effect: ['partyAtkUp:30'] });
+  if (usesParty) nodes.push({ id: 'p.atk', label: '味方の攻撃強化（+30%）', x: 16, y: 78, tag: 'party', effect: ['partyAtkUp:30'] });
   return { id: 'battle:' + def.id, title: '戦場の因果', kind: 'battle', nodes, links };
 }
 

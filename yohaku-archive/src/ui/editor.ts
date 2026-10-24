@@ -5,6 +5,7 @@ import {
 } from '../engine/causal';
 import { RECORD_MAP } from '../data/records';
 import { el, btn, esc, svg } from './dom';
+import { nodeBox, wrapLabel } from './layout';
 import { sfx } from './audio';
 
 export interface PuzzleResult { outcome: string; edit: GraphEdit; spent: number; shards: number; revealed: string[] }
@@ -23,19 +24,6 @@ interface Mode {
 }
 
 const OP_SOUND: Record<Op, string> = { connect: 'connect', cut: 'cut', invert: 'invert', hold: 'hold' };
-
-function wrapLabel(s: string, max = 9): string[] {
-  const out: string[] = [];
-  let cur = '';
-  for (const ch of s) {
-    cur += ch;
-    if (cur.length >= max && !'、。）」』'.includes(ch)) { out.push(cur); cur = ''; }
-  }
-  if (cur) out.push(cur);
-  if (out.length > 3) { out.length = 3; out[2] = out[2].slice(0, -1) + '…'; }
-  return out;
-}
-
 
 export class CausalEditor {
   private ov: HTMLDivElement;
@@ -132,10 +120,6 @@ export class CausalEditor {
   }
 
   /** 縦長の画面では、原因→結果を上から下へ流す */
-  private pos(n: NodeDef): { x: number; y: number } {
-    return this.portrait ? { x: 10 + n.y * 1.2, y: 8 + n.x * 0.92 } : { x: 12 + n.x * 0.76, y: 7 + n.y * 0.9 };
-  }
-
   private render(): void {
     const r = this.canvasWrap?.getBoundingClientRect();
     this.portrait = !!r && r.width > 0 && r.width < r.height * 0.85;
@@ -176,6 +160,11 @@ export class CausalEditor {
   private outOfGroup(id: string): boolean {
     const gs = this.mode.groups;
     if (!gs || gs.length < 2) return false;
+    // 味方側の出来事は、表示中の敵とつながっているときだけ出す
+    if (id.startsWith('p.')) {
+      const pre = gs[this.group].prefix;
+      return !this.g.links.some(l => (l.from === id || l.to === id) && l.id.startsWith(pre));
+    }
     return gs.some((g, i) => i !== this.group && id.startsWith(g.prefix));
   }
 
@@ -186,12 +175,7 @@ export class CausalEditor {
     const visNodes = this.g.nodes.filter(n => nodeVisible(n, env) && !this.mode.hiddenNode?.(n.id) && !this.outOfGroup(n.id));
     const visIds = new Set(visNodes.map(n => n.id));
     // 箱の大きさ
-    for (const n of visNodes) {
-      const lines = wrapLabel(n.label);
-      const { x, y } = this.pos(n);
-      const w = this.portrait ? 19.5 : 21, h = 3.1 * lines.length + 3;
-      this.boxes.set(n.id, { x: x - w / 2, y: y - h / 2, w, h });
-    }
+    for (const n of visNodes) this.boxes.set(n.id, nodeBox(n, this.portrait));
     // 全体が収まるように表示範囲を決める
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     for (const b of this.boxes.values()) { x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y); x1 = Math.max(x1, b.x + b.w); y1 = Math.max(y1, b.y + b.h); }
