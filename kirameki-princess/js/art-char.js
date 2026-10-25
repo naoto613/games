@@ -565,13 +565,19 @@
   });
 
   // ---- かお ----
-  function face(expr, E, id, skin) {
+  function face(expr, E, id, skin, mk = {}) {
     let o = '';
     const fc = `M124,170 C122,120 150,92 200,92 C250,92 278,120 276,170 C276,206 256,240 224,254 C210,260 190,260 176,254 C144,240 124,206 124,170Z`;
     o += `<path d="${fc}" fill="${skin.base}" stroke="${skin.line}" stroke-width="2"/>`;
     // ほお
     o += `<ellipse cx="146" cy="214" rx="17" ry="10" fill="url(#${id}k)"/><ellipse cx="254" cy="214" rx="17" ry="10" fill="url(#${id}k)"/>`;
     o += `<path d="M139,212 l4,-5 M146,213 l4,-5 M153,214 l4,-5 M247,214 l4,-5 M254,213 l4,-5 M261,212 l4,-5" stroke="#FF7FA5" stroke-width="1.4" stroke-linecap="round" opacity=".6"/>`;
+    if (mk.cheek) o += `<ellipse cx="146" cy="212" rx="21" ry="12" fill="${mk.cheek}" opacity=".5"/><ellipse cx="254" cy="212" rx="21" ry="12" fill="${mk.cheek}" opacity=".5"/>`;
+    // アイシャドウ
+    if (mk.shadow) {
+      const sh = (cx, cy) => `<path d="M${cx - 23},${cy - 2} C${cx - 20},${cy - 34} ${cx + 20},${cy - 38} ${cx + 27},${cy - 10} C${cx + 12},${cy - 22} ${cx - 10},${cy - 22} ${cx - 23},${cy - 2}Z" fill="${mk.shadow}" opacity=".6"/>`;
+      o += sh(236, 186) + `<g transform="translate(400 0) scale(-1 1)">${sh(236, 186)}</g>`;
+    }
     // まゆ
     const brow = expr === 'surprise' ? -6 : expr === 'sad' ? 4 : 0;
     o += `<path d="M150,${146 + brow} Q164,${140 + brow} 176,${146 + brow}" fill="none" stroke="${E.lash}" stroke-width="2.4" stroke-linecap="round" opacity=".7"/>`;
@@ -589,13 +595,22 @@
       const look = expr === 'lookL' ? -4 : expr === 'lookR' ? 4 : 0;
       o += R(eyeOpen(236, 186, E, id, look)) + L(eyeOpen(236, 186, E, id, -look));
     }
+    if (mk.lash && !['happy', 'joy'].includes(expr)) {
+      const ls = `<path d="M254,176 l9,-8 M257,183 l11,-5 M250,170 l6,-10" stroke="${E.lash}" stroke-width="2.4" stroke-linecap="round"/>`;
+      o += ls + (expr === 'wink' ? '' : `<g transform="translate(400 0) scale(-1 1)">${ls}</g>`);
+    }
+    if (mk.sticker) {
+      const st = mk.sticker === 'heart' ? heart(262, 198, 7, '#FF8FB8', '#fff', 1.4) : mk.sticker === 'moon' ? `<path d="M266,190 a9,9 0 1,0 2,16 a7,7 0 1,1 -2,-16Z" fill="#FFE08A" stroke="#fff" stroke-width="1.4"/>` : star(262, 198, 8, '#FFE08A', '#fff', 1.4);
+      o += st + sparkle(272, 188, 3.5, '#fff');
+    }
     // はな
     o += `<path d="M199,214 q2,2 4,0" fill="none" stroke="${skin.line}" stroke-width="1.6" stroke-linecap="round"/>`;
+    const lip = mk.lip || '#B8406A';
     // くち
     if (expr === 'surprise') {
-      o += `<ellipse cx="200" cy="234" rx="7" ry="8.5" fill="#B8406A" stroke="#8E2C52" stroke-width="1.5"/><ellipse cx="200" cy="238" rx="4" ry="3" fill="#FF9AB4"/>`;
+      o += `<ellipse cx="200" cy="234" rx="7" ry="8.5" fill="${lip}" stroke="#8E2C52" stroke-width="1.5"/><ellipse cx="200" cy="238" rx="4" ry="3" fill="#FF9AB4"/>`;
     } else if (expr === 'joy' || expr === 'wink') {
-      o += `<path d="M184,226 Q200,226 216,226 Q214,248 200,250 Q186,248 184,226Z" fill="#B8406A" stroke="#8E2C52" stroke-width="1.6" stroke-linejoin="round"/>` +
+      o += `<path d="M184,226 Q200,226 216,226 Q214,248 200,250 Q186,248 184,226Z" fill="${lip}" stroke="#8E2C52" stroke-width="1.6" stroke-linejoin="round"/>` +
         `<path d="M190,242 Q200,236 210,242 Q206,249 200,249 Q194,249 190,242Z" fill="#FF9AB4"/>` +
         `<path d="M186,227 L214,227 L213,231 L187,231Z" fill="#fff"/>`;
     } else if (expr === 'cat') {
@@ -603,9 +618,10 @@
     } else if (expr === 'sad') {
       o += `<path d="M190,236 Q200,230 210,236" fill="none" stroke="#8E2C52" stroke-width="2.2" stroke-linecap="round"/>`;
     } else {
-      o += `<path d="M188,228 Q200,229 212,228 Q209,243 200,244 Q191,243 188,228Z" fill="#B8406A" stroke="#8E2C52" stroke-width="1.5" stroke-linejoin="round"/>` +
+      o += `<path d="M188,228 Q200,229 212,228 Q209,243 200,244 Q191,243 188,228Z" fill="${lip}" stroke="#8E2C52" stroke-width="1.5" stroke-linejoin="round"/>` +
         `<path d="M193,238 Q200,234 207,238 Q204,243 200,243 Q196,243 193,238Z" fill="#FF9AB4"/>`;
     }
+    if (mk.lip) o += `<ellipse cx="195" cy="231" rx="3" ry="1.6" fill="#fff" opacity=".8"/>`;
     return o;
   }
 
@@ -690,7 +706,7 @@
     o += layer.shoes || shoeShape(PAL.white, '#fff', false);
     o += torso(SKIN);
     o += layer.skirt + layer.top + layer.dress + layer.ribbon;
-    o += `<g class="kp-face">` + face(opt.expr || 'smile', E, id, SKIN) + sideLocks(style, H, id) + `</g>`;
+    o += `<g class="kp-face">` + face(opt.expr || 'smile', E, id, SKIN, opt.makeup || {}) + sideLocks(style, H, id) + `</g>`;
     // うで・もちもの
     o += arm(pose.L, SKIN) + arm(pose.R, SKIN);
     o += layer.sleeves;

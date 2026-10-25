@@ -302,6 +302,7 @@
   I.star = (c = GOLD.base) => star(50, 52, 38, c, GOLD.line, 4) + sparkle(78, 18, 8, '#fff');
   I.cake = (c = '#F29CC2') => `<rect x="20" y="46" width="60" height="36" rx="8" fill="#FFF6E8" stroke="${c}" stroke-width="5"/><path d="M20,56 Q30,64 40,56 Q50,64 60,56 Q70,64 80,56" fill="none" stroke="${c}" stroke-width="5"/><circle cx="50" cy="36" r="9" fill="#E0465E"/>`;
   I.flower = (c = '#F29CC2') => [0, 1, 2, 3, 4].map((i) => { const a = i * 1.2566 - 1.57; return `<circle cx="${50 + Math.cos(a) * 22}" cy="${46 + Math.sin(a) * 22}" r="17" fill="${c}" stroke="#fff" stroke-width="4"/>`; }).join('') + `<circle cx="50" cy="46" r="12" fill="#FFE08A"/>`;
+  I.book = (c = '#6F98E2') => `<path d="M50,26 Q30,14 12,18 V80 Q30,76 50,86 Q70,76 88,80 V18 Q70,14 50,26Z" fill="#fff" stroke="${c}" stroke-width="6" stroke-linejoin="round"/><path d="M50,26 V86" stroke="${c}" stroke-width="5"/>${heart(31, 46, 7, '#F29CC2')}${star(69, 46, 8, '#FFE08A')}`;
   I.lock = () => `<rect x="24" y="44" width="52" height="40" rx="10" fill="#E9E1FA" stroke="#B3A5CF" stroke-width="5"/><path d="M34,44 V34 A16,16 0 0,1 66,34 V44" fill="none" stroke="#B3A5CF" stroke-width="6"/>`;
   I.question = () => `<circle cx="50" cy="50" r="36" fill="#F3ECFF" stroke="#C9B8E6" stroke-width="5" stroke-dasharray="6 6"/><text x="50" y="66" text-anchor="middle" font-size="44" font-weight="900" fill="#C9B8E6" font-family="sans-serif">?</text>`;
   KP.icon = (name, ...a) => KP.svg('0 0 100 100', I[name](...a), 'ico');

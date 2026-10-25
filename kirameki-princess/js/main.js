@@ -204,9 +204,6 @@
     fxLayer.appendChild(e);
     setTimeout(() => e.remove(), dur + 50);
   }
-  const BUTTERFLY = (c = '#F8BCD6') => svg('0 0 100 100', `<g><ellipse cx="32" cy="38" rx="24" ry="20" fill="${c}" stroke="#fff" stroke-width="4"/><ellipse cx="68" cy="38" rx="24" ry="20" fill="${c}" stroke="#fff" stroke-width="4"/><ellipse cx="36" cy="68" rx="16" ry="14" fill="#C9B5F5" stroke="#fff" stroke-width="4"/><ellipse cx="64" cy="68" rx="16" ry="14" fill="#C9B5F5" stroke="#fff" stroke-width="4"/><rect x="46" y="28" width="8" height="52" rx="4" fill="#7458B8"/></g>`);
-  const BIRD = svg('0 0 100 100', `<ellipse cx="50" cy="56" rx="30" ry="24" fill="#BCD4FA" stroke="#fff" stroke-width="4"/><circle cx="66" cy="44" r="16" fill="#BCD4FA" stroke="#fff" stroke-width="4"/><circle cx="70" cy="42" r="3.5" fill="#4A2A63"/><path d="M82,46 L94,50 L82,54Z" fill="#FFD772"/><path d="M30,50 Q40,30 56,46" fill="#9DBDF4" stroke="#fff" stroke-width="3"/>`);
-  const FISH = svg('0 0 100 100', `<ellipse cx="46" cy="50" rx="30" ry="18" fill="#FFB8A8" stroke="#fff" stroke-width="4"/><path d="M74,50 L94,34 L94,66Z" fill="#FFB8A8" stroke="#fff" stroke-width="4"/><circle cx="32" cy="46" r="4" fill="#4A2A63"/>`);
 
   // ================= ルーター =================
   let cur = null;
@@ -223,7 +220,7 @@
     el.className = 'screen ' + name;
     app.innerHTML = '';
     app.appendChild(el);
-    const music = name === 'henshin' ? null : ['play', 'hide', 'memory', 'balloon', 'cake'].includes(name) ? 'play' : name === 'explore' && exploreArea === 'hill' ? 'night' : 'home';
+    const music = name === 'henshin' ? null : ['play', 'hide', 'memory', 'balloon', 'cake'].includes(name) ? 'play' : 'home';
     S.setWanted(music);
     SCREENS[name](el, arg || {});
     try { history.replaceState(null, '', '#' + name); } catch (e) { /* なにもしない */ }
@@ -277,7 +274,7 @@
       `<div class="topbar"><button class="rbtn" data-act="album" aria-label="アルバム">${icon('album')}</button><button class="rbtn" data-act="sound" aria-label="おと">${icon(S.on ? 'sound' : 'mute')}</button></div>` +
       `<div class="entry-row">` +
       `<button class="entry e1" data-go="dress">${icon('dress', '#fff')}<span>きせかえ</span>${badge(hasNew('item'))}</button>` +
-      `<button class="entry e2" data-go="explore">${icon('search', '#fff')}<span>たんけん</span></button>` +
+      `<button class="entry e2" data-go="stories">${icon('book', '#fff')}<span>おはなし</span></button>` +
       `<button class="entry e3" data-go="room">${icon('house', '#fff')}<span>おへや</span>${badge(hasNew('furn'))}</button>` +
       `<button class="entry e4" data-go="friends">${icon('friends', '#fff')}<span>なかま</span>${badge(hasNew('friend'))}</button>` +
       `</div>`;
@@ -480,7 +477,7 @@
       if (!c) return;
       if (c.dataset.locked) {
         S.tap();
-        pyonSay(c.dataset.locked === 'prize' ? `${icon('star')}なかまと あそんで もらおう` : `${icon('search')}たんけんで みつけよう`, 'notify');
+        pyonSay(c.dataset.locked === 'prize' ? `${icon('star')}なかまと あそんで もらおう` : `${icon('book')}おはなしで もらえるよ`, 'notify');
         return;
       }
       if (c.dataset.hs || c.dataset.hc) {
@@ -622,286 +619,6 @@
     el.querySelector('[data-a=room]').addEventListener('click', () => { S.tap(); go('room'); });
     el.querySelector('[data-a=again]').addEventListener('click', () => { S.tap(); go('henshin', { who }); });
     el.querySelector('[data-a=dress]').addEventListener('click', () => { S.tap(); go('dress', { who }); });
-  };
-
-  // ================= たんけん =================
-  let exploreArea = 'garden';
-  const SPOT_FX = {
-    cloud: ['stars', 'sparkle', 'rainbow'], tree: ['bird', 'leaves', 'peek'], birdhouse: ['bird', 'note'], bushL: ['butterfly', 'flowers', 'peek'], bushR: ['butterfly', 'flowers', 'peek'],
-    pond: ['fish', 'drops'], mushroom: ['sparkle', 'boing', 'hearts'], flowers: ['butterfly', 'flowers'], bench: ['hearts', 'peek'], basket: ['hearts', 'sparkle'], grass: ['butterfly', 'leaves'],
-    clock: ['note', 'sparkle'], painting: ['stars', 'sparkle'], shelf: ['note', 'sparkle'], teatable: ['hearts', 'sparkle'], chest: ['stars', 'sparkle'], vase: ['flowers', 'butterfly'],
-    cushion: ['boing', 'hearts'], toybox: ['note', 'stars', 'boing'], curtain: ['peek', 'sparkle'], rugcorner: ['sparkle', 'hearts'],
-  };
-  const AREAS = [['house', 'おうち', 'house', '#F29CC2'], ['garden', 'おにわ', 'flower', '#6FC3A8'], ['hill', 'よぞら', 'star', '#E9B44C']];
-  Object.assign(SPOT_FX, {
-    moon: ['stars', 'sparkle'], stars: ['stars', 'sparkle'], cloud2: ['drops', 'sparkle'], tent: ['peek', 'hearts'], telescope: ['stars', 'note'], lantern: ['sparkle', 'hearts'],
-    swing: ['boing', 'hearts', 'peek'], glowflowers: ['flowers', 'butterfly'], mushrooms: ['boing', 'sparkle'], owl: ['bird', 'note'], pond2: ['fish', 'stars'],
-  });
-  const PIECES = 5;
-  // ステッキ・リボンを さきに さがしやすく
-  const findPrio = (f) => (f.kind === 'item' ? (['magic', 'ribbon', 'hair'].includes(D.ITEMS[f.id].slot) ? 0 : 1) : f.kind === 'friend' ? 0 : 2);
-  const PIECE_SVG = (on) => svg('0 0 100 100', on ? KP.star(50, 52, 40, '#FFE28A', '#E9B44C', 5) + KP.sparkle(70, 30, 10, '#fff') : KP.star(50, 52, 40, 'rgba(255,255,255,.5)', '#D9CBF2', 4));
-  SCREENS.explore = function (el) {
-    const scene = KP.SCENES[exploreArea]();
-    el.classList.add(exploreArea);
-    const isGot = (f) => G.collection.discoveredItemIds.includes(f.id) || (f.kind === 'friend' && G.collection.unlockedCharacterIds.includes(f.id));
-    const remaining = () => D.FINDS.filter((f) => f.area === exploreArea && !isGot(f));
-    // こんかいの かくしばしょ（まいかい かわる）
-    const plan = {};
-    const pieces = new Set();
-    let got = 0;
-    const R0 = remaining().sort((x, y) => findPrio(x) - findPrio(y) || Math.random() - 0.5);
-    // おねがい（なかまが さがしものを たのむ）
-    const friendsOk = Object.keys(D.FRIENDS).filter((f) => G.collection.unlockedCharacterIds.includes(f));
-    const target = R0.find((f) => f.kind === 'item') || null;
-    const giver = rand(friendsOk.length ? friendsOk : ['pyonta']);
-    let missionDone = false;
-    const shuffled = scene.spots.map((s) => s.id).sort(() => Math.random() - 0.5);
-    const toPlace = R0.slice(0, 3);
-    if (target && !toPlace.includes(target)) toPlace[toPlace.length ? toPlace.length - 1 : 0] = target;
-    toPlace.forEach((f, i) => (plan[shuffled[i]] = f));
-    function scatterPieces() {
-      pieces.clear();
-      const free = scene.spots.map((s) => s.id).filter((id) => !plan[id]).sort(() => Math.random() - 0.5);
-      free.slice(0, PIECES).forEach((id) => pieces.add(id));
-    }
-    scatterPieces();
-    const pyPos = exploreArea === 'garden' ? { x: 420, y: 600 } : exploreArea === 'hill' ? { x: 470, y: 760 } : { x: 300, y: 600 };
-    const sceneSVG =
-      scene.bg +
-      scene.spots.map((s) => `<g class="spot" data-spot="${s.id}">${s.id === 'curtain' ? `<rect x="230" y="90" width="290" height="340" fill="transparent"/>` : s.draw}</g>`).join('') +
-      `<g id="eChest"></g>` +
-      `<g id="ePyon" class="tapable" transform="translate(${pyPos.x} ${pyPos.y}) scale(0.62)"><g class="floaty">${KP.drawBunny('normal')}</g></g>` +
-      `<g id="eHint"></g>`;
-    el.innerHTML =
-      topbar('', `<div class="areas">${AREAS.map(([id, nm, ic, col]) => `<button data-area="${id}" class="${exploreArea === id ? 'sel' : ''}">${icon(ic, exploreArea === id ? '#fff' : col)}${nm}</button>`).join('')}</div>`) +
-      `<div class="quest"><div class="pieces" id="ePieces"></div><div class="mission" id="eMission"></div></div>` +
-      `<div class="stage">${svg('0 0 750 1000', sceneSVG).replace('<svg ', `<svg preserveAspectRatio="xMidYMid ${wide() ? 'meet' : 'slice'}" `)}</div>` +
-      `<div class="foundbar" id="eFound"></div>`;
-    el.querySelector('.topbar .title').remove();
-    bindHome(el);
-    const svgEl = el.querySelector('.stage svg');
-    const foundEl = el.querySelector('#eFound');
-    const piecesEl = el.querySelector('#ePieces');
-    const missionEl = el.querySelector('#eMission');
-    function foundBar() {
-      foundEl.innerHTML = D.FINDS.filter((f) => f.area === exploreArea).map((f) => `<div class="slot${isGot(f) ? ' got' : ''}">${isGot(f) ? findSVG(f) : svg('0 0 100 100', KP.sparkle(50, 50, 22, '#E2D6F6'))}</div>`).join('');
-    }
-    function drawPieces() {
-      piecesEl.innerHTML = Array.from({ length: PIECES }, (_, i) => `<span class="pc${i < got ? ' on' : ''}">${PIECE_SVG(i < got)}</span>`).join('');
-    }
-    function drawMission() {
-      const face = giver === 'pyonta' ? svg('10 0 180 180', KP.drawBunny('happy')) : faceSVG(friendOpt(giver, { expr: missionDone ? 'joy' : 'smile' }));
-      if (target) {
-        missionEl.innerHTML = `<span class="mface">${face}</span><span class="mtxt">${missionDone ? 'ありがとう！' : 'これ さがして！'}</span><span class="mitem${missionDone ? ' done' : ''}">${findSVG(target)}${missionDone ? `<i>${icon('check')}</i>` : ''}</span>`;
-      } else {
-        missionEl.innerHTML = `<span class="mface">${face}</span><span class="mtxt">ほしを あつめて たからばこ！</span>`;
-      }
-    }
-    foundBar(); drawPieces(); drawMission();
-    el.querySelectorAll('[data-area]').forEach((b) => b.addEventListener('click', () => {
-      if (b.dataset.area === exploreArea) return;
-      S.tap();
-      exploreArea = b.dataset.area;
-      go('explore');
-    }));
-    const py = el.querySelector('#ePyon');
-    function pyon(expr, ms = 1300) {
-      py.innerHTML = `<g class="hop">${KP.drawBunny(expr)}</g>`;
-      later(() => { py.innerHTML = `<g class="floaty">${KP.drawBunny('normal')}</g>`; }, ms);
-    }
-    const targets = () => [...Object.keys(plan), ...pieces];
-    py.addEventListener('click', (e) => {
-      e.stopPropagation();
-      S.pop();
-      const p = svgToScreen(svgEl, pyPos.x + 62, pyPos.y);
-      if (targets().length) { pyon('notify'); bubble(p.x, p.y, `${icon('search')}こっちかな？`); showHint(); }
-      else { pyon('happy'); bubble(p.x, p.y, `${icon('heart')}たからばこを あけよう！`); }
-    });
-    let lastFind = Date.now();
-    function showHint() {
-      const ids = Object.keys(plan).length ? Object.keys(plan) : [...pieces];
-      if (!ids.length) return;
-      const s = scene.spots.find((x) => x.id === ids[0]);
-      const h = el.querySelector('#eHint');
-      h.innerHTML = `<g class="floaty">${KP.sparkle(s.x + 30, s.y - 40, 22, '#FFE28A')}${KP.sparkle(s.x - 26, s.y - 10, 14, '#fff')}</g>`;
-      later(() => { h.innerHTML = ''; }, 2600);
-    }
-    every(() => {
-      if (targets().length && Date.now() - lastFind > 12000) {
-        lastFind = Date.now();
-        pyon('notify', 1800);
-        showHint();
-      }
-    }, 2000);
-
-    function reaction(s) {
-      const p = svgToScreen(svgEl, s.x, s.y);
-      const kind = rand(SPOT_FX[s.id] || ['sparkle']);
-      const W = innerWidth;
-      if (kind === 'butterfly') {
-        S.sparkle();
-        for (let i = 0; i < 3; i++) later(() => flyer(p.x, p.y, BUTTERFLY(rand(['#F8BCD6', '#FFE59A', '#BDEBDC'])), (Math.random() - 0.5) * W * 0.8, -200 - Math.random() * 200), i * 200);
-      } else if (kind === 'bird') {
-        S.tap();
-        flyer(p.x, p.y, BIRD, W * (Math.random() < 0.5 ? -0.7 : 0.7), -250);
-      } else if (kind === 'fish') {
-        S.boing();
-        flyer(p.x, p.y, FISH, 60, -120, 1200);
-        burst(p.x, p.y, ['drop'], 8, 70);
-      } else if (kind === 'peek') {
-        S.pop();
-        const e = document.createElement('div');
-        e.className = 'fly';
-        e.style.cssText = `left:${p.x}px;top:${p.y}px;width:70px;height:70px;margin:-50px -35px;--dx:0px;--dy:-30px;animation-duration:1.6s`;
-        e.innerHTML = bunnySVG(rand(['happy', 'surprise']));
-        fxLayer.appendChild(e);
-        setTimeout(() => e.remove(), 1650);
-      } else if (kind === 'boing') {
-        S.boing();
-        burst(p.x, p.y, ['star', 'heart'], 8, 80);
-      } else if (kind === 'rainbow' || kind === 'stars') {
-        S.sparkle();
-        burst(p.x, p.y, ['star', 'sparkle'], 14, 140);
-      } else if (kind === 'leaves') {
-        S.tap();
-        burst(p.x, p.y, ['leaf'], 9, 100);
-      } else if (kind === 'flowers') {
-        S.sparkle();
-        burst(p.x, p.y, ['flower', 'heart'], 10, 100);
-      } else if (kind === 'drops') {
-        S.tap();
-        burst(p.x, p.y, ['drop'], 10, 80);
-      } else if (kind === 'note') {
-        S.sparkle();
-        burst(p.x, p.y, ['note'], 7, 90);
-      } else if (kind === 'hearts') {
-        S.pop();
-        burst(p.x, p.y, ['heart', 'lheart'], 9, 90);
-      } else {
-        S.sparkle();
-        burst(p.x, p.y, ['sparkle', 'star'], 9, 90);
-      }
-      // まほうの レーダー：ちかさを ハートで おしえる
-      const ts = targets();
-      if (ts.length) {
-        const d = Math.min(...ts.map((id) => { const t = scene.spots.find((x) => x.id === id); return Math.hypot(t.x - s.x, t.y - s.y); }));
-        const n = d < 230 ? 3 : d < 420 ? 2 : 1;
-        const word = n === 3 ? 'すごく ちかい！' : n === 2 ? 'ちかいよ' : 'とおいかも';
-        later(() => bubble(p.x, p.y - 30, `<span class="radar">${Array.from({ length: 3 }, (_, i) => icon('heart', i < n ? '#F29CC2' : '#E6DBFF')).join('')}</span>${word}`, 1700), 250);
-      }
-    }
-    svgEl.querySelectorAll('.spot').forEach((g) => g.addEventListener('click', () => {
-      const s = scene.spots.find((x) => x.id === g.dataset.spot);
-      g.classList.remove('wiggle'); void g.getBBox(); g.classList.add('wiggle');
-      const f = plan[s.id];
-      if (f) {
-        delete plan[s.id];
-        lastFind = Date.now();
-        discover(f, s);
-      } else if (pieces.has(s.id)) {
-        pieces.delete(s.id);
-        lastFind = Date.now();
-        getPiece(s);
-      } else reaction(s);
-    }));
-
-    function getPiece(s) {
-      const p = svgToScreen(svgEl, s.x, s.y);
-      S.sparkle();
-      burst(p.x, p.y, ['star', 'sparkle'], 10, 90);
-      const slot = piecesEl.querySelectorAll('.pc')[got];
-      const r = slot ? slot.getBoundingClientRect() : { left: p.x, top: p.y, width: 0, height: 0 };
-      flyer(p.x, p.y, PIECE_SVG(true), r.left + r.width / 2 - p.x, r.top + r.height / 2 - p.y, 700);
-      got++;
-      later(() => { drawPieces(); S.pop(); }, 650);
-      if (got >= PIECES) later(showChest, 900);
-      else later(() => bubble(p.x, p.y - 20, `${icon('star')}ほしの かけら！`, 1300), 200);
-    }
-    function showChest() {
-      const c = el.querySelector('#eChest');
-      c.innerHTML = `<g class="chest tapable" transform="translate(375 640)"><g class="bounce"><circle r="120" fill="#FFF6CF" opacity=".55"/>` +
-        `<rect x="-80" y="-30" width="160" height="96" rx="14" fill="#F8BCD6" stroke="#C9668F" stroke-width="4"/><path d="M-80,-12 Q0,-96 80,-12Z" fill="#F29CC2" stroke="#C9668F" stroke-width="4"/>` +
-        `<rect x="-80" y="-18" width="160" height="16" fill="${KP.GOLD.base}" stroke="${KP.GOLD.line}" stroke-width="2"/><rect x="-16" y="-8" width="32" height="36" rx="8" fill="${KP.GOLD.base}" stroke="${KP.GOLD.line}" stroke-width="2"/>` +
-        KP.heart(0, 40, 14, '#fff') + KP.sparkle(-96, -70, 14, '#fff') + KP.sparkle(100, -50, 10, '#FFE28A') + `</g></g>`;
-      S.find();
-      pyon('notify', 2000);
-      const p = svgToScreen(svgEl, 375, 560);
-      bubble(p.x, p.y, `${icon('star')}たからばこが でたよ！`, 2200);
-      c.querySelector('.chest').addEventListener('click', (e) => {
-        e.stopPropagation();
-        openChest();
-      }, { once: true });
-    }
-    function openChest() {
-      const c = el.querySelector('#eChest');
-      const p = svgToScreen(svgEl, 375, 640);
-      S.find();
-      burst(p.x, p.y, ['star', 'heart', 'sparkle'], 20, 180);
-      c.innerHTML = '';
-      got = 0;
-      drawPieces();
-      // まだ みつけていない ものを ひとつ プレゼント（なければ スタンプ）
-      const R = remaining().sort((x, y) => findPrio(x) - findPrio(y) || Math.random() - 0.5);
-      const f = R[0];
-      if (f) {
-        for (const k in plan) if (plan[k] === f) delete plan[k];
-        discover(f, { x: 375, y: 640 });
-      } else finishGame(() => {}, { cont: true });
-      scatterPieces();
-    }
-
-    function discover(f, s) {
-      const p = svgToScreen(svgEl, s.x, s.y);
-      S.find();
-      burst(p.x, p.y, ['star', 'sparkle', 'heart'], 16, 140);
-      if (f.kind === 'friend') {
-        if (!G.collection.unlockedCharacterIds.includes(f.id)) G.collection.unlockedCharacterIds.push(f.id);
-        if (!G.friends.inRoom.includes(f.id)) G.friends.inRoom.push(f.id);
-      } else if (!G.collection.discoveredItemIds.includes(f.id)) G.collection.discoveredItemIds.push(f.id);
-      if (!G.newIds.includes(f.id)) G.newIds.push(f.id);
-      const forMission = target && f.id === target.id && !missionDone;
-      if (forMission) missionDone = true;
-      save();
-      pyon('notify', 2000);
-      foundBar();
-      drawMission();
-      later(() => showFound(f, forMission), 450);
-    }
-    function showFound(f, forMission) {
-      const m = document.createElement('div');
-      m.className = 'modal';
-      const useBtn = f.kind === 'item'
-        ? `<button class="pill main" data-a="use">${icon('dress', '#fff')}きてみる</button>`
-        : f.kind === 'furn'
-          ? `<button class="pill main" data-a="use">${icon('house', '#fff')}おへやに おく</button>`
-          : `<button class="pill main" data-a="use">${icon('friends', '#fff')}あそびに いく</button>`;
-      m.innerHTML = `<div class="card"><h2>${f.kind === 'friend' ? 'なかまに なったよ！' : 'みつけた！'}</h2>` +
-        `<div class="big"><div class="rays"></div>${f.kind === 'friend' ? charSVG(friendOpt(f.id, { expr: 'joy', pose: 'wave' })) : findSVG(f)}</div>` +
-        `<div class="nm">${esc(findName(f))}</div>` +
-        (forMission ? `<div class="thanks">${giver === 'pyonta' ? '' : `<span class="mface">${faceSVG(friendOpt(giver, { expr: 'joy' }))}</span>`}${esc(mateName(giver))}「ありがとう！」</div>` : '') +
-        `<div class="acts">${useBtn}<button class="pill" data-a="cont">${icon('search')}つづける</button></div>` +
-        `<div class="pyon-mini">${bunnySVG('notify')}</div></div>`;
-      document.body.appendChild(m);
-      const r = m.querySelector('.big').getBoundingClientRect();
-      burst(r.left + r.width / 2, r.top + r.height / 2, ['star', 'sparkle'], 12, 160);
-      const after = () => { if (forMission) finishGame(() => {}, { cont: true }); };
-      m.querySelector('[data-a=cont]').addEventListener('click', () => { S.tap(); m.remove(); after(); });
-      m.querySelector('[data-a=use]').addEventListener('click', () => {
-        S.pick();
-        m.remove();
-        if (forMission) { G.stamps = (G.stamps || 0) + 1; grantPrize(); save(); }
-        if (f.kind === 'item') {
-          const it = D.ITEMS[f.id];
-          const eq = G.character.equippedItems;
-          eq[it.slot] = it.id;
-          clearNew(it.id);
-          save();
-          go('dress', { tab: it.slot, who: 'fuutan' });
-        } else if (f.kind === 'furn') go('room', { place: f.id });
-        else { clearNew(f.id); go('friends'); }
-      });
-    }
   };
 
   // ================= おへやづくり =================
@@ -1225,7 +942,7 @@
       if (b.dataset.locked) {
         S.tap();
         const r = b.getBoundingClientRect();
-        bubble(r.left + r.width / 2, r.top, `${icon('search')}たんけんで あえるかも`);
+        bubble(r.left + r.width / 2, r.top, `${icon('book')}おはなしで あえるかも`);
         return;
       }
       const list = G.friends.inRoom;
@@ -1324,6 +1041,7 @@
         `<g transform="translate(70 0) scale(0.66)">${KP.drawChar({ ...snapHair(a.snapshot), outfit: toDraw(a.snapshot), pose: 'cheer', expr: 'joy' })}</g>` +
         `<g transform="translate(14 360) scale(0.6)">${KP.drawBunny('happy')}</g>`);
     }
+    if (A.snapExtra) { const x = A.snapExtra(a); if (x) return x; }
     if (a.type === 'cake') {
       return svg('40 60 520 420', `<rect x="0" y="0" width="600" height="520" fill="#FFF6FA"/>` + drawCake(a.snapshot) + KP.sparkle(90, 120, 14, '#FFE59A') + KP.heart(510, 140, 12, '#F8BCD6')).replace('<svg ', '<svg preserveAspectRatio="xMidYMid slice" ');
     }
@@ -1346,7 +1064,7 @@
     bindHome(el);
     const body = el.querySelector('#aBody');
     const fmt = (t) => { const d = new Date(t); return `${d.getMonth() + 1}がつ ${d.getDate()}にち`; };
-    const capOf = (a) => (a.type === 'outfit' ? 'へんしん' : a.type === 'room' ? 'おへや' : a.type === 'cake' ? 'ケーキ' : 'なかまと');
+    const capOf = (a) => ({ outfit: 'へんしん', room: 'おへや', cake: 'ケーキ', show: 'ファッションショー', dish: 'おつかい', clinic: 'はいしゃさん' }[a.type] || 'なかまと');
     function render() {
       let o = `<div class="sec-h">${icon('camera')}きねんの しゃしん</div>`;
       o += G.album.length
@@ -1872,7 +1590,17 @@
   };
 
   // ================= はじめる =================
-  const start = (location.hash || '').slice(1);
-  go(SCREENS[start] && start !== 'henshin' ? start : 'home');
+  // おはなし（story.js）などが つかう なかみ
+  const A = (KP.app = {
+    D, S, SCREENS, svg, icon, rand, esc, go, later, every, burst, bubble, flyer, save, toDraw, owned, clearNew,
+    faceSVG, charSVG, bunnySVG, itemSVG, findSVG, findName, fuutanOpt, friendOpt, fuuHair, hairOpt, EYE_FOR, HAIR_STYLES, HAIR_COLORS,
+    topbar, bindHome, partyBG, roomFurnitureSVG, dressRoomBG, grantPrize, rec,
+    onCleanup: (fn) => cleanup.push(fn),
+    get G() { return G; },
+  });
+  window.addEventListener('DOMContentLoaded', () => {
+    const start = (location.hash || '').slice(1);
+    go(SCREENS[start] && !['henshin', 'story'].includes(start) ? start : 'home');
+  });
   window.KPGame = { go, get state() { return G; } };
 })();

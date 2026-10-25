@@ -71,7 +71,7 @@
     },
   };
   const CH = { C: [48, 64, 67], Am: [45, 64, 69], F: [41, 65, 69], G: [43, 62, 67], Dm: [50, 65, 69] };
-  let bgmName = null, bgmTimer = 0, bgmGain = null, nextT = 0, mi = 0, mt = 0;
+  let startT = 0, bgmName = null, bgmTimer = 0, bgmGain = null, nextT = 0, mi = 0, mt = 0;
   function note(f, t, dur, vol, type = 'sine') {
     const c = ctx;
     const o = c.createOscillator(), g = c.createGain();
@@ -124,6 +124,7 @@
     bgmGain.gain.value = 0.9;
     bgmGain.connect(ctx.destination);
     nextT = ctx.currentTime + 0.15;
+    startT = nextT;
     mi = 0; mt = 0;
     tick();
     bgmTimer = setInterval(tick, 150);
@@ -134,6 +135,32 @@
     if (bgmGain && ctx) { const old = bgmGain; bgmGain = null; old.gain.setTargetAtTime(0, ctx.currentTime, 0.15); setTimeout(() => old.disconnect(), 1000); }
     return n;
   };
+  // リズムゲームよう：きょくを はじめから ならして かいしじこくを かえす
+  S.restartBgm = function (name) {
+    bgmName = null;
+    S.bgm(name);
+    return ctx && S.on ? { t0: startT, spb: 60 / SONGS[name].bpm } : null;
+  };
+  S.now = () => (ctx ? ctx.currentTime : performance.now() / 1000);
+  S.hasClock = () => !!(ctx && S.on);
+  // こえ（よみあげ）
+  let voices = [];
+  const loadVoices = () => { try { voices = speechSynthesis.getVoices().filter((v) => /ja/i.test(v.lang)); } catch (e) { voices = []; } };
+  try { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; } catch (e) { /* なし */ }
+  S.speak = function (text, pitch = 1.3) {
+    if (!S.on || !S.voice) return;
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text.replace(/[「」『』]/g, ''));
+      u.lang = 'ja-JP';
+      if (voices[0]) u.voice = voices[0];
+      u.pitch = pitch;
+      u.rate = 1.05;
+      speechSynthesis.speak(u);
+    } catch (e) { /* なし */ }
+  };
+  S.voice = true;
+  S.hush = () => { try { speechSynthesis.cancel(); } catch (e) { /* なし */ } };
   S.wanted = 'home';
   S.setWanted = function (name) {
     S.wanted = name;
