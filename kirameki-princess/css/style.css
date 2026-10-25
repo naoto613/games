@@ -259,8 +259,8 @@ svg { display: block; }
 .fcell svg { width: 84%; height: 84%; }
 .fcell.sel { border-color: var(--pink-d); transform: scale(1.05); box-shadow: 0 0 0 4px #FFE3EF; }
 .fcell .new { position: absolute; left: -4px; top: -6px; background: #FF8FB8; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 10px; border: 2px solid #fff; }
-.hint { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); background: #fff; border: 3px solid var(--pink); border-radius: 30px; padding: 6px 14px; font-size: 16px; display: flex; align-items: center; gap: 6px; pointer-events: none; animation: bob 1.2s ease-in-out infinite; white-space: nowrap; z-index: 3; }
-.hint .ico { width: 28px; height: 28px; }
+.roomwrap > .hint, .screen > .hint { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); background: #fff; border: 3px solid var(--pink); border-radius: 30px; padding: 6px 14px; font-size: 16px; display: flex; align-items: center; gap: 6px; pointer-events: none; animation: bob 1.2s ease-in-out infinite; white-space: nowrap; z-index: 3; }
+.roomwrap > .hint .ico, .screen > .hint .ico { width: 28px; height: 28px; }
 @keyframes bob { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 4px); } }
 
 /* ---- なかま ---- */

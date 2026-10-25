@@ -91,6 +91,7 @@
 各ゲームは `<ゲーム名>/index.html` の 1 フォルダ 1 ゲーム構成で、置いた HTML がそのまま配信されます。
 `fuchan-hospital`・`cure-tantei`・`futan-sagase` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
 `monster-echoes` も TypeScript なので、`cd monster-echoes && npm install && npm run build` で `game.js` を再生成してからコミットしてください（`npm test` でテスト、`npm run sim` で難易度シミュレーションの表）。
+`kirameki-princess` は js・css を かえたら `index.html` の `?v=` の ばんごうも かえる（スマホに ふるい ファイルが のこらない ように）。
 `mori-itazura` は TypeScript なので、`cd mori-itazura && npm install && npm run build` で `game.js` を再生成してからコミットしてください（`npm test` でテスト）。
 
 ## ゲームの追加方法
