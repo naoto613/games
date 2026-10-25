@@ -3,10 +3,7 @@
 ブラウザで遊べるゲームを GitHub Pages で公開するリポジトリです。
 
 - 一覧ページ: https://naoto613.github.io/games/
-- ブラスター・リオ 〜8つのギアと くろいいんせき〜: https://naoto613.github.io/games/blaster-rio/
-- Org Change Lab: https://naoto613.github.io/games/org-change-lab/
 - どうぶつ クイズ: https://naoto613.github.io/games/animal-quiz/
-- 余白のアーカイブ — 世界がそうなった理由 —: https://naoto613.github.io/games/yohaku-archive/
 - AI Builders Radar: https://naoto613.github.io/games/ai-pm-radar/
 - ぺたぺた！つくってワールド: https://naoto613.github.io/games/petapeta-craft/
 - ぺたぺた！あそびタウン: https://naoto613.github.io/games/petapeta-town/
@@ -26,23 +23,8 @@
 ├── thumbs/                 # 一覧ページ用サムネイル（<ゲームフォルダ名>.jpg、800×500）
 ├── .nojekyll               # Jekyll 処理を無効化（ファイルをそのまま配信）
 ├── README.md
-├── blaster-rio/
-│   ├── index.html          # ブラスター・リオ（ロックマン8風の操作・構成をオマージュしたオリジナル横スクロールアクション。8体のボス＋序盤・中盤・最終ステージ、ボスを倒すと武器を入手、弱点武器、ためうち・スライディング・はしご、ボルトでショップ、ポーズでEカン、localStorage セーブ、キーボード/ゲームパッド/タッチ対応）
-│   └── js/                 # core（入力・音）/ data（武器・ボス・ステージDSL）/ world（マップ・背景）/ actors / bosses / render / main（ビルド不要）
-├── org-change-lab/
-│   ├── index.html          # Org Change Lab（EM向けの組織変革ワークベンチ。詳細設計書 v1.0 の初期版。変革案件ごとに 事実・解釈・仮説・判断を分けた課題分析 → 介入案の比較と採否 → 関係者・合意 → 実行計画・成功条件・成果の4階層の指標 → 効果検証（効果と因果の不確実性を分離）→ 学習記録。AI は役割別の6エージェント（構造分析・批判的レビュー・介入設計・ステークホルダー・効果検証・学習記録）で、コピー＆ペースト方式（APIキー不要）か server/ 経由の Claude。AIの出力は確認・選択してから保存。IndexedDB 保存、JSON バックアップ・復元、Markdown レポート、指標 CSV 取り込み。PC・スマホ両対応）
-│   ├── src/                # Vanilla JS（ES Modules）：domain / repositories / services / ai / components / pages（ビルド不要）
-│   ├── server/             # AI 接続用バックエンド（cd server && npm install、ANTHROPIC_API_KEY=... node server/index.js）
-│   ├── tests/              # node --test（npm test）
-│   └── tools/              # e2e.mjs（受け入れテストを Playwright で通す）・smoke.mjs・shot.mjs
 ├── animal-quiz/
 │   └── index.html          # どうぶつ クイズ（5歳向けの 3択クイズ。どうぶつ32しゅ（えもじ）で「なまえ」「なきごえ」「とくちょう」「たべもの」の もんだいを 1かい10もん。もんだいと えらびしを 音声（Web Speech API の よみあげ）で あんないし、よんでいる えらびしが ひかる。まちがえると その えらびしが うすくなり もういちど えらべるので かならず ぜんもん クリアできる。こうかおんは Web Audio。単一 HTML で完結）
-├── yohaku-archive/
-│   ├── index.html          # 余白のアーカイブ — 世界がそうなった理由 —（企画・詳細設計書どおりの因果編集型RPG。設計書18章「最初のプレイアブル版」を中心に、序章「存在しない母親」＋第一章「繰り返される街」（灰鐘市・クエスト「鐘の鳴らない朝」）を収録。出来事をノード、因果関係を線で表す因果編集（接続・切断・反転・保留。余白のコスト・根拠となる記録・矛盾の許容量・編集前の予測・隠れた代償・取り消し）を、探索パズル7問＋仮説ボード・戦闘で同じ仕組みとして使う。ターン制戦闘は敵の行動予告と成立条件を表示し、条件を崩すと行動が「不成立」になる（編集は2ターンで元に戻る）。ボス「白紙の書架」「沈黙の王」は独自の因果ルール、鐘楼の仕掛けも使える。仲間ドラン（信頼度）、スキルツリー3系統（編纂・観測・干渉）・装備・店、メイン4本＋サイド3本のクエスト、観測力で見つかる隠し記録。選択で街の台詞・店・通れる場所が変わり、結末は4つ（1つは世界の矛盾をどう扱ってきたかが条件の隠し結末）。世界状態（安定度・修復数・矛盾・信頼・方針）、IndexedDB の自動／手動セーブとエクスポート・インポート、Web Audio の音楽と環境音（欠因の度合いで旋律の音が欠ける）。PC・スマホ両対応）
-│   ├── game.js             # ビルド済み（src/ を esbuild でまとめたもの）
-│   ├── src/                # TypeScript: engine（因果編集・戦闘・状態・セーブ。DOM 非依存）/ data（記録・パズル・敵・区域とイベント・クエスト・スキル・装備）/ ui（フィールド・因果編集画面・戦闘・メニュー・音・ドット絵）/ app（進行・保存）
-│   ├── tests/              # Vitest（因果編集・戦闘・セーブ・全パズルの結末への到達可能性・区域とスクリプトの整合性・難易度表 tests/balance）
-│   └── tools/              # e2e.mjs（Playwright で序章〜第一章の結末まで通しプレイ）、shot.mjs
 ├── ai-pm-radar/
 │   ├── index.html          # AI Builders Radar（AI活用・PdM・EM の3テーマに絞って良質な公開情報を集める静的ダッシュボード。日本語／English／LayerX（旧 LayerX Radar：LayerX の公開技術情報）をタブで分けて表示し、その下の4つのテーマチップで切り替え。一覧はいつも新しい順、既読・ブックマーク・学びのメモ・手動追加は localStorage）
 │   ├── app.js / styles.css
@@ -97,7 +79,6 @@
 各ゲームは `<ゲーム名>/index.html` の 1 フォルダ 1 ゲーム構成で、置いた HTML がそのまま配信されます。
 `fuchan-hospital`・`cure-tantei`・`futan-sagase` はソースを `src/` に分割しているので、編集後に `cd <フォルダ> && python3 build.py` で `index.html` を再生成してからコミットしてください。
 `monster-echoes` も TypeScript なので、`cd monster-echoes && npm install && npm run build` で `game.js` を再生成してからコミットしてください（`npm test` でテスト、`npm run sim` で難易度シミュレーションの表）。
-`yohaku-archive` も TypeScript なので、`cd yohaku-archive && npm install && npm run build` で `game.js` を再生成してからコミットしてください（`npm test` でテスト）。
 `mori-itazura` は TypeScript なので、`cd mori-itazura && npm install && npm run build` で `game.js` を再生成してからコミットしてください（`npm test` でテスト）。
 
 ## ゲームの追加方法
