@@ -120,7 +120,6 @@ const PAL = {
   eye: [['くろ', '#2a1c1c'], ['あお', '#1f3f9a'], ['みどり', '#1f7a3a'], ['むらさき', '#5a2a8a'], ['ピンク', '#b02a6a'], ['ちゃいろ', '#6a3a1a']],
   paci: [['ピンク', '#ffd0e0', '#ff9ccf'], ['みずいろ', '#cfeaff', '#6ab8f5'], ['きいろ', '#fff2a8', '#f5c830'], ['みどり', '#d4f5c4', '#5ac85a'], ['むらさき', '#ead6ff', '#a86ae8'], ['オレンジ', '#ffe0c0', '#ff9a3a']],
   wing: [['みずいろ', '#cfe2ff'], ['ピンク', '#ffc8e4'], ['きいろ', '#fff0a0'], ['みどり', '#c8f5c0'], ['むらさき', '#dcc8ff'], ['にじいろ', 'rainbow']],
-  body: [['しろ', '#ffffff', '#f3dc5a'], ['ピンク', '#ffd6e8', '#ff7ab5'], ['みずいろ', '#d6ecff', '#4a8de0'], ['きいろ', '#fff4b8', '#ff9a2a'], ['みどり', '#dcf5d0', '#3fae5a'], ['むらさき', '#ecdcff', '#8a52c8']],
   hat: [['もとの いろ', null], ['あか', '#ff6a6a'], ['あお', '#6a9cff'], ['みどり', '#7ad870'], ['むらさき', '#b88cff'], ['きいろ', '#ffd84a'], ['ピンク', '#ffa8cc']],
   glass: [['もとの いろ', null], ['あか', '#e0403a'], ['あお', '#3f6fd8'], ['きんいろ', '#e8a820'], ['ピンク', '#ff5fa2'], ['みどり', '#3fae5a']],
 };
@@ -283,8 +282,8 @@ function layout() {
   W = innerWidth; H = innerHeight; DPR = Math.min(2, devicePixelRatio || 1);
   for (const c of [bgC, glC, fxC]) { c.width = Math.round(W * DPR); c.height = Math.round(H * DPR); }
   const topH = 60, botH = 100, avail = H - topH - botH;
-  Dsz = Math.min(W * 1.22, avail * 1.02); scl = Dsz / SZ;
-  ox = W / 2 - FX * scl; oy = topH + avail / 2 - 540 * scl;
+  Dsz = Math.min(W * 1.3, avail * 1.22); scl = Dsz / SZ;
+  ox = W / 2 - FX * scl; oy = topH + avail / 2 - 455 * scl;
   const want = Dsz * DPR > 820 ? 1024 : 768;
   if (want !== TEX) { TEX = want; }
   tex.width = tex.height = TEX; TS = TEX / SZ;
@@ -322,14 +321,6 @@ function drawWings(t) {
     g.beginPath(); for (const k of [0.35, 0.6, 0.85]) { g.moveTo(sd * 60, 0); g.lineTo(sd * (40 + 225 * k), -20 + 40 * k); } g.stroke();
     g.restore();
   }
-}
-function drawBody() {
-  ell(0, 380, 236, 128); fo(pc('body'), 10);
-  g.save(); ell(0, 380, 236, 128); g.clip();
-  g.strokeStyle = pc('body', 2); g.lineWidth = 26; g.beginPath(); g.moveTo(-95, 270); g.lineTo(-110, 540); g.moveTo(95, 270); g.lineTo(110, 540); g.stroke();
-  g.restore();
-  // えり
-  g.beginPath(); g.moveTo(-120, 288); g.quadraticCurveTo(0, 360, 120, 288); g.lineWidth = 9; g.strokeStyle = pc('body', 2); g.stroke();
 }
 function drawHead(lx) {
   const ears = [[-300 - lx * 0.35, 36, 60, 64], [300 - lx * 0.35, 36, 60, 64]];
@@ -509,7 +500,6 @@ function drawTexture(t) {
   g.translate(FX, FY);
   const lx = S.lookX * 20, ly = S.lookY * 12;
   drawWings(t);
-  drawBody();
   drawHead(lx);
   // ほっぺ
   g.fillStyle = pc('cheek'); g.globalAlpha = 0.5 + S.blush * 0.35;
@@ -542,6 +532,7 @@ function drawTexture(t) {
 
 /* ================= ぶつり（ぷるぷる） ================= */
 const grabs = new Map();
+const prevX = new Float32Array(NV), prevY = new Float32Array(NV);
 function step(h) {
   const R = N + 1;
   for (let k = 0; k < NV; k++) {
@@ -555,17 +546,19 @@ function step(h) {
     const ay = -KSPR * dy[k] - DAMP * vy[k] + KLAP * (sy / n - dy[k]);
     vx[k] += ax * h; vy[k] += ay * h;
   }
+  if (grabs.size) { prevX.set(dx); prevY.set(dy); }
   for (let k = 0; k < NV; k++) { dx[k] += vx[k] * h; dy[k] += vy[k] * h; }
   if (grabs.size) {
+    // つかんだ ところは ゆびに ぴったり、まわりは なめらかな ガウスの おもみで ついてくる
     for (let k = 0; k < NV; k++) {
-      let tx = 0, ty = 0, bw = 0;
-      for (const gr of grabs.values()) { const w = gr.w[k]; if (w > 0.003) { tx += w * gr.ddx; ty += w * gr.ddy; if (w > bw) bw = w; } }
-      if (bw > 0) {
-        const kk = Math.min(1, bw * 1.7) * 0.5;
-        const nx = dx[k] + (tx - dx[k]) * kk, ny = dy[k] + (ty - dy[k]) * kk;
-        vx[k] = lerp(vx[k], clamp((nx - dx[k]) / h, -3000, 3000), kk); vy[k] = lerp(vy[k], clamp((ny - dy[k]) / h, -3000, 3000), kk);
-        dx[k] = nx; dy[k] = ny;
-      }
+      let tx = 0, ty = 0, sw = 0;
+      for (const gr of grabs.values()) { const w = gr.w[k]; if (w > 0.002) { tx += w * gr.ddx; ty += w * gr.ddy; sw += w; } }
+      if (sw <= 0.002) continue;
+      const a = Math.min(1, sw), q = a / sw;
+      const nx = dx[k] * (1 - a) + tx * q, ny = dy[k] * (1 - a) + ty * q;
+      vx[k] = vx[k] * (1 - a) + a * clamp((nx - prevX[k]) / h, -2500, 2500);
+      vy[k] = vy[k] * (1 - a) + a * clamp((ny - prevY[k]) / h, -2500, 2500);
+      dx[k] = nx; dy[k] = ny;
     }
   }
 }
@@ -662,7 +655,6 @@ function partAt(x, y) {
   if (d(0, 176) < 76) return 'kuchi';
   if (d(-186, 128) < 100 || d(186, 128) < 100) return 'hoppe';
   if (y > 232 && y < 300 && Math.abs(x) < 150) return 'ago';
-  if (y > 280) return 'karada';
   if (y < -60) return 'kami';
   return 'kao';
 }
@@ -705,9 +697,6 @@ function tapPart(rxp, ryp, sx, sy) {
     case 'ago':
       SFX.puni(); talk('あぶー'); say('あぶー', true); found('ago'); expr('wide', 'babble', 1.4);
       impulse(...P(0, 260), 90, (ux, uy, w) => [0, 600 * w]); break;
-    case 'karada':
-      SFX.puni(); talk('ばぶー'); say('ばぶー'); expr('happy', 'laugh', 1);
-      impulse(rxp, ryp, 90, (ux, uy, w) => [ux * 500 * w, uy * 500 * w]); break;
     default:
       SFX.puni(); talk(pick(['ぷに', 'ぷにぷに', 'むにっ']));
       impulse(rxp, ryp, 90, (ux, uy, w, dd) => [ux * 600 * w * Math.min(1, dd / 60), uy * 600 * w * Math.min(1, dd / 60)]);
@@ -774,6 +763,17 @@ glC.addEventListener('pointercancel', endGrab);
 glC.addEventListener('lostpointercapture', endGrab);
 glC.addEventListener('contextmenu', (e) => e.preventDefault());
 
+// ひっぱる おもみ：うしろ（ひっぱる むきと はんたい）は みじかく のびて、まえは いっしょに ついてくる。
+// まえも みじかいと つかんだ ところが まえの はだを おいこして かおが おりかさなるので、のばすほど ながくする
+function setWeights(gr) {
+  const D = Math.hypot(gr.ddx, gr.ddy);
+  const ux = D > 1 ? gr.ddx / D : 1, uy = D > 1 ? gr.ddy / D : 0;
+  const sb = 2 * SIGMA * SIGMA, sf = 2 * Math.max(SIGMA, D * 0.85) ** 2, sp = 2 * (SIGMA * 1.05) ** 2;
+  for (let k = 0; k < NV; k++) {
+    const ex = rx[k] - gr.rx, ey = ry[k] - gr.ry, al = ex * ux + ey * uy, pe = ey * ux - ex * uy;
+    gr.w[k] = Math.exp(-(al * al) / (al > 0 ? sf : sb) - (pe * pe) / sp);
+  }
+}
 function updateGrabs() {
   let mx = 0, spd = 0;
   for (const gr of grabs.values()) {
@@ -781,6 +781,7 @@ function updateGrabs() {
     const L = Math.hypot(ddx, ddy), LIM = 430;
     if (L > 1) { const k = (LIM * Math.tanh(L / LIM)) / L; ddx *= k; ddy *= k; }
     gr.ddx = gr.base[0] + ddx; gr.ddy = gr.base[1] + ddy; gr.len = Math.hypot(ddx, ddy);
+    setWeights(gr);
     mx = Math.max(mx, gr.len); spd = Math.max(spd, gr.speed); gr.speed *= 0.9;
   }
   S.stretch = mx;
@@ -885,7 +886,7 @@ function drawTool() {
 }
 
 /* いろを かえる モード */
-const COLOR_PART = { me: 'eye', hana: 'skin', kao: 'skin', ago: 'skin', mimi: 'skin', hoppe: 'cheek', kuchi: 'paci', kami: 'hair', hat: 'hat', hane: 'wing', karada: 'body' };
+const COLOR_PART = { me: 'eye', hana: 'skin', kao: 'skin', ago: 'skin', mimi: 'skin', hoppe: 'cheek', kuchi: 'paci', kami: 'hair', hat: 'hat', hane: 'wing' };
 function colorTap(rxp, ryp, sx, sy) {
   const x = rxp - FX, y = ryp - FY;
   let part = partAt(x, y);
@@ -995,7 +996,7 @@ function drawBG(t) {
     else { bg.fillStyle = '#ffffff'; bg.beginPath(); bg.arc(x, y, 18 + (i % 3) * 8, 0, TAU); bg.arc(x + 24, y + 6, 14 + (i % 3) * 6, 0, TAU); bg.arc(x - 22, y + 8, 12 + (i % 3) * 5, 0, TAU); bg.fill(); }
   }
   bg.globalAlpha = 1;
-  const [sx, sy] = [W / 2, oy + (FY + 460) * scl];
+  const [sx, sy] = [W / 2, oy + (FY + 360) * scl];
   bg.fillStyle = 'rgba(120,60,110,.13)'; bg.beginPath(); bg.ellipse(sx, sy, Dsz * 0.32, Dsz * 0.04, 0, 0, TAU); bg.fill();
 }
 function drawFX(t, dt) {
@@ -1049,7 +1050,7 @@ function drawFX(t, dt) {
     fx.restore();
     fx.font = '900 ' + clamp(Dsz * 0.045, 15, 24) + 'px "Hiragino Maru Gothic ProN",sans-serif'; fx.textAlign = 'center';
     fx.lineWidth = 6; fx.strokeStyle = '#fff'; fx.fillStyle = '#e04a8c';
-    const ty = Math.min(H - 118, oy + 850 * scl);
+    const ty = Math.min(H - 118, oy + (FY + 345) * scl);
     const msg = colorHint ? 'さわった ところの いろが かわるよ' : 'かおを つまんで ひっぱってみてね';
     fx.strokeText(msg, W / 2, ty); fx.fillText(msg, W / 2, ty);
   }
