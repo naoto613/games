@@ -610,8 +610,8 @@
   };
   KP.EYES = EYES;
   const HAIRS = {
-    lav: { base: '#C7B0F2', light: '#F1EAFF', dark: '#9A7FDB', deep: '#7D61C4', line: '#7458B8', tip: '#F3C8EC' },
-    pink: { base: '#F9BCD4', light: '#FFEAF2', dark: '#EC8FB6', deep: '#D7709C', line: '#C25E88', tie: '#FFE08A' },
+    lav: { base: '#C7B0F2', light: '#F1EAFF', dark: '#9A7FDB', deep: '#7D61C4', line: '#7458B8', tip: '#F3C8EC', tie: '#F8BCD6' },
+    pink: { base: '#F9BCD4', light: '#FFEAF2', dark: '#EC8FB6', deep: '#D7709C', line: '#C25E88', tie: '#FFE08A', tip: '#FFE3EF' },
     blue: { base: '#AFCBF6', light: '#EAF3FF', dark: '#7FA4E6', deep: '#6188D0', line: '#5576BC', tie: '#FFE08A' },
     yellow: { base: '#FFE39A', light: '#FFF8DE', dark: '#F5C55C', deep: '#E2A93C', line: '#C48E2C', tie: '#F8BCD6' },
     mint: { base: '#B4E8D6', light: '#ECFCF6', dark: '#7FCDB2', deep: '#5CB396', line: '#4C9C82', tie: '#F8BCD6' },

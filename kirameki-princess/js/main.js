@@ -17,7 +17,7 @@
   const KEY = 'kirameki-princess-room-v1';
   function freshSave() {
     return {
-      version: 1,
+      version: 2,
       character: { equippedItems: { ...D.DEFAULT_OUTFIT }, savedOutfits: [] },
       room: JSON.parse(JSON.stringify(D.DEFAULT_ROOM)),
       collection: { discoveredItemIds: [], unlockedCharacterIds: ['momo'] },
@@ -36,6 +36,13 @@
     for (const k in f.friends) if (G.friends[k] == null) G.friends[k] = f.friends[k];
   } catch (e) {
     G = freshSave();
+  }
+  if (G.version < 2) {
+    // ふーたんの いろを ピンクに かえた ときの ひっこし（さいしょの ままなら あたらしい いろに）
+    const OLD = { tops: 'blouse-lav', skirt: 'frill-lav', onepiece: null, shoes: 'pumps-lav', hair: 'hairbows-lav', ribbon: 'chestbow-pink', magic: 'starwand-lav' };
+    if (JSON.stringify(G.character.equippedItems) === JSON.stringify(OLD)) G.character.equippedItems = { ...D.DEFAULT_OUTFIT };
+    G.room.furniture.forEach((f) => { if (f.instanceId === 'f3' && f.color === 'lav') f.color = 'pink'; if (f.instanceId === 'f2' && f.color === 'lav') f.color = 'pink'; });
+    G.version = 2;
   }
   S.on = G.sound !== false;
   let saveTimer = 0;
@@ -68,8 +75,9 @@
     return o;
   }
   const CHAR_VB = '0 -30 400 680';
+  const FUU = { hairStyle: 'long', hairColor: 'pink', eyeColor: 'pink' };
   function fuutanOpt(extra = {}) {
-    return { hairStyle: 'long', hairColor: 'lav', eyeColor: 'lav', outfit: toDraw(G.character.equippedItems), ...extra };
+    return { ...FUU, outfit: toDraw(G.character.equippedItems), ...extra };
   }
   function friendOpt(fid, extra = {}) {
     if (fid === 'fuutan') return fuutanOpt(extra);
@@ -307,7 +315,7 @@
       `<path d="M120,700 L120,190 A180,180 0 0,1 480,190 L480,700Z" fill="url(#${id}m)" stroke="#fff" stroke-width="14"/>` +
       `<path d="M120,700 L120,190 A180,180 0 0,1 480,190 L480,700Z" fill="none" stroke="#E2D6F6" stroke-width="4"/>` +
       `<path d="M150,140 L190,100 M140,190 L230,100" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".8"/>` +
-      KP.drawCurtains(70, 40, 460, 560, KP.PAL.lav) +
+      KP.drawCurtains(70, 40, 460, 560, KP.PAL.pink) +
       `<ellipse cx="300" cy="660" rx="200" ry="34" fill="#E9DEFF"/><ellipse cx="300" cy="656" rx="160" ry="24" fill="#F6F0FF"/>` +
       KP.sparkle(90, 250, 10, '#fff') + KP.sparkle(520, 300, 12, '#fff') + KP.star(540, 520, 8, '#FFE59A') + KP.heart(70, 470, 8, '#F8BCD6');
   }
@@ -369,7 +377,7 @@
       if (dressTab === 'saved') {
         if (!G.character.savedOutfits.length) return `<div class="empty-msg" style="grid-column:1/-1">「ほぞん」を おすと ここに はいるよ</div>`;
         return G.character.savedOutfits.map((o, i) =>
-          `<button class="cell" data-saved="${i}">${svg('40 -20 320 660', KP.drawChar({ hairStyle: 'long', hairColor: 'lav', eyeColor: 'lav', outfit: toDraw(o.equippedItems) }))}</button>`).join('');
+          `<button class="cell" data-saved="${i}">${svg('40 -20 320 660', KP.drawChar({ ...FUU, outfit: toDraw(o.equippedItems) }))}</button>`).join('');
       }
       const list = D.ITEM_LIST.filter((i) => i.slot === dressTab && owned(i.id));
       const locked = D.ITEM_LIST.filter((i) => i.slot === dressTab && !owned(i.id)).length;
@@ -1144,7 +1152,7 @@
       return svg('0 0 400 500',
         `<defs>${KP.rg(id + 'g', [[0, '#FFFFFF'], [0.5, '#EEE6FF'], [1, '#C9B5F5']], 0.5, 0.45, 0.7)}</defs><rect width="400" height="500" fill="url(#${id}g)"/>` +
         [[40, 60], [350, 90], [60, 400], [340, 380], [200, 30]].map(([x, y], i) => (i % 2 ? KP.star(x, y, 12, '#FFE59A') : KP.sparkle(x, y, 14, '#fff'))).join('') +
-        `<g transform="translate(70 0) scale(0.66)">${KP.drawChar({ hairStyle: 'long', hairColor: 'lav', eyeColor: 'lav', outfit: toDraw(a.snapshot), pose: 'cheer', expr: 'joy' })}</g>` +
+        `<g transform="translate(70 0) scale(0.66)">${KP.drawChar({ ...FUU, outfit: toDraw(a.snapshot), pose: 'cheer', expr: 'joy' })}</g>` +
         `<g transform="translate(14 360) scale(0.6)">${KP.drawBunny('happy')}</g>`);
     }
     if (a.type === 'room') {
@@ -1155,7 +1163,7 @@
     if (s.tea) o += `<g transform="translate(368 742) scale(1.2)">${KP.FURN.teatable.draw(KP.PAL.pink, KP.uid('t'))}</g>`;
     o += [...s.chars].sort((p, q) => p.y - q.y).map((c) => {
       if (c.id === 'pyonta') return castG('pyonta', c, { expr: c.expr || 'happy', anim: 'x' });
-      const base = c.id === 'fuutan' ? { hairStyle: 'long', hairColor: 'lav', eyeColor: 'lav' } : D.FRIENDS[c.id];
+      const base = c.id === 'fuutan' ? FUU : D.FRIENDS[c.id];
       const sc = 0.62;
       return `<g transform="translate(${c.x - 124} ${c.y - 640 * sc}) scale(${sc})">${KP.drawChar({ hairStyle: base.hairStyle, hairColor: base.hairColor, eyeColor: base.eyeColor, outfit: toDraw(c.outfit || {}), pose: c.pose || 'stand', expr: c.expr || 'smile' })}</g>`;
     }).join('');

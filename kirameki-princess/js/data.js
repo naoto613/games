@@ -63,8 +63,8 @@
   });
 
   const DEFAULT_OUTFIT = {
-    tops: 'blouse-lav', skirt: 'frill-lav', onepiece: null, shoes: 'pumps-lav',
-    hair: 'hairbows-lav', ribbon: 'chestbow-pink', magic: 'starwand-lav',
+    tops: 'blouse-pink', skirt: 'frill-pink', onepiece: null, shoes: 'pumps-pink',
+    hair: 'hairbows-pink', ribbon: 'chestbow-lav', magic: 'starwand-lav',
   };
 
   // かぐ
@@ -90,9 +90,9 @@
   // なかま
   const FRIENDS = {
     momo: {
-      name: 'もも', hairStyle: 'twin', hairColor: 'pink', eyeColor: 'pink',
-      outfit: { onepiece: 'princess-pink', shoes: 'pumps-pink', hair: 'bigbow-pink', ribbon: 'brooch-pink', magic: 'heartwand-pink' },
-      likes: 'pink',
+      name: 'すみれ', hairStyle: 'twin', hairColor: 'lav', eyeColor: 'lav',
+      outfit: { onepiece: 'princess-lav', shoes: 'pumps-lav', hair: 'bigbow-pink', ribbon: 'brooch-pink', magic: 'bunnywand-lav' },
+      likes: 'lav',
     },
     mizuki: {
       name: 'みずき', hairStyle: 'bob', hairColor: 'blue', eyeColor: 'blue', hidden: 1,
@@ -126,8 +126,8 @@
     wallpaperId: 'stripe', floorId: 'wood',
     furniture: [
       { instanceId: 'f1', furnitureId: 'stardeco', x: 230, y: 250, rotation: 0, color: 'yellow' },
-      { instanceId: 'f2', furnitureId: 'rug', x: 500, y: 940, rotation: 0, color: 'lav' },
-      { instanceId: 'f3', furnitureId: 'bed', x: 790, y: 900, rotation: 0, color: 'lav' },
+      { instanceId: 'f2', furnitureId: 'rug', x: 500, y: 940, rotation: 0, color: 'pink' },
+      { instanceId: 'f3', furnitureId: 'bed', x: 790, y: 900, rotation: 0, color: 'pink' },
       { instanceId: 'f4', furnitureId: 'plant', x: 110, y: 820, rotation: 0, color: 'pink' },
       { instanceId: 'f5', furnitureId: 'light', x: 230, y: 760, rotation: 0, color: 'pink' },
     ],
