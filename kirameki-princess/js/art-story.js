@@ -146,6 +146,7 @@
     o += `<g clip-path="url(#${id}c)"><ellipse cx="300" cy="360" rx="120" ry="80" fill="#6E1E3E"/><ellipse cx="300" cy="500" rx="150" ry="70" fill="#F27A9A"/><path d="M300,450 V540" stroke="#D85A80" stroke-width="5"/>`;
     // は
     KP.TEETH.forEach((t, i) => {
+      if (opt.hide && opt.hide.includes(i)) return;
       const h = 58, w = 38;
       const y0 = t.up ? t.y - h / 2 : t.y - h / 2;
       o += `<rect class="tooth" data-i="${i}" x="${t.x - w / 2}" y="${y0}" width="${w}" height="${h}" rx="14" fill="${opt.shine ? '#FFFFFF' : '#FFFDF6'}" stroke="#E6DCCB" stroke-width="2.4"/>`;
@@ -188,20 +189,58 @@
   FOOD.icecream = { name: 'アイス', d: `<path d="M30,48 L50,92 L70,48Z" fill="#F2C27C" stroke="#B5835E" stroke-width="3" stroke-linejoin="round"/><path d="M36,56 L60,56 M40,66 L58,66" stroke="#B5835E" stroke-width="2"/><circle cx="50" cy="38" r="22" fill="#FFD3E6" stroke="#E07AA8" stroke-width="3"/><circle cx="50" cy="16" r="6" fill="#F0506E"/>` };
   FOOD.juice = { name: 'ジュース', d: `<path d="M30,26 L70,26 L64,90 L36,90Z" fill="#FFE59A" stroke="#D29A3A" stroke-width="3" stroke-linejoin="round" opacity=".95"/><path d="M58,26 L66,8" stroke="#F29CC2" stroke-width="5" stroke-linecap="round"/><circle cx="44" cy="40" r="7" fill="#FF9A4A" stroke="#D8691E" stroke-width="2"/>` };
   FOOD.cookie = { name: 'クッキー', d: `<circle cx="50" cy="52" r="32" fill="#E6B07A" stroke="#B5835E" stroke-width="3"/>${[[38, 42], [60, 40], [50, 58], [36, 64], [64, 64]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="4.5" fill="#7A4A2A"/>`).join('')}` };
+  FOOD.mix = { name: 'ホットケーキミックス', d: `<rect x="20" y="16" width="60" height="74" rx="6" fill="#FFE59A" stroke="#D29A3A" stroke-width="3"/><ellipse cx="50" cy="58" rx="22" ry="8" fill="#F2B94A"/><ellipse cx="50" cy="52" rx="22" ry="8" fill="#F6C76A"/><rect x="44" y="40" width="12" height="8" rx="2" fill="#FFF6CF"/><path d="M30,26 H70" stroke="#E07AA8" stroke-width="6"/>` };
+  FOOD.butter = { name: 'バター', d: `<path d="M16,60 L50,74 L84,60 L84,46 L50,32 L16,46Z" fill="#FFF0B8" stroke="#D2A43A" stroke-width="3" stroke-linejoin="round"/><path d="M16,46 L50,60 L84,46 M50,60 V74" fill="none" stroke="#D2A43A" stroke-width="2.4"/>` };
+  FOOD.sausage = { name: 'ソーセージ', d: `<path d="M20,62 Q14,40 34,34 L70,30 Q88,30 84,50 Q80,64 64,66 L32,70 Q22,70 20,62Z" fill="#F29C8A" stroke="#C25A4A" stroke-width="3"/><path d="M40,44 l4,10 M54,42 l4,10 M68,40 l4,10" stroke="#C25A4A" stroke-width="2.4" stroke-linecap="round"/>` };
+  FOOD.corn = { name: 'とうもろこし', d: `<path d="M50,12 Q72,30 66,70 Q60,90 50,92 Q40,90 34,70 Q28,30 50,12Z" fill="#FFE07A" stroke="#D2A43A" stroke-width="3"/>${[30, 44, 58, 72].map((y) => `<path d="M38,${y} H62" stroke="#E9B44C" stroke-width="2"/>`).join('')}<path d="M50,92 Q20,80 22,46 Q36,64 50,92Z M50,92 Q80,80 78,46 Q64,64 50,92Z" fill="#9EDC9A" stroke="#4C9C5A" stroke-width="2.4"/>` };
+  FOOD.grape = { name: 'ぶどう', d: `${[[40, 34], [60, 34], [30, 52], [50, 52], [70, 52], [40, 70], [60, 70], [50, 86]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="11" fill="#9A7FDB" stroke="#6A4FB0" stroke-width="2.4"/><circle cx="${x - 3}" cy="${y - 3}" r="3" fill="#fff" opacity=".6"/>`).join('')}<path d="M50,24 Q52,10 62,8" stroke="#8A6A3A" stroke-width="4" fill="none"/><path d="M54,14 q14,-8 22,2 q-12,6 -22,-2Z" fill="#6FC3A8"/>` };
+  FOOD.peach = { name: 'もも', d: `<path d="M50,90 C20,86 14,56 26,40 C36,26 48,30 50,36 C52,30 64,26 74,40 C86,56 80,86 50,90Z" fill="#FFC2C8" stroke="#E07A8A" stroke-width="3"/><path d="M50,36 Q46,60 50,88" stroke="#E07A8A" stroke-width="2" fill="none"/><path d="M50,34 q10,-14 24,-10 q-8,12 -24,10Z" fill="#9EDC9A" stroke="#4C9C5A" stroke-width="2"/>` };
+  FOOD.donut = { name: 'ドーナツ', d: `<circle cx="50" cy="54" r="34" fill="#E6B07A" stroke="#B5835E" stroke-width="3"/><path d="M18,50 Q22,24 50,22 Q80,24 82,50 Q70,58 62,52 Q50,62 38,52 Q28,58 18,50Z" fill="#FFB8D6" stroke="#E07AA8" stroke-width="2.4"/><circle cx="50" cy="54" r="11" fill="#FFF9F0" stroke="#B5835E" stroke-width="3"/>${[[34, 36, '#FFE59A'], [62, 32, '#9EDDC8'], [70, 46, '#BCD4FA'], [40, 46, '#fff']].map(([x, y, c]) => `<rect x="${x}" y="${y}" width="8" height="3" rx="1.5" fill="${c}" transform="rotate(30 ${x} ${y})"/>`).join('')}` };
+  FOOD.croissant = { name: 'クロワッサン', d: `<path d="M12,62 Q20,30 50,28 Q80,30 88,62 Q76,56 70,64 Q62,50 50,52 Q38,50 30,64 Q24,56 12,62Z" fill="#F2C27C" stroke="#B5835E" stroke-width="3"/><path d="M36,36 Q40,48 34,60 M50,30 V52 M64,36 Q60,48 66,60" fill="none" stroke="#B5835E" stroke-width="2.4"/>` };
+  FOOD.melonpan = { name: 'メロンパン', d: `<path d="M14,60 Q14,24 50,24 Q86,24 86,60 Q50,74 14,60Z" fill="#FFE59A" stroke="#D2A43A" stroke-width="3"/><path d="M26,38 L66,70 M40,30 L80,58 M74,36 L34,68 M60,28 L20,56" stroke="#E9C25C" stroke-width="2.4"/><path d="M14,60 Q50,74 86,60 L84,70 Q50,84 16,70Z" fill="#F2C27C" stroke="#D2A43A" stroke-width="3"/>` };
+  const flowerFood = (col, name) => ({ name, d: `<path d="M50,50 L50,96 M50,74 q-16,-4 -20,-16 q14,0 20,16" stroke="#4C9C5A" stroke-width="4" fill="#9EDC9A"/>${[0, 1, 2, 3, 4].map((i) => { const a = i * 1.2566 - 1.57; return `<circle cx="${50 + Math.cos(a) * 16}" cy="${36 + Math.sin(a) * 16}" r="13" fill="${col[0]}" stroke="${col[1]}" stroke-width="2.4"/>`; }).join('')}<circle cx="50" cy="36" r="9" fill="#FFE08A" stroke="#E9B44C" stroke-width="2"/>` });
+  FOOD.fl_pink = flowerFood(['#FFB8D6', '#E07AA8'], 'ピンクの おはな');
+  FOOD.fl_yellow = flowerFood(['#FFE07A', '#D2A43A'], 'きいろの おはな');
+  FOOD.fl_white = flowerFood(['#FFFFFF', '#C9B8E6'], 'しろい おはな');
+  FOOD.fl_lav = flowerFood(['#C9B5F5', '#8C6FD6'], 'むらさきの おはな');
+  FOOD.fl_red = flowerFood(['#FF7A8A', '#C23452'], 'あかい おはな');
+  FOOD.candy = { name: 'キャンディ', d: `<path d="M14,50 L30,36 L30,64Z M86,50 L70,36 L70,64Z" fill="#F8BCD6" stroke="#E07AA8" stroke-width="3"/><circle cx="50" cy="50" r="22" fill="#F29CC2" stroke="#E07AA8" stroke-width="3"/><path d="M36,40 Q50,60 64,40" stroke="#fff" stroke-width="5" fill="none"/>` };
+  FOOD.choco = { name: 'チョコ', d: `<rect x="20" y="24" width="60" height="56" rx="6" fill="#8A5A3A" stroke="#5A3A20" stroke-width="3"/>${[0, 1, 2].map((i) => `<path d="M${20 + i * 20},24 V80" stroke="#6A4028" stroke-width="2"/>`).join('')}<path d="M20,52 H80" stroke="#6A4028" stroke-width="2"/>` };
+  FOOD.water = { name: 'おみず', d: `<path d="M28,24 L72,24 L66,90 L34,90Z" fill="#EAF6FF" stroke="#8CB4E8" stroke-width="4"/><path d="M31,46 L69,46 L66,88 L34,88Z" fill="#BFE3FF"/>` };
   KP.foodSVG = (k) => KP.svg('0 0 100 100', FOOD[k].d);
+  // ホットケーキ・ピザ・おべんとう
+  KP.DISH = KP.DISH || {};
+  KP.BG = KP.BG || {};
+  KP.DISH.pancake = `<ellipse cx="150" cy="140" rx="130" ry="40" fill="#fff" stroke="#C9B8E6" stroke-width="5"/>${[0, 1, 2].map((i) => `<ellipse cx="150" cy="${124 - i * 22}" rx="90" ry="24" fill="#E6A85A" stroke="#B5835E" stroke-width="3"/><ellipse cx="150" cy="${118 - i * 22}" rx="86" ry="18" fill="#F2C27C"/>`).join('')}<rect x="132" y="56" width="36" height="20" rx="4" fill="#FFF0B8" stroke="#D2A43A" stroke-width="2"/><path d="M100,74 Q150,96 200,74 L196,92 Q150,110 104,92Z" fill="#C98C25" opacity=".55"/>${[[96, 72], [204, 72]].map(([x, y]) => `<g transform="translate(${x - 18} ${y - 26}) scale(.36)">${FOOD.strawberry.d}</g>`).join('')}`;
+  KP.DISH.pizza = `<circle cx="150" cy="100" r="92" fill="#F2C27C" stroke="#B5835E" stroke-width="5"/><circle cx="150" cy="100" r="78" fill="#E0465E"/><circle cx="150" cy="100" r="74" fill="#FFE07A" opacity=".85"/>${[[120, 70], [180, 80], [140, 130], [190, 124], [110, 112]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="12" fill="#F29C8A" stroke="#C25A4A" stroke-width="2"/>`).join('')}${[[150, 70], [168, 108], [124, 96]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="5" fill="#FFE07A" stroke="#D2A43A" stroke-width="1.5"/>`).join('')}<path d="M150,100 L150,8 M150,100 L230,146 M150,100 L70,146" stroke="#B5835E" stroke-width="2" opacity=".5"/>`;
+  KP.DISH.bento = `<rect x="30" y="30" width="240" height="140" rx="20" fill="#F8BCD6" stroke="#E07AA8" stroke-width="5"/><rect x="44" y="44" width="212" height="112" rx="12" fill="#FFF6FA"/><path d="M150,44 V156 M44,100 H150" stroke="#F29CC2" stroke-width="4"/>`;
+  // こうえん
+  KP.BG.park = () => {
+    const id = uid('pk');
+    return `<defs>${lg(id + 's', [[0, '#BFE3FF'], [1, '#FFF0F6']])}${lg(id + 'g', [[0, '#C8EFC0'], [1, '#9FD9A8']])}</defs><rect width="750" height="1000" fill="url(#${id}s)"/>` +
+      `<ellipse cx="160" cy="130" rx="80" ry="26" fill="#fff"/><ellipse cx="560" cy="90" rx="60" ry="20" fill="#fff"/>` +
+      `<path d="M0,520 Q200,430 420,500 Q600,440 750,500 L750,1000 L0,1000Z" fill="url(#${id}g)"/>` +
+      [[110, 520, 1], [640, 500, 0.9]].map(([x, y, s]) => `<path d="M${x - 14 * s},${y} L${x - 12 * s},${y - 140 * s} L${x + 12 * s},${y - 140 * s} L${x + 14 * s},${y}Z" fill="#D9AE8C" stroke="#9A6A48" stroke-width="2"/><circle cx="${x}" cy="${y - 190 * s}" r="${86 * s}" fill="#9EDDC8" stroke="#4C9C82" stroke-width="2.4"/><circle cx="${x - 60 * s}" cy="${y - 140 * s}" r="${50 * s}" fill="#9EDDC8" stroke="#4C9C82" stroke-width="2.4"/><circle cx="${x + 60 * s}" cy="${y - 140 * s}" r="${50 * s}" fill="#9EDDC8" stroke="#4C9C82" stroke-width="2.4"/>`).join('') +
+      `<path d="M150,800 L600,800 L680,960 L70,960Z" fill="#FFB8D6" stroke="#E07AA8" stroke-width="4"/>` + Array.from({ length: 6 }, (_, i) => `<path d="M${150 + i * 75},800 L${70 + i * 122},960" stroke="#fff" stroke-width="10" opacity=".7"/>`).join('') +
+      [[60, 700], [700, 680], [380, 600], [240, 640], [520, 650]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="8" fill="${['#FFE59A', '#F8BCD6', '#fff'][i % 3]}"/>`).join('');
+  };
+  // みずたまり・ボール・しげみ
+  KP.drawPuddle = () => `<ellipse cx="60" cy="30" rx="58" ry="22" fill="#9DCDF4" stroke="#6F98E2" stroke-width="3"/><ellipse cx="44" cy="24" rx="16" ry="5" fill="#fff" opacity=".7"/>`;
+  KP.drawBall = () => `<circle cx="50" cy="50" r="36" fill="#FFB8D6" stroke="#E07AA8" stroke-width="4"/><path d="M14,50 Q50,30 86,50 M50,14 Q34,50 50,86" fill="none" stroke="#fff" stroke-width="6"/>`;
+  KP.drawBush = (c = '#9EDDC8') => `<path d="M10,90 C0,50 30,30 50,40 C60,10 100,10 108,40 C130,30 160,50 150,90Z" fill="${c}" stroke="#4C9C82" stroke-width="4"/><circle cx="50" cy="60" r="6" fill="#F8BCD6"/><circle cx="110" cy="56" r="6" fill="#FFE59A"/>`;
 
   // コイン
   KP.coin = (x = 50, y = 50, r = 40) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#FFE08A" stroke="#D29A3A" stroke-width="${r * 0.12}"/><circle cx="${x}" cy="${y}" r="${r * 0.72}" fill="none" stroke="#F2C35A" stroke-width="${r * 0.08}"/>` + star(x, y, r * 0.42, '#F2B94A', null) + sparkle(x - r * 0.4, y - r * 0.45, r * 0.18, '#fff');
 
   // できあがりの おりょうり
-  KP.DISH = {
+  KP.DISH = Object.assign(KP.DISH || {}, {
     curry: `<ellipse cx="150" cy="120" rx="130" ry="50" fill="#fff" stroke="#C9B8E6" stroke-width="5"/><ellipse cx="150" cy="116" rx="104" ry="36" fill="#FFFBEF"/><path d="M58,120 Q66,84 116,84 Q150,86 152,120 Q110,144 58,120Z" fill="#fff" stroke="#E6DCCB" stroke-width="3"/><path d="M146,92 Q226,82 246,116 Q212,148 146,142Z" fill="#C98C25" stroke="#A86B2A" stroke-width="2"/><circle cx="190" cy="108" r="11" fill="#FF9A4A"/><rect x="204" y="118" width="20" height="16" rx="5" fill="#F5D6A8"/><circle cx="170" cy="126" r="9" fill="#E6C08A"/>` + heart(96, 104, 9, '#F8BCD6'),
     sand: `<ellipse cx="150" cy="130" rx="130" ry="42" fill="#fff" stroke="#C9B8E6" stroke-width="5"/>` + [70, 150, 230].map((x) => `<g transform="translate(${x - 40} 50)"><path d="M0,70 L40,0 L80,70Z" fill="#F6E1B8" stroke="#C99A5E" stroke-width="3"/><path d="M10,60 L70,60" stroke="#9EDC9A" stroke-width="7"/><path d="M14,52 L66,52" stroke="#FFE07A" stroke-width="6"/><path d="M20,44 L60,44" stroke="#F0506E" stroke-width="6"/></g>`).join(''),
     parfait: `<path d="M100,20 L200,20 L176,150 L124,150Z" fill="#F7F2FF" stroke="#C9B8E6" stroke-width="5" opacity=".95"/><path d="M106,50 L194,50 L188,84 L112,84Z" fill="#FFD3E6"/><path d="M112,84 L188,84 L182,116 L118,116Z" fill="#FFF8DC"/><path d="M118,116 L182,116 L176,150 L124,150Z" fill="#F0506E" opacity=".7"/><circle cx="150" cy="22" r="26" fill="#fff" stroke="#E6DCCB" stroke-width="3"/>${FOOD.strawberry.d.replace(/^/, '<g transform="translate(150 -14) scale(.4)">')}</g><path d="M130,160 L170,160 L176,176 L124,176Z" fill="#C9B8E6"/>`,
-  };
+  });
 
   // ---------- はいけい（750×1000） ----------
-  KP.BG = {};
+  KP.BG = KP.BG || {};
   KP.BG.kitchen = () => {
     const id = uid('kt');
     return `<defs><pattern id="${id}t" width="60" height="60" patternUnits="userSpaceOnUse"><rect width="60" height="60" fill="#FFF8F0"/><rect width="58" height="58" x="1" y="1" fill="#FFF1F6" rx="4"/></pattern>${lg(id + 'f', [[0, '#F5DEC8'], [1, '#EBC9AA']])}</defs>` +
@@ -240,7 +279,7 @@
     return o;
   };
   KP.BG.shop = (kind) => {
-    const c = kind === 'yaoya' ? { wall: '#EFFBF5', shelf: '#D9AE8C', acc: '#6FC3A8' } : { wall: '#EEF4FF', shelf: '#B9C4DA', acc: '#6F98E2' };
+    const c = { yaoya: { wall: '#EFFBF5', shelf: '#D9AE8C', acc: '#6FC3A8' }, market: { wall: '#EEF4FF', shelf: '#B9C4DA', acc: '#6F98E2' }, bakery: { wall: '#FFF4E6', shelf: '#C99A70', acc: '#F2B94A' }, florist: { wall: '#FFF0F6', shelf: '#E6C08A', acc: '#F29CC2' } }[kind] || { wall: '#EEF4FF', shelf: '#B9C4DA', acc: '#6F98E2' };
     let o = `<rect width="750" height="1000" fill="${c.wall}"/>`;
     for (let i = 0; i < 9; i++) o += `<path d="M${i * 90},0 V560" stroke="#fff" stroke-width="20" opacity=".6"/>`;
     o += `<path d="M0,0 L750,0 L750,70 ${Array.from({ length: 10 }, (_, i) => `Q${750 - i * 75 - 37},110 ${750 - (i + 1) * 75},70`).join(' ')}Z" fill="${c.acc}" opacity=".85"/>`;

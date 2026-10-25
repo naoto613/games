@@ -499,67 +499,231 @@
   }
 
   // ================= ② ママの おつかい =================
-  const DISHES = {
-    curry: { name: 'カレー', yaoya: ['carrot', 'potato', 'onion'], market: ['curry'], verb: 'ぐつぐつ にこもう', tool: 'pot' },
-    sand: { name: 'サンドイッチ', yaoya: ['tomato', 'lettuce'], market: ['bread', 'egg', 'cheese'], verb: 'パンに はさもう', tool: 'board' },
-    parfait: { name: 'フルーツパフェ', yaoya: ['strawberry', 'banana'], market: ['icecream', 'milk'], verb: 'グラスに もりつけよう', tool: 'glass' },
+  // おはなしは 3しゅ（ばんごはん・ママの おたんじょうび・ピクニック）。おみせ・みちの できごと・りょうりの しかたが まいかい かわる
+  const SHOPS = {
+    yaoya: { name: 'やおやさん', who: 'yaoya', kind: 'dog', wear: { kind: 'apron', color: 'mint', band: 1 }, shelf: ['carrot', 'potato', 'onion', 'tomato', 'lettuce', 'strawberry', 'banana', 'apple', 'corn', 'grape', 'peach'] },
+    market: { name: 'マーケット', who: 'market', kind: 'cat', wear: { kind: 'apron', color: 'blue' }, shelf: ['egg', 'cheese', 'milk', 'curry', 'icecream', 'juice', 'cookie', 'mix', 'sausage', 'butter'] },
+    bakery: { name: 'パンやさん', who: 'baker', kind: 'bear', wear: { kind: 'chef' }, shelf: ['bread', 'croissant', 'melonpan', 'donut', 'cookie'] },
+    florist: { name: 'おはなやさん', who: 'florist', kind: 'rabbit', wear: { kind: 'apron', color: 'pink' }, shelf: ['fl_pink', 'fl_yellow', 'fl_white', 'fl_lav', 'fl_red'] },
   };
-  const SHELF = { yaoya: ['carrot', 'potato', 'onion', 'tomato', 'lettuce', 'strawberry', 'banana', 'apple'], market: ['bread', 'egg', 'cheese', 'milk', 'curry', 'icecream', 'juice', 'cookie'] };
-  const memoHTML = (list, got) => `<div class="memo">${list.map((k) => `<span class="mm${got.includes(k) ? ' got' : ''}">${KP.foodSVG(k)}${got.includes(k) ? `<i>${icon('check')}</i>` : ''}</span>`).join('')}</div>`;
+  Object.assign(CAST, {
+    baker: { name: 'パンやの くまさん', pitch: 0.85, face: (e) => aniFace('bear', e === 'joy' ? 'happy' : 'smile', { kind: 'chef' }) },
+    florist: { name: 'おはなやの うさぎさん', pitch: 1.35, face: (e) => aniFace('rabbit', e === 'joy' ? 'happy' : 'smile', { kind: 'apron', color: 'pink' }) },
+    puppy: { name: 'こいぬ', pitch: 1.7, face: (e) => aniFace('dog', e === 'joy' ? 'happy' : e === 'sad' ? 'sad' : 'smile') },
+  });
+  const DINNERS = [
+    { id: 'curry', name: 'カレー', buy: { yaoya: [['carrot', 1], ['potato', 2], ['onion', 1]], market: [['curry', 1]] }, cook: 'stir' },
+    { id: 'sand', name: 'サンドイッチ', buy: { bakery: [['bread', 1]], yaoya: [['tomato', 1], ['lettuce', 1]], market: [['egg', 1]] }, cook: 'stack' },
+    { id: 'parfait', name: 'フルーツパフェ', buy: { yaoya: [['strawberry', 2], ['banana', 1]], market: [['icecream', 1]] }, cook: 'glass' },
+    { id: 'pancake', name: 'ホットケーキ', buy: { market: [['mix', 1], ['egg', 1], ['milk', 1], ['butter', 1]], yaoya: [['strawberry', 2]] }, cook: 'flip' },
+    { id: 'pizza', name: 'ピザ', buy: { yaoya: [['tomato', 1], ['corn', 1]], market: [['cheese', 1], ['sausage', 2]] }, cook: 'pizza' },
+  ];
+  const FLOWERS = ['fl_pink', 'fl_yellow', 'fl_white', 'fl_lav', 'fl_red'];
+  const PICNIC_FRUIT = ['apple', 'grape', 'banana', 'peach', 'strawberry'];
+  const PICNIC_BREAD = ['croissant', 'melonpan', 'donut', 'bread'];
+  const memoHTML = (list, got) => `<div class="memo">${list.map(([k, n]) => { const g = got[k] || 0; return `<span class="mm${g >= n ? ' got' : ''}">${KP.foodSVG(k)}${n > 1 ? `<b>${g}/${n}</b>` : ''}${g >= n ? `<i>${icon('check')}</i>` : ''}</span>`; }).join('')}</div>`;
+
   RUN.shop = async function (c) {
     const g = G();
-    const dk = rand(Object.keys(DISHES));
-    const DI = DISHES[dk];
-    const list = [...DI.yaoya, ...DI.market];
-    const got = [];
-    // --- 1. キッチン ---
+    const kind = rand(['dinner', 'dinner', 'birthday', 'picnic']);
+    let plan, title, dishKey, cook;
+    if (kind === 'dinner') {
+      const d = rand(DINNERS);
+      plan = d.buy; title = d.name; dishKey = d.id; cook = d.cook;
+    } else if (kind === 'birthday') {
+      const fl = rand(FLOWERS);
+      plan = { florist: [[fl, 3]], yaoya: [['strawberry', 3]], market: [['egg', 1], ['milk', 1]] };
+      title = 'おたんじょうびケーキ'; dishKey = 'cake'; cook = 'cake';
+    } else {
+      plan = { bakery: [[rand(PICNIC_BREAD), 2]], yaoya: [[rand(PICNIC_FRUIT), 2]], market: [['juice', 1]] };
+      title = 'ピクニックの おべんとう'; dishKey = 'bento'; cook = 'bento';
+    }
+    const list = Object.values(plan).flat();
+    const got = {};
+    // --- 1. はじまり ---
     c.bg(KP.BG.kitchen());
-    c.actor('mama', { html: charHTML(mamaOpt({ pose: 'wave' })), x: 30, y: 96, h: 66 });
-    c.actor('fuutan', { html: fuuHTML({}), x: 70, y: 97, h: 56 });
     c.actor('pyonta', { html: bunHTML('normal'), x: 88, y: 98, h: 18 });
-    await c.say('mama', 'ふーたん、ちょっと おねがいが あるの。おつかいに いってくれるかな？');
-    c.actor('fuutan', { html: fuuHTML({ pose: 'cheer', expr: 'joy' }) });
-    await c.say('fuutan', 'うん！ まかせて！', { expr: 'joy' });
-    await c.say('mama', `きょうの ごはんは ${DI.name} だよ。かうものは この メモに かいてあるからね`);
-    await c.card(`<div class="memo-card"><div class="memo-title">${icon('book')}かいものメモ</div>${memoHTML(list, [])}<div class="memo-dish">${svg('0 0 300 190', KP.DISH[dk])}</div></div>`, `${list.map((k) => KP.FOOD[k].name).join('、')} を かってきてね`);
-    await c.say('mama', 'おさいふも わたすね。くるまに きを つけて いってらっしゃい！');
-    c.actor('fuutan', { html: fuuHTML({ pose: 'wave', expr: 'joy' }) });
+    if (kind === 'birthday') {
+      c.actor('fuutan', { html: fuuHTML({}), x: 50, y: 97, h: 56 });
+      c.actor('pyonta', { html: bunHTML('notify') });
+      await c.say('pyonta', 'ふーたん、しってる？ あしたは ママの おたんじょうび なんだって！');
+      c.actor('fuutan', { html: fuuHTML({ expr: 'surprise' }) });
+      await c.say('fuutan', 'ほんと！？ じゃあ ないしょで サプライズ しよう！', { expr: 'surprise' });
+      await c.say('pyonta', 'おはなと ケーキの ざいりょうを かいに いこう！ メモを かいたよ', { expr: 'joy' });
+    } else {
+      c.actor('mama', { html: charHTML(mamaOpt({ pose: 'wave' })), x: 30, y: 96, h: 66 });
+      c.actor('fuutan', { html: fuuHTML({}), x: 68, y: 97, h: 56 });
+      if (kind === 'picnic') await c.say('mama', 'あしたは みんなで ピクニック！ おべんとうの ざいりょうを かってきて くれるかな？');
+      else await c.say('mama', `ふーたん、おつかいに いってくれる？ きょうの ごはんは ${title} だよ`);
+      c.actor('fuutan', { html: fuuHTML({ pose: 'cheer', expr: 'joy' }) });
+      await c.say('fuutan', 'うん！ まかせて！', { expr: 'joy' });
+    }
+    await c.card(`<div class="memo-card"><div class="memo-title">${icon('book')}かいものメモ</div>${memoHTML(list, {})}<div class="memo-shops">${Object.keys(plan).map((k) => `<span>${SHOPS[k].name}</span>`).join('')}</div></div>`,
+      `${list.map(([k, n]) => `${KP.FOOD[k].name}${n > 1 ? `を ${n}つ` : ''}`).join('、')}`);
+    if (kind !== 'birthday') await c.say('mama', 'おさいふも わたすね。きを つけて いってらっしゃい！');
     await c.say('fuutan', 'いってきまーす！', { expr: 'joy' });
-    // --- 2. しんごう ---
-    c.clearActors();
-    c.bg(KP.BG.street('red'));
-    c.actor('fuutan', { html: fuuHTML({}), x: 40, y: 82, h: 28 });
-    c.actor('pyonta', { html: bunHTML('normal'), x: 58, y: 82, h: 9 });
-    await c.say('pyonta', 'しんごうだ！ あおに なったら わたろうね');
-    await crossGame(c);
-    // すみれちゃんに あう
-    const fr = Object.keys(D.FRIENDS).filter((f) => g.collection.unlockedCharacterIds.includes(f));
-    if (fr.length) {
-      const f = rand(fr);
-      c.actor('friend', { html: charHTML(A.friendOpt(f, { pose: 'wave', expr: 'joy' })), x: 80, y: 82, h: 28 });
-      await c.say(f, `あっ ふーたん！ おつかい？ えらいね！ がんばってね！`, { expr: 'joy', actor: 'friend' });
-      c.actor('friend', null);
+    // --- 2. おみせを まわる（あいだに みちの できごと） ---
+    const events = shuffle(['signal', 'puddle', 'puppy', 'friend']);
+    const shopKeys = Object.keys(plan);
+    for (let i = 0; i < shopKeys.length; i++) {
+      if (i < 2) await streetEvent(c, events[i]);
+      await shopVisit(c, shopKeys[i], plan[shopKeys[i]], list, got);
     }
-    // --- 3. おみせ ---
-    for (const shop of ['yaoya', 'market']) {
-      await shopVisit(c, shop, DI[shop], list, got);
-    }
-    // --- 4. おうちで おりょうり ---
+    // --- 3. かえって つくる ---
     c.clearActors();
-    c.bg(KP.BG.kitchen());
-    c.actor('mama', { html: charHTML(mamaOpt({ pose: 'joy', expr: 'joy' })), x: 30, y: 96, h: 66 });
-    c.actor('fuutan', { html: fuuHTML({ pose: 'joy', expr: 'joy' }), x: 70, y: 97, h: 56 });
-    await c.say('fuutan', 'ただいま！ ぜんぶ かえたよ！', { expr: 'joy' });
-    await c.say('mama', 'わあ、ありがとう！ ふーたん すごいね！ じゃあ いっしょに つくろう！', { expr: 'joy' });
-    await cookGame(c, dk, DI, list);
+    if (kind === 'picnic') c.bg(KP.BG.kitchen());
+    else c.bg(KP.BG.kitchen());
+    c.actor('fuutan', { html: fuuHTML({ pose: 'joy', expr: 'joy' }), x: 68, y: 97, h: 56 });
     c.actor('pyonta', { html: bunHTML('happy'), x: 88, y: 98, h: 18 });
-    c.actor('dish', { html: svg('0 0 300 190', KP.DISH[dk]), x: 50, y: 70, h: 18, z: 200 });
-    await c.say('fuutan', 'いただきまーす！', { expr: 'joy' });
-    c.sparkleAt('dish', ['heart', 'star'], 14);
-    await c.say('mama', 'ん〜 おいしい！ ふーたんが がんばった から とくべつ おいしいね', { expr: 'joy' });
-    album('dish', { dish: dk });
+    if (kind === 'birthday') {
+      await c.say('fuutan', 'ママが かえって くる まえに、ケーキを かざろう！', { expr: 'joy' });
+      await cakeDecorate(c);
+      c.actor('mama', { html: charHTML(mamaOpt({ pose: 'stand', expr: 'surprise' })), x: 28, y: 96, h: 66 });
+      await c.say('mama', 'ただいま〜。あれ？ なんだか いい におい……', { expr: 'surprise' });
+      c.actor('fuutan', { html: fuuHTML({ pose: 'cheer', expr: 'joy' }) });
+      S.henshin();
+      c.sparkleAt('fuutan', ['heart', 'star', 'sparkle'], 20);
+      await c.say('fuutan', 'ママ、おたんじょうび おめでとう！ おはなも どうぞ！', { expr: 'joy' });
+      c.actor('mama', { html: charHTML(mamaOpt({ pose: 'joy', expr: 'joy' })) });
+      c.actor('dish', { html: KP.foodSVG(plan.florist[0][0]), x: 46, y: 60, h: 12, z: 200 });
+      await c.say('mama', 'わあ…！ ふーたん、ありがとう！ ママ とっても うれしい！', { expr: 'joy' });
+    } else {
+      c.actor('mama', { html: charHTML(mamaOpt({ pose: 'joy', expr: 'joy' })), x: 28, y: 96, h: 66 });
+      await c.say('fuutan', 'ただいま！ ぜんぶ かえたよ！', { expr: 'joy' });
+      await c.say('mama', 'ありがとう！ すごいね！ じゃあ いっしょに つくろう！', { expr: 'joy' });
+      if (cook === 'stir' || cook === 'stack' || cook === 'glass') await cookGame(c, dishKey, cook, list.map((x) => x[0]));
+      else if (cook === 'flip') await pancakeGame(c);
+      else if (cook === 'pizza') await pizzaGame(c);
+      else if (cook === 'bento') await bentoGame(c, list.map((x) => x[0]));
+      if (kind === 'picnic') {
+        c.clearActors();
+        c.bg(KP.BG.park());
+        c.actor('mama', { html: charHTML(mamaOpt({ pose: 'joy', expr: 'joy' })), x: 22, y: 92, h: 50 });
+        c.actor('fuutan', { html: fuuHTML({ pose: 'cheer', expr: 'joy' }), x: 74, y: 92, h: 44 });
+        const fr = Object.keys(D.FRIENDS).filter((f) => g.collection.unlockedCharacterIds.includes(f));
+        if (fr.length) c.actor('friend', { html: charHTML(A.friendOpt(rand(fr), { pose: 'wave', expr: 'joy' })), x: 50, y: 80, h: 34 });
+        c.actor('pyonta', { html: bunHTML('happy'), x: 90, y: 96, h: 14 });
+        c.actor('dish', { html: svg('0 0 300 200', KP.DISH.bento + bentoFill(list.map((x) => x[0]))), x: 50, y: 96, h: 16, z: 200 });
+        await c.say('fuutan', 'いい おてんき！ いただきまーす！', { expr: 'joy' });
+      } else {
+        c.actor('dish', { html: svg('0 0 300 190', KP.DISH[dishKey]), x: 50, y: 70, h: 18, z: 200 });
+        await c.say('fuutan', 'いただきまーす！', { expr: 'joy' });
+      }
+      c.sparkleAt('dish', ['heart', 'star'], 14);
+      await c.say('mama', 'ん〜 おいしい！ ふーたんが がんばった から とくべつ おいしいね', { expr: 'joy' });
+    }
+    album('dish', { dish: dishKey === 'cake' ? 'bday' : dishKey });
     storyClear(c, 'shop');
   };
+  function bentoFill(items) {
+    const slots = [[96, 72], [204, 72], [96, 128], [204, 128]];
+    return items.slice(0, 4).map((k, i) => `<g transform="translate(${slots[i][0] - 28} ${slots[i][1] - 28}) scale(.56)">${KP.FOOD[k].d}</g>`).join('');
+  }
+
+  // --- みちの できごと ---
+  async function streetEvent(c, ev) {
+    const g = G();
+    c.clearActors();
+    if (ev === 'puddle' || ev === 'puppy') c.bg(KP.BG.park()); else c.bg(KP.BG.street('red'));
+    c.actor('fuutan', { html: fuuHTML({}), x: 40, y: 82, h: 28 });
+    c.actor('pyonta', { html: bunHTML('normal'), x: 58, y: 82, h: 9 });
+    if (ev === 'signal') {
+      await c.say('pyonta', 'しんごうだ！ あおに なったら わたろうね');
+      await crossGame(c);
+    } else if (ev === 'friend') {
+      c.bg(KP.BG.street('green'));
+      const fr = Object.keys(D.FRIENDS).filter((f) => g.collection.unlockedCharacterIds.includes(f));
+      const f = fr.length ? rand(fr) : null;
+      if (f) {
+        c.actor('friend', { html: charHTML(A.friendOpt(f, { pose: 'wave', expr: 'joy' })), x: 76, y: 80, h: 28 });
+        await c.say(f, 'あっ ふーたん！ おつかい？ えらいね！ これ あげる！', { expr: 'joy', actor: 'friend' });
+        S.find();
+        c.sparkleAt('fuutan', ['heart', 'star'], 10);
+        await c.say('fuutan', 'わあ、キラキラの シール！ ありがとう！', { expr: 'joy' });
+        c.actor('friend', null);
+      } else {
+        await c.say('pyonta', 'みどりの しんごうだ。みぎ・ひだり みて わたろう！');
+      }
+      c.actor('fuutan', { y: 60, h: 22, anim: 'walk' });
+      await c.wait(900);
+    } else if (ev === 'puddle') {
+      await c.say('pyonta', 'きのうの あめで みずたまりが いっぱい！ ジャンプで とびこえよう！');
+      await puddleGame(c);
+    } else if (ev === 'puppy') {
+      c.actor('puppy', { html: aniSVG('dog', 'sad'), x: 74, y: 86, h: 16 });
+      await c.say('puppy', 'くぅ〜ん… ボールが どこかに いっちゃったの', { actor: 'puppy', expr: 'sad' });
+      await c.say('fuutan', 'いっしょに さがして あげるね！', { expr: 'joy' });
+      await puppyGame(c);
+      c.actor('puppy', { html: aniSVG('dog', 'happy') });
+      c.sparkleAt('puppy', ['heart', 'star'], 10);
+      await c.say('puppy', 'わんわん！ ありがとう！', { actor: 'puppy', expr: 'joy' });
+    }
+    return c.guard(Promise.resolve());
+  }
+  async function puddleGame(c) {
+    const p = c.panel(`<div class="st-prompt">みずたまりが きたら ジャンプ！</div><div class="pd-lane" id="pdLane"><div class="pd-me">${svg('0 -30 400 680', KP.drawChar(A.fuutanOpt({ expr: 'joy' })))}</div></div><button class="pill main big" id="jump">${icon('star', '#fff')}ジャンプ！</button>`, 'bottom puddle');
+    const lane = p.querySelector('#pdLane'), me = lane.querySelector('.pd-me');
+    let jumping = false, n = 0, ok = 0;
+    const jump = () => { if (jumping) return; jumping = true; me.classList.add('jump'); S.boing(); setTimeout(() => { me.classList.remove('jump'); jumping = false; }, 650); };
+    p.querySelector('#jump').addEventListener('pointerdown', (e) => { e.preventDefault(); jump(); });
+    await new Promise((res) => {
+      const spawn = () => {
+        if (!c.alive.v) return;
+        if (n >= 3) return;
+        n++;
+        const d = document.createElement('div');
+        d.className = 'pd-puddle';
+        d.innerHTML = svg('0 0 120 60', KP.drawPuddle());
+        lane.appendChild(d);
+        const t0 = performance.now();
+        let judged = false;
+        const step = (t) => {
+          if (!c.alive.v) return;
+          const x = 100 - ((t - t0) / 2200) * 120;
+          d.style.left = x + '%';
+          if (!judged && x < 22) {
+            judged = true;
+            if (jumping) { ok++; const r = me.getBoundingClientRect(); burst(r.left + r.width / 2, r.top, ['star', 'sparkle'], 6, 60); S.pick(); }
+            else { const r = me.getBoundingClientRect(); burst(r.left + r.width / 2, r.bottom, ['drop'], 10, 60); bubble(r.left + r.width / 2, r.top, 'ぱしゃっ！ えへへ', 1000); S.tap(); }
+          }
+          if (x > -25) requestAnimationFrame(step);
+          else { d.remove(); if (n >= 3 && !lane.querySelector('.pd-puddle')) res(); }
+        };
+        requestAnimationFrame(step);
+        setTimeout(spawn, 1500 + Math.random() * 700);
+      };
+      setTimeout(spawn, 600);
+    });
+    c.hidePanel();
+    await c.say('pyonta', ok >= 2 ? 'ジャンプ じょうず！ くつも ぬれなかったね！' : 'ぱしゃぱしゃ たのしかったね！', { expr: 'joy' });
+    return c.guard(Promise.resolve());
+  }
+  async function puppyGame(c) {
+    const where = Math.floor(Math.random() * 3);
+    let tries = 0;
+    const p = c.panel(`<div class="st-prompt">どこに あるかな？ くさむらを タッチ！</div><div class="bushes">${[0, 1, 2].map((i) => `<button class="bush" data-b="${i}">${svg('0 0 160 100', KP.drawBush(['#9EDDC8', '#BDEBA0', '#A8E3C6'][i]))}</button>`).join('')}</div>`, 'bottom');
+    await new Promise((res) => {
+      p.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-b]');
+        if (!b || b.classList.contains('opened')) return;
+        tries++;
+        b.classList.add('opened');
+        const r = b.getBoundingClientRect();
+        if (+b.dataset.b === where || tries >= 3) {
+          b.innerHTML += `<span class="ball">${svg('0 0 100 100', KP.drawBall())}</span>`;
+          S.find();
+          burst(r.left + r.width / 2, r.top + r.height / 2, ['star', 'sparkle'], 12, 90);
+          setTimeout(res, 900);
+        } else {
+          S.tap();
+          burst(r.left + r.width / 2, r.top + r.height / 2, ['leaf'], 7, 60);
+          bubble(r.left + r.width / 2, r.top, rand(['ここには ないね', 'ちょうちょ だった！', 'はっぱ だけ']), 1200);
+        }
+      });
+    });
+    c.hidePanel();
+    return c.guard(Promise.resolve());
+  }
   async function crossGame(c) {
     const p = c.panel(`<div class="st-prompt">あおに なったら「わたる」を タッチ！</div><div class="cross"><span class="sig" id="sig">${svg('0 0 100 100', KP.drawTrafficIcon('red'))}</span><button class="pill main big" id="go">${icon('star', '#fff')}わたる！</button></div>`, 'bottom');
     let light = 'red';
@@ -591,39 +755,41 @@
     await c.say('pyonta', 'じょうずに わたれたね！', { expr: 'joy' });
     return c.guard(Promise.resolve());
   }
+
+  // --- おみせ ---
   async function shopVisit(c, shop, need, list, got) {
-    const keeper = shop === 'yaoya' ? { kind: 'dog', wear: { kind: 'apron', color: 'mint', band: 1 } } : { kind: 'cat', wear: { kind: 'apron', color: 'blue' } };
+    const SH = SHOPS[shop];
     c.clearActors();
     c.bg(KP.BG.shop(shop));
-    c.actor('keeper', { html: aniSVG(keeper.kind, 'happy', keeper.wear), x: 76, y: 66, h: 26 });
-    c.actor('fuutan', { html: fuuHTML({}), x: 30, y: 99, h: 44 });
-    await c.say(shop, 'いらっしゃいませ！', { expr: 'joy', actor: 'keeper' });
-    await c.say('fuutan', 'メモの ものを ください！', {});
-    // たなから えらぶ
-    const items = shuffle(SHELF[shop]);
-    c.actor('keeper', { x: 74, y: 40, h: 22 });
-    c.actor('fuutan', { x: 26, y: 44, h: 28 });
-    const p = c.panel(`<div class="shop-memo" id="smemo">${memoHTML(list, got)}</div><div class="shelf">${items.map((k) => `<button class="sitem" data-k="${k}">${KP.foodSVG(k)}</button>`).join('')}</div><div class="basket" id="basket">${svg('0 0 120 90', `<path d="M10,30 L110,30 L98,86 L22,86Z" fill="#F5DEC8" stroke="#B5835E" stroke-width="4"/><path d="M24,30 Q60,-14 96,30" fill="none" stroke="#B5835E" stroke-width="6"/><path d="M20,48 H100 M24,66 H96" stroke="#B5835E" stroke-width="3"/>`)}</div>`, 'bottom shop');
-    S.speak('メモに ある ものを タッチしてね', 1.45);
-    const left = () => need.filter((k) => !got.includes(k));
+    c.actor('keeper', { html: aniSVG(SH.kind, 'happy', SH.wear), x: 74, y: 40, h: 22 });
+    c.actor('fuutan', { html: fuuHTML({}), x: 26, y: 44, h: 28 });
+    await c.say(SH.who, rand([`いらっしゃいませ！ ${SH.name}へ ようこそ！`, 'いらっしゃい！ なにに しますか？', 'こんにちは！ きょうも げんきだね！']), { expr: 'joy', actor: 'keeper' });
+    const counts = need.some(([, n]) => n > 1);
+    // たなから えらぶ（かずも かぞえる）
+    const items = shuffle([...new Set([...need.map((x) => x[0]), ...shuffle(SH.shelf).slice(0, 8)])]).slice(0, 8);
+    const p = c.panel(`<div class="shop-memo" id="smemo">${memoHTML(need, got)}</div><div class="st-prompt">${counts ? 'かずも かぞえて タッチしてね' : 'メモの ものを タッチしてね'}</div><div class="shelf">${items.map((k) => `<button class="sitem" data-k="${k}">${KP.foodSVG(k)}</button>`).join('')}</div><div class="basket" id="basket">${svg('0 0 120 90', `<path d="M10,30 L110,30 L98,86 L22,86Z" fill="#F5DEC8" stroke="#B5835E" stroke-width="4"/><path d="M24,30 Q60,-14 96,30" fill="none" stroke="#B5835E" stroke-width="6"/><path d="M20,48 H100 M24,66 H96" stroke="#B5835E" stroke-width="3"/>`)}</div>`, 'bottom shop');
+    S.speak(counts ? 'かずも かぞえて タッチしてね' : 'メモの ものを タッチしてね', 1.45);
+    const left = () => need.filter(([k, n]) => (got[k] || 0) < n);
     await new Promise((res) => {
       p.addEventListener('click', (e) => {
         const b = e.target.closest('[data-k]');
-        if (!b || b.classList.contains('taken')) return;
+        if (!b) return;
         const k = b.dataset.k;
         const r = b.getBoundingClientRect();
-        if (need.includes(k) && !got.includes(k)) {
-          got.push(k);
-          b.classList.add('taken');
+        const want = need.find((x) => x[0] === k);
+        if (want && (got[k] || 0) < want[1]) {
+          got[k] = (got[k] || 0) + 1;
           const bk = p.querySelector('#basket').getBoundingClientRect();
           flyer(r.left + r.width / 2, r.top + r.height / 2, KP.foodSVG(k), bk.left + bk.width / 2 - r.left - r.width / 2, bk.top + 20 - r.top - r.height / 2, 600);
           S.pick();
-          setTimeout(() => { p.querySelector('#smemo').innerHTML = memoHTML(list, got); burst(bk.left + bk.width / 2, bk.top + 10, ['sparkle', 'star'], 6, 50); }, 560);
+          if (want[1] > 1) S.speak(['いち', 'に', 'さん', 'よん'][got[k] - 1] || '', 1.4);
+          if (got[k] >= want[1]) b.classList.add('taken');
+          setTimeout(() => { p.querySelector('#smemo').innerHTML = memoHTML(need, got); burst(bk.left + bk.width / 2, bk.top + 10, ['sparkle', 'star'], 6, 50); }, 560);
           if (!left().length) setTimeout(res, 900);
         } else {
           S.tap();
           b.classList.remove('wiggle'); void b.offsetWidth; b.classList.add('wiggle');
-          bubble(r.left + r.width / 2, r.top, `${KP.FOOD[k].name}は メモに ないね`, 1300);
+          bubble(r.left + r.width / 2, r.top, want ? 'もう じゅうぶん だよ' : `${KP.FOOD[k].name}は メモに ないね`, 1300);
         }
       });
     });
@@ -631,14 +797,17 @@
     c.actor('keeper', { x: 76, y: 66, h: 26 });
     c.actor('fuutan', { x: 30, y: 99, h: 44 });
     // おかいけい
-    const price = need.length + 1 + Math.floor(Math.random() * 2);
-    await c.say(shop, `おかいけいは コイン ${price}まい です`, { actor: 'keeper' });
+    const price = Math.min(6, need.reduce((a, [, n]) => a + n, 0) + Math.floor(Math.random() * 2));
+    await c.say(SH.who, `おかいけいは コイン ${price}まい です`, { actor: 'keeper' });
     await payGame(c, price);
-    c.actor('keeper', { html: aniSVG(keeper.kind, 'happy', keeper.wear) });
-    await c.say(shop, 'ちょうど ですね！ ありがとう！ おまけに あめを どうぞ', { expr: 'joy', actor: 'keeper' });
+    if (Math.random() < 0.5) {
+      const bag = await c.choose([{ label: 'エコバッグ', value: 'eco', icon: svg('0 0 100 100', `<path d="M24,36 L76,36 L70,90 L30,90Z" fill="#BDEBDC" stroke="#3F9C83" stroke-width="4"/><path d="M36,36 Q36,14 50,14 Q64,14 64,36" fill="none" stroke="#3F9C83" stroke-width="5"/>${KP.heart(50, 62, 9, '#fff')}`) }, { label: 'ふくろ ください', value: 'bag', icon: svg('0 0 100 100', `<path d="M26,30 L74,30 L70,90 L30,90Z" fill="#fff" stroke="#B9C4DA" stroke-width="4"/><path d="M38,30 L38,18 M62,30 L62,18" stroke="#B9C4DA" stroke-width="5"/>`) }], 'ふくろは いりますか？');
+      await c.say(SH.who, bag === 'eco' ? 'エコバッグ えらいね！ ちきゅうも にっこり！' : 'はい、どうぞ！', { actor: 'keeper', expr: 'joy' });
+    }
+    await c.say(SH.who, rand(['ちょうど ですね！ ありがとう！ おまけに あめを どうぞ', 'ありがとう！ また きてね！', 'おつかい えらいね！ おまけの シールだよ']), { expr: 'joy', actor: 'keeper' });
     c.actor('fuutan', { html: fuuHTML({ pose: 'joy', expr: 'joy' }) });
     c.sparkleAt('fuutan', ['heart', 'sparkle'], 8);
-    await c.say('fuutan', 'わあい！ ありがとうございます！', { expr: 'joy' });
+    await c.say('fuutan', 'ありがとうございます！', { expr: 'joy' });
     return c.guard(Promise.resolve());
   }
   async function payGame(c, price) {
@@ -655,84 +824,227 @@
         flyer(r.left + r.width / 2, r.top + r.height / 2, svg('0 0 100 100', KP.coin()), sr.left + sr.width / 2 - r.left - r.width / 2, sr.top + sr.height / 2 - r.top - r.height / 2, 380);
         paid++;
         S.pop();
-        const n = paid;
-        setTimeout(() => { slot.innerHTML = svg('0 0 100 100', KP.coin()); slot.classList.add('on'); slot.dataset.n = n; }, 360);
+        S.speak(['いち', 'に', 'さん', 'よん', 'ご', 'ろく'][paid - 1] || '', 1.4);
+        setTimeout(() => { slot.innerHTML = svg('0 0 100 100', KP.coin()); slot.classList.add('on'); }, 360);
         if (paid >= price) setTimeout(() => { S.done(); res(); }, 800);
       });
     });
     c.hidePanel();
     return c.guard(Promise.resolve());
   }
-  async function cookGame(c, dk, DI, list) {
-    const vessel = DI.tool === 'pot'
-      ? `<path d="M40,80 L260,80 L244,190 Q150,214 56,190Z" fill="#B9C4DA" stroke="#6A7490" stroke-width="5"/><ellipse cx="150" cy="80" rx="112" ry="22" fill="#C98C25" stroke="#6A7490" stroke-width="5"/><path d="M40,90 Q10,90 14,110 M260,90 Q290,90 286,110" fill="none" stroke="#6A7490" stroke-width="8" stroke-linecap="round"/>`
-      : DI.tool === 'glass'
-        ? `<path d="M90,20 L210,20 L184,190 L116,190Z" fill="#F7F2FF" stroke="#C9B8E6" stroke-width="5" opacity=".95"/><path d="M130,190 L170,190 L180,210 L120,210Z" fill="#C9B8E6"/>`
-        : `<rect x="20" y="90" width="260" height="110" rx="16" fill="#E6C08A" stroke="#B5835E" stroke-width="5"/><path d="M50,120 L150,60 L250,120Z" fill="#F6E1B8" stroke="#C99A5E" stroke-width="4"/>`;
-    const added = [];
+
+  // --- りょうり ---
+  async function addIngredients(p, holder, list, onAdd) {
     let cnt = 0;
-    const draw = (stir = 0) => svg('0 0 300 230', vessel + added.map((k, i) => `<g transform="translate(${70 + (i % 4) * 44 + (stir % 2) * 6} ${DI.tool === 'glass' ? 130 - i * 26 : 40 + Math.floor(i / 4) * 20}) scale(.5) rotate(${stir * 30 + i * 20} 50 50)">${KP.FOOD[k].d}</g>`).join('') +
-      (stir ? `<path d="M120,40 Q110,20 124,6 M150,36 Q140,16 154,2 M180,40 Q170,20 184,6" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".8"/>` : ''));
-    const p = c.panel(`<div class="st-prompt">ざいりょうを いれよう</div><div class="cook" id="cook">${draw()}</div><div class="ings">${list.map((k) => `<button class="sitem" data-k="${k}">${KP.foodSVG(k)}</button>`).join('')}</div>`, 'full cookp');
-    S.speak('ざいりょうを いれよう', 1.45);
-    const cook = p.querySelector('#cook');
     await new Promise((res) => {
       p.addEventListener('click', (e) => {
         const b = e.target.closest('[data-k]');
         if (!b || b.classList.contains('taken')) return;
         b.classList.add('taken');
         cnt++;
-        const r = b.getBoundingClientRect(), cr = cook.getBoundingClientRect();
+        const r = b.getBoundingClientRect(), cr = holder.getBoundingClientRect();
         flyer(r.left + r.width / 2, r.top + r.height / 2, KP.foodSVG(b.dataset.k), cr.left + cr.width / 2 - r.left - r.width / 2, cr.top + cr.height * 0.3 - r.top - r.height / 2, 500);
         S.pop();
-        setTimeout(() => { added.push(b.dataset.k); cook.innerHTML = draw(); burst(cr.left + cr.width / 2, cr.top + cr.height * 0.35, ['drop', 'sparkle'], 6, 60); }, 480);
+        setTimeout(() => { onAdd(b.dataset.k); burst(cr.left + cr.width / 2, cr.top + cr.height * 0.35, ['drop', 'sparkle'], 6, 60); }, 480);
         if (cnt >= list.length) setTimeout(res, 800);
       });
     });
-    // まぜる
-    p.querySelector('.st-prompt').textContent = `${DI.verb}！ なんかいも タッチ！`;
-    p.querySelector('.ings').innerHTML = `<button class="pill main big" id="mix">${icon('magic', '#fff')}${DI.tool === 'pot' ? 'まぜまぜ' : DI.tool === 'glass' ? 'のせる' : 'はさむ'}</button>`;
-    S.speak(`${DI.verb}`, 1.45);
-    let n = 0;
+  }
+  async function tapAction(p, label, n, onTap) {
+    p.querySelector('.ings').innerHTML = `<button class="pill main big" id="act">${icon('magic', '#fff')}${label}</button>`;
+    let k = 0;
     await new Promise((res) => {
-      p.querySelector('#mix').addEventListener('click', () => {
-        n++;
-        cook.innerHTML = draw(n);
-        S.boing();
-        const cr = cook.getBoundingClientRect();
-        burst(cr.left + cr.width / 2, cr.top + cr.height * 0.3, ['heart', 'sparkle'], 5, 60);
-        if (n >= 6) setTimeout(res, 500);
-      });
+      p.querySelector('#act').addEventListener('click', () => { k++; onTap(k); S.boing(); if (k >= n) setTimeout(res, 500); });
     });
-    cook.innerHTML = svg('0 0 300 190', KP.DISH[dk]);
-    cook.classList.add('pop');
+  }
+  async function reveal(c, p, holder, svgStr, name) {
+    holder.innerHTML = svgStr;
+    holder.classList.remove('pop'); void holder.offsetWidth; holder.classList.add('pop');
     S.henshin();
-    const cr = cook.getBoundingClientRect();
+    const cr = holder.getBoundingClientRect();
     burst(cr.left + cr.width / 2, cr.top + cr.height / 2, ['star', 'heart', 'sparkle'], 20, 160);
-    p.querySelector('.st-prompt').textContent = `${DI.name}の できあがり！`;
+    p.querySelector('.st-prompt').textContent = `${name}の できあがり！`;
     p.querySelector('.ings').innerHTML = '';
-    S.speak(`${DI.name}の できあがり！`, 1.45);
+    S.speak(`${name}の できあがり！`, 1.45);
     await c.wait(2200);
     c.hidePanel();
+  }
+  async function cookGame(c, dk, tool, list) {
+    const vessel = tool === 'stir'
+      ? `<path d="M40,80 L260,80 L244,190 Q150,214 56,190Z" fill="#B9C4DA" stroke="#6A7490" stroke-width="5"/><ellipse cx="150" cy="80" rx="112" ry="22" fill="#C98C25" stroke="#6A7490" stroke-width="5"/><path d="M40,90 Q10,90 14,110 M260,90 Q290,90 286,110" fill="none" stroke="#6A7490" stroke-width="8" stroke-linecap="round"/>`
+      : tool === 'glass'
+        ? `<path d="M90,20 L210,20 L184,190 L116,190Z" fill="#F7F2FF" stroke="#C9B8E6" stroke-width="5" opacity=".95"/><path d="M130,190 L170,190 L180,210 L120,210Z" fill="#C9B8E6"/>`
+        : `<rect x="20" y="90" width="260" height="110" rx="16" fill="#E6C08A" stroke="#B5835E" stroke-width="5"/><path d="M50,120 L150,60 L250,120Z" fill="#F6E1B8" stroke="#C99A5E" stroke-width="4"/>`;
+    const added = [];
+    const draw = (stir = 0) => svg('0 0 300 230', vessel + added.map((k, i) => `<g transform="translate(${70 + (i % 4) * 44 + (stir % 2) * 6} ${tool === 'glass' ? 130 - i * 26 : 40 + Math.floor(i / 4) * 20}) scale(.5) rotate(${stir * 30 + i * 20} 50 50)">${KP.FOOD[k].d}</g>`).join('') +
+      (stir ? `<path d="M120,40 Q110,20 124,6 M150,36 Q140,16 154,2 M180,40 Q170,20 184,6" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".8"/>` : ''));
+    const p = c.panel(`<div class="st-prompt">ざいりょうを いれよう</div><div class="cook" id="cook">${draw()}</div><div class="ings">${list.map((k) => `<button class="sitem" data-k="${k}">${KP.foodSVG(k)}</button>`).join('')}</div>`, 'full cookp');
+    S.speak('ざいりょうを いれよう', 1.45);
+    const cook = p.querySelector('#cook');
+    await addIngredients(p, cook, list, (k) => { added.push(k); cook.innerHTML = draw(); });
+    const verb = tool === 'stir' ? 'ぐつぐつ にこもう！ まぜまぜ タッチ！' : tool === 'glass' ? 'グラスに もりつけよう！' : 'パンに はさもう！';
+    p.querySelector('.st-prompt').textContent = verb;
+    S.speak(verb, 1.45);
+    await tapAction(p, tool === 'stir' ? 'まぜまぜ' : tool === 'glass' ? 'のせる' : 'はさむ', 6, (k) => { cook.innerHTML = draw(k); const cr = cook.getBoundingClientRect(); burst(cr.left + cr.width / 2, cr.top + cr.height * 0.3, ['heart', 'sparkle'], 5, 60); });
+    await reveal(c, p, cook, svg('0 0 300 190', KP.DISH[dk]), { curry: 'カレー', sand: 'サンドイッチ', parfait: 'フルーツパフェ' }[dk]);
+    return c.guard(Promise.resolve());
+  }
+  async function pancakeGame(c) {
+    const pan = (st, bubbles = 0, flipped = false, stack = 0) => svg('0 0 300 230',
+      `<ellipse cx="150" cy="150" rx="120" ry="44" fill="#5A5F7A" stroke="#3A3D50" stroke-width="5"/><path d="M262,150 L300,140" stroke="#3A3D50" stroke-width="12" stroke-linecap="round"/>` +
+      (st ? `<ellipse cx="150" cy="140" rx="86" ry="28" fill="${flipped ? '#E6A85A' : '#FFF0C8'}" stroke="#D2A43A" stroke-width="3"/>` + Array.from({ length: bubbles }, (_, i) => `<circle cx="${100 + (i * 37) % 100}" cy="${130 + (i * 13) % 20}" r="4" fill="#fff" stroke="#E9C25C"/>`).join('') : '') +
+      Array.from({ length: stack }, (_, i) => `<g transform="translate(0 ${-i * 8})"><ellipse cx="60" cy="210" rx="44" ry="12" fill="#E6A85A" stroke="#B5835E" stroke-width="2"/></g>`).join(''));
+    const p = c.panel(`<div class="st-prompt">ざいりょうを ボウルに いれよう</div><div class="cook" id="cook">${pan(false)}</div><div class="ings">${['mix', 'egg', 'milk'].map((k) => `<button class="sitem" data-k="${k}">${KP.foodSVG(k)}</button>`).join('')}</div>`, 'full cookp');
+    S.speak('ざいりょうを ボウルに いれよう', 1.45);
+    const cook = p.querySelector('#cook');
+    await addIngredients(p, cook, ['mix', 'egg', 'milk'], () => {});
+    p.querySelector('.st-prompt').textContent = 'まぜまぜ して フライパンへ！';
+    await tapAction(p, 'まぜまぜ', 4, () => { const cr = cook.getBoundingClientRect(); burst(cr.left + cr.width / 2, cr.top + cr.height * 0.4, ['sparkle'], 4, 50); });
+    let made = 0;
+    for (let round = 0; round < 3; round++) {
+      let bub = 0, ready = false, done = false;
+      cook.innerHTML = pan(true, 0, false, made);
+      p.querySelector('.st-prompt').textContent = 'ぷつぷつ あわが でたら ひっくりかえす！';
+      S.speak('ぷつぷつ あわが でたら ひっくりかえそう', 1.45);
+      p.querySelector('.ings').innerHTML = `<button class="pill main big" id="flip">${icon('reset', '#fff')}ひっくりかえす</button>`;
+      const iv = setInterval(() => { if (!c.alive.v || done) return; bub = Math.min(8, bub + 1); cook.innerHTML = pan(true, bub, false, made); if (bub >= 6 && !ready) { ready = true; const cr = cook.getBoundingClientRect(); bubble(cr.left + cr.width / 2, cr.top + 20, 'いまだ！', 900); S.pop(); } }, 450);
+      A.onCleanup(() => clearInterval(iv));
+      await new Promise((res) => {
+        p.querySelector('#flip').addEventListener('click', () => {
+          if (!ready) { const cr = cook.getBoundingClientRect(); bubble(cr.left + cr.width / 2, cr.top + 20, 'まだ ちょっと はやいかも', 900); S.tap(); return; }
+          done = true;
+          clearInterval(iv);
+          cook.classList.remove('flip'); void cook.offsetWidth; cook.classList.add('flip');
+          S.boing();
+          setTimeout(() => { cook.innerHTML = pan(true, 0, true, made); const cr = cook.getBoundingClientRect(); burst(cr.left + cr.width / 2, cr.top + cr.height * 0.6, ['star', 'sparkle'], 8, 70); S.pick(); }, 300);
+          setTimeout(res, 1000);
+        });
+      });
+      made++;
+    }
+    p.querySelector('.st-prompt').textContent = 'いちごと バターを のせよう！';
+    p.querySelector('.ings').innerHTML = ['strawberry', 'butter'].map((k) => `<button class="sitem" data-k="${k}">${KP.foodSVG(k)}</button>`).join('');
+    await addIngredients(p, cook, ['strawberry', 'butter'], () => {});
+    await reveal(c, p, cook, svg('0 0 300 190', KP.DISH.pancake), 'ホットケーキ');
+    return c.guard(Promise.resolve());
+  }
+  async function pizzaGame(c) {
+    const p = c.panel(`<div class="st-prompt">ゆびで こすって ソースを ぬろう！</div><div class="cook pz" id="cook"><canvas id="pzc"></canvas></div><div class="ings"></div>`, 'full cookp');
+    S.speak('ゆびで こすって ソースを ぬろう', 1.45);
+    const cook = p.querySelector('#cook'), cv = p.querySelector('#pzc');
+    const W = Math.round(cook.getBoundingClientRect().width) || 300, H = Math.round(W * 0.66);
+    cv.width = W; cv.height = H; cv.style.width = W + 'px'; cv.style.height = H + 'px';
+    const g = cv.getContext('2d');
+    const cx = W / 2, cy = H / 2, R = H * 0.46;
+    const base = () => { g.fillStyle = '#F2C27C'; g.beginPath(); g.arc(cx, cy, R, 0, 7); g.fill(); g.strokeStyle = '#B5835E'; g.lineWidth = 5; g.stroke(); g.fillStyle = '#FBE3B8'; g.beginPath(); g.arc(cx, cy, R * 0.86, 0, 7); g.fill(); };
+    base();
+    let painted = 0, drawing = false;
+    const total = 40;
+    const done1 = new Promise((res) => {
+      const paint = (e) => {
+        const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+        if (Math.hypot(x - cx, y - cy) > R * 0.86) return;
+        g.fillStyle = '#E0465E'; g.beginPath(); g.arc(x, y, R * 0.18, 0, 7); g.fill();
+        painted++;
+        if (painted % 6 === 0) S.tap();
+        if (painted >= total) res();
+      };
+      cv.addEventListener('pointerdown', (e) => { drawing = true; try { cv.setPointerCapture(e.pointerId); } catch (er) { /* なし */ } paint(e); });
+      cv.addEventListener('pointermove', (e) => { if (drawing) paint(e); });
+      cv.addEventListener('pointerup', () => (drawing = false));
+    });
+    await done1;
+    g.fillStyle = '#E0465E'; g.beginPath(); g.arc(cx, cy, R * 0.86, 0, 7); g.fill();
+    S.sparkle();
+    p.querySelector('.st-prompt').textContent = 'すきな ぐを のせよう！';
+    S.speak('すきな ぐを のせよう', 1.45);
+    const tops = ['cheese', 'corn', 'sausage', 'tomato'];
+    p.querySelector('.ings').innerHTML = tops.map((k) => `<button class="sitem" data-k="${k}">${KP.foodSVG(k)}</button>`).join('') + `<button class="pill main" id="oven">${icon('star', '#fff')}やく！</button>`;
+    let placed = 0;
+    await new Promise((res) => {
+      p.querySelector('.ings').addEventListener('click', (e) => {
+        if (e.target.closest('#oven')) { if (placed >= 3) res(); else { const r = cook.getBoundingClientRect(); bubble(r.left + r.width / 2, r.top + 20, 'もっと のせよう！', 900); } return; }
+        const b = e.target.closest('[data-k]');
+        if (!b) return;
+        const a = Math.random() * 7, rr = Math.random() * R * 0.62;
+        const im = new Image();
+        im.onload = () => g.drawImage(im, cx + Math.cos(a) * rr - R * 0.17, cy + Math.sin(a) * rr - R * 0.17, R * 0.34, R * 0.34);
+        im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(KP.foodSVG(b.dataset.k).replace('<svg ', '<svg width="100" height="100" '));
+        placed++;
+        S.pop();
+      });
+    });
+    p.querySelector('.st-prompt').textContent = 'オーブンで こんがり…';
+    S.speak('オーブンで こんがり', 1.45);
+    cook.classList.add('oven');
+    for (let i = 3; i > 0; i--) { const r = cook.getBoundingClientRect(); bubble(r.left + r.width / 2, r.top + 10, `${i}`, 800); S.tap(); await c.wait(900); }
+    cook.classList.remove('oven');
+    await reveal(c, p, cook, svg('0 0 300 200', KP.DISH.pizza), 'ピザ');
+    return c.guard(Promise.resolve());
+  }
+  async function bentoGame(c, list) {
+    const items = [];
+    const draw = () => svg('0 0 300 200', KP.DISH.bento + bentoFill(items));
+    const p = c.panel(`<div class="st-prompt">おべんとうばこに つめよう！</div><div class="cook" id="cook">${draw()}</div><div class="ings">${list.map((k) => `<button class="sitem" data-k="${k}">${KP.foodSVG(k)}</button>`).join('')}</div>`, 'full cookp');
+    S.speak('おべんとうばこに つめよう', 1.45);
+    const cook = p.querySelector('#cook');
+    await addIngredients(p, cook, list, (k) => { items.push(k); cook.innerHTML = draw(); });
+    p.querySelector('.st-prompt').textContent = 'ハートの ピックを さそう！';
+    await tapAction(p, 'ピックを さす', 3, (k) => { cook.innerHTML = draw().replace('</svg>', [[120, 60], [230, 120], [80, 140]].slice(0, k).map(([x, y]) => KP.heart(x, y, 10, '#F29CC2', '#fff', 2)).join('') + '</svg>'); });
+    await reveal(c, p, cook, draw().replace('</svg>', KP.heart(120, 60, 10, '#F29CC2', '#fff', 2) + KP.heart(230, 120, 10, '#F29CC2', '#fff', 2) + KP.sparkle(260, 40, 12, '#FFE59A') + '</svg>'), 'おべんとう');
+    return c.guard(Promise.resolve());
+  }
+  async function cakeDecorate(c) {
+    const cake = { shape: 'round', cream: rand(['pink', 'white', 'choco']), tops: [] };
+    const draw = () => svg('60 120 480 330', A.drawCake(cake));
+    const p = c.panel(`<div class="st-prompt">いちごと ろうそくで かざろう！</div><div class="cook" id="cook">${draw()}</div><div class="ings">${['strawberry', 'candle', 'heart', 'star'].map((t) => `<button class="sitem" data-t="${t}">${svg(t === 'candle' ? '-22 -62 44 66' : '-19 -23 38 40', A.drawTop1(t, 0, 0))}</button>`).join('')}<button class="pill main" id="ok">${icon('check', '#fff')}できた！</button></div>`, 'full cookp');
+    S.speak('いちごと ろうそくで かざろう', 1.45);
+    const cook = p.querySelector('#cook');
+    await new Promise((res) => {
+      p.querySelector('.ings').addEventListener('click', (e) => {
+        if (e.target.closest('#ok')) { if (cake.tops.length >= 3) res(); else { const r = cook.getBoundingClientRect(); bubble(r.left + r.width / 2, r.top + 20, 'もっと かざろう！', 900); } return; }
+        const b = e.target.closest('[data-t]');
+        if (!b) return;
+        if (cake.tops.length >= 16) cake.tops.shift();
+        cake.tops.push({ t: b.dataset.t, ...A.cakeSpot(cake) });
+        cook.innerHTML = draw();
+        S.pop();
+      });
+    });
+    await reveal(c, p, cook, draw(), 'ケーキ');
     return c.guard(Promise.resolve());
   }
 
   // ================= ③ はいしゃさんの おてつだい =================
+  // なやみは 5しゅ（むしば・たべかす・ぐらぐら・はみがき・しみる あな）。こわがりさんや クイズも まじる
   const PATIENTS = [
-    { kind: 'cat', name: 'ねこちゃん' }, { kind: 'dog', name: 'いぬくん' }, { kind: 'panda', name: 'パンダちゃん' }, { kind: 'pig', name: 'こぶたちゃん' }, { kind: 'bear', name: 'くまの こ' },
+    { kind: 'cat', name: 'ねこちゃん' }, { kind: 'dog', name: 'いぬくん' }, { kind: 'panda', name: 'パンダちゃん' }, { kind: 'pig', name: 'こぶたちゃん' }, { kind: 'bear', name: 'くまの こ' }, { kind: 'rabbit', name: 'うさぎちゃん' },
   ];
+  const PROBLEMS = {
+    mushiba: { say: 'えーん… はが いたいの…', phases: ['light', 'germ', 'water'] },
+    kasu: { say: 'はに なにか はさまってるの…', phases: ['light', 'bit', 'stain', 'water'] },
+    gura: { say: 'まえばが ぐらぐら するの…', phases: ['light', 'loose', 'water'] },
+    migaki: { say: 'はみがきの しかたを おしえて！', phases: ['zone', 'water'], lit: true },
+    ana: { say: 'つめたい ものが しみるの…', phases: ['light', 'germ', 'hole', 'water'] },
+  };
   const NURSE = { onepiece: 'nurse-pink', hair: 'nursecap-pink', shoes: 'pumps-pink', tops: null, skirt: null, ribbon: null, magic: null };
   const nurseHTML = (x = {}) => svg('0 -30 400 680', KP.drawChar({ ...A.fuuHair(), outfit: toDraw(NURSE), ...x }));
   KP.DATA.ITEMS['nurse-pink'] = KP.DATA.ITEMS['nurse-pink'] || { id: 'nurse-pink', slot: 'onepiece', type: 'nurse', color: 'pink', name: 'ナースふく', hidden: true, story: true };
   KP.DATA.ITEMS['nursecap-pink'] = KP.DATA.ITEMS['nursecap-pink'] || { id: 'nursecap-pink', slot: 'hair', type: 'nursecap', color: 'pink', name: 'ナースぼうし', hidden: true, story: true };
   KP.DATA.ITEMS['apron-pink'] = KP.DATA.ITEMS['apron-pink'] || { id: 'apron-pink', slot: 'onepiece', type: 'apron', color: 'pink', name: 'エプロン', hidden: true, story: true };
+  const QUIZ = [
+    { q: 'はに やさしい おやつは どっち？', a: [['apple', 'りんご', 1], ['candy', 'キャンディ', 0]], why: 'あまい ものを たべたら はみがき しようね' },
+    { q: 'はに やさしい のみものは どっち？', a: [['milk', 'ぎゅうにゅう', 1], ['juice', 'ジュース', 0]], why: 'ジュースの あとは おみずで くちを ゆすごうね' },
+    { q: 'おやつに いいのは どっち？', a: [['cheese', 'チーズ', 1], ['choco', 'チョコ', 0]], why: 'チーズは はを つよく してくれるよ' },
+    { q: 'ねる まえに のむなら どっち？', a: [['water', 'おみず', 1], ['juice', 'ジュース', 0]], why: 'ねる まえは おみずが いちばん！' },
+  ];
   RUN.dentist = async function (c) {
-    const pats = shuffle(PATIENTS).slice(0, 2);
+    const pats = shuffle(PATIENTS).slice(0, 3);
+    const probs = shuffle(Object.keys(PROBLEMS));
     c.bg(KP.BG.clinic());
     c.actor('doctor', { html: aniSVG('bear', 'smile', { kind: 'coat' }), x: 18, y: 99, h: 36 });
     c.actor('fuutan', { html: fuuHTML({}), x: 80, y: 99, h: 52 });
-    await c.say('doctor', 'やあ ふーたん！ きょうは はいしゃさんの おてつだい、よろしくね');
-    await c.say('fuutan', 'はい！ がんばります！', { expr: 'joy' });
+    await c.say('doctor', rand(['やあ ふーたん！ きょうも おてつだい よろしくね', 'ふーたん、きてくれて ありがとう！ きょうは かんじゃさんが いっぱいだよ']));
     await c.say('doctor', 'まずは かんごしさんの ふくに おきがえ しよう！');
     c.sparkleAt('fuutan', ['sparkle', 'star', 'heart'], 16);
     S.henshin();
@@ -741,26 +1053,53 @@
     await c.say('fuutan', 'じゃーん！ かんごしさんに なったよ！', { expr: 'joy' });
     for (let i = 0; i < pats.length; i++) {
       const P = pats[i];
+      const prob = probs[i % probs.length];
+      const PR = PROBLEMS[prob];
+      const pc = { name: P.name, pitch: 1.6, face: (e) => aniFace(P.kind, e === 'joy' ? 'happy' : e || 'sad') };
       c.actor('fuutan', { html: nurseHTML({}) });
       c.actor('pat', { html: aniSVG(P.kind, 'sad', { kind: 'bib' }), x: 49, y: 72, h: 26, z: 150 });
-      await c.say({ name: P.name, pitch: 1.6, face: () => aniFace(P.kind, 'sad') }, 'えーん… はが いたいの…', { actor: 'pat' });
-      c.actor('fuutan', { html: nurseHTML({ pose: 'wave', expr: 'smile' }) });
-      await c.say('fuutan', `だいじょうぶだよ、${P.name}。いすに すわってね`, {});
-      await c.say('doctor', 'はい、あーん して ください。ふーたん、おくちの なかを みてみよう！');
-      await mouthGame(c, P);
+      await c.say(pc, `${i === 0 ? 'こんにちは… ' : ''}${PR.say}`, { actor: 'pat', expr: 'sad' });
+      // こわがりさん
+      if (Math.random() < 0.45) {
+        await c.say(pc, 'でも… はいしゃさん ちょっと こわいよ〜', { actor: 'pat', expr: 'sad' });
+        const how = await c.choose([
+          { label: 'ぬいぐるみ', value: 'plush', icon: svg('0 -30 200 250', KP.drawBunny('happy')) },
+          { label: 'うたを うたう', value: 'song', icon: svg('0 0 100 100', KP.ICONS.music()) },
+          { label: 'てを にぎる', value: 'hand', icon: svg('0 0 100 100', KP.ICONS.heart()) },
+        ], 'どうやって あんしん させる？');
+        if (how === 'song') { for (let k = 0; k < 4; k++) { c.sparkleAt('pat', ['note'], 4); S.sparkle(); await c.wait(300); } }
+        else c.sparkleAt('pat', ['heart', 'sparkle'], 10);
+        c.actor('fuutan', { html: nurseHTML({ pose: how === 'song' ? 'joy' : 'wave', expr: 'joy' }) });
+        await c.say('fuutan', how === 'plush' ? 'ぴょんたの ぬいぐるみ、ぎゅって してていいよ' : how === 'song' ? 'は〜みがき じょうずかな〜♪ だいじょうぶ だいじょうぶ♪' : 'てを にぎってるから だいじょうぶだよ', { expr: 'joy' });
+        c.actor('pat', { html: aniSVG(P.kind, 'smile', { kind: 'bib' }) });
+        await c.say(pc, '……うん。がんばる！', { actor: 'pat', expr: 'smile' });
+      } else {
+        await c.say('fuutan', `だいじょうぶだよ、${P.name}。いすに すわってね`, {});
+      }
+      await c.say('doctor', prob === 'migaki' ? 'よし、ふーたん。はみがきの おてほんを みせて あげて！' : 'はい、あーん して ください。ふーたん、おくちの なかを みてみよう！');
+      await mouthGame(c, P, prob);
       c.actor('pat', { html: aniSVG(P.kind, 'happy', { kind: 'bib' }) });
       c.sparkleAt('pat', ['star', 'heart', 'sparkle'], 14);
-      await c.say({ name: P.name, pitch: 1.6, face: () => aniFace(P.kind, 'happy') }, 'わあ！ もう いたくない！ ありがとう！', { actor: 'pat' });
-      // シールを えらぶ
-      const st = await c.choose([
+      await c.say(pc, { mushiba: 'もう いたくない！ ありがとう！', kasu: 'すっきり した〜！ ありがとう！', gura: 'ぬけた！ おとなの はが はえて くるんだね！', migaki: 'じょうずに みがけるように なったよ！', ana: 'もう しみない！ キラキラの つめもの かわいい！' }[prob], { actor: 'pat', expr: 'joy' });
+      // クイズ
+      if (Math.random() < 0.6) {
+        const Q = rand(QUIZ);
+        const opts = shuffle(Q.a);
+        const v = await c.choose(opts.map(([k, l, ok]) => ({ label: l, value: ok, icon: KP.foodSVG(k) })), `${P.name}から しつもん！ ${Q.q}`);
+        if (v) { S.done(); c.sparkleAt('fuutan', ['star', 'heart'], 10); await c.say('doctor', `せいかい！ ${Q.why}`, { expr: 'joy' }); }
+        else await c.say('doctor', `どっちも おいしいけど、はには もう ひとつの ほうが やさしいんだ。${Q.why}`);
+      }
+      const st = await c.choose(shuffle([
         { label: 'ほし', value: 'star', icon: svg('0 0 100 100', KP.ICONS.star()) },
         { label: 'ハート', value: 'heart', icon: svg('0 0 100 100', KP.ICONS.heart()) },
         { label: 'ぴかぴか', value: 'tooth', icon: svg('0 0 100 100', `<path d="M30,40 Q30,16 50,18 Q70,16 70,40 Q70,70 62,88 Q58,92 54,76 Q52,66 50,66 Q48,66 46,76 Q42,92 38,88 Q30,70 30,40Z" fill="#fff" stroke="#9DBDF4" stroke-width="5"/>${KP.sparkle(76, 20, 9, '#FFE08A')}`) },
-      ], 'がんばった ごほうびの シールを えらんでね');
+        { label: 'うさぎ', value: 'bunny', icon: svg('0 -30 200 250', KP.drawBunny('happy')) },
+        { label: 'おはな', value: 'flower', icon: svg('0 0 100 100', KP.ICONS.flower()) },
+      ]).slice(0, 3), 'がんばった ごほうびの シールを えらんでね');
       c.actor('pat', { html: aniSVG(P.kind, 'happy', { kind: 'bib' }), anim: 'bounce' });
       c.sparkleAt('pat', [st === 'heart' ? 'heart' : 'star', 'sparkle'], 10);
       S.done();
-      await c.say({ name: P.name, pitch: 1.6, face: () => aniFace(P.kind, 'happy') }, 'シール うれしい！ まいにち はみがき するね！', { actor: 'pat' });
+      await c.say(pc, rand(['シール うれしい！ まいにち はみがき するね！', 'ありがとう、かんごしさん！ また くるね！', 'わーい！ みんなに みせて くる！']), { actor: 'pat', expr: 'joy' });
       c.actor('pat', null);
       await c.wait(400);
     }
@@ -771,87 +1110,136 @@
     album('clinic', { pats: pats.map((p) => p.kind), hs: G().character.hairStyle, hc: G().character.hairColor });
     storyClear(c, 'dentist');
   };
-  async function mouthGame(c, P) {
-    const teeth = shuffle(KP.TEETH.map((_, i) => i));
-    const germs = teeth.slice(0, 3 + Math.floor(Math.random() * 2)).map((ti, k) => ({ ti, hp: 3, v: k % 3, gone: false, foam: 0 }));
-    let lit = false, tool = 'light', rinsed = false;
+
+  // おくちの なか：フェーズごとに どうぐを つかう
+  const TOOL_ART = {
+    light: ['ライト', `<rect x="34" y="40" width="34" height="50" rx="8" fill="#B9C4DA" stroke="#6A7490" stroke-width="4"/><path d="M20,40 L82,40 L70,14 L32,14Z" fill="#FFE59A" stroke="#D29A3A" stroke-width="4"/>${KP.sparkle(52, 6, 8, '#FFE59A')}`],
+    brush: ['はブラシ', `<rect x="44" y="30" width="12" height="66" rx="6" fill="#9DBDF4" stroke="#6F98E2" stroke-width="3"/><rect x="36" y="8" width="28" height="28" rx="6" fill="#fff" stroke="#9DBDF4" stroke-width="3"/><path d="M42,12 V32 M50,12 V32 M58,12 V32" stroke="#BFE3FF" stroke-width="3"/>`],
+    pinset: ['ピンセット', `<path d="M30,92 L46,10 M70,92 L54,10" stroke="#B9C4DA" stroke-width="8" stroke-linecap="round"/><path d="M30,92 L70,92" stroke="#8A94AE" stroke-width="8" stroke-linecap="round"/>`],
+    fill: ['つめもの', `<rect x="38" y="40" width="24" height="54" rx="6" fill="#F29CC2" stroke="#C9668F" stroke-width="3"/><path d="M42,40 L50,8 L58,40Z" fill="#fff" stroke="#C9668F" stroke-width="3"/>${KP.sparkle(70, 20, 9, '#FFE59A')}`],
+    water: ['おみず', `<path d="M28,30 L72,30 L66,90 L34,90Z" fill="#EAF6FF" stroke="#8CB4E8" stroke-width="4"/><path d="M32,52 L68,52 L66,88 L34,88Z" fill="#9DCDF4"/><path d="M50,4 C60,18 62,22 62,26 A12,12 0 0,1 38,26 C38,22 40,18 50,4Z" fill="#BFE3FF" stroke="#8CB4E8" stroke-width="3"/>`],
+  };
+  const PHASE_TOOL = { light: 'light', germ: 'brush', stain: 'brush', zone: 'brush', bit: 'pinset', loose: 'pinset', hole: 'fill', water: 'water' };
+  const PHASE_TEXT = {
+    light: 'くらくて みえないね。ライトを つけよう！', germ: 'むしばきんを はブラシで ごしごし！', stain: 'よごれを はブラシで ぴかぴかに！', bit: 'はさまった たべかすを ピンセットで とろう！',
+    loose: 'ぐらぐらの はを ピンセットで そっと タッチ！', hole: 'あなを つめもので ふさごう！', zone: 'ひかって いる ところを はブラシで ごしごし！', water: 'おみずで きれいに しよう！',
+  };
+  const BIT_ART = [`<path d="M-8,-10 Q0,-16 8,-10 Q12,0 8,10 Q0,16 -8,10 Q-12,0 -8,-10Z" fill="#FFE07A" stroke="#D2A43A" stroke-width="2"/>`, `<path d="M-14,4 Q-4,-16 14,-8 Q4,12 -14,4Z" fill="#6FAE5A" stroke="#3F7A3A" stroke-width="2"/>`, `<rect x="-9" y="-9" width="18" height="18" rx="4" fill="#8A5A3A" stroke="#5A3A20" stroke-width="2"/>`];
+  const ZONES = [{ x: 300, y: 268, w: 140, h: 70 }, { x: 206, y: 272, w: 90, h: 70 }, { x: 394, y: 272, w: 90, h: 70 }, { x: 300, y: 452, w: 140, h: 70 }];
+  async function mouthGame(c, P, prob) {
+    const PR = PROBLEMS[prob];
+    const ti = shuffle(KP.TEETH.map((_, i) => i));
+    const objs = [];
+    let k = 0;
+    const take = () => ti[k++ % ti.length];
+    if (PR.phases.includes('germ')) for (let n = 0; n < (prob === 'ana' ? 2 : 3 + Math.floor(Math.random() * 3)); n++) objs.push({ kind: 'germ', ti: take(), hp: 3, v: n % 3 });
+    if (PR.phases.includes('bit')) for (let n = 0; n < 3; n++) objs.push({ kind: 'bit', ti: take(), hp: 1, v: n % 3 });
+    if (PR.phases.includes('stain')) for (let n = 0; n < 3; n++) objs.push({ kind: 'stain', ti: take(), hp: 3 });
+    if (PR.phases.includes('hole')) for (let n = 0; n < 2; n++) objs.push({ kind: 'hole', ti: take(), hp: 1 });
+    if (PR.phases.includes('loose')) objs.push({ kind: 'loose', ti: rand([2, 3, 8, 9]), hp: 5 });
+    if (PR.phases.includes('zone')) ZONES.forEach((z, i) => objs.push({ kind: 'zone', zi: i, hp: 7 }));
+    objs.forEach((o, i) => (o.id = i));
+    const fillCol = rand([['#FFFFFF', 'しろ'], ['#FFE08A', 'きんいろ'], ['#FFB8D6', 'ピンク']]);
+    let lit = !!PR.lit, rinsed = false, ph = 0, hidden = [];
+    const phase = () => PR.phases[ph];
+    const doneKind = (kd) => objs.filter((o) => o.kind === kd).every((o) => o.done);
     const draw = () => {
-      let o = KP.drawMouthView(P.kind, { light: lit, nervous: !rinsed, happy: rinsed, shine: rinsed });
+      let o = KP.drawMouthView(P.kind, { light: lit, nervous: !rinsed, happy: rinsed, shine: rinsed, hide: hidden });
       if (lit) {
-        for (const gm of germs) {
-          const t = KP.TEETH[gm.ti];
-          if (gm.foam && !rinsed) o += KP.drawFoam(t.x, t.y, 3 + gm.foam * 2);
-          if (!gm.gone) o += `<g class="germ" data-g="${germs.indexOf(gm)}"><g class="wob">${KP.drawGerm(t.x, t.y, 0.9 + gm.hp * 0.12, gm.v)}</g></g>`;
+        for (const ob of objs) {
+          const t = KP.TEETH[ob.ti] || { x: 0, y: 0 };
+          if (ob.kind === 'germ') {
+            if (ob.foam && !rinsed) o += KP.drawFoam(t.x, t.y, 3 + ob.foam * 2);
+            if (!ob.done) o += `<g class="mobj germ" data-o="${ob.id}"><g class="wob">${KP.drawGerm(t.x, t.y, 0.9 + ob.hp * 0.12, ob.v)}</g></g>`;
+          } else if (ob.kind === 'bit' && !ob.done) o += `<g class="mobj" data-o="${ob.id}" transform="translate(${t.x + 22} ${t.y + (KP.TEETH[ob.ti].up ? 18 : -18)}) scale(1.6)"><circle r="16" fill="transparent"/>${BIT_ART[ob.v]}</g>`;
+          else if (ob.kind === 'stain' && !ob.done) o += `<g class="mobj" data-o="${ob.id}"><ellipse cx="${t.x}" cy="${t.y}" rx="16" ry="20" fill="#A8743A" opacity="${0.2 + ob.hp * 0.18}"/></g>`;
+          else if (ob.kind === 'hole') o += ob.done ? `<g><circle cx="${t.x}" cy="${t.y}" r="11" fill="${fillCol[0]}" stroke="#E9C25C" stroke-width="2"/>${KP.sparkle(t.x + 4, t.y - 4, 5, '#fff')}</g>` : (doneKind('germ') ? `<g class="mobj" data-o="${ob.id}"><circle cx="${t.x}" cy="${t.y}" r="16" fill="transparent"/><circle cx="${t.x}" cy="${t.y}" r="10" fill="#3A2A2A"/></g>` : '');
+          else if (ob.kind === 'loose' && !ob.done) o += `<g class="mobj" data-o="${ob.id}"><g class="wob big" style="animation-duration:${0.25 + ob.hp * 0.12}s"><rect x="${t.x - 22}" y="${t.y - 32}" width="44" height="64" rx="14" fill="#FFF8D6" stroke="#F2B94A" stroke-width="4"/></g></g>`;
+          else if (ob.kind === 'zone') {
+            const z = ZONES[ob.zi];
+            const cur = phase() === 'zone' && objs.filter((x) => x.kind === 'zone' && !x.done)[0] === ob;
+            if (cur) o += `<g class="mobj" data-o="${ob.id}"><rect x="${z.x - z.w / 2}" y="${z.y - z.h / 2}" width="${z.w}" height="${z.h}" rx="20" fill="#FFE28A" opacity=".45" stroke="#E9B44C" stroke-width="4" stroke-dasharray="10 8"/><rect x="${z.x - z.w / 2}" y="${z.y + z.h / 2 + 6}" width="${(z.w * (7 - ob.hp)) / 7}" height="8" rx="4" fill="#F29CC2"/></g>`;
+            else if (ob.done) o += KP.sparkle(z.x, z.y - 20, 10, '#fff');
+          }
         }
-        if (rinsed) KP.TEETH.forEach((t, i) => { if (i % 2 === 0) o += KP.sparkle(t.x + 12, t.y - 18, 9, '#fff'); });
+        if (rinsed) KP.TEETH.forEach((t, i) => { if (i % 2 === 0 && !hidden.includes(i)) o += KP.sparkle(t.x + 12, t.y - 18, 9, '#fff'); });
       }
       return svg('0 0 600 600', o);
     };
-    const TOOLS = [['light', 'ライト', `<rect x="34" y="40" width="34" height="50" rx="8" fill="#B9C4DA" stroke="#6A7490" stroke-width="4"/><path d="M20,40 L82,40 L70,14 L32,14Z" fill="#FFE59A" stroke="#D29A3A" stroke-width="4"/>${KP.sparkle(52, 6, 8, '#FFE59A')}`],
-      ['brush', 'はブラシ', `<rect x="44" y="30" width="12" height="66" rx="6" fill="#9DBDF4" stroke="#6F98E2" stroke-width="3"/><rect x="36" y="8" width="28" height="28" rx="6" fill="#fff" stroke="#9DBDF4" stroke-width="3"/><path d="M42,12 V32 M50,12 V32 M58,12 V32" stroke="#BFE3FF" stroke-width="3"/>`],
-      ['water', 'おみず', `<path d="M28,30 L72,30 L66,90 L34,90Z" fill="#EAF6FF" stroke="#8CB4E8" stroke-width="4"/><path d="M32,52 L68,52 L66,88 L34,88Z" fill="#9DCDF4"/><path d="M50,4 C60,18 62,22 62,26 A12,12 0 0,1 38,26 C38,22 40,18 50,4Z" fill="#BFE3FF" stroke="#8CB4E8" stroke-width="3"/>`]];
+    const tools = [...new Set(PR.phases.map((x) => PHASE_TOOL[x]))];
     const p = c.panel(`<div class="st-prompt" id="mPrompt"></div><div class="mouth" id="mouth">${draw()}</div><div class="tools" id="mTools"></div>`, 'full mouthp');
     const mouth = p.querySelector('#mouth'), toolsEl = p.querySelector('#mTools'), prompt = p.querySelector('#mPrompt');
-    const want = () => (!lit ? 'light' : germs.some((g) => !g.gone) ? 'brush' : 'water');
-    const setPrompt = () => {
-      const t = !lit ? 'くらくて みえないね。ライトを つけよう！' : germs.some((g) => !g.gone) ? 'むしばきんを はブラシで ごしごし！' : 'おみずで きれいに しよう！';
-      prompt.textContent = t;
-      S.speak(t, 1.45);
-    };
-    // つぎに つかう どうぐを ぴょこぴょこ させる（.hint は べつの がめんの スタイルと かぶるので つかわない）
-    const drawTools = () => (toolsEl.innerHTML = TOOLS.map(([k, n, ic]) => `<button class="mk-tool${tool === k ? ' sel' : ''}${want() === k ? ' nexttool' : ''}" data-t="${k}">${svg('0 0 100 100', ic)}<span>${n}</span></button>`).join(''));
-    setPrompt(); drawTools();
+    let tool = PHASE_TOOL[phase()];
+    const setPrompt = () => { const t = PHASE_TEXT[phase()]; prompt.textContent = t; S.speak(t, 1.45); };
+    const drawTools = () => (toolsEl.innerHTML = tools.map((kk) => `<button class="mk-tool${tool === kk ? ' sel' : ''}${PHASE_TOOL[phase()] === kk ? ' nexttool' : ''}" data-t="${kk}">${svg('0 0 100 100', TOOL_ART[kk][1])}<span>${TOOL_ART[kk][0]}</span></button>`).join(''));
     let finish;
     const finished = new Promise((r) => (finish = r));
-    const useLight = () => {
-      if (lit) return;
-      lit = true;
-      tool = 'brush';
-      mouth.innerHTML = draw();
-      S.sparkle();
-      const r = mouth.getBoundingClientRect();
-      bubble(r.left + r.width / 2, r.top + r.height * 0.3, `${icon('search')}むしばきんが いた！`, 1600);
-      setPrompt();
-      drawTools();
+    const next = () => {
+      ph++;
+      if (ph >= PR.phases.length) return;
+      tool = PHASE_TOOL[phase()];
+      setTimeout(() => { mouth.innerHTML = draw(); setPrompt(); drawTools(); }, 300);
     };
-    const useWater = (from) => {
-      if (!lit) { useLight(); return; }
-      if (germs.some((g) => !g.gone)) { const r = (from || mouth).getBoundingClientRect(); bubble(r.left + r.width / 2, r.top, 'さきに むしばきんを やっつけよう', 1400); tool = 'brush'; drawTools(); return; }
-      if (rinsed) return;
-      rinsed = true;
-      const r = mouth.getBoundingClientRect();
-      burst(r.left + r.width / 2, r.top + r.height * 0.5, ['drop'], 18, 160);
-      S.sparkle();
-      setTimeout(() => { mouth.innerHTML = draw(); burst(r.left + r.width / 2, r.top + r.height * 0.5, ['sparkle', 'star'], 14, 150); S.done(); prompt.textContent = 'ぴかぴかに なったね！'; S.speak('ぴかぴかに なったね！', 1.45); }, 600);
-      setTimeout(finish, 2200);
-    };
-    const hitGerm = (gi) => {
-      const gm = germs[gi];
-      if (!gm || gm.gone || !lit) return;
-      gm.hp--;
-      gm.foam++;
-      const gEl = mouth.querySelector(`[data-g="${gi}"]`);
-      const r = gEl ? gEl.getBoundingClientRect() : mouth.getBoundingClientRect();
-      S.pop();
-      burst(r.left + r.width / 2, r.top + r.height / 2, ['sparkle'], 5, 40);
-      if (gm.hp <= 0) {
-        gm.gone = true;
-        flyer(r.left + r.width / 2, r.top + r.height / 2, svg('-40 -40 80 80', KP.drawGerm(0, 0, 1, gm.v)), (Math.random() < 0.5 ? -1 : 1) * innerWidth * 0.6, -200, 900);
-        bubble(r.left + r.width / 2, r.top, 'にげろ〜！', 1000);
-        S.boing();
-        if (!germs.some((g) => !g.gone)) setTimeout(() => { tool = 'water'; setPrompt(); drawTools(); }, 300);
+    setPrompt(); drawTools();
+    const say = (txt, from) => { const r = (from || mouth).getBoundingClientRect(); bubble(r.left + r.width / 2, r.top + 30, txt, 1400); };
+    const action = (kk, from) => {
+      if (ph >= PR.phases.length) return;
+      if (kk !== PHASE_TOOL[phase()]) {
+        tool = kk; drawTools();
+        say(kk === 'water' ? 'さきに ' + PHASE_TEXT[phase()].replace(/！$/, '') : kk === 'light' ? 'もう あかるいよ' : 'いまは ' + TOOL_ART[PHASE_TOOL[phase()]][0] + ' だよ', from);
+        return;
       }
+      tool = kk; drawTools();
+      if (kk === 'light') {
+        lit = true;
+        mouth.innerHTML = draw();
+        S.sparkle();
+        const r = mouth.getBoundingClientRect();
+        bubble(r.left + r.width / 2, r.top + r.height * 0.3, `${icon('search')}${prob === 'mushiba' || prob === 'ana' ? 'むしばきんが いた！' : prob === 'kasu' ? 'なにか はさまってる！' : 'この はが ぐらぐらだね'}`, 1600);
+        next();
+      } else if (kk === 'water') {
+        rinsed = true;
+        const r = mouth.getBoundingClientRect();
+        burst(r.left + r.width / 2, r.top + r.height * 0.5, ['drop'], 18, 160);
+        S.sparkle();
+        setTimeout(() => { mouth.innerHTML = draw(); burst(r.left + r.width / 2, r.top + r.height * 0.5, ['sparkle', 'star'], 14, 150); S.done(); prompt.textContent = 'ぴかぴかに なったね！'; S.speak('ぴかぴかに なったね！', 1.45); }, 600);
+        setTimeout(finish, 2200);
+        ph = PR.phases.length;
+      }
+    };
+    const hit = (oid) => {
+      const ob = objs[oid];
+      if (!ob || ob.done || ob.kind !== phase()) return;
+      if (PHASE_TOOL[ob.kind] !== tool) { tool = PHASE_TOOL[ob.kind]; drawTools(); }
+      const el = mouth.querySelector(`[data-o="${oid}"]`);
+      const r = el ? el.getBoundingClientRect() : mouth.getBoundingClientRect();
+      ob.hp--;
+      if (ob.kind === 'germ') ob.foam = (ob.foam || 0) + 1;
+      S.pop();
+      burst(r.left + r.width / 2, r.top + r.height / 2, ob.kind === 'zone' ? ['drop', 'sparkle'] : ['sparkle'], 4, 40);
+      if (ob.hp <= 0) {
+        ob.done = true;
+        if (ob.kind === 'germ') { flyer(r.left + r.width / 2, r.top + r.height / 2, svg('-40 -40 80 80', KP.drawGerm(0, 0, 1, ob.v)), (Math.random() < 0.5 ? -1 : 1) * innerWidth * 0.6, -200, 900); bubble(r.left + r.width / 2, r.top, 'にげろ〜！', 1000); S.boing(); }
+        if (ob.kind === 'bit') { flyer(r.left + r.width / 2, r.top + r.height / 2, svg('-20 -20 40 40', BIT_ART[ob.v]), 0, -260, 700); S.pick(); }
+        if (ob.kind === 'stain') S.sparkle();
+        if (ob.kind === 'hole') { S.sparkle(); burst(r.left + r.width / 2, r.top + r.height / 2, ['star', 'sparkle'], 8, 50); }
+        if (ob.kind === 'loose') { hidden.push(ob.ti); flyer(r.left + r.width / 2, r.top + r.height / 2, svg('0 0 60 80', `<rect x="8" y="8" width="44" height="64" rx="14" fill="#FFF8D6" stroke="#F2B94A" stroke-width="4"/>`), 0, -300, 900); S.henshin(); bubble(r.left + r.width / 2, r.top, 'ぽろっ！ ぬけた！', 1400); }
+        if (ob.kind === 'zone') { S.done(); bubble(r.left + r.width / 2, r.top, rand(['ぴかぴか！', 'じょうず！', 'シュッシュッ！']), 900); }
+        if (doneKind(ob.kind)) next();
+      } else if (ob.kind === 'loose') bubble(r.left + r.width / 2, r.top, ['ぐら…', 'ぐらぐら…', 'もうすこし！', 'あと ちょっと！'][4 - ob.hp] || 'ぐら', 700);
       mouth.innerHTML = draw();
     };
-    const germAt = (x, y) => { const el = document.elementFromPoint(x, y); const g = el && el.closest && el.closest('[data-g]'); return g ? +g.dataset.g : -1; };
+    // むしばきんは ときどき となりの はに にげる
+    const hop = setInterval(() => {
+      if (!c.alive.v || phase() !== 'germ' || prob !== 'mushiba') return;
+      const g = objs.filter((o) => o.kind === 'germ' && !o.done);
+      if (g.length > 1 && Math.random() < 0.5) { const ob = rand(g); const used = objs.map((o) => o.ti); const free = KP.TEETH.map((_, i) => i).filter((i) => !used.includes(i)); if (free.length) { ob.ti = rand(free); ob.foam = 0; mouth.innerHTML = draw(); } }
+    }, 2600);
+    A.onCleanup(() => clearInterval(hop));
+    // タップ・ドラッグ・こする
+    const objAt = (x, y) => { const el = document.elementFromPoint(x, y); const g = el && el.closest && el.closest('[data-o]'); return g ? +g.dataset.o : -1; };
     const overMouth = (x, y) => { const r = mouth.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; };
-    const useTool = (k, from) => {
-      if (k === 'light') useLight();
-      else if (k === 'water') useWater(from);
-      else if (!lit) { const r = (from || mouth).getBoundingClientRect(); bubble(r.left + r.width / 2, r.top, 'くらくて みえないよ。ライトを つけよう', 1400); tool = 'light'; drawTools(); }
-      else { tool = 'brush'; drawTools(); }
-    };
-    // タップでも、どうぐを おくちへ ドラッグしても つかえる。はブラシは こすっても OK
+    const RUB = { germ: 220, stain: 220, zone: 120, bit: 400, loose: 350, hole: 400 };
     let drag = null;
     p.addEventListener('pointerdown', (e) => {
       const t = e.target.closest('[data-t]');
@@ -860,12 +1248,11 @@
         try { p.setPointerCapture(e.pointerId); } catch (er) { /* なし */ }
         return;
       }
-      if (overMouth(e.clientX, e.clientY) && lit && germs.some((g) => !g.gone)) {
-        tool = 'brush'; drawTools();
-        drag = { k: 'brush', rub: true, moved: true, last: -1, lastT: 0, id: e.pointerId };
+      if (overMouth(e.clientX, e.clientY)) {
+        drag = { k: tool, rub: true, moved: true, last: -1, lastT: 0, id: e.pointerId };
         try { p.setPointerCapture(e.pointerId); } catch (er) { /* なし */ }
-        const gi = germAt(e.clientX, e.clientY);
-        if (gi >= 0) { hitGerm(gi); drag.last = gi; drag.lastT = performance.now(); }
+        const oi = objAt(e.clientX, e.clientY);
+        if (oi >= 0) { hit(oi); drag.last = oi; drag.lastT = performance.now(); }
       }
     });
     p.addEventListener('pointermove', (e) => {
@@ -874,15 +1261,17 @@
         drag.moved = true;
         drag.ghost = document.createElement('div');
         drag.ghost.className = 'tool-ghost';
-        drag.ghost.innerHTML = TOOLS.find((x) => x[0] === drag.k) ? svg('0 0 100 100', TOOLS.find((x) => x[0] === drag.k)[2]) : '';
+        drag.ghost.innerHTML = svg('0 0 100 100', TOOL_ART[drag.k][1]);
         document.body.appendChild(drag.ghost);
-        if (drag.k === 'brush' && lit) { tool = 'brush'; drawTools(); }
       }
       if (drag.ghost) { drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px'; }
-      if (drag.moved && drag.k === 'brush' && lit) {
-        const gi = germAt(e.clientX, e.clientY - (drag.ghost ? 0 : 0));
+      if (drag.moved && lit) {
+        const oi = objAt(e.clientX, e.clientY);
         const now = performance.now();
-        if (gi >= 0 && (gi !== drag.last || now - drag.lastT > 220)) { hitGerm(gi); drag.last = gi; drag.lastT = now; }
+        if (oi >= 0) {
+          const ob = objs[oi];
+          if (ob && PHASE_TOOL[ob.kind] === (drag.rub ? PHASE_TOOL[ob.kind] : drag.k) && (oi !== drag.last || now - drag.lastT > (RUB[ob.kind] || 250))) { hit(oi); drag.last = oi; drag.lastT = now; }
+        }
       }
     });
     const endDrag = (e) => {
@@ -891,13 +1280,14 @@
       drag = null;
       if (d.ghost) d.ghost.remove();
       if (d.rub) return;
-      if (!d.moved) { S.tap(); tool = d.k; useTool(d.k, d.el); drawTools(); return; }
-      if (d.k !== 'brush' && e && overMouth(e.clientX, e.clientY)) { S.tap(); useTool(d.k, d.el); }
+      if (!d.moved) { S.tap(); action(d.k, d.el); if (['brush', 'pinset', 'fill'].includes(d.k)) { tool = d.k; drawTools(); } return; }
+      if (['light', 'water'].includes(d.k) && e && overMouth(e.clientX, e.clientY)) { S.tap(); action(d.k, d.el); }
     };
     p.addEventListener('pointerup', endDrag);
     p.addEventListener('pointercancel', endDrag);
     A.onCleanup(() => document.querySelectorAll('.tool-ghost').forEach((g) => g.remove()));
     await finished;
+    clearInterval(hop);
     c.hidePanel();
     return c.guard(Promise.resolve());
   }
@@ -992,7 +1382,7 @@
     gb.fillStyle = '#FFFDF8'; gb.fillRect(0, 0, size, size);
     gb.strokeStyle = '#F2C6D8'; gb.lineWidth = 2; gb.setLineDash([8, 8]);
     gb.beginPath(); gb.moveTo(size / 2, 0); gb.lineTo(size / 2, size); gb.moveTo(0, size / 2); gb.lineTo(size, size / 2); gb.stroke();
-    for (const g of [gi, gc]) { g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = '#E0559A'; g.lineWidth = size * 0.085; }
+    for (const g of [gi, gc]) { g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = '#E0559A'; g.lineWidth = size * 0.12; }
     let step = 0, done = false, fails = 0;
     const numPos = (st, i) => {
       const L = Math.hypot(...st.dir) || 1;
@@ -1058,9 +1448,12 @@
     const coverage = (st) => {
       const d = gc.getImageData(0, 0, size * dpr, size * dpr).data;
       let hit = 0;
+      // すこし ずれても OK（まわりも しらべる）
+      const W2 = size * dpr, rr = size * 0.06 * dpr;
+      const offs = [[0, 0], [rr, 0], [-rr, 0], [0, rr], [0, -rr], [rr * 0.7, rr * 0.7], [-rr * 0.7, -rr * 0.7], [rr * 0.7, -rr * 0.7], [-rr * 0.7, rr * 0.7]];
       for (const [x, y] of st.pts) {
-        const px = Math.round(x * K * dpr), py = Math.round(y * K * dpr);
-        if (d[(py * size * dpr + px) * 4 + 3] > 40) hit++;
+        const px = x * K * dpr, py = y * K * dpr;
+        if (offs.some(([ox, oy]) => { const qx = Math.round(px + ox), qy = Math.round(py + oy); return qx >= 0 && qy >= 0 && qx < W2 && qy < W2 && d[(qy * W2 + qx) * 4 + 3] > 40; })) hit++;
       }
       return hit / st.pts.length;
     };
@@ -1070,7 +1463,7 @@
       if (auto) {
         // せんせいと いっしょに かく
         const st = strokes[step];
-        gc.save(); gc.scale(K, K); gc.lineWidth = size * 0.085 / K; gc.stroke(new Path2D(st.d)); gc.restore();
+        gc.save(); gc.scale(K, K); gc.lineWidth = size * 0.12 / K; gc.stroke(new Path2D(st.d)); gc.restore();
       }
       gi.drawImage(cur, 0, 0, size, size);
       gc.clearRect(0, 0, size, size);
@@ -1102,13 +1495,13 @@
       drawing = null;
       const st = strokes[step];
       const cv = coverage(st);
-      if (cv >= 0.7) { commit(false); return; }
+      if (cv >= 0.45) { commit(false); return; }
       // ほかの せんを かいちゃった ときは やさしく おしえる
-      const wrong = cv < 0.25;
+      const wrong = cv < 0.12;
       if (wrong) {
         fails++;
         gc.clearRect(0, 0, size, size);
-        if (fails >= 3) {
+        if (fails >= 2) {
           const rr = box.getBoundingClientRect();
           bubble(rr.left + rr.width / 2, rr.top + 30, 'いっしょに かこうね', 1500);
           S.speak('いっしょに かこうね', 1.2);
@@ -1157,7 +1550,8 @@
       return svg('60 120 630 790', o).replace('<svg ', '<svg preserveAspectRatio="xMidYMid slice" ');
     }
     if (a.type === 'dish') {
-      const o = KP.BG.kitchen() + `<g transform="translate(40 380) scale(.9)">${KP.drawChar(mamaOpt({ pose: 'joy', expr: 'joy' }))}</g><g transform="translate(380 420) scale(.8)">${KP.drawChar(A.fuutanOpt({ pose: 'joy', expr: 'joy' }))}</g><g transform="translate(225 720) scale(1)">${KP.DISH[s.dish]}</g>`;
+      const dish = s.dish === 'bday' ? `<g transform="translate(0 -60) scale(.5)">${A.drawCake({ shape: 'tier', cream: 'pink', tops: [{ t: 'candle', x: 280, y: 190 }, { t: 'strawberry', x: 320, y: 196 }, { t: 'heart', x: 300, y: 300 }] })}</g>` : s.dish === 'bento' ? KP.DISH.bento : KP.DISH[s.dish] || '';
+      const o = KP.BG.kitchen() + `<g transform="translate(40 380) scale(.9)">${KP.drawChar(mamaOpt({ pose: 'joy', expr: 'joy' }))}</g><g transform="translate(380 420) scale(.8)">${KP.drawChar(A.fuutanOpt({ pose: 'joy', expr: 'joy' }))}</g><g transform="translate(225 720) scale(1)">${dish}</g>`;
       return svg('0 300 750 700', o).replace('<svg ', '<svg preserveAspectRatio="xMidYMid slice" ');
     }
     if (a.type === 'writing') {

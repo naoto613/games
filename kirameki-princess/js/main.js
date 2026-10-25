@@ -1595,6 +1595,7 @@
     D, S, SCREENS, svg, icon, rand, esc, go, later, every, burst, bubble, flyer, save, toDraw, owned, clearNew,
     faceSVG, charSVG, bunnySVG, itemSVG, findSVG, findName, fuutanOpt, friendOpt, fuuHair, hairOpt, EYE_FOR, HAIR_STYLES, HAIR_COLORS,
     topbar, bindHome, partyBG, roomFurnitureSVG, dressRoomBG, grantPrize, rec,
+    drawCake, cakeSpot, drawTop1, CREAMS, TOPS,
     onCleanup: (fn) => cleanup.push(fn),
     get G() { return G; },
   });
