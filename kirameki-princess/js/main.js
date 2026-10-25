@@ -75,9 +75,15 @@
     return o;
   }
   const CHAR_VB = '0 -30 400 680';
-  const FUU = { hairStyle: 'long', hairColor: 'pink', eyeColor: 'pink' };
+  // かみがた・かみいろ（めの いろは かみに あわせる）
+  const HAIR_STYLES = [['long', 'ロング'], ['twin', 'ツインテール'], ['pony', 'ポニーテール'], ['odango', 'おだんご'], ['bob', 'ボブ']];
+  const HAIR_COLORS = ['pink', 'lav', 'blue', 'mint', 'yellow', 'brown', 'silver'];
+  const EYE_FOR = { pink: 'pink', lav: 'lav', blue: 'blue', mint: 'green', yellow: 'amber', brown: 'amber', silver: 'blue' };
+  const hairOpt = (style, color) => ({ hairStyle: style || 'long', hairColor: color || 'pink', eyeColor: EYE_FOR[color || 'pink'] || 'pink' });
+  const fuuHair = () => hairOpt(G.character.hairStyle, G.character.hairColor);
+  const snapHair = (o) => hairOpt(o && (o._hs || o.hairStyle), o && (o._hc || o.hairColor));
   function fuutanOpt(extra = {}) {
-    return { ...FUU, outfit: toDraw(G.character.equippedItems), ...extra };
+    return { ...fuuHair(), outfit: toDraw(G.character.equippedItems), ...extra };
   }
   function friendOpt(fid, extra = {}) {
     if (fid === 'fuutan') return fuutanOpt(extra);
@@ -365,6 +371,7 @@
 
     function tabsHTML() {
       let o = '';
+      o += `<button class="tab${dressTab === 'hairdo' ? ' sel' : ''}" data-tab="hairdo">${svg('104 40 192 192', KP.drawChar({ ...fuuHair(), outfit: {} }))}かみがた</button>`;
       for (const s of D.SLOTS) {
         const rep = D.ITEM_LIST.find((i) => i.slot === s.id);
         const hasNewIn = D.ITEM_LIST.some((i) => i.slot === s.id && isNew(i.id));
@@ -374,10 +381,18 @@
       return o;
     }
     function gridHTML() {
+      if (dressTab === 'hairdo') {
+        const cs = G.character.hairStyle || 'long', cc = G.character.hairColor || 'pink';
+        const head = (st, co) => svg('36 20 328 400', KP.drawChar({ ...hairOpt(st, co), outfit: {} }));
+        return `<div class="grid-h">かみがた</div>` +
+          HAIR_STYLES.map(([st, nm]) => `<button class="cell${cs === st ? ' sel' : ''}" data-hs="${st}" aria-label="${nm}">${head(st, cc)}</button>`).join('') +
+          `<div class="grid-h">かみの いろ</div>` +
+          HAIR_COLORS.map((co) => `<button class="cell${cc === co ? ' sel' : ''}" data-hc="${co}">${head(cs, co)}</button>`).join('');
+      }
       if (dressTab === 'saved') {
         if (!G.character.savedOutfits.length) return `<div class="empty-msg" style="grid-column:1/-1">「ほぞん」を おすと ここに はいるよ</div>`;
         return G.character.savedOutfits.map((o, i) =>
-          `<button class="cell" data-saved="${i}">${svg('40 -20 320 660', KP.drawChar({ ...FUU, outfit: toDraw(o.equippedItems) }))}</button>`).join('');
+          `<button class="cell" data-saved="${i}">${svg('40 -20 320 660', KP.drawChar({ ...snapHair(o), outfit: toDraw(o.equippedItems) }))}</button>`).join('');
       }
       const list = D.ITEM_LIST.filter((i) => i.slot === dressTab && owned(i.id));
       const locked = D.ITEM_LIST.filter((i) => i.slot === dressTab && !owned(i.id)).length;
@@ -429,9 +444,19 @@
         pyonSay(`${icon('search')}たんけんで みつけよう`, 'notify');
         return;
       }
+      if (c.dataset.hs || c.dataset.hc) {
+        if (c.dataset.hs) G.character.hairStyle = c.dataset.hs;
+        if (c.dataset.hc) G.character.hairColor = c.dataset.hc;
+        save();
+        refresh();
+        reactTo({ slot: 'hair', type: 'hairdo' });
+        S.sparkle();
+        return;
+      }
       if (c.dataset.saved != null) {
         const o = G.character.savedOutfits[+c.dataset.saved];
         Object.assign(eq, { ...D.DEFAULT_OUTFIT, ...o.equippedItems });
+        if (o.hairStyle) Object.assign(G.character, { hairStyle: o.hairStyle, hairColor: o.hairColor });
         save();
         reactTo(null);
         return;
@@ -445,8 +470,8 @@
         eq[it.slot] = it.id;
         if (it.slot === 'tops' || it.slot === 'skirt') {
           eq.onepiece = null;
-          if (!eq.tops) eq.tops = 'blouse-lav';
-          if (!eq.skirt) eq.skirt = 'frill-lav';
+          if (!eq.tops) eq.tops = 'blouse-pink';
+          if (!eq.skirt) eq.skirt = 'frill-pink';
         }
       }
       clearNew(it.id);
@@ -472,7 +497,7 @@
       S.sparkle();
     });
     el.querySelector('[data-a=save]').addEventListener('click', (e) => {
-      G.character.savedOutfits.unshift({ id: 'o' + Date.now(), equippedItems: { ...eq } });
+      G.character.savedOutfits.unshift({ id: 'o' + Date.now(), equippedItems: { ...eq }, hairStyle: G.character.hairStyle || 'long', hairColor: G.character.hairColor || 'pink' });
       if (G.character.savedOutfits.length > 30) G.character.savedOutfits.length = 30;
       save();
       S.done();
@@ -543,7 +568,7 @@
       later(() => el.querySelector('#hsAct').classList.add('show'), 500);
       later(() => { const b = el.querySelector('#hsBun').getBoundingClientRect(); bubble(b.left + b.width / 2, b.top, `${icon('heart')}かわいい！`, 2200); }, 700);
       // きねんの しゃしん
-      const snap = { ...G.character.equippedItems };
+      const snap = { ...G.character.equippedItems, _hs: G.character.hairStyle || 'long', _hc: G.character.hairColor || 'pink' };
       const last = G.album.find((a) => a.type === 'outfit');
       if (!last || JSON.stringify(last.snapshot) !== JSON.stringify(snap)) {
         G.album.unshift({ id: 'a' + Date.now(), type: 'outfit', createdAt: Date.now(), snapshot: snap });
@@ -1136,7 +1161,7 @@
       sh.className = 'shutter';
       document.body.appendChild(sh);
       setTimeout(() => sh.remove(), 520);
-      const chars = inRoom().map((c) => ({ id: c, x: st[c].x, y: st[c].y, expr: st[c].expr, pose: st[c].pose, outfit: c === 'fuutan' ? { ...G.character.equippedItems } : c === 'pyonta' ? null : (G.friends.outfits[c] || D.FRIENDS[c].outfit) }));
+      const chars = inRoom().map((c) => ({ id: c, x: st[c].x, y: st[c].y, expr: st[c].expr, pose: st[c].pose, outfit: c === 'fuutan' ? { ...G.character.equippedItems } : c === 'pyonta' ? null : (G.friends.outfits[c] || D.FRIENDS[c].outfit), ...(c === 'fuutan' ? { hairStyle: G.character.hairStyle, hairColor: G.character.hairColor } : {}) }));
       G.album.unshift({ id: 'a' + Date.now(), type: 'photo', createdAt: Date.now(), snapshot: { chars, tea: activity === 'tea' } });
       if (G.album.length > 60) G.album.length = 60;
       save();
@@ -1152,7 +1177,7 @@
       return svg('0 0 400 500',
         `<defs>${KP.rg(id + 'g', [[0, '#FFFFFF'], [0.5, '#EEE6FF'], [1, '#C9B5F5']], 0.5, 0.45, 0.7)}</defs><rect width="400" height="500" fill="url(#${id}g)"/>` +
         [[40, 60], [350, 90], [60, 400], [340, 380], [200, 30]].map(([x, y], i) => (i % 2 ? KP.star(x, y, 12, '#FFE59A') : KP.sparkle(x, y, 14, '#fff'))).join('') +
-        `<g transform="translate(70 0) scale(0.66)">${KP.drawChar({ ...FUU, outfit: toDraw(a.snapshot), pose: 'cheer', expr: 'joy' })}</g>` +
+        `<g transform="translate(70 0) scale(0.66)">${KP.drawChar({ ...snapHair(a.snapshot), outfit: toDraw(a.snapshot), pose: 'cheer', expr: 'joy' })}</g>` +
         `<g transform="translate(14 360) scale(0.6)">${KP.drawBunny('happy')}</g>`);
     }
     if (a.type === 'room') {
@@ -1163,7 +1188,7 @@
     if (s.tea) o += `<g transform="translate(368 742) scale(1.2)">${KP.FURN.teatable.draw(KP.PAL.pink, KP.uid('t'))}</g>`;
     o += [...s.chars].sort((p, q) => p.y - q.y).map((c) => {
       if (c.id === 'pyonta') return castG('pyonta', c, { expr: c.expr || 'happy', anim: 'x' });
-      const base = c.id === 'fuutan' ? FUU : D.FRIENDS[c.id];
+      const base = c.id === 'fuutan' ? snapHair(c) : D.FRIENDS[c.id];
       const sc = 0.62;
       return `<g transform="translate(${c.x - 124} ${c.y - 640 * sc}) scale(${sc})">${KP.drawChar({ hairStyle: base.hairStyle, hairColor: base.hairColor, eyeColor: base.eyeColor, outfit: toDraw(c.outfit || {}), pose: c.pose || 'stand', expr: c.expr || 'smile' })}</g>`;
     }).join('');
@@ -1182,7 +1207,7 @@
         : `<div class="empty-msg">へんしん したり、しゃしんを とると ここに はいるよ</div>`;
       o += `<div class="sec-h">${icon('save')}おきにいり コーデ</div>`;
       o += G.character.savedOutfits.length
-        ? `<div class="agrid">` + G.character.savedOutfits.map((s, i) => `<div class="photo"><button class="pic" data-o="${i}" style="display:block;width:100%">${snapshotSVG({ type: 'outfit', snapshot: s.equippedItems })}</button><div class="cap">きてみる</div><button class="del" data-od="${i}" aria-label="けす">${icon('trash')}</button></div>`).join('') + `</div>`
+        ? `<div class="agrid">` + G.character.savedOutfits.map((s, i) => `<div class="photo"><button class="pic" data-o="${i}" style="display:block;width:100%">${snapshotSVG({ type: 'outfit', snapshot: { ...s.equippedItems, _hs: s.hairStyle, _hc: s.hairColor } })}</button><div class="cap">きてみる</div><button class="del" data-od="${i}" aria-label="けす">${icon('trash')}</button></div>`).join('') + `</div>`
         : `<div class="empty-msg">きせかえで「ほぞん」すると ここに はいるよ</div>`;
       o += `<div class="sec-h">${icon('star')}みつけた もの・なかま</div><div class="cgrid">`;
       o += D.FINDS.map((f) => {
@@ -1205,6 +1230,7 @@
       } else if (b.dataset.o != null) {
         const s = G.character.savedOutfits[+b.dataset.o];
         Object.assign(G.character.equippedItems, { ...D.DEFAULT_OUTFIT, ...s.equippedItems });
+        if (s.hairStyle) Object.assign(G.character, { hairStyle: s.hairStyle, hairColor: s.hairColor });
         save();
         go('dress');
       } else if (b.dataset.d != null || b.dataset.od != null) {

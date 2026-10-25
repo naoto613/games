@@ -139,6 +139,13 @@
         `<path d="M110,200 C104,270 112,340 108,420" fill="none" stroke="${H.dark}" stroke-width="2" opacity=".4" stroke-linecap="round"/>`;
       return half + mirror(half);
     }
+    if (style === 'odango') {
+      // おだんご（うえに ふたつ）＋ みじかい うしろがみ
+      const half = `<circle cx="128" cy="78" r="38" fill="${f}" ${st}/>` +
+        `<path d="M104,66 Q126,48 150,62 M106,90 Q128,104 152,92" fill="none" stroke="${H.dark}" stroke-width="2" opacity=".5" stroke-linecap="round"/>` +
+        `<path d="M200,64 C150,62 108,90 104,148 C100,196 104,232 112,256 C124,264 140,262 150,254 L200,254Z" fill="${f}" ${st}/>`;
+      return half + mirror(half);
+    }
     if (style === 'bob') {
       const half = `<path d="M200,64 C148,62 106,92 102,150 C98,200 100,240 98,272 C106,288 124,292 140,284 C150,290 162,288 170,280 L200,280Z" fill="${f}" ${st}/>`;
       return half + mirror(half);
@@ -172,7 +179,7 @@
     let side;
     if (style === 'bob') {
       side = `<path d="M114,140 C102,190 104,240 110,278 C116,290 130,292 140,280 C134,250 136,214 142,170Z" fill="${f}" ${st}/>`;
-    } else if (style === 'pony' || style === 'twin') {
+    } else if (style === 'pony' || style === 'twin' || style === 'odango') {
       side = `<path d="M118,140 C106,200 110,250 108,300 C108,316 116,326 126,330 C122,312 128,296 134,282 C138,240 138,200 142,160Z" fill="${f}" ${st}/>`;
     } else {
       side = `<path d="M120,136 C106,190 116,236 108,280 C102,306 98,330 108,350 C114,362 126,366 134,362 C124,350 124,336 130,322 C138,300 134,270 138,240 C140,210 140,186 146,160Z" fill="${f}" ${st}/>` +
@@ -199,6 +206,9 @@
       // ゴム
       o += `<circle cx="112" cy="116" r="9" fill="${H.tie || '#FF8FB8'}" stroke="${H.line}" stroke-width="1.6"/>` +
         `<circle cx="288" cy="116" r="9" fill="${H.tie || '#FF8FB8'}" stroke="${H.line}" stroke-width="1.6"/>`;
+    }
+    if (style === 'odango') {
+      o += bow(128, 112, 0.42, { ...PAL.pink, base: H.tie || '#F8BCD6' }, null, { tails: false }) + mirror(bow(128, 112, 0.42, { ...PAL.pink, base: H.tie || '#F8BCD6' }, null, { tails: false }));
     }
     if (style === 'pony') {
       o += `<circle cx="282" cy="104" r="9" fill="${H.tie || '#FF8FB8'}" stroke="${H.line}" stroke-width="1.6"/>`;
@@ -615,6 +625,7 @@
     blue: { base: '#AFCBF6', light: '#EAF3FF', dark: '#7FA4E6', deep: '#6188D0', line: '#5576BC', tie: '#FFE08A' },
     yellow: { base: '#FFE39A', light: '#FFF8DE', dark: '#F5C55C', deep: '#E2A93C', line: '#C48E2C', tie: '#F8BCD6' },
     mint: { base: '#B4E8D6', light: '#ECFCF6', dark: '#7FCDB2', deep: '#5CB396', line: '#4C9C82', tie: '#F8BCD6' },
+    silver: { base: '#E4E2F2', light: '#FFFFFF', dark: '#BDB8D8', deep: '#A29CC6', line: '#8D86B4', tie: '#F8BCD6', tip: '#F4E6F6' },
     brown: { base: '#D9AE8C', light: '#F6E3D2', dark: '#B5835E', deep: '#9A6A48', line: '#875C40', tie: '#F8BCD6' },
   };
   KP.HAIRS = HAIRS;
