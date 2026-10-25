@@ -30,6 +30,8 @@
   #reticle{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;border:2px solid rgba(255,255,255,.75);box-shadow:0 0 0 1px rgba(0,0,0,.25);transition:border-color .15s,transform .15s}
   #reticle::before,#reticle::after{content:"";position:absolute;background:rgba(255,255,255,.85)}
   #reticle::before{left:50%;top:50%;width:4px;height:4px;margin:-2px;border-radius:50%}
+  #reticle.scope{border:4px solid #6dffb0;box-shadow:0 0 0 3px rgba(0,40,20,.45),0 0 24px rgba(80,255,170,.6);transition:none}
+  #reticle.scope::before{width:6px;height:6px;margin:-3px;background:#6dffb0}
   #reticle.lock{border-color:#ff3366;transform:scale(.8);box-shadow:0 0 18px #ff3366}
   #scanFx{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(60,255,180,.0) 35%,rgba(10,80,60,.55) 100%),repeating-linear-gradient(0deg,rgba(80,255,200,.07) 0 2px,transparent 2px 5px);opacity:0;transition:opacity .2s}
   #scanFx.on{opacity:1}
@@ -60,6 +62,9 @@
   .tb .ic{font-size:22px}
   .tb.big{width:80px;height:80px;border-color:rgba(80,255,190,.6)}
   .tb.on{background:rgba(60,200,150,.55);border-color:#6dffb0}
+  .tb.beam{width:96px;height:96px;font-size:14px;background:radial-gradient(circle at 40% 35%,#ff8fb8,#ff3d78 70%);border:3px solid #fff8;box-shadow:0 6px 18px rgba(255,60,120,.45)}
+  .tb.beam .ic{font-size:34px}
+  .tb.beam.on{transform:scale(.92);filter:brightness(1.2)}
   .tb[disabled]{opacity:.45}
   /* overlays */
   .ov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;background:radial-gradient(ellipse at center,rgba(10,14,40,.35),rgba(5,8,24,.78));z-index:5}
@@ -92,7 +97,7 @@
     #radio p{font-size:12.5px}
     #radio .face{width:32px;height:32px;font-size:20px}
     #mini{width:104px;height:104px}
-    .tb{width:54px;height:54px}.tb .ic{font-size:19px}.tb.big{width:68px;height:68px}
+    .tb{width:54px;height:54px}.tb .ic{font-size:19px}.tb.big{width:68px;height:68px}.tb.beam{width:84px;height:84px}
     #card{top:62%}
   }
   @media (max-width:560px){
@@ -134,15 +139,13 @@
     <div class="bar" id="enBar"><i></i></div>
     <div class="bar" id="sigBar" style="margin-top:4px"><i style="width:0"></i></div>
   </div>
-  <div id="help" class="hidden">WASD：いどう ／ ドラッグ：みまわす ／ クリック：レーザー ／ E長押し：スキャン ／ 右クリック・ホイール：ズーム ／ Shift：ダッシュ ／ Space：ジャンプ ／ H：ヒント ／ Esc：ポーズ</div>
+  <div id="help" class="hidden">WASD：いどう ／ ドラッグ：みまわす ／ Space・クリック：ビーム ／ E長押し：スキャン ／ Shift：ダッシュ ／ Esc：ポーズ</div>
   <div id="touch" class="hidden">
     <div id="joyHint">ここを<br>ドラッグで<br>いどう</div>
     <div id="joy"><i></i></div>
     <div class="tbtns">
-      <button class="tb" id="bHint"><span class="ic">💡</span>ヒント</button>
-      <button class="tb" id="bJump"><span class="ic">⤒</span>ジャンプ</button>
-      <button class="tb" id="bZoom"><span class="ic">🔭</span>ズーム</button>
       <button class="tb big" id="bScan"><span class="ic">📡</span>スキャン</button>
+      <button class="tb beam" id="bBeam"><span class="ic">⚡</span>ビーム</button>
     </div>
   </div>
 </div>
@@ -164,17 +167,17 @@
     <p>エイリアンには かならず めだつ しるしが あるよ（アンテナ、みどりの かお、めが みっつ、しっぽ、ふわふわ ういている…）。うえの 👽 の よこの マークが さがす ヒント！ ぜんぶ つかまえると つぎの ウェーブ。じかんが すすんで あさから よるに なるよ。</p>
     <h3>パソコン</h3>
     <ul>
-      <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / やじるし：いどう、<kbd>Shift</kbd>：ダッシュ、<kbd>Space</kbd>：ジャンプ</li>
-      <li>マウス ドラッグ：みまわす、クリック：そこへ レーザー</li>
-      <li>右クリック・ホイール・<kbd>Z</kbd>：ズーム（とおくを よく みる）</li>
-      <li><kbd>E</kbd> 長押し：スキャン（エイリアンの ほうを むくと はんのうが つよくなる）</li>
-      <li><kbd>H</kbd>：ヒント（ミニマップに だいたいの ばしょ）、<kbd>Esc</kbd>：ポーズ</li>
+      <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / やじるし：いどう、<kbd>Shift</kbd>：ダッシュ</li>
+      <li>マウス ドラッグ：みまわす、<kbd>Space</kbd>：まんなかの まるへ ビーム（クリックでも うてる）</li>
+      <li><kbd>E</kbd> 長押し：スキャン（まるの なかの エイリアンが みどりいろの すがたに みえる）</li>
+      <li><kbd>Esc</kbd>：ポーズ</li>
     </ul>
     <h3>スマホ・タブレット</h3>
     <ul>
       <li>ひだりした を ドラッグ：いどう（おおきく たおすと ダッシュ）</li>
-      <li>がめんを ドラッグ：みまわす、タップ：そこへ レーザー</li>
-      <li>📡 スキャン（おしている あいだ）、🔭 ズーム、💡 ヒント</li>
+      <li>がめんを ドラッグ：みまわす</li>
+      <li>⚡ ビーム：まんなかの まるに むかって うつ</li>
+      <li>📡 スキャン（おしている あいだ）：まるの なかの エイリアンが みどりいろの すがたに みえる</li>
     </ul>
     <button class="btn" id="howClose">わかった！</button>
   </div>
@@ -186,6 +189,7 @@
     <div class="set"><span>みまわす はやさ</span><input type="range" id="sens" min="0.4" max="2.2" step="0.1"></div>
     <div class="set"><span>がしつ</span><div class="seg" id="qSeg"><button data-q="low">かるい</button><button data-q="high">きれい</button></div></div>
     <div class="set"><span>おと</span><div class="seg" id="sSeg"><button data-s="1">あり</button><button data-s="0">なし</button></div></div>
+    <div class="set"><span>BGM</span><div class="seg" id="mSeg"><button data-m="1">あり</button><button data-m="0">なし</button></div></div>
     <div style="text-align:left;font-weight:800;margin-top:14px">てがかり ずかん</div>
     <div id="tells"></div>
     <button class="btn" id="resumeBtn">つづける</button>
@@ -235,7 +239,7 @@ function ensureAudio() {
     try {
       actx = new (window.AudioContext || window.webkitAudioContext)();
       master = actx.createGain(); master.gain.value = save.sound ? 0.55 : 0; master.connect(actx.destination);
-      startAmbient();
+      startAmbient(); startMusic();
     } catch (e) { actx = null; }
   }
   if (actx && actx.state === 'suspended') actx.resume();
@@ -261,8 +265,54 @@ function startAmbient() {
   let last = 0; for (let i = 0; i < len; i++) { last = (last + .02 * (Math.random() * 2 - 1)) / 1.02; d[i] = last * 3.2; }
   const s = actx.createBufferSource(); s.buffer = b; s.loop = true;
   const f = actx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 500;
-  const g = actx.createGain(); g.gain.value = .05;
+  const g = actx.createGain(); g.gain.value = .022;
   s.connect(f); f.connect(g); g.connect(master); s.start();
+}
+// ---- BGM：たのしい チップチューン（C→Am→F→G を くりかえす 8しょうせつ）
+const midi = (name) => { const m = /^([A-G])(#?)(\d)$/.exec(name); return 12 * (+m[3] + 1) + { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[m[1]] + (m[2] ? 1 : 0); };
+const hz = (n) => 440 * Math.pow(2, (n - 69) / 12);
+const MELODY = ('E5 G5 C6 G5 E5 G5 A5 G5 | E5 - C5 E5 A5 - G5 E5 | F5 A5 C6 A5 F5 A5 C6 D6 | D6 - B5 G5 D5 - G5 . |' +
+  ' C6 B5 A5 G5 E5 G5 C6 - | A5 G5 E5 C5 E5 - A5 . | F5 G5 A5 C6 A5 G5 F5 A5 | G5 - B5 - D6 - . . |' +
+  ' G5 . G5 A5 G5 E5 C5 E5 | A4 C5 E5 A5 G5 E5 C5 . | F5 . F5 G5 A5 G5 F5 E5 | D5 E5 F5 G5 A5 B5 D6 . |' +
+  ' E6 . D6 C6 D6 . C6 A5 | C6 . A5 E5 A5 . E5 C5 | F5 A5 C6 F6 E6 C6 A5 F5 | G5 B5 D6 G6 . G5 . . |').split(' ').filter(t => t && t !== '|');
+const CHORDS = [['C3', 'C4 E4 G4'], ['A2', 'A3 C4 E4'], ['F2', 'F3 A3 C4'], ['G2', 'G3 B3 D4']];
+let musicGain = null, musicStep = 0, musicNext = 0;
+const STEP = 60 / 138 / 2;   // 8ぶおんぷ
+function mNote(f, t, dur, type, vol, dest = musicGain) {
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, t);
+  g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .008); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(g); g.connect(dest); o.start(t); o.stop(t + dur + .02);
+}
+function mDrum(kind, t) {
+  if (kind === 'k') { const o = actx.createOscillator(), g = actx.createGain(); o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(45, t + .12); g.gain.setValueAtTime(.5, t); g.gain.exponentialRampToValueAtTime(.0001, t + .16); o.connect(g); g.connect(musicGain); o.start(t); o.stop(t + .18); return; }
+  if (!noiseBuf) { noiseBuf = actx.createBuffer(1, actx.sampleRate, actx.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+  const src = actx.createBufferSource(), f = actx.createBiquadFilter(), g = actx.createGain();
+  src.buffer = noiseBuf; f.type = kind === 's' ? 'bandpass' : 'highpass'; f.frequency.value = kind === 's' ? 1800 : 7000;
+  const dur = kind === 's' ? .14 : .04, vol = kind === 's' ? .28 : .1;
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  src.connect(f); f.connect(g); g.connect(musicGain); src.start(t, Math.random() * .5); src.stop(t + dur + .02);
+}
+function scheduleMusic() {
+  if (!actx || !musicGain) return;
+  if (musicNext < actx.currentTime) musicNext = actx.currentTime + .05;
+  while (musicNext < actx.currentTime + .25) {
+    const t = musicNext, i = musicStep % MELODY.length, bar = Math.floor(i / 8), beat = i % 8;
+    const [bass, chord] = CHORDS[bar % 4];
+    const mn = MELODY[i];
+    if (mn !== '-' && mn !== '.') { const len = MELODY[(i + 1) % MELODY.length] === '-' ? STEP * 1.9 : STEP * .9; mNote(hz(midi(mn)), t, len, 'square', .055); mNote(hz(midi(mn)) * 2.005, t, len * .7, 'triangle', .02); }
+    const bn = midi(bass) + ([0, 0, 12, 0, 0, 12, 7, 12][beat]);
+    mNote(hz(bn), t, STEP * .8, 'triangle', .16);
+    if (beat % 2 === 1) for (const c of chord.split(' ')) mNote(hz(midi(c)), t, STEP * .6, 'square', .018);
+    if (beat === 0 || beat === 4 || beat === 5 && bar % 2) mDrum('k', t);
+    if (beat === 2 || beat === 6) mDrum('s', t);
+    mDrum('h', t);
+    musicNext += STEP; musicStep++;
+  }
+}
+function startMusic() {
+  musicGain = actx.createGain(); musicGain.gain.value = save.bgm === false ? 0 : .55; musicGain.connect(master);
+  setInterval(scheduleMusic, 60);
 }
 const SFX = {
   laser() { tone({ f: 2200, f2: 160, type: 'sawtooth', dur: .22, vol: .09 }); tone({ f: 1100, f2: 90, type: 'square', dur: .18, vol: .05 }); noise({ dur: .08, vol: .05, freq: 4000 }); },
@@ -1178,6 +1228,7 @@ function buildCharacter(spec) {
   if (parts.pony) parts.pony.userData.dynamic = true;
   [body, parts.legL, parts.legR, parts.armL, parts.armR, head, face].forEach(mergeChildren);
   // glitch: hidden alien form
+  if (spec.alien) { const sf = buildAlienForm(Object.assign({}, spec, { alienColor: '#4dff5a' })); sf.scale.setScalar(spec.scale); sf.visible = false; sf.traverse(o => { if (o.isMesh) o.castShadow = false; }); root.add(sf); parts.scanForm = sf; }
   if (tells.has('glitch')) { const af = buildAlienForm(spec); af.visible = false; root.add(af); parts.alienForm = af; }
   return { parts, height };
 }
@@ -1576,13 +1627,28 @@ function castRay(ray, ignoreNPC = false) {
   return best;
 }
 let fireCD = 0;
-function fireAt(clientX, clientY) {
+// まんなかの まるへ うつ。すこし ずれていても ちかくの ひとに すいよせる（エイムアシスト）
+function fireCenter() { fireAt(innerWidth / 2, innerHeight / 2, true); }
+function fireAt(clientX, clientY, assist = false) {
   if (game.state !== 'play' || fireCD > 0) return;
   ensureAudio();
   fireCD = .32; recoil = 1;
   ndc.set((clientX / innerWidth) * 2 - 1, -(clientY / innerHeight) * 2 + 1);
   raycaster.setFromCamera(ndc, camera);
-  const res = castRay(raycaster.ray);
+  let res = castRay(raycaster.ray);
+  if (assist && res.type !== 'npc') {
+    const dir = raycaster.ray.direction, o = raycaster.ray.origin;
+    const rad = Math.atan((game.scanning ? scopeR() : 30) / (innerHeight / 2) * Math.tan(camera.fov * Math.PI / 360));
+    let best = null, ba = rad;
+    for (const n of npcs) {
+      if (n.removed || n.fixed || n.state === 'reveal') continue;
+      const c = new THREE.Vector3(n.x, n.root.position.y + n.height * .55, n.z), v = c.clone().sub(o), d = v.length();
+      if (d > 45) continue; v.normalize();
+      const a = Math.acos(clamp(v.dot(dir), -1, 1)) - Math.atan(.35 / d);
+      if (a < ba && castRay(new THREE.Ray(o.clone(), v), true).t > d - .5) { ba = a; best = { n, c, d }; }
+    }
+    if (best) res = { t: best.d, type: 'npc', npc: best.n, point: best.c };
+  }
   SFX.laser();
   // beam visual from gun tip
   // gun tip: project from the gun overlay camera into the main camera's view
@@ -1789,7 +1855,7 @@ function startWave(w) {
   if (w > 1) ufoFlyby();
   const list = [...new Set(telled)].map(tellLabel).join('、');
   const msgs = w === 1
-    ? `まちに エイリアンが ${chosen.length}たい かくれているよ！ しるしは ${list}。 みつけたら タッチ（クリック）で レーザー！`
+    ? `まちに エイリアンが ${chosen.length}たい かくれているよ！ しるしは ${list}。 まんなかの まるを あわせて ${isTouch ? '⚡ビーム ボタン' : 'スペースキー'}で うってね！ 📡スキャンで のぞくと エイリアンが みどりいろに みえるよ。`
     : `UFO が また きたよ！ こんどは ${chosen.length}たい。 しるしは ${list}。`;
   radio(msgs, 9);
   updateHUD();
@@ -1868,7 +1934,6 @@ canvas.addEventListener('pointerdown', (e) => {
   ensureAudio();
   if (game.state !== 'play') return;
   canvas.setPointerCapture(e.pointerId);
-  if (e.pointerType === 'mouse' && e.button === 2) { game.zoom = true; return; }
   if (e.pointerType !== 'mouse' && !joy && e.clientX < innerWidth * .42 && e.clientY > innerHeight * .4) {
     joy = { id: e.pointerId, x0: e.clientX, y0: e.clientY, dx: 0, dy: 0 };
     joyEl.style.display = 'block'; joyEl.style.left = e.clientX + 'px'; joyEl.style.top = e.clientY + 'px'; joyKnob.style.transform = 'translate(0,0)';
@@ -1893,21 +1958,18 @@ canvas.addEventListener('pointermove', (e) => {
   player.yaw -= dx * k; player.pitch = clamp(player.pitch - dy * k, -1.35, 1.2);
 });
 function endPointer(e) {
-  if (e.pointerType === 'mouse' && e.button === 2) { game.zoom = false; return; }
   if (joy && e.pointerId === joy.id) { joy = null; joyEl.style.display = 'none'; return; }
   const l = look.get(e.pointerId); if (!l) return; look.delete(e.pointerId);
-  if (!l.moved && e.type === 'pointerup' && (l.type === 'mouse' || performance.now() - l.t < 450)) fireAt(e.clientX, e.clientY);
+  // タッチの タップでは うたない（ごそうさ ぼうし）。マウスの クリックだけ その ばしょへ うつ
+  if (!l.moved && e.type === 'pointerup' && l.type === 'mouse' && e.button === 0) fireAt(e.clientX, e.clientY);
 }
 canvas.addEventListener('pointerup', endPointer);
 canvas.addEventListener('pointercancel', endPointer);
-canvas.addEventListener('wheel', (e) => { if (game.state !== 'play') return; e.preventDefault(); game.zoomLevel = clamp((game.zoomLevel || 0) + (e.deltaY < 0 ? .25 : -.25), 0, 1); }, { passive: false });
 addEventListener('keydown', (e) => {
   if (e.code === 'Escape' || e.code === 'KeyP') { if (game.state === 'play') pause(true); else if (game.state === 'pause') pause(false); return; }
   if (game.state !== 'play') return;
   keys[e.code] = true; ensureAudio();
-  if (e.code === 'Space') { e.preventDefault(); jump(); }
-  if (e.code === 'KeyH') useHint();
-  if (e.code === 'KeyZ') game.zoomLevel = (game.zoomLevel || 0) > .5 ? 0 : 1;
+  if ((e.code === 'Space' || e.code === 'KeyF') && !e.repeat) { e.preventDefault(); fireCenter(); }
   if (e.code.startsWith('Arrow')) e.preventDefault();
 });
 addEventListener('keyup', (e) => { keys[e.code] = false; });
@@ -1920,9 +1982,7 @@ function holdBtn(el, on, off) {
   el.addEventListener('pointercancel', () => off && off());
 }
 holdBtn($('#bScan'), () => { game.touchScan = true; $('#bScan').classList.add('on'); }, () => { game.touchScan = false; $('#bScan').classList.remove('on'); });
-holdBtn($('#bZoom'), () => { game.zoomLevel = (game.zoomLevel || 0) > .5 ? 0 : 1; $('#bZoom').classList.toggle('on', game.zoomLevel > .5); });
-holdBtn($('#bJump'), jump);
-holdBtn($('#bHint'), useHint);
+holdBtn($('#bBeam'), () => { $('#bBeam').classList.add('on'); fireCenter(); }, () => $('#bBeam').classList.remove('on'));
 $('#pauseBtn').addEventListener('click', () => pause(true));
 $('#radio').addEventListener('click', () => { radioTimer = 0; $('#radio').classList.remove('show'); });
 $('#startBtn').addEventListener('click', startGame);
@@ -1935,7 +1995,9 @@ $('#toTitleBtn').addEventListener('click', goTitle);
 function syncSettings() {
   $('#sens').value = save.sens;
   document.querySelectorAll('#qSeg button').forEach(b => b.classList.toggle('on', b.dataset.q === save.quality));
-  document.querySelectorAll('#sSeg button').forEach(b => b.classList.toggle('on', (b.dataset.s === '1') === save.sound));
+  document.querySelectorAll('#mSeg button').forEach(b => b.addEventListener('click', () => { save.bgm = b.dataset.m === '1'; persist(); if (musicGain) musicGain.gain.value = save.bgm ? .55 : 0; syncSettings(); }));
+document.querySelectorAll('#sSeg button').forEach(b => b.classList.toggle('on', (b.dataset.s === '1') === save.sound));
+  document.querySelectorAll('#mSeg button').forEach(b => b.classList.toggle('on', (b.dataset.m === '1') === (save.bgm !== false)));
 }
 $('#sens').addEventListener('input', (e) => { save.sens = +e.target.value; persist(); });
 document.querySelectorAll('#qSeg button').forEach(b => b.addEventListener('click', () => { save.quality = b.dataset.q; persist(); applyQuality(); syncSettings(); }));
@@ -1963,7 +2025,7 @@ function updatePlayer(dt) {
   if (keys.KeyA || keys.ArrowLeft) mx -= 1; if (keys.KeyD || keys.ArrowRight) mx += 1;
   if (joy) { mx += joy.dx; mz -= joy.dy; if (joy.run) run = true; }
   const m = Math.hypot(mx, mz); if (m > 1) { mx /= m; mz /= m; }
-  const sp = (run ? 7.2 : 4.2) * (game.zoomLevel > .5 ? .55 : 1);
+  const sp = run ? 7.2 : 4.2;
   const fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw), rx = Math.cos(player.yaw), rz = -Math.sin(player.yaw);
   let nx = player.x + (fx * mz + rx * mx) * sp * dt, nz = player.z + (fz * mz + rz * mx) * sp * dt;
   [nx, nz] = collide(nx, nz, .35);
@@ -1976,7 +2038,7 @@ function updatePlayer(dt) {
   camera.position.set(player.x, EYE + player.y + bobY, player.z);
   camera.rotation.set(player.pitch, player.yaw, 0);
   // zoom
-  const zt = game.zoom ? 1 : (game.zoomLevel || 0);
+  const zt = 0;
   camera.fov = lerp(camera.fov, lerp(70, 24, zt), Math.min(1, dt * 10)); camera.updateProjectionMatrix();
   // gun
   recoil = Math.max(0, recoil - dt * 6);
@@ -1989,12 +2051,16 @@ function updatePlayer(dt) {
 let lastLock = null;
 function updateScanner(dt) {
   const want = (keys.KeyE || game.touchScan) && game.state === 'play';
-  if (want && game.scanE > 0) { game.scanning = true; game.scanE = Math.max(0, game.scanE - 22 * dt); }
-  else { game.scanning = false; game.scanE = Math.min(100, game.scanE + 9 * dt); }
+  if (want && game.scanE > 0) { game.scanning = true; game.scanE = Math.max(0, game.scanE - 12 * dt); }
+  else { game.scanning = false; game.scanE = Math.min(100, game.scanE + 14 * dt); }
   $('#scanFx').classList.toggle('on', game.scanning);
   $('#scanBar').classList.toggle('hidden', !game.scanning && game.scanE >= 100);
   $('#enBar i').style.width = game.scanE + '%';
-  $('#reticle').classList.toggle('hidden', !(game.scanning || isTouch || game.zoom || game.zoomLevel > .5));
+  const ret = $('#reticle');
+  ret.classList.toggle('hidden', game.state !== 'play');
+  ret.classList.toggle('scope', game.scanning);
+  const d = game.scanning ? scopeR() * 2 : 46;
+  if (ret._d !== d) { ret._d = d; ret.style.width = ret.style.height = d + 'px'; ret.style.margin = `${-d / 2}px 0 0 ${-d / 2}px`; }
   let sig = 0, lock = null;
   if (game.scanning) {
     const fwd = new THREE.Vector3(); camera.getWorldDirection(fwd);
@@ -2018,6 +2084,37 @@ function updateScanner(dt) {
   $('#reticle').classList.toggle('lock', !!lock);
   if (lock && lock !== lastLock) SFX.lock();
   lastLock = lock;
+}
+
+// scope: まるの なかだけ、エイリアンを みどりの すがたで かきなおす
+const scopeR = () => Math.round(clamp(Math.min(innerWidth, innerHeight) * .2, 70, 150));
+const scopeRT = new THREE.WebGLRenderTarget(4, 4, { samples: 4 });
+const scopeScene = new THREE.Scene();
+const scopeCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 2); scopeCam.position.z = 1;
+const scopeMask = canvasTex(128, 128, (g) => { g.fillStyle = '#000'; g.fillRect(0, 0, 128, 128); g.fillStyle = '#fff'; g.beginPath(); g.arc(64, 64, 62, 0, 7); g.fill(); });
+scopeMask.colorSpace = THREE.NoColorSpace;
+const scopeQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial({ map: scopeRT.texture, alphaMap: scopeMask, transparent: true, depthTest: false, depthWrite: false, color: '#e6fff0' }));
+scopeScene.add(scopeQuad);
+function renderScope() {
+  const r = scopeR(), pr = renderer.getPixelRatio(), size = Math.round(r * 2 * pr);
+  if (scopeRT.width !== size) scopeRT.setSize(size, size);
+  const W = innerWidth, H = innerHeight;
+  const swapped = [];
+  for (const n of npcs) {
+    const P = n.parts;
+    if (!n.spec.alien || !P.scanForm || n.state === 'reveal' || !P.body.visible) continue;
+    P.body.visible = false; P.scanForm.visible = true; swapped.push(n);
+  }
+  camera.setViewOffset(W, H, W / 2 - r, H / 2 - r, r * 2, r * 2);
+  renderer.shadowMap.autoUpdate = false;
+  renderer.setRenderTarget(scopeRT); renderer.clear(); renderer.render(scene, camera); renderer.setRenderTarget(null);
+  renderer.shadowMap.autoUpdate = true;
+  camera.clearViewOffset();
+  for (const n of swapped) { n.parts.body.visible = true; n.parts.scanForm.visible = false; }
+  scopeCam.left = -W / 2; scopeCam.right = W / 2; scopeCam.top = H / 2; scopeCam.bottom = -H / 2; scopeCam.updateProjectionMatrix();
+  scopeQuad.scale.set(r, r, 1);
+  renderer.clearDepth();
+  renderer.render(scopeScene, scopeCam);
 }
 
 // minimap
@@ -2093,6 +2190,7 @@ function frame(now) {
   renderer.clear();
   renderer.render(scene, camera);
   if (game.state === 'play' || game.state === 'pause') {
+    if (game.scanning) renderScope();
     renderer.clearDepth();
     gunCam.position.set(0, 0, 0); gunCam.rotation.set(0, 0, 0);
     renderer.render(gunScene, gunCam);
