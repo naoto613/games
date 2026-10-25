@@ -339,7 +339,7 @@ svg { display: block; }
 .sc-h { display: flex; align-items: center; gap: 6px; font-size: 17px; margin-bottom: 8px; }
 .sc-h .ico { width: 28px; height: 28px; }
 .sc-n { margin-left: auto; color: var(--pink-d); }
-.sc-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.sc-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
 .sc-grid .st { aspect-ratio: 1; border-radius: 50%; border: 3px dashed #E2D6F6; display: grid; place-items: center; color: #C9B8E6; font-size: 18px; background: #FBF8FF; }
 .sc-grid .st svg { width: 86%; height: 86%; }
 .sc-grid .st.gift { border-color: #FFD772; background: #FFFBEA; }
@@ -405,3 +405,28 @@ svg { display: block; }
 .copt:active { transform: scale(.94); }
 .flame { animation: flick .5s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
 @keyframes flick { to { transform: scale(.9, 1.1); } }
+
+.bal-bg { position: absolute; inset: 0; opacity: .9; }
+.bal-bg svg { width: 100%; height: 100%; }
+.explore.hill { background: linear-gradient(#3A3D7C, #A9D8CC); }
+.quest { display: flex; align-items: center; gap: 8px; padding: 0 10px 6px; flex: none; position: relative; z-index: 4; }
+.pieces { display: flex; gap: 2px; background: rgba(255, 255, 255, .85); border: 3px solid var(--frame); border-radius: 30px; padding: 4px 8px; }
+.pieces .pc { width: 28px; height: 28px; }
+.pieces .pc svg { width: 100%; height: 100%; }
+.pieces .pc.on { animation: pop .4s cubic-bezier(.3, 1.6, .5, 1); }
+.mission { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; background: #fff; border: 3px solid #F6B7D2; border-radius: 30px; padding: 3px 8px 3px 3px; font-size: 13px; }
+.mission .mface { width: 40px; height: 40px; flex: none; border-radius: 50%; overflow: hidden; background: #FFF0F6; }
+.mission .mface svg { width: 100%; height: 100%; }
+.mission .mtxt { flex: 1; min-width: 0; line-height: 1.2; }
+.mission .mitem { position: relative; width: 42px; height: 42px; flex: none; border-radius: 12px; background: #FFFBEA; border: 2px dashed #FFD772; }
+.mission .mitem svg { width: 100%; height: 100%; }
+.mission .mitem.done { border-style: solid; }
+.mission .mitem i { position: absolute; right: -8px; bottom: -8px; width: 26px; height: 26px; background: #fff; border-radius: 50%; }
+.mission .mitem i .ico { width: 100%; height: 100%; }
+.bubble .radar { display: flex; gap: 0; }
+.bubble .radar .ico { width: 24px; height: 24px; }
+.thanks { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 16px; color: var(--pink-d); margin: -6px 0 12px; }
+.thanks .mface { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; background: #FFF0F6; }
+.thanks .mface svg { width: 100%; height: 100%; }
+.chest { cursor: pointer; }
+.areas button { padding: 0 9px; font-size: 15px; }

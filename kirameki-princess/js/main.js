@@ -223,6 +223,8 @@
     el.className = 'screen ' + name;
     app.innerHTML = '';
     app.appendChild(el);
+    const music = name === 'henshin' ? null : ['play', 'hide', 'memory', 'balloon', 'cake'].includes(name) ? 'play' : name === 'explore' && exploreArea === 'hill' ? 'night' : 'home';
+    S.setWanted(music);
     SCREENS[name](el, arg || {});
     try { history.replaceState(null, '', '#' + name); } catch (e) { /* なにもしない */ }
   }
@@ -284,6 +286,7 @@
     const sb = el.querySelector('[data-act=sound]');
     sb.addEventListener('click', () => {
       S.on = !S.on; G.sound = S.on; save();
+      if (S.on) { S.unlock(); S.bgm(S.wanted); } else S.stopBgm();
       sb.innerHTML = icon(S.on ? 'sound' : 'mute');
       S.tap();
     });
@@ -629,35 +632,73 @@
     clock: ['note', 'sparkle'], painting: ['stars', 'sparkle'], shelf: ['note', 'sparkle'], teatable: ['hearts', 'sparkle'], chest: ['stars', 'sparkle'], vase: ['flowers', 'butterfly'],
     cushion: ['boing', 'hearts'], toybox: ['note', 'stars', 'boing'], curtain: ['peek', 'sparkle'], rugcorner: ['sparkle', 'hearts'],
   };
+  const AREAS = [['house', 'おうち', 'house', '#F29CC2'], ['garden', 'おにわ', 'flower', '#6FC3A8'], ['hill', 'よぞら', 'star', '#E9B44C']];
+  Object.assign(SPOT_FX, {
+    moon: ['stars', 'sparkle'], stars: ['stars', 'sparkle'], cloud2: ['drops', 'sparkle'], tent: ['peek', 'hearts'], telescope: ['stars', 'note'], lantern: ['sparkle', 'hearts'],
+    swing: ['boing', 'hearts', 'peek'], glowflowers: ['flowers', 'butterfly'], mushrooms: ['boing', 'sparkle'], owl: ['bird', 'note'], pond2: ['fish', 'stars'],
+  });
+  const PIECES = 5;
+  // ステッキ・リボンを さきに さがしやすく
+  const findPrio = (f) => (f.kind === 'item' ? (['magic', 'ribbon', 'hair'].includes(D.ITEMS[f.id].slot) ? 0 : 1) : f.kind === 'friend' ? 0 : 2);
+  const PIECE_SVG = (on) => svg('0 0 100 100', on ? KP.star(50, 52, 40, '#FFE28A', '#E9B44C', 5) + KP.sparkle(70, 30, 10, '#fff') : KP.star(50, 52, 40, 'rgba(255,255,255,.5)', '#D9CBF2', 4));
   SCREENS.explore = function (el) {
     const scene = KP.SCENES[exploreArea]();
     el.classList.add(exploreArea);
-    const remaining = () => D.FINDS.filter((f) => f.area === exploreArea && !G.collection.discoveredItemIds.includes(f.id) && !(f.kind === 'friend' && G.collection.unlockedCharacterIds.includes(f.id)));
+    const isGot = (f) => G.collection.discoveredItemIds.includes(f.id) || (f.kind === 'friend' && G.collection.unlockedCharacterIds.includes(f.id));
+    const remaining = () => D.FINDS.filter((f) => f.area === exploreArea && !isGot(f));
     // こんかいの かくしばしょ（まいかい かわる）
     const plan = {};
-    const spotIds = scene.spots.map((s) => s.id).sort(() => Math.random() - 0.5);
-    remaining().forEach((f, i) => { if (i < spotIds.length) plan[spotIds[i]] = f; });
-    const pyPos = exploreArea === 'garden' ? { x: 420, y: 600 } : { x: 300, y: 600 };
+    const pieces = new Set();
+    let got = 0;
+    const R0 = remaining().sort((x, y) => findPrio(x) - findPrio(y) || Math.random() - 0.5);
+    // おねがい（なかまが さがしものを たのむ）
+    const friendsOk = Object.keys(D.FRIENDS).filter((f) => G.collection.unlockedCharacterIds.includes(f));
+    const target = R0.find((f) => f.kind === 'item') || null;
+    const giver = rand(friendsOk.length ? friendsOk : ['pyonta']);
+    let missionDone = false;
+    const shuffled = scene.spots.map((s) => s.id).sort(() => Math.random() - 0.5);
+    const toPlace = R0.slice(0, 3);
+    if (target && !toPlace.includes(target)) toPlace[toPlace.length ? toPlace.length - 1 : 0] = target;
+    toPlace.forEach((f, i) => (plan[shuffled[i]] = f));
+    function scatterPieces() {
+      pieces.clear();
+      const free = scene.spots.map((s) => s.id).filter((id) => !plan[id]).sort(() => Math.random() - 0.5);
+      free.slice(0, PIECES).forEach((id) => pieces.add(id));
+    }
+    scatterPieces();
+    const pyPos = exploreArea === 'garden' ? { x: 420, y: 600 } : exploreArea === 'hill' ? { x: 470, y: 760 } : { x: 300, y: 600 };
     const sceneSVG =
       scene.bg +
       scene.spots.map((s) => `<g class="spot" data-spot="${s.id}">${s.id === 'curtain' ? `<rect x="230" y="90" width="290" height="340" fill="transparent"/>` : s.draw}</g>`).join('') +
+      `<g id="eChest"></g>` +
       `<g id="ePyon" class="tapable" transform="translate(${pyPos.x} ${pyPos.y}) scale(0.62)"><g class="floaty">${KP.drawBunny('normal')}</g></g>` +
       `<g id="eHint"></g>`;
     el.innerHTML =
-      topbar('', `<div class="areas"><button data-area="house" class="${exploreArea === 'house' ? 'sel' : ''}">${icon('house', exploreArea === 'house' ? '#fff' : '#F29CC2')}おうち</button><button data-area="garden" class="${exploreArea === 'garden' ? 'sel' : ''}">${icon('flower', exploreArea === 'garden' ? '#fff' : '#6FC3A8')}おにわ</button></div>`) +
+      topbar('', `<div class="areas">${AREAS.map(([id, nm, ic, col]) => `<button data-area="${id}" class="${exploreArea === id ? 'sel' : ''}">${icon(ic, exploreArea === id ? '#fff' : col)}${nm}</button>`).join('')}</div>`) +
+      `<div class="quest"><div class="pieces" id="ePieces"></div><div class="mission" id="eMission"></div></div>` +
       `<div class="stage">${svg('0 0 750 1000', sceneSVG).replace('<svg ', `<svg preserveAspectRatio="xMidYMid ${wide() ? 'meet' : 'slice'}" `)}</div>` +
       `<div class="foundbar" id="eFound"></div>`;
     el.querySelector('.topbar .title').remove();
     bindHome(el);
     const svgEl = el.querySelector('.stage svg');
     const foundEl = el.querySelector('#eFound');
+    const piecesEl = el.querySelector('#ePieces');
+    const missionEl = el.querySelector('#eMission');
     function foundBar() {
-      foundEl.innerHTML = D.FINDS.filter((f) => f.area === exploreArea).map((f) => {
-        const got = G.collection.discoveredItemIds.includes(f.id) || (f.kind === 'friend' && G.collection.unlockedCharacterIds.includes(f.id));
-        return `<div class="slot${got ? ' got' : ''}">${got ? findSVG(f) : svg('0 0 100 100', KP.sparkle(50, 50, 22, '#E2D6F6'))}</div>`;
-      }).join('');
+      foundEl.innerHTML = D.FINDS.filter((f) => f.area === exploreArea).map((f) => `<div class="slot${isGot(f) ? ' got' : ''}">${isGot(f) ? findSVG(f) : svg('0 0 100 100', KP.sparkle(50, 50, 22, '#E2D6F6'))}</div>`).join('');
     }
-    foundBar();
+    function drawPieces() {
+      piecesEl.innerHTML = Array.from({ length: PIECES }, (_, i) => `<span class="pc${i < got ? ' on' : ''}">${PIECE_SVG(i < got)}</span>`).join('');
+    }
+    function drawMission() {
+      const face = giver === 'pyonta' ? svg('10 0 180 180', KP.drawBunny('happy')) : faceSVG(friendOpt(giver, { expr: missionDone ? 'joy' : 'smile' }));
+      if (target) {
+        missionEl.innerHTML = `<span class="mface">${face}</span><span class="mtxt">${missionDone ? 'ありがとう！' : 'これ さがして！'}</span><span class="mitem${missionDone ? ' done' : ''}">${findSVG(target)}${missionDone ? `<i>${icon('check')}</i>` : ''}</span>`;
+      } else {
+        missionEl.innerHTML = `<span class="mface">${face}</span><span class="mtxt">ほしを あつめて たからばこ！</span>`;
+      }
+    }
+    foundBar(); drawPieces(); drawMission();
     el.querySelectorAll('[data-area]').forEach((b) => b.addEventListener('click', () => {
       if (b.dataset.area === exploreArea) return;
       S.tap();
@@ -669,17 +710,17 @@
       py.innerHTML = `<g class="hop">${KP.drawBunny(expr)}</g>`;
       later(() => { py.innerHTML = `<g class="floaty">${KP.drawBunny('normal')}</g>`; }, ms);
     }
+    const targets = () => [...Object.keys(plan), ...pieces];
     py.addEventListener('click', (e) => {
       e.stopPropagation();
       S.pop();
       const p = svgToScreen(svgEl, pyPos.x + 62, pyPos.y);
-      const r = remaining();
-      if (r.length) { pyon('notify'); bubble(p.x, p.y, `${icon('search')}どこかな？`); showHint(); }
-      else { pyon('happy'); bubble(p.x, p.y, `${icon('heart')}ぜんぶ みつけたね！`); }
+      if (targets().length) { pyon('notify'); bubble(p.x, p.y, `${icon('search')}こっちかな？`); showHint(); }
+      else { pyon('happy'); bubble(p.x, p.y, `${icon('heart')}たからばこを あけよう！`); }
     });
     let lastFind = Date.now();
     function showHint() {
-      const ids = Object.keys(plan);
+      const ids = Object.keys(plan).length ? Object.keys(plan) : [...pieces];
       if (!ids.length) return;
       const s = scene.spots.find((x) => x.id === ids[0]);
       const h = el.querySelector('#eHint');
@@ -687,7 +728,7 @@
       later(() => { h.innerHTML = ''; }, 2600);
     }
     every(() => {
-      if (Object.keys(plan).length && Date.now() - lastFind > 12000) {
+      if (targets().length && Date.now() - lastFind > 12000) {
         lastFind = Date.now();
         pyon('notify', 1800);
         showHint();
@@ -704,13 +745,11 @@
       } else if (kind === 'bird') {
         S.tap();
         flyer(p.x, p.y, BIRD, W * (Math.random() < 0.5 ? -0.7 : 0.7), -250);
-        bubble(p.x, p.y - 20, icon('music'));
       } else if (kind === 'fish') {
         S.boing();
         flyer(p.x, p.y, FISH, 60, -120, 1200);
         burst(p.x, p.y, ['drop'], 8, 70);
       } else if (kind === 'peek') {
-        // ぴょんたが かおを だす
         S.pop();
         const e = document.createElement('div');
         e.className = 'fly';
@@ -743,6 +782,14 @@
         S.sparkle();
         burst(p.x, p.y, ['sparkle', 'star'], 9, 90);
       }
+      // まほうの レーダー：ちかさを ハートで おしえる
+      const ts = targets();
+      if (ts.length) {
+        const d = Math.min(...ts.map((id) => { const t = scene.spots.find((x) => x.id === id); return Math.hypot(t.x - s.x, t.y - s.y); }));
+        const n = d < 230 ? 3 : d < 420 ? 2 : 1;
+        const word = n === 3 ? 'すごく ちかい！' : n === 2 ? 'ちかいよ' : 'とおいかも';
+        later(() => bubble(p.x, p.y - 30, `<span class="radar">${Array.from({ length: 3 }, (_, i) => icon('heart', i < n ? '#F29CC2' : '#E6DBFF')).join('')}</span>${word}`, 1700), 250);
+      }
     }
     svgEl.querySelectorAll('.spot').forEach((g) => g.addEventListener('click', () => {
       const s = scene.spots.find((x) => x.id === g.dataset.spot);
@@ -752,8 +799,57 @@
         delete plan[s.id];
         lastFind = Date.now();
         discover(f, s);
+      } else if (pieces.has(s.id)) {
+        pieces.delete(s.id);
+        lastFind = Date.now();
+        getPiece(s);
       } else reaction(s);
     }));
+
+    function getPiece(s) {
+      const p = svgToScreen(svgEl, s.x, s.y);
+      S.sparkle();
+      burst(p.x, p.y, ['star', 'sparkle'], 10, 90);
+      const slot = piecesEl.querySelectorAll('.pc')[got];
+      const r = slot ? slot.getBoundingClientRect() : { left: p.x, top: p.y, width: 0, height: 0 };
+      flyer(p.x, p.y, PIECE_SVG(true), r.left + r.width / 2 - p.x, r.top + r.height / 2 - p.y, 700);
+      got++;
+      later(() => { drawPieces(); S.pop(); }, 650);
+      if (got >= PIECES) later(showChest, 900);
+      else later(() => bubble(p.x, p.y - 20, `${icon('star')}ほしの かけら！`, 1300), 200);
+    }
+    function showChest() {
+      const c = el.querySelector('#eChest');
+      c.innerHTML = `<g class="chest tapable" transform="translate(375 640)"><g class="bounce"><circle r="120" fill="#FFF6CF" opacity=".55"/>` +
+        `<rect x="-80" y="-30" width="160" height="96" rx="14" fill="#F8BCD6" stroke="#C9668F" stroke-width="4"/><path d="M-80,-12 Q0,-96 80,-12Z" fill="#F29CC2" stroke="#C9668F" stroke-width="4"/>` +
+        `<rect x="-80" y="-18" width="160" height="16" fill="${KP.GOLD.base}" stroke="${KP.GOLD.line}" stroke-width="2"/><rect x="-16" y="-8" width="32" height="36" rx="8" fill="${KP.GOLD.base}" stroke="${KP.GOLD.line}" stroke-width="2"/>` +
+        KP.heart(0, 40, 14, '#fff') + KP.sparkle(-96, -70, 14, '#fff') + KP.sparkle(100, -50, 10, '#FFE28A') + `</g></g>`;
+      S.find();
+      pyon('notify', 2000);
+      const p = svgToScreen(svgEl, 375, 560);
+      bubble(p.x, p.y, `${icon('star')}たからばこが でたよ！`, 2200);
+      c.querySelector('.chest').addEventListener('click', (e) => {
+        e.stopPropagation();
+        openChest();
+      }, { once: true });
+    }
+    function openChest() {
+      const c = el.querySelector('#eChest');
+      const p = svgToScreen(svgEl, 375, 640);
+      S.find();
+      burst(p.x, p.y, ['star', 'heart', 'sparkle'], 20, 180);
+      c.innerHTML = '';
+      got = 0;
+      drawPieces();
+      // まだ みつけていない ものを ひとつ プレゼント（なければ スタンプ）
+      const R = remaining().sort((x, y) => findPrio(x) - findPrio(y) || Math.random() - 0.5);
+      const f = R[0];
+      if (f) {
+        for (const k in plan) if (plan[k] === f) delete plan[k];
+        discover(f, { x: 375, y: 640 });
+      } else finishGame(() => {}, { cont: true });
+      scatterPieces();
+    }
 
     function discover(f, s) {
       const p = svgToScreen(svgEl, s.x, s.y);
@@ -764,12 +860,15 @@
         if (!G.friends.inRoom.includes(f.id)) G.friends.inRoom.push(f.id);
       } else if (!G.collection.discoveredItemIds.includes(f.id)) G.collection.discoveredItemIds.push(f.id);
       if (!G.newIds.includes(f.id)) G.newIds.push(f.id);
+      const forMission = target && f.id === target.id && !missionDone;
+      if (forMission) missionDone = true;
       save();
       pyon('notify', 2000);
       foundBar();
-      later(() => showFound(f), 450);
+      drawMission();
+      later(() => showFound(f, forMission), 450);
     }
-    function showFound(f) {
+    function showFound(f, forMission) {
       const m = document.createElement('div');
       m.className = 'modal';
       const useBtn = f.kind === 'item'
@@ -780,22 +879,25 @@
       m.innerHTML = `<div class="card"><h2>${f.kind === 'friend' ? 'なかまに なったよ！' : 'みつけた！'}</h2>` +
         `<div class="big"><div class="rays"></div>${f.kind === 'friend' ? charSVG(friendOpt(f.id, { expr: 'joy', pose: 'wave' })) : findSVG(f)}</div>` +
         `<div class="nm">${esc(findName(f))}</div>` +
+        (forMission ? `<div class="thanks">${giver === 'pyonta' ? '' : `<span class="mface">${faceSVG(friendOpt(giver, { expr: 'joy' }))}</span>`}${esc(mateName(giver))}「ありがとう！」</div>` : '') +
         `<div class="acts">${useBtn}<button class="pill" data-a="cont">${icon('search')}つづける</button></div>` +
         `<div class="pyon-mini">${bunnySVG('notify')}</div></div>`;
       document.body.appendChild(m);
       const r = m.querySelector('.big').getBoundingClientRect();
       burst(r.left + r.width / 2, r.top + r.height / 2, ['star', 'sparkle'], 12, 160);
-      m.querySelector('[data-a=cont]').addEventListener('click', () => { S.tap(); m.remove(); });
+      const after = () => { if (forMission) finishGame(() => {}, { cont: true }); };
+      m.querySelector('[data-a=cont]').addEventListener('click', () => { S.tap(); m.remove(); after(); });
       m.querySelector('[data-a=use]').addEventListener('click', () => {
         S.pick();
         m.remove();
+        if (forMission) { G.stamps = (G.stamps || 0) + 1; grantPrize(); save(); }
         if (f.kind === 'item') {
           const it = D.ITEMS[f.id];
           const eq = G.character.equippedItems;
           eq[it.slot] = it.id;
           clearNew(it.id);
           save();
-          go('dress', { tab: it.slot });
+          go('dress', { tab: it.slot, who: 'fuutan' });
         } else if (f.kind === 'furn') go('room', { place: f.id });
         else { clearNew(f.id); go('friends'); }
       });
@@ -984,8 +1086,9 @@
 
   // ================= なかまたち =================
   const CAST = ['fuutan', 'pyonta', 'momo', 'mizuki', 'lemon'];
-  function partyBG() {
-    let o = KP.drawRoomBG({ wallpaperId: 'dots', floorId: 'check', curtain: 'lav' });
+  // room を わたすと じぶんで かざった おへやで あそぶ
+  function partyBG(room) {
+    let o = room ? KP.drawRoomBG(room) + roomFurnitureSVG(room) : KP.drawRoomBG({ wallpaperId: 'dots', floorId: 'check', curtain: 'lav' });
     // ガーランド
     o += `<path d="M0,60 Q250,150 500,70 Q750,150 1000,60" fill="none" stroke="#C9B8E6" stroke-width="3"/>`;
     for (let i = 0; i < 12; i++) {
@@ -993,6 +1096,7 @@
       const y = 60 + Math.sin(t * Math.PI * 2) * -10 + 70 * Math.sin(Math.PI * ((x % 500) / 500));
       o += `<path d="M${x - 22},${y - 6} L${x + 22},${y - 6} L${x},${y + 34}Z" fill="${['#F8BCD6', '#C9B5F5', '#FFE59A', '#BDEBDC'][i % 4]}" stroke="#fff" stroke-width="3"/>`;
     }
+    if (room) return o;
     o += `<g transform="translate(60 360)">${KP.FURN.shelf.draw(KP.PAL.pink, KP.uid('p'))}</g>`;
     o += `<g transform="translate(780 400) scale(0.9)">${KP.FURN.closet.draw(KP.PAL.mint, KP.uid('p'))}</g>`;
     return o;
@@ -1019,7 +1123,7 @@
     const stage = el.querySelector('#fStage');
     const bar = el.querySelector('#fBar');
     const acts = el.querySelector('#fActs');
-    stage.innerHTML = svg('0 0 1000 1000', `<g>${partyBG()}</g><g id="fTea"></g><g id="fCast"></g><g id="fLight" class="spot-light"></g>`).replace('<svg ', '<svg preserveAspectRatio="xMidYMax slice" ');
+    stage.innerHTML = svg('0 0 1000 1000', `<g>${partyBG(G.room)}</g><g id="fTea"></g><g id="fCast"></g><g id="fLight" class="spot-light"></g>`).replace('<svg ', '<svg preserveAspectRatio="xMidYMax slice" ');
     const svgEl = stage.querySelector('svg');
     svgEl.style.touchAction = 'none';
     const castEl = svgEl.querySelector('#fCast');
@@ -1202,7 +1306,7 @@
       document.body.appendChild(sh);
       setTimeout(() => sh.remove(), 520);
       const chars = inRoom().map((c) => ({ id: c, x: st[c].x, y: st[c].y, expr: st[c].expr, pose: st[c].pose, outfit: c === 'pyonta' ? null : { ...rec(c).equippedItems }, ...(c === 'pyonta' ? {} : { hairStyle: rec(c).hairStyle, hairColor: rec(c).hairColor }) }));
-      G.album.unshift({ id: 'a' + Date.now(), type: 'photo', createdAt: Date.now(), snapshot: { chars, tea: activity === 'tea' } });
+      G.album.unshift({ id: 'a' + Date.now(), type: 'photo', createdAt: Date.now(), snapshot: { chars, tea: activity === 'tea', room: JSON.parse(JSON.stringify(G.room)) } });
       if (G.album.length > 60) G.album.length = 60;
       save();
       const r = stage.getBoundingClientRect();
@@ -1227,7 +1331,7 @@
       return svg('100 0 800 1000', KP.drawRoomBG(a.snapshot) + roomFurnitureSVG(a.snapshot)).replace('<svg ', '<svg preserveAspectRatio="xMidYMid slice" ');
     }
     const s = a.snapshot;
-    let o = partyBG();
+    let o = partyBG(s.room);
     if (s.tea) o += `<g transform="translate(368 742) scale(1.2)">${KP.FURN.teatable.draw(KP.PAL.pink, KP.uid('t'))}</g>`;
     o += [...s.chars].sort((p, q) => p.y - q.y).map((c) => {
       if (c.id === 'pyonta') return castG('pyonta', c, { expr: c.expr || 'happy', anim: 'x' });
@@ -1307,6 +1411,9 @@
     { at: 6, kind: 'item', id: 'hearttop-lav' },
     { at: 8, kind: 'furn', id: 'castle' },
     { at: 10, kind: 'item', id: 'bigbow-lav' },
+    { at: 12, kind: 'item', id: 'crown-lav' },
+    { at: 14, kind: 'furn', id: 'piano' },
+    { at: 16, kind: 'furn', id: 'dollhouse' },
   ];
   const isPrize = (id) => PRIZES.some((p) => p.id === id);
   const playMates = () => ['fuutan', ...Object.keys(D.FRIENDS).filter((f) => G.collection.unlockedCharacterIds.includes(f))];
@@ -1322,13 +1429,18 @@
   }
   const STAMP = (n) => svg('0 0 100 100', `<circle cx="50" cy="50" r="44" fill="#FFF0F6" stroke="#E07AA8" stroke-width="5" stroke-dasharray="7 5"/>` + KP.star(50, 50, 30, '#FFE28A', '#E9B44C', 4) + KP.heart(50, 54, 9, '#F29CC2'));
 
-  function finishGame(again) {
-    G.stamps = (G.stamps || 0) + 1;
+  function grantPrize() {
     const prize = PRIZES.find((p) => p.at === G.stamps);
     if (prize && !G.collection.discoveredItemIds.includes(prize.id)) {
       G.collection.discoveredItemIds.push(prize.id);
       if (!G.newIds.includes(prize.id)) G.newIds.push(prize.id);
     }
+    return prize;
+  }
+  // opts.cont: たんけんの とちゅう（「つづける」だけ）
+  function finishGame(again, opts = {}) {
+    G.stamps = (G.stamps || 0) + 1;
+    const prize = grantPrize();
     save();
     S.done();
     later(() => {
@@ -1342,14 +1454,16 @@
           : next ? `<div class="nexthint">あと ${next.at - G.stamps}こで プレゼント</div>` : '') +
         `<div class="acts">` +
         (prize ? `<button class="pill main" data-a="use">${icon(prize.kind === 'furn' ? 'house' : 'dress', '#fff')}${prize.kind === 'furn' ? 'おへやに おく' : 'きてみる'}</button>` : '') +
-        `<button class="pill${prize ? '' : ' main'}" data-a="again">${icon('reset', prize ? undefined : '#fff')}もういちど</button>` +
-        `<button class="pill" data-a="menu">${icon('friends')}ほかの あそび</button></div>` +
+        (opts.cont ? `<button class="pill${prize ? '' : ' main'}" data-a="again">${icon('search', prize ? undefined : '#fff')}つづける</button>`
+          : `<button class="pill${prize ? '' : ' main'}" data-a="again">${icon('reset', prize ? undefined : '#fff')}もういちど</button>` +
+          `<button class="pill" data-a="menu">${icon('friends')}ほかの あそび</button>`) + `</div>` +
         `<div class="pyon-mini">${bunnySVG('happy')}</div></div>`;
       document.body.appendChild(m);
       const r = m.querySelector('.big').getBoundingClientRect();
       burst(r.left + r.width / 2, r.top + r.height / 2, ['star', 'heart', 'sparkle'], 16, 170);
       m.querySelector('[data-a=again]').addEventListener('click', () => { S.tap(); m.remove(); again(); });
-      m.querySelector('[data-a=menu]').addEventListener('click', () => { S.tap(); m.remove(); go('play'); });
+      const mb = m.querySelector('[data-a=menu]');
+      if (mb) mb.addEventListener('click', () => { S.tap(); m.remove(); go('play'); });
       const u = m.querySelector('[data-a=use]');
       if (u) u.addEventListener('click', () => {
         S.pick();
@@ -1377,14 +1491,14 @@
   SCREENS.play = function (el) {
     const n = G.stamps || 0;
     let card = '';
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 16; i++) {
       const pz = PRIZES.find((p) => p.at === i);
       card += `<div class="st${i <= n ? ' got' : ''}${pz ? ' gift' : ''}">${i <= n ? STAMP() : pz ? findSVG(pz) : `<span>${i}</span>`}</div>`;
     }
     el.innerHTML = topbar('なかまと あそぶ') +
       `<div class="play-body"><div class="mates">${playMates().concat('pyonta').map((w) => `<div class="mate">${mateFace(w, 'joy')}</div>`).join('')}</div>` +
       `<div class="gcards">${GAMES.map((g) => `<button class="gcard ${g.cls}" data-g="${g.id}"><span class="gi">${svg('0 0 100 100', g.icon())}</span><span class="gn">${g.name}</span><span class="gs">${g.sub}</span></button>`).join('')}</div>` +
-      `<div class="stampcard"><div class="sc-h">${icon('star')}スタンプカード ${n > 10 ? `<span class="sc-n">${n}こ</span>` : ''}</div><div class="sc-grid">${card}</div></div></div>`;
+      `<div class="stampcard"><div class="sc-h">${icon('star')}スタンプカード ${n > 16 ? `<span class="sc-n">${n}こ</span>` : ''}</div><div class="sc-grid">${card}</div></div></div>`;
     bindHome(el);
     el.querySelectorAll('[data-g]').forEach((b) => b.addEventListener('click', () => { S.pick(); go(b.dataset.g); }));
   };
@@ -1399,7 +1513,12 @@
   ];
   function spotTop(sp) { return sp.y - KP.FURN[sp.furn].h * sp.s; }
   // みつけた こは まえに ならぶ
-  const foundPos = (i) => ({ x: 260 + i * 160, y: 990 });
+  let foundPos = (i) => ({ x: 260 + i * 160, y: 990 });
+  // じぶんの おへやの かぐで かくれる（せが たかくて はばの ある かぐ）
+  function roomHideSpots() {
+    return G.room.furniture.map((p) => ({ id: p.instanceId, furn: p.furnitureId, color: p.color, x: p.x, y: p.y, s: furnScale(p.furnitureId), flip: p.rotation === 180 }))
+      .filter((sp) => { const F = KP.FURN[sp.furn]; return F && !F.flat && !F.wall && F.h * sp.s >= 150 && F.w * sp.s >= 120; });
+  }
   function hiderG(w, sp, found, side = 0) {
     if (found) sp = { ...found, furn: 'plant', s: 0 };
     if (w === 'pyonta') {
@@ -1408,7 +1527,7 @@
       const x = found ? sp.x : sp.x + 20;
       return `<g transform="translate(${x - 100 * sc} ${found ? y - 220 * sc : y}) scale(${sc})"><g class="hider${found ? ' bounce' : ' peek'}">${KP.drawBunny(found ? 'happy' : 'normal')}</g></g>`;
     }
-    const sc = 0.42;
+    const sc = found ? 0.42 : Math.min(0.42, (KP.FURN[sp.furn].h * sp.s + 40) / 600);
     const opt = friendOpt(w, found ? { expr: 'joy', pose: 'joy' } : { expr: 'lookL' });
     if (found) return `<g transform="translate(${sp.x - 200 * sc} ${sp.y - 640 * sc}) scale(${sc})"><g class="hider bounce">${KP.drawChar(opt)}</g></g>`;
     // あたまの うえだけ ちょっと でている
@@ -1417,7 +1536,11 @@
   }
   SCREENS.hide = function (el) {
     const hiders = playMates().filter((w) => w !== 'fuutan').concat('pyonta');
-    const spots = HIDE_SPOTS.slice().sort(() => Math.random() - 0.5);
+    const roomSpots = roomHideSpots();
+    const useRoom = roomSpots.length >= hiders.length + 1;
+    const SPOTS = useRoom ? roomSpots : HIDE_SPOTS;
+    foundPos = useRoom ? (i) => ({ x: 200 + i * 170, y: 995 }) : (i) => ({ x: 260 + i * 160, y: 990 });
+    const spots = SPOTS.slice().sort(() => Math.random() - 0.5);
     const where = {};
     hiders.forEach((w, i) => (where[spots[i].id] = w));
     const found = [];
@@ -1431,16 +1554,30 @@
       bar.innerHTML = `<span class="fb-l">みつけた</span>` + hiders.map((w) => `<div class="slot${found.includes(w) ? ' got' : ''}">${found.includes(w) ? mateFace(w, 'joy') : svg('0 0 100 100', `<circle cx="50" cy="50" r="30" fill="#EDE5FB"/><text x="50" y="62" text-anchor="middle" font-size="36" font-weight="900" fill="#C9B8E6" font-family="sans-serif">?</text>`)}</div>`).join('');
     }
     function draw() {
-      let o = KP.drawRoomBG({ wallpaperId: 'hearts', floorId: 'wood', curtain: 'pink' });
-      const furnG2 = (sp) => `<g transform="translate(${sp.x - (KP.FURN[sp.furn].w * sp.s) / 2} ${spotTop(sp)}) scale(${sp.s})"><g class="spot" data-spot="${sp.id}">${KP.FURN[sp.furn].draw(KP.PAL[sp.color], KP.uid('h'))}</g></g>`;
-      const back = HIDE_SPOTS.filter((s) => s.y < 800), front = HIDE_SPOTS.filter((s) => s.y >= 800);
-      for (const row of [back, front]) {
-        for (const sp of row) if (where[sp.id] && !found.includes(where[sp.id])) o += hiderG(where[sp.id], sp, false);
-        for (const sp of row) o += furnG2(sp);
+      const furnG2 = (sp) => { const F = KP.FURN[sp.furn]; return `<g transform="translate(${sp.x - (F.w * sp.s) / 2} ${spotTop(sp)}) scale(${sp.s})"><g class="spot" data-spot="${sp.id}">${sp.flip ? `<g transform="translate(${F.w} 0) scale(-1 1)">` : '<g>'}${F.draw(KP.PAL[sp.color] || KP.PAL.lav, KP.uid('h'))}</g></g></g>`; };
+      const hid = (sp) => (where[sp.id] && !found.includes(where[sp.id]) ? hiderG(where[sp.id], sp, false) : '');
+      let o;
+      if (useRoom) {
+        o = KP.drawRoomBG(G.room);
+        const list = [...G.room.furniture].sort((a, b) => {
+          const fa = KP.FURN[a.furnitureId], fb = KP.FURN[b.furnitureId];
+          return (fa.flat ? 0 : fa.wall ? 1 : 2) - (fb.flat ? 0 : fb.wall ? 1 : 2) || a.y - b.y;
+        });
+        for (const p of list) {
+          const sp = SPOTS.find((x) => x.id === p.instanceId);
+          o += sp ? hid(sp) + furnG2(sp) : furnG(p, false);
+        }
+      } else {
+        o = KP.drawRoomBG({ wallpaperId: 'hearts', floorId: 'wood', curtain: 'pink' });
+        const back = HIDE_SPOTS.filter((x) => x.y < 800), front = HIDE_SPOTS.filter((x) => x.y >= 800);
+        for (const row of [back, front]) {
+          for (const sp of row) o += hid(sp);
+          for (const sp of row) o += furnG2(sp);
+        }
       }
       found.forEach((w, i) => (o += hiderG(w, null, foundPos(i))));
       o += `<g id="hHint"></g>`;
-      stage.innerHTML = svg('150 180 700 820', o);
+      stage.innerHTML = svg(useRoom ? '0 120 1000 880' : '150 180 700 820', o);
       bindSpots();
     }
     let lastFind = Date.now();
@@ -1448,7 +1585,7 @@
       const sv = stage.querySelector('svg');
       sv.querySelectorAll('.spot').forEach((g) => g.addEventListener('click', () => {
         const id = g.dataset.spot;
-        const sp = HIDE_SPOTS.find((s) => s.id === id);
+        const sp = SPOTS.find((s) => s.id === id);
         const w = where[id];
         const p = svgToScreen(sv, sp.x, spotTop(sp) + 40);
         if (w && !found.includes(w)) {
@@ -1484,7 +1621,7 @@
       if (found.length === hiders.length || Date.now() - lastFind < 9000) return;
       lastFind = Date.now();
       const id = Object.keys(where).find((k) => !found.includes(where[k]));
-      const sp = HIDE_SPOTS.find((s) => s.id === id);
+      const sp = SPOTS.find((s) => s.id === id);
       const h = stage.querySelector('#hHint');
       if (h) h.innerHTML = `<g class="floaty">${KP.sparkle(sp.x + 50, spotTop(sp) - 40, 26, '#FFE28A')}${KP.sparkle(sp.x - 50, spotTop(sp) - 10, 16, '#fff')}</g>`;
       later(() => { const h2 = stage.querySelector('#hHint'); if (h2) h2.innerHTML = ''; }, 2600);
@@ -1559,7 +1696,7 @@
     let n = 0, k = 0, over = false;
     el.innerHTML = gameTop('ふうせん あつめ') +
       `<div class="bal-meter"><div class="bm-bar"><div class="bm-fill" id="bFill"></div></div><span id="bNum">0 / ${GOAL}</span></div>` +
-      `<div class="bal-stage" id="bStage"><div class="bal-mates" id="bMates"></div></div>`;
+      `<div class="bal-stage" id="bStage"><div class="bal-bg">${svg('0 0 1000 1000', partyBG(G.room)).replace('<svg ', '<svg preserveAspectRatio="xMidYMax slice" ')}</div><div class="bal-mates" id="bMates"></div></div>`;
     bindGameTop(el);
     const stage = el.querySelector('#bStage');
     const fill = el.querySelector('#bFill');

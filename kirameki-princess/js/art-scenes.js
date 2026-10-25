@@ -86,4 +86,41 @@
     ];
     return { bg, spots, ground: 'house' };
   };
+
+  // ---- ほしぞらの おか ----
+  KP.SCENES.hill = function () {
+    const id = uid('n');
+    const defs =
+      lg(id + 's', [[0, '#3A3D7C'], [0.5, '#7E6BC4'], [1, '#F2B6D8']]) +
+      lg(id + 'h', [[0, '#8E92D6'], [1, '#6A6FB8']]) +
+      lg(id + 'g', [[0, '#9EC9C0'], [1, '#6FA8A0']]) +
+      lg(id + 't', [[0, '#FFE9F2'], [1, '#F8BCD6']]) +
+      rg(id + 'm', [[0, '#FFF8DC'], [0.7, '#FFE59A'], [1, '#FFE59A', 0]]);
+    let bg = `<defs>${defs}</defs><rect width="750" height="1000" fill="url(#${id}s)"/>`;
+    for (let i = 0; i < 46; i++) {
+      const x = (i * 157) % 750, y = (i * 89) % 470;
+      bg += i % 4 ? `<circle cx="${x}" cy="${y}" r="${1.5 + (i % 3)}" fill="#fff" opacity="${0.5 + (i % 5) / 10}"/>` : sparkle(x, y, 6, '#FFF1B8');
+    }
+    bg += `<path d="M0,520 Q200,420 420,500 Q600,440 750,500 L750,640 L0,640Z" fill="url(#${id}h)"/>`;
+    bg += `<rect y="580" width="750" height="420" fill="url(#${id}g)"/>`;
+    bg += `<path d="M0,600 Q375,540 750,600 L750,1000 L0,1000Z" fill="#A9D8CC"/>`;
+    for (let i = 0; i < 16; i++) {
+      const x = (i * 97) % 750, y = 640 + ((i * 61) % 330);
+      bg += `<circle cx="${x}" cy="${y}" r="4" fill="${['#FFF1B8', '#FFD6E7', '#E6DBFF'][i % 3]}" opacity=".9"/>`;
+    }
+    const spots = [
+      { id: 'moon', x: 600, y: 130, r: 80, draw: `<circle cx="600" cy="130" r="90" fill="url(#${id}m)"/><path d="M630,70 A64,64 0 1,0 640,190 A50,50 0 1,1 630,70Z" fill="#FFF1B8" stroke="#E9C25C" stroke-width="3"/><circle cx="590" cy="120" r="6" fill="#F2DC8E"/><path d="M574,150 q8,6 16,0" stroke="#C98C25" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="566" cy="122" r="3.5" fill="#6E4214"/>` },
+      { id: 'stars', x: 180, y: 140, r: 90, draw: star(120, 110, 22, '#FFE59A', '#E9B44C', 2) + star(200, 170, 16, '#FFF1B8', '#E9B44C', 2) + star(250, 90, 12, '#FFE59A', '#E9B44C', 2) + `<path d="M120,110 L200,170 L250,90" stroke="#FFF1B8" stroke-width="2" stroke-dasharray="4 6" fill="none"/>` },
+      { id: 'cloud2', x: 380, y: 300, r: 70, draw: `<ellipse cx="380" cy="310" rx="80" ry="26" fill="#F3ECFF" opacity=".9"/><ellipse cx="350" cy="292" rx="40" ry="26" fill="#F3ECFF" opacity=".9"/><ellipse cx="404" cy="286" rx="34" ry="28" fill="#F3ECFF" opacity=".9"/>` },
+      { id: 'tent', x: 160, y: 600, r: 90, draw: `<path d="M60,680 L160,520 L260,680Z" fill="url(#${id}t)" stroke="#C9668F" stroke-width="3" stroke-linejoin="round"/><path d="M160,520 L130,680 L190,680Z" fill="#C2548A" opacity=".8"/><path d="M160,520 L160,500" stroke="#C9668F" stroke-width="3"/><path d="M160,500 L186,508 L160,516Z" fill="#FFE59A"/>${heart(110, 640, 7, '#fff')}${heart(214, 640, 7, '#fff')}` },
+      { id: 'telescope', x: 560, y: 560, r: 70, draw: `<path d="M540,640 L560,580 L580,640 M560,580 L560,640" stroke="#8C6FD6" stroke-width="5" stroke-linecap="round"/><g transform="rotate(-30 560 570)"><rect x="520" y="556" width="96" height="28" rx="12" fill="#C9B5F5" stroke="#6A4FB0" stroke-width="2.4"/><rect x="606" y="552" width="20" height="36" rx="6" fill="#B39CEE" stroke="#6A4FB0" stroke-width="2.4"/>${star(560, 570, 6, '#FFE59A')}</g>` },
+      { id: 'lantern', x: 660, y: 720, r: 70, draw: `<path d="M660,640 V800" stroke="#9A7FDB" stroke-width="5"/><path d="M640,640 L680,640" stroke="#9A7FDB" stroke-width="5" stroke-linecap="round"/><circle cx="660" cy="700" r="46" fill="#FFF1B8" opacity=".35"/><path d="M640,672 L680,672 L686,724 L634,724Z" fill="#FFF1B8" stroke="#E9B44C" stroke-width="2.4"/>${heart(660, 698, 9, '#F8BCD6')}<rect x="644" y="664" width="32" height="10" rx="3" fill="#9A7FDB"/>` },
+      { id: 'swing', x: 380, y: 660, r: 80, draw: `<path d="M300,560 L320,720 M460,560 L440,720 M300,560 L460,560" stroke="#D9AE8C" stroke-width="8" stroke-linecap="round"/><path d="M350,566 L346,680 M410,566 L414,680" stroke="#fff" stroke-width="3"/><rect x="332" y="676" width="96" height="12" rx="5" fill="#F8BCD6" stroke="#C9668F" stroke-width="2"/>` },
+      { id: 'glowflowers', x: 160, y: 820, r: 80, draw: [[110, 820], [160, 790], [210, 830], [140, 860], [190, 870]].map(([x, y], i) => `<path d="M${x},${y} L${x},${y + 40}" stroke="#4C9C82" stroke-width="3"/><circle cx="${x}" cy="${y}" r="16" fill="${['#FFF1B8', '#FFD6E7', '#E6DBFF'][i % 3]}" opacity=".5"/>` + star(x, y, 10, ['#FFE59A', '#F8BCD6', '#C9B5F5'][i % 3], '#fff', 1.5)).join('') },
+      { id: 'mushrooms', x: 560, y: 880, r: 80, draw: [[520, 880, '#C9B5F5'], [590, 900, '#F8BCD6'], [560, 850, '#BCD4FA']].map(([x, y, c]) => `<path d="M${x - 8},${y} L${x - 8},${y + 30} L${x + 8},${y + 30} L${x + 8},${y}Z" fill="#FFF6E8" stroke="#D9AE8C" stroke-width="2"/><path d="M${x - 30},${y + 4} Q${x - 30},${y - 34} ${x},${y - 36} Q${x + 30},${y - 34} ${x + 30},${y + 4}Z" fill="${c}" stroke="#fff" stroke-width="2.4"/><circle cx="${x - 10}" cy="${y - 14}" r="5" fill="#fff" opacity=".9"/>`).join('') },
+      { id: 'owl', x: 80, y: 400, r: 70, draw: `<path d="M20,470 Q80,440 140,470" stroke="#9A6A48" stroke-width="10" fill="none" stroke-linecap="round"/><ellipse cx="80" cy="420" rx="34" ry="40" fill="#D9AE8C" stroke="#9A6A48" stroke-width="2.4"/><circle cx="66" cy="410" r="12" fill="#fff"/><circle cx="94" cy="410" r="12" fill="#fff"/><circle cx="66" cy="412" r="6" fill="#4A2A63"/><circle cx="94" cy="412" r="6" fill="#4A2A63"/><path d="M76,426 L80,434 L84,426Z" fill="#FFD772"/><path d="M50,388 L58,370 L66,390 M94,390 L102,370 L110,388" fill="#D9AE8C" stroke="#9A6A48" stroke-width="2"/>` },
+      { id: 'pond2', x: 380, y: 920, r: 80, draw: `<ellipse cx="380" cy="930" rx="120" ry="40" fill="#5A5FA8" stroke="#8E92D6" stroke-width="3"/>${star(350, 924, 7, '#FFF1B8')}${KP.sparkle(410, 934, 6, '#fff')}<path d="M420,920 a20,20 0 1,0 6,18 a14,14 0 1,1 -6,-18Z" fill="#FFF1B8" opacity=".8"/>` },
+    ];
+    return { bg, spots, ground: 'hill' };
+  };
 })();

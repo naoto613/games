@@ -647,7 +647,7 @@
 
     // パーツを くみたてる
     const parts = {};
-    const layer = { shoes: '', skirt: '', top: '', dress: '', sleeves: '', ribbon: '', hair: '', magic: '' };
+    const layer = { back: '', shoes: '', skirt: '', top: '', dress: '', sleeves: '', ribbon: '', hair: '', magic: '' };
     const wearing = {};
     for (const slot in out) {
       const it = out[slot];
@@ -662,6 +662,7 @@
     const has = (s) => !!parts[s];
     for (const slot in parts) {
       const r = parts[slot];
+      if (r.back && !((slot === 'tops' || slot === 'skirt') && has('onepiece'))) layer.back += r.back;
       if (slot === 'onepiece') {
         layer.dress += r.dress || '';
         layer.sleeves += r.sleeves || '';
@@ -683,6 +684,7 @@
     }
 
     let o = `<defs>${defs}</defs>`;
+    o += layer.back;
     o += `<g class="kp-hairback">${hairBack(style, H, id)}</g>`;
     o += legs(SKIN);
     o += layer.shoes || shoeShape(PAL.white, '#fff', false);
@@ -705,12 +707,13 @@
   KP.drawPart = function (slot, type, color) {
     const id = uid('p');
     const r = PARTS[type](PAL[color] || PAL.lav, id);
-    let o = `<defs>${r.defs || ''}</defs>`;
+    let o = `<defs>${r.defs || ''}</defs>` + (r.back || '');
     if (slot === 'magic') return o + `<g transform="translate(0 0)">${r.magic}</g>`;
     if (slot === 'tops') return o + (r.top || '') + (r.sleeves || '');
     if (slot === 'onepiece') return o + (r.dress || '') + (r.sleeves || '');
     return o + (r.skirt || r.shoes || r.hair || r.ribbon || '');
   };
+  KP._a = { sleevesPuff, shoeShape, petticoat, skirtPleats, SKIN };
   KP.PART_VIEW = {
     tops: '116 262 168 120',
     skirt: '96 330 208 140',
