@@ -880,7 +880,8 @@
     await c.say('teacher', 'かきかた きょうしつへ ようこそ！ わたしは うさぎ せんせい です');
     c.actor('fuutan', { html: fuuHTML({ pose: 'wave', expr: 'joy' }) });
     await c.say('fuutan', 'よろしく おねがいします！', { expr: 'joy' });
-    await c.say('teacher', 'きょうは ひらがなを なぞって かく れんしゅうを しようね。ゆびで ゆっくり なぞってね');
+    await c.say('teacher', 'きょうは ひらがなを なぞって かく れんしゅうを しようね。');
+    await c.say('teacher', 'まずは おてほんで かきじゅんを みてね。きいろい まるから、ばんごうの じゅんばんに なぞるんだよ');
     const written = [];
     for (const W of words) {
       await c.card(`<div class="w-pic">${W.pic()}</div><div class="w-word">${W.w}</div>`, `これは なにかな？ 「${W.w}」だね！`);
@@ -904,83 +905,180 @@
     album('writing', { words: written });
     storyClear(c, 'writing');
   };
-  // ゆびで なぞる（はみだしても OK。うえから なぞれたら はなまる）
+  // ゆびで なぞる：かきじゅん（KanjiVG）どおりに 1かくずつ。はみだしても OK
+  const NUMS = ['いち', 'に', 'さん', 'よん', 'ご', 'ろく'];
+  let measureSvg = null;
+  function strokeInfo(d) {
+    if (!measureSvg) {
+      measureSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      measureSvg.setAttribute('style', 'position:absolute;width:0;height:0;visibility:hidden');
+      document.body.appendChild(measureSvg);
+    }
+    const pth = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    pth.setAttribute('d', d);
+    measureSvg.appendChild(pth);
+    const len = pth.getTotalLength();
+    const pts = [];
+    for (let l = 0; l <= len; l += 2) { const q = pth.getPointAtLength(l); pts.push([q.x, q.y]); }
+    const q1 = pth.getPointAtLength(Math.min(len, 6));
+    pth.remove();
+    return { d, len, pts, start: pts[0], dir: [q1.x - pts[0][0], q1.y - pts[0][1]] };
+  }
   async function traceGame(c, ch, W, idx) {
+    const strokes = (KP.STROKES[ch] || []).map(strokeInfo);
     const p = c.panel(`<div class="tr-head"><div class="tr-pic">${W.pic()}</div><div class="tr-word">${W.w.split('').map((x, i) => `<span class="${i === idx ? 'cur' : i < idx ? 'done' : ''}">${x}</span>`).join('')}</div></div>` +
-      `<div class="st-prompt">「${ch}」を なぞって かこう</div>` +
-      `<div class="tr-box" id="trBox"><canvas id="trBg"></canvas><canvas id="trInk"></canvas><div class="tr-maru" id="trMaru"></div></div>` +
-      `<div class="tr-meter"><i id="trMeter"></i></div>` +
-      `<div class="tr-acts"><button class="pill" data-a="clear">${icon('reset')}けす</button><button class="pill" data-a="hear">${icon('sound')}きく</button><button class="pill main" data-a="ok">${icon('check', '#fff')}できた！</button></div>`, 'full trace');
-    const box = p.querySelector('#trBox'), bg = p.querySelector('#trBg'), ink = p.querySelector('#trInk'), meter = p.querySelector('#trMeter');
+      `<div class="st-prompt" id="trPrompt">「${ch}」の かきじゅんを みてね</div>` +
+      `<div class="tr-box" id="trBox"><canvas id="trBg"></canvas><div class="tr-guide" id="trGuide"></div><canvas id="trInk"></canvas><canvas id="trCur"></canvas><div class="tr-anim" id="trAnim"></div><div class="tr-maru" id="trMaru"></div></div>` +
+      `<div class="tr-strokes" id="trSteps"></div>` +
+      `<div class="tr-acts"><button class="pill" data-a="clear">${icon('reset')}けす</button><button class="pill" data-a="demo">${icon('magic')}おてほん</button><button class="pill" data-a="hear">${icon('sound')}きく</button></div>`, 'full trace');
+    const box = p.querySelector('#trBox'), bg = p.querySelector('#trBg'), ink = p.querySelector('#trInk'), cur = p.querySelector('#trCur');
+    const guideEl = p.querySelector('#trGuide'), animEl = p.querySelector('#trAnim'), stepsEl = p.querySelector('#trSteps'), prompt = p.querySelector('#trPrompt');
     const size = Math.round(box.getBoundingClientRect().width) || 300;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
-    for (const cv of [bg, ink]) { cv.width = size * dpr; cv.height = size * dpr; cv.style.width = cv.style.height = size + 'px'; }
-    const gb = bg.getContext('2d'), gi = ink.getContext('2d');
-    gb.scale(dpr, dpr); gi.scale(dpr, dpr);
-    // ますめ
+    const K = size / 109;
+    for (const cv of [bg, ink, cur]) { cv.width = size * dpr; cv.height = size * dpr; cv.style.width = cv.style.height = size + 'px'; cv.getContext('2d').scale(dpr, dpr); }
+    const gb = bg.getContext('2d'), gi = ink.getContext('2d'), gc = cur.getContext('2d');
     gb.fillStyle = '#FFFDF8'; gb.fillRect(0, 0, size, size);
     gb.strokeStyle = '#F2C6D8'; gb.lineWidth = 2; gb.setLineDash([8, 8]);
     gb.beginPath(); gb.moveTo(size / 2, 0); gb.lineTo(size / 2, size); gb.moveTo(0, size / 2); gb.lineTo(size, size / 2); gb.stroke();
-    gb.setLineDash([]);
-    const font = FONT.replace('1px', Math.round(size * 0.8) + 'px');
-    const drawGlyph = (g, col) => { g.font = font; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = col; g.fillText(ch, size / 2, size * 0.53); };
-    drawGlyph(gb, '#F3D7E3');
-    gb.lineWidth = 2; gb.strokeStyle = '#E8B4C8'; gb.font = font; gb.textAlign = 'center'; gb.textBaseline = 'middle'; gb.setLineDash([5, 6]); gb.strokeText(ch, size / 2, size * 0.53); gb.setLineDash([]);
-    // おてほんの まと（なぞるべき ところ）
-    const mk = document.createElement('canvas'); mk.width = mk.height = size;
-    const gm = mk.getContext('2d'); drawGlyph(gm, '#000');
-    const md = gm.getImageData(0, 0, size, size).data;
-    const STEP = Math.max(3, Math.round(size / 90));
-    const guide = [];
-    for (let y = 0; y < size; y += STEP) for (let x = 0; x < size; x += STEP) if (md[(y * size + x) * 4 + 3] > 128) guide.push([x, y]);
-    S.speak(`${ch}。${W.w}の ${ch}`, 1.3);
-    // かく
-    gi.lineCap = 'round'; gi.lineJoin = 'round'; gi.strokeStyle = '#E0559A'; gi.lineWidth = size * 0.085;
-    let drawing = null;
-    const pos = (e) => { const r = ink.getBoundingClientRect(); return [(e.clientX - r.left) * (size / r.width), (e.clientY - r.top) * (size / r.height)]; };
-    ink.addEventListener('pointerdown', (e) => { e.preventDefault(); try { ink.setPointerCapture(e.pointerId); } catch (er) { /* なし */ } drawing = pos(e); gi.beginPath(); gi.moveTo(...drawing); gi.lineTo(drawing[0] + 0.1, drawing[1]); gi.stroke(); });
-    ink.addEventListener('pointermove', (e) => { if (!drawing) return; const q = pos(e); gi.beginPath(); gi.moveTo(...drawing); gi.lineTo(...q); gi.stroke(); drawing = q; if (Math.random() < 0.15) S.tap(); });
-    const coverage = () => {
-      const d = gi.getImageData(0, 0, size * dpr, size * dpr).data;
-      let hit = 0;
-      for (const [x, y] of guide) if (d[((Math.round(y * dpr)) * size * dpr + Math.round(x * dpr)) * 4 + 3] > 40) hit++;
-      return guide.length ? hit / guide.length : 1;
+    for (const g of [gi, gc]) { g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = '#E0559A'; g.lineWidth = size * 0.085; }
+    let step = 0, done = false, fails = 0;
+    const numPos = (st, i) => {
+      const L = Math.hypot(...st.dir) || 1;
+      return [st.start[0] - (st.dir[0] / L) * 7 - (st.dir[1] / L) * 6, st.start[1] - (st.dir[1] / L) * 7 + (st.dir[0] / L) * 6];
     };
-    let done = false;
+    // おてほんの せん（しずかな ガイド）
+    const drawGuide = () => {
+      let o = '';
+      strokes.forEach((st, i) => {
+        const col = i < step ? 'transparent' : i === step ? '#FFB8D6' : '#F3DCE6';
+        o += `<path d="${st.d}" fill="none" stroke="${col}" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+      });
+      strokes.forEach((st, i) => {
+        if (i < step) return;
+        const [x, y] = numPos(st, i);
+        o += `<circle cx="${x}" cy="${y}" r="5" fill="${i === step ? '#FFD772' : '#fff'}" stroke="${i === step ? '#E9B44C' : '#E8B4C8'}" stroke-width="1"/><text x="${x}" y="${y + 2.4}" text-anchor="middle" font-size="7" font-weight="800" fill="${i === step ? '#8A5A10' : '#C98FA8'}" font-family="'M PLUS Rounded 1c',sans-serif">${i + 1}</text>`;
+      });
+      guideEl.innerHTML = svg('0 0 109 109', o);
+      // いま かく せん：むきを しめす ながれと スタートの まる
+      if (step < strokes.length && !done) {
+        const st = strokes[step];
+        animEl.innerHTML = svg('0 0 109 109', `<path class="flow" d="${st.d}" fill="none" stroke="#E0559A" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="3 7"/>` +
+          `<circle class="startdot" cx="${st.start[0]}" cy="${st.start[1]}" r="4.2" fill="#FFE28A" stroke="#E9B44C" stroke-width="1"/>`);
+      } else animEl.innerHTML = '';
+      stepsEl.innerHTML = strokes.map((_, i) => `<span class="${i < step ? 'ok' : i === step ? 'now' : ''}">${i + 1}</span>`).join('');
+    };
+    // おてほんの アニメ（1かくずつ のびる）
+    let demoing = false;
+    const demo = async (only) => {
+      demoing = true;
+      const list = only != null ? [only] : strokes.map((_, i) => i);
+      for (const i of list) {
+        if (!c.alive.v) return;
+        const st = strokes[i];
+        animEl.innerHTML = svg('0 0 109 109', `<path d="${st.d}" fill="none" stroke="#E0559A" stroke-width="8.5" stroke-linecap="round" style="stroke-dasharray:${st.len};stroke-dashoffset:${st.len};animation:drawStroke .8s ease-in-out forwards"/>` +
+          strokes.slice(0, i).map((s2) => `<path d="${s2.d}" fill="none" stroke="#F29CC2" stroke-width="8.5" stroke-linecap="round" opacity="${only != null ? 0 : 0.7}"/>`).join(''));
+        S.speak(NUMS[i] || String(i + 1), 1.3);
+        S.tap();
+        await sleep(1000);
+      }
+      demoing = false;
+      drawGuide();
+    };
+    drawGuide();
+    animEl.innerHTML = '';
+    S.speak(`${ch}。${W.w}の ${ch}。かきじゅんを みてね`, 1.3);
+    await sleep(1400);
+    await demo();
+    if (!c.alive.v) return c.guard(Promise.resolve());
+    prompt.textContent = `${strokes.length > 1 ? '1ばんから じゅんばんに ' : ''}なぞって かこう`;
+    S.speak(prompt.textContent, 1.3);
+    // かく
+    let drawing = null;
+    const pos = (e) => { const r = cur.getBoundingClientRect(); return [(e.clientX - r.left) * (size / r.width), (e.clientY - r.top) * (size / r.height)]; };
+    cur.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      if (done || demoing) return;
+      try { cur.setPointerCapture(e.pointerId); } catch (er) { /* なし */ }
+      drawing = pos(e);
+      gc.beginPath(); gc.moveTo(...drawing); gc.lineTo(drawing[0] + 0.1, drawing[1]); gc.stroke();
+    });
+    cur.addEventListener('pointermove', (e) => { if (!drawing) return; const q = pos(e); gc.beginPath(); gc.moveTo(...drawing); gc.lineTo(...q); gc.stroke(); drawing = q; });
+    const coverage = (st) => {
+      const d = gc.getImageData(0, 0, size * dpr, size * dpr).data;
+      let hit = 0;
+      for (const [x, y] of st.pts) {
+        const px = Math.round(x * K * dpr), py = Math.round(y * K * dpr);
+        if (d[(py * size * dpr + px) * 4 + 3] > 40) hit++;
+      }
+      return hit / st.pts.length;
+    };
     let resolve;
     const finished = new Promise((r) => (resolve = r));
+    const commit = (auto) => {
+      if (auto) {
+        // せんせいと いっしょに かく
+        const st = strokes[step];
+        gc.save(); gc.scale(K, K); gc.lineWidth = size * 0.085 / K; gc.stroke(new Path2D(st.d)); gc.restore();
+      }
+      gi.drawImage(cur, 0, 0, size, size);
+      gc.clearRect(0, 0, size, size);
+      const st = strokes[step];
+      const r = box.getBoundingClientRect();
+      burst(r.left + (st.pts[st.pts.length - 1][0] * r.width) / 109, r.top + (st.pts[st.pts.length - 1][1] * r.height) / 109, ['star', 'sparkle'], 6, 50);
+      S.pick();
+      step++;
+      fails = 0;
+      if (step >= strokes.length) { success(); return; }
+      S.speak(NUMS[step] || String(step + 1), 1.3);
+      drawGuide();
+    };
     const success = async () => {
       if (done) return;
       done = true;
+      drawGuide();
       p.querySelector('#trMaru').innerHTML = svg('0 0 200 200', KP.drawHanamaru());
       p.querySelector('#trMaru').classList.add('show');
       const r = box.getBoundingClientRect();
       burst(r.left + r.width / 2, r.top + r.height / 2, ['star', 'heart', 'sparkle'], 16, 160);
       S.done();
-      S.speak(rand(['はなまる！ じょうず！', 'すごい！ きれいに かけたね！', 'ばっちり！']), 1.3);
-      await sleep(1600);
+      S.speak(rand(['はなまる！ じょうず！', 'すごい！ かきじゅんも ばっちり！', 'きれいに かけたね！']), 1.3);
+      await sleep(1700);
       resolve(ink.toDataURL('image/png'));
     };
-    const check = () => {
-      const cv = coverage();
-      meter.style.width = Math.min(100, Math.round((cv / 0.62) * 100)) + '%';
-      if (cv >= 0.62) success();
-      return cv;
+    const up = () => {
+      if (!drawing) return;
+      drawing = null;
+      const st = strokes[step];
+      const cv = coverage(st);
+      if (cv >= 0.7) { commit(false); return; }
+      // ほかの せんを かいちゃった ときは やさしく おしえる
+      const wrong = cv < 0.25;
+      if (wrong) {
+        fails++;
+        gc.clearRect(0, 0, size, size);
+        if (fails >= 3) {
+          const rr = box.getBoundingClientRect();
+          bubble(rr.left + rr.width / 2, rr.top + 30, 'いっしょに かこうね', 1500);
+          S.speak('いっしょに かこうね', 1.2);
+          demo(step).then(() => c.alive.v && !done && commit(true));
+          return;
+        }
+        const rr = box.getBoundingClientRect();
+        bubble(rr.left + rr.width / 2, rr.top + 30, `${step + 1}ばんは きいろい まるから だよ`, 1600);
+        S.speak(`${NUMS[step] || step + 1}ばんは きいろい まるから だよ`, 1.2);
+        demo(step);
+      }
     };
-    const up = () => { if (drawing) { drawing = null; check(); } };
-    ink.addEventListener('pointerup', up);
-    ink.addEventListener('pointercancel', up);
+    cur.addEventListener('pointerup', up);
+    cur.addEventListener('pointercancel', up);
     p.addEventListener('click', (e) => {
       const b = e.target.closest('[data-a]');
-      if (!b || done) return;
+      if (!b || done || demoing) return;
       S.tap();
-      if (b.dataset.a === 'clear') { gi.clearRect(0, 0, size, size); meter.style.width = '0%'; }
+      if (b.dataset.a === 'clear') { gc.clearRect(0, 0, size, size); }
       if (b.dataset.a === 'hear') S.speak(`${ch}。${W.w}の ${ch}`, 1.3);
-      if (b.dataset.a === 'ok') {
-        const cv = check();
-        if (cv >= 0.3) success();
-        else { const r = box.getBoundingClientRect(); bubble(r.left + r.width / 2, r.top + 30, 'もうすこし なぞってみよう', 1500); S.speak('もうすこし なぞってみよう', 1.2); }
-      }
+      if (b.dataset.a === 'demo') { gc.clearRect(0, 0, size, size); demo(); }
     });
     const img = await finished;
     c.hidePanel();
