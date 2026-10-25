@@ -19,6 +19,8 @@
   #waveChip small{font-weight:700;opacity:.8;font-size:12px}
   #aliens{display:flex;gap:3px;font-size:22px;padding:4px 10px;flex-wrap:wrap;justify-content:center;max-width:46vw}
   #aliens span{filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));transition:transform .3s,opacity .3s}
+  #aliens span{position:relative;margin-right:6px}
+  #aliens i{position:absolute;right:-8px;bottom:-5px;font-size:.62em;font-style:normal}
   #aliens span.got{opacity:.25;filter:grayscale(1);transform:scale(.8)}
   .right{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
   #scoreChip{font-size:15px;text-align:right}
@@ -159,7 +161,7 @@
   <div class="panel how">
     <h2 style="text-align:center;margin:0 0 6px">あそびかた</h2>
     <p>まちの なかを じゆうに あるきまわって、<b>ヘンな ところが ある にんげん</b>を さがそう。アンテナ、しっぽ、うしろむきに あるく…。みつけたら レーザーで うてば つかまえられる！ でも ふつうの にんげんを うつと ハートが へるよ。</p>
-    <p>ぜんぶ つかまえると つぎの ウェーブ。じかんが すすんで、エイリアンの へんそうも どんどん じょうずに なっていく。</p>
+    <p>エイリアンには かならず めだつ しるしが あるよ（アンテナ、みどりの かお、めが みっつ、しっぽ、ふわふわ ういている…）。うえの 👽 の よこの マークが さがす ヒント！ ぜんぶ つかまえると つぎの ウェーブ。じかんが すすんで あさから よるに なるよ。</p>
     <h3>パソコン</h3>
     <ul>
       <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / やじるし：いどう、<kbd>Shift</kbd>：ダッシュ、<kbd>Space</kbd>：ジャンプ</li>
@@ -1005,22 +1007,18 @@ const HAIRSTYLES = ['short', 'short', 'bob', 'long', 'bun', 'pony', 'spiky', 'af
 const HATS = [null, null, null, null, 'cap', 'beanie', 'straw', 'tophat', 'bucket'];
 const OUTFITS = ['tshirt', 'tshirt', 'dress', 'coat', 'suit', 'hoodie'];
 
+// 5さいでも わかるように、めで みて すぐ わかる てがかりだけ
 const TELLS = {
-  antenna: { n: 'あたまに アンテナ', lv: 1 },
-  greenSkin: { n: 'はだが みどりいろ', lv: 1 },
-  threeEyes: { n: '目が 3つ ある', lv: 1 },
-  tail: { n: 'しっぽが はえている', lv: 1 },
-  float: { n: 'ちょっと ういている', lv: 1 },
-  tentacleFeet: { n: 'あしが しょくしゅ', lv: 2 },
-  pointyEars: { n: 'みみが とがっている', lv: 2 },
-  glowEyes: { n: '目が ひかっている', lv: 2 },
-  moonwalk: { n: 'うしろむきに あるく', lv: 2 },
-  backFace: { n: 'かおが せなかがわ', lv: 2 },
-  headSpin: { n: 'くびが ぐるっと まわる', lv: 2 },
-  talkObj: { n: 'モノに はなしかけている', lv: 3 },
-  weirdSpeech: { n: 'しゃべりかたが ヘン', lv: 3 },
-  glitch: { n: 'ときどき すがたが ブレる', lv: 3 },
+  antenna: { n: 'あたまに アンテナが ある', e: '📡' },
+  greenSkin: { n: 'かおが みどりいろ', e: '🟢' },
+  threeEyes: { n: 'めが みっつ ある', e: '👁️' },
+  tail: { n: 'しっぽが ある', e: '🦎' },
+  float: { n: 'ふわふわ ういている', e: '🎈' },
+  tentacleFeet: { n: 'あしが タコの あし', e: '🐙' },
+  pointyEars: { n: 'みどりの とがった みみ', e: '👂' },
+  glowEyes: { n: 'めが あかく ひかる', e: '🔴' },
 };
+const tellLabel = (t) => `${TELLS[t].e} ${TELLS[t].n}`;
 const BEHAVIOR_TELLS = ['float', 'moonwalk', 'headSpin', 'talkObj', 'weirdSpeech', 'glitch'];
 
 function randomSpec(opts = {}) {
@@ -1045,9 +1043,9 @@ function randomSpec(opts = {}) {
 function mixColor(a, b, t) { return '#' + new THREE.Color(a).lerp(new THREE.Color(b), t).getHexString(); }
 
 function buildCharacter(spec) {
-  const tells = new Set(spec.tells), sub = spec.subtle;
+  const tells = new Set(spec.tells), sub = false;
   const root = new THREE.Group(), body = new THREE.Group(); root.add(body); body.scale.setScalar(spec.scale);
-  const skinC = tells.has('greenSkin') ? mixColor(spec.skin, '#7fe07a', sub ? .32 : .62) : spec.skin;
+  const skinC = tells.has('greenSkin') ? mixColor(spec.skin, '#5fe05a', .88) : spec.skin;
   const skin = M(skinC, { roughness: .5 });
   const shirt = M(spec.shirt, { roughness: .72 });
   const pants = spec.outfit === 'dress' ? skin : M(spec.pants, { roughness: .78 });
@@ -1061,7 +1059,7 @@ function buildCharacter(spec) {
     if (tells.has('tentacleFeet')) {
       const tm = M(sub ? mixColor(spec.pants, '#6ad06a', .5) : '#6ad06a', { roughness: .4 });
       add(leg, G.cap(.085, .22), tm, 0, -.19, 0);
-      for (let k = 0; k < 3; k++) { const a = (k / 3) * Math.PI * 2 + .5; const t = add(leg, G.cone(.05, sub ? .2 : .3, 8), tm, Math.cos(a) * .06, -.42, Math.sin(a) * .06 + .02); t.rotation.set(Math.sin(a) * 1.5 + Math.PI, 0, Math.cos(a) * 1.2); parts.tentacles.push(t); }
+      for (let k = 0; k < 3; k++) { const a = (k / 3) * Math.PI * 2 + .5; const t = add(leg, G.cone(.07, .42, 8), tm, Math.cos(a) * .06, -.42, Math.sin(a) * .06 + .02); t.rotation.set(Math.sin(a) * 1.5 + Math.PI, 0, Math.cos(a) * 1.2); parts.tentacles.push(t); }
     } else {
       add(leg, G.cap(.085, .26), pants, 0, -.21, 0);
       add(leg, G.sphere(16), shoe, 0, -.43, .04, .1, .07, .15);
@@ -1101,22 +1099,24 @@ function buildCharacter(spec) {
   const head = new THREE.Group(); head.position.set(0, 1.13, 0); body.add(head); parts.head = head;
   add(head, G.cyl(.08, .09, .1, 10), skin, 0, .02, 0);
   add(head, G.sphere(28), skin, 0, .3, 0, .32, .31, .3);
-  const eyeM = tells.has('glowEyes') ? M(sub ? '#30ff70' : '#ff0a2a', { emissive: sub ? '#30ff70' : '#ff0a2a', emissiveIntensity: sub ? 1.2 : 4, roughness: .2 }) : M('#1a1a22', { roughness: .15 });
+  const eyeM = tells.has('glowEyes') ? M('#ff1020', { emissive: '#ff1020', emissiveIntensity: 1.3, roughness: .2, toneMapped: false }) : M('#1a1a22', { roughness: .15 });
   parts.eyes = [];
   const face = new THREE.Group(); head.add(face); parts.face = face;
+  const es = tells.has('glowEyes') ? 1.45 : 1;
   for (const sx of [-.105, .105]) {
     if (spec.eyeStyle === 'happy' && !tells.has('glowEyes')) { const e = add(face, G.torus(.035, .011, Math.PI, 6, 10), eyeM, sx, .32, .29); parts.eyes.push(e); }
-    else { const e = add(face, G.sphere(14), eyeM, sx, .32, .282, .045, .058, .03); parts.eyes.push(e); add(face, G.sphere(8), M('#ffffff', { roughness: .1 }), sx + .016, .342, .305, .014); }
+    else { const e = add(face, G.sphere(14), eyeM, sx, .32, .282, .045 * es, .058 * es, .03); parts.eyes.push(e);
+      if (tells.has('glowEyes')) { const h = new THREE.Sprite(eyeGlowMat); h.position.set(sx, .32, .31); h.scale.setScalar(.3); face.add(h); } add(face, G.sphere(8), M('#ffffff', { roughness: .1 }), sx + .016, .342, .305, .014); }
     add(face, G.box(.08, .016, .012), hairM, sx, .405, .292).rotation.z = sx > 0 ? -.12 : .12;
     add(face, G.sphere(10), M('#ff9aa8', { roughness: .8, transparent: true, opacity: .7 }), sx * 1.75, .24, .25, .05, .03, .015);
   }
-  if (tells.has('threeEyes')) { const e = add(face, G.sphere(14), eyeM, 0, .43, .285, sub ? .035 : .05, sub ? .045 : .062, .03); parts.eyes.push(e); add(face, G.sphere(8), M('#ffffff'), .014, .45, .31, .012); }
+  if (tells.has('threeEyes')) { const e = add(face, G.sphere(14), eyeM, 0, .45, .28, .068, .085, .035); parts.eyes.push(e); add(face, G.sphere(8), M('#ffffff'), .02, .48, .31, .018); }
   add(face, G.sphere(10), M(mixColor(skinC, '#c06a50', .25), { roughness: .5 }), 0, .27, .302, .028, .022, .02);
   const mouth = add(face, G.torus(.042, .011, Math.PI, 6, 12), M('#8a3030', { roughness: .4 }), 0, .2, .278); mouth.rotation.z = Math.PI; parts.mouth = mouth;
   // ears
   if (tells.has('pointyEars')) {
-    const em = M(sub ? skinC : mixColor(skinC, '#7fe07a', .5), { roughness: .5 });
-    for (const sx of [-1, 1]) { const e = add(head, G.cone(.06, sub ? .2 : .3, 10), em, sx * .33, .36, 0); e.rotation.z = -sx * 1.05; }
+    const em = M('#4fd84a', { roughness: .5 });
+    for (const sx of [-1, 1]) { const e = add(head, G.cone(.09, .55, 10), em, sx * .44, .42, 0); e.rotation.z = -sx * 1.15; }
   } else for (const sx of [-1, 1]) add(head, G.sphere(12), skin, sx * .31, .3, 0, .05, .07, .05);
   // hair
   const hs = spec.hairStyle;
@@ -1153,16 +1153,16 @@ function buildCharacter(spec) {
   // tells
   if (tells.has('antenna')) {
     const am = M(sub ? spec.hair : '#2fbf3a', { roughness: .4 });
-    const bm = M(sub ? mixColor(spec.hair, '#7dff6a', .5) : '#4dff3a', { emissive: '#3dff2a', emissiveIntensity: sub ? .3 : 1.2 });
-    const len = sub ? .14 : .32;
+    const bm = M(sub ? mixColor(spec.hair, '#7dff6a', .5) : '#4dff3a', { emissive: '#3dff2a', emissiveIntensity: 1.8 });
+    const len = .46;
     const n = sub ? 1 : 2;
-    for (let k = 0; k < n; k++) { const sx = n === 1 ? .05 : (k ? .1 : -.1); const a = add(head, G.cyl(.012, .012, len, 6), am, sx, hatTop + len / 2 - .04, -.02); a.rotation.z = -sx * 1.5; add(head, G.sphere(10), bm, sx * (1 + len * 1.6), hatTop + len - .04, -.02, sub ? .028 : .05); }
+    for (let k = 0; k < n; k++) { const sx = n === 1 ? .05 : (k ? .1 : -.1); const a = add(head, G.cyl(.012, .012, len, 6), am, sx, hatTop + len / 2 - .04, -.02); a.rotation.z = -sx * 1.5; add(head, G.sphere(10), bm, sx * (1 + len * 1.6), hatTop + len - .04, -.02, .08); }
   }
   if (tells.has('tail')) {
     const tp = new THREE.Group(); tp.position.set(0, .55, -.2); body.add(tp); parts.tail = tp;
     const tm = M(sub ? mixColor(spec.pants, '#6ad06a', .4) : '#6ad06a', { roughness: .4 });
-    let prev = tp; const segs = sub ? 3 : 5;
-    for (let k = 0; k < segs; k++) { const s = new THREE.Group(); s.position.set(0, k ? 0 : 0, k ? -.08 : 0); s.rotation.x = .35; prev.add(s); add(s, G.sphere(10), tm, 0, 0, -.04, .055 - k * .006); prev = s; }
+    let prev = tp; const segs = 7;
+    for (let k = 0; k < segs; k++) { const s = new THREE.Group(); s.position.set(0, k ? 0 : 0, k ? -.08 : 0); s.rotation.x = .35; prev.add(s); add(s, G.sphere(10), tm, 0, 0, -.04, .085 - k * .007); prev = s; }
     if (!sub) add(prev, G.cone(.06, .1, 8), tm, 0, 0, -.12).rotation.x = -Math.PI / 2;
   }
   if (tells.has('backFace')) head.rotation.y = Math.PI;
@@ -1182,6 +1182,7 @@ function buildCharacter(spec) {
   return { parts, height };
 }
 
+const eyeGlowMat = new THREE.SpriteMaterial({ map: glowTex, color: '#ff2a3a', transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false });
 const ALIEN_COLORS = ['#6be36b', '#a88bff', '#5ee0d0', '#ffd34f'];
 function buildAlienForm(spec) {
   const g = new THREE.Group();
@@ -1408,7 +1409,7 @@ function updateNPC(n, dt, camPos) {
     else if (!n.spin) P.head.rotation.y = lerp(P.head.rotation.y, 0, Math.min(1, dt * 4));
   }
   // tells (behavior)
-  if (has(n, 'float') && n.state !== 'sit' && n.state !== 'fall') baseY += (n.spec.subtle ? .14 : .32) + Math.sin(n.t * 2.2) * .06;
+  if (has(n, 'float') && n.state !== 'sit' && n.state !== 'fall') baseY += .55 + Math.sin(n.t * 2.2) * .1;
   if (has(n, 'headSpin')) {
     n.spinT -= dt;
     if (n.spinT <= 0 && !n.spin) { n.spin = .001; }
@@ -1621,12 +1622,13 @@ function hitNPC(n, point) {
     releaseSpots(n);
     n.state = 'reveal'; n.revealT = 0; n.revealSwap = false;
     game.combo = game.comboT > 0 ? game.combo + 1 : 1; game.comboT = 25;
-    const gain = 100 * game.combo + (n.spec.subtle ? 50 : 0);
+    const gain = 100 * game.combo;
     game.score += gain; game.caught++; game.aliensLeft--;
     const tell = n.spec.tells[0];
     save.found[tell] = (save.found[tell] || 0) + 1; persist();
     SFX.alien();
-    showCard(`👽 エイリアン かくほ！ +${gain}${game.combo > 1 ? `（${game.combo}れんぞく）` : ''}`, `てがかり：${TELLS[tell].n}`, false);
+    showCard(`👽 エイリアン かくほ！ +${gain}${game.combo > 1 ? `（${game.combo}れんぞく）` : ''}`, `てがかり：${tellLabel(tell)}`, false);
+    const w = game.waveList.find(o => o.n === n); if (w) w.got = true;
     updateHUD();
     if (game.aliensLeft <= 0) later(waveClear, 2600);
   } else {
@@ -1703,7 +1705,7 @@ const TOD = [
   { name: 'ひる', top: '#3a86ff', hor: '#cfe7ff', sun: '#ffffff', si: 3.1, hi: 1.1, sky: '#d6ebff', gnd: '#9a8a76', elev: 62, az: .3, env: .6, fog: '#d5e7f7', lamps: 0, stars: 0, exp: 1.0 },
   { name: 'ごご', top: '#4d93ff', hor: '#ffe8cc', sun: '#fff0d0', si: 2.8, hi: 1.0, sky: '#e0ecff', gnd: '#9a8a76', elev: 36, az: 1.2, env: .5, fog: '#ece4d8', lamps: 0, stars: 0, exp: 1.02 },
   { name: 'ゆうがた', top: '#4253a8', hor: '#ff9868', sun: '#ffaa66', si: 2.0, hi: .75, sky: '#ffc8a8', gnd: '#6a5060', elev: 8, az: 1.75, env: .35, fog: '#e7a283', lamps: .6, stars: 0, exp: 1.1 },
-  { name: 'よる', top: '#070f2a', hor: '#26315e', sun: '#a6b8ff', si: .6, hi: .45, sky: '#4a5aa0', gnd: '#202030', elev: 48, az: 2.6, env: .14, fog: '#1b2346', lamps: 1, stars: 1, exp: 1.25 },
+  { name: 'よる', top: '#070f2a', hor: '#26315e', sun: '#a6b8ff', si: .6, hi: .75, sky: '#6a7ac0', gnd: '#303048', elev: 48, az: 2.6, env: .2, fog: '#1b2346', lamps: 1, stars: 1, exp: 1.35 },
 ];
 const todCur = {}, todA = {}, todB = {};
 function todCopy(dst, src) { for (const k in src) { if (typeof src[k] === 'string' && src[k][0] === '#') { (dst[k] = dst[k] && dst[k].isColor ? dst[k] : new THREE.Color()).set(src[k]); } else dst[k] = src[k]; } }
@@ -1738,8 +1740,7 @@ function updateTOD(dt) {
 const game = { state: 'title', wave: 0, score: 0, hearts: 5, caught: 0, aliensLeft: 0, waveCount: 0, waveTime: 0, combo: 0, comboT: 0, hintCD: 0, hint: null, scanE: 100, scanning: false, zoom: false, between: false, titleT: 0, lockBeep: 0, beepT: 0 };
 const MAX_HEARTS = 5;
 function tellsForWave(w) {
-  const maxLv = w <= 1 ? 1 : w <= 2 ? 2 : 3;
-  return Object.keys(TELLS).filter(k => TELLS[k].lv <= maxLv);
+  return Object.keys(TELLS);
 }
 function startGame() {
   ensureAudio();
@@ -1755,7 +1756,7 @@ function startGame() {
 function startWave(w) {
   game.wave = w; game.between = false; game.waveTime = 0;
   setTOD((w - 1) % TOD.length, w === 1);
-  const count = [3, 4, 5, 5, 6, 6, 7, 7, 8][Math.min(w - 1, 8)];
+  const count = [3, 3, 4, 4, 5, 5, 6][Math.min(w - 1, 6)];
   const pool = tellsForWave(w);
   updateFrustum();
   const cands = npcs.filter(n => !n.fixed && !n.spec.alien && !n.removed && !['fall', 'getup', 'reveal'].includes(n.state));
@@ -1771,25 +1772,26 @@ function startWave(w) {
   const telled = [];
   for (const n of chosen) {
     let tell = pick(pool.filter(t => !used.includes(t))) || pick(pool); used.push(tell);
-    const spec = Object.assign({}, n.spec, { alien: true, tells: [tell], subtle: w >= 4 && R() < .55, alienColor: pick(ALIEN_COLORS), alienEyes: pick([1, 2, 3]), herring: null });
+    const spec = Object.assign({}, n.spec, { alien: true, tells: [tell], subtle: false, alienColor: pick(ALIEN_COLORS), alienEyes: pick([1, 2, 3]), herring: null });
     if (tell === 'threeEyes') { if (['bob', 'long', 'afro'].includes(spec.hairStyle)) spec.hairStyle = 'short'; if (['cap', 'beanie', 'bucket'].includes(spec.hat)) spec.hat = null; spec.glasses = false; }
     if (spec.jogger && (tell === 'talkObj' || tell === 'moonwalk')) spec.jogger = false;
     rebuildNPC(n, spec); releaseSpots(n); chooseGoal(n);
     telled.push(tell);
   }
   // herrings
-  if (w >= 2) {
-    const hn = Math.min(3, w - 1);
+  if (false) {
+    const hn = 0;
     const rest = cands.filter(n => !chosen.includes(n) && !n.spec.herring).slice(0, hn);
     rest.forEach((n, k) => rebuildNPC(n, Object.assign({}, n.spec, { herring: k % 2 ? 'green' : 'headband' })));
   }
   game.aliensLeft = chosen.length; game.waveCount = chosen.length;
+  game.waveList = chosen.map(n => ({ n, tell: n.spec.tells[0], got: false }));
   if (w > 1) ufoFlyby();
-  const hintTell = telled.length ? TELLS[pick(telled)].n : '';
+  const list = [...new Set(telled)].map(tellLabel).join('、');
   const msgs = w === 1
-    ? `この まちに エイリアンが ${chosen.length}たい まぎれこんだ！ うわさでは「${hintTell}」やつが いるらしい。よーく かんさつして レーザーで つかまえて！`
-    : `あたらしい UFO が とんできた！ こんどは ${chosen.length}たい。「${hintTell}」やつに ちゅうい！${w >= 4 ? ' へんそうが じょうずに なっているぞ…' : ''}`;
-  radio(msgs, 7);
+    ? `まちに エイリアンが ${chosen.length}たい かくれているよ！ しるしは ${list}。 みつけたら タッチ（クリック）で レーザー！`
+    : `UFO が また きたよ！ こんどは ${chosen.length}たい。 しるしは ${list}。`;
+  radio(msgs, 9);
   updateHUD();
   if (DEBUG) console.log('aliens', chosen.map(n => [n.spec.tells[0], n.x.toFixed(0), n.z.toFixed(0)]));
 }
@@ -1840,8 +1842,7 @@ function updateHUD() {
   $('#waveTxt').textContent = `WAVE ${game.wave}`;
   $('#scoreTxt').textContent = `${game.score.toLocaleString()} てん`;
   $('#hearts').textContent = '❤️'.repeat(Math.max(0, game.hearts)) + '🤍'.repeat(Math.max(0, MAX_HEARTS - game.hearts));
-  const got = game.waveCount - game.aliensLeft;
-  $('#aliens').innerHTML = Array.from({ length: game.waveCount }, (_, k) => `<span class="${k < got ? 'got' : ''}">👽</span>`).join('');
+  $('#aliens').innerHTML = (game.waveList || []).map(o => `<span class="${o.got ? 'got' : ''}">👽<i>${TELLS[o.tell].e}</i></span>`).join('');
   const b = $('#bHint'); if (b) { b.disabled = game.hintCD > 0; b.innerHTML = game.hintCD > 0 ? `<span class="ic">💡</span>${Math.ceil(game.hintCD)}` : '<span class="ic">💡</span>ヒント'; }
 }
 function useHint() {
@@ -1851,8 +1852,8 @@ function useHint() {
   const a = pick(al);
   const ang = R() * 6.28, off = rand(2, 8);
   game.hint = { x: a.x + Math.cos(ang) * off, z: a.z + Math.sin(ang) * off, r: 14, t: 15, target: a };
-  game.hintCD = 25;
-  radio(`ミニマップの ひかっている あたりに はんのう あり！ てがかりは「${TELLS[a.spec.tells[0]].n}」だ。`, 5);
+  game.hintCD = 12;
+  radio(`ちずの ピカピカ してる ところに いるよ！ ${tellLabel(a.spec.tells[0])} エイリアンを さがしてね。`, 6);
   updateHUD();
 }
 
