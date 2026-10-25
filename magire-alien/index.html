@@ -27,12 +27,17 @@
   #hearts{font-size:15px;letter-spacing:1px}
   #mini{width:136px;height:136px;border-radius:16px;border:2px solid var(--line);background:#223;box-shadow:0 4px 16px rgba(0,0,0,.35)}
   #pauseBtn{pointer-events:auto;position:absolute;left:12px;top:calc(max(10px,env(safe-area-inset-top)) + 46px);width:40px;height:40px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font-size:18px}
-  #reticle{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;border:2px solid rgba(255,255,255,.75);box-shadow:0 0 0 1px rgba(0,0,0,.25);transition:border-color .15s,transform .15s}
+  #reticle{position:absolute;left:50%;top:50%;width:46px;height:46px;transform:translate(-50%,-50%);border-radius:50%;border:4px solid #6dffb0;box-shadow:0 0 0 3px rgba(0,40,20,.45),0 0 24px rgba(80,255,170,.6);transition:border-color .15s}
+  #scanTip{position:absolute;left:50%;top:100%;transform:translate(-50%,6px);white-space:nowrap;font-weight:900;font-size:18px;color:#fff;text-shadow:0 2px 4px #000}
+  #modeSw{position:absolute;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:6px;padding:6px;border-radius:26px;background:var(--panel);border:1px solid var(--line);pointer-events:auto}
+  #modeSw button{width:clamp(104px,16vw,140px);height:clamp(64px,10vw,82px);border-radius:20px;background:rgba(255,255,255,.08);font-weight:900;font-size:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;opacity:.7;transition:all .15s;touch-action:none}
+  #modeSw button .ic{font-size:28px;line-height:1}
+  #modeSw button.on{opacity:1;transform:scale(1.04)}
+  #modeSw button[data-mode=scan].on{background:linear-gradient(180deg,#4fe0a0,#1fa070);box-shadow:0 0 18px rgba(80,255,170,.6)}
+  #modeSw button[data-mode=beam].on{background:linear-gradient(180deg,#ff7fa8,#ff3d78);box-shadow:0 0 18px rgba(255,60,120,.6)}
   #reticle::before,#reticle::after{content:"";position:absolute;background:rgba(255,255,255,.85)}
   #reticle::before{left:50%;top:50%;width:4px;height:4px;margin:-2px;border-radius:50%}
-  #reticle.scope{border:4px solid #6dffb0;box-shadow:0 0 0 3px rgba(0,40,20,.45),0 0 24px rgba(80,255,170,.6);transition:none}
-  #reticle.scope::before{width:6px;height:6px;margin:-3px;background:#6dffb0}
-  #reticle.lock{border-color:#ff3366;transform:scale(.8);box-shadow:0 0 18px #ff3366}
+  #reticle.lock{border-color:#ff3366;box-shadow:0 0 0 3px rgba(60,0,20,.45),0 0 26px #ff3366}
   #scanFx{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(60,255,180,.0) 35%,rgba(10,80,60,.55) 100%),repeating-linear-gradient(0deg,rgba(80,255,200,.07) 0 2px,transparent 2px 5px);opacity:0;transition:opacity .2s}
   #scanFx.on{opacity:1}
   #scanBar{position:absolute;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(320px,60vw);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 10px;font-size:12px;font-weight:800}
@@ -127,33 +132,23 @@
     <div class="chip" id="aliens"></div>
     <div class="right">
       <div class="chip" id="scoreChip"><div id="scoreTxt">0</div><div id="hearts"></div></div>
-      <canvas id="mini" width="272" height="272"></canvas>
     </div>
   </div>
   <button id="pauseBtn" aria-label="ポーズ">⏸</button>
-  <div id="reticle" class="hidden"></div>
+  <div id="reticle" class="hidden"><span id="scanTip"></span></div>
   <div id="radio"><div class="face">🧪</div><div><b>ほんぶ ・ ハカセ</b><p id="radioTxt"></p></div></div>
   <div id="card"><h3 id="cardH"></h3><p id="cardP"></p></div>
-  <div id="scanBar" class="hidden">
-    <div class="row"><span>スキャン エネルギー</span><span id="sigTxt"></span></div>
-    <div class="bar" id="enBar"><i></i></div>
-    <div class="bar" id="sigBar" style="margin-top:4px"><i style="width:0"></i></div>
-  </div>
-  <div id="help" class="hidden">WASD：いどう ／ ドラッグ：みまわす ／ Space・クリック：ビーム ／ E長押し：スキャン ／ Shift：ダッシュ ／ Esc：ポーズ</div>
-  <div id="touch" class="hidden">
-    <div id="joyHint">ここを<br>ドラッグで<br>いどう</div>
-    <div id="joy"><i></i></div>
-    <div class="tbtns">
-      <button class="tb big" id="bScan"><span class="ic">📡</span>スキャン</button>
-      <button class="tb beam" id="bBeam"><span class="ic">⚡</span>ビーム</button>
-    </div>
+  <div id="help" class="hidden">クリック：スキャン／ビーム ／ 1・2・Space：きりかえ ／ Esc：ポーズ</div>
+  <div id="modeSw">
+    <button data-mode="scan" class="on"><span class="ic">📡</span>スキャン</button>
+    <button data-mode="beam"><span class="ic">⚡</span>ビーム</button>
   </div>
 </div>
 
 <div id="title" class="ov hidden">
   <div class="panel">
     <h1 class="logo">まぎれこみ<br>エイリアン</h1>
-    <p class="sub">にんげんに ばけて まちに まぎれこんだ うちゅうじんを<br>じぶんの めで みつけだし、レーザーで つかまえろ！</p>
+    <p class="sub">まちの ひとの なかに うちゅうじんが まぎれこんだ！<br>📡スキャンで みつけて、⚡ビームで つかまえよう！</p>
     <button class="btn" id="startBtn">あそぶ</button>
     <button class="btn sec" id="howBtn">あそびかた</button>
     <div class="best" id="bestTxt"></div>
@@ -163,22 +158,12 @@
 <div id="howOv" class="ov hidden">
   <div class="panel how">
     <h2 style="text-align:center;margin:0 0 6px">あそびかた</h2>
-    <p>まちの なかを じゆうに あるきまわって、<b>ヘンな ところが ある にんげん</b>を さがそう。アンテナ、しっぽ、うしろむきに あるく…。みつけたら レーザーで うてば つかまえられる！ でも ふつうの にんげんを うつと ハートが へるよ。</p>
-    <p>エイリアンには かならず めだつ しるしが あるよ（アンテナ、みどりの かお、めが みっつ、しっぽ、ふわふわ ういている…）。うえの 👽 の よこの マークが さがす ヒント！ ぜんぶ つかまえると つぎの ウェーブ。じかんが すすんで あさから よるに なるよ。</p>
-    <h3>パソコン</h3>
-    <ul>
-      <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / やじるし：いどう、<kbd>Shift</kbd>：ダッシュ</li>
-      <li>マウス ドラッグ：みまわす、<kbd>Space</kbd>：まんなかの まるへ ビーム（クリックでも うてる）</li>
-      <li><kbd>E</kbd> 長押し：スキャン（まるの なかの エイリアンが みどりいろの すがたに みえる）</li>
-      <li><kbd>Esc</kbd>：ポーズ</li>
-    </ul>
-    <h3>スマホ・タブレット</h3>
-    <ul>
-      <li>ひだりした を ドラッグ：いどう（おおきく たおすと ダッシュ）</li>
-      <li>がめんを ドラッグ：みまわす</li>
-      <li>⚡ ビーム：まんなかの まるに むかって うつ</li>
-      <li>📡 スキャン（おしている あいだ）：まるの なかの エイリアンが みどりいろの すがたに みえる</li>
-    </ul>
+    <p>カフェ、おべんきょう、こうえん、ピクニック…。いろんな ばしょへ じどうで つれていって くれるよ。その なかに <b>にんげんに ばけた エイリアン</b>が まぎれているよ。みためは みんな おなじ！</p>
+    <h3>📡 スキャン</h3>
+    <p>したの ボタンで「スキャン」に して、がめんを タッチ。タッチした ところに まるい スコープが でて、エイリアンだけ <b>みどりの うちゅうじんの すがた</b>に みえるよ。ゆびを うごかすと スコープも うごく。</p>
+    <h3>⚡ ビーム</h3>
+    <p>「ビーム」に きりかえて、エイリアンを タッチ！ あたると しょうたいが ばれて UFO に つれていかれるよ。まわりの ひとは びっくりして にげだす！ ふつうの ひとに あてると ハートが へるので ちゅうい。</p>
+    <p>ぜんぶ つかまえたら つぎの ばしょへ。パソコンは クリック、<kbd>1</kbd>・<kbd>2</kbd>・<kbd>Space</kbd> で きりかえ、<kbd>Esc</kbd> で ポーズ。</p>
     <button class="btn" id="howClose">わかった！</button>
   </div>
 </div>
@@ -186,12 +171,9 @@
 <div id="pauseOv" class="ov hidden">
   <div class="panel">
     <h2 style="margin:0 0 6px">ポーズ</h2>
-    <div class="set"><span>みまわす はやさ</span><input type="range" id="sens" min="0.4" max="2.2" step="0.1"></div>
     <div class="set"><span>がしつ</span><div class="seg" id="qSeg"><button data-q="low">かるい</button><button data-q="high">きれい</button></div></div>
     <div class="set"><span>おと</span><div class="seg" id="sSeg"><button data-s="1">あり</button><button data-s="0">なし</button></div></div>
     <div class="set"><span>BGM</span><div class="seg" id="mSeg"><button data-m="1">あり</button><button data-m="0">なし</button></div></div>
-    <div style="text-align:left;font-weight:800;margin-top:14px">てがかり ずかん</div>
-    <div id="tells"></div>
     <button class="btn" id="resumeBtn">つづける</button>
     <button class="btn sec" id="quitBtn">タイトルへ</button>
   </div>
@@ -200,7 +182,7 @@
 <div id="overOv" class="ov hidden">
   <div class="panel">
     <h2 style="margin:0 0 8px">ゲームオーバー</h2>
-    <div class="res">スコア <b id="rScore">0</b><br>とうたつ ウェーブ <span id="rWave"></span> ／ つかまえた かず <span id="rCaught"></span><br><span id="rBest" style="font-size:13px;opacity:.85"></span></div>
+    <div class="res">スコア <b id="rScore">0</b><br>とうたつ ばめん <span id="rWave"></span> ／ つかまえた かず <span id="rCaught"></span><br><span id="rBest" style="font-size:13px;opacity:.85"></span></div>
     <button class="btn" id="againBtn">もういちど</button>
     <button class="btn sec" id="toTitleBtn">タイトルへ</button>
   </div>
@@ -327,6 +309,8 @@ const SFX = {
   clear() { [523, 659, 784, 659, 784, 1046].forEach((f, i) => tone({ f, type: 'triangle', dur: .22, vol: .12, delay: i * .12 })); },
   radio() { tone({ f: 1200, type: 'square', dur: .04, vol: .04 }); tone({ f: 1600, type: 'square', dur: .04, vol: .04, delay: .07 }); },
   ufo() { if (!actx) return; const t = actx.currentTime, o = actx.createOscillator(), l = actx.createOscillator(), lg = actx.createGain(), g = actx.createGain(); o.type = 'sine'; o.frequency.value = 420; l.frequency.value = 7; lg.gain.value = 60; l.connect(lg); lg.connect(o.frequency); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.06, t + 1); g.gain.exponentialRampToValueAtTime(.0001, t + 6); o.connect(g); g.connect(master); o.start(t); l.start(t); o.stop(t + 6.1); l.stop(t + 6.1); },
+  scanOn() { tone({ f: 600, f2: 1200, type: 'sine', dur: .12, vol: .05 }); },
+  found() { [880, 1175, 1568].forEach((f, i) => tone({ f, type: 'square', dur: .09, vol: .05, delay: i * .07 })); },
   honk() { tone({ f: 400, type: 'square', dur: .18, vol: .05 }); tone({ f: 500, type: 'square', dur: .18, vol: .04 }); },
   jump() { tone({ f: 300, f2: 600, type: 'sine', dur: .12, vol: .06 }); },
 };
@@ -881,7 +865,7 @@ const swings = [];
   for (const a of [-.9, .9]) {
     const piv = new THREE.Group(); piv.position.set(a, 2.4, 0); sw.add(piv);
     add(piv, G.cyl(.012, .012, 1.9, 4), metal, -.25, -.95, 0); add(piv, G.cyl(.012, .012, 1.9, 4), metal, .25, -.95, 0);
-    add(piv, G.box(.6, .05, .25), col2, 0, -1.9, 0); swings.push({ piv, ph: a * 2 });
+    add(piv, G.box(.6, .05, .25), col2, 0, -1.9, 0); swings.push({ piv, ph: a * 2, wx: sx + a, wz: sz });
   }
   shadowAll(sw); scene.add(sw); boxCol(sx - 2.1, sz - .7, sx + 2.1, sz + .7, 2.5, false);
   blocked[26][13] = blocked[27][13] = true;
@@ -951,7 +935,7 @@ const swings = [];
 // parking lot + bus stop
 const parkedCars = [];
 {
-  for (const [i, j, r] of [[26, 22, 0], [28, 24, Math.PI], [26, 26, 0], [28, 28, 0], [25, 28, Math.PI]]) {
+  for (const [i, j, r] of [[25, 28, Math.PI], [27, 28, 0]]) {
     blocked[i][j] = true; parkedCars.push([tc(i), tc(j), r]);
   }
   // bus stop at (14,8) facing road
@@ -985,6 +969,46 @@ const parkedCars = [];
   });
   trunks.castShadow = fol.castShadow = true; trunks.receiveShadow = fol.receiveShadow = true;
   scene.add(trunks, fol);
+}
+// ばめん用の こもの（カフェの ごはん・ピクニック・あおぞら きょうしつ）
+{
+  // cafe: テーブルの うえの ごはん
+  for (const x of [tc(5), tc(7)]) for (const z of [tc(13), tc(16)]) {
+    for (const sx of [-.3, .3]) {
+      add(statics, G.cyl(.17, .14, .02, 20), M('#ffffff', { roughness: .3 }), x + sx, .79, z + (sx > 0 ? .12 : -.12));
+      add(statics, G.sphere(12), M(pick(['#d9973f', '#ff8fb0', '#ffe14a', '#7ad070'], mapRand), { roughness: .5 }), x + sx, .84, z + (sx > 0 ? .12 : -.12), .08, .05, .08);
+    }
+  }
+  // picnic
+  const chk = canvasTex(64, 64, (g) => { for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { g.fillStyle = (i + j) % 2 ? '#ffffff' : '#ff6b7a'; g.fillRect(i * 16, j * 16, 16, 16); } });
+  const chk2 = canvasTex(64, 64, (g) => { for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { g.fillStyle = (i + j) % 2 ? '#ffffff' : '#4fa8ff'; g.fillRect(i * 16, j * 16, 16, 16); } });
+  [[-40, -38.5, chk], [-35.5, -41.5, chk2], [-36.5, -35, chk]].forEach(([x, z, tx]) => {
+    add(statics, G.box(2.6, .03, 2.6), new THREE.MeshStandardMaterial({ map: tx, roughness: .9 }), x, .02, z).receiveShadow = true;
+    add(statics, G.box(.45, .3, .32), M('#b07a3a', { roughness: .8 }), x + .3, .17, z + .25);
+    add(statics, G.torus(.18, .02, Math.PI, 6, 12), M('#8a5a2a'), x + .3, .32, z + .25);
+    for (let k = 0; k < 4; k++) add(statics, G.cyl(.14, .12, .03, 16), M('#ffffff'), x - .4 + (k % 2) * .5, .05, z - .3 + Math.floor(k / 2) * .4);
+    for (let k = 0; k < 6; k++) add(statics, G.sphere(10), M(pick(['#ff4a4a', '#ffd34f', '#6ad04a', '#ffffff', '#ff9a3c'], mapRand), { roughness: .5 }), x - .45 + (k % 3) * .25, .09, z - .3 + Math.floor(k / 3) * .4, .05);
+    const i = toTile(x), j = toTile(z); blocked[i][j] = true;
+  });
+  // あおぞら きょうしつ（ちゅうしゃじょう の あと）
+  for (let i = 25; i <= 28; i++) for (let j = 22; j <= 27; j++) blocked[i][j] = true;
+  const bg = new THREE.Group(); bg.position.set(49, 0, 30.9);
+  add(bg, G.box(4.4, 2.3, .12), M('#8a5a3a', { roughness: .7 }), 0, 1.75, 0);
+  const boardTex = canvasTex(512, 256, (g) => { g.fillStyle = '#2f5a43'; g.fillRect(0, 0, 512, 256); g.fillStyle = '#ffffff'; g.font = `800 52px ${FONT}`; g.fillText('あいうえお', 30, 80); g.fillText('1 + 2 = 3', 30, 160); g.fillStyle = '#ffe14a'; g.fillText('★', 380, 150); g.fillStyle = '#ff9ab0'; g.fillText('🌸', 400, 90); });
+  add(bg, geo('planeB', () => new THREE.PlaneGeometry(1, 1)), new THREE.MeshStandardMaterial({ map: boardTex, roughness: .9 }), 0, 1.75, .07, 4.1, 2.0, 1);
+  for (const sx of [-2, 2]) add(bg, G.box(.1, 1.0, .1), M('#6a4a2a'), sx, .5, 0);
+  shadowAll(bg); statics.add(bg);
+  const wood = M('#d9a868', { roughness: .6 }), leg = M('#6a6f7a', { metalness: .5, roughness: .4 });
+  for (const z of [35.5, 39, 42.5]) for (const x of [45, 49, 53]) {
+    const d = new THREE.Group(); d.position.set(x, 0, z); statics.add(d);
+    add(d, G.box(1.0, .05, .55), wood, 0, .64, -.62);
+    for (const a of [-.45, .45]) for (const b of [-.85, -.4]) add(d, G.box(.04, .62, .04), leg, a, .31, b);
+    add(d, G.box(.42, .04, .4), wood, 0, .42, .02); add(d, G.box(.42, .4, .04), wood, 0, .64, .22);
+    for (const a of [-.18, .18]) for (const b of [-.15, .2]) add(d, G.box(.03, .42, .03), leg, a, .21, b);
+    add(d, G.box(.26, .03, .18), M(pick(['#3a6ad8', '#e05050', '#40a060', '#e0a020'], mapRand)), .22, .68, -.6);
+    add(d, G.box(.3, .015, .22), M('#ffffff'), -.12, .67, -.58);
+    shadowAll(d);
+  }
 }
 batchStatics(statics);
 finalizeSpots();
@@ -1385,6 +1409,7 @@ function updateNPC(n, dt, camPos) {
   const sp = n.state === 'flee' ? 4.4 : n.speed;
   switch (n.state) {
     case 'walk': case 'flee': {
+      if (n.panicDelay > 0) { n.panicDelay -= dt; break; }
       const p = n.path && n.path[n.pi];
       if (!p) { if (n.state === 'flee') { n.state = 'idle'; n.timer = 2; } else onArrive(n); break; }
       const dx = p.x - n.x, dz = p.z - n.z, d = Math.hypot(dx, dz);
@@ -1409,9 +1434,10 @@ function updateNPC(n, dt, camPos) {
       if (n.partner) n.trot = Math.atan2(n.partner.x - n.x, n.partner.z - n.z);
       if (n.timer <= 0) chooseGoal(n);
       break;
-    case 'startle': n.timer -= dt; if (n.timer <= 0) chooseGoal(n); break;
+    case 'pose': if (n.pose === 'swing') { const sw = swings[n.swing]; n.x = sw.wx; n.z = sw.wz - 1.9 * Math.sin(sw.piv.rotation.x); } break;
+    case 'startle': n.timer -= dt; if (n.timer <= 0) { if (n.staged) n.state = 'pose'; else chooseGoal(n); } break;
     case 'fall': n.timer -= dt; if (n.timer <= 0) { n.state = 'getup'; n.timer = .5; } break;
-    case 'getup': n.timer -= dt; if (n.timer <= 0) { showBubble(n, pick(['ひどいよ〜！', 'なにするの！', 'いたた…', 'えぇ〜!?'])); chooseGoal(n); } break;
+    case 'getup': n.timer -= dt; if (n.timer <= 0) { showBubble(n, pick(['ひどいよ〜！', 'なにするの！', 'いたた…', 'えぇ〜!?'])); if (n.staged) n.state = 'pose'; else chooseGoal(n); } break;
     case 'vendor': n.timer -= dt; if (n.timer <= 0) { n.timer = rand(6, 14); if (dist < 22) showBubble(n, pick(['いらっしゃい！', 'やすいよ〜！', 'とれたて だよ！', 'おいしいよ！'])); } break;
     case 'musician': n.timer -= dt; if (n.timer <= 0) { n.timer = rand(3, 6); if (dist < 25) showBubble(n, pick(['♪♪', '♪〜', '🎵'])); } break;
     case 'reveal': updateReveal(n, dt); return;
@@ -1425,6 +1451,7 @@ function updateNPC(n, dt, camPos) {
   root.position.x = n.x; root.position.z = n.z; root.rotation.y = n.rot;
   if (far) { P.body.visible = false; P.shadow.visible = false; if (n.bubble) n.bubble.visible = false; return; }
   P.body.visible = true; P.shadow.visible = true;
+  if (!n.staged && dist < 7 && game.state === 'play') { P.body.visible = false; P.shadow.visible = false; }
   P.face.visible = dist < 34;
   const wantShadow = save.quality === 'high' && dist < 30;
   if (n.shadowOn !== wantShadow) { n.shadowOn = wantShadow; P.body.traverse(o => { if (o.isMesh) o.castShadow = wantShadow; }); }
@@ -1434,8 +1461,10 @@ function updateNPC(n, dt, camPos) {
   const sw = Math.sin(n.ph) * n.amp * (moveSpeed > 2.5 ? .95 : .6);
   const mw = has(n, 'moonwalk') && n.state === 'walk' ? -1 : 1;
   let baseY = 0;
-  P.body.rotation.x = 0; P.body.position.set(0, 0, 0);
-  if (n.state === 'sit') {
+  P.body.rotation.set(0, 0, 0); P.body.position.set(0, 0, 0);
+  if (n.state === 'pose') {
+    baseY = poseAnim(n, P);
+  } else if (n.state === 'sit') {
     P.legL.rotation.x = P.legR.rotation.x = -1.45; P.armL.rotation.x = P.armR.rotation.x = -.35;
     baseY = (n.seat ? n.seat.y : .45) + .04 - .48 * n.spec.scale; P.body.position.z = -.05;
   } else if (n.state === 'fall') {
@@ -1457,7 +1486,7 @@ function updateNPC(n, dt, camPos) {
   // look around when idle
   if (!has(n, 'backFace')) {
     if (n.state === 'idle') P.head.rotation.y = Math.sin(n.t * .7) * .6;
-    else if (!n.spin) P.head.rotation.y = lerp(P.head.rotation.y, 0, Math.min(1, dt * 4));
+    else if (n.state !== 'pose' && !n.spin) P.head.rotation.y = lerp(P.head.rotation.y, 0, Math.min(1, dt * 4));
   }
   // tells (behavior)
   if (has(n, 'float') && n.state !== 'sit' && n.state !== 'fall') baseY += .55 + Math.sin(n.t * 2.2) * .1;
@@ -1488,7 +1517,8 @@ function updateNPC(n, dt, camPos) {
   if (n.nextBubble <= 0) {
     n.nextBubble = has(n, 'weirdSpeech') ? rand(4, 8) : rand(10, 25);
     if (dist < 20) {
-      if (n.state === 'chat') showBubble(n, pick(LINES_CHAT));
+      if (n.state === 'pose' && POSE_LINES[n.pose]) { if (R() < .6) showBubble(n, pick(POSE_LINES[n.pose])); n.nextBubble = rand(5, 14); }
+      else if (n.state === 'chat') showBubble(n, pick(LINES_CHAT));
       else if (n.state === 'talkObj') showBubble(n, pick(LINES_OBJ));
       else if (['idle', 'walk', 'sit', 'shop'].includes(n.state)) showBubble(n, npcLine(n));
     }
@@ -1497,12 +1527,12 @@ function updateNPC(n, dt, camPos) {
   if (n.bubble) {
     n.bubbleT -= dt;
     n.bubble.visible = n.bubbleT > 0 && dist < 26;
-    n.bubble.position.set(n.x, root.position.y + (n.state === 'sit' ? n.height - .45 : n.height) + .5, n.z);
+    n.bubble.position.set(n.x, root.position.y + (n.state === 'sit' || (n.state === 'pose' && SIT_POSES.has(n.pose)) ? n.height - .45 : n.height) + .5, n.z);
     n.bubble.material.opacity = clamp(n.bubbleT * 3, 0, 1);
   }
 }
 function npcBox(n, box) {
-  const s = n.spec.scale, h = n.state === 'sit' ? n.height - .4 : n.state === 'fall' ? .6 : n.height;
+  const s = n.spec.scale, h = n.state === 'sit' || (n.state === 'pose' && SIT_POSES.has(n.pose)) ? n.height - .4 : n.state === 'fall' ? .6 : n.height;
   const y0 = n.root.position.y;
   const r = .36 * s;
   box.min.set(n.x - r, y0, n.z - r); box.max.set(n.x + r, y0 + h, n.z + r);
@@ -1520,7 +1550,7 @@ function populate() {
   { const n = spawnNPC(randomSpec({ type: 'adult', hat: 'tophat', acc: null, outfit: 'suit' }), tc(16) + 1.2, tc(17) + .3, 'musician'); n.state = 'musician'; n.rot = n.trot = Math.PI; n.timer = 2;
     const gt = new THREE.Group(); gt.position.set(0, .78, .24); gt.rotation.set(0, 0, .9); n.parts.body.add(gt);
     add(gt, G.sphere(16), M('#c0703a', { roughness: .35 }), 0, -.08, 0, .16, .2, .06); add(gt, G.box(.05, .42, .03), M('#5a3a1a'), 0, .22, 0); }
-  const count = POP();
+  const count = save.quality === 'high' ? 16 : 12;
   for (let k = 0; k < count; k++) {
     const [i, j] = pick(walkTiles);
     const n = spawnNPC(randomSpec(), tc(i) + rand(-1, 1), tc(j) + rand(-1, 1));
@@ -1638,7 +1668,7 @@ function fireAt(clientX, clientY, assist = false) {
   let res = castRay(raycaster.ray);
   if (assist && res.type !== 'npc') {
     const dir = raycaster.ray.direction, o = raycaster.ray.origin;
-    const rad = Math.atan((game.scanning ? scopeR() : 30) / (innerHeight / 2) * Math.tan(camera.fov * Math.PI / 360));
+    const rad = Math.atan(26 / (innerHeight / 2) * Math.tan(camera.fov * Math.PI / 360));
     let best = null, ba = rad;
     for (const n of npcs) {
       if (n.removed || n.fixed || n.state === 'reveal') continue;
@@ -1667,11 +1697,8 @@ function fireAt(clientX, clientY, assist = false) {
   else {
     SFX.zap();
     for (const n of npcs) {
-      if (n.removed || n.fixed || n.state === 'reveal' || n.state === 'fall' || n.state === 'sit') continue;
-      const d = Math.hypot(n.x - res.point.x, n.z - res.point.z);
-      if (d > 3.2) continue;
-      if (n.spec.alien) { if (n.state !== 'flee') alienFlee(n); }
-      else if (n.state !== 'startle') { releaseSpots(n); n.state = 'startle'; n.timer = 1.1; showBubble(n, pick(['わっ！', 'きゃっ！', 'なに!?', 'びっくり！']), 1.6); }
+      if (n.removed || n.fixed || n.state === 'reveal') continue;
+      if (Math.hypot(n.x - res.point.x, n.z - res.point.z) < 2.5) startle(n);
     }
   }
 }
@@ -1686,25 +1713,24 @@ function hitNPC(n, point) {
   if (n.state === 'reveal') return;
   if (n.spec.alien) {
     releaseSpots(n);
-    n.state = 'reveal'; n.revealT = 0; n.revealSwap = false;
+    n.state = 'reveal'; n.revealT = 0; n.revealSwap = false; n.staged = false;
     game.combo = game.comboT > 0 ? game.combo + 1 : 1; game.comboT = 25;
     const gain = 100 * game.combo;
     game.score += gain; game.caught++; game.aliensLeft--;
-    const tell = n.spec.tells[0];
-    save.found[tell] = (save.found[tell] || 0) + 1; persist();
     SFX.alien();
-    showCard(`👽 エイリアン かくほ！ +${gain}${game.combo > 1 ? `（${game.combo}れんぞく）` : ''}`, `てがかり：${tellLabel(tell)}`, false);
-    const w = game.waveList.find(o => o.n === n); if (w) w.got = true;
+    showCard(`👽 エイリアン かくほ！ +${gain}${game.combo > 1 ? `（${game.combo}れんぞく）` : ''}`, game.aliensLeft > 0 ? `のこり ${game.aliensLeft}たい！` : 'この ばしょは ぜんぶ つかまえた！', false);
+    const w = game.sceneAliens.find(o => o.n === n); if (w) w.got = true;
+    later(() => panicAround(n.x, n.z, n), 450);
     updateHUD();
-    if (game.aliensLeft <= 0) later(waveClear, 2600);
+    if (game.aliensLeft <= 0) later(sceneClear, 3200);
   } else {
     if (n.state === 'fall' || n.state === 'getup') return;
-    releaseSpots(n);
+    if (!n.staged) releaseSpots(n);
     n.state = 'fall'; n.timer = 2.5;
     showBubble(n, pick(['いたっ！', 'ぎゃっ！', 'うわぁ！']), 2);
     SFX.human(); SFX.ouch();
     game.hearts--; game.score = Math.max(0, game.score - 50); game.combo = 0;
-    showCard('😣 にんげん だった…！', 'ハート −1　よく みてから うとう', true);
+    showCard('😣 にんげん だった…！', 'ハート −1　スキャンで たしかめてから うとう', true);
     $('#flash').style.opacity = 1; setTimeout(() => $('#flash').style.opacity = 0, 250);
     updateHUD();
     if (game.hearts <= 0) later(gameOver, 1200);
@@ -1746,7 +1772,7 @@ function updateReveal(n, dt) {
     }
     if (t > 3.3 && !n.gone) { n.gone = true; n.root.visible = false; if (n.bubble) n.bubble.visible = false; }
     if (t > 3.4) { u.position.y += dt * (40 + (t - 3.4) * 120); u.position.x += dt * 30; }
-    if (t > 5) { scene.remove(u); scene.remove(b); removeNPC(n); setTimeout(() => { if (game.state !== 'title') spawnHidden(); }, 5000); }
+    if (t > 5) { scene.remove(u); scene.remove(b); removeNPC(n); }
   }
 }
 
@@ -1801,188 +1827,289 @@ function updateTOD(dt) {
 }
 
 // ===================================================================
+// scenes（ばめん）: いろんな ひとが なにかを している ところへ じどうで いどう
+// ===================================================================
+const faceTo = (x, z, fx, fz) => Math.atan2(fx - x, fz - z);
+const SIT_POSES = new Set(['eat', 'study', 'read', 'phone', 'sitTalk', 'picnic', 'dig', 'swing']);
+const POSE_LINES = {
+  eat: ['おいしい〜！', 'もぐもぐ', 'いただきます！', 'うまっ！', 'おかわり！'],
+  picnic: ['いい てんき！', 'おべんとう おいしい！', 'もぐもぐ', 'ピクニック たのしい！'],
+  study: ['うーん…', 'わかった！', 'かけた！', 'むずかしいな〜', 'はい！'],
+  read: ['この ほん おもしろい', 'ふむふむ…'],
+  teacher: ['ここ だいじだよ〜', 'みんな わかったかな？', 'よく できました！'],
+  phone: ['バス まだかな', 'ふむふむ'], standPhone: ['あ、メール きた', 'しゃしん とろう'],
+  sitTalk: ['きょう なに たべる？', 'あはは！'], wait: ['バス まだかな', 'ねむい…', 'はやく こないかな'],
+  chat: ['それでね〜', 'ほんとに!?', 'あはは！', 'うんうん', 'へぇ〜', 'しってる？'],
+  jump: ['わーい！', 'ぴょーん！', 'たのしい〜！'], dance: ['♪♪', 'ダンス ダンス！', 'ノリノリ〜♪'],
+  swing: ['たかーい！', 'びゅーん！'], wave: ['やっほー！', 'すべるよ〜！'], hang: ['うんしょ！', 'みてみて！'],
+  dig: ['おやま つくろ！', 'トンネル できた！'], ball: ['いくよ〜！', 'えいっ！', 'ナイス キャッチ！'],
+  shop: ['これ ください！', 'おいしそう！', 'いくら ですか？'], waiter: ['いらっしゃいませ！', 'おまたせ しました〜'],
+};
+function ringPeople(cx, cz, angles, rad, pose, extra = {}) { return angles.map(a => ({ x: cx + Math.sin(a) * rad, z: cz + Math.cos(a) * rad, r: a + Math.PI, pose, ...extra })); }
+const SCENES = [
+  { name: 'カフェで ごはん', tod: 0, cam: [-24.4, 2.15, 10.8], look: [-35, .7, -1], msg: 'カフェで みんなが ごはんを たべているよ。',
+    slots: () => [
+      ...seats.filter(s => Math.abs(s.x + 34) < 6 && Math.abs(s.z) < 9).map(s => ({ x: s.x, z: s.z, r: s.face, pose: 'eat', seat: s, item: 'food' })),
+      { x: -34, z: -2.6, r: Math.PI * .75, pose: 'waiter', item: 'tray' },
+      { x: -33.6, z: 1.6, r: faceTo(-33.6, 1.6, -34.6, 2.6), pose: 'chat' }, { x: -34.6, z: 2.6, r: faceTo(-34.6, 2.6, -33.6, 1.6), pose: 'chat', item: 'drink' },
+    ] },
+  { name: 'おそとで おべんきょう', tod: 0, cam: [55, 3.6, 30.6], look: [48.5, .5, 39.5], msg: 'おそとで おべんきょう ちゅう。',
+    slots: () => { const a = []; for (const z of [35.5, 39, 42.5]) for (const x of [45, 49, 53]) a.push({ x, z, r: Math.PI, pose: (x + z) % 3 < 1 ? 'read' : 'study', seatY: .42, type: 'kid', item: (x + z) % 3 < 1 ? 'book' : 'pencil' }); a.push({ x: 51.6, z: 33.4, r: faceTo(51.6, 33.4, 48.5, 39), pose: 'teacher', type: 'adult', item: 'pointer' }); return a; } },
+  { name: 'こうえんで あそぶ', tod: 1, cam: [33.4, 2.7, 3.6], look: [42.5, .6, -.4], msg: 'こうえんで みんな あそんでいるね。',
+    slots: () => [
+      { swing: 0, pose: 'swing', r: -Math.PI / 2, type: 'kid' }, { swing: 1, pose: 'swing', r: -Math.PI / 2, type: 'kid' },
+      { x: 34, z: -6, r: -Math.PI / 2, pose: 'wave', base: 2.05, type: 'kid' },
+      { x: 35.1, z: 6.5, r: -Math.PI / 2, pose: 'hang', base: .95, type: 'kid' },
+      { x: 47, z: 6.0, r: faceTo(47, 6, 48.8, 7), pose: 'dig', ground: .32, type: 'kid' }, { x: 48.8, z: 7.1, r: faceTo(48.8, 7.1, 47, 6), pose: 'dig', ground: .32, type: 'kid' },
+      { x: 40, z: -1.8, r: -Math.PI / 2, pose: 'jump', type: 'kid' }, { x: 41.8, z: 1.6, r: -Math.PI / 2 - .3, pose: 'jump', type: 'kid' },
+      { x: 38.2, z: 4, r: Math.PI / 2, pose: 'ball', type: 'kid', item: 'ball' }, { x: 42.4, z: 4, r: -Math.PI / 2, pose: 'ball', type: 'kid' },
+      { x: 44.5, z: -3.2, r: -Math.PI / 2 - .4, pose: 'wait', type: 'adult' },
+    ] },
+  { name: 'ひろばで ピクニック', tod: 1, cam: [-31.2, 3.0, -32.6], look: [-38.4, .3, -38.6], msg: 'ひろばで ピクニック！ みんな おべんとうを たべているよ。',
+    slots: () => [
+      ...ringPeople(-40, -38.5, [Math.PI - 1.4, Math.PI, Math.PI + 1.4], 1.05, 'picnic', { item: 'food' }),
+      ...ringPeople(-35.5, -41.5, [Math.PI - 1.2, Math.PI + .2, Math.PI + 1.5], 1.05, 'picnic', { item: 'food' }),
+      ...ringPeople(-36.5, -35, [Math.PI - 1.5, Math.PI - .2, Math.PI + 1.2], 1.05, 'picnic', { item: 'food' }),
+      { x: -42.5, z: -34.5, r: .4, pose: 'jump', type: 'kid' },
+    ] },
+  { name: 'いちばで おかいもの', tod: 2, cam: [-4.8, 2.6, 40.3], look: [4, .8, 40], msg: 'いちばで おかいもの ちゅう。',
+    slots: () => [
+      { x: -6.7, z: 35.6, r: Math.PI, pose: 'shop', item: 'bag' }, { x: -5.1, z: 35.7, r: Math.PI + .2, pose: 'shop' },
+      { x: 5.3, z: 35.5, r: Math.PI, pose: 'shop', item: 'bag' }, { x: 6.9, z: 35.7, r: Math.PI - .2, pose: 'shop', type: 'kid' },
+      { x: -6, z: 44.5, r: 0, pose: 'shop', item: 'bag' }, { x: 6.2, z: 44.4, r: 0, pose: 'shop' },
+      { x: -.2, z: 39.3, r: faceTo(-.2, 39.3, .2, 40.9), pose: 'chat' }, { x: .2, z: 40.9, r: faceTo(.2, 40.9, -.2, 39.3), pose: 'chat', item: 'bag' },
+      { x: 2.2, z: 42.6, r: -Math.PI / 2 - .4, pose: 'standPhone' },
+    ] },
+  { name: 'バスていで まつ', tod: 3, cam: [-2, 3.1, -15.2], look: [-2.2, .9, -26], msg: 'バスていで バスを まっているよ。',
+    slots: () => [
+      ...seats.filter(s => Math.abs(s.x + 2) < 1.5 && Math.abs(s.z + 26.45) < .5).map((s, k) => ({ x: s.x, z: s.z, r: s.face, pose: ['phone', 'read', 'sitTalk'][k % 3], seat: s, item: k % 3 === 1 ? 'book' : null })),
+      { x: -4.8, z: -25.5, r: .2, pose: 'wait' }, { x: .7, z: -25.4, r: -.2, pose: 'standPhone' }, { x: 1.9, z: -25.8, r: -.4, pose: 'wait', type: 'kid' },
+      { x: -6.4, z: -25.7, r: faceTo(-6.4, -25.7, -7.4, -25.2), pose: 'chat' }, { x: -7.4, z: -25.2, r: faceTo(-7.4, -25.2, -6.4, -25.7), pose: 'chat' },
+    ] },
+  { name: 'よるの ふんすい ひろば', tod: 4, cam: [0, 3.2, 14], look: [0, 1, 3.5], msg: 'よるの ふんすい ひろば。 ダンスを している ひとも いるね。',
+    slots: () => [
+      { x: -2.6, z: 5.6, r: .2, pose: 'dance' }, { x: -1.0, z: 6.4, r: -.1, pose: 'dance', type: 'kid' },
+      { x: 3, z: 5.2, r: faceTo(3, 5.2, 3.3, 6.2), pose: 'chat' }, { x: 4.3, z: 6.2, r: faceTo(4.3, 6.2, 3.2, 5.9), pose: 'chat' }, { x: 2.4, z: 6.7, r: faceTo(2.4, 6.7, 3.4, 5.8), pose: 'chat', item: 'drink' },
+      { x: .9, z: 7.8, r: .1, pose: 'jump', type: 'kid' }, { x: -4.8, z: 7, r: .5, pose: 'wait', type: 'elder' }, { x: 5.6, z: 8.4, r: -.4, pose: 'standPhone' },
+    ] },
+];
+
+// もちもの
+function makeItem(kind) {
+  const g = new THREE.Group();
+  switch (kind) {
+    case 'food': {
+      const k = pick(['burger', 'onigiri', 'icecream', 'cake']);
+      if (k === 'burger') { add(g, G.hemi(.08, Math.PI / 2), M('#d9973f', { roughness: .5 }), 0, .02, 0); add(g, G.cyl(.085, .085, .025, 14), M('#6a3a22'), 0, 0, 0); add(g, G.cyl(.09, .09, .01, 14), M('#5cc040'), 0, .015, 0); add(g, G.cyl(.08, .08, .02, 14), M('#d9973f'), 0, -.025, 0); }
+      else if (k === 'onigiri') { add(g, G.cone(.09, .14, 3), M('#ffffff', { roughness: .8 }), 0, 0, 0).rotation.x = Math.PI / 2; add(g, G.box(.1, .05, .02), M('#1d2a1d'), 0, -.03, .02); }
+      else if (k === 'icecream') { add(g, G.cone(.045, .14, 12), M('#d9a35a'), 0, -.06, 0).rotation.x = Math.PI; add(g, G.sphere(14), M(pick(['#ffb3c8', '#fff3d6', '#a5e6b0'])), 0, .04, 0, .06); }
+      else { add(g, G.box(.12, .08, .1), M('#fff3e0'), 0, 0, 0); add(g, G.box(.12, .02, .1), M('#ff8fb0'), 0, .05, 0); add(g, G.sphere(10), M('#e8243a'), 0, .08, 0, .025); }
+      break;
+    }
+    case 'drink': add(g, G.cyl(.04, .035, .13, 12), M(pick(['#ff6a6a', '#4fb0ff', '#ffd34f'])), 0, 0, 0); add(g, G.cyl(.005, .005, .08, 4), M('#fff'), .015, .09, 0); break;
+    case 'tray': add(g, G.cyl(.2, .2, .02, 20), M('#c0c6d0', { metalness: .6, roughness: .3 }), 0, 0, 0); add(g, G.cyl(.04, .035, .1, 12), M('#ffffff'), -.06, .06, 0); add(g, G.cyl(.04, .035, .1, 12), M('#ffffff'), .07, .06, .03); g.position.set(0, -.4, .12); return g;
+    case 'book': add(g, G.box(.2, .14, .02), M(pick(['#3a6ad8', '#e05050', '#40a060', '#e0a020'])), 0, 0, 0).rotation.x = -.6; add(g, G.box(.18, .13, .025), M('#fffaf0'), 0, .005, .01).rotation.x = -.6; g.position.set(-.08, -.42, .14); return g;
+    case 'pencil': add(g, G.cyl(.008, .008, .12, 6), M('#ffcc33'), 0, 0, 0).rotation.x = .8; break;
+    case 'pointer': add(g, G.cyl(.008, .01, .5, 6), M('#8a5a3a'), 0, -.2, .05).rotation.x = .3; break;
+    case 'ball': add(g, G.sphere(16), M('#ff5a5a', { roughness: .35 }), 0, -.05, .06, .11); break;
+    case 'bag': add(g, G.box(.2, .22, .1), M(pick(['#f2e6d0', '#e8c070', '#ffffff'])), 0, -.16, 0); add(g, G.torus(.06, .008, Math.PI, 6, 10), M('#8a5a3a'), 0, -.04, 0); for (let k = 0; k < 3; k++) add(g, G.sphere(8), M(pick(['#ff4a4a', '#ffb02a', '#6ad04a'])), -.05 + k * .05, -.03, 0, .035); break;
+  }
+  g.position.set(0, -.42, .06);
+  return g;
+}
+
+function stageNPC(o, isAlien) {
+  const spec = randomSpec({ type: o.type || (R() < .2 ? 'kid' : R() < .2 ? 'elder' : 'adult'), alien: isAlien, tells: [] });
+  if (o.item || o.pose === 'swing' || o.pose === 'hang' || o.pose === 'ball' || o.pose === 'dance' || o.pose === 'wave') spec.acc = null;
+  if (spec.acc === 'balloon' && SIT_POSES.has(o.pose)) spec.acc = null;
+  if (o.pose === 'teacher') { spec.outfit = 'suit'; spec.glasses = true; }
+  spec.jogger = false; spec.cane = false;
+  const x = o.x ?? swings[o.swing].wx, z = o.z ?? swings[o.swing].wz;
+  const n = spawnNPC(spec, x, z);
+  n.staged = true; n.state = 'pose'; n.pose = o.pose; n.rot = n.trot = o.r || 0;
+  n.seatY = o.seatY ?? .45; n.base0 = o.base || 0; n.ground = o.ground || 0; n.swing = o.swing;
+  n.t = R() * 20; n.nextBubble = rand(2, 10);
+  if (o.seat) { o.seat.occ = n; n.seat = o.seat; }
+  if (o.item) { const it = makeItem(o.item); (o.item === 'tray' || o.item === 'bag' ? n.parts.armL : n.parts.armR).add(it); }
+  n.root.position.set(x, 0, z); n.root.rotation.y = n.rot;
+  return n;
+}
+function poseAnim(n, P) {
+  const t = n.t, s = n.spec.scale;
+  P.armL.rotation.set(0, 0, -.12); P.armR.rotation.set(0, 0, .12); P.legL.rotation.set(0, 0, 0); P.legR.rotation.set(0, 0, 0); P.head.rotation.set(0, 0, 0);
+  const sitY = n.seatY + .04 - .48 * s, groundY = n.ground + .06 - .48 * s;
+  const sitLegs = () => { P.legL.rotation.x = P.legR.rotation.x = -1.45; };
+  const bite = () => { const b = Math.max(0, Math.sin(t * 2.2)); P.armR.rotation.x = -.9 - b * 1.35; P.armR.rotation.z = -.15 * b; P.armL.rotation.x = -.6; P.head.rotation.x = .08 - b * .12; };
+  switch (n.pose) {
+    case 'eat': sitLegs(); bite(); return sitY;
+    case 'picnic': P.legL.rotation.x = P.legR.rotation.x = -1.5; P.legL.rotation.z = .15; P.legR.rotation.z = -.15; bite(); return groundY;
+    case 'study': sitLegs(); P.armR.rotation.x = -1.0 + Math.sin(t * 9) * .07; P.armR.rotation.z = -.15; P.armL.rotation.x = -.95; P.head.rotation.x = Math.sin(t * .45) > .85 ? -.15 : .4; return sitY;
+    case 'read': sitLegs(); P.armR.rotation.x = P.armL.rotation.x = -1.15; P.armR.rotation.z = -.35; P.armL.rotation.z = .35; P.head.rotation.x = .35; P.head.rotation.y = Math.sin(t * .8) * .1; return sitY;
+    case 'phone': sitLegs(); P.armR.rotation.x = -1.35; P.armR.rotation.z = -.2; P.head.rotation.x = .3; return sitY;
+    case 'sitTalk': sitLegs(); P.armR.rotation.x = -.6 + Math.sin(t * 4) * .35; P.head.rotation.y = Math.sin(t * .6) * .5; return sitY;
+    case 'wait': P.head.rotation.y = Math.sin(t * .5) * .7; P.armL.rotation.x = Math.sin(t * .3) > .7 ? -1.2 : 0; return 0;
+    case 'standPhone': P.armR.rotation.x = -1.3; P.armR.rotation.z = -.2; P.head.rotation.x = .28; return 0;
+    case 'chat': P.armR.rotation.x = -.6 + Math.sin(t * 4) * .35; P.armR.rotation.z = .3; P.head.rotation.x = Math.sin(t * 3) * .06; return 0;
+    case 'teacher': P.armR.rotation.x = -1.8 + Math.sin(t * 1.4) * .35; P.armR.rotation.z = .25; P.head.rotation.y = Math.sin(t * .6) * .5; return 0;
+    case 'waiter': P.armL.rotation.x = -1.45; P.armL.rotation.z = .2; P.head.rotation.y = Math.sin(t * .7) * .4; return Math.abs(Math.sin(t * 2)) * .01;
+    case 'jump': { const j = Math.abs(Math.sin(t * 4.2)); P.armL.rotation.x = P.armR.rotation.x = -1.2 - j * 1.5; P.legL.rotation.x = P.legR.rotation.x = -.3 * (1 - j); return j * .42; }
+    case 'dance': P.body.rotation.y = Math.sin(t * 3) * .6; P.armL.rotation.x = -2.2 + Math.sin(t * 6) * .7; P.armR.rotation.x = -2.2 - Math.sin(t * 6) * .7; P.legL.rotation.x = Math.max(0, Math.sin(t * 6)) * -.5; P.legR.rotation.x = Math.max(0, -Math.sin(t * 6)) * -.5; return Math.abs(Math.sin(t * 6)) * .07;
+    case 'swing': { const a = swings[n.swing].piv.rotation.x; P.legL.rotation.x = P.legR.rotation.x = -1.2 - a * .8; P.armL.rotation.x = P.armR.rotation.x = -2.8; return 2.4 - 1.9 * Math.cos(a) + .07 - .48 * s; }
+    case 'wave': P.armR.rotation.x = -2.8; P.armR.rotation.z = .3 + Math.sin(t * 8) * .35; return n.base0;
+    case 'hang': P.armL.rotation.x = P.armR.rotation.x = -3.05; P.legL.rotation.x = Math.sin(t * 3) * .4; P.legR.rotation.x = -Math.sin(t * 3) * .4; return n.base0 + Math.sin(t * 3) * .02;
+    case 'dig': P.legL.rotation.x = P.legR.rotation.x = -1.4; P.armR.rotation.x = -.8 + Math.sin(t * 5) * .45; P.armL.rotation.x = -.6 + Math.cos(t * 5) * .3; P.head.rotation.x = .45; return groundY;
+    case 'ball': { const b = Math.sin(t * 2.6); P.armL.rotation.x = P.armR.rotation.x = -1.1 - Math.max(0, b) * 1.4; P.armL.rotation.z = .3; P.armR.rotation.z = -.3; return Math.max(0, b) * .05; }
+    case 'shop': P.armR.rotation.x = -.8 + Math.sin(t * 2) * .25; P.head.rotation.x = .12; P.head.rotation.y = Math.sin(t * .5) * .3; return 0;
+  }
+  return 0;
+}
+
+// ===================================================================
 // game flow
 // ===================================================================
-const game = { state: 'title', wave: 0, score: 0, hearts: 5, caught: 0, aliensLeft: 0, waveCount: 0, waveTime: 0, combo: 0, comboT: 0, hintCD: 0, hint: null, scanE: 100, scanning: false, zoom: false, between: false, titleT: 0, lockBeep: 0, beepT: 0 };
+const game = { state: 'title', scene: 0, score: 0, hearts: 5, caught: 0, aliensLeft: 0, sceneAliens: [], combo: 0, comboT: 0, mode: 'scan', scan: null, moving: false, titleT: 0, beepT: 0, clearing: false };
 const MAX_HEARTS = 5;
-function tellsForWave(w) {
-  return Object.keys(TELLS);
-}
+const camCur = { p: new THREE.Vector3(38, 22, 0), t: new THREE.Vector3(0, 2, 0) };
+let camMove = null;
 function startGame() {
   ensureAudio();
   game.session = (game.session || 0) + 1;
-  Object.assign(game, { state: 'play', wave: 0, score: 0, hearts: MAX_HEARTS, caught: 0, combo: 0, comboT: 0, hintCD: 0, hint: null, scanE: 100, scanning: false, zoom: false, between: false });
-  Object.assign(player, { x: 0, z: 10, y: 0, vy: 0, yaw: 0, pitch: -.04 });
+  Object.assign(game, { state: 'play', scene: 0, score: 0, hearts: MAX_HEARTS, caught: 0, combo: 0, comboT: 0, scan: null, moving: false, clearing: false });
+  camCur.p.copy(camera.position); camCur.t.set(0, 2, 0);
   populate();
-  for (const n of npcs) { const d = Math.hypot(n.x - player.x, n.z - player.z); if (d < 3) { n.x += 4; } }
+  setMode('scan');
   showScreen(null);
   $('#hud').classList.remove('hidden');
-  startWave(1);
+  goScene(0);
 }
-function startWave(w) {
-  game.wave = w; game.between = false; game.waveTime = 0;
-  setTOD((w - 1) % TOD.length, w === 1);
-  const count = [3, 3, 4, 4, 5, 5, 6][Math.min(w - 1, 6)];
-  const pool = tellsForWave(w);
-  updateFrustum();
-  const cands = npcs.filter(n => !n.fixed && !n.spec.alien && !n.removed && !['fall', 'getup', 'reveal'].includes(n.state));
-  const score = (n) => { const d = Math.hypot(n.x - player.x, n.z - player.z); return (inView(n.x, n.z) && d < 50 ? 0 : 100) + Math.min(d, 60) + R() * 25; };
-  cands.sort((a, b) => score(b) - score(a));
-  const chosen = [], used = [];
-  for (const n of cands) {
-    if (chosen.length >= count) break;
-    if (Math.hypot(n.x - player.x, n.z - player.z) < 12) continue;
-    if (chosen.some(o => Math.hypot(o.x - n.x, o.z - n.z) < 10) && cands.length > count * 3) continue;
-    chosen.push(n);
-  }
-  const telled = [];
-  for (const n of chosen) {
-    let tell = pick(pool.filter(t => !used.includes(t))) || pick(pool); used.push(tell);
-    const spec = Object.assign({}, n.spec, { alien: true, tells: [tell], subtle: false, alienColor: pick(ALIEN_COLORS), alienEyes: pick([1, 2, 3]), herring: null });
-    if (tell === 'threeEyes') { if (['bob', 'long', 'afro'].includes(spec.hairStyle)) spec.hairStyle = 'short'; if (['cap', 'beanie', 'bucket'].includes(spec.hat)) spec.hat = null; spec.glasses = false; }
-    if (spec.jogger && (tell === 'talkObj' || tell === 'moonwalk')) spec.jogger = false;
-    rebuildNPC(n, spec); releaseSpots(n); chooseGoal(n);
-    telled.push(tell);
-  }
-  // herrings
-  if (false) {
-    const hn = 0;
-    const rest = cands.filter(n => !chosen.includes(n) && !n.spec.herring).slice(0, hn);
-    rest.forEach((n, k) => rebuildNPC(n, Object.assign({}, n.spec, { herring: k % 2 ? 'green' : 'headband' })));
-  }
-  game.aliensLeft = chosen.length; game.waveCount = chosen.length;
-  game.waveList = chosen.map(n => ({ n, tell: n.spec.tells[0], got: false }));
-  if (w > 1) ufoFlyby();
-  const list = [...new Set(telled)].map(tellLabel).join('、');
-  const msgs = w === 1
-    ? `まちに エイリアンが ${chosen.length}たい かくれているよ！ しるしは ${list}。 まんなかの まるを あわせて ${isTouch ? '⚡ビーム ボタン' : 'スペースキー'}で うってね！ 📡スキャンで のぞくと エイリアンが みどりいろに みえるよ。`
-    : `UFO が また きたよ！ こんどは ${chosen.length}たい。 しるしは ${list}。`;
-  radio(msgs, 9);
+function goScene(k) {
+  game.scene = k; game.clearing = false;
+  const S = SCENES[k % SCENES.length];
+  // まえの ばめんの ひとたちは ふつうに あるきだす
+  for (const n of npcs) if (n.staged && n.state !== 'reveal') { n.staged = false; n.state = 'idle'; n.timer = rand(.5, 4); }
+  setTOD(S.tod, k === 0);
+  const slots = S.slots();
+  const count = Math.min(3, 1 + Math.floor(k / 2), Math.max(1, slots.length - 4));
+  const alienIdx = new Set(); while (alienIdx.size < count) alienIdx.add(Math.floor(R() * slots.length));
+  game.sceneAliens = [];
+  slots.forEach((o, i) => { const n = stageNPC(o, alienIdx.has(i)); if (n.spec.alien) game.sceneAliens.push({ n, got: false }); });
+  game.aliensLeft = count;
+  camMove = { p0: camCur.p.clone(), t0: camCur.t.clone(), p1: new THREE.Vector3(...S.cam), t1: new THREE.Vector3(...S.look), k: 0 };
+  game.moving = true; game.scan = null;
+  $('#waveTxt').textContent = `ばめん ${k + 1}`;
+  $('#todTxt').textContent = S.name;
   updateHUD();
-  if (DEBUG) console.log('aliens', chosen.map(n => [n.spec.tells[0], n.x.toFixed(0), n.z.toFixed(0)]));
+  if (DEBUG) console.log('aliens', game.sceneAliens.map(o => [o.n.x.toFixed(1), o.n.z.toFixed(1), o.n.pose]));
+}
+function onArriveScene() {
+  const S = SCENES[game.scene % SCENES.length];
+  radio(`${S.msg} この なかに エイリアンが ${game.aliensLeft}たい まぎれているよ！ 📡スキャンで がめんを タッチして さがして、⚡ビームに きりかえて タッチで つかまえよう！`, 8);
 }
 // timers tied to the current play session (ignored after quitting / restarting)
 function later(fn, ms) { const sid = game.session; setTimeout(() => { if (game.session === sid && (game.state === 'play' || game.state === 'pause')) fn(); }, ms); }
-function waveClear() {
+function sceneClear() {
   if (game.hearts <= 0) return;
-  game.between = true;
-  const bonus = Math.max(0, Math.round((240 - game.waveTime) * 2));
-  game.score += 200 + bonus;
+  game.clearing = true;
+  game.score += 100;
   const healed = game.hearts < MAX_HEARTS; game.hearts = Math.min(MAX_HEARTS, game.hearts + 1);
   SFX.clear();
-  showCard(`🎉 WAVE ${game.wave} クリア！`, `ボーナス +${200 + bonus}${healed ? '　ハート +1' : ''}`, false, 3.5);
-  radio('おみごと！ でも まだ はんのうが のこっている…。じかんが すすむと みつけにくく なるぞ。', 5);
+  showCard(`🎉 ばめん ${game.scene + 1} クリア！`, `ボーナス +100${healed ? '　ハート +1' : ''}`, false, 3);
+  radio('やったね！ つぎの ばしょへ いくよ！', 3.5);
   updateHUD();
-  later(() => startWave(game.wave + 1), 6000);
+  later(() => goScene(game.scene + 1), 3800);
 }
 function gameOver() {
   game.state = 'over';
   const newBest = game.score > save.best;
-  save.best = Math.max(save.best, game.score); save.bestWave = Math.max(save.bestWave, game.wave); persist();
-  $('#rScore').textContent = game.score; $('#rWave').textContent = game.wave; $('#rCaught').textContent = game.caught;
+  save.best = Math.max(save.best, game.score); save.bestWave = Math.max(save.bestWave, game.scene + 1); persist();
+  $('#rScore').textContent = game.score; $('#rWave').textContent = game.scene + 1; $('#rCaught').textContent = game.caught;
   $('#rBest').textContent = newBest ? '🏆 ハイスコア こうしん！' : `ハイスコア ${save.best}`;
-  game.scanning = false; game.zoom = false;
+  game.scan = null;
   showScreen('#overOv');
 }
 function goTitle() {
   game.state = 'title'; game.session = (game.session || 0) + 1;
   $('#hud').classList.add('hidden');
   showScreen('#title');
-  $('#bestTxt').textContent = save.best ? `ハイスコア ${save.best}（ウェーブ ${save.bestWave}）` : '';
+  $('#bestTxt').textContent = save.best ? `ハイスコア ${save.best}（ばめん ${save.bestWave}）` : '';
   setTOD(0, true);
   populate();
 }
 function showScreen(sel) { for (const s of ['#title', '#howOv', '#pauseOv', '#overOv']) $(s).classList.toggle('hidden', s !== sel); }
 function pause(on) {
-  if (on && game.state === 'play') { game.state = 'pause'; renderTellList(); syncSettings(); showScreen('#pauseOv'); game.scanning = false; keys.KeyE = false; }
+  if (on && game.state === 'play') { game.state = 'pause'; syncSettings(); showScreen('#pauseOv'); game.scan = null; }
   else if (!on && game.state === 'pause') { game.state = 'play'; showScreen(null); last = performance.now(); }
-}
-function renderTellList() {
-  $('#tells').innerHTML = Object.keys(TELLS).map(k => `<div class="${save.found[k] ? '' : 'no'}">${save.found[k] ? '✓' : '？'} ${save.found[k] ? TELLS[k].n : '？？？'}</div>`).join('');
 }
 let radioTimer = 0;
 function radio(text, dur = 5) { $('#radioTxt').textContent = text; $('#radio').classList.add('show'); radioTimer = dur; SFX.radio(); }
 let cardTimer = 0;
 function showCard(h, p, bad, dur = 2.8) { $('#cardH').textContent = h; $('#cardP').textContent = p; const c = $('#card'); c.classList.toggle('bad', bad); c.classList.add('show'); cardTimer = dur; }
 function updateHUD() {
-  $('#waveTxt').textContent = `WAVE ${game.wave}`;
   $('#scoreTxt').textContent = `${game.score.toLocaleString()} てん`;
   $('#hearts').textContent = '❤️'.repeat(Math.max(0, game.hearts)) + '🤍'.repeat(Math.max(0, MAX_HEARTS - game.hearts));
-  $('#aliens').innerHTML = (game.waveList || []).map(o => `<span class="${o.got ? 'got' : ''}">👽<i>${TELLS[o.tell].e}</i></span>`).join('');
-  const b = $('#bHint'); if (b) { b.disabled = game.hintCD > 0; b.innerHTML = game.hintCD > 0 ? `<span class="ic">💡</span>${Math.ceil(game.hintCD)}` : '<span class="ic">💡</span>ヒント'; }
+  $('#aliens').innerHTML = game.sceneAliens.map(o => `<span class="${o.got ? 'got' : ''}">👽</span>`).join('');
 }
-function useHint() {
-  if (game.state !== 'play' || game.hintCD > 0 || game.between) return;
-  const al = npcs.filter(n => n.spec.alien && n.state !== 'reveal' && !n.removed);
-  if (!al.length) return;
-  const a = pick(al);
-  const ang = R() * 6.28, off = rand(2, 8);
-  game.hint = { x: a.x + Math.cos(ang) * off, z: a.z + Math.sin(ang) * off, r: 14, t: 15, target: a };
-  game.hintCD = 12;
-  radio(`ちずの ピカピカ してる ところに いるよ！ ${tellLabel(a.spec.tells[0])} エイリアンを さがしてね。`, 6);
-  updateHUD();
+function setMode(m) {
+  game.mode = m; game.scan = null;
+  document.querySelectorAll('#modeSw button').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  canvas.style.cursor = m === 'beam' ? 'crosshair' : 'zoom-in';
 }
 
 // ===================================================================
-// input
+// panic: エイリアンが ばれると まわりの ひとは にげだす
 // ===================================================================
-const look = new Map();
-let joy = null;
-const joyEl = $('#joy'), joyKnob = joyEl.querySelector('i');
+function startle(n, line) {
+  if (n.state === 'reveal' || n.state === 'fall' || n.state === 'getup' || n.state === 'flee') return;
+  n.prevState = n.state === 'startle' ? n.prevState : n.state;
+  n.state = 'startle'; n.timer = 1.1; showBubble(n, line || pick(['わっ！', 'きゃっ！', 'なに!?', 'びっくり！']), 1.6);
+}
+function panicAround(x, z, except) {
+  for (const n of npcs) {
+    if (n === except || n.removed || n.fixed || n.state === 'reveal') continue;
+    const d = Math.hypot(n.x - x, n.z - z); if (d > 9) continue;
+    if (n.spec.alien) { startle(n); continue; }
+    n.staged = false; releaseSpots(n);
+    let far = null, fd = 0;
+    for (let k = 0; k < 14; k++) { const t = pick(walkTiles); const dd = Math.hypot(tc(t[0]) - x, tc(t[1]) - z); if (dd > fd) { fd = dd; far = t; } }
+    showBubble(n, pick(['きゃー！', 'うちゅうじんだ〜！', 'にげろ〜！', 'たすけて〜！', 'ひえぇ〜！']), 2.4);
+    n.panicDelay = rand(.1, .6);
+    if (far && walkTo(n, tc(far[0]), tc(far[1]))) n.state = 'flee'; else { n.state = 'startle'; n.timer = 1.2; }
+  }
+}
+
+// ===================================================================
+// input: きりかえ ボタン ＋ がめんを タッチ
+// ===================================================================
 canvas.addEventListener('contextmenu', e => e.preventDefault());
+let scanPtr = null;
 canvas.addEventListener('pointerdown', (e) => {
   ensureAudio();
-  if (game.state !== 'play') return;
+  if (game.state !== 'play' || game.moving) return;
+  if (game.mode === 'beam') { fireAt(e.clientX, e.clientY, true); return; }
   canvas.setPointerCapture(e.pointerId);
-  if (e.pointerType !== 'mouse' && !joy && e.clientX < innerWidth * .42 && e.clientY > innerHeight * .4) {
-    joy = { id: e.pointerId, x0: e.clientX, y0: e.clientY, dx: 0, dy: 0 };
-    joyEl.style.display = 'block'; joyEl.style.left = e.clientX + 'px'; joyEl.style.top = e.clientY + 'px'; joyKnob.style.transform = 'translate(0,0)';
-    $('#joyHint').style.display = 'none';
-    return;
-  }
-  look.set(e.pointerId, { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, t: performance.now(), moved: false, type: e.pointerType });
+  scanPtr = e.pointerId;
+  game.scan = { x: e.clientX, y: e.clientY, hold: true, linger: 0 };
+  SFX.scanOn();
 });
 canvas.addEventListener('pointermove', (e) => {
-  if (joy && e.pointerId === joy.id) {
-    let dx = e.clientX - joy.x0, dy = e.clientY - joy.y0; const d = Math.hypot(dx, dy), m = 55;
-    if (d > m) { dx = dx / d * m; dy = dy / d * m; }
-    joy.dx = dx / m; joy.dy = dy / m; joy.mag = Math.min(1, d / m); joy.run = d > m * 1.25;
-    joyKnob.style.transform = `translate(${dx}px,${dy}px)`;
-    return;
-  }
-  const l = look.get(e.pointerId); if (!l) return;
-  const dx = e.clientX - l.x, dy = e.clientY - l.y; l.x = e.clientX; l.y = e.clientY;
-  if (Math.hypot(e.clientX - l.sx, e.clientY - l.sy) > (l.type === 'mouse' ? 4 : 10)) l.moved = true;
-  if (!l.moved) return;
-  const k = (l.type === 'mouse' ? .0042 : .0058) * save.sens * (camera.fov / 70);
-  player.yaw -= dx * k; player.pitch = clamp(player.pitch - dy * k, -1.35, 1.2);
+  if (game.scan && e.pointerId === scanPtr && game.scan.hold) { game.scan.x = e.clientX; game.scan.y = e.clientY; }
 });
 function endPointer(e) {
-  if (joy && e.pointerId === joy.id) { joy = null; joyEl.style.display = 'none'; return; }
-  const l = look.get(e.pointerId); if (!l) return; look.delete(e.pointerId);
-  // タッチの タップでは うたない（ごそうさ ぼうし）。マウスの クリックだけ その ばしょへ うつ
-  if (!l.moved && e.type === 'pointerup' && l.type === 'mouse' && e.button === 0) fireAt(e.clientX, e.clientY);
+  if (game.scan && e.pointerId === scanPtr) { game.scan.hold = false; game.scan.linger = 1.4; scanPtr = null; }
 }
 canvas.addEventListener('pointerup', endPointer);
 canvas.addEventListener('pointercancel', endPointer);
 addEventListener('keydown', (e) => {
   if (e.code === 'Escape' || e.code === 'KeyP') { if (game.state === 'play') pause(true); else if (game.state === 'pause') pause(false); return; }
   if (game.state !== 'play') return;
-  keys[e.code] = true; ensureAudio();
-  if ((e.code === 'Space' || e.code === 'KeyF') && !e.repeat) { e.preventDefault(); fireCenter(); }
-  if (e.code.startsWith('Arrow')) e.preventDefault();
+  ensureAudio();
+  if (e.code === 'Digit1') setMode('scan');
+  if (e.code === 'Digit2') setMode('beam');
+  if ((e.code === 'Space' || e.code === 'Tab') && !e.repeat) { e.preventDefault(); setMode(game.mode === 'scan' ? 'beam' : 'scan'); SFX.radio(); }
 });
-addEventListener('keyup', (e) => { keys[e.code] = false; });
-addEventListener('blur', () => { for (const k in keys) keys[k] = false; if (game.state === 'play') pause(true); });
+addEventListener('blur', () => { if (game.state === 'play') pause(true); });
 document.addEventListener('visibilitychange', () => { if (document.hidden && game.state === 'play') pause(true); });
-function jump() { if (player.onGround) { player.vy = 5.2; player.onGround = false; SFX.jump(); } }
-function holdBtn(el, on, off) {
-  el.addEventListener('pointerdown', (e) => { e.preventDefault(); ensureAudio(); el.setPointerCapture(e.pointerId); on(); });
-  el.addEventListener('pointerup', (e) => { e.preventDefault(); off && off(); });
-  el.addEventListener('pointercancel', () => off && off());
-}
-holdBtn($('#bScan'), () => { game.touchScan = true; $('#bScan').classList.add('on'); }, () => { game.touchScan = false; $('#bScan').classList.remove('on'); });
-holdBtn($('#bBeam'), () => { $('#bBeam').classList.add('on'); fireCenter(); }, () => $('#bBeam').classList.remove('on'));
+document.querySelectorAll('#modeSw button').forEach(b => b.addEventListener('pointerdown', (e) => { e.preventDefault(); ensureAudio(); if (game.mode !== b.dataset.mode) { setMode(b.dataset.mode); SFX.radio(); } }));
 $('#pauseBtn').addEventListener('click', () => pause(true));
 $('#radio').addEventListener('click', () => { radioTimer = 0; $('#radio').classList.remove('show'); });
 $('#startBtn').addEventListener('click', startGame);
@@ -1993,110 +2120,90 @@ $('#quitBtn').addEventListener('click', goTitle);
 $('#againBtn').addEventListener('click', startGame);
 $('#toTitleBtn').addEventListener('click', goTitle);
 function syncSettings() {
-  $('#sens').value = save.sens;
   document.querySelectorAll('#qSeg button').forEach(b => b.classList.toggle('on', b.dataset.q === save.quality));
-  document.querySelectorAll('#mSeg button').forEach(b => b.addEventListener('click', () => { save.bgm = b.dataset.m === '1'; persist(); if (musicGain) musicGain.gain.value = save.bgm ? .55 : 0; syncSettings(); }));
-document.querySelectorAll('#sSeg button').forEach(b => b.classList.toggle('on', (b.dataset.s === '1') === save.sound));
+  document.querySelectorAll('#sSeg button').forEach(b => b.classList.toggle('on', (b.dataset.s === '1') === save.sound));
   document.querySelectorAll('#mSeg button').forEach(b => b.classList.toggle('on', (b.dataset.m === '1') === (save.bgm !== false)));
 }
-$('#sens').addEventListener('input', (e) => { save.sens = +e.target.value; persist(); });
 document.querySelectorAll('#qSeg button').forEach(b => b.addEventListener('click', () => { save.quality = b.dataset.q; persist(); applyQuality(); syncSettings(); }));
 document.querySelectorAll('#sSeg button').forEach(b => b.addEventListener('click', () => { save.sound = b.dataset.s === '1'; persist(); if (master) master.gain.value = save.sound ? .55 : 0; syncSettings(); }));
-if (isTouch) { $('#touch').classList.remove('hidden'); } else { $('#help').classList.remove('hidden'); setTimeout(() => $('#help').style.opacity = .55, 15000); }
+document.querySelectorAll('#mSeg button').forEach(b => b.addEventListener('click', () => { save.bgm = b.dataset.m === '1'; persist(); if (musicGain) musicGain.gain.value = save.bgm ? .55 : 0; syncSettings(); }));
+if (!isTouch) { $('#help').classList.remove('hidden'); setTimeout(() => $('#help').style.opacity = .55, 15000); }
 
 // ===================================================================
-// player update
+// camera（ばめんごとに じどうで いどう）
 // ===================================================================
-function collide(px, pz, r) {
-  for (let it = 0; it < 2; it++) for (const o of colliders) {
-    if (o.c) { const dx = px - o.x, dz = pz - o.z, m = o.r + r, d2 = dx * dx + dz * dz; if (d2 < m * m) { const d = Math.sqrt(d2) || 1e-3; px = o.x + dx / d * m; pz = o.z + dz / d * m; } }
-    else {
-      if (px < o.x0 - r || px > o.x1 + r || pz < o.z0 - r || pz > o.z1 + r) continue;
-      const cx = clamp(px, o.x0, o.x1), cz = clamp(pz, o.z0, o.z1), dx = px - cx, dz = pz - cz, d2 = dx * dx + dz * dz;
-      if (d2 > 1e-8) { if (d2 < r * r) { const d = Math.sqrt(d2); px = cx + dx / d * r; pz = cz + dz / d * r; } }
-      else { const l = px - o.x0, rr = o.x1 - px, t = pz - o.z0, b = o.z1 - pz, m = Math.min(l, rr, t, b); if (m === l) px = o.x0 - r; else if (m === rr) px = o.x1 + r; else if (m === t) pz = o.z0 - r; else pz = o.z1 + r; }
-    }
+const sceneFov = () => camera.aspect < .8 ? 78 : camera.aspect < 1.3 ? 64 : 52;
+function updateSceneCamera(dt, t) {
+  if (camMove) {
+    camMove.k = Math.min(1, camMove.k + dt / 2.6);
+    const k = camMove.k, e = k * k * (3 - 2 * k);
+    camCur.p.lerpVectors(camMove.p0, camMove.p1, e); camCur.p.y += Math.sin(Math.PI * e) * 10;
+    camCur.t.lerpVectors(camMove.t0, camMove.t1, e);
+    if (k >= 1) { camMove = null; game.moving = false; onArriveScene(); }
   }
-  return [clamp(px, -HALF + .4, HALF - .4), clamp(pz, -HALF + .4, HALF - .4)];
-}
-function updatePlayer(dt) {
-  let mx = 0, mz = 0, run = keys.ShiftLeft || keys.ShiftRight;
-  if (keys.KeyW || keys.ArrowUp) mz += 1; if (keys.KeyS || keys.ArrowDown) mz -= 1;
-  if (keys.KeyA || keys.ArrowLeft) mx -= 1; if (keys.KeyD || keys.ArrowRight) mx += 1;
-  if (joy) { mx += joy.dx; mz -= joy.dy; if (joy.run) run = true; }
-  const m = Math.hypot(mx, mz); if (m > 1) { mx /= m; mz /= m; }
-  const sp = run ? 7.2 : 4.2;
-  const fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw), rx = Math.cos(player.yaw), rz = -Math.sin(player.yaw);
-  let nx = player.x + (fx * mz + rx * mx) * sp * dt, nz = player.z + (fz * mz + rz * mx) * sp * dt;
-  [nx, nz] = collide(nx, nz, .35);
-  for (const n of npcs) { if (n.removed || n.state === 'reveal') continue; const dx = nx - n.x, dz = nz - n.z, d = Math.hypot(dx, dz), mm = .32 * n.spec.scale + .3; if (d < mm && d > 1e-3) { nx = n.x + dx / d * mm; nz = n.z + dz / d * mm; } }
-  const moved = Math.hypot(nx - player.x, nz - player.z);
-  player.x = nx; player.z = nz;
-  player.vy -= 15 * dt; player.y += player.vy * dt; if (player.y <= 0) { player.y = 0; player.vy = 0; player.onGround = true; }
-  player.bob += moved * 2.2;
-  const bobY = Math.sin(player.bob) * .045 * (player.onGround ? 1 : 0);
-  camera.position.set(player.x, EYE + player.y + bobY, player.z);
-  camera.rotation.set(player.pitch, player.yaw, 0);
-  // zoom
-  const zt = 0;
-  camera.fov = lerp(camera.fov, lerp(70, 24, zt), Math.min(1, dt * 10)); camera.updateProjectionMatrix();
-  // gun
+  camera.position.copy(camCur.p);
+  camera.position.x += Math.sin(t * .31) * .05; camera.position.y += Math.sin(t * .47) * .04;
+  camera.fov = lerp(camera.fov, sceneFov(), Math.min(1, dt * 3)); camera.updateProjectionMatrix();
+  camera.lookAt(camCur.t);
+  player.x = camera.position.x; player.z = camera.position.z;
   recoil = Math.max(0, recoil - dt * 6);
-  gun.position.set(gunBase.x + Math.sin(player.bob * .5) * .008, gunBase.y + Math.abs(Math.cos(player.bob * .5)) * .008 - zt * .03, gunBase.z + recoil * .07);
+  gun.visible = game.mode === 'beam' && !game.moving;
+  gun.position.set(gunBase.x, gunBase.y + Math.sin(t * 1.6) * .004, gunBase.z + recoil * .07);
   gun.rotation.set(recoil * .25, .05, 0);
   gunGlowMat.emissiveIntensity = 1.2 + recoil * 4;
 }
 
-// scanner
-let lastLock = null;
-function updateScanner(dt) {
-  const want = (keys.KeyE || game.touchScan) && game.state === 'play';
-  if (want && game.scanE > 0) { game.scanning = true; game.scanE = Math.max(0, game.scanE - 12 * dt); }
-  else { game.scanning = false; game.scanE = Math.min(100, game.scanE + 14 * dt); }
-  $('#scanFx').classList.toggle('on', game.scanning);
-  $('#scanBar').classList.toggle('hidden', !game.scanning && game.scanE >= 100);
-  $('#enBar i').style.width = game.scanE + '%';
-  const ret = $('#reticle');
-  ret.classList.toggle('hidden', game.state !== 'play');
-  ret.classList.toggle('scope', game.scanning);
-  const d = game.scanning ? scopeR() * 2 : 46;
-  if (ret._d !== d) { ret._d = d; ret.style.width = ret.style.height = d + 'px'; ret.style.margin = `${-d / 2}px 0 0 ${-d / 2}px`; }
-  let sig = 0, lock = null;
-  if (game.scanning) {
-    const fwd = new THREE.Vector3(); camera.getWorldDirection(fwd);
-    for (const n of npcs) {
-      if (!n.spec.alien || n.state === 'reveal') continue;
-      const v = new THREE.Vector3(n.x - camera.position.x, n.root.position.y + n.height * .6 - camera.position.y, n.z - camera.position.z);
-      const d = v.length(); if (d > 40) continue; v.normalize();
-      const ang = Math.acos(clamp(v.dot(fwd), -1, 1));
-      const f = clamp(1 - ang / .7, 0, 1) * clamp(1 - d / 42, 0, 1);
-      if (f > sig) sig = f;
-      if (ang < .07 + .25 / Math.max(d, 1) && d < 32) {
-        const res = castRay(new THREE.Ray(camera.position.clone(), v), true);
-        if (res.t > d - .6) lock = n;
-      }
-    }
-    game.beepT -= dt;
-    if (game.beepT <= 0) { SFX.beep(sig); game.beepT = lock ? .09 : 1.0 - sig * .85; }
-  }
-  $('#sigBar i').style.width = (sig * 100).toFixed(0) + '%';
-  $('#sigTxt').textContent = lock ? '‼ はんのう だい ‼' : sig > .45 ? 'ちかい…！' : sig > .15 ? 'すこし はんのう' : game.scanning ? 'はんのう なし' : '';
-  $('#reticle').classList.toggle('lock', !!lock);
-  if (lock && lock !== lastLock) SFX.lock();
-  lastLock = lock;
-}
-
-// scope: まるの なかだけ、エイリアンを みどりの すがたで かきなおす
-const scopeR = () => Math.round(clamp(Math.min(innerWidth, innerHeight) * .2, 70, 150));
-const scopeRT = new THREE.WebGLRenderTarget(4, 4, { samples: 4 });
+// ===================================================================
+// scanner: タッチした ところに まるい スコープ。なかの エイリアンは みどりの すがたに みえる
+// ===================================================================
+const scopeR = () => Math.round(clamp(Math.min(innerWidth, innerHeight) * .17, 60, 130));
+const scopeRT = new THREE.WebGLRenderTarget(4, 4, { samples: 2 });
 const scopeScene = new THREE.Scene();
 const scopeCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 2); scopeCam.position.z = 1;
 const scopeMask = canvasTex(128, 128, (g) => { g.fillStyle = '#000'; g.fillRect(0, 0, 128, 128); g.fillStyle = '#fff'; g.beginPath(); g.arc(64, 64, 62, 0, 7); g.fill(); });
 scopeMask.colorSpace = THREE.NoColorSpace;
 const scopeQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial({ map: scopeRT.texture, alphaMap: scopeMask, transparent: true, depthTest: false, depthWrite: false, color: '#e6fff0' }));
 scopeScene.add(scopeQuad);
+const markGeo = new THREE.RingGeometry(.42, .55, 32);
+const markMat = new THREE.MeshBasicMaterial({ color: '#5dff8a', transparent: true, opacity: .75, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
+const projV = new THREE.Vector3();
+function screenOf(x, y, z) { projV.set(x, y, z).project(camera); return [(projV.x + 1) / 2 * innerWidth, (1 - projV.y) / 2 * innerHeight, projV.z]; }
+function updateScanner(dt) {
+  const sc = game.scan, ret = $('#reticle');
+  if (sc && !sc.hold) { sc.linger -= dt; if (sc.linger <= 0) game.scan = null; }
+  const on = !!game.scan;
+  $('#scanFx').classList.toggle('on', on);
+  ret.classList.toggle('hidden', !on);
+  if (!on) return;
+  const r = scopeR();
+  ret.style.width = ret.style.height = r * 2 + 'px';
+  ret.style.left = sc.x + 'px'; ret.style.top = sc.y + 'px';
+  ret.style.opacity = sc.hold ? 1 : clamp(sc.linger / .5, 0, 1);
+  // スコープの なかに エイリアンが いるか
+  let found = null;
+  for (const o of game.sceneAliens) {
+    const n = o.n; if (o.got || n.removed || n.state === 'reveal') continue;
+    const y0 = n.root.position.y;
+    for (const f of [.2, .55, .9]) {
+      const [sx, sy, sz] = screenOf(n.x, y0 + n.height * f, n.z);
+      if (sz < 1 && Math.hypot(sx - sc.x, sy - sc.y) < r * .85) { found = n; break; }
+    }
+    if (found) break;
+  }
+  ret.classList.toggle('lock', !!found);
+  $('#scanTip').textContent = found ? '👽 いた！' : '';
+  if (found && !found.marked) {
+    found.marked = true;
+    const m = new THREE.Mesh(markGeo, markMat); m.rotation.x = -Math.PI / 2; m.position.y = .03; m.userData.noShadow = true; found.root.add(m); found.mark = m;
+    SFX.found();
+    if (game.mode === 'scan' && !game.tipShown) { game.tipShown = true; radio('エイリアン はっけん！ ⚡ビームに きりかえて、その ひとを タッチ！', 5); }
+  }
+  game.beepT -= dt;
+  if (game.beepT <= 0) { if (found) SFX.lock(); game.beepT = found ? .18 : .6; }
+}
 function renderScope() {
-  const r = scopeR(), pr = renderer.getPixelRatio(), size = Math.round(r * 2 * pr);
+  const sc = game.scan; if (!sc) return;
+  const r = scopeR(), pr = Math.min(1.5, renderer.getPixelRatio()), size = Math.round(r * 2 * pr);
   if (scopeRT.width !== size) scopeRT.setSize(size, size);
   const W = innerWidth, H = innerHeight;
   const swapped = [];
@@ -2105,7 +2212,7 @@ function renderScope() {
     if (!n.spec.alien || !P.scanForm || n.state === 'reveal' || !P.body.visible) continue;
     P.body.visible = false; P.scanForm.visible = true; swapped.push(n);
   }
-  camera.setViewOffset(W, H, W / 2 - r, H / 2 - r, r * 2, r * 2);
+  camera.setViewOffset(W, H, sc.x - r, sc.y - r, r * 2, r * 2);
   renderer.shadowMap.autoUpdate = false;
   renderer.setRenderTarget(scopeRT); renderer.clear(); renderer.render(scene, camera); renderer.setRenderTarget(null);
   renderer.shadowMap.autoUpdate = true;
@@ -2113,42 +2220,26 @@ function renderScope() {
   for (const n of swapped) { n.parts.body.visible = true; n.parts.scanForm.visible = false; }
   scopeCam.left = -W / 2; scopeCam.right = W / 2; scopeCam.top = H / 2; scopeCam.bottom = -H / 2; scopeCam.updateProjectionMatrix();
   scopeQuad.scale.set(r, r, 1);
+  scopeQuad.position.set(sc.x - W / 2, H / 2 - sc.y, 0);
+  scopeQuad.material.opacity = sc.hold ? 1 : clamp(sc.linger / .5, 0, 1);
   renderer.clearDepth();
   renderer.render(scopeScene, scopeCam);
-}
-
-// minimap
-const mini = $('#mini'), mg = mini.getContext('2d');
-const mapImg = document.createElement('canvas'); mapImg.width = mapImg.height = 272;
-{
-  const g = mapImg.getContext('2d'), s = 272 / N;
-  const col = { [ROAD]: '#4a4f5a', [CROSS]: '#6a6f7a', [WALK]: '#cfc7b8', [GRASS]: '#78b552', [PLAZA]: '#e3d2b4', [BLD]: '#8a8fa8', [WATER]: '#4a90c0' };
-  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { g.fillStyle = col[grid[i][j]]; g.fillRect(i * s, j * s, s + .5, s + .5); }
-  for (const b of buildingRects) { g.fillStyle = '#9aa0bc'; g.fillRect(b.x0 * s + 1, b.z0 * s + 1, (b.x1 - b.x0 + 1) * s - 2, (b.z1 - b.z0 + 1) * s - 2); }
-  g.fillStyle = '#4ab0e0'; g.beginPath(); g.arc(136, 136, 7, 0, 7); g.fill();
-}
-function drawMini(t) {
-  const s = 272 / (N * T);
-  mg.drawImage(mapImg, 0, 0);
-  if (game.hint) {
-    const h = game.hint; const a = .25 + Math.sin(t * 6) * .12;
-    mg.fillStyle = `rgba(255,80,140,${a})`; mg.strokeStyle = '#ff5590'; mg.lineWidth = 3;
-    mg.beginPath(); mg.arc((h.x + HALF) * s, (h.z + HALF) * s, h.r * s, 0, 7); mg.fill(); mg.stroke();
-  }
-  const px = (player.x + HALF) * s, pz = (player.z + HALF) * s;
-  mg.save(); mg.translate(px, pz); mg.rotate(-player.yaw);
-  const fovH = Math.atan(Math.tan(camera.fov * Math.PI / 360) * camera.aspect);
-  mg.fillStyle = 'rgba(255,255,255,.22)'; mg.beginPath(); mg.moveTo(0, 0); mg.arc(0, 0, 60, -Math.PI / 2 - fovH, -Math.PI / 2 + fovH); mg.closePath(); mg.fill();
-  mg.fillStyle = '#ff4f86'; mg.strokeStyle = '#fff'; mg.lineWidth = 2.5;
-  mg.beginPath(); mg.moveTo(0, -10); mg.lineTo(7, 7); mg.lineTo(0, 3); mg.lineTo(-7, 7); mg.closePath(); mg.fill(); mg.stroke();
-  mg.restore();
-  if (DEBUG) for (const n of npcs) if (n.spec.alien) { mg.fillStyle = '#0f0'; mg.fillRect((n.x + HALF) * s - 3, (n.z + HALF) * s - 3, 6, 6); }
 }
 
 // ===================================================================
 // main loop
 // ===================================================================
-let last = performance.now();
+let last = performance.now(), cleanT = 0;
+const WALKER_CAP = () => save.quality === 'high' ? 34 : 26;
+function cleanupWalkers() {
+  if (npcs.length <= WALKER_CAP()) return;
+  updateFrustum();
+  for (const n of npcs) {
+    if (n.staged || n.fixed || n.state === 'reveal' || n.state === 'flee') continue;
+    if (inView(n.x, n.z) && Math.hypot(n.x - camera.position.x, n.z - camera.position.z) < 60) continue;
+    removeNPC(n); return;
+  }
+}
 function frame(now) {
   requestAnimationFrame(frame);
   let dt = Math.min(.05, (now - last) / 1000); last = now;
@@ -2163,15 +2254,13 @@ function frame(now) {
     player.x = camera.position.x * .3; player.z = camera.position.z * .3;
   }
   if (game.state === 'play') {
-    updatePlayer(dt);
+    updateSceneCamera(dt, t);
     updateScanner(dt);
-    if (!game.between) game.waveTime += dt;
     game.comboT -= dt;
-    if (game.hintCD > 0) { game.hintCD -= dt; if (game.hintCD <= 0) game.hintCD = 0; if (Math.floor(game.hintCD + dt) !== Math.floor(game.hintCD)) updateHUD(); }
-    if (game.hint) { game.hint.t -= dt; if (game.hint.t <= 0 || game.hint.target.removed || game.hint.target.state === 'reveal') game.hint = null; }
     fireCD -= dt;
     if (radioTimer > 0) { radioTimer -= dt; if (radioTimer <= 0) $('#radio').classList.remove('show'); }
     if (cardTimer > 0) { cardTimer -= dt; if (cardTimer <= 0) $('#card').classList.remove('show'); }
+    cleanT -= dt; if (cleanT <= 0) { cleanT = 1.5; cleanupWalkers(); }
   }
   if (dt > 0) {
     updateTOD(dt);
@@ -2185,16 +2274,16 @@ function frame(now) {
     if (window.__duck) { const d = window.__duck; d.position.x = tc(3) + Math.cos(t * .25) * 3.5; d.position.z = (tc(2) + tc(3)) / 2 + Math.sin(t * .25) * 2; d.rotation.y = -t * .25; d.position.y = .05 + Math.sin(t * 2) * .02; }
     if (beamT > 0) { beamT -= dt; const o = Math.max(0, beamT / .22); beamCore.material.opacity = o; beamGlow.material.opacity = o * .7; }
     if (hitFlash.material.opacity > 0) { hitFlash.material.opacity = Math.max(0, hitFlash.material.opacity - dt * 5); hitFlash.lookAt(camera.position); }
+    markMat.opacity = .55 + Math.sin(t * 6) * .25;
   }
   sky.position.copy(camera.position);
   renderer.clear();
   renderer.render(scene, camera);
   if (game.state === 'play' || game.state === 'pause') {
-    if (game.scanning) renderScope();
+    if (game.scan) renderScope();
     renderer.clearDepth();
     gunCam.position.set(0, 0, 0); gunCam.rotation.set(0, 0, 0);
     renderer.render(gunScene, gunCam);
-    drawMini(t);
   }
 }
 
@@ -2206,11 +2295,11 @@ applyQuality();
 populate();
 setTOD(0, true);
 updateTOD(0);
-$('#bestTxt').textContent = save.best ? `ハイスコア ${save.best}（ウェーブ ${save.bestWave}）` : '';
+$('#bestTxt').textContent = save.best ? `ハイスコア ${save.best}（ばめん ${save.bestWave}）` : '';
 showScreen('#title');
 $('#loading').remove();
 requestAnimationFrame((t) => { last = t; frame(t); });
-window.__G = { rebuildNPC, randomSpec, setTOD, updateTOD, game, npcs, player, camera, startGame, fireAt, scene, renderer, castRay, hitNPC, TELLS, setTOD, pause };
+window.__G = { skipMove: () => { if (camMove) camMove.k = .999; }, game, npcs, player, camera, startGame, fireAt, scene, renderer, hitNPC, setTOD, pause, goScene, setMode, SCENES };
 </script>
 </body>
 </html>
