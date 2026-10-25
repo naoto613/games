@@ -15,6 +15,7 @@
     yellow: { base: '#FFE59A', light: '#FFF8DC', mid: '#FFD772', dark: '#F2B94A', deep: '#C98C25', line: '#D29A3A' },
     white: { base: '#FFFFFF', light: '#FFFFFF', mid: '#F3EEFA', dark: '#DCD2EE', deep: '#B3A5CF', line: '#A897C8' },
     navy: { base: '#5A5FA8', light: '#8E92D6', mid: '#4C5097', dark: '#3A3D7C', deep: '#2A2C5E', line: '#2E3068' },
+    black: { base: '#4A4458', light: '#6E6880', mid: '#3C3748', dark: '#2C2836', deep: '#1E1A26', line: '#1E1A26' },
     peach: { base: '#FFD3BE', light: '#FFF0E8', mid: '#FDBCA0', dark: '#F29B7C', deep: '#D2735A', line: '#D98468' },
   };
   KP.PAL = PAL;

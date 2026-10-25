@@ -1587,8 +1587,13 @@
       regions.push(el);
     });
     sv.querySelectorAll('text').forEach((t) => t.remove());
-    sv.insertAdjacentHTML('afterbegin', `<defs>${KP.lg(id + 'k', [[0, '#FFF6CF'], [0.5, '#FFD772'], [1, '#F2B94A']], 0, 0, 1, 1)}${KP.lg(id + 'r', [[0, '#FF8FB8'], [0.25, '#FFE07A'], [0.5, '#9EDC9A'], [0.75, '#9DCDF4'], [1, '#C9B5F5']], 0, 0, 1, 0)}<pattern id="${id}d" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#FFD3E6"/><circle cx="7" cy="7" r="3.4" fill="#fff"/></pattern></defs>`);
-    return { sv, regions, id };
+    // とくべつな いろ（キラキラ・にじ・みずたま）は もじれつで くみこんで よみなおす（Safari でも はんえい される ように）
+    const DEFS = `<defs>${KP.lg(id + 'k', [[0, '#FFF6CF'], [0.5, '#FFD772'], [1, '#F2B94A']], 0, 0, 1, 1)}${KP.lg(id + 'r', [[0, '#FF8FB8'], [0.25, '#FFE07A'], [0.5, '#9EDC9A'], [0.75, '#9DCDF4'], [1, '#C9B5F5']], 0, 0, 1, 0)}<pattern id="${id}d" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#FFD3E6"/><circle cx="7" cy="7" r="3.4" fill="#fff"/></pattern></defs>`;
+    const html = sv.outerHTML.replace(/^(<svg[^>]*>)/, `$1${DEFS}`);
+    tmp.innerHTML = html;
+    const sv2 = tmp.firstElementChild;
+    const regions2 = [...sv2.querySelectorAll('.region')].sort((x, y) => x.dataset.r - y.dataset.r);
+    return { sv: sv2, regions: regions2, id };
   }
   const paintFill = (id, col) => (col === 'kira' ? `url(#${id}k)` : col === 'rainbow' ? `url(#${id}r)` : col === 'dots' ? `url(#${id}d)` : col);
   const swatch = (col) => col === 'kira' ? `<span class="sw kira">${svg('0 0 100 100', KP.star(50, 52, 34, '#FFE07A', '#E9B44C', 4) + KP.sparkle(76, 22, 12, '#fff'))}</span>`
@@ -1646,8 +1651,11 @@
     const drawPal = () => (pal.innerHTML = PALETTE.map((cc) => `<button class="pcol${cc === col ? ' sel' : ''}" data-c="${cc}">${swatch(cc)}</button>`).join(''));
     drawPal();
     // おてほん（もとの いろ）
+    // おてほんは べつの え（おなじ id を つくらない）
     const sm = sv.cloneNode(true);
-    sm.querySelectorAll('.region').forEach((el) => el.setAttribute('fill', el.dataset.orig));
+    sm.querySelectorAll('defs').forEach((d) => d.remove());
+    sm.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
+    sm.querySelectorAll('.region').forEach((el) => { el.setAttribute('fill', el.dataset.orig); el.removeAttribute('class'); });
     sample.appendChild(sm);
     let finish;
     const finished = new Promise((r) => (finish = r));
