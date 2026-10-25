@@ -515,7 +515,11 @@ svg { display: block; }
 .mk-tool svg { width: 44px; height: 44px; }
 .mk-tool.sel { border-color: var(--pink-d); box-shadow: 0 0 0 3px #FFE3EF; color: var(--ink); }
 .mk-tool i { position: absolute; right: 4px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #FF8FB8; }
-.mk-tool.hint { animation: hintb 1s ease-in-out infinite; border-color: #FFD772; }
+.mk-tool.nexttool { animation: hintb 1s ease-in-out infinite; border-color: #FFD772; }
+.mk-tool { touch-action: none; }
+.mouth { touch-action: none; }
+.tool-ghost { position: fixed; z-index: 80; width: 76px; height: 76px; margin: -38px 0 0 -38px; pointer-events: none; filter: drop-shadow(0 6px 10px rgba(73, 59, 107, .3)); }
+.tool-ghost svg { width: 100%; height: 100%; }
 @keyframes hintb { 50% { transform: translateY(-6px); box-shadow: 0 0 0 5px #FFF0B8; } }
 .mk-opts { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 .mk-opt { width: 58px; height: 58px; border-radius: 50%; background: #fff; border: 3px solid #EDE5FB; display: grid; place-items: center; }

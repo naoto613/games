@@ -798,55 +798,106 @@
       prompt.textContent = t;
       S.speak(t, 1.45);
     };
-    const drawTools = () => (toolsEl.innerHTML = TOOLS.map(([k, n, ic]) => `<button class="mk-tool${tool === k ? ' sel' : ''}${want() === k ? ' hint' : ''}" data-t="${k}">${svg('0 0 100 100', ic)}<span>${n}</span></button>`).join(''));
+    // つぎに つかう どうぐを ぴょこぴょこ させる（.hint は べつの がめんの スタイルと かぶるので つかわない）
+    const drawTools = () => (toolsEl.innerHTML = TOOLS.map(([k, n, ic]) => `<button class="mk-tool${tool === k ? ' sel' : ''}${want() === k ? ' nexttool' : ''}" data-t="${k}">${svg('0 0 100 100', ic)}<span>${n}</span></button>`).join(''));
     setPrompt(); drawTools();
-    await new Promise((res) => {
-      p.addEventListener('click', (e) => {
-        const t = e.target.closest('[data-t]');
-        if (t) {
-          tool = t.dataset.t;
-          S.tap();
-          if (tool === 'light' && !lit) {
-            lit = true;
-            mouth.innerHTML = draw();
-            S.sparkle();
-            const r = mouth.getBoundingClientRect();
-            bubble(r.left + r.width / 2, r.top + r.height * 0.3, `${icon('search')}むしばきんが いた！`, 1600);
-            tool = 'brush';
-            setPrompt();
-          } else if (tool === 'water') {
-            if (germs.some((g) => !g.gone)) { const r = t.getBoundingClientRect(); bubble(r.left + r.width / 2, r.top, 'さきに むしばきんを やっつけよう', 1400); tool = lit ? 'brush' : 'light'; }
-            else if (!rinsed) {
-              rinsed = true;
-              const r = mouth.getBoundingClientRect();
-              burst(r.left + r.width / 2, r.top + r.height * 0.5, ['drop'], 18, 160);
-              S.sparkle();
-              setTimeout(() => { mouth.innerHTML = draw(); burst(r.left + r.width / 2, r.top + r.height * 0.5, ['sparkle', 'star'], 14, 150); S.done(); prompt.textContent = 'ぴかぴかに なったね！'; S.speak('ぴかぴかに なったね！', 1.45); }, 600);
-              setTimeout(res, 2200);
-            }
-          } else if (tool === 'brush' && !lit) { const r = t.getBoundingClientRect(); bubble(r.left + r.width / 2, r.top, 'くらくて みえないよ', 1300); tool = 'light'; }
-          drawTools();
-          return;
-        }
-        const gEl = e.target.closest('[data-g]');
-        if (!gEl || !lit) return;
-        if (tool !== 'brush') { tool = 'brush'; drawTools(); }
-        const gm = germs[+gEl.dataset.g];
-        gm.hp--;
-        gm.foam++;
-        const r = gEl.getBoundingClientRect();
-        S.pop();
-        burst(r.left + r.width / 2, r.top + r.height / 2, ['sparkle'], 5, 40);
-        if (gm.hp <= 0) {
-          gm.gone = true;
-          flyer(r.left + r.width / 2, r.top + r.height / 2, svg('-40 -40 80 80', KP.drawGerm(0, 0, 1, gm.v)), (Math.random() < 0.5 ? -1 : 1) * innerWidth * 0.6, -200, 900);
-          bubble(r.left + r.width / 2, r.top, 'にげろ〜！', 1000);
-          S.boing();
-          if (!germs.some((g) => !g.gone)) { setTimeout(() => { setPrompt(); drawTools(); }, 300); }
-        }
-        mouth.innerHTML = draw();
-      });
+    let finish;
+    const finished = new Promise((r) => (finish = r));
+    const useLight = () => {
+      if (lit) return;
+      lit = true;
+      tool = 'brush';
+      mouth.innerHTML = draw();
+      S.sparkle();
+      const r = mouth.getBoundingClientRect();
+      bubble(r.left + r.width / 2, r.top + r.height * 0.3, `${icon('search')}むしばきんが いた！`, 1600);
+      setPrompt();
+      drawTools();
+    };
+    const useWater = (from) => {
+      if (!lit) { useLight(); return; }
+      if (germs.some((g) => !g.gone)) { const r = (from || mouth).getBoundingClientRect(); bubble(r.left + r.width / 2, r.top, 'さきに むしばきんを やっつけよう', 1400); tool = 'brush'; drawTools(); return; }
+      if (rinsed) return;
+      rinsed = true;
+      const r = mouth.getBoundingClientRect();
+      burst(r.left + r.width / 2, r.top + r.height * 0.5, ['drop'], 18, 160);
+      S.sparkle();
+      setTimeout(() => { mouth.innerHTML = draw(); burst(r.left + r.width / 2, r.top + r.height * 0.5, ['sparkle', 'star'], 14, 150); S.done(); prompt.textContent = 'ぴかぴかに なったね！'; S.speak('ぴかぴかに なったね！', 1.45); }, 600);
+      setTimeout(finish, 2200);
+    };
+    const hitGerm = (gi) => {
+      const gm = germs[gi];
+      if (!gm || gm.gone || !lit) return;
+      gm.hp--;
+      gm.foam++;
+      const gEl = mouth.querySelector(`[data-g="${gi}"]`);
+      const r = gEl ? gEl.getBoundingClientRect() : mouth.getBoundingClientRect();
+      S.pop();
+      burst(r.left + r.width / 2, r.top + r.height / 2, ['sparkle'], 5, 40);
+      if (gm.hp <= 0) {
+        gm.gone = true;
+        flyer(r.left + r.width / 2, r.top + r.height / 2, svg('-40 -40 80 80', KP.drawGerm(0, 0, 1, gm.v)), (Math.random() < 0.5 ? -1 : 1) * innerWidth * 0.6, -200, 900);
+        bubble(r.left + r.width / 2, r.top, 'にげろ〜！', 1000);
+        S.boing();
+        if (!germs.some((g) => !g.gone)) setTimeout(() => { tool = 'water'; setPrompt(); drawTools(); }, 300);
+      }
+      mouth.innerHTML = draw();
+    };
+    const germAt = (x, y) => { const el = document.elementFromPoint(x, y); const g = el && el.closest && el.closest('[data-g]'); return g ? +g.dataset.g : -1; };
+    const overMouth = (x, y) => { const r = mouth.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; };
+    const useTool = (k, from) => {
+      if (k === 'light') useLight();
+      else if (k === 'water') useWater(from);
+      else if (!lit) { const r = (from || mouth).getBoundingClientRect(); bubble(r.left + r.width / 2, r.top, 'くらくて みえないよ。ライトを つけよう', 1400); tool = 'light'; drawTools(); }
+      else { tool = 'brush'; drawTools(); }
+    };
+    // タップでも、どうぐを おくちへ ドラッグしても つかえる。はブラシは こすっても OK
+    let drag = null;
+    p.addEventListener('pointerdown', (e) => {
+      const t = e.target.closest('[data-t]');
+      if (t) {
+        drag = { k: t.dataset.t, el: t, sx: e.clientX, sy: e.clientY, moved: false, ghost: null, last: -1, lastT: 0, id: e.pointerId };
+        try { p.setPointerCapture(e.pointerId); } catch (er) { /* なし */ }
+        return;
+      }
+      if (overMouth(e.clientX, e.clientY) && lit && germs.some((g) => !g.gone)) {
+        tool = 'brush'; drawTools();
+        drag = { k: 'brush', rub: true, moved: true, last: -1, lastT: 0, id: e.pointerId };
+        try { p.setPointerCapture(e.pointerId); } catch (er) { /* なし */ }
+        const gi = germAt(e.clientX, e.clientY);
+        if (gi >= 0) { hitGerm(gi); drag.last = gi; drag.lastT = performance.now(); }
+      }
     });
+    p.addEventListener('pointermove', (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 10) {
+        drag.moved = true;
+        drag.ghost = document.createElement('div');
+        drag.ghost.className = 'tool-ghost';
+        drag.ghost.innerHTML = TOOLS.find((x) => x[0] === drag.k) ? svg('0 0 100 100', TOOLS.find((x) => x[0] === drag.k)[2]) : '';
+        document.body.appendChild(drag.ghost);
+        if (drag.k === 'brush' && lit) { tool = 'brush'; drawTools(); }
+      }
+      if (drag.ghost) { drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px'; }
+      if (drag.moved && drag.k === 'brush' && lit) {
+        const gi = germAt(e.clientX, e.clientY - (drag.ghost ? 0 : 0));
+        const now = performance.now();
+        if (gi >= 0 && (gi !== drag.last || now - drag.lastT > 220)) { hitGerm(gi); drag.last = gi; drag.lastT = now; }
+      }
+    });
+    const endDrag = (e) => {
+      if (!drag || (e && e.pointerId !== drag.id)) return;
+      const d = drag;
+      drag = null;
+      if (d.ghost) d.ghost.remove();
+      if (d.rub) return;
+      if (!d.moved) { S.tap(); tool = d.k; useTool(d.k, d.el); drawTools(); return; }
+      if (d.k !== 'brush' && e && overMouth(e.clientX, e.clientY)) { S.tap(); useTool(d.k, d.el); }
+    };
+    p.addEventListener('pointerup', endDrag);
+    p.addEventListener('pointercancel', endDrag);
+    A.onCleanup(() => document.querySelectorAll('.tool-ghost').forEach((g) => g.remove()));
+    await finished;
     c.hidePanel();
     return c.guard(Promise.resolve());
   }
