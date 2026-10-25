@@ -21,6 +21,7 @@
     ['tops', 'sailor', 'blue', 'セーラー'],
     ['tops', 'hearttop', 'pink', 'ハートのトップス'],
     ['tops', 'hearttop', 'yellow', 'ハートのトップス'],
+    ['tops', 'hearttop', 'lav', 'ハートのトップス', 1],
     ['skirt', 'frill', 'lav', 'フリルスカート'],
     ['skirt', 'frill', 'pink', 'フリルスカート'],
     ['skirt', 'frill', 'mint', 'フリルスカート'],
@@ -30,12 +31,14 @@
     ['onepiece', 'princess', 'lav', 'プリンセスドレス'],
     ['onepiece', 'princess', 'pink', 'プリンセスドレス'],
     ['onepiece', 'princess', 'mint', 'プリンセスドレス'],
+    ['onepiece', 'princess', 'yellow', 'プリンセスドレス', 1],
     ['onepiece', 'magicdress', 'pink', 'まほうのドレス'],
     ['onepiece', 'magicdress', 'blue', 'まほうのドレス'],
     ['onepiece', 'starry', 'navy', 'ほしぞらドレス', 1],
     ['shoes', 'pumps', 'lav', 'リボンのくつ'],
     ['shoes', 'pumps', 'pink', 'リボンのくつ'],
     ['shoes', 'boots', 'white', 'ハートのブーツ'],
+    ['shoes', 'boots', 'pink', 'ハートのブーツ', 1],
     ['shoes', 'strap', 'mint', 'ストラップシューズ'],
     ['shoes', 'glass', 'blue', 'ガラスのくつ', 1],
     ['hair', 'hairbows', 'lav', 'ふたつリボン'],
@@ -45,6 +48,7 @@
     ['hair', 'flowers', 'pink', 'おはなのかんむり'],
     ['hair', 'tiara', 'lav', 'きらきらティアラ', 1],
     ['hair', 'usamimi', 'lav', 'うさみみ', 1],
+    ['hair', 'bigbow', 'lav', 'おおきなリボン', 1],
     ['ribbon', 'chestbow', 'pink', 'むねのリボン'],
     ['ribbon', 'chestbow', 'lav', 'むねのリボン'],
     ['ribbon', 'chestbow', 'yellow', 'むねのリボン'],
@@ -84,6 +88,7 @@
     { id: 'starlamp', name: 'ほしのランプ', scale: 0.95, hidden: 1 },
     { id: 'musicbox', name: 'オルゴール', scale: 0.9, hidden: 1 },
     { id: 'bear', name: 'くまちゃん', scale: 0.9, hidden: 1 },
+    { id: 'castle', name: 'おしろ', scale: 1.1, hidden: 1 },
   ];
   const FURN_COLORS = ['lav', 'pink', 'mint', 'blue', 'yellow'];
 

@@ -256,7 +256,7 @@
     const flip = p.rotation === 180 ? `<g transform="translate(${F.w} 0) scale(-1 1)">` : '<g>';
     return `<g class="fitem${sel ? ' sel' : ''}" data-iid="${p.instanceId}" transform="translate(${p.x - (F.w * s) / 2} ${p.y - F.h * s}) scale(${s})">` +
       `<rect class="selbox" x="-12" y="-12" width="${F.w + 24}" height="${F.h + 24}" rx="18" fill="rgba(255,255,255,.25)" stroke="#E07AA8" stroke-width="${4 / s}" stroke-dasharray="${14 / s} ${10 / s}"/>` +
-      `${flip}${F.draw(KP.PAL[p.color] || KP.PAL.lav, KP.uid('f'))}</g></g>`;
+      `<g class="fw">${flip}${F.draw(KP.PAL[p.color] || KP.PAL.lav, KP.uid('f'))}</g></g></g>`;
   }
 
   SCREENS.home = function (el) {
@@ -316,7 +316,8 @@
     });
     // かぐに さわると ちいさな はんのう
     svgEl.querySelectorAll('.fitem').forEach((g) => g.addEventListener('click', () => {
-      g.classList.remove('wiggle'); void g.getBBox(); g.classList.add('wiggle');
+      const w = g.querySelector('.fw');
+      w.classList.remove('wiggle'); void w.getBBox(); w.classList.add('wiggle');
       S.pop();
       const r = g.getBoundingClientRect();
       burst(r.left + r.width / 2, r.top + r.height / 3, ['sparkle', 'star'], 6, 70);
@@ -412,12 +413,11 @@
           `<button class="cell" data-saved="${i}">${svg('40 -20 320 660', KP.drawChar({ ...snapHair(o), outfit: toDraw(o.equippedItems) }))}</button>`).join('');
       }
       const list = D.ITEM_LIST.filter((i) => i.slot === dressTab && owned(i.id));
-      const locked = D.ITEM_LIST.filter((i) => i.slot === dressTab && !owned(i.id)).length;
       let o = list.map((it) => {
         const sel = eq[it.slot] === it.id && !(eq.onepiece && (it.slot === 'tops' || it.slot === 'skirt'));
         return `<button class="cell${sel ? ' sel' : ''}" data-item="${it.id}" aria-label="${esc(it.name)}">${itemSVG(it)}${isNew(it.id) ? '<span class="new">NEW</span>' : ''}</button>`;
       }).join('');
-      for (let i = 0; i < locked; i++) o += `<button class="cell empty" data-locked="1">${icon('question')}</button>`;
+      D.ITEM_LIST.filter((i) => i.slot === dressTab && !owned(i.id)).forEach((i) => (o += `<button class="cell empty" data-locked="${isPrize(i.id) ? 'prize' : '1'}">${icon('question')}</button>`));
       return o;
     }
     function refresh() {
@@ -477,7 +477,7 @@
       if (!c) return;
       if (c.dataset.locked) {
         S.tap();
-        pyonSay(`${icon('search')}たんけんで みつけよう`, 'notify');
+        pyonSay(c.dataset.locked === 'prize' ? `${icon('star')}なかまと あそんで もらおう` : `${icon('search')}たんけんで みつけよう`, 'notify');
         return;
       }
       if (c.dataset.hs || c.dataset.hc) {
@@ -1038,7 +1038,8 @@
     function drawActs() {
       acts.innerHTML =
         `<button class="pill${activity === 'tea' ? ' sel' : ''}" data-act2="tea">${icon('tea')}おちゃかい</button>` +
-        `<button class="pill${activity === 'show' ? ' sel' : ''}" data-act2="show">${icon('show')}ファッションショー</button>`;
+        `<button class="pill${activity === 'show' ? ' sel' : ''}" data-act2="show">${icon('show')}ファッションショー</button>` +
+        `<button class="pill main" data-play="1">${icon('star')}ゲームで あそぶ</button>`;
     }
     drawCast(); drawBar(); drawActs();
     G.newIds.filter((id) => D.FRIENDS[id]).forEach(clearNew);
@@ -1144,6 +1145,7 @@
     function stopShow() { if (showTimer) { clearInterval(showTimer); showTimer = null; } lightEl.innerHTML = ''; }
     cleanup.push(stopShow);
     acts.addEventListener('click', (e) => {
+      if (e.target.closest('[data-play]')) { S.pick(); go('play'); return; }
       const b = e.target.closest('[data-act2]');
       if (!b) return;
       const a = b.dataset.act2;
@@ -1218,6 +1220,9 @@
         `<g transform="translate(70 0) scale(0.66)">${KP.drawChar({ ...snapHair(a.snapshot), outfit: toDraw(a.snapshot), pose: 'cheer', expr: 'joy' })}</g>` +
         `<g transform="translate(14 360) scale(0.6)">${KP.drawBunny('happy')}</g>`);
     }
+    if (a.type === 'cake') {
+      return svg('40 60 520 420', `<rect x="0" y="0" width="600" height="520" fill="#FFF6FA"/>` + drawCake(a.snapshot) + KP.sparkle(90, 120, 14, '#FFE59A') + KP.heart(510, 140, 12, '#F8BCD6')).replace('<svg ', '<svg preserveAspectRatio="xMidYMid slice" ');
+    }
     if (a.type === 'room') {
       return svg('100 0 800 1000', KP.drawRoomBG(a.snapshot) + roomFurnitureSVG(a.snapshot)).replace('<svg ', '<svg preserveAspectRatio="xMidYMid slice" ');
     }
@@ -1237,7 +1242,7 @@
     bindHome(el);
     const body = el.querySelector('#aBody');
     const fmt = (t) => { const d = new Date(t); return `${d.getMonth() + 1}がつ ${d.getDate()}にち`; };
-    const capOf = (a) => (a.type === 'outfit' ? 'へんしん' : a.type === 'room' ? 'おへや' : 'なかまと');
+    const capOf = (a) => (a.type === 'outfit' ? 'へんしん' : a.type === 'room' ? 'おへや' : a.type === 'cake' ? 'ケーキ' : 'なかまと');
     function render() {
       let o = `<div class="sec-h">${icon('camera')}きねんの しゃしん</div>`;
       o += G.album.length
@@ -1291,6 +1296,441 @@
           m.remove();
         });
       }
+    });
+  };
+
+  // ================= なかまと あそぶ（ミニゲーム） =================
+  // しっぱい・じかんぎれ なし。おわると スタンプが もらえて、たまると プレゼント。
+  const PRIZES = [
+    { at: 2, kind: 'item', id: 'princess-yellow' },
+    { at: 4, kind: 'item', id: 'boots-pink' },
+    { at: 6, kind: 'item', id: 'hearttop-lav' },
+    { at: 8, kind: 'furn', id: 'castle' },
+    { at: 10, kind: 'item', id: 'bigbow-lav' },
+  ];
+  const isPrize = (id) => PRIZES.some((p) => p.id === id);
+  const playMates = () => ['fuutan', ...Object.keys(D.FRIENDS).filter((f) => G.collection.unlockedCharacterIds.includes(f))];
+  const mateName = (w) => (w === 'fuutan' ? 'ふーたん' : w === 'pyonta' ? 'ぴょんた' : D.FRIENDS[w].name + 'ちゃん');
+  const mateFace = (w, expr) => (w === 'pyonta' ? svg('10 0 180 180', KP.drawBunny(expr === 'joy' ? 'happy' : 'normal')) : faceSVG(friendOpt(w, { expr: expr || 'smile' })));
+
+  function gameTop(title) {
+    return `<div class="topbar"><button class="rbtn" data-act="back" aria-label="もどる">${icon('back')}</button><div class="title">${title}</div><button class="rbtn" data-act="home" aria-label="ホーム">${icon('home')}</button></div>`;
+  }
+  function bindGameTop(el) {
+    bindHome(el);
+    el.querySelector('[data-act=back]').addEventListener('click', () => { S.tap(); go('play'); });
+  }
+  const STAMP = (n) => svg('0 0 100 100', `<circle cx="50" cy="50" r="44" fill="#FFF0F6" stroke="#E07AA8" stroke-width="5" stroke-dasharray="7 5"/>` + KP.star(50, 50, 30, '#FFE28A', '#E9B44C', 4) + KP.heart(50, 54, 9, '#F29CC2'));
+
+  function finishGame(again) {
+    G.stamps = (G.stamps || 0) + 1;
+    const prize = PRIZES.find((p) => p.at === G.stamps);
+    if (prize && !G.collection.discoveredItemIds.includes(prize.id)) {
+      G.collection.discoveredItemIds.push(prize.id);
+      if (!G.newIds.includes(prize.id)) G.newIds.push(prize.id);
+    }
+    save();
+    S.done();
+    later(() => {
+      const m = document.createElement('div');
+      m.className = 'modal';
+      const next = PRIZES.find((p) => p.at > G.stamps);
+      m.innerHTML = `<div class="card"><h2>やったね！</h2>` +
+        `<div class="big stampbig"><div class="rays"></div>${STAMP()}</div>` +
+        `<div class="nm">スタンプ ${G.stamps}こめ！</div>` +
+        (prize ? `<div class="prize"><div class="ptitle">${icon('star')}プレゼント！</div><div class="pimg">${findSVG(prize)}</div><div class="pname">${esc(findName(prize))}</div></div>`
+          : next ? `<div class="nexthint">あと ${next.at - G.stamps}こで プレゼント</div>` : '') +
+        `<div class="acts">` +
+        (prize ? `<button class="pill main" data-a="use">${icon(prize.kind === 'furn' ? 'house' : 'dress', '#fff')}${prize.kind === 'furn' ? 'おへやに おく' : 'きてみる'}</button>` : '') +
+        `<button class="pill${prize ? '' : ' main'}" data-a="again">${icon('reset', prize ? undefined : '#fff')}もういちど</button>` +
+        `<button class="pill" data-a="menu">${icon('friends')}ほかの あそび</button></div>` +
+        `<div class="pyon-mini">${bunnySVG('happy')}</div></div>`;
+      document.body.appendChild(m);
+      const r = m.querySelector('.big').getBoundingClientRect();
+      burst(r.left + r.width / 2, r.top + r.height / 2, ['star', 'heart', 'sparkle'], 16, 170);
+      m.querySelector('[data-a=again]').addEventListener('click', () => { S.tap(); m.remove(); again(); });
+      m.querySelector('[data-a=menu]').addEventListener('click', () => { S.tap(); m.remove(); go('play'); });
+      const u = m.querySelector('[data-a=use]');
+      if (u) u.addEventListener('click', () => {
+        S.pick();
+        m.remove();
+        if (prize.kind === 'furn') go('room', { place: prize.id });
+        else {
+          const it = D.ITEMS[prize.id];
+          G.character.equippedItems[it.slot] = it.id;
+          if (it.slot === 'onepiece') G.character.equippedItems.onepiece = it.id;
+          clearNew(it.id);
+          save();
+          go('dress', { tab: it.slot, who: 'fuutan' });
+        }
+      });
+    }, 700);
+  }
+
+  // ---- メニュー ----
+  const GAMES = [
+    { id: 'hide', name: 'かくれんぼ', sub: 'どこに かくれたかな？', cls: 'g1', icon: () => KP.ICONS.search('#fff') },
+    { id: 'memory', name: 'カードあわせ', sub: 'おなじ えを さがそう', cls: 'g2', icon: () => `<rect x="14" y="20" width="38" height="56" rx="8" fill="#fff" transform="rotate(-10 33 48)"/><rect x="48" y="20" width="38" height="56" rx="8" fill="#fff" transform="rotate(10 67 48)"/>${KP.heart(34, 46, 9, '#F29CC2')}${KP.heart(66, 46, 9, '#F29CC2')}` },
+    { id: 'balloon', name: 'ふうせん あつめ', sub: 'ふうせんを タッチ', cls: 'g3', icon: () => `<ellipse cx="38" cy="38" rx="20" ry="24" fill="#fff"/><ellipse cx="64" cy="44" rx="18" ry="22" fill="#FFE9F2"/><path d="M38,62 Q34,76 42,92 M64,66 Q68,80 60,92" stroke="#fff" stroke-width="3" fill="none"/>` },
+    { id: 'cake', name: 'ケーキづくり', sub: 'みんなで パーティー', cls: 'g4', icon: () => KP.ICONS.cake('#fff').replace('#FFF6E8', '#fff') },
+  ];
+  SCREENS.play = function (el) {
+    const n = G.stamps || 0;
+    let card = '';
+    for (let i = 1; i <= 10; i++) {
+      const pz = PRIZES.find((p) => p.at === i);
+      card += `<div class="st${i <= n ? ' got' : ''}${pz ? ' gift' : ''}">${i <= n ? STAMP() : pz ? findSVG(pz) : `<span>${i}</span>`}</div>`;
+    }
+    el.innerHTML = topbar('なかまと あそぶ') +
+      `<div class="play-body"><div class="mates">${playMates().concat('pyonta').map((w) => `<div class="mate">${mateFace(w, 'joy')}</div>`).join('')}</div>` +
+      `<div class="gcards">${GAMES.map((g) => `<button class="gcard ${g.cls}" data-g="${g.id}"><span class="gi">${svg('0 0 100 100', g.icon())}</span><span class="gn">${g.name}</span><span class="gs">${g.sub}</span></button>`).join('')}</div>` +
+      `<div class="stampcard"><div class="sc-h">${icon('star')}スタンプカード ${n > 10 ? `<span class="sc-n">${n}こ</span>` : ''}</div><div class="sc-grid">${card}</div></div></div>`;
+    bindHome(el);
+    el.querySelectorAll('[data-g]').forEach((b) => b.addEventListener('click', () => { S.pick(); go(b.dataset.g); }));
+  };
+
+  // ---- かくれんぼ ----
+  const HIDE_SPOTS = [
+    { id: 'plant', furn: 'plant', color: 'pink', x: 240, y: 730, s: 1.2 },
+    { id: 'shelf', furn: 'shelf', color: 'mint', x: 475, y: 725, s: 1.0 },
+    { id: 'closet', furn: 'closet', color: 'lav', x: 730, y: 722, s: 0.98 },
+    { id: 'sofa', furn: 'sofa', color: 'pink', x: 320, y: 975, s: 1.1 },
+    { id: 'bed', furn: 'bed', color: 'blue', x: 680, y: 985, s: 0.95 },
+  ];
+  function spotTop(sp) { return sp.y - KP.FURN[sp.furn].h * sp.s; }
+  // みつけた こは まえに ならぶ
+  const foundPos = (i) => ({ x: 260 + i * 160, y: 990 });
+  function hiderG(w, sp, found, side = 0) {
+    if (found) sp = { ...found, furn: 'plant', s: 0 };
+    if (w === 'pyonta') {
+      const sc = 0.62;
+      const y = found ? sp.y : spotTop(sp) - 40;
+      const x = found ? sp.x : sp.x + 20;
+      return `<g transform="translate(${x - 100 * sc} ${found ? y - 220 * sc : y}) scale(${sc})"><g class="hider${found ? ' bounce' : ' peek'}">${KP.drawBunny(found ? 'happy' : 'normal')}</g></g>`;
+    }
+    const sc = 0.42;
+    const opt = friendOpt(w, found ? { expr: 'joy', pose: 'joy' } : { expr: 'lookL' });
+    if (found) return `<g transform="translate(${sp.x - 200 * sc} ${sp.y - 640 * sc}) scale(${sc})"><g class="hider bounce">${KP.drawChar(opt)}</g></g>`;
+    // あたまの うえだけ ちょっと でている
+    const y = spotTop(sp) - 150 * sc;
+    return `<g transform="translate(${sp.x - 30 - 200 * sc} ${y}) scale(${sc})"><g class="hider peek">${KP.drawChar(opt)}</g></g>`;
+  }
+  SCREENS.hide = function (el) {
+    const hiders = playMates().filter((w) => w !== 'fuutan').concat('pyonta');
+    const spots = HIDE_SPOTS.slice().sort(() => Math.random() - 0.5);
+    const where = {};
+    hiders.forEach((w, i) => (where[spots[i].id] = w));
+    const found = [];
+    el.innerHTML = gameTop('かくれんぼ') +
+      `<div class="stage" id="hStage"></div>` +
+      `<div class="foundbar" id="hBar"></div>`;
+    bindGameTop(el);
+    const stage = el.querySelector('#hStage');
+    const bar = el.querySelector('#hBar');
+    function drawBar() {
+      bar.innerHTML = `<span class="fb-l">みつけた</span>` + hiders.map((w) => `<div class="slot${found.includes(w) ? ' got' : ''}">${found.includes(w) ? mateFace(w, 'joy') : svg('0 0 100 100', `<circle cx="50" cy="50" r="30" fill="#EDE5FB"/><text x="50" y="62" text-anchor="middle" font-size="36" font-weight="900" fill="#C9B8E6" font-family="sans-serif">?</text>`)}</div>`).join('');
+    }
+    function draw() {
+      let o = KP.drawRoomBG({ wallpaperId: 'hearts', floorId: 'wood', curtain: 'pink' });
+      const furnG2 = (sp) => `<g transform="translate(${sp.x - (KP.FURN[sp.furn].w * sp.s) / 2} ${spotTop(sp)}) scale(${sp.s})"><g class="spot" data-spot="${sp.id}">${KP.FURN[sp.furn].draw(KP.PAL[sp.color], KP.uid('h'))}</g></g>`;
+      const back = HIDE_SPOTS.filter((s) => s.y < 800), front = HIDE_SPOTS.filter((s) => s.y >= 800);
+      for (const row of [back, front]) {
+        for (const sp of row) if (where[sp.id] && !found.includes(where[sp.id])) o += hiderG(where[sp.id], sp, false);
+        for (const sp of row) o += furnG2(sp);
+      }
+      found.forEach((w, i) => (o += hiderG(w, null, foundPos(i))));
+      o += `<g id="hHint"></g>`;
+      stage.innerHTML = svg('150 180 700 820', o);
+      bindSpots();
+    }
+    let lastFind = Date.now();
+    function bindSpots() {
+      const sv = stage.querySelector('svg');
+      sv.querySelectorAll('.spot').forEach((g) => g.addEventListener('click', () => {
+        const id = g.dataset.spot;
+        const sp = HIDE_SPOTS.find((s) => s.id === id);
+        const w = where[id];
+        const p = svgToScreen(sv, sp.x, spotTop(sp) + 40);
+        if (w && !found.includes(w)) {
+          found.push(w);
+          lastFind = Date.now();
+          S.find();
+          draw();
+          drawBar();
+          const sv2 = stage.querySelector('svg');
+          const fp = foundPos(found.length - 1);
+          const q = svgToScreen(sv2, fp.x, fp.y - 230);
+          burst(q.x, q.y + 60, ['star', 'heart', 'sparkle'], 12, 120);
+          bubble(q.x, q.y, `${icon('heart')}みつかっちゃった！`);
+          if (found.length === hiders.length) later(() => finishGame(() => go('hide')), 1400);
+        } else {
+          g.classList.remove('wiggle'); void g.getBBox(); g.classList.add('wiggle');
+          S.pop();
+          burst(p.x, p.y, ['sparkle', 'star'], 6, 70);
+          if (Math.random() < 0.5) bubble(p.x, p.y - 10, `${icon('search')}ここには いないね`, 1400);
+        }
+      }));
+    }
+    draw();
+    drawBar();
+    const intro = document.createElement('div');
+    intro.className = 'hint';
+    intro.style.top = '82px';
+    intro.innerHTML = `${icon('search')}みんな どこに かくれたかな？`;
+    el.appendChild(intro);
+    later(() => intro.remove(), 3500);
+    // ヒント：しばらく みつからないと キラキラ
+    every(() => {
+      if (found.length === hiders.length || Date.now() - lastFind < 9000) return;
+      lastFind = Date.now();
+      const id = Object.keys(where).find((k) => !found.includes(where[k]));
+      const sp = HIDE_SPOTS.find((s) => s.id === id);
+      const h = stage.querySelector('#hHint');
+      if (h) h.innerHTML = `<g class="floaty">${KP.sparkle(sp.x + 50, spotTop(sp) - 40, 26, '#FFE28A')}${KP.sparkle(sp.x - 50, spotTop(sp) - 10, 16, '#fff')}</g>`;
+      later(() => { const h2 = stage.querySelector('#hHint'); if (h2) h2.innerHTML = ''; }, 2600);
+    }, 1500);
+  };
+
+  // ---- カードあわせ ----
+  SCREENS.memory = function (el) {
+    const pool = [
+      ...D.ITEM_LIST.filter((i) => owned(i.id)).map((i) => ({ k: i.id, html: () => itemSVG(i) })),
+      ...playMates().map((w) => ({ k: 'f-' + w, html: () => mateFace(w, 'joy') })),
+      { k: 'pyonta', html: () => mateFace('pyonta', 'joy') },
+    ].sort(() => Math.random() - 0.5);
+    // なかまの かおは かならず いれる
+    const faces = pool.filter((p) => p.k.startsWith('f-') || p.k === 'pyonta').slice(0, 2);
+    const rest = pool.filter((p) => !faces.includes(p)).slice(0, 6 - faces.length);
+    const pairs = faces.concat(rest);
+    const cards = pairs.concat(pairs).map((p, i) => ({ ...p, i, open: false, done: false })).sort(() => Math.random() - 0.5);
+    el.innerHTML = gameTop('カードあわせ') +
+      `<div class="mem-top" id="mTop"></div><div class="mem-wrap"><div class="mem-grid" id="mGrid"></div></div>`;
+    bindGameTop(el);
+    const grid = el.querySelector('#mGrid');
+    const top = el.querySelector('#mTop');
+    const mates = playMates().concat('pyonta');
+    let got = 0;
+    function drawTop(cheer) {
+      top.innerHTML = `<div class="mates">${mates.map((w) => `<div class="mate${cheer ? ' hop' : ''}">${mateFace(w, cheer ? 'joy' : 'smile')}</div>`).join('')}</div>` +
+        `<div class="pairs">${pairs.map((_, i) => `<span class="pp${i < got ? ' got' : ''}">${svg('0 0 100 100', KP.star(50, 50, 40, i < got ? '#FFE28A' : '#EDE5FB', i < got ? '#E9B44C' : '#DCD0F0', 5))}</span>`).join('')}</div>`;
+    }
+    const back = svg('0 0 100 130', `<rect x="4" y="4" width="92" height="122" rx="14" fill="url(#mb)" stroke="#fff" stroke-width="6"/><defs>${KP.lg('mb', [[0, '#D9C9FA'], [1, '#F6B7D2']])}</defs>${KP.star(50, 65, 22, '#fff', null)}${KP.sparkle(26, 30, 7, '#fff')}${KP.sparkle(76, 104, 7, '#fff')}`);
+    function drawGrid() {
+      grid.innerHTML = cards.map((c, n) => `<button class="mcard${c.open || c.done ? ' open' : ''}${c.done ? ' done' : ''}" data-n="${n}"><span class="face">${c.html()}</span><span class="back">${back}</span></button>`).join('');
+    }
+    drawTop(false);
+    drawGrid();
+    let first = null, lock = false;
+    grid.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-n]');
+      if (!b || lock) return;
+      const c = cards[+b.dataset.n];
+      if (c.open || c.done) return;
+      c.open = true;
+      b.classList.add('open');
+      S.tap();
+      if (!first) { first = c; return; }
+      const a = first;
+      first = null;
+      if (a.k === c.k) {
+        a.done = c.done = true;
+        got++;
+        later(() => {
+          S.sparkle();
+          grid.querySelectorAll('.mcard').forEach((x, n) => { if (cards[n] === a || cards[n] === c) { x.classList.add('done'); const r = x.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, ['star', 'sparkle'], 6, 60); } });
+          drawTop(true);
+          later(() => drawTop(false), 900);
+          if (got === pairs.length) later(() => finishGame(() => go('memory')), 900);
+        }, 250);
+      } else {
+        lock = true;
+        later(() => {
+          a.open = c.open = false;
+          grid.querySelectorAll('.mcard').forEach((x, n) => { if (cards[n] === a || cards[n] === c) x.classList.remove('open'); });
+          lock = false;
+        }, 1000);
+      }
+    });
+  };
+
+  // ---- ふうせん あつめ ----
+  SCREENS.balloon = function (el) {
+    const GOAL = 20;
+    let n = 0, k = 0, over = false;
+    el.innerHTML = gameTop('ふうせん あつめ') +
+      `<div class="bal-meter"><div class="bm-bar"><div class="bm-fill" id="bFill"></div></div><span id="bNum">0 / ${GOAL}</span></div>` +
+      `<div class="bal-stage" id="bStage"><div class="bal-mates" id="bMates"></div></div>`;
+    bindGameTop(el);
+    const stage = el.querySelector('#bStage');
+    const fill = el.querySelector('#bFill');
+    const num = el.querySelector('#bNum');
+    const matesEl = el.querySelector('#bMates');
+    const mates = playMates().concat('pyonta');
+    function drawMates(cheer) {
+      matesEl.innerHTML = mates.map((w) => `<div class="bm${cheer ? ' hop' : ''}">${w === 'pyonta' ? bunnySVG(cheer ? 'happy' : 'normal') : charSVG(friendOpt(w, { pose: cheer ? 'joy' : 'wave', expr: cheer ? 'joy' : 'smile' }))}</div>`).join('');
+    }
+    drawMates(false);
+    const COLORS = [['#F8BCD6', '#E07AA8'], ['#C9B5F5', '#8C6FD6'], ['#BDEBDC', '#6FC3A8'], ['#BCD4FA', '#6F98E2'], ['#FFE59A', '#E9B44C']];
+    function spawn() {
+      if (over) return;
+      k++;
+      const gold = k % 9 === 0;
+      const [c, d] = gold ? ['#FFE28A', '#D29A3A'] : rand(COLORS);
+      const b = document.createElement('button');
+      b.className = 'bln' + (gold ? ' gold' : '');
+      const W = stage.clientWidth;
+      const size = Math.min(110, Math.max(76, W * 0.2));
+      b.style.width = size + 'px';
+      b.style.height = size * 1.4 + 'px';
+      b.style.left = (Math.random() * (W - size)) + 'px';
+      b.style.animationDuration = (6 + Math.random() * 2.5) + 's';
+      const inner = gold ? KP.star(50, 50, 18, '#fff', null) : rand([KP.heart(50, 52, 12, '#fff'), KP.star(50, 50, 14, '#fff', null), KP.sparkle(50, 50, 14, '#fff')]);
+      b.innerHTML = svg('0 0 100 140', `<path d="M50,96 Q44,112 54,124 Q60,132 52,140" fill="none" stroke="#B3A5CF" stroke-width="2"/><ellipse cx="50" cy="50" rx="40" ry="46" fill="${c}" stroke="${d}" stroke-width="3"/><path d="M44,95 L56,95 L52,102 L48,102Z" fill="${d}"/><ellipse cx="34" cy="32" rx="9" ry="14" fill="#fff" opacity=".6" transform="rotate(-20 34 32)"/>${inner}`);
+      const pop = (e) => {
+        e.preventDefault();
+        if (b.dataset.popped) return;
+        b.dataset.popped = 1;
+        const r = b.getBoundingClientRect();
+        burst(r.left + r.width / 2, r.top + r.height * 0.35, gold ? ['star', 'sparkle'] : ['sparkle', 'heart', 'star'], gold ? 14 : 8, gold ? 120 : 80);
+        b.remove();
+        S.pop();
+        n = Math.min(GOAL, n + (gold ? 3 : 1));
+        fill.style.width = (n / GOAL) * 100 + '%';
+        num.textContent = `${n} / ${GOAL}`;
+        if (gold) { S.sparkle(); drawMates(true); later(() => !over && drawMates(false), 900); }
+        if (n >= GOAL && !over) {
+          over = true;
+          drawMates(true);
+          stage.querySelectorAll('.bln').forEach((x) => x.remove());
+          later(() => finishGame(() => go('balloon')), 600);
+        }
+      };
+      b.addEventListener('pointerdown', pop);
+      b.addEventListener('animationend', () => b.remove());
+      stage.appendChild(b);
+    }
+    spawn();
+    every(spawn, 850);
+  };
+
+  // ---- ケーキづくり ----
+  const CREAMS = { pink: ['#FFD3E6', '#F29CC2'], white: ['#FFFDF8', '#E8DCCB'], choco: ['#B9805E', '#86553A'], mint: ['#CFF2E5', '#7FCDB2'], lemon: ['#FFF0B8', '#E9C25C'], lav: ['#E6DBFF', '#B39CEE'] };
+  const TOPS = ['strawberry', 'star', 'heart', 'candle', 'bunny', 'macaron'];
+  function drawTop1(t, x, y) {
+    if (t === 'strawberry') return `<g transform="translate(${x} ${y})"><path d="M0,14 C-16,4 -14,-12 0,-10 C14,-12 16,4 0,14Z" fill="#F0506E" stroke="#C23452" stroke-width="1.6"/><path d="M-7,-10 L0,-16 L7,-10 L0,-7Z" fill="#7FCDB2"/><circle cx="-4" cy="-1" r="1.3" fill="#FFE59A"/><circle cx="4" cy="3" r="1.3" fill="#FFE59A"/></g>`;
+    if (t === 'star') return KP.star(x, y - 4, 13, '#FFE28A', '#E9B44C', 1.8);
+    if (t === 'heart') return KP.heart(x, y - 2, 12, '#F29CC2', '#C9668F', 1.8);
+    if (t === 'candle') return `<g transform="translate(${x} ${y})"><rect x="-4" y="-40" width="8" height="40" rx="3" fill="#BCD4FA" stroke="#6F98E2" stroke-width="1.4"/><path d="M-4,-30 L4,-34 M-4,-18 L4,-22" stroke="#fff" stroke-width="2"/><path class="flame" d="M0,-58 C6,-50 6,-44 0,-42 C-6,-44 -6,-50 0,-58Z" fill="#FFB347" stroke="#FF8A3D" stroke-width="1"/></g>`;
+    if (t === 'bunny') return `<g transform="translate(${x - 16} ${y - 30}) scale(0.16)">${KP.drawBunny('happy')}</g>`;
+    return `<g transform="translate(${x} ${y})"><ellipse cy="-8" rx="13" ry="7" fill="#C9B5F5" stroke="#8C6FD6" stroke-width="1.4"/><rect x="-12" y="-6" width="24" height="5" rx="2" fill="#fff"/><ellipse cy="2" rx="13" ry="7" fill="#C9B5F5" stroke="#8C6FD6" stroke-width="1.4"/></g>`;
+  }
+  function drawCake(c) {
+    const [cr, cd] = CREAMS[c.cream] || CREAMS.pink;
+    const drip = (cx, y, rx, ry) => {
+      let d = `M${cx - rx},${y} `;
+      const n = 9;
+      for (let i = 0; i < n; i++) {
+        const a0 = Math.PI - (i / n) * Math.PI, a1 = Math.PI - ((i + 1) / n) * Math.PI;
+        const x0 = cx + Math.cos(a0) * rx, x1 = cx + Math.cos(a1) * rx;
+        const y0 = y + Math.sin(a0) * ry, y1 = y + Math.sin(a1) * ry;
+        const dd = 16 + (i % 3) * 8;
+        d += `C${x0},${y0 + dd} ${x1},${y1 + dd} ${x1},${y1} `;
+      }
+      return `<path d="${d}" fill="${cr}" stroke="${cd}" stroke-width="2"/>`;
+    };
+    const layer = (cx, top, bot, rx, ry) =>
+      `<path d="M${cx - rx},${top} L${cx - rx},${bot} A${rx},${ry} 0 0,0 ${cx + rx},${bot} L${cx + rx},${top}Z" fill="#FFF3DF" stroke="#E2C9A6" stroke-width="2"/>` +
+      `<path d="M${cx - rx},${(top + bot) / 2 + 6} A${rx},${ry} 0 0,0 ${cx + rx},${(top + bot) / 2 + 6}" fill="none" stroke="#F29CC2" stroke-width="6" opacity=".7"/>` +
+      `<ellipse cx="${cx}" cy="${top}" rx="${rx}" ry="${ry}" fill="${cr}" stroke="${cd}" stroke-width="2"/>` + drip(cx, top, rx, ry);
+    let o = `<ellipse cx="300" cy="420" rx="230" ry="46" fill="#fff" stroke="#DCD0F0" stroke-width="3"/><ellipse cx="300" cy="414" rx="200" ry="34" fill="#F6F0FF"/>`;
+    if (c.shape === 'tier') o += layer(300, 300, 400, 160, 42) + layer(300, 190, 280, 100, 26);
+    else o += layer(300, 250, 400, 160, 44);
+    const tops = (c.tops || []).slice().sort((a, b) => a.y - b.y);
+    o += tops.map((t) => `<g transform="translate(${t.x} ${t.y}) scale(1.5) translate(${-t.x} ${-t.y})">${drawTop1(t.t, t.x, t.y)}</g>`).join('');
+    return o;
+  }
+  function cakeSpot(c) {
+    const a = Math.random() * Math.PI * 2, r = Math.sqrt(Math.random()) * 0.82;
+    if (c.shape === 'tier') return { x: Math.round(300 + Math.cos(a) * r * 84), y: Math.round(192 + Math.sin(a) * r * 20) };
+    return { x: Math.round(300 + Math.cos(a) * r * 136), y: Math.round(252 + Math.sin(a) * r * 34) };
+  }
+  SCREENS.cake = function (el) {
+    const c = { shape: 'round', cream: 'pink', tops: [] };
+    let step = 'shape';
+    el.innerHTML = gameTop('ケーキづくり') +
+      `<div class="cake-stage" id="cStage"></div>` +
+      `<div class="cake-steps" id="cSteps"></div>` +
+      `<div class="cake-opts" id="cOpts"></div>`;
+    bindGameTop(el);
+    const stage = el.querySelector('#cStage');
+    const steps = el.querySelector('#cSteps');
+    const opts = el.querySelector('#cOpts');
+    function drawStage(guests) {
+      let o = `<rect width="600" height="520" fill="#FFF6FA"/>` + [[60, 60], [540, 90], [90, 300], [520, 330]].map(([x, y], i) => (i % 2 ? KP.star(x, y, 10, '#FFE59A') : KP.sparkle(x, y, 12, '#fff'))).join('');
+      o += `<rect y="430" width="600" height="90" fill="#F3E3F2"/>`;
+      if (guests) {
+        const m = playMates().concat('pyonta');
+        m.forEach((w, i) => {
+          const x = 70 + (i * 460) / Math.max(1, m.length - 1);
+          o += w === 'pyonta' ? `<g transform="translate(${x - 50} 330) scale(0.5)">${KP.drawBunny('happy')}</g>` : `<g transform="translate(${x - 56} 230) scale(0.28)">${KP.drawChar(friendOpt(w, { pose: 'joy', expr: 'joy' }))}</g>`;
+        });
+      }
+      o += drawCake(c);
+      stage.innerHTML = svg('0 0 600 520', o);
+    }
+    function drawSteps() {
+      steps.innerHTML = [['shape', 'かたち'], ['cream', 'クリーム'], ['tops', 'かざり']].map(([k, n], i) => `<button class="cstep${step === k ? ' sel' : ''}" data-s="${k}"><b>${i + 1}</b>${n}</button>`).join('') +
+        `<button class="pill main cdone" data-s="done">${icon('heart', '#fff')}できた！</button>`;
+    }
+    function drawOpts() {
+      if (step === 'shape') {
+        opts.innerHTML = [['round', 'まるい'], ['tier', '2だん']].map(([k, n]) => `<button class="copt${c.shape === k ? ' sel' : ''}" data-shape="${k}">${svg('60 120 480 330', drawCake({ shape: k, cream: c.cream, tops: [] }))}<span>${n}</span></button>`).join('');
+      } else if (step === 'cream') {
+        opts.innerHTML = Object.keys(CREAMS).map((k) => `<button class="copt${c.cream === k ? ' sel' : ''}" data-cream="${k}">${svg('0 0 100 100', `<path d="M20,60 Q20,30 50,24 Q80,30 80,60 Q66,72 50,62 Q34,72 20,60Z" fill="${CREAMS[k][0]}" stroke="${CREAMS[k][1]}" stroke-width="4"/><path d="M40,34 Q46,28 54,30" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>`)}</button>`).join('');
+      } else {
+        opts.innerHTML = TOPS.map((t) => `<button class="copt" data-top="${t}">${svg(t === 'candle' ? '-22 -62 44 66' : t === 'bunny' ? '-20 -36 40 44' : '-19 -23 38 40', drawTop1(t, 0, 0))}</button>`).join('') +
+          `<button class="copt" data-top="clear">${icon('reset')}<span>やりなおし</span></button>`;
+      }
+    }
+    drawStage(); drawSteps(); drawOpts();
+    steps.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-s]');
+      if (!b) return;
+      S.tap();
+      if (b.dataset.s === 'done') {
+        drawStage(true);
+        S.done();
+        const r = stage.getBoundingClientRect();
+        burst(r.left + r.width / 2, r.top + r.height * 0.45, ['heart', 'star', 'sparkle'], 16, 160);
+        bubble(r.left + r.width * 0.25, r.top + r.height * 0.35, `${icon('cake')}おいしそう！`, 2200);
+        later(() => bubble(r.left + r.width * 0.75, r.top + r.height * 0.35, `${icon('heart')}いただきます！`, 2200), 500);
+        G.album.unshift({ id: 'a' + Date.now(), type: 'cake', createdAt: Date.now(), snapshot: JSON.parse(JSON.stringify(c)) });
+        if (G.album.length > 60) G.album.length = 60;
+        save();
+        later(() => finishGame(() => go('cake')), 1700);
+        return;
+      }
+      step = b.dataset.s;
+      drawSteps(); drawOpts();
+    });
+    opts.addEventListener('click', (e) => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      if (b.dataset.shape) {
+        c.shape = b.dataset.shape;
+        c.tops.forEach((t) => Object.assign(t, cakeSpot(c)));
+      }
+      if (b.dataset.cream) c.cream = b.dataset.cream;
+      if (b.dataset.top === 'clear') c.tops = [];
+      else if (b.dataset.top) {
+        if (c.tops.length >= 18) c.tops.shift();
+        c.tops.push({ t: b.dataset.top, ...cakeSpot(c) });
+      }
+      S.pick();
+      drawStage();
+      if (!b.dataset.top) drawOpts();
+      const r = stage.getBoundingClientRect();
+      burst(r.left + r.width / 2, r.top + r.height * 0.45, ['sparkle', 'star'], 5, 70);
     });
   };
 
