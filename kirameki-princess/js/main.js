@@ -131,9 +131,65 @@
       `<text x="300" y="66" font-size="58" fill="url(#${id}b)" stroke="#fff" stroke-width="12" letter-spacing="6">きらめき</text>` +
       `<text x="300" y="150" font-size="70" fill="url(#${id}a)" stroke="#fff" stroke-width="14">プリンセスルーム</text>` +
       `<text x="300" y="150" font-size="70" fill="none" stroke="#8C6FD6" stroke-width="2" opacity=".35">プリンセスルーム</text>` +
+      `<linearGradient id="${id}s" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".95"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity="0"/><animateTransform attributeName="gradientTransform" type="translate" values="-1 0;1 0;1 0" keyTimes="0;.45;1" dur="3.6s" repeatCount="indefinite"/></linearGradient>` +
+      `<text x="300" y="150" font-size="70" fill="url(#${id}s)">プリンセスルーム</text><text x="300" y="66" font-size="58" fill="url(#${id}s)" letter-spacing="6">きらめき</text>` +
       `<text x="300" y="182" font-size="22" fill="#8C6FD6" stroke="#fff" stroke-width="6">〜ふーたんの まほうの せかい〜</text></g>` +
       KP.star(140, 40, 16, KP.GOLD.base, KP.GOLD.line, 2) + KP.sparkle(470, 34, 12, '#fff') + KP.sparkle(486, 30, 8, KP.GOLD.base) + KP.heart(548, 104, 13, '#F8BCD6', '#fff', 3) + KP.star(40, 116, 12, '#C9B5F5', '#fff', 2),
       'logo');
+  }
+
+  // ================= きらめきレベル =================
+  const RANKS = [[1, 'みならいプリンセス'], [3, 'キラキラプリンセス'], [5, 'おしゃれプリンセス'], [8, 'スーパーアイドル'], [12, 'まほうの おひめさま'], [16, 'きらめきクイーン']];
+  const needFor = (lv) => 50 + lv * 30; // lv → lv+1 に ひつような EXP
+  function lvInfo(exp = G.exp || 0) {
+    let lv = 1, rest = exp;
+    while (rest >= needFor(lv)) { rest -= needFor(lv); lv++; }
+    const title = RANKS.filter((r) => lv >= r[0]).pop()[1];
+    return { lv, rest, need: needFor(lv), title };
+  }
+  function gainExp(n, x, y) {
+    const before = lvInfo();
+    G.exp = (G.exp || 0) + n;
+    save();
+    const after = lvInfo();
+    if (x != null) {
+      const e = document.createElement('div');
+      e.className = 'exp-pop';
+      e.textContent = `+${n} EXP`;
+      e.style.left = x + 'px';
+      e.style.top = y + 'px';
+      document.body.appendChild(e);
+      setTimeout(() => e.remove(), 1400);
+    }
+    const hud = document.querySelector('.lvhud');
+    if (hud) hud.outerHTML = lvHUD();
+    if (after.lv > before.lv) setTimeout(() => levelUp(after, before), 900);
+    return after;
+  }
+  function levelUp(info, before) {
+    // ごほうび：まだ もっていない ふく・かぐを ひとつ
+    const got = (f) => G.collection.discoveredItemIds.includes(f.id) || (f.kind === 'friend' && G.collection.unlockedCharacterIds.includes(f.id));
+    const pool = D.FINDS.filter((f) => f.kind !== 'friend' && !got(f));
+    const reward = pool.length ? rand(pool) : null;
+    if (reward) { G.collection.discoveredItemIds.push(reward.id); if (!G.newIds.includes(reward.id)) G.newIds.push(reward.id); }
+    save();
+    S.henshin();
+    if (KP.fx) { KP.fx.flash('#FFF6CF'); KP.fx.confetti(innerWidth / 2, innerHeight * 0.4, 140, 1.2); KP.fx.banner('レベルアップ！', 'gold'); }
+    const newTitle = info.title !== before.title;
+    setTimeout(() => {
+      const m = document.createElement('div');
+      m.className = 'modal';
+      m.innerHTML = `<div class="card lvcard"><div class="lvbig"><span>Lv.</span>${info.lv}</div>` +
+        `<div class="nm">${newTitle ? 'あたらしい しょうごう！' : 'きらめきレベルが あがった！'}</div><div class="lvtitle">${info.title}</div>` +
+        (reward ? `<div class="prize"><div class="ptitle">${icon('star')}ごほうび！</div><div class="pimg">${findSVG(reward)}</div><div class="pname">${esc(findName(reward))}</div></div>` : '') +
+        `<div class="acts"><button class="pill main" data-a="ok">${icon('heart', '#fff')}やったー！</button></div><div class="pyon-mini">${bunnySVG('happy')}</div></div>`;
+      document.body.appendChild(m);
+      m.querySelector('[data-a=ok]').addEventListener('click', () => { S.tap(); m.remove(); });
+    }, 1300);
+  }
+  function lvHUD() {
+    const L = lvInfo();
+    return `<div class="lvhud"><span class="lvn">Lv.${L.lv}</span><span class="lvt">${L.title}</span><span class="lvbar"><i style="width:${Math.round((L.rest / L.need) * 100)}%"></i></span></div>`;
   }
 
   // ================= こうか =================
@@ -222,6 +278,7 @@
     app.appendChild(el);
     const music = name === 'henshin' ? null : ['play', 'hide', 'memory', 'balloon', 'cake'].includes(name) ? 'play' : 'home';
     S.setWanted(music);
+    if (KP.fx) { KP.fx.attach(app); KP.fx.mode({ henshin: 'stage', room: 'soft', album: 'soft', story: 'sparkle' }[name] || 'sparkle'); }
     SCREENS[name](el, arg || {});
     try { history.replaceState(null, '', '#' + name); } catch (e) { /* なにもしない */ }
   }
@@ -236,6 +293,31 @@
 
   const SCREENS = {};
 
+  // ================= タイトル =================
+  SCREENS.title = function (el) {
+    el.classList.add('title-scr');
+    let bg = '';
+    for (let i = 0; i < 50; i++) bg += i % 5 ? `<circle cx="${(i * 137) % 750}" cy="${(i * 71) % 520}" r="${1.4 + (i % 3)}" fill="#fff" opacity="${0.4 + (i % 4) / 6}"/>` : KP.sparkle((i * 137) % 750, (i * 71) % 520, 9, '#FFF1B8');
+    bg += `<g opacity=".85" transform="translate(255 470) scale(1.5)">${KP.FURN.castle.draw(KP.PAL.lav, KP.uid('tc'))}</g>`;
+    bg += `<path d="M0,820 Q200,700 380,780 Q560,690 750,780 L750,1000 L0,1000Z" fill="#FFD3E6"/><path d="M0,880 Q240,800 420,860 Q600,800 750,860 L750,1000 L0,1000Z" fill="#FFE9F2"/>`;
+    const cloud = (cls, y, s2) => `<g class="t-cloud ${cls}"><g transform="translate(0 ${y}) scale(${s2})"><ellipse cx="120" cy="40" rx="110" ry="34" fill="#fff" opacity=".85"/><ellipse cx="80" cy="20" rx="56" ry="38" fill="#fff" opacity=".85"/><ellipse cx="150" cy="16" rx="50" ry="40" fill="#fff" opacity=".85"/></g></g>`;
+    bg += cloud('a', 300, 1) + cloud('b', 560, 0.7);
+    const chars = `<g transform="translate(150 20) scale(1.05)"><g class="t-float">${KP.drawChar(fuutanOpt({ pose: 'cheer', expr: 'joy' }))}</g></g>` +
+      `<g transform="translate(40 470) scale(.95)"><g class="hopwalk">${KP.drawBunny('happy')}</g></g>`;
+    el.innerHTML = `<div class="tbg">${svg('0 0 750 1000', bg).replace('<svg ', '<svg preserveAspectRatio="xMidYMax slice" ')}</div>` +
+      `<div class="t-chars">${svg('0 0 700 720', chars)}</div>` +
+      `<div class="t-logo">${logoSVG()}</div>` +
+      `<div class="t-start">タッチで はじめる</div>`;
+    if (KP.fx) KP.fx.mode('night');
+    later(() => { S.sparkle(); }, 1000);
+    el.addEventListener('click', () => {
+      S.unlock();
+      S.done();
+      if (KP.fx) { KP.fx.flash('#fff', 500); KP.fx.confetti(innerWidth / 2, innerHeight * 0.4, 80, 1); }
+      setTimeout(() => go('home'), 250);
+    }, { once: true });
+  };
+
   // ================= ホーム =================
   function roomFurnitureSVG(room, opt = {}) {
     const list = [...room.furniture].sort((a, b) => {
@@ -247,6 +329,7 @@
     for (const p of list) o += furnG(p, opt.selected === p.instanceId);
     return o;
   }
+  let dropId = null;
   function furnScale(fid) { return (D.FURN_LIST.find((f) => f.id === fid) || { scale: 1 }).scale; }
   function furnG(p, sel) {
     const F = KP.FURN[p.furnitureId];
@@ -255,22 +338,28 @@
     const flip = p.rotation === 180 ? `<g transform="translate(${F.w} 0) scale(-1 1)">` : '<g>';
     return `<g class="fitem${sel ? ' sel' : ''}" data-iid="${p.instanceId}" transform="translate(${p.x - (F.w * s) / 2} ${p.y - F.h * s}) scale(${s})">` +
       `<rect class="selbox" x="-12" y="-12" width="${F.w + 24}" height="${F.h + 24}" rx="18" fill="rgba(255,255,255,.25)" stroke="#E07AA8" stroke-width="${4 / s}" stroke-dasharray="${14 / s} ${10 / s}"/>` +
-      `<g class="fw">${flip}${F.draw(KP.PAL[p.color] || KP.PAL.lav, KP.uid('f'))}</g></g></g>`;
+      (F.wall || F.flat ? '' : `<ellipse cx="${F.w / 2}" cy="${F.h - 2}" rx="${F.w * 0.48}" ry="${Math.max(8, F.w * 0.07)}" fill="#3A2458" opacity=".13"/>`) +
+      `<g class="fw${p.instanceId === dropId ? ' drop' : ''}">${flip}${F.draw(KP.PAL[p.color] || KP.PAL.lav, KP.uid('f'))}</g></g></g>`;
   }
 
   SCREENS.home = function (el) {
     const hasNew = (kind) => G.newIds.some((id) => (kind === 'item' ? !!D.ITEMS[id] : kind === 'furn' ? !!KP.FURN[id] : !!D.FRIENDS[id]));
     const badge = (on) => (on ? `<div class="badge">${svg('0 0 100 100', KP.star(50, 50, 44, '#FFE28A', '#E9B44C', 5) + KP.sparkle(50, 50, 18, '#fff'))}</div>` : '');
     const room = G.room;
+    const lid = KP.uid('hl');
+    // ひかりの すじ（まどから さしこむ）
+    const beams = `<defs>${KP.lg(lid + 'b', [[0, '#FFFFFF', 0.95], [0.6, '#FFF6CF', 0.35], [1, '#FFF6CF', 0]])}${KP.rg(lid + 'p', [[0, '#FFF6CF', 0.6], [1, '#FFF6CF', 0]])}${KP.rg(lid + 'v', [[0.55, '#000', 0], [1, '#3A2458', 0.35]], 0.5, 0.55, 0.75)}</defs>` +
+      [[400, 450, 260, 1000, 0], [470, 520, 470, 1080, 1.3], [540, 600, 690, 1060, 2.4]].map(([x1, x2, bx, by, d]) => `<path class="beam" style="animation-delay:-${d}s" d="M${x1},170 L${x2},170 L${bx + 150},${by} L${bx - 60},${by}Z" fill="url(#${lid}b)"/>`).join('') +
+      `<ellipse class="beam" cx="560" cy="960" rx="300" ry="60" fill="url(#${lid}p)"/>`;
     const scene =
-      `<g>${KP.drawRoomBG(room, 1000, 1180)}</g>` +
-      `<g>${roomFurnitureSVG(room)}</g>` +
-      `<g class="tapable" id="hFuu" transform="translate(305 365) scale(0.98)"><g class="breathe">${KP.drawChar(fuutanOpt({ pose: 'wave' }))}</g></g>` +
-      `<g class="tapable" id="hPyon" transform="translate(268 900) scale(0.72)"><g class="floaty">${KP.drawBunny('normal')}</g></g>` +
-      KP.sparkle(220, 470, 12, '#fff', 0.9) + KP.sparkle(780, 420, 10, '#FFE59A') + KP.sparkle(700, 330, 8, '#fff');
+      `<g class="plx" data-d="0.35">${KP.drawRoomBG(room, 1000, 1180)}${beams}</g>` +
+      `<g class="plx" data-d="0.7">${roomFurnitureSVG(room)}</g>` +
+      `<g class="plx" data-d="1.2"><g id="hFuuPos" class="walker" style="transform:translate(0px,0px)"><g class="tapable" id="hFuu" transform="translate(305 365) scale(0.98)"><g class="breathe">${KP.drawChar(fuutanOpt({ pose: 'wave' }))}</g></g></g>` +
+      `<g id="hPyonPos" class="walker" style="transform:translate(0px,0px)"><g class="tapable" id="hPyon" transform="translate(268 900) scale(0.72)"><g class="floaty">${KP.drawBunny('normal')}</g></g></g></g>` +
+      `<rect width="1000" height="1180" fill="url(#${lid}v)" pointer-events="none"/>`;
     el.innerHTML =
       `<div class="scene">${svg('0 0 1000 1180', scene).replace('<svg ', `<svg preserveAspectRatio="${wide() ? 'xMidYMid' : 'xMidYMax'} slice" `)}</div>` +
-      logoSVG() +
+      `<div class="logo-wrap">${logoSVG()}<div class="lvwrap">${lvHUD()}</div></div>` +
       `<div class="topbar"><button class="rbtn" data-act="album" aria-label="アルバム">${icon('album')}</button><button class="rbtn" data-act="sound" aria-label="おと">${icon(S.on ? 'sound' : 'mute')}</button></div>` +
       `<div class="entry-row">` +
       `<button class="entry e1" data-go="dress">${icon('dress', '#fff')}<span>きせかえ</span>${badge(hasNew('item'))}</button>` +
@@ -314,6 +403,37 @@
       bubble(p.x, p.y, rand([icon('heart'), icon('star'), icon('music')]));
       later(() => { py.innerHTML = `<g class="floaty">${KP.drawBunny('normal')}</g>`; }, 1300);
     });
+    // おくゆき（ゆびや かたむきで そうが ずれる）
+    const layers = [...svgEl.querySelectorAll('.plx')];
+    let tx = 0, ty = 0, cx = 0, cy = 0;
+    const onMove = (e) => { tx = (e.clientX / innerWidth - 0.5) * 2; ty = (e.clientY / innerHeight - 0.5) * 2; };
+    const onTilt = (e) => { if (e.gamma == null) return; tx = Math.max(-1, Math.min(1, e.gamma / 25)); ty = Math.max(-1, Math.min(1, (e.beta - 40) / 25)); };
+    addEventListener('pointermove', onMove);
+    addEventListener('deviceorientation', onTilt);
+    let raf = 0, t0 = performance.now();
+    const loop = (now) => {
+      const drift = Math.sin((now - t0) / 2600) * 0.25;
+      cx += (tx + drift - cx) * 0.06; cy += (ty - cy) * 0.06;
+      layers.forEach((g) => { const d = +g.dataset.d; g.setAttribute('transform', `translate(${(-cx * d * 18).toFixed(1)} ${(-cy * d * 8).toFixed(1)})`); });
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    cleanup.push(() => { cancelAnimationFrame(raf); removeEventListener('pointermove', onMove); removeEventListener('deviceorientation', onTilt); });
+    // ふーたんと ぴょんたが じぶんで うごく
+    const fuuPos = el.querySelector('#hFuuPos'), pyPos = el.querySelector('#hPyonPos');
+    let busy = false;
+    const idle = () => {
+      if (busy) return;
+      const act = rand(['twirl', 'jump', 'look', 'walk', 'wave', 'pyon']);
+      if (act === 'walk') { fuuPos.style.transform = `translate(${rand([-90, -40, 0, 50, 90])}px,0px)`; fuu.innerHTML = `<g class="walkbob">${KP.drawChar(fuutanOpt({ pose: 'stand', expr: 'smile' }))}</g>`; later(() => { if (!busy) fuu.innerHTML = `<g class="breathe">${KP.drawChar(fuutanOpt({ pose: 'wave' }))}</g>`; }, 1400); }
+      else if (act === 'twirl') { fuu.innerHTML = `<g class="twirl">${KP.drawChar(fuutanOpt({ pose: 'joy', expr: 'joy' }))}</g>`; S.sparkle(); const p = svgToScreen(svgEl, 500, 600); burst(p.x, p.y, ['sparkle', 'star'], 8, 90); later(() => { if (!busy) fuu.innerHTML = `<g class="breathe">${KP.drawChar(fuutanOpt({ pose: 'wave' }))}</g>`; }, 1000); }
+      else if (act === 'jump') { fuu.innerHTML = `<g class="hop">${KP.drawChar(fuutanOpt({ pose: 'cheer', expr: 'joy' }))}</g>`; later(() => { if (!busy) fuu.innerHTML = `<g class="breathe">${KP.drawChar(fuutanOpt({ pose: 'wave' }))}</g>`; }, 800); }
+      else if (act === 'look') { const e2 = rand(['lookL', 'lookR']); fuu.innerHTML = `<g class="breathe">${KP.drawChar(fuutanOpt({ pose: 'stand', expr: e2 }))}</g>`; later(() => { if (!busy) fuu.innerHTML = `<g class="breathe">${KP.drawChar(fuutanOpt({ pose: 'wave' }))}</g>`; }, 1600); }
+      else if (act === 'wave') { fuu.innerHTML = `<g class="bounce">${KP.drawChar(fuutanOpt({ pose: 'wave', expr: 'wink' }))}</g>`; later(() => { if (!busy) fuu.innerHTML = `<g class="breathe">${KP.drawChar(fuutanOpt({ pose: 'wave' }))}</g>`; }, 1200); }
+      else { pyPos.style.transform = `translate(${rand([-120, -40, 60, 180, 420])}px,0px)`; py.innerHTML = `<g class="hopwalk">${KP.drawBunny('happy')}</g>`; later(() => { py.innerHTML = `<g class="floaty">${KP.drawBunny('normal')}</g>`; }, 1300); }
+    };
+    every(idle, 3800);
+    fuu.addEventListener('pointerdown', () => { busy = true; later(() => (busy = false), 2200); });
     // かぐに さわると ちいさな はんのう
     svgEl.querySelectorAll('.fitem').forEach((g) => g.addEventListener('click', () => {
       const w = g.querySelector('.fw');
@@ -350,6 +470,7 @@
       topbar('きせかえルーム') +
       `<div class="dress-main"><div class="preview">` +
       `<div class="bg">${svg('0 0 600 700', dressRoomBG()).replace('<svg ', '<svg preserveAspectRatio="xMidYMid slice" ')}</div>` +
+      `<div class="spot-cone"></div><div class="turntable">${svg('0 0 300 80', `<defs>${KP.rg('ttg', [[0, '#FFFFFF'], [0.7, '#F3ECFF'], [1, '#D9C9FA']])}</defs><ellipse cx="150" cy="44" rx="146" ry="34" fill="#C9B5F5"/><ellipse cx="150" cy="36" rx="146" ry="34" fill="url(#ttg)" stroke="#fff" stroke-width="4"/><ellipse class="tt-ring" cx="150" cy="36" rx="118" ry="24" fill="none" stroke="#FFB8D6" stroke-width="3" stroke-dasharray="6 10"/>`)}</div>` +
       `<div class="char" id="dChar"></div>` +
       `<div class="who" id="dWho"></div>` +
       `<div class="pal" id="dPyon">${bunnySVG('normal')}</div>` +
@@ -458,7 +579,7 @@
       if (typeof drawWho === 'function') drawWho();
       S.pick();
       clearTimeout(exprT);
-      drawChar(rand(['happy', 'joy', 'smile']), 'bounce');
+      drawChar(rand(['happy', 'joy', 'smile']), rand(['bounce', 'twirl', 'bounce']));
       exprT = later(() => drawChar(), 900);
       const r = charBox.getBoundingClientRect();
       burst(r.left + r.width / 2, r.top + r.height * (it && it.slot === 'shoes' ? 0.9 : it && it.slot === 'hair' ? 0.12 : 0.5), ['sparkle', 'star'], 6, 80);
@@ -533,6 +654,7 @@
       S.sparkle();
     });
     el.querySelector('[data-a=save]').addEventListener('click', (e) => {
+      gainExp(3, e.clientX, e.clientY - 40);
       G.character.savedOutfits.unshift({ id: 'o' + Date.now(), equippedItems: { ...eq }, hairStyle: R.hairStyle || 'long', hairColor: R.hairColor || 'pink', who: dressWho });
       if (G.character.savedOutfits.length > 30) G.character.savedOutfits.length = 30;
       save();
@@ -571,6 +693,7 @@
     el.innerHTML =
       `<div class="stagebg">${svg('0 0 1000 1000', bg).replace('<svg ', '<svg preserveAspectRatio="xMidYMid slice" ')}</div>` +
       `<div class="hs-ring">${svg('0 0 100 100', ring)}</div>` +
+      `<div class="hs-ribbons">${svg('0 0 200 200', `<path class="rb1" d="M100,190 C10,170 10,120 100,110 C190,100 190,50 100,40 C40,32 50,10 100,8" fill="none" stroke="#FFB8D6" stroke-width="7" stroke-linecap="round"/><path class="rb2" d="M100,190 C190,170 190,120 100,110 C10,100 10,50 100,40 C160,32 150,10 100,8" fill="none" stroke="#C9B5F5" stroke-width="7" stroke-linecap="round"/><path class="rb3" d="M100,196 C30,160 170,140 100,100 C30,60 170,40 100,4" fill="none" stroke="#FFE59A" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 10"/>`)}</div>` +
       `<div class="hs-char" id="hsChar">${charSVG(friendOpt(who, { pose: 'cheer', expr: 'happy' }), 'silhouette')}</div>` +
       `<div class="hs-bunny" id="hsBun">${bunnySVG('happy')}</div>` +
       `<div class="hs-flash" id="hsFlash"></div>` +
@@ -583,6 +706,21 @@
     const charEl = el.querySelector('#hsChar');
     let done = false;
     S.henshin();
+    // パーツが ひとつずつ ひかって つく
+    const eqAll = R.equippedItems;
+    const STEPS = [[['shoes'], 0.92, 0.5], [['skirt', 'onepiece'], 0.66, 0.5], [['tops'], 0.46, 0.5], [['ribbon', 'hair'], 0.16, 0.5], [['magic'], 0.38, 0.78]];
+    const have = [];
+    STEPS.forEach(([slots, fy, fx], i) => later(() => {
+      if (done) return;
+      have.push(...slots);
+      const part = {};
+      for (const k of have) if (eqAll[k]) part[k] = eqAll[k];
+      charEl.innerHTML = svg(CHAR_VB, `<g class="partpop">${KP.drawChar(friendOpt(who, { pose: i === 4 ? 'cheer' : 'stand', expr: 'happy', outfit: toDraw(part) }))}</g>`);
+      const r = charEl.getBoundingClientRect();
+      burst(r.left + r.width * fx, r.top + r.height * fy, ['star', 'sparkle', 'heart'], 12, 110);
+      if (KP.fx) KP.fx.flash('rgba(255,255,255,.5)', 260);
+      S.pick();
+    }, 700 + i * 420));
     // ひかりの つぶ
     every(() => {
       if (done) return;
@@ -594,6 +732,9 @@
       done = true;
       const fl = el.querySelector('#hsFlash');
       fl.classList.add('go');
+      el.classList.add('final');
+      if (KP.fx) { KP.fx.confetti(innerWidth / 2, innerHeight * 0.3, 120, 1.1); KP.fx.shake(el, 6); }
+      gainExp(5, innerWidth / 2, innerHeight * 0.25);
       charEl.innerHTML = svg(CHAR_VB, `<g class="bounce">${KP.drawChar(friendOpt(who, { pose: 'cheer', expr: 'joy' }))}</g>`);
       el.querySelector('.hs-ring').style.opacity = '.55';
       el.querySelector('#hsTitle').classList.add('show');
@@ -614,7 +755,7 @@
         save();
       }
     }
-    later(finish, 2000);
+    later(finish, 3100);
     el.addEventListener('click', (e) => { if (!done && !e.target.closest('button')) finish(); });
     el.querySelector('[data-a=room]').addEventListener('click', () => { S.tap(); go('room'); });
     el.querySelector('[data-a=again]').addEventListener('click', () => { S.tap(); go('henshin', { who }); });
@@ -743,6 +884,8 @@
             rotation: 0, color: fid === 'bear' ? 'peach' : fid === 'stardeco' ? 'yellow' : 'lav',
           };
           room.furniture.push(inst);
+          dropId = inst.instanceId;
+          setTimeout(() => { if (dropId === inst.instanceId) dropId = null; }, 900);
           placing = null;
           selected = inst.instanceId;
           save();
@@ -1161,6 +1304,8 @@
     const prize = grantPrize();
     save();
     S.done();
+    if (KP.fx) KP.fx.confetti(innerWidth / 2, innerHeight * 0.3, 90, 1);
+    later(() => gainExp(15, innerWidth / 2, innerHeight * 0.3), 900);
     later(() => {
       const m = document.createElement('div');
       m.className = 'modal';
@@ -1594,14 +1739,14 @@
   const A = (KP.app = {
     D, S, SCREENS, svg, icon, rand, esc, go, later, every, burst, bubble, flyer, save, toDraw, owned, clearNew,
     faceSVG, charSVG, bunnySVG, itemSVG, findSVG, findName, fuutanOpt, friendOpt, fuuHair, hairOpt, EYE_FOR, HAIR_STYLES, HAIR_COLORS,
-    topbar, bindHome, partyBG, roomFurnitureSVG, dressRoomBG, grantPrize, rec,
+    topbar, bindHome, partyBG, gainExp, lvInfo, lvHUD, roomFurnitureSVG, dressRoomBG, grantPrize, rec,
     drawCake, cakeSpot, drawTop1, CREAMS, TOPS,
     onCleanup: (fn) => cleanup.push(fn),
     get G() { return G; },
   });
   window.addEventListener('DOMContentLoaded', () => {
     const start = (location.hash || '').slice(1);
-    go(SCREENS[start] && !['henshin', 'story'].includes(start) ? start : 'home');
+    go(SCREENS[start] && !['henshin', 'story', 'title', 'home'].includes(start) ? start : 'title');
   });
   window.KPGame = { go, get state() { return G; } };
 })();

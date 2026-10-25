@@ -11,12 +11,13 @@
     const ear = (inner) =>
       `<path d="M78,70 C58,20 62,-20 82,-22 C104,-22 106,26 98,72Z" fill="#fff" stroke="${L}" stroke-width="2.4"/>` +
       `<path d="M82,62 C70,26 72,-6 83,-10 C95,-10 96,28 92,62Z" fill="url(#${id}e)"/>`;
-    const earL = `<g transform="rotate(${expr === 'surprise' ? -4 : -12} 90 74)">${ear()}</g>`;
+    const earL = `<g class="bn-ear l"><g transform="rotate(${expr === 'surprise' ? -4 : -12} 90 74)">${ear()}</g></g>`;
     const earR = expr === 'sleep'
       ? `<g transform="translate(200 0) scale(-1 1) rotate(-60 90 74)">${ear()}</g>`
-      : `<g transform="translate(200 0) scale(-1 1) rotate(${expr === 'surprise' ? -4 : -12} 90 74)">${ear()}</g>`;
+      : `<g class="bn-ear r"><g transform="translate(200 0) scale(-1 1) rotate(${expr === 'surprise' ? -4 : -12} 90 74)">${ear()}</g></g>`;
     let o = `<defs>${lg(id + 'e', [[0, '#C9B5F5'], [1, '#F8BCD6']])}${rg(id + 'b', [[0, '#FFFFFF'], [0.75, '#FBF8FF'], [1, '#E9E1FA']], 0.45, 0.35, 0.65)}${rg(id + 'k', [[0, '#FF9DB8', 0.8], [1, '#FF9DB8', 0]])}</defs>`;
     o += earL + earR;
+    o += `<ellipse cx="100" cy="216" rx="60" ry="10" fill="#3A2458" opacity=".14"/>`;
     // からだ
     o += `<ellipse cx="100" cy="178" rx="50" ry="40" fill="url(#${id}b)" stroke="${L}" stroke-width="2.4"/>`;
     o += `<ellipse cx="66" cy="208" rx="18" ry="11" fill="#fff" stroke="${L}" stroke-width="2.2"/><ellipse cx="134" cy="208" rx="18" ry="11" fill="#fff" stroke="${L}" stroke-width="2.2"/>`;
@@ -43,7 +44,7 @@
     } else if (expr === 'surprise') {
       o += `<circle cx="74" cy="110" r="9" fill="#fff" stroke="#4A2A63" stroke-width="2"/><circle cx="74" cy="111" r="5" fill="#4A2A63"/><circle cx="126" cy="110" r="9" fill="#fff" stroke="#4A2A63" stroke-width="2"/><circle cx="126" cy="111" r="5" fill="#4A2A63"/>`;
     } else {
-      o += eyeN(74) + eyeN(126);
+      o += `<g class="bn-eyes" style="animation-delay:-${(Math.random() * 4).toFixed(2)}s">${eyeN(74) + eyeN(126)}</g>`;
     }
     o += `<ellipse cx="56" cy="128" rx="11" ry="7" fill="url(#${id}k)"/><ellipse cx="144" cy="128" rx="11" ry="7" fill="url(#${id}k)"/>`;
     o += `<path d="M96,124 Q100,128 104,124" fill="#F29CC2" stroke="#C9668F" stroke-width="1.4"/>`;

@@ -71,9 +71,11 @@
       o += `<path d="M${cx + ex + 10},${ey + 10} q4,10 0,14 q-5,-4 0,-14Z" fill="#BFE3FF" stroke="#7FA4E6" stroke-width="1.4"/>`;
     } else {
       const ec = A.patch ? '#3A2A4A' : eyeCol;
+      o += `<g class="an-eyes" style="animation-delay:-${(Math.random() * 4).toFixed(2)}s">`;
       o += `<ellipse cx="${cx - ex}" cy="${ey}" rx="${expr === 'surprise' ? 8 : 7}" ry="${expr === 'surprise' ? 10 : 9}" fill="${ec}"/><ellipse cx="${cx + ex}" cy="${ey}" rx="${expr === 'surprise' ? 8 : 7}" ry="${expr === 'surprise' ? 10 : 9}" fill="${ec}"/>`;
       o += `<circle cx="${cx - ex - 2}" cy="${ey - 3}" r="2.6" fill="#fff"/><circle cx="${cx + ex - 2}" cy="${ey - 3}" r="2.6" fill="#fff"/>`;
       if (A.patch) o += `<circle cx="${cx - ex}" cy="${ey}" r="10" fill="none" stroke="#fff" stroke-width="2.4"/><circle cx="${cx + ex}" cy="${ey}" r="10" fill="none" stroke="#fff" stroke-width="2.4"/>`;
+      o += `</g>`;
     }
     o += `<ellipse cx="${cx - r * 0.6}" cy="${cy + r * 0.3}" rx="${r * 0.14}" ry="${r * 0.08}" fill="#FF9DB8" opacity=".6"/><ellipse cx="${cx + r * 0.6}" cy="${cy + r * 0.3}" rx="${r * 0.14}" ry="${r * 0.08}" fill="#FF9DB8" opacity=".6"/>`;
     // はな・くち
@@ -91,6 +93,7 @@
     const A = ANI[kind] || ANI.bear;
     const id = uid('a');
     let o = `<defs>${rg(id + 'f', [[0, '#fff'], [0.5, A.fur], [1, A.fur]], 0.4, 0.3, 0.8)}</defs>`;
+    o += `<ellipse cx="120" cy="300" rx="80" ry="12" fill="#3A2458" opacity=".14"/>`;
     // からだ
     o += `<ellipse cx="120" cy="236" rx="64" ry="58" fill="${A.fur}" stroke="${A.line}" stroke-width="2.4"/>`;
     o += `<ellipse cx="120" cy="244" rx="36" ry="34" fill="${A.light}"/>`;

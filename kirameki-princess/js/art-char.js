@@ -186,7 +186,7 @@
       side = `<path d="M120,136 C106,190 116,236 108,280 C102,306 98,330 108,350 C114,362 126,366 134,362 C124,350 124,336 130,322 C138,300 134,270 138,240 C140,210 140,186 146,160Z" fill="${f}" ${st}/>` +
         `<path d="M126,190 C122,240 124,280 114,330" fill="none" stroke="${H.dark}" stroke-width="1.6" opacity=".5" stroke-linecap="round"/>`;
     }
-    return side + mirror(side);
+    return `<g class="kp-locks">${side}</g><g class="kp-locks r">${mirror(side)}</g>`;
   }
   function hairFront(style, H, g) {
     const f = `url(#${g}f)`;
@@ -586,6 +586,7 @@
     // め
     const R = (s) => s;
     const L = (s) => `<g transform="translate(400 0) scale(-1 1)">${s}</g>`;
+    const blinkD = `style="animation-delay:-${(Math.random() * 4).toFixed(2)}s"`;
     if (expr === 'happy' || expr === 'joy') {
       o += R(eyeHappy(236, 186, E)) + L(eyeHappy(236, 186, E));
     } else if (expr === 'wink') {
@@ -594,7 +595,7 @@
       o += R(eyeSurprise(236, 186, E, id)) + L(eyeSurprise(236, 186, E, id));
     } else {
       const look = expr === 'lookL' ? -4 : expr === 'lookR' ? 4 : 0;
-      o += R(eyeOpen(236, 186, E, id, look)) + L(eyeOpen(236, 186, E, id, -look));
+      o += `<g class="kp-eyes" ${blinkD}>` + R(eyeOpen(236, 186, E, id, look)) + L(eyeOpen(236, 186, E, id, -look)) + `</g>`;
     }
     if (mk.lash && !['happy', 'joy'].includes(expr)) {
       const ls = `<path d="M254,176 l9,-8 M257,183 l11,-5 M250,170 l6,-10" stroke="${E.lash}" stroke-width="2.4" stroke-linecap="round"/>`;
@@ -700,13 +701,14 @@
       if (!has('skirt')) layer.skirt = petticoat();
     }
 
-    let o = `<defs>${defs}</defs>`;
+    let o = `<defs>${defs}${rg(id + 'sh', [[0, '#3A2458', 0.28], [1, '#3A2458', 0]])}</defs>`;
+    if (!opt.noShadow) o += `<ellipse cx="200" cy="630" rx="96" ry="16" fill="url(#${id}sh)"/>`;
     o += layer.back;
     o += `<g class="kp-hairback">${hairBack(style, H, id)}</g>`;
     o += legs(SKIN);
     o += layer.shoes || shoeShape(PAL.white, '#fff', false);
     o += torso(SKIN);
-    o += layer.skirt + layer.top + layer.dress + layer.ribbon;
+    o += `<g class="kp-skirt">${layer.skirt}</g>` + layer.top + `<g class="kp-dress">${layer.dress}</g>` + layer.ribbon;
     o += `<g class="kp-face">` + face(opt.expr || 'smile', E, id, SKIN, opt.makeup || {}) + sideLocks(style, H, id) + `</g>`;
     // うで・もちもの
     o += arm(pose.L, SKIN) + arm(pose.R, SKIN);

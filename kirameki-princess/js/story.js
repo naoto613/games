@@ -35,6 +35,7 @@
     A.bindHome(el);
     el.querySelector('[data-act=list]').addEventListener('click', () => { S.tap(); go('stories'); });
     const alive = { v: true };
+    let missCount = 0;
     A.onCleanup(() => { alive.v = false; S.hush(); });
     const never = new Promise(() => {});
     const guard = async (p) => { const r = await p; return alive.v ? r : never; };
@@ -42,6 +43,8 @@
     let actors = {};
     const c = {
       el, alive,
+      get miss() { return missCount; },
+      oops() { missCount++; },
       bg(svgStr, par = 'xMidYMid slice') {
         $('#stBg').innerHTML = svg('0 0 750 1000', svgStr).replace('<svg ', `<svg preserveAspectRatio="${par}" `);
       },
@@ -67,10 +70,38 @@
         if (d) { d.classList.remove('bounce'); void d.offsetWidth; d.classList.add('bounce'); }
       },
       clearActors() { $('#stActors').innerHTML = ''; actors = {}; },
+      // はなす ひとに カメラを よせて、まわりは すこし ぼかす
+      focus(id) {
+        const st = $('#stStage');
+        const a = actors[id];
+        st.classList.add('talking');
+        $('#stActors').querySelectorAll('.st-actor').forEach((d) => { d.classList.toggle('speaking', d.dataset.a === id); d.classList.toggle('dim', !!a && d.dataset.a !== id); });
+        const x = a ? a.x : 50, y = a ? a.y - a.h * 0.6 : 55;
+        st.style.transformOrigin = `${x}% ${Math.max(20, Math.min(85, y))}%`;
+        st.style.transform = a ? 'scale(1.08)' : 'scale(1.02)';
+      },
+      unfocus() {
+        const st = $('#stStage');
+        st.classList.remove('talking');
+        st.style.transform = '';
+        $('#stActors').querySelectorAll('.st-actor').forEach((d) => d.classList.remove('speaking', 'dim'));
+      },
+      emote(id, kind) {
+        const d = $(`#stActors [data-a="${id}"]`);
+        if (!d) return;
+        const e = document.createElement('div');
+        e.className = 'emote ' + kind;
+        e.innerHTML = kind === 'joy' ? svg('0 0 100 100', KP.heart(36, 50, 22, '#FF8FB8', '#fff', 4) + KP.heart(70, 30, 14, '#FFB8D6', '#fff', 3)) : kind === 'surprise' ? '<b>！</b>' : kind === 'sad' ? svg('0 0 100 100', `<path d="M50,10 C70,40 78,56 78,66 A28,28 0 0,1 22,66 C22,56 30,40 50,10Z" fill="#BFE3FF" stroke="#7FA4E6" stroke-width="5"/>`) : svg('0 0 100 100', KP.ICONS.music('#B39CEE'));
+        d.appendChild(e);
+        setTimeout(() => e.remove(), 1500);
+      },
       async say(who, text, opt = {}) {
         const C = typeof who === 'string' ? (CAST[who] || friendCast(who)) : who;
         const dlg = $('#stDlg');
         dlg.hidden = false;
+        const aid = opt.actor === false ? null : opt.actor || (typeof who === 'string' ? who : null);
+        c.focus(aid);
+        if (aid && ['joy', 'surprise', 'sad'].includes(opt.expr)) c.emote(aid, opt.expr);
         dlg.classList.toggle('right', !!opt.right);
         $('#stFace').innerHTML = C.face(opt.expr, opt.look);
         $('#stName').textContent = C.name;
@@ -98,7 +129,7 @@
         });
         return guard(Promise.resolve());
       },
-      hideDialog() { $('#stDlg').hidden = true; },
+      hideDialog() { $('#stDlg').hidden = true; c.unfocus(); },
       panel(html, cls = '') {
         // まえの パネルの イベントを のこさない ように つくりなおす
         const old = $('#stPanel');
@@ -155,10 +186,16 @@
     paint: (f) => f.kind === 'furn' || (f.kind === 'item' && ['onepiece', 'tops'].includes(D.ITEMS[f.id].slot)),
   };
   const UNLOCK_FRIEND = { fashion: 'mizuki', shop: 'lemon' };
-  function storyClear(c, sid, again) {
+  // ★の ひょうか：まちがいの かず（c.miss）か、おはなしが きめた かず
+  function storyClear(c, sid, starsIn) {
     const g = G();
     g.stories = g.stories || {};
     g.stories[sid] = (g.stories[sid] || 0) + 1;
+    const stars = starsIn || (c.miss <= 1 ? 3 : c.miss <= 4 ? 2 : 1);
+    g.storyStars = g.storyStars || {};
+    const best = Math.max(stars, g.storyStars[sid] || 0);
+    const newBest = stars > (g.storyStars[sid] || 0);
+    g.storyStars[sid] = best;
     const got = (f) => g.collection.discoveredItemIds.includes(f.id) || (f.kind === 'friend' && g.collection.unlockedCharacterIds.includes(f.id));
     let reward = null;
     const fr = UNLOCK_FRIEND[sid];
@@ -185,6 +222,8 @@
     const rHTML = (r) => r.kind === 'friend' ? A.charSVG(A.friendOpt(r.id, { expr: 'joy', pose: 'wave' })) : A.findSVG(r);
     m.innerHTML = `<div class="card"><h2>おはなし クリア！</h2>` +
       `<div class="big stampbig"><div class="rays"></div>${svg('0 0 200 160', KP.drawTrophy())}</div>` +
+      `<div class="starrow">${[0, 1, 2].map((i) => `<span class="bigstar${i < stars ? ' on' : ''}" style="animation-delay:${0.5 + i * 0.35}s">${svg('0 0 100 100', KP.star(50, 52, 44, i < stars ? '#FFD772' : '#EDE5FB', i < stars ? '#E9B44C' : '#DCD0F0', 5))}</span>`).join('')}</div>` +
+      (newBest ? `<div class="newbest">しんきろく！</div>` : '') +
       `<div class="nm">スタンプ ${g.stamps}こめ！</div>` +
       (reward ? `<div class="prize"><div class="ptitle">${icon('star')}${reward.kind === 'friend' ? 'あたらしい なかま！' : 'ごほうび！'}</div><div class="pimg">${rHTML(reward)}</div><div class="pname">${esc(A.findName(reward))}</div></div>` : '') +
       (prize ? `<div class="prize"><div class="ptitle">${icon('star')}スタンプの プレゼント！</div><div class="pimg">${A.findSVG(prize)}</div><div class="pname">${esc(A.findName(prize))}</div></div>` : '') +
@@ -193,6 +232,9 @@
     document.body.appendChild(m);
     const r = m.querySelector('.big').getBoundingClientRect();
     burst(r.left + r.width / 2, r.top + r.height / 2, ['star', 'heart', 'sparkle'], 18, 170);
+    if (KP.fx) KP.fx.confetti(innerWidth / 2, innerHeight * 0.3, 110, 1);
+    for (let i = 0; i < stars; i++) setTimeout(() => S.pick(), 500 + i * 350);
+    setTimeout(() => A.gainExp(20 + stars * 10, innerWidth / 2, innerHeight * 0.32), 500 + stars * 350);
     m.querySelector('[data-a=again]').addEventListener('click', () => { S.tap(); m.remove(); go('story', { id: sid }); });
     m.querySelector('[data-a=list]').addEventListener('click', () => { S.tap(); m.remove(); go('stories'); });
   }
@@ -216,7 +258,8 @@
     el.innerHTML = A.topbar('おはなしを えらぼう') +
       `<div class="story-list">${STORIES.map((s) => {
         const n = (g.stories && g.stories[s.id]) || 0;
-        return `<button class="story-card ${s.cls}" data-s="${s.id}"><span class="sc-art">${svg(s.vb, s.art())}</span><span class="sc-txt"><b>${s.name}</b><small>${s.sub}</small><span class="sc-medal">${n ? `${icon('star')}×${n}` : 'はじめて！'}</span></span></button>`;
+        const bs = (g.storyStars && g.storyStars[s.id]) || 0;
+        return `<button class="story-card ${s.cls}" data-s="${s.id}"><span class="sc-art">${svg(s.vb, s.art())}</span><span class="sc-txt"><b>${s.name}</b><small>${s.sub}</small><span class="sc-medal">${n ? `<span class="sc-stars">${[0, 1, 2].map((i) => svg('0 0 100 100', KP.star(50, 52, 44, i < bs ? '#FFD772' : '#EDE5FB', i < bs ? '#E9B44C' : '#DCD0F0', 6))).join('')}</span>${n}かい` : 'はじめて！'}</span></span></button>`;
       }).join('')}</div>`;
     A.bindHome(el);
     el.querySelectorAll('[data-s]').forEach((b) => b.addEventListener('click', () => { S.pick(); go('story', { id: b.dataset.s }); }));
@@ -320,7 +363,7 @@
     g.character.hairStyle = look.hairStyle;
     g.character.hairColor = look.hairColor;
     album('show', { ...look.outfit, _hs: look.hairStyle, _hc: look.hairColor, _mk: look.makeup, _pose: res.pose, _title: title });
-    storyClear(c, 'fashion');
+    storyClear(c, 'fashion', total >= 14 ? 3 : total >= 12 ? 2 : 1);
   };
 
   async function pickItem(c, look, slot, prompt, T) {
@@ -419,22 +462,34 @@
   }
 
   async function runwayGame(c, look) {
-    const NOTES = 16;
-    const p = c.panel(`<div class="rw-hits" id="rwHits"></div><div class="rw-lane" id="rwLane"><div class="rw-target"></div></div><button class="rw-tap" id="rwTap">${icon('heart', '#fff')}タッチ！</button><div class="rw-msg" id="rwMsg"></div>`, 'runway');
-    const lane = p.querySelector('#rwLane'), msg = p.querySelector('#rwMsg'), hitsEl = p.querySelector('#rwHits');
-    // あるく ふーたん
+    const sticks = (side) => `<div class="glow ${side}">${Array.from({ length: 5 }, (_, i) => `<i style="animation-delay:-${i * 0.17}s;background:${['#FF8FB8', '#9DCDF4', '#FFE07A', '#C9B5F5', '#9EDC9A'][i]}"></i>`).join('')}</div>`;
+    const p = c.panel(`<div class="rw-fever"></div>${sticks('l')}${sticks('r')}<div class="rw-hud"><div class="rw-score">SCORE <b id="rwScore">0</b></div><div class="rw-combo" id="rwCombo"></div></div><div class="rw-hits" id="rwHits"></div><div class="rw-lane" id="rwLane"><div class="rw-target"></div></div><button class="rw-tap" id="rwTap">${icon('heart', '#fff')}タッチ！</button><div class="rw-msg" id="rwMsg"></div>`, 'runway');
+    const lane = p.querySelector('#rwLane'), msg = p.querySelector('#rwMsg'), hitsEl = p.querySelector('#rwHits'), scoreEl = p.querySelector('#rwScore'), comboEl = p.querySelector('#rwCombo');
+    const POSES = ['stand', 'wave', 'joy', 'hips'];
     c.actor('fuutan', { html: fuuHTML({ expr: 'smile' }, look), x: 50, y: 40, h: 20, anim: 'walk' });
     S.hush();
     const clk = S.restartBgm('play');
     const spb = clk ? clk.spb : 60 / 132;
     const now = () => (clk ? S.now() : performance.now() / 1000);
     const base = clk ? clk.t0 : now() + 0.2;
-    const notes = Array.from({ length: NOTES }, (_, i) => ({ t: base + spb * 4 + i * spb * 2, el: null, done: false }));
+    // まえはんは 2はくごと、さいごは 1はくごとの もりあがり。4こめごとに ほしノーツ
+    const beats = [];
+    for (let i = 0; i < 12; i++) beats.push(4 + i * 2);
+    for (let i = 0; i < 8; i++) beats.push(28 + i);
+    const notes = beats.map((bt, i) => ({ t: base + spb * bt, el: null, done: false, star: i % 4 === 3 }));
+    const NOTES = notes.length;
     const TRAVEL = spb * 4;
-    let hits = 0, combo = 0;
+    let hits = 0, combo = 0, maxCombo = 0, score = 0, fever = false;
     const show = (t, cls) => { msg.textContent = t; msg.className = 'rw-msg show ' + cls; clearTimeout(show.t); show.t = setTimeout(() => (msg.className = 'rw-msg'), 500); };
     const drawHits = () => (hitsEl.innerHTML = Array.from({ length: NOTES }, (_, i) => `<i class="${i < hits ? 'on' : ''}"></i>`).join(''));
+    const drawCombo = () => { comboEl.innerHTML = combo >= 2 ? `<b>${combo}</b> COMBO` : ''; comboEl.classList.remove('bump'); void comboEl.offsetWidth; comboEl.classList.add('bump'); };
     drawHits();
+    const setFever = (on) => {
+      if (on === fever) return;
+      fever = on;
+      p.classList.toggle('fever', on);
+      if (on) { KP.fx.banner('FEVER！', 'gold'); KP.fx.mode('stage'); S.henshin(); }
+    };
     const tap = (e) => {
       e.preventDefault();
       const t = now();
@@ -443,40 +498,47 @@
       const rr = lane.getBoundingClientRect();
       if (best && bd < 0.24) {
         best.done = true;
-        hits++; combo++;
-        if (best.el) { best.el.classList.add('hit'); }
-        show(bd < 0.1 ? 'ぴったり！' : 'いいね！', bd < 0.1 ? 'pf' : 'gd');
-        burst(rr.left + rr.width * 0.18, rr.top + rr.height / 2, ['heart', 'star', 'sparkle'], bd < 0.1 ? 10 : 6, 70);
+        hits++; combo++; maxCombo = Math.max(maxCombo, combo);
+        const pf = bd < 0.1;
+        score += Math.round((pf ? 300 : 150) * (best.star ? 2 : 1) * (1 + Math.floor(combo / 5) * 0.5) * (fever ? 1.5 : 1));
+        scoreEl.textContent = score;
+        if (best.el) best.el.classList.add('hit');
+        show(pf ? 'PERFECT！' : 'GOOD！', pf ? 'pf' : 'gd');
+        const ring = document.createElement('div'); ring.className = 'rw-ring' + (pf ? ' pf' : ''); lane.appendChild(ring); setTimeout(() => ring.remove(), 500);
+        burst(rr.left + rr.width * 0.18, rr.top + rr.height / 2, best.star ? ['star', 'sparkle'] : ['heart', 'star', 'sparkle'], pf ? 12 : 6, pf ? 90 : 60);
+        if (fever) KP.fx.confetti(rr.left + rr.width * 0.18, rr.top, 14, 0.6);
         S.pick();
-        drawHits();
-        if (combo % 4 === 0) { c.sparkleAt('fuutan', ['star', 'sparkle'], 8); flash(); }
+        drawHits(); drawCombo();
+        if (combo >= 6) setFever(true);
+        if (combo % 4 === 0) {
+          c.actor('fuutan', { html: fuuHTML({ pose: POSES[(combo / 4) % POSES.length], expr: rand(['joy', 'wink', 'smile']) }, look) });
+          c.sparkleAt('fuutan', ['star', 'sparkle'], 8); flash();
+        }
       } else S.tap();
       const btn = p.querySelector('#rwTap'); btn.classList.remove('pressed'); void btn.offsetWidth; btn.classList.add('pressed');
     };
-    const flash = () => { const f = document.createElement('div'); f.className = 'shutter'; f.style.opacity = '.5'; document.body.appendChild(f); setTimeout(() => f.remove(), 500); S.shutter(); };
+    const flash = () => { KP.fx.flash('rgba(255,255,255,.6)', 300); S.shutter(); };
     p.querySelector('#rwTap').addEventListener('pointerdown', tap);
     const end = notes[NOTES - 1].t + 1.0;
     await new Promise((res) => {
       const loop = () => {
         if (!c.alive.v) return;
         const t = now();
-        // ノーツ
         for (const n of notes) {
           const dt = n.t - t;
           if (!n.el && dt < TRAVEL && !n.done) {
             n.el = document.createElement('div');
-            n.el.className = 'rw-note';
-            n.el.innerHTML = icon('heart', rand(['#F29CC2', '#B39CEE', '#FFB8D6']));
+            n.el.className = 'rw-note' + (n.star ? ' star' : '');
+            n.el.innerHTML = n.star ? svg('0 0 100 100', KP.star(50, 52, 44, '#FFD772', '#E9B44C', 5) + KP.sparkle(70, 28, 12, '#fff')) : icon('heart', rand(['#F29CC2', '#B39CEE', '#FFB8D6']));
             lane.appendChild(n.el);
           }
           if (n.el) {
             const x = 18 + (dt / TRAVEL) * 82;
             n.el.style.left = x + '%';
-            if (!n.done && dt < -0.25) { n.done = true; n.el.classList.add('miss'); combo = 0; show('おしい！', 'ms'); }
-            if (dt < -0.6 && n.el.parentNode) { n.el.remove(); }
+            if (!n.done && dt < -0.25) { n.done = true; n.el.classList.add('miss'); combo = 0; drawCombo(); setFever(false); show('おしい！', 'ms'); }
+            if (dt < -0.6 && n.el.parentNode) n.el.remove();
           }
         }
-        // あるく
         const prog = Math.max(0, Math.min(1, (t - (notes[0].t - spb * 2)) / (end - notes[0].t)));
         c.actor('fuutan', { y: 40 + prog * 58, h: 20 + prog * 46 });
         if (t > end) { res(); return; }
@@ -487,19 +549,29 @@
     c.hidePanel();
     S.setWanted(null);
     S.stopBgm();
-    // ポーズ
+    KP.fx.mode('sparkle');
     const pose = await c.choose([
       { label: 'ウインク', value: 'wave', icon: svg('0 0 100 100', KP.ICONS.heart()) },
       { label: 'バンザイ', value: 'cheer', icon: svg('0 0 100 100', KP.ICONS.star()) },
       { label: 'にっこり', value: 'joy', icon: svg('0 0 100 100', KP.ICONS.smile()) },
     ], 'さいごの ポーズを えらんでね！');
     c.actor('fuutan', { html: fuuHTML({ pose, expr: pose === 'wave' ? 'wink' : 'joy' }, look), anim: '' });
-    for (let i = 0; i < 3; i++) { flash(); c.sparkleAt('fuutan', ['star', 'sparkle', 'heart'], 10); await c.wait(380); }
+    for (let i = 0; i < 3; i++) { flash(); c.sparkleAt('fuutan', ['star', 'sparkle', 'heart'], 10); await c.wait(300); }
+    // ポラロイドしゃしん
+    const pol = document.createElement('div');
+    pol.className = 'polaroid';
+    pol.innerHTML = `<div class="pol-pic">${svg('100 180 550 600', KP.BG.runway() + `<g transform="translate(205 260) scale(.85)">${KP.drawChar(A.fuutanOpt({ ...lookOpt(look), pose, expr: pose === 'wave' ? 'wink' : 'joy' }))}</g>`).replace('<svg ', '<svg preserveAspectRatio="xMidYMid slice" ')}</div><div class="pol-cap">SCORE ${score}　MAX ${maxCombo} COMBO</div>`;
+    document.body.appendChild(pol);
     S.done();
+    KP.fx.confetti(innerWidth / 2, innerHeight * 0.3, 80, 1);
+    await c.wait(2300);
+    pol.classList.add('out');
+    setTimeout(() => pol.remove(), 500);
     S.setWanted('home');
-    await c.wait(500);
-    return { hits, total: NOTES, pose };
+    await c.wait(300);
+    return { hits, total: NOTES, pose, score, maxCombo };
   }
+
 
   // ================= ② ママの おつかい =================
   // おはなしは 3しゅ（ばんごはん・ママの おたんじょうび・ピクニック）。おみせ・みちの できごと・りょうりの しかたが まいかい かわる
@@ -742,6 +814,7 @@
       p.querySelector('#go').addEventListener('click', () => {
         if (light === 'red') {
           S.tap();
+          c.oops();
           c.actor('pyonta', { html: bunHTML('surprise') });
           const r = p.getBoundingClientRect();
           bubble(r.left + r.width / 2, r.top, `${svg('0 0 100 100', KP.drawTrafficIcon('red')).replace('<svg', '<svg class="ico"')}あかは とまれ だよ`, 1600);
@@ -793,6 +866,7 @@
           S.tap();
           b.classList.remove('wiggle'); void b.offsetWidth; b.classList.add('wiggle');
           bubble(r.left + r.width / 2, r.top, want ? 'もう じゅうぶん だよ' : `${KP.FOOD[k].name}は メモに ないね`, 1300);
+          c.oops();
         }
       });
     });
@@ -1136,6 +1210,9 @@
     let k = 0;
     const take = () => ti[k++ % ti.length];
     if (PR.phases.includes('germ')) for (let n = 0; n < (prob === 'ana' ? 2 : 3 + Math.floor(Math.random() * 3)); n++) objs.push({ kind: 'germ', ti: take(), hp: 3, v: n % 3 });
+    // たまに ボスの「むしばキング」
+    const boss = prob === 'mushiba' && Math.random() < 0.55;
+    if (boss) objs.push({ kind: 'germ', ti: take(), hp: 10, v: 0, boss: true });
     if (PR.phases.includes('bit')) for (let n = 0; n < 3; n++) objs.push({ kind: 'bit', ti: take(), hp: 1, v: n % 3 });
     if (PR.phases.includes('stain')) for (let n = 0; n < 3; n++) objs.push({ kind: 'stain', ti: take(), hp: 3 });
     if (PR.phases.includes('hole')) for (let n = 0; n < 2; n++) objs.push({ kind: 'hole', ti: take(), hp: 1 });
@@ -1153,7 +1230,9 @@
           const t = KP.TEETH[ob.ti] || { x: 0, y: 0 };
           if (ob.kind === 'germ') {
             if (ob.foam && !rinsed) o += KP.drawFoam(t.x, t.y, 3 + ob.foam * 2);
-            if (!ob.done) o += `<g class="mobj germ" data-o="${ob.id}"><g class="wob">${KP.drawGerm(t.x, t.y, 0.9 + ob.hp * 0.12, ob.v)}</g></g>`;
+            if (!ob.done) o += ob.boss
+              ? `<g class="mobj germ boss" data-o="${ob.id}"><g class="wob">${KP.drawGerm(t.x, t.y, 1.6 + ob.hp * 0.05, 0)}<path d="M${t.x - 22},${t.y - 40} L${t.x - 26},${t.y - 64} L${t.x - 10},${t.y - 50} L${t.x},${t.y - 70} L${t.x + 10},${t.y - 50} L${t.x + 26},${t.y - 64} L${t.x + 22},${t.y - 40}Z" fill="#FFD772" stroke="#C99234" stroke-width="3"/><rect x="${t.x - 30}" y="${t.y + 40}" width="60" height="8" rx="4" fill="#5A3A60"/><rect x="${t.x - 30}" y="${t.y + 40}" width="${6 * ob.hp}" height="8" rx="4" fill="#FF5A8A"/></g></g>`
+              : `<g class="mobj germ" data-o="${ob.id}"><g class="wob">${KP.drawGerm(t.x, t.y, 0.9 + ob.hp * 0.12, ob.v)}</g></g>`;
           } else if (ob.kind === 'bit' && !ob.done) o += `<g class="mobj" data-o="${ob.id}" transform="translate(${t.x + 22} ${t.y + (KP.TEETH[ob.ti].up ? 18 : -18)}) scale(1.6)"><circle r="16" fill="transparent"/>${BIT_ART[ob.v]}</g>`;
           else if (ob.kind === 'stain' && !ob.done) o += `<g class="mobj" data-o="${ob.id}"><ellipse cx="${t.x}" cy="${t.y}" rx="16" ry="20" fill="#A8743A" opacity="${0.2 + ob.hp * 0.18}"/></g>`;
           else if (ob.kind === 'hole') o += ob.done ? `<g><circle cx="${t.x}" cy="${t.y}" r="11" fill="${fillCol[0]}" stroke="#E9C25C" stroke-width="2"/>${KP.sparkle(t.x + 4, t.y - 4, 5, '#fff')}</g>` : (doneKind('germ') ? `<g class="mobj" data-o="${ob.id}"><circle cx="${t.x}" cy="${t.y}" r="16" fill="transparent"/><circle cx="${t.x}" cy="${t.y}" r="10" fill="#3A2A2A"/></g>` : '');
@@ -1189,6 +1268,7 @@
       if (ph >= PR.phases.length) return;
       if (kk !== PHASE_TOOL[phase()]) {
         tool = kk; drawTools();
+        c.oops();
         say(kk === 'water' ? 'さきに ' + PHASE_TEXT[phase()].replace(/！$/, '') : kk === 'light' ? 'もう あかるいよ' : 'いまは ' + TOOL_ART[PHASE_TOOL[phase()]][0] + ' だよ', from);
         return;
       }
@@ -1198,7 +1278,8 @@
         mouth.innerHTML = draw();
         S.sparkle();
         const r = mouth.getBoundingClientRect();
-        bubble(r.left + r.width / 2, r.top + r.height * 0.3, `${icon('search')}${prob === 'mushiba' || prob === 'ana' ? 'むしばきんが いた！' : prob === 'kasu' ? 'なにか はさまってる！' : 'この はが ぐらぐらだね'}`, 1600);
+        bubble(r.left + r.width / 2, r.top + r.height * 0.3, `${icon('search')}${boss ? 'ボスの むしばキングが いる！' : prob === 'mushiba' || prob === 'ana' ? 'むしばきんが いた！' : prob === 'kasu' ? 'なにか はさまってる！' : 'この はが ぐらぐらだね'}`, 1600);
+        if (boss) { KP.fx.shake(mouth, 6); S.boing(); }
         next();
       } else if (kk === 'water') {
         rinsed = true;
@@ -1210,9 +1291,21 @@
         ph = PR.phases.length;
       }
     };
+    let combo = 0, lastHit = 0;
+    const comboEl = document.createElement('div');
+    comboEl.className = 'scrub-combo';
     const hit = (oid) => {
       const ob = objs[oid];
       if (!ob || ob.done || ob.kind !== phase()) return;
+      const nowT = performance.now();
+      combo = nowT - lastHit < 700 ? combo + 1 : 1;
+      lastHit = nowT;
+      if (combo >= 3) {
+        if (!comboEl.parentNode) mouth.parentNode.appendChild(comboEl);
+        comboEl.innerHTML = `ごしごし <b>×${combo}</b>`;
+        comboEl.classList.remove('bump'); void comboEl.offsetWidth; comboEl.classList.add('bump');
+        if (combo % 10 === 0) { KP.fx.confetti(innerWidth / 2, innerHeight * 0.4, 30, 0.6); S.sparkle(); }
+      }
       if (PHASE_TOOL[ob.kind] !== tool) { tool = PHASE_TOOL[ob.kind]; drawTools(); }
       const el = mouth.querySelector(`[data-o="${oid}"]`);
       const r = el ? el.getBoundingClientRect() : mouth.getBoundingClientRect();
@@ -1222,7 +1315,8 @@
       burst(r.left + r.width / 2, r.top + r.height / 2, ob.kind === 'zone' ? ['drop', 'sparkle'] : ['sparkle'], 4, 40);
       if (ob.hp <= 0) {
         ob.done = true;
-        if (ob.kind === 'germ') { flyer(r.left + r.width / 2, r.top + r.height / 2, svg('-40 -40 80 80', KP.drawGerm(0, 0, 1, ob.v)), (Math.random() < 0.5 ? -1 : 1) * innerWidth * 0.6, -200, 900); bubble(r.left + r.width / 2, r.top, 'にげろ〜！', 1000); S.boing(); }
+        if (ob.kind === 'germ' && ob.boss) { KP.fx.shake(mouth, 10); KP.fx.flash('#FFF6CF', 400); KP.fx.banner('むしばキング たいじ！', 'gold'); KP.fx.confetti(innerWidth / 2, innerHeight * 0.35, 100, 1); S.henshin(); }
+        else if (ob.kind === 'germ') { flyer(r.left + r.width / 2, r.top + r.height / 2, svg('-40 -40 80 80', KP.drawGerm(0, 0, 1, ob.v)), (Math.random() < 0.5 ? -1 : 1) * innerWidth * 0.6, -200, 900); bubble(r.left + r.width / 2, r.top, 'にげろ〜！', 1000); S.boing(); }
         if (ob.kind === 'bit') { flyer(r.left + r.width / 2, r.top + r.height / 2, svg('-20 -20 40 40', BIT_ART[ob.v]), 0, -260, 700); S.pick(); }
         if (ob.kind === 'stain') S.sparkle();
         if (ob.kind === 'hole') { S.sparkle(); burst(r.left + r.width / 2, r.top + r.height / 2, ['star', 'sparkle'], 8, 50); }
@@ -1268,6 +1362,21 @@
         document.body.appendChild(drag.ghost);
       }
       if (drag.ghost) { drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px'; }
+      // むしばきんは はブラシが ちかづくと たまに にげる
+      if (lit && phase() === 'germ') {
+        for (const ob of objs) {
+          if (ob.kind !== 'germ' || ob.done || ob.boss || (ob.dodge || 0) >= 1) continue;
+          const el = mouth.querySelector(`[data-o="${ob.id}"]`);
+          if (!el) continue;
+          const r = el.getBoundingClientRect();
+          if (Math.hypot(r.left + r.width / 2 - e.clientX, r.top + r.height / 2 - e.clientY) < r.width * 1.2 && Math.random() < 0.08) {
+            ob.dodge = (ob.dodge || 0) + 1;
+            const used = objs.map((o) => o.ti);
+            const free = KP.TEETH.map((_, i) => i).filter((i) => !used.includes(i));
+            if (free.length) { ob.ti = rand(free); ob.foam = 0; bubble(r.left + r.width / 2, r.top, 'べーっ！', 900); mouth.innerHTML = draw(); }
+          }
+        }
+      }
       if (drag.moved && lit) {
         const oi = objAt(e.clientX, e.clientY);
         const now = performance.now();
@@ -1503,6 +1612,7 @@
       const wrong = cv < 0.12;
       if (wrong) {
         fails++;
+        c.oops();
         gc.clearRect(0, 0, size, size);
         if (fails >= 2) {
           const rr = box.getBoundingClientRect();
@@ -1558,7 +1668,7 @@
     { name: 'ハートの ベッド', vb: '-10 -10 320 280', art: () => KP.FURN.bed.draw(KP.PAL.pink, KP.uid('pc')) },
     { name: 'おはなの かびん', vb: '0 0 110 175', art: () => KP.FURN.flowervase.draw(KP.PAL.pink, KP.uid('pc')) },
     { name: 'ドールハウス', vb: '0 0 200 235', art: () => KP.FURN.dollhouse.draw(KP.PAL.mint, KP.uid('pc')) },
-    { name: 'ふーたん', vb: '40 20 320 620', art: () => KP.drawChar(A.fuutanOpt({ pose: 'cheer', expr: 'joy' })) },
+    { name: 'ふーたん', vb: '40 20 320 620', art: () => KP.drawChar(A.fuutanOpt({ pose: 'cheer', expr: 'joy', noShadow: true })) },
     { name: 'パンダさん', vb: '0 -10 240 310', art: () => KP.drawAnimal('panda', 'happy') },
   ];
   const PALETTE = ['#FF8FB8', '#F0506E', '#FF9A4A', '#FFE07A', '#9EDC9A', '#6FC3A8', '#9DCDF4', '#6F98E2', '#C9B5F5', '#8C6FD6', '#D9AE8C', '#8A5A3A', '#FFFFFF', '#4A4A5E', 'kira', 'rainbow', 'dots'];
@@ -1635,7 +1745,7 @@
     c.actor('fuutan', { html: fuuHTML({ pose: 'cheer', expr: 'joy' }) });
     c.sparkleAt('fuutan', ['heart', 'star', 'sparkle'], 16);
     await c.say('fuutan', 'えへへ、たのしかった！ また ぬりたいな！', { expr: 'joy' });
-    storyClear(c, 'paint');
+    storyClear(c, 'paint', (c.paintRatio || 0) >= 0.8 ? 3 : (c.paintRatio || 0) >= 0.5 ? 2 : 1);
   };
   async function paintGame(c, pic) {
     const { sv, regions, id } = toColoring(pic);
@@ -1691,6 +1801,7 @@
         S.done();
         const r = area.getBoundingClientRect();
         burst(r.left + r.width / 2, r.top + r.height / 2, ['star', 'heart', 'sparkle'], 18, 160);
+        c.paintRatio = Math.max(c.paintRatio || 0, n / regions.length);
         finish();
       }
     });
