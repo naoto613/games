@@ -3,7 +3,8 @@
 ブラウザで遊べるゲームを GitHub Pages で公開するリポジトリです。
 
 - 一覧ページ: https://naoto613.github.io/games/
-- AI PM Radar: https://naoto613.github.io/games/ai-pm-radar/
+- どうぶつ クイズ: https://naoto613.github.io/games/animal-quiz/
+- AI Builders Radar: https://naoto613.github.io/games/ai-pm-radar/
 - ぺたぺた！つくってワールド: https://naoto613.github.io/games/petapeta-craft/
 - ぺたぺた！あそびタウン: https://naoto613.github.io/games/petapeta-town/
 - モンスター・エコーズ 〜ルナフィアと ひかりのクリスタル〜: https://naoto613.github.io/games/monster-echoes/
@@ -22,10 +23,12 @@
 ├── thumbs/                 # 一覧ページ用サムネイル（<ゲームフォルダ名>.jpg、800×500）
 ├── .nojekyll               # Jekyll 処理を無効化（ファイルをそのまま配信）
 ├── README.md
+├── animal-quiz/
+│   └── index.html          # どうぶつ クイズ（5歳向けの 3択クイズ。どうぶつ32しゅ（えもじ）で「なまえ」「なきごえ」「とくちょう」「たべもの」の もんだいを 1かい10もん。もんだいと えらびしを 音声（Web Speech API の よみあげ）で あんないし、よんでいる えらびしが ひかる。まちがえると その えらびしが うすくなり もういちど えらべるので かならず ぜんもん クリアできる。こうかおんは Web Audio。単一 HTML で完結）
 ├── ai-pm-radar/
-│   ├── index.html          # AI PM Radar（AI を活用したプロダクトマネジメント・EM・プロダクト開発・組織づくりの公開情報を集める静的ダッシュボード。日本語／English／LayerX（旧 LayerX Radar：LayerX の公開技術情報）をタブで分けて表示し、その下のテーマチップで切り替え。一覧はいつも新しい順、既読・ブックマーク・学びのメモ・手動追加は localStorage）
+│   ├── index.html          # AI Builders Radar（AI活用・PdM・EM の3テーマに絞って良質な公開情報を集める静的ダッシュボード。日本語／English／LayerX（旧 LayerX Radar：LayerX の公開技術情報）をタブで分けて表示し、その下の4つのテーマチップで切り替え。一覧はいつも新しい順、既読・ブックマーク・学びのメモ・手動追加は localStorage）
 │   ├── app.js / styles.css
-│   ├── data/               # items.json・sources.json（Zenn・Qiita・はてブ検索RSS・海外ニュースレター・YouTube・LayerX のブログ／YouTube／Speaker Deck）・meta.json
+│   ├── data/               # items.json・sources.json（Zenn・Qiita（いいね数で足切り）・はてブ検索RSS（ブックマーク数で足切り）・海外ニュースレター・LayerX のブログ／YouTube／Speaker Deck）・meta.json
 │   ├── scripts/fetch_sources.py  # APIキー不要の収集（RSS/Atom・YouTube 公開フィード。テーマは日英キーワードで推定）
 │   └── requirements.txt    # .github/workflows/ai-pm-radar-update.yml が毎朝6時すぎに実行して main へコミット
 ├── petapeta-craft/

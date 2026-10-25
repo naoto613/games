@@ -1,12 +1,12 @@
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
 const FALLBACK_ITEMS = [
-  {id:"demo-ai-pm",title:"生成AI時代のPdMの役割 ── 仕様を書く人から「何を作らないか」を決める人へ",url:"https://zenn.dev/topics/pdm",sourceId:"zenn-pdm",sourceType:"community",lang:"ja",publishedAt:"2026-10-15T09:00:00+09:00",description:"AIエージェントと協働するプロダクトマネジメントの実践を探すためのサンプルカードです。実際の記事データではありません。",tags:["AI活用","プロダクトマネジメント"],learningTypes:["考え方・フレームワーク"],isDemo:true},
-  {id:"demo-ai-em",title:"Engineering managers in the age of coding agents",url:"https://newsletter.pragmaticengineer.com/",sourceId:"pragmatic-engineer",sourceType:"newsletter",lang:"en",publishedAt:"2026-10-12T09:00:00+09:00",description:"AIツールがEMの仕事・チーム構成・評価に与える影響を整理するためのサンプルです。リンク先はニュースレターのトップです。",tags:["AI活用","エンジニアリングマネジメント","組織づくり"],learningTypes:["トレンド・調査"],isDemo:true},
-  {id:"demo-ai-discovery",title:"AIでユーザーインタビューの分析を回す ── 継続的ディスカバリーの実践",url:"https://www.producttalk.org/",sourceId:"product-talk",sourceType:"newsletter",lang:"en",publishedAt:"2026-10-08T09:00:00+09:00",description:"ディスカバリーとAI活用が重なる情報を表示するためのサンプルです。",tags:["AI活用","ディスカバリー・UX","プロダクト開発"],learningTypes:["実践事例"],isDemo:true},
-  {id:"demo-org",title:"小さなチームを保ったまま組織を大きくする ── チームトポロジーの実践",url:"https://b.hatena.ne.jp/",sourceId:"hatena-org",sourceType:"bookmark",lang:"ja",publishedAt:"2026-10-02T09:00:00+09:00",description:"組織づくりの知見を探す際のサンプルカードです。",tags:["組織づくり","エンジニアリングマネジメント"],learningTypes:["組織・プロセス"],bookmarks:240,isDemo:true},
-  {id:"demo-podcast",title:"How AI is changing the PM role | Lenny's Podcast",url:"https://www.youtube.com/@LennysPodcast",sourceId:"lenny-youtube",sourceType:"youtube",lang:"en",publishedAt:"2026-09-28T09:00:00+09:00",description:"動画・Podcastを表示するためのサンプルです。",tags:["AI活用","プロダクトマネジメント","採用・育成・キャリア"],learningTypes:["インタビュー・対談"],isDemo:true},
-  {id:"demo-1on1",title:"1on1を仕組みにする ── EMが最初の90日でやったこと",url:"https://qiita.com/tags/%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%83%AA%E3%83%B3%E3%82%B0%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC",sourceId:"qiita-em",sourceType:"community",lang:"ja",publishedAt:"2026-09-20T09:00:00+09:00",description:"EM・リーダーシップの情報を整理するためのサンプルです。",tags:["エンジニアリングマネジメント","採用・育成・キャリア"],learningTypes:["実践事例"],isDemo:true}
+  {id:"demo-ai-pm",title:"生成AI時代のPdMの役割 ── 仕様を書く人から「何を作らないか」を決める人へ",url:"https://zenn.dev/topics/pdm",sourceId:"zenn-pdm",sourceType:"community",lang:"ja",publishedAt:"2026-10-15T09:00:00+09:00",description:"AIエージェントと協働するプロダクトマネジメントの実践を探すためのサンプルカードです。実際の記事データではありません。",tags:["AI活用","PdM"],learningTypes:["考え方・フレームワーク"],isDemo:true},
+  {id:"demo-ai-em",title:"Engineering managers in the age of coding agents",url:"https://newsletter.pragmaticengineer.com/",sourceId:"pragmatic-engineer",sourceType:"newsletter",lang:"en",publishedAt:"2026-10-12T09:00:00+09:00",description:"AIツールがEMの仕事・チーム構成・評価に与える影響を整理するためのサンプルです。リンク先はニュースレターのトップです。",tags:["AI活用","EM"],learningTypes:["トレンド・調査"],isDemo:true},
+  {id:"demo-ai-discovery",title:"AIでユーザーインタビューの分析を回す ── 継続的ディスカバリーの実践",url:"https://www.producttalk.org/",sourceId:"product-talk",sourceType:"newsletter",lang:"en",publishedAt:"2026-10-08T09:00:00+09:00",description:"ディスカバリーとAI活用が重なる情報を表示するためのサンプルです。",tags:["AI活用"],learningTypes:["実践事例"],isDemo:true},
+  {id:"demo-org",title:"小さなチームを保ったまま組織を大きくする ── チームトポロジーの実践",url:"https://b.hatena.ne.jp/",sourceId:"hatena-org",sourceType:"bookmark",lang:"ja",publishedAt:"2026-10-02T09:00:00+09:00",description:"組織づくりの知見を探す際のサンプルカードです。",tags:["EM"],learningTypes:["組織・プロセス"],bookmarks:240,isDemo:true},
+  {id:"demo-podcast",title:"How AI is changing the PM role | Lenny's Podcast",url:"https://www.youtube.com/@LennysPodcast",sourceId:"lenny-youtube",sourceType:"youtube",lang:"en",publishedAt:"2026-09-28T09:00:00+09:00",description:"動画・Podcastを表示するためのサンプルです。",tags:["AI活用","PdM"],learningTypes:["インタビュー・対談"],isDemo:true},
+  {id:"demo-1on1",title:"1on1を仕組みにする ── EMが最初の90日でやったこと",url:"https://qiita.com/tags/%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%83%AA%E3%83%B3%E3%82%B0%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC",sourceId:"qiita-em",sourceType:"community",lang:"ja",publishedAt:"2026-09-20T09:00:00+09:00",description:"EM・リーダーシップの情報を整理するためのサンプルです。",tags:["EM"],learningTypes:["実践事例"],isDemo:true}
 ];
 const DEFAULT_SOURCES = [
   {id:"zenn-pdm",name:"Zenn トピック「PdM」",type:"community",url:"https://zenn.dev/topics/pdm",enabled:true,fetchMethod:"rss",lang:"ja"},
@@ -14,24 +14,35 @@ const DEFAULT_SOURCES = [
   {id:"lenny",name:"Lenny's Newsletter",type:"newsletter",url:"https://www.lennysnewsletter.com/",enabled:true,fetchMethod:"rss",lang:"en"},
   {id:"lenny-youtube",name:"Lenny's Podcast（YouTube）",type:"youtube",url:"https://www.youtube.com/@LennysPodcast",enabled:true,fetchMethod:"youtube",lang:"en"}
 ];
-const TAGS = ["AI活用","プロダクトマネジメント","エンジニアリングマネジメント","プロダクト開発","ディスカバリー・UX","組織づくり","採用・育成・キャリア","戦略・経営","開発生産性","データ・指標"];
-// LayerX タブ（旧 LayerX Radar）は技術寄りのテーマで分類する
-const TECH_TAGS = ["AI活用","アーキテクチャ","バックエンド","フロントエンド","Platform Engineering","SRE・インフラ","セキュリティ","品質・テスト","開発生産性","プロダクト開発","EM・組織設計","事業・技術戦略"];
-function themesFor(){return state.lang==="layerx"?TECH_TAGS:TAGS;}
+// テーマは3つだけ（どのタブでも同じ並び・同じ位置）
+const TAGS = ["AI活用","PdM","EM"];
 const AI_TAG = "AI活用";
-const THEME_LABELS = {"エンジニアリングマネジメント":"EM・リーダーシップ","ディスカバリー・UX":"ディスカバリー","採用・育成・キャリア":"採用・育成","Platform Engineering":"Platform"};
-const SRC = {community:{label:"国内コミュニティ",icon:"✎",open:"記事を読む"},bookmark:{label:"はてブ",icon:"B!",open:"記事を読む"},newsletter:{label:"ニュースレター",icon:"✉",open:"記事を読む"},youtube:{label:"YouTube",icon:"▶",open:"動画を見る"},blog:{label:"ブログ",icon:"✎",open:"記事を読む"},slides:{label:"スライド",icon:"▧",open:"スライドを見る"},external:{label:"手動追加",icon:"↗",open:"ページを開く"}};
+const SRC = {zenn:{label:"Zenn",icon:"Z",open:"記事を読む"},qiita:{label:"Qiita",icon:"Q",open:"記事を読む"},community:{label:"国内コミュニティ",icon:"✎",open:"記事を読む"},bookmark:{label:"はてブ",icon:"B!",open:"記事を読む"},newsletter:{label:"ニュースレター",icon:"✉",open:"記事を読む"},youtube:{label:"YouTube",icon:"▶",open:"動画を見る"},blog:{label:"ブログ",icon:"✎",open:"記事を読む"},slides:{label:"スライド",icon:"▧",open:"スライドを見る"},external:{label:"手動追加",icon:"↗",open:"ページを開く"}};
 const PAGE = 60;
-const state = {items:[],manual:[],meta:null,sources:DEFAULT_SOURCES,read:new Set(),saved:new Set(),notes:{},status:"all",theme:"",lang:"ja",limit:PAGE,editingNoteId:null,realData:false};
+const state = {items:[],manual:[],meta:null,sources:DEFAULT_SOURCES,read:new Set(),saved:new Set(),notes:{},status:"all",rating:1,theme:"",lang:"ja",limit:PAGE,editingNoteId:null,realData:false};
 const METHOD_LABELS={rss:"RSS/Atom",youtube:"YouTube公開フィード",auto:"フィード自動検出",manual:"手動"};
 const STORAGE_KEY = "ai-pm-radar-state-v1";
 const LANG_KEY = "ai-pm-radar-lang";
+const RATING_KEY = "ai-pm-radar-rating";
+// 評価（★1〜3）：媒体ごとの反応の数で段階を決める。数がない媒体（定評のあるニュースレター・LayerX など）は ★2
+const RATING_RULES = [
+  {key:"bookmarks",label:"はてブ",steps:[3,30,100]},
+  {key:"likes",when:i=>i.sourceType==="zenn",label:"Zenn いいね",steps:[3,15,50]},
+  {key:"likes",when:i=>i.sourceType==="qiita",label:"Qiita いいね",steps:[2,10,30]},
+  {key:"views",label:"YouTube 再生",steps:[100,10000,50000]}
+];
+function ratingOf(i){
+  let best=0;
+  RATING_RULES.forEach(r=>{const v=i[r.key];if(v==null||(r.when&&!r.when(i)))return;best=Math.max(best,r.steps.filter(s=>v>=s).length||1);});
+  return best||2;
+}
+function stars(n){return "★".repeat(n)+"☆".repeat(3-n);}
 const LANGS = {ja:"日本語",en:"English",layerx:"LayerX"};
 const TAB_MARKS = {ja:"あ",en:"A",layerx:"L"};
 const OLD_LAYERX_KEY = "layerx-radar-state-v1";
 
 function loadLocalState(){
-  try{const l=localStorage.getItem(LANG_KEY);if(LANGS[l])state.lang=l;}catch(e){}
+  try{const l=localStorage.getItem(LANG_KEY);if(LANGS[l])state.lang=l;const r=+localStorage.getItem(RATING_KEY);if(r>=1&&r<=3)state.rating=r;}catch(e){}
   try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");state.read=new Set(s.read||[]);state.saved=new Set(s.saved||[]);state.notes=s.notes||{};state.manual=Array.isArray(s.manual)?s.manual:[];}catch(e){}
   migrateLayerxState();
 }
@@ -50,7 +61,7 @@ function esc(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt
 function formatDate(d){if(!d)return"日付不明";const date=new Date(d);if(Number.isNaN(date.getTime()))return"日付不明";return new Intl.DateTimeFormat("ja-JP",{year:"numeric",month:"short",day:"numeric"}).format(date);}
 function typeLabel(t){return({blog:"LayerX ブログ",slides:"Speaker Deck"})[t]||typeName(t);}
 function sourceName(id){return state.sources.find(s=>s.id===id)?.name||(id==="manual-entry"?"手動で追加":id)||"情報源不明";}
-function typeName(t){return({community:"国内コミュニティ",bookmark:"はてブで話題",newsletter:"海外ニュースレター",youtube:"動画・Podcast",blog:"ブログ",slides:"スライド",external:"手動で追加"})[t]||"その他";}
+function typeName(t){return({zenn:"Zenn",qiita:"Qiita",community:"国内コミュニティ",bookmark:"はてブで話題",newsletter:"海外ニュースレター",youtube:"動画・Podcast",blog:"ブログ",slides:"スライド",external:"手動で追加"})[t]||"その他";}
 function allItems(){const off=new Set(state.sources.filter(s=>s.enabled===false).map(s=>s.id));return [...state.manual,...(state.items.length?state.items:FALLBACK_ITEMS).filter(i=>!off.has(i.sourceId))];}
 function langOf(i){return i.tab||i.lang||"ja";}
 // 日本語・英語・LayerX は混ぜずにタブで分けて扱う
@@ -76,6 +87,8 @@ function getFiltered(){
   if(state.status==="unread")items=items.filter(i=>!state.read.has(i.id));
   if(state.status==="saved")items=items.filter(i=>state.saved.has(i.id));
   if(state.status==="notes")items=items.filter(i=>state.notes[i.id]);
+  state.ratingBase=items;
+  if(state.rating>1)items=items.filter(i=>ratingOf(i)>=state.rating);
   if(type)items=items.filter(i=>i.sourceType===type);
   if(q)items=items.filter(i=>[i.title,i.description,i.author,sourceName(i.sourceId),...(i.tags||[])].join(" ").toLowerCase().includes(q));
   // いつも新しい順
@@ -85,11 +98,11 @@ function itemActions(i){const read=state.read.has(i.id),saved=state.saved.has(i.
 function srcOf(i){return SRC[i.sourceType]||SRC.external;}
 function dispTitle(i){return i.sourceType==="youtube"?(i.title||"").replace(/(\s*#[^\s#]+)+\s*$/,"")||i.title:i.title;}
 function srcPill(i){const s=srcOf(i);return `<span class="src-pill">${s.icon} ${esc(s.label)}</span>`;}
-function extraMeta(i){return `${i.bookmarks?`<span class="bm-mark" title="はてなブックマーク数">${esc(i.bookmarks)} users</span>`:""}<span class="src-name">${esc(sourceName(i.sourceId))}</span>`;}
+function extraMeta(i){const r=ratingOf(i);return `<span class="rating r${r}" title="評価 ★${r}">${stars(r)}</span>${i.likes?`<span class="like-mark" title="いいね数">♥ ${esc(i.likes)}</span>`:""}${i.bookmarks?`<span class="bm-mark" title="はてなブックマーク数">${esc(i.bookmarks)} users</span>`:""}<span class="src-name">${esc(sourceName(i.sourceId))}</span>`;}
 function thumb(i,cls){const s=srcOf(i);const ph=`<span class="ph-icon">${s.icon}</span><span class="ph-label">${esc(s.label)}</span>`;
   return `<a class="${cls}" href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}" tabindex="-1" aria-hidden="true">${i.thumbnailUrl?`<img src="${esc(i.thumbnailUrl)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-thumb>`:""}<span class="ph">${ph}</span>${i.sourceType==="youtube"?'<span class="play">▶</span>':""}</a>`;}
 function cleanDesc(i){return (i.description||"概要は未登録です。元のページを開いて内容を確認してください。").replace(/\s*▼?目次[\s\S]*$/,"").trim()||i.description;}
-function tagHtml(t,i){return `<button class="feed-tag ${t===AI_TAG?"ai":""} ${t===state.theme?"on":""}" data-theme="${esc(t)}"${i.tagsEstimated?' title="キーワードから自動推定したテーマ（タップでこのテーマに切り替え）"':""}>${t===AI_TAG?"✦ ":""}${esc(THEME_LABELS[t]||t)}</button>`;}
+function tagHtml(t,i){return `<button class="feed-tag ${t===AI_TAG?"ai":""} ${t===state.theme?"on":""}" data-theme="${esc(t)}"${i.tagsEstimated?' title="キーワードから自動推定したテーマ（タップでこのテーマに切り替え）"':""}>${t===AI_TAG?"✦ ":""}${esc(t)}</button>`;}
 function renderFeedItem(i){
   const read=state.read.has(i.id),tags=(i.tags||[]).slice(0,4);
   return `<article class="feed-item src-${esc(i.sourceType||"external")} ${read?"is-read":""}">${thumb(i,"feed-thumb")}<div class="feed-main"><div class="feed-meta">${srcPill(i)}<span>${esc(formatDate(i.publishedAt))}</span>${extraMeta(i)}${read?"":'<span class="unread-mark">● 未読</span>'}${i.isDemo?'<span class="tag">サンプル</span>':""}</div><a class="feed-title" href="${esc(i.url)}" target="_blank" rel="noopener noreferrer" data-open="${esc(i.id)}">${esc(dispTitle(i))}</a><p class="feed-desc clamp2">${esc(cleanDesc(i))}</p>${state.notes[i.id]?`<p class="note-preview clamp2">✎ ${esc(state.notes[i.id])}</p>`:""}<div class="feed-tags">${tags.map(t=>tagHtml(t,i)).join("")}</div></div><div class="feed-actions">${itemActions(i)}</div></article>`;
@@ -100,17 +113,20 @@ function renderTabs(){
 // テーマはタブの下に横並びのチップで。件数が0のテーマは出さない
 function renderThemeChips(){
   const items=langItems(),count=t=>items.filter(i=>(i.tags||[]).includes(t)).length;
-  const themes=themesFor().filter(t=>count(t));
-  if(state.theme&&!themes.includes(state.theme))state.theme="";
-  $("#themeChips").innerHTML=`<button class="theme-chip ${state.theme?"":"active"}" data-theme="">すべて <b>${items.length}</b></button>`+themes.map(t=>`<button class="theme-chip ${t===AI_TAG?"is-ai":""} ${t===state.theme?"active":""}" data-theme="${esc(t)}">${t===AI_TAG?"✦ ":""}${esc(THEME_LABELS[t]||t)} <b>${count(t)}</b></button>`).join("");
+  const themes=TAGS;
+  $("#themeChips").innerHTML=`<button class="theme-chip ${state.theme?"":"active"}" data-theme="">すべて <b>${items.length}</b></button>`+themes.map(t=>`<button class="theme-chip ${t===AI_TAG?"is-ai":""} ${t===state.theme?"active":""}" data-theme="${esc(t)}">${t===AI_TAG?"✦ ":""}${esc(t)} <b>${count(t)}</b></button>`).join("");
   $("#themeChips .active")?.scrollIntoView({block:"nearest",inline:"nearest"});
 }
 function renderTypeFilter(){
-  const items=langItems(),types=["community","bookmark","newsletter","blog","slides","youtube","external"].filter(t=>items.some(i=>i.sourceType===t));
+  const items=langItems(),types=["zenn","qiita","community","bookmark","newsletter","blog","slides","youtube","external"].filter(t=>items.some(i=>i.sourceType===t));
   const cur=types.includes($("#typeFilter").value)?$("#typeFilter").value:"";
   $("#typeFilter").innerHTML='<option value="">すべての媒体</option>'+types.map(t=>`<option value="${t}">${SRC[t].icon} ${esc(typeLabel(t))}</option>`).join("");$("#typeFilter").value=cur;
-  const opts=themesFor().map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join(""),mt=$("#manualTag").value;
+  const opts=TAGS.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join(""),mt=$("#manualTag").value;
   $("#manualTag").innerHTML='<option value="">テーマなし</option>'+opts;$("#manualTag").value=mt;
+}
+function renderRating(){
+  const base=state.ratingBase||[],n=k=>base.filter(i=>ratingOf(i)>=k).length;
+  $("#ratingSeg").innerHTML=[[1,"すべて"],[2,"★★ 以上"],[3,"★★★"]].map(([k,l])=>`<button data-rating="${k}" class="${state.rating===k?"active":""}">${l} <b>${n(k)}</b></button>`).join("");
 }
 function updateTabs(){
   $$("[data-lang]").forEach(b=>{const l=b.dataset.lang,n=allItems().filter(i=>langOf(i)===l&&!state.read.has(i.id)).length;b.classList.toggle("active",l===state.lang);b.setAttribute("aria-selected",l===state.lang);b.querySelector("b").textContent=n;b.title=`未読 ${n}件`;});
@@ -118,7 +134,7 @@ function updateTabs(){
 }
 function render(){
   updateTabs();renderThemeChips();renderTypeFilter();
-  const filtered=getFiltered(),unread=filtered.filter(i=>!state.read.has(i.id)).length;
+  const filtered=getFiltered(),unread=filtered.filter(i=>!state.read.has(i.id)).length;renderRating();
   $("#resultSummary").textContent=`${filtered.length}件${state.status==="all"?`（未読 ${unread}件）`:""} · 新しい順`;
   $("#feedList").innerHTML=filtered.slice(0,state.limit).map(renderFeedItem).join("");$("#emptyState").classList.toggle("hidden",filtered.length!==0);
   $("#moreBtn").classList.toggle("hidden",filtered.length<=state.limit);$("#moreBtn").textContent=`もっと見る（残り ${Math.max(0,filtered.length-state.limit)}件）`;
@@ -147,6 +163,8 @@ document.addEventListener("click",e=>{
   const langTab=e.target.closest("[data-lang]");if(langTab){setLang(langTab.dataset.lang);return;}
   const theme=e.target.closest("[data-theme]");if(theme){const t=theme.dataset.theme;update({theme:t===state.theme&&theme.classList.contains("feed-tag")?"":t});return;}
   const status=e.target.closest("[data-status]");if(status){update({status:status.dataset.status});return;}
+  const rating=e.target.closest("[data-rating]");if(rating){const r=+rating.dataset.rating;try{localStorage.setItem(RATING_KEY,r);}catch(err){}update({rating:r});return;}
+  if(e.target.closest("#ratingHelp")){alert("評価（★1〜3）は反応の数で決めています。\n"+RATING_RULES.map(r=>`・${r.label}：★2 は ${r.steps[1].toLocaleString()} 以上、★3 は ${r.steps[2].toLocaleString()} 以上`).join("\n")+"\n・数がない情報源（定評のあるニュースレター・LayerX など）は ★2");return;}
   const action=e.target.closest("[data-action]");if(action){const id=action.dataset.id,act=action.dataset.action;
     if(act==="save"){state.saved.has(id)?state.saved.delete(id):state.saved.add(id);persistState();render();showToast(state.saved.has(id)?"保存しました":"保存を外しました");}
     if(act==="read"){state.read.has(id)?state.read.delete(id):state.read.add(id);persistState();render();showToast(state.read.has(id)?"既読にしました":"未読に戻しました");}

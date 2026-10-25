@@ -138,3 +138,15 @@
   .feed-actions .icon-action{width:32px;height:32px}
   .list-bar{flex-wrap:nowrap}.list-bar select{flex:1;min-width:0;max-width:none}
 }
+/* Zenn・Qiita */
+:root{--c-zenn:#3ea8ff;--c-qiita:#55c500}
+.src-zenn{--src:var(--c-zenn);--src-soft:#e6f3ff}.src-qiita{--src:var(--c-qiita);--src-soft:#ebf8e1}
+.dot-zenn{background:var(--c-zenn)}.dot-qiita{background:var(--c-qiita)}
+.like-mark{font-size:10px;font-weight:800;color:#d6456b;background:#fdecf1;border-radius:4px;padding:1px 6px}
+/* 評価（★1〜3） */
+.rating-bar{display:flex;align-items:center;gap:8px;margin:2px 0 4px}
+.rating-label{font-size:11px;font-weight:800;color:#8290a0}
+.rating-bar .seg button b{font-size:10px;color:#98a3b2;font-weight:800;margin-left:2px}
+.rating-help{width:24px;height:24px;border-radius:50%;border:1px solid var(--line);background:#fff;color:#8290a0;font-size:12px;font-weight:800;padding:0}
+.rating{font-size:11px;letter-spacing:-1px;color:#d5dbe3}.rating.r2{color:#e6a817}.rating.r3{color:#e07a00}
+.rating.r1{color:#c3cad3}
