@@ -19,6 +19,7 @@
     stylist: { name: 'ねこの スタイリストさん', pitch: 1.3, face: (e) => aniFace('cat', e === 'joy' ? 'happy' : 'smile', { kind: 'apron', color: 'pink' }) },
     yaoya: { name: 'やおやの いぬさん', pitch: 0.9, face: (e) => aniFace('dog', e === 'joy' ? 'happy' : 'smile', { kind: 'apron', color: 'mint', band: 1 }) },
     market: { name: 'マーケットの ねこさん', pitch: 1.2, face: (e) => aniFace('cat', e === 'joy' ? 'happy' : 'smile', { kind: 'apron', color: 'blue' }) },
+    teacher: { name: 'うさぎ せんせい', pitch: 1.2, face: (e) => aniFace('rabbit', e === 'joy' ? 'happy' : 'smile', { kind: 'teacher' }) },
     host: { name: 'しかいの パンダさん', pitch: 1.0, face: (e) => aniFace('panda', e === 'joy' ? 'happy' : 'smile') },
   };
   const friendCast = (fid) => ({ name: D.FRIENDS[fid].name + 'ちゃん', pitch: 1.5, face: (e) => A.faceSVG(A.friendOpt(fid, { expr: e || 'smile' })) });
@@ -149,6 +150,7 @@
     fashion: (f) => f.kind === 'item' && ['onepiece', 'shoes', 'hair'].includes(D.ITEMS[f.id].slot),
     shop: (f) => f.kind === 'furn' || (f.kind === 'item' && D.ITEMS[f.id].slot === 'tops'),
     dentist: (f) => f.kind === 'item' && ['magic', 'ribbon'].includes(D.ITEMS[f.id].slot),
+    writing: (f) => f.kind === 'item' && ['hair', 'ribbon', 'magic'].includes(D.ITEMS[f.id].slot),
   };
   const UNLOCK_FRIEND = { fashion: 'mizuki', shop: 'lemon' };
   function storyClear(c, sid, again) {
@@ -204,6 +206,7 @@
     { id: 'fashion', name: 'ファッションショー', sub: 'いしょう・おけしょう・ランウェイ', cls: 's1', art: () => KP.drawChar(A.fuutanOpt({ pose: 'cheer', expr: 'joy' })), vb: '20 -30 360 520' },
     { id: 'shop', name: 'ママの おつかい', sub: 'メモを みて おかいもの', cls: 's2', art: () => `<g transform="translate(-10 0)">${KP.drawChar(mamaOpt({ pose: 'wave' }))}</g>`, vb: '20 -30 360 520' },
     { id: 'dentist', name: 'はいしゃさんの おてつだい', sub: 'むしばきんを やっつけろ', cls: 's3', art: () => KP.drawAnimal('bear', 'happy', { kind: 'coat' }), vb: '0 -10 240 300' },
+    { id: 'writing', name: 'かきかた きょうしつ', sub: 'ひらがなを なぞって かこう', cls: 's4', art: () => KP.drawAnimal('rabbit', 'happy', { kind: 'teacher' }), vb: '0 -70 240 360' },
   ];
   SCREENS.stories = function (el) {
     const g = G();
@@ -848,6 +851,155 @@
     return c.guard(Promise.resolve());
   }
 
+
+  // ================= ④ かきかた きょうしつ =================
+  const WORDS = [
+    { w: 'いちご', pic: () => svg('0 0 100 100', KP.FOOD.strawberry.d) },
+    { w: 'りんご', pic: () => svg('0 0 100 100', KP.FOOD.apple.d) },
+    { w: 'たまご', pic: () => svg('0 0 100 100', KP.FOOD.egg.d) },
+    { w: 'うさぎ', pic: () => svg('0 -30 200 250', KP.drawBunny('happy')) },
+    { w: 'ねこ', pic: () => aniFace('cat', 'happy') },
+    { w: 'いぬ', pic: () => aniFace('dog', 'happy') },
+    { w: 'くま', pic: () => aniFace('bear', 'happy') },
+    { w: 'ぶた', pic: () => aniFace('pig', 'happy') },
+    { w: 'ほし', pic: () => svg('0 0 100 100', KP.ICONS.star()) },
+    { w: 'はな', pic: () => svg('0 0 100 100', KP.ICONS.flower()) },
+    { w: 'あめ', pic: () => svg('0 0 100 100', `<path d="M14,50 L30,36 L30,64Z M86,50 L70,36 L70,64Z" fill="#F8BCD6" stroke="#E07AA8" stroke-width="3"/><circle cx="50" cy="50" r="22" fill="#F29CC2" stroke="#E07AA8" stroke-width="3"/><path d="M36,40 Q50,60 64,40" stroke="#fff" stroke-width="5" fill="none"/>`) },
+    { w: 'かさ', pic: () => svg('-80 -170 160 200', PARTS_PARASOL()) },
+  ];
+  const PARTS_PARASOL = () => { const r = KP.PARTS.parasol(KP.PAL.pink, KP.uid('ps')); return `<defs>${r.defs}</defs>${r.magic}`; };
+  const FONT = "600 1px 'Klee One', 'M PLUS Rounded 1c', sans-serif";
+  RUN.writing = async function (c) {
+    try { await document.fonts.load("600 200px 'Klee One'", 'あいうえおかきくけこ'); } catch (e) { /* なし */ }
+    const two = shuffle(WORDS.filter((x) => x.w.length === 2))[0], three = shuffle(WORDS.filter((x) => x.w.length === 3))[0];
+    const words = [two, three];
+    c.bg(KP.BG.classroom());
+    c.actor('teacher', { html: aniSVG('rabbit', 'happy', { kind: 'teacher' }), x: 22, y: 86, h: 30 });
+    c.actor('fuutan', { html: fuuHTML({}), x: 72, y: 96, h: 50 });
+    c.actor('pyonta', { html: bunHTML('normal'), x: 92, y: 98, h: 14 });
+    await c.say('teacher', 'かきかた きょうしつへ ようこそ！ わたしは うさぎ せんせい です');
+    c.actor('fuutan', { html: fuuHTML({ pose: 'wave', expr: 'joy' }) });
+    await c.say('fuutan', 'よろしく おねがいします！', { expr: 'joy' });
+    await c.say('teacher', 'きょうは ひらがなを なぞって かく れんしゅうを しようね。ゆびで ゆっくり なぞってね');
+    const written = [];
+    for (const W of words) {
+      await c.card(`<div class="w-pic">${W.pic()}</div><div class="w-word">${W.w}</div>`, `これは なにかな？ 「${W.w}」だね！`);
+      const imgs = [];
+      for (let i = 0; i < W.w.length; i++) {
+        const ch = W.w[i];
+        await c.say('teacher', `「${ch}」は ${W.w}の「${ch}」だよ。いっしょに かいてみよう！`);
+        imgs.push(await traceGame(c, ch, W, i));
+      }
+      const img = await joinInk(imgs, W.w);
+      written.push({ w: W.w, img });
+      await c.card(`<div class="w-pic">${W.pic()}</div><img class="w-ink" src="${img}" alt="">`, `${W.w.split('').join('、')}…… 「${W.w}」！ じょうずに かけたね！`);
+      c.actor('fuutan', { html: fuuHTML({ pose: 'joy', expr: 'joy' }) });
+      c.sparkleAt('fuutan', ['star', 'heart', 'sparkle'], 12);
+      S.done();
+    }
+    c.actor('teacher', { html: aniSVG('rabbit', 'happy', { kind: 'teacher' }) });
+    await c.say('teacher', 'ぜんぶ はなまる！ ふーたん、とっても じょうずに かけました！', { expr: 'joy' });
+    c.actor('pyonta', { html: bunHTML('happy') });
+    await c.say('fuutan', 'やったあ！ もっと ひらがな かけるように なりたいな！', { expr: 'joy' });
+    album('writing', { words: written });
+    storyClear(c, 'writing');
+  };
+  // ゆびで なぞる（はみだしても OK。うえから なぞれたら はなまる）
+  async function traceGame(c, ch, W, idx) {
+    const p = c.panel(`<div class="tr-head"><div class="tr-pic">${W.pic()}</div><div class="tr-word">${W.w.split('').map((x, i) => `<span class="${i === idx ? 'cur' : i < idx ? 'done' : ''}">${x}</span>`).join('')}</div></div>` +
+      `<div class="st-prompt">「${ch}」を なぞって かこう</div>` +
+      `<div class="tr-box" id="trBox"><canvas id="trBg"></canvas><canvas id="trInk"></canvas><div class="tr-maru" id="trMaru"></div></div>` +
+      `<div class="tr-meter"><i id="trMeter"></i></div>` +
+      `<div class="tr-acts"><button class="pill" data-a="clear">${icon('reset')}けす</button><button class="pill" data-a="hear">${icon('sound')}きく</button><button class="pill main" data-a="ok">${icon('check', '#fff')}できた！</button></div>`, 'full trace');
+    const box = p.querySelector('#trBox'), bg = p.querySelector('#trBg'), ink = p.querySelector('#trInk'), meter = p.querySelector('#trMeter');
+    const size = Math.round(box.getBoundingClientRect().width) || 300;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    for (const cv of [bg, ink]) { cv.width = size * dpr; cv.height = size * dpr; cv.style.width = cv.style.height = size + 'px'; }
+    const gb = bg.getContext('2d'), gi = ink.getContext('2d');
+    gb.scale(dpr, dpr); gi.scale(dpr, dpr);
+    // ますめ
+    gb.fillStyle = '#FFFDF8'; gb.fillRect(0, 0, size, size);
+    gb.strokeStyle = '#F2C6D8'; gb.lineWidth = 2; gb.setLineDash([8, 8]);
+    gb.beginPath(); gb.moveTo(size / 2, 0); gb.lineTo(size / 2, size); gb.moveTo(0, size / 2); gb.lineTo(size, size / 2); gb.stroke();
+    gb.setLineDash([]);
+    const font = FONT.replace('1px', Math.round(size * 0.8) + 'px');
+    const drawGlyph = (g, col) => { g.font = font; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = col; g.fillText(ch, size / 2, size * 0.53); };
+    drawGlyph(gb, '#F3D7E3');
+    gb.lineWidth = 2; gb.strokeStyle = '#E8B4C8'; gb.font = font; gb.textAlign = 'center'; gb.textBaseline = 'middle'; gb.setLineDash([5, 6]); gb.strokeText(ch, size / 2, size * 0.53); gb.setLineDash([]);
+    // おてほんの まと（なぞるべき ところ）
+    const mk = document.createElement('canvas'); mk.width = mk.height = size;
+    const gm = mk.getContext('2d'); drawGlyph(gm, '#000');
+    const md = gm.getImageData(0, 0, size, size).data;
+    const STEP = Math.max(3, Math.round(size / 90));
+    const guide = [];
+    for (let y = 0; y < size; y += STEP) for (let x = 0; x < size; x += STEP) if (md[(y * size + x) * 4 + 3] > 128) guide.push([x, y]);
+    S.speak(`${ch}。${W.w}の ${ch}`, 1.3);
+    // かく
+    gi.lineCap = 'round'; gi.lineJoin = 'round'; gi.strokeStyle = '#E0559A'; gi.lineWidth = size * 0.085;
+    let drawing = null;
+    const pos = (e) => { const r = ink.getBoundingClientRect(); return [(e.clientX - r.left) * (size / r.width), (e.clientY - r.top) * (size / r.height)]; };
+    ink.addEventListener('pointerdown', (e) => { e.preventDefault(); try { ink.setPointerCapture(e.pointerId); } catch (er) { /* なし */ } drawing = pos(e); gi.beginPath(); gi.moveTo(...drawing); gi.lineTo(drawing[0] + 0.1, drawing[1]); gi.stroke(); });
+    ink.addEventListener('pointermove', (e) => { if (!drawing) return; const q = pos(e); gi.beginPath(); gi.moveTo(...drawing); gi.lineTo(...q); gi.stroke(); drawing = q; if (Math.random() < 0.15) S.tap(); });
+    const coverage = () => {
+      const d = gi.getImageData(0, 0, size * dpr, size * dpr).data;
+      let hit = 0;
+      for (const [x, y] of guide) if (d[((Math.round(y * dpr)) * size * dpr + Math.round(x * dpr)) * 4 + 3] > 40) hit++;
+      return guide.length ? hit / guide.length : 1;
+    };
+    let done = false;
+    let resolve;
+    const finished = new Promise((r) => (resolve = r));
+    const success = async () => {
+      if (done) return;
+      done = true;
+      p.querySelector('#trMaru').innerHTML = svg('0 0 200 200', KP.drawHanamaru());
+      p.querySelector('#trMaru').classList.add('show');
+      const r = box.getBoundingClientRect();
+      burst(r.left + r.width / 2, r.top + r.height / 2, ['star', 'heart', 'sparkle'], 16, 160);
+      S.done();
+      S.speak(rand(['はなまる！ じょうず！', 'すごい！ きれいに かけたね！', 'ばっちり！']), 1.3);
+      await sleep(1600);
+      resolve(ink.toDataURL('image/png'));
+    };
+    const check = () => {
+      const cv = coverage();
+      meter.style.width = Math.min(100, Math.round((cv / 0.62) * 100)) + '%';
+      if (cv >= 0.62) success();
+      return cv;
+    };
+    const up = () => { if (drawing) { drawing = null; check(); } };
+    ink.addEventListener('pointerup', up);
+    ink.addEventListener('pointercancel', up);
+    p.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-a]');
+      if (!b || done) return;
+      S.tap();
+      if (b.dataset.a === 'clear') { gi.clearRect(0, 0, size, size); meter.style.width = '0%'; }
+      if (b.dataset.a === 'hear') S.speak(`${ch}。${W.w}の ${ch}`, 1.3);
+      if (b.dataset.a === 'ok') {
+        const cv = check();
+        if (cv >= 0.3) success();
+        else { const r = box.getBoundingClientRect(); bubble(r.left + r.width / 2, r.top + 30, 'もうすこし なぞってみよう', 1500); S.speak('もうすこし なぞってみよう', 1.2); }
+      }
+    });
+    const img = await finished;
+    c.hidePanel();
+    return c.guard(Promise.resolve({ ch, img }));
+  }
+  function joinInk(imgs, word) {
+    const n = imgs.length, H = 140;
+    const cv = document.createElement('canvas'); cv.width = H * n; cv.height = H;
+    const g = cv.getContext('2d');
+    g.fillStyle = '#FFFDF8'; g.fillRect(0, 0, cv.width, H);
+    imgs.forEach((im, i) => {
+      g.strokeStyle = '#F2C6D8'; g.lineWidth = 2; g.strokeRect(i * H + 4, 4, H - 8, H - 8);
+      g.font = FONT.replace('1px', Math.round(H * 0.8) + 'px'); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#F6E3EC'; g.fillText(word[i], i * H + H / 2, H * 0.53);
+    });
+    return new Promise((res) => {
+      let left = n;
+      imgs.forEach((im, i) => { const m = new Image(); m.onload = () => { g.drawImage(m, i * H, 0, H, H); if (--left === 0) res(cv.toDataURL('image/png')); }; m.src = im.img; });
+    });
+  }
   // ================= アルバムの え =================
   A.snapExtra = function (a) {
     const s = a.snapshot;
@@ -858,6 +1010,12 @@
     if (a.type === 'dish') {
       const o = KP.BG.kitchen() + `<g transform="translate(40 380) scale(.9)">${KP.drawChar(mamaOpt({ pose: 'joy', expr: 'joy' }))}</g><g transform="translate(380 420) scale(.8)">${KP.drawChar(A.fuutanOpt({ pose: 'joy', expr: 'joy' }))}</g><g transform="translate(225 720) scale(1)">${KP.DISH[s.dish]}</g>`;
       return svg('0 300 750 700', o).replace('<svg ', '<svg preserveAspectRatio="xMidYMid slice" ');
+    }
+    if (a.type === 'writing') {
+      const ws = s.words || [];
+      let o = KP.BG.classroom() + `<g transform="translate(20 560) scale(1.1)">${KP.drawAnimal('rabbit', 'happy', { kind: 'teacher' })}</g>`;
+      ws.forEach((w, i) => { const wd = 160 * w.w.length; o += `<image href="${w.img}" x="${375 - wd / 2 * 0.9}" y="${470 + i * 160}" width="${wd * 0.9}" height="${144}"/>`; });
+      return svg('0 100 750 900', o).replace('<svg ', '<svg preserveAspectRatio="xMidYMid slice" ');
     }
     if (a.type === 'clinic') {
       let o = KP.BG.clinic() + `<g transform="translate(20 560) scale(1.2)">${KP.drawAnimal('bear', 'happy', { kind: 'coat' })}</g>`;

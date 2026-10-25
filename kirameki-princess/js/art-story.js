@@ -113,6 +113,10 @@
     o += aniFace(A, 120, 112, 74, expr);
     if (expr === 'sad') o += paw(176, 150);
     if (wear.kind === 'coat') o += `<path d="M58,70 Q120,20 182,70" fill="none" stroke="#6A6FB8" stroke-width="5"/><circle cx="120" cy="38" r="20" fill="#EAF3FF" stroke="#B9C4DA" stroke-width="3"/><circle cx="120" cy="38" r="8" fill="#fff"/>` + sparkle(128, 30, 4);
+    if (wear.kind === 'teacher') {
+      o += `<circle cx="93" cy="110" r="19" fill="#fff" fill-opacity=".25" stroke="#8C6FD6" stroke-width="4"/><circle cx="147" cy="110" r="19" fill="#fff" fill-opacity=".25" stroke="#8C6FD6" stroke-width="4"/><path d="M112,108 Q120,102 128,108" fill="none" stroke="#8C6FD6" stroke-width="4"/>`;
+      o += bow(120, 186, 0.6, PAL.lav, null, { tails: false });
+    }
     if (wear.kind === 'chef') o += `<path d="M80,60 Q70,20 100,26 Q110,0 140,14 Q170,10 162,50 L158,64 Q120,54 84,64Z" fill="#fff" stroke="#C9B8E6" stroke-width="2.2"/>`;
     if (wear.kind === 'apron' && wear.band) o += `<path d="M50,84 Q120,50 190,84" fill="none" stroke="${PAL[wear.color || 'mint'].base}" stroke-width="10" stroke-linecap="round"/>`;
     return o;
@@ -257,6 +261,27 @@
       `<path d="M220,720 Q240,560 300,540 L470,520 Q500,520 500,550 L480,700 Z" fill="#9EDDC8" stroke="#3F9C83" stroke-width="4"/><rect x="330" y="700" width="40" height="140" fill="#B9C4DA"/><ellipse cx="350" cy="850" rx="110" ry="22" fill="#B9C4DA"/>` +
       // ライト
       `<path d="M640,700 V420 L470,380" fill="none" stroke="#B9C4DA" stroke-width="12" stroke-linecap="round"/><ellipse cx="460" cy="384" rx="44" ry="26" fill="#fff" stroke="#B9C4DA" stroke-width="5"/>`;
+  };
+  KP.BG.classroom = () => {
+    const id = uid('cr');
+    let o = `<defs>${lg(id + 'w', [[0, '#FFF8EC'], [1, '#FFF1E0']])}${lg(id + 'f', [[0, '#F5DEC8'], [1, '#EBC9AA']])}</defs><rect width="750" height="1000" fill="url(#${id}w)"/>`;
+    o += `<rect y="700" width="750" height="300" fill="url(#${id}f)"/><path d="M0,700 H750" stroke="#fff" stroke-width="10"/>`;
+    // こくばん
+    o += `<rect x="70" y="110" width="610" height="330" rx="16" fill="#D9AE8C"/><rect x="88" y="128" width="574" height="294" rx="8" fill="#3F7A64"/>`;
+    o += `<text x="375" y="230" text-anchor="middle" font-size="76" fill="#fff" opacity=".92" font-family="'Klee One','M PLUS Rounded 1c',sans-serif" font-weight="600" letter-spacing="14">あいうえお</text>`;
+    o += `<text x="375" y="330" text-anchor="middle" font-size="40" fill="#FFE59A" font-family="'Klee One','M PLUS Rounded 1c',sans-serif" font-weight="600">かきかた きょうしつ</text>`;
+    o += star(140, 380, 16, '#FFE59A') + heart(610, 380, 14, '#F8BCD6') + `<path d="M520,380 q20,-30 40,0" stroke="#fff" stroke-width="4" fill="none"/>`;
+    o += `<rect x="70" y="440" width="610" height="16" rx="6" fill="#C99A70"/><rect x="420" y="430" width="40" height="12" rx="4" fill="#fff"/><rect x="480" y="430" width="30" height="12" rx="4" fill="#FFE59A"/>`;
+    // つくえ
+    o += `<path d="M120,820 L630,820 L680,1000 L70,1000Z" fill="#E6C08A" stroke="#B5835E" stroke-width="5"/><path d="M120,820 L630,820 L636,840 L114,840Z" fill="#F2D3A0"/>`;
+    o += `<rect x="560" y="780" width="20" height="52" rx="4" fill="#F29CC2" transform="rotate(30 570 806)"/><rect x="170" y="790" width="80" height="30" rx="6" fill="#BCD4FA" stroke="#6F98E2" stroke-width="3"/>`;
+    return o;
+  };
+  KP.drawHanamaru = () => {
+    let o = '';
+    for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; o += `<ellipse cx="${100 + Math.cos(a) * 70}" cy="${100 + Math.sin(a) * 70}" rx="24" ry="16" fill="none" stroke="#F0506E" stroke-width="7" transform="rotate(${(a * 180) / Math.PI} ${100 + Math.cos(a) * 70} ${100 + Math.sin(a) * 70})"/>`; }
+    o += `<path d="M100,52 C140,52 152,88 140,116 C126,148 72,146 62,110 C54,82 78,64 102,70 C124,76 128,104 110,114 C96,120 86,108 92,98" fill="none" stroke="#F0506E" stroke-width="9" stroke-linecap="round"/>`;
+    return o;
   };
   KP.BG.runway = () => {
     const id = uid('rw');
