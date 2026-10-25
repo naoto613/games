@@ -658,3 +658,30 @@ svg { display: block; }
 @keyframes wobBig { from { transform: rotate(-10deg); } to { transform: rotate(10deg); } }
 .mobj { cursor: pointer; }
 .mobj .wob { transform-box: fill-box; transform-origin: 50% 50%; animation: wob .8s ease-in-out infinite alternate; }
+
+/* おえかき きょうしつ */
+.story-card.s5 { background: linear-gradient(135deg, #FFD3A8, #C9B5F5); }
+.paintp { justify-content: space-between; background: linear-gradient(#FFF6EC, #FFF0F6); }
+.paint-wrap { position: relative; width: min(92vw, 52vh, 520px); aspect-ratio: 1; }
+.paint-area { width: 100%; height: 100%; background: #fff; border-radius: 22px; border: 6px solid #fff; box-shadow: 0 0 0 4px #F6B7D2, 0 10px 26px rgba(224, 122, 168, .2); overflow: hidden; padding: 6px; }
+.paint-area svg { width: 100%; height: 100%; }
+.region { cursor: pointer; transition: fill .2s; }
+.region.pop2 { animation: regionPop .3s ease-out; transform-box: fill-box; transform-origin: center; }
+@keyframes regionPop { 50% { transform: scale(1.04); } }
+.paint-sample { position: absolute; right: -6px; top: -6px; width: 32%; aspect-ratio: 1; background: #fff; border-radius: 14px; border: 3px solid #FFD772; padding: 4px; box-shadow: 0 6px 14px rgba(0, 0, 0, .15); }
+.paint-sample svg { width: 100%; height: 100%; }
+.palette2 { display: flex; gap: 6px; overflow-x: auto; max-width: 100%; padding: 6px 4px; scrollbar-width: none; }
+.pcol { flex: none; width: 48px; height: 48px; border-radius: 50%; background: #fff; border: 3px solid #EDE5FB; display: grid; place-items: center; }
+.pcol.sel { border-color: #E0559A; transform: scale(1.15); box-shadow: 0 0 0 3px #FFE3EF; }
+.sw { width: 34px; height: 34px; border-radius: 50%; display: block; border: 2px solid rgba(0, 0, 0, .08); }
+.sw svg { width: 100%; height: 100%; }
+.sw.rainbow { background: linear-gradient(90deg, #FF8FB8, #FFE07A, #9EDC9A, #9DCDF4, #C9B5F5); }
+.sw.dots { background: radial-gradient(circle, #fff 30%, transparent 32%) 0 0 / 10px 10px, #FFD3E6; }
+.sw.kira { border: 0; }
+.paint-frame { background: #fff; border: 10px solid #E6C08A; border-radius: 10px; box-shadow: inset 0 0 0 4px #F6E1B8; aspect-ratio: 1; padding: 6px; }
+.paint-frame svg { width: 100%; height: 100%; }
+.paint-gallery { display: flex; gap: 10px; justify-content: center; }
+.paint-gallery .paint-frame { width: 46%; }
+.paint-album { width: 100%; height: 100%; background: #fff; padding: 6px; border: 6px solid #E6C08A; }
+.paint-album svg { width: 100%; height: 100%; }
+.st-choice .ci svg { overflow: visible; }

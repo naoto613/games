@@ -19,6 +19,7 @@
     stylist: { name: 'ねこの スタイリストさん', pitch: 1.3, face: (e) => aniFace('cat', e === 'joy' ? 'happy' : 'smile', { kind: 'apron', color: 'pink' }) },
     yaoya: { name: 'やおやの いぬさん', pitch: 0.9, face: (e) => aniFace('dog', e === 'joy' ? 'happy' : 'smile', { kind: 'apron', color: 'mint', band: 1 }) },
     market: { name: 'マーケットの ねこさん', pitch: 1.2, face: (e) => aniFace('cat', e === 'joy' ? 'happy' : 'smile', { kind: 'apron', color: 'blue' }) },
+    artist: { name: 'ねこの えのぐせんせい', pitch: 1.25, face: (e) => aniFace('cat', e === 'joy' ? 'happy' : 'smile', { kind: 'artist' }) },
     teacher: { name: 'うさぎ せんせい', pitch: 1.2, face: (e) => aniFace('rabbit', e === 'joy' ? 'happy' : 'smile', { kind: 'teacher' }) },
     host: { name: 'しかいの パンダさん', pitch: 1.0, face: (e) => aniFace('panda', e === 'joy' ? 'happy' : 'smile') },
   };
@@ -151,6 +152,7 @@
     shop: (f) => f.kind === 'furn' || (f.kind === 'item' && D.ITEMS[f.id].slot === 'tops'),
     dentist: (f) => f.kind === 'item' && ['magic', 'ribbon'].includes(D.ITEMS[f.id].slot),
     writing: (f) => f.kind === 'item' && ['hair', 'ribbon', 'magic'].includes(D.ITEMS[f.id].slot),
+    paint: (f) => f.kind === 'furn' || (f.kind === 'item' && ['onepiece', 'tops'].includes(D.ITEMS[f.id].slot)),
   };
   const UNLOCK_FRIEND = { fashion: 'mizuki', shop: 'lemon' };
   function storyClear(c, sid, again) {
@@ -206,6 +208,7 @@
     { id: 'fashion', name: 'ファッションショー', sub: 'いしょう・おけしょう・ランウェイ', cls: 's1', art: () => KP.drawChar(A.fuutanOpt({ pose: 'cheer', expr: 'joy' })), vb: '20 -30 360 520' },
     { id: 'shop', name: 'ママの おつかい', sub: 'メモを みて おかいもの', cls: 's2', art: () => `<g transform="translate(-10 0)">${KP.drawChar(mamaOpt({ pose: 'wave' }))}</g>`, vb: '20 -30 360 520' },
     { id: 'dentist', name: 'はいしゃさんの おてつだい', sub: 'むしばきんを やっつけろ', cls: 's3', art: () => KP.drawAnimal('bear', 'happy', { kind: 'coat' }), vb: '0 -10 240 300' },
+    { id: 'paint', name: 'おえかき きょうしつ', sub: 'すきな いろで ぬりえ', cls: 's5', art: () => KP.drawAnimal('cat', 'happy', { kind: 'artist' }), vb: '0 -10 240 310' },
     { id: 'writing', name: 'かきかた きょうしつ', sub: 'ひらがなを なぞって かこう', cls: 's4', art: () => KP.drawAnimal('rabbit', 'happy', { kind: 'teacher' }), vb: '0 -70 240 360' },
   ];
   SCREENS.stories = function (el) {
@@ -1542,6 +1545,153 @@
       imgs.forEach((im, i) => { const m = new Image(); m.onload = () => { g.drawImage(m, i * H, 0, H, H); if (--left === 0) res(cv.toDataURL('image/png')); }; m.src = im.img; });
     });
   }
+
+  // ================= ⑤ おえかき きょうしつ（ぬりえ） =================
+  const PICTURES = [
+    { name: 'ぴょんた', vb: '0 -30 200 250', art: () => KP.drawBunny('happy') },
+    { name: 'おしろ', vb: '-10 -10 180 220', art: () => KP.FURN.castle.draw(KP.PAL.lav, KP.uid('pc')) },
+    { name: 'ユニコーン', vb: '0 -10 230 230', art: () => KP.FURN.unicorn.draw(KP.PAL.pink, KP.uid('pc')) },
+    { name: 'ケーキ', vb: '70 100 460 350', art: () => A.drawCake({ shape: 'tier', cream: 'pink', tops: [{ t: 'strawberry', x: 270, y: 190 }, { t: 'strawberry', x: 330, y: 194 }, { t: 'candle', x: 300, y: 186 }, { t: 'heart', x: 220, y: 300 }, { t: 'star', x: 380, y: 300 }] }) },
+    { name: 'くまさん', vb: '0 -10 240 310', art: () => KP.drawAnimal('bear', 'happy') },
+    { name: 'ねこちゃん', vb: '0 -10 240 310', art: () => KP.drawAnimal('cat', 'happy', { kind: 'apron', color: 'pink' }) },
+    { name: 'ドレス', vb: '70 262 260 260', art: () => { const r = KP.PARTS.princess(KP.PAL.pink, KP.uid('pc')); return `<defs>${r.defs}</defs>${r.dress}${r.sleeves}`; } },
+    { name: 'ハートの ベッド', vb: '-10 -10 320 280', art: () => KP.FURN.bed.draw(KP.PAL.pink, KP.uid('pc')) },
+    { name: 'おはなの かびん', vb: '0 0 110 175', art: () => KP.FURN.flowervase.draw(KP.PAL.pink, KP.uid('pc')) },
+    { name: 'ドールハウス', vb: '0 0 200 235', art: () => KP.FURN.dollhouse.draw(KP.PAL.mint, KP.uid('pc')) },
+    { name: 'ふーたん', vb: '40 20 320 620', art: () => KP.drawChar(A.fuutanOpt({ pose: 'cheer', expr: 'joy' })) },
+    { name: 'パンダさん', vb: '0 -10 240 310', art: () => KP.drawAnimal('panda', 'happy') },
+  ];
+  const PALETTE = ['#FF8FB8', '#F0506E', '#FF9A4A', '#FFE07A', '#9EDC9A', '#6FC3A8', '#9DCDF4', '#6F98E2', '#C9B5F5', '#8C6FD6', '#D9AE8C', '#8A5A3A', '#FFFFFF', '#4A4A5E', 'kira', 'rainbow', 'dots'];
+  // いつもの え から いろを ぬいて ぬりえに する
+  function toColoring(pic) {
+    const id = KP.uid('nr');
+    const tmp = document.createElement('div');
+    tmp.innerHTML = svg(pic.vb, pic.art());
+    const sv = tmp.firstElementChild;
+    sv.querySelectorAll('defs').forEach((d) => d.remove());
+    const regions = [];
+    sv.querySelectorAll('path,rect,circle,ellipse,polygon').forEach((el) => {
+      const f = (el.getAttribute('fill') || '').trim();
+      const st = el.getAttribute('stroke');
+      if (f === 'none' || f === 'transparent') { el.setAttribute('pointer-events', 'none'); if (st) el.setAttribute('stroke', '#5A4A6E'); return; }
+      const op = parseFloat(el.getAttribute('opacity') || '1');
+      const white = /^#?f{3}(f{3})?$/i.test(f) || f === 'white';
+      if ((!st && (white || op < 0.6)) || op < 0.3) { el.remove(); return; }
+      el.dataset.orig = f.startsWith('url') ? '#F8BCD6' : f;
+      el.setAttribute('fill', '#FFFFFF');
+      el.removeAttribute('opacity');
+      el.setAttribute('stroke', '#5A4A6E');
+      if (!el.getAttribute('stroke-width')) el.setAttribute('stroke-width', '1.6');
+      el.setAttribute('class', 'region');
+      el.dataset.r = regions.length;
+      regions.push(el);
+    });
+    sv.querySelectorAll('text').forEach((t) => t.remove());
+    sv.insertAdjacentHTML('afterbegin', `<defs>${KP.lg(id + 'k', [[0, '#FFF6CF'], [0.5, '#FFD772'], [1, '#F2B94A']], 0, 0, 1, 1)}${KP.lg(id + 'r', [[0, '#FF8FB8'], [0.25, '#FFE07A'], [0.5, '#9EDC9A'], [0.75, '#9DCDF4'], [1, '#C9B5F5']], 0, 0, 1, 0)}<pattern id="${id}d" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#FFD3E6"/><circle cx="7" cy="7" r="3.4" fill="#fff"/></pattern></defs>`);
+    return { sv, regions, id };
+  }
+  const paintFill = (id, col) => (col === 'kira' ? `url(#${id}k)` : col === 'rainbow' ? `url(#${id}r)` : col === 'dots' ? `url(#${id}d)` : col);
+  const swatch = (col) => col === 'kira' ? `<span class="sw kira">${svg('0 0 100 100', KP.star(50, 52, 34, '#FFE07A', '#E9B44C', 4) + KP.sparkle(76, 22, 12, '#fff'))}</span>`
+    : col === 'rainbow' ? `<span class="sw rainbow"></span>` : col === 'dots' ? `<span class="sw dots"></span>` : `<span class="sw" style="background:${col}"></span>`;
+
+  RUN.paint = async function (c) {
+    const g = G();
+    c.bg(KP.BG.atelier());
+    c.actor('artist', { html: aniSVG('cat', 'happy', { kind: 'artist' }), x: 22, y: 96, h: 32 });
+    c.actor('fuutan', { html: fuuHTML({}), x: 70, y: 97, h: 52 });
+    c.actor('pyonta', { html: bunHTML('normal'), x: 90, y: 98, h: 14 });
+    await c.say('artist', 'おえかき きょうしつへ ようこそ！ わたしは ねこの えのぐせんせい です');
+    await c.say('artist', 'きょうは ぬりえを しよう。すきな いろで ぬって いいんだよ。おなじ いろじゃ なくても だいじょうぶ！');
+    c.actor('fuutan', { html: fuuHTML({ pose: 'joy', expr: 'joy' }) });
+    await c.say('fuutan', 'わあい！ どれに しようかな〜', { expr: 'joy' });
+    const works = [];
+    for (let round = 0; round < 2; round++) {
+      const opts = shuffle(PICTURES).slice(0, 3);
+      const pic = await c.choose(opts.map((pc) => ({ label: pc.name, value: pc, icon: (() => { const t = toColoring(pc); return t.sv.outerHTML; })() })), 'どの えを ぬる？');
+      const res = await paintGame(c, pic);
+      works.push(res);
+      album('paint', { svg: res.svg, name: pic.name });
+      c.actor('artist', { html: aniSVG('cat', 'happy', { kind: 'artist' }) });
+      await c.card(`<div class="paint-frame">${res.svg}</div>`, `「${pic.name}」の できあがり！ ${rand(['すてきな いろだね！', 'とっても はなやか！', 'ふーたんらしい いろだね！'])}`);
+      const fr = Object.keys(D.FRIENDS).filter((f) => g.collection.unlockedCharacterIds.includes(f));
+      if (fr.length) {
+        const f = rand(fr);
+        c.actor('friend', { html: charHTML(A.friendOpt(f, { pose: 'wave', expr: 'joy' })), x: 46, y: 92, h: 36 });
+        await c.say(f, rand(['わあ、その いろ かわいい！', 'わたしも ぬりえ したく なっちゃった！', 'キラキラで すてき！']), { expr: 'joy', actor: 'friend' });
+        c.actor('friend', null);
+      }
+      if (round === 0) {
+        const more = await c.choose([{ label: 'もう 1まい ぬる！', value: 1, main: true, icon: svg('0 0 100 100', KP.ICONS.palette()) }, { label: 'おしまい', value: 0, icon: svg('0 0 100 100', KP.ICONS.check()) }], 'もう 1まい ぬる？');
+        if (!more) break;
+      }
+    }
+    await c.say('artist', 'ふーたんの え、てんらんかいに かざろうね！', { expr: 'joy' });
+    await c.card(`<div class="paint-gallery">${works.map((w) => `<div class="paint-frame small">${w.svg}</div>`).join('')}</div>`, 'てんらんかい だよ！ みんな みにきてくれたよ');
+    c.actor('fuutan', { html: fuuHTML({ pose: 'cheer', expr: 'joy' }) });
+    c.sparkleAt('fuutan', ['heart', 'star', 'sparkle'], 16);
+    await c.say('fuutan', 'えへへ、たのしかった！ また ぬりたいな！', { expr: 'joy' });
+    storyClear(c, 'paint');
+  };
+  async function paintGame(c, pic) {
+    const { sv, regions, id } = toColoring(pic);
+    let col = rand(['#FF8FB8', '#9DCDF4', '#FFE07A', '#C9B5F5']);
+    const undo = [];
+    const p = c.panel(`<div class="st-prompt">いろを えらんで、ぬりたい ところを タッチ！</div>` +
+      `<div class="paint-wrap"><div class="paint-area" id="pArea"></div><div class="paint-sample" id="pSample" hidden></div></div>` +
+      `<div class="palette2" id="pPal"></div>` +
+      `<div class="tr-acts"><button class="pill" data-a="undo">${icon('reset')}もどす</button><button class="pill" data-a="sample">${icon('search')}おてほん</button><button class="pill main" data-a="ok">${icon('check', '#fff')}できた！</button></div>`, 'full paintp');
+    S.speak('いろを えらんで、ぬりたい ところを タッチ！', 1.4);
+    const area = p.querySelector('#pArea'), pal = p.querySelector('#pPal'), sample = p.querySelector('#pSample');
+    area.appendChild(sv);
+    const drawPal = () => (pal.innerHTML = PALETTE.map((cc) => `<button class="pcol${cc === col ? ' sel' : ''}" data-c="${cc}">${swatch(cc)}</button>`).join(''));
+    drawPal();
+    // おてほん（もとの いろ）
+    const sm = sv.cloneNode(true);
+    sm.querySelectorAll('.region').forEach((el) => el.setAttribute('fill', el.dataset.orig));
+    sample.appendChild(sm);
+    let finish;
+    const finished = new Promise((r) => (finish = r));
+    const paintAt = (el, x, y) => {
+      const f = paintFill(id, col);
+      if (el.getAttribute('fill') === f) return;
+      undo.push([el, el.getAttribute('fill')]);
+      el.setAttribute('fill', f);
+      el.classList.remove('pop2'); void el.getBBox(); el.classList.add('pop2');
+      S.pop();
+      burst(x, y, col === 'kira' ? ['star', 'sparkle'] : ['sparkle'], col === 'kira' ? 7 : 3, 40);
+    };
+    sv.addEventListener('click', (e) => {
+      const el = e.target.closest('.region');
+      if (el) paintAt(el, e.clientX, e.clientY);
+    });
+    p.addEventListener('click', (e) => {
+      const cb = e.target.closest('[data-c]');
+      if (cb) { col = cb.dataset.c; S.tap(); drawPal(); return; }
+      const b = e.target.closest('[data-a]');
+      if (!b) return;
+      S.tap();
+      if (b.dataset.a === 'undo') { const u = undo.pop(); if (u) u[0].setAttribute('fill', u[1]); }
+      if (b.dataset.a === 'sample') sample.hidden = !sample.hidden;
+      if (b.dataset.a === 'ok') {
+        const n = regions.filter((el) => el.getAttribute('fill') !== '#FFFFFF').length;
+        if (n < Math.min(5, Math.ceil(regions.length * 0.3))) {
+          const r = area.getBoundingClientRect();
+          bubble(r.left + r.width / 2, r.top + 30, 'もうすこし ぬってみよう', 1400);
+          S.speak('もうすこし ぬってみよう', 1.3);
+          return;
+        }
+        S.done();
+        const r = area.getBoundingClientRect();
+        burst(r.left + r.width / 2, r.top + r.height / 2, ['star', 'heart', 'sparkle'], 18, 160);
+        finish();
+      }
+    });
+    await finished;
+    sv.querySelectorAll('.region').forEach((el) => el.classList.remove('pop2'));
+    const out = sv.outerHTML;
+    c.hidePanel();
+    return c.guard(Promise.resolve({ svg: out }));
+  }
   // ================= アルバムの え =================
   A.snapExtra = function (a) {
     const s = a.snapshot;
@@ -1553,6 +1703,9 @@
       const dish = s.dish === 'bday' ? `<g transform="translate(0 -60) scale(.5)">${A.drawCake({ shape: 'tier', cream: 'pink', tops: [{ t: 'candle', x: 280, y: 190 }, { t: 'strawberry', x: 320, y: 196 }, { t: 'heart', x: 300, y: 300 }] })}</g>` : s.dish === 'bento' ? KP.DISH.bento : KP.DISH[s.dish] || '';
       const o = KP.BG.kitchen() + `<g transform="translate(40 380) scale(.9)">${KP.drawChar(mamaOpt({ pose: 'joy', expr: 'joy' }))}</g><g transform="translate(380 420) scale(.8)">${KP.drawChar(A.fuutanOpt({ pose: 'joy', expr: 'joy' }))}</g><g transform="translate(225 720) scale(1)">${dish}</g>`;
       return svg('0 300 750 700', o).replace('<svg ', '<svg preserveAspectRatio="xMidYMid slice" ');
+    }
+    if (a.type === 'paint') {
+      return `<div class="paint-album">${s.svg || ''}</div>`;
     }
     if (a.type === 'writing') {
       const ws = s.words || [];

@@ -117,6 +117,10 @@
       o += `<circle cx="93" cy="110" r="19" fill="#fff" fill-opacity=".25" stroke="#8C6FD6" stroke-width="4"/><circle cx="147" cy="110" r="19" fill="#fff" fill-opacity=".25" stroke="#8C6FD6" stroke-width="4"/><path d="M112,108 Q120,102 128,108" fill="none" stroke="#8C6FD6" stroke-width="4"/>`;
       o += bow(120, 186, 0.6, PAL.lav, null, { tails: false });
     }
+    if (wear.kind === 'artist') {
+      o += `<ellipse cx="96" cy="46" rx="58" ry="20" fill="#C9B5F5" stroke="#8C6FD6" stroke-width="2.4" transform="rotate(-14 96 46)"/><path d="M92,28 l4,-12" stroke="#8C6FD6" stroke-width="4" stroke-linecap="round"/>`;
+      o += `<path d="M84,212 L156,212 L164,292 Q120,300 76,292Z" fill="#fff" stroke="#C9B8E6" stroke-width="2.2"/><circle cx="104" cy="248" r="6" fill="#F0506E"/><circle cx="124" cy="262" r="6" fill="#6F98E2"/><circle cx="138" cy="242" r="6" fill="#FFE07A"/>`;
+    }
     if (wear.kind === 'chef') o += `<path d="M80,60 Q70,20 100,26 Q110,0 140,14 Q170,10 162,50 L158,64 Q120,54 84,64Z" fill="#fff" stroke="#C9B8E6" stroke-width="2.2"/>`;
     if (wear.kind === 'apron' && wear.band) o += `<path d="M50,84 Q120,50 190,84" fill="none" stroke="${PAL[wear.color || 'mint'].base}" stroke-width="10" stroke-linecap="round"/>`;
     return o;
@@ -314,6 +318,23 @@
     // つくえ
     o += `<path d="M120,820 L630,820 L680,1000 L70,1000Z" fill="#E6C08A" stroke="#B5835E" stroke-width="5"/><path d="M120,820 L630,820 L636,840 L114,840Z" fill="#F2D3A0"/>`;
     o += `<rect x="560" y="780" width="20" height="52" rx="4" fill="#F29CC2" transform="rotate(30 570 806)"/><rect x="170" y="790" width="80" height="30" rx="6" fill="#BCD4FA" stroke="#6F98E2" stroke-width="3"/>`;
+    return o;
+  };
+  KP.BG.atelier = () => {
+    const id = uid('at');
+    let o = `<defs>${lg(id + 'w', [[0, '#FFF6EC'], [1, '#FDEBD8']])}${lg(id + 'f', [[0, '#E6D2BC'], [1, '#D4BC9E']])}</defs><rect width="750" height="1000" fill="url(#${id}w)"/>`;
+    o += `<rect y="700" width="750" height="300" fill="url(#${id}f)"/><path d="M0,700 H750" stroke="#fff" stroke-width="10"/>`;
+    o += KP.drawWindow(470, 90, 220, 260);
+    // かべの え
+    [[60, 120, '#FFB8D6'], [250, 140, '#BCD4FA'], [80, 360, '#BDEBDC']].forEach(([x, y, c], i) => {
+      o += `<rect x="${x}" y="${y}" width="150" height="120" rx="6" fill="#fff" stroke="#D9AE8C" stroke-width="8"/><rect x="${x + 12}" y="${y + 12}" width="126" height="96" fill="${c}" opacity=".5"/>`;
+      o += i === 0 ? heart(x + 75, y + 60, 24, '#F0506E') : i === 1 ? star(x + 75, y + 60, 30, '#FFE07A', '#E9B44C', 2) : `<circle cx="${x + 75}" cy="${y + 64}" r="26" fill="#FF9A4A"/><path d="M${x + 20},${y + 100} Q${x + 75},${y + 70} ${x + 130},${y + 100}" fill="#9EDC9A"/>`;
+    });
+    // イーゼル
+    o += `<path d="M420,700 L480,440 M600,700 L540,440 M510,700 V430" stroke="#B5835E" stroke-width="12" stroke-linecap="round"/><rect x="430" y="400" width="160" height="200" rx="6" fill="#fff" stroke="#D9AE8C" stroke-width="6"/><path d="M460,540 Q510,460 560,540" fill="none" stroke="#F29CC2" stroke-width="10" stroke-linecap="round"/>`;
+    // えのぐ
+    o += `<ellipse cx="200" cy="640" rx="120" ry="60" fill="#F6E1B8" stroke="#C99A5E" stroke-width="5"/><circle cx="150" cy="620" r="16" fill="#F0506E"/><circle cx="196" cy="604" r="16" fill="#FFE07A"/><circle cx="244" cy="616" r="16" fill="#6F98E2"/><circle cx="230" cy="660" r="16" fill="#9EDC9A"/><ellipse cx="160" cy="664" rx="20" ry="14" fill="#FDEBD8"/>`;
+    o += `<rect x="300" y="560" width="22" height="120" rx="6" fill="#C9B5F5" transform="rotate(20 311 620)"/><path d="M332,548 l10,-22 l8,26Z" fill="#F29CC2" transform="rotate(20 311 620)"/>`;
     return o;
   };
   KP.drawHanamaru = () => {

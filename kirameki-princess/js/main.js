@@ -1064,7 +1064,7 @@
     bindHome(el);
     const body = el.querySelector('#aBody');
     const fmt = (t) => { const d = new Date(t); return `${d.getMonth() + 1}がつ ${d.getDate()}にち`; };
-    const capOf = (a) => ({ outfit: 'へんしん', room: 'おへや', cake: 'ケーキ', show: 'ファッションショー', dish: 'おつかい', clinic: 'はいしゃさん', writing: 'かきかた' }[a.type] || 'なかまと');
+    const capOf = (a) => ({ outfit: 'へんしん', room: 'おへや', cake: 'ケーキ', show: 'ファッションショー', dish: 'おつかい', clinic: 'はいしゃさん', writing: 'かきかた', paint: 'おえかき' }[a.type] || 'なかまと');
     function render() {
       let o = `<div class="sec-h">${icon('camera')}きねんの しゃしん</div>`;
       o += G.album.length
