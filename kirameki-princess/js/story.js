@@ -220,13 +220,13 @@
     const m = document.createElement('div');
     m.className = 'modal';
     const rHTML = (r) => r.kind === 'friend' ? A.charSVG(A.friendOpt(r.id, { expr: 'joy', pose: 'wave' })) : A.findSVG(r);
-    m.innerHTML = `<div class="card"><h2>おはなし クリア！</h2>` +
+    m.innerHTML = `<div class="card${reward && prize ? ' two' : ''}"><h2>おはなし クリア！</h2>` +
       `<div class="big stampbig"><div class="rays"></div>${svg('0 0 200 160', KP.drawTrophy())}</div>` +
       `<div class="starrow">${[0, 1, 2].map((i) => `<span class="bigstar${i < stars ? ' on' : ''}" style="animation-delay:${0.5 + i * 0.35}s">${svg('0 0 100 100', KP.star(50, 52, 44, i < stars ? '#FFD772' : '#EDE5FB', i < stars ? '#E9B44C' : '#DCD0F0', 5))}</span>`).join('')}</div>` +
       (newBest ? `<div class="newbest">しんきろく！</div>` : '') +
       `<div class="nm">スタンプ ${g.stamps}こめ！</div>` +
-      (reward ? `<div class="prize"><div class="ptitle">${icon('star')}${reward.kind === 'friend' ? 'あたらしい なかま！' : 'ごほうび！'}</div><div class="pimg">${rHTML(reward)}</div><div class="pname">${esc(A.findName(reward))}</div></div>` : '') +
-      (prize ? `<div class="prize"><div class="ptitle">${icon('star')}スタンプの プレゼント！</div><div class="pimg">${A.findSVG(prize)}</div><div class="pname">${esc(A.findName(prize))}</div></div>` : '') +
+      `<div class="prizes">` + (reward ? `<div class="prize"><div class="ptitle">${icon('star')}${reward.kind === 'friend' ? (prize ? 'なかま！' : 'あたらしい なかま！') : 'ごほうび！'}</div><div class="pimg">${rHTML(reward)}</div><div class="pname">${esc(A.findName(reward))}</div></div>` : '') +
+      (prize ? `<div class="prize"><div class="ptitle">${icon('star')}${reward ? 'プレゼント！' : 'スタンプの プレゼント！'}</div><div class="pimg">${A.findSVG(prize)}</div><div class="pname">${esc(A.findName(prize))}</div></div>` : '') + `</div>` +
       `<div class="acts"><button class="pill main" data-a="again">${icon('reset', '#fff')}もういちど</button><button class="pill" data-a="list">${icon('book')}ほかの おはなし</button></div>` +
       `<div class="pyon-mini">${A.bunnySVG('happy')}</div></div>`;
     document.body.appendChild(m);

@@ -602,8 +602,9 @@
       o += ls + (expr === 'wink' ? '' : `<g transform="translate(400 0) scale(-1 1)">${ls}</g>`);
     }
     if (mk.sticker) {
-      const st = mk.sticker === 'heart' ? heart(262, 198, 7, '#FF8FB8', '#fff', 1.4) : mk.sticker === 'moon' ? `<path d="M266,190 a9,9 0 1,0 2,16 a7,7 0 1,1 -2,-16Z" fill="#FFE08A" stroke="#fff" stroke-width="1.4"/>` : star(262, 198, 8, '#FFE08A', '#fff', 1.4);
-      o += st + sparkle(272, 188, 3.5, '#fff');
+      // ほっぺの シール（かみに かくれない ように かおの うちがわ）
+      const st = mk.sticker === 'heart' ? heart(250, 216, 9, '#FF8FB8', '#fff', 1.8) : mk.sticker === 'moon' ? `<path d="M255,205 a11,11 0 1,0 2.5,20 a8.5,8.5 0 1,1 -2.5,-20Z" fill="#FFE08A" stroke="#fff" stroke-width="1.8"/>` : star(250, 216, 10, '#FFE08A', '#fff', 1.8);
+      o += st + sparkle(263, 204, 4, '#fff');
     }
     // はな
     o += `<path d="M199,214 q2,2 4,0" fill="none" stroke="${skin.line}" stroke-width="1.6" stroke-linecap="round"/>`;

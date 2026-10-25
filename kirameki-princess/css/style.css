@@ -235,7 +235,14 @@ svg { display: block; }
 .pyon { position: absolute; width: 18%; max-width: 110px; cursor: pointer; }
 
 /* みつけた！ */
-.modal { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: rgba(73, 59, 107, .35); animation: fadeIn .2s; padding: 16px; }
+.modal { position: fixed; inset: 0; z-index: 40; display: flex; overflow-y: auto; -webkit-overflow-scrolling: touch; background: rgba(73, 59, 107, .35); animation: fadeIn .2s; padding: 52px 16px 16px; }
+.modal > .card { margin: auto; flex: none; }
+.card.two .stampbig { width: 34% !important; margin: 0 auto; }
+.card.two .nm { margin-bottom: 8px; }
+.prizes { display: flex; gap: 8px; justify-content: center; }
+.prizes .prize { flex: 1 1 0; min-width: 0; }
+.prizes .prize .ptitle { font-size: 15px; }
+.prizes .prize .pimg { width: 80px; height: 80px; }
 @keyframes fadeIn { from { opacity: 0; } }
 .card {
   position: relative; width: min(92vw, 420px); background: linear-gradient(180deg, #FFFFFF, #FFF6FB); border-radius: 32px; border: 4px solid var(--frame);
