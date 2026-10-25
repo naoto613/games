@@ -7,9 +7,9 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://tech.layerx.co.jp/feed",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
     "notes": "はてなブログの公開RSS。キー不要。",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
     "lastCount": 30,
     "lang": "ja",
@@ -26,12 +26,12 @@
     "fetchMethod": "youtube",
     "channelId": "UCKu0R6kOcqd62QstxKxoNhA",
     "resolveFromVideo": "_rjFdRnYiso",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
     "notes": "YouTubeの公開チャンネルフィード（APIキー不要・最新15本）。channelIdはLayerX Lunch Liveのアーカイブ動画から自動で調べて保存する。別のチャンネルになった場合はchannelIdを直接書き換える。",
     "lastError": null,
-    "via": "channel page",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
-    "lastCount": 30,
+    "via": "feed",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
+    "lastCount": 15,
     "channelName": "LayerX 公式",
     "lang": "ja",
     "tab": "layerx",
@@ -46,9 +46,9 @@
     "enabled": true,
     "fetchMethod": "rss",
     "feedUrl": "https://speakerdeck.com/layerx.atom",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
     "notes": "Speaker Deckの公開Atomフィード。キー不要。",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
     "lastCount": 18,
     "lang": "ja",
@@ -65,15 +65,15 @@
     "enabled": true,
     "fetchMethod": "zenn",
     "topic": "pdm",
-    "minLikes": 10,
+    "minLikes": 3,
     "baseTags": [
       "PdM"
     ],
-    "notes": "Zennの公開API（キー不要）。いいね10以上だけ残す。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "notes": "Zennの公開API（キー不要）。いいね3以上を残す（画面の評価で絞り込める）。",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
-    "lastCount": 9
+    "lastCount": 45
   },
   {
     "id": "zenn-productmanagement",
@@ -84,15 +84,15 @@
     "enabled": true,
     "fetchMethod": "zenn",
     "topic": "productmanagement",
-    "minLikes": 10,
+    "minLikes": 3,
     "baseTags": [
       "PdM"
     ],
-    "notes": "Zennの公開API（キー不要）。いいね10以上だけ残す。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "notes": "Zennの公開API（キー不要）。いいね3以上を残す（画面の評価で絞り込める）。",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
-    "lastCount": 1
+    "lastCount": 4
   },
   {
     "id": "zenn-engineeringmanager",
@@ -103,15 +103,15 @@
     "enabled": true,
     "fetchMethod": "zenn",
     "topic": "engineeringmanager",
-    "minLikes": 10,
+    "minLikes": 3,
     "baseTags": [
       "EM"
     ],
-    "notes": "Zennの公開API（キー不要）。いいね10以上だけ残す。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "notes": "Zennの公開API（キー不要）。いいね3以上を残す（画面の評価で絞り込める）。",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
-    "lastCount": 11
+    "lastCount": 16
   },
   {
     "id": "zenn-em",
@@ -122,34 +122,15 @@
     "enabled": true,
     "fetchMethod": "zenn",
     "topic": "em",
-    "minLikes": 10,
+    "minLikes": 3,
     "baseTags": [
       "EM"
     ],
-    "notes": "Zennの公開API（キー不要）。いいね10以上だけ残す。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "notes": "Zennの公開API（キー不要）。いいね3以上を残す（画面の評価で絞り込める）。",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
-    "lastCount": 11
-  },
-  {
-    "id": "zenn-fde",
-    "name": "Zenn トピック「FDE」",
-    "type": "zenn",
-    "url": "https://zenn.dev/topics/fde",
-    "lang": "ja",
-    "enabled": true,
-    "fetchMethod": "zenn",
-    "topic": "fde",
-    "minLikes": 10,
-    "baseTags": [
-      "FDE"
-    ],
-    "notes": "Zennの公開API（キー不要）。いいね10以上だけ残す。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
-    "lastError": null,
-    "lastCount": 4
+    "lastCount": 16
   },
   {
     "id": "qiita-pdm",
@@ -160,15 +141,15 @@
     "enabled": true,
     "fetchMethod": "qiita",
     "tag": "PdM",
-    "minLikes": 5,
+    "minLikes": 2,
     "baseTags": [
       "PdM"
     ],
-    "notes": "Qiita API v2（キー不要）。いいね5以上だけ残す。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "notes": "Qiita API v2（キー不要）。いいね2以上を残す（画面の評価で絞り込める）。",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
-    "lastCount": 1
+    "lastCount": 2
   },
   {
     "id": "qiita-productmanagement",
@@ -179,15 +160,15 @@
     "enabled": true,
     "fetchMethod": "qiita",
     "tag": "プロダクトマネジメント",
-    "minLikes": 5,
+    "minLikes": 2,
     "baseTags": [
       "PdM"
     ],
-    "notes": "Qiita API v2（キー不要）。いいね5以上だけ残す。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "notes": "Qiita API v2（キー不要）。いいね2以上を残す（画面の評価で絞り込める）。",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
-    "lastCount": 9
+    "lastCount": 10
   },
   {
     "id": "qiita-em",
@@ -198,15 +179,15 @@
     "enabled": true,
     "fetchMethod": "qiita",
     "tag": "エンジニアリングマネージャー",
-    "minLikes": 5,
+    "minLikes": 2,
     "baseTags": [
       "EM"
     ],
-    "notes": "Qiita API v2（キー不要）。いいね5以上だけ残す。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "notes": "Qiita API v2（キー不要）。いいね2以上を残す（画面の評価で絞り込める）。",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
-    "lastCount": 3
+    "lastCount": 4
   },
   {
     "id": "qiita-em2",
@@ -217,114 +198,63 @@
     "enabled": true,
     "fetchMethod": "qiita",
     "tag": "EM",
-    "minLikes": 5,
+    "minLikes": 2,
     "baseTags": [
       "EM"
     ],
-    "notes": "Qiita API v2（キー不要）。いいね5以上だけ残す。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "notes": "Qiita API v2（キー不要）。いいね2以上を残す（画面の評価で絞り込める）。",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
     "lastCount": 0
-  },
-  {
-    "id": "qiita-fde",
-    "name": "Qiita タグ「FDE」",
-    "type": "qiita",
-    "url": "https://qiita.com/tags/FDE",
-    "lang": "ja",
-    "enabled": true,
-    "fetchMethod": "qiita",
-    "tag": "FDE",
-    "minLikes": 5,
-    "baseTags": [
-      "FDE"
-    ],
-    "notes": "Qiita API v2（キー不要）。いいね5以上だけ残す。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
-    "lastError": null,
-    "lastCount": 2
   },
   {
     "id": "hatena-pdm",
     "name": "はてブ「プロダクトマネージャー」",
     "type": "bookmark",
-    "url": "https://b.hatena.ne.jp/q/%E3%83%97%E3%83%AD%E3%83%80%E3%82%AF%E3%83%88%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC?target=all&sort=recent&users=10",
+    "url": "https://b.hatena.ne.jp/q/%E3%83%97%E3%83%AD%E3%83%80%E3%82%AF%E3%83%88%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC?target=all&sort=recent&users=3",
     "lang": "ja",
     "enabled": true,
     "fetchMethod": "rss",
-    "feedUrl": "https://b.hatena.ne.jp/q/%E3%83%97%E3%83%AD%E3%83%80%E3%82%AF%E3%83%88%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC?target=all&sort=recent&users=10&safe=on&mode=rss",
-    "minBookmarks": 30,
-    "notes": "PdM。はてなブックマーク検索RSS（30users以上だけ残す）。キー不要。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "feedUrl": "https://b.hatena.ne.jp/q/%E3%83%97%E3%83%AD%E3%83%80%E3%82%AF%E3%83%88%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC?target=all&sort=recent&users=3&safe=on&mode=rss",
+    "minBookmarks": 3,
+    "notes": "PdM。はてなブックマーク検索RSS（3users以上を残す。画面の評価で絞り込める）。キー不要。",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
-    "lastCount": 20
+    "lastCount": 23
   },
   {
     "id": "hatena-em",
     "name": "はてブ「エンジニアリングマネージャー」",
     "type": "bookmark",
-    "url": "https://b.hatena.ne.jp/q/%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%83%AA%E3%83%B3%E3%82%B0%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC?target=all&sort=recent&users=10",
+    "url": "https://b.hatena.ne.jp/q/%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%83%AA%E3%83%B3%E3%82%B0%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC?target=all&sort=recent&users=3",
     "lang": "ja",
     "enabled": true,
     "fetchMethod": "rss",
-    "feedUrl": "https://b.hatena.ne.jp/q/%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%83%AA%E3%83%B3%E3%82%B0%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC?target=all&sort=recent&users=10&safe=on&mode=rss",
-    "minBookmarks": 30,
-    "notes": "EM。はてなブックマーク検索RSS（30users以上だけ残す）。キー不要。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "feedUrl": "https://b.hatena.ne.jp/q/%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%83%AA%E3%83%B3%E3%82%B0%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC?target=all&sort=recent&users=3&safe=on&mode=rss",
+    "minBookmarks": 3,
+    "notes": "EM。はてなブックマーク検索RSS（3users以上を残す。画面の評価で絞り込める）。キー不要。",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
-    "lastCount": 19
-  },
-  {
-    "id": "hatena-fde",
-    "name": "はてブ「Forward Deployed Engineer」",
-    "type": "bookmark",
-    "url": "https://b.hatena.ne.jp/q/Forward%20Deployed%20Engineer?target=all&sort=recent&users=10",
-    "lang": "ja",
-    "enabled": true,
-    "fetchMethod": "rss",
-    "feedUrl": "https://b.hatena.ne.jp/q/Forward%20Deployed%20Engineer?target=all&sort=recent&users=10&safe=on&mode=rss",
-    "minBookmarks": 10,
-    "notes": "FDE。はてなブックマーク検索RSS（10users以上だけ残す）。キー不要。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
-    "lastError": null,
-    "lastCount": 28
-  },
-  {
-    "id": "hatena-fde-ja",
-    "name": "はてブ「FDE エンジニア」",
-    "type": "bookmark",
-    "url": "https://b.hatena.ne.jp/q/FDE%20%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2?target=all&sort=recent&users=10",
-    "lang": "ja",
-    "enabled": true,
-    "fetchMethod": "rss",
-    "feedUrl": "https://b.hatena.ne.jp/q/FDE%20%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2?target=all&sort=recent&users=10&safe=on&mode=rss",
-    "minBookmarks": 10,
-    "notes": "FDE。はてなブックマーク検索RSS（10users以上だけ残す）。キー不要。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
-    "lastError": null,
-    "lastCount": 31
+    "lastCount": 25
   },
   {
     "id": "hatena-ai-product",
     "name": "はてブ「生成AI プロダクト開発」",
     "type": "bookmark",
-    "url": "https://b.hatena.ne.jp/q/%E7%94%9F%E6%88%90AI%20%E3%83%97%E3%83%AD%E3%83%80%E3%82%AF%E3%83%88%E9%96%8B%E7%99%BA?target=all&sort=recent&users=10",
+    "url": "https://b.hatena.ne.jp/q/%E7%94%9F%E6%88%90AI%20%E3%83%97%E3%83%AD%E3%83%80%E3%82%AF%E3%83%88%E9%96%8B%E7%99%BA?target=all&sort=recent&users=3",
     "lang": "ja",
     "enabled": true,
     "fetchMethod": "rss",
-    "feedUrl": "https://b.hatena.ne.jp/q/%E7%94%9F%E6%88%90AI%20%E3%83%97%E3%83%AD%E3%83%80%E3%82%AF%E3%83%88%E9%96%8B%E7%99%BA?target=all&sort=recent&users=10&safe=on&mode=rss",
-    "minBookmarks": 50,
-    "notes": "AI活用。はてなブックマーク検索RSS（50users以上だけ残す）。キー不要。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "feedUrl": "https://b.hatena.ne.jp/q/%E7%94%9F%E6%88%90AI%20%E3%83%97%E3%83%AD%E3%83%80%E3%82%AF%E3%83%88%E9%96%8B%E7%99%BA?target=all&sort=recent&users=3&safe=on&mode=rss",
+    "minBookmarks": 10,
+    "notes": "AI活用。はてなブックマーク検索RSS（10users以上を残す。画面の評価で絞り込める）。キー不要。",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
-    "lastCount": 7
+    "lastCount": 13
   },
   {
     "id": "yt-emconf",
@@ -336,17 +266,17 @@
     "fetchMethod": "youtube",
     "channelId": "UCCdw8gWbfCn6oBziYtXjxaw",
     "resolveFromUrl": "https://www.youtube.com/@EMConfJP",
-    "minViews": 300,
-    "notes": "EM。 YouTube公開チャンネルフィード（最新15本・キー不要）。カンファレンス講演なので1年分。4テーマに当たり、再生300回以上の動画だけ残す。",
+    "minViews": 100,
+    "notes": "EM。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生100回以上の動画を残す。",
     "baseTags": [
       "EM"
     ],
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
     "channelName": "EMConf JP",
-    "via": "channel page",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "via": "feed",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
-    "lastCount": 5,
+    "lastCount": 3,
     "maxAgeDays": 365
   },
   {
@@ -359,8 +289,8 @@
     "fetchMethod": "rss",
     "feedUrl": "https://www.lennysnewsletter.com/feed",
     "notes": "プロダクト・グロース・キャリア。有料記事は冒頭のみ。 公開RSS。キー不要。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
     "lastCount": 13,
     "excludeTitle": [
@@ -377,8 +307,8 @@
     "fetchMethod": "rss",
     "feedUrl": "https://newsletter.pragmaticengineer.com/feed",
     "notes": "エンジニアリング組織・EM・AIツールの実態。 公開RSS。キー不要。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
     "lastCount": 7,
     "excludeTitle": [
@@ -395,8 +325,8 @@
     "fetchMethod": "rss",
     "feedUrl": "https://www.svpg.com/feed/",
     "notes": "プロダクトオペレーティングモデル・エンパワードチーム。 公開RSS。キー不要。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
     "lastCount": 6
   },
@@ -410,8 +340,8 @@
     "fetchMethod": "rss",
     "feedUrl": "https://www.producttalk.org/feed/",
     "notes": "継続的ディスカバリー。AIプロダクト開発の連載あり。 公開RSS。キー不要。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
     "lastCount": 5
   },
@@ -425,8 +355,8 @@
     "fetchMethod": "rss",
     "feedUrl": "https://lethain.com/feeds/",
     "notes": "エンジニアリング戦略・組織設計・スタッフエンジニア。 公開RSS。キー不要。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
     "lastCount": 3
   },
@@ -440,8 +370,8 @@
     "fetchMethod": "rss",
     "feedUrl": "https://newsletter.eng-leadership.com/feed",
     "notes": "EM・テックリード向けの実践Tips。 公開RSS。キー不要。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
     "lastCount": 7
   },
@@ -455,15 +385,15 @@
     "fetchMethod": "youtube",
     "channelId": "UC6t1O76G0jYXOAoYCm153dA",
     "resolveFromUrl": "https://www.youtube.com/@LennysPodcast",
-    "minViews": 5000,
+    "minViews": 1000,
     "titleLang": "en",
-    "notes": "PdM・AI。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生5,000回以上の動画だけ残す。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
+    "notes": "PdM・AI。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生1,000回以上の動画を残す。",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
     "channelName": "Lenny's Podcast",
-    "via": "channel page",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "via": "feed",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
-    "lastCount": 3
+    "lastCount": 9
   },
   {
     "id": "yt-pragmatic",
@@ -475,14 +405,14 @@
     "fetchMethod": "youtube",
     "channelId": "UCPbwhExawYrn9xxI21TFfyw",
     "resolveFromUrl": "https://www.youtube.com/@pragmaticengineer",
-    "minViews": 3000,
+    "minViews": 1000,
     "titleLang": "en",
-    "notes": "EM・AI。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生3,000回以上の動画だけ残す。",
-    "lastFetchedAt": "2026-10-24T02:48:34+00:00",
+    "notes": "EM・AI。 YouTube公開チャンネルフィード（最新15本・キー不要）。4テーマに当たり、再生1,000回以上の動画を残す。",
+    "lastFetchedAt": "2026-10-24T23:05:22+00:00",
     "channelName": "The Pragmatic Engineer",
-    "via": "channel page",
-    "lastSuccessAt": "2026-10-24T02:48:34+00:00",
+    "via": "feed",
+    "lastSuccessAt": "2026-10-24T23:05:22+00:00",
     "lastError": null,
-    "lastCount": 1
+    "lastCount": 5
   }
 ]

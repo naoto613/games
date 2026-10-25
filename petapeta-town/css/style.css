@@ -124,10 +124,15 @@ button { font-family: inherit; color: inherit; border: 0; background: none; curs
 
 .panel { position: absolute; left: 0; right: 0; bottom: 0; height: var(--panel-h, 170px); padding: 8px max(12px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); background: rgba(255, 255, 255, .92); border-top: 3px solid var(--line); border-radius: 26px 26px 0 0; box-shadow: 0 -6px 20px rgba(31, 63, 119, .12); display: flex; flex-direction: column; gap: 6px; }
 .tabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; flex: none; touch-action: pan-x; }
-.tabs::-webkit-scrollbar, .items::-webkit-scrollbar { display: none; }
+.subtabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; flex: none; touch-action: pan-x; min-height: 28px; }
+.subtabs.empty { visibility: hidden; }
+.subtabs::-webkit-scrollbar, .tabs::-webkit-scrollbar, .items::-webkit-scrollbar { display: none; }
 .tab { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 5px 16px; border-radius: 999px; background: var(--blue-l); color: var(--navy); font-weight: 800; font-size: 16px; border: 2px solid transparent; }
 .tab.on { background: var(--blue); color: #fff; box-shadow: 0 3px 0 #2a5fae; }
 .tab canvas { width: 26px; height: 26px; }
+.subtab { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 2px 12px 2px 6px; border-radius: 999px; background: #fff; color: var(--navy); font-weight: 800; font-size: 14px; border: 2px solid var(--line); }
+.subtab.on { background: #ffd23f; border-color: #e0a92a; color: #5a3a00; }
+.subtab canvas { width: 22px; height: 22px; }
 .items { flex: 1; display: flex; gap: 10px; overflow-x: auto; overflow-y: hidden; align-items: center; padding: 2px 2px 4px; touch-action: pan-x; scrollbar-width: none; }
 .item { position: relative; flex: none; height: calc(100% - 4px); aspect-ratio: 1; max-height: 104px; min-height: 64px; border-radius: 20px; background: #fff; border: 3px solid var(--line); box-shadow: 0 3px 0 rgba(31, 63, 119, .1); display: grid; place-items: center; touch-action: pan-x; transition: transform .1s; }
 .item canvas { width: 86%; height: 86%; pointer-events: none; }
@@ -229,6 +234,13 @@ button { font-family: inherit; color: inherit; border: 0; background: none; curs
 
 /* 小さい画面（スマホ横） */
 @media (max-height: 460px) {
+  .subtab { font-size: 12px; padding: 1px 10px 1px 4px; }
+  .subtab canvas { width: 18px; height: 18px; }
+  .subtabs { min-height: 24px; }
+  .panel { gap: 4px; padding-top: 6px; }
+  .panel .tab { padding: 2px 12px; }
+  .panel .tab canvas { width: 22px; height: 22px; }
+  .item { min-height: 52px; }
   .round-btn, .sq-btn { width: 44px; height: 44px; font-size: 22px; }
   .round-btn.big { width: 50px; height: 50px; }
   .hint-btn { width: 58px; height: 58px; font-size: 30px; }

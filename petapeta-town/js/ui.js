@@ -91,7 +91,7 @@
     vw = nvw; vh = nvh;
     dpr = Math.min(2.5, window.devicePixelRatio || 1);
     cv.width = Math.round(vw * dpr); cv.height = Math.round(vh * dpr);
-    panelH = Math.round(PT.clamp(vh * 0.27, 112, 190));
+    panelH = Math.round(PT.clamp(vh * 0.27, 112, 190) + 34);
     document.documentElement.style.setProperty('--panel-h', panelH + 'px');
     // 床の いちばん手前は 半透明パネルの 下に すこし かくす（そのぶん 上が ひろく 見える）
     const avail = vh - panelH + Math.min(70, panelH * 0.45);
@@ -127,13 +127,57 @@
     { id: 'magic', name: 'おと・ふしぎ', icon: 'balloon' },
   ];
   const unlocked = (id) => { const it = PT.ITEMS[id]; return !it.lock || S.data.unlockedObjectIds.includes(id); };
-  game.itemsFor = (tab) => {
-    const st = game.stage;
+  // タブの なかを さらに こまかく わける（へんしん＝ぼうし・ふく…）
+  const has = (it, ...t) => (it.tags || []).some((x) => t.includes(x));
+  const SUBS = {
+    food: [
+      { id: 'drink', name: 'のみもの', icon: 'juice', test: (it) => has(it, 'drink') },
+      { id: 'fruit', name: 'くだもの・やさい', icon: 'apple', test: (it) => has(it, 'fruit', 'vegetable') },
+      { id: 'sweet', name: 'おやつ', icon: 'cake', test: (it) => has(it, 'sweet', 'snack') },
+      { id: 'meal', name: 'ごはん', icon: 'onigiri', test: () => true },
+    ],
+    tools: [
+      { id: 'medical', name: 'おいしゃさん', icon: 'stethoscope', test: (it) => has(it, 'medical') },
+      { id: 'royal', name: 'おひめさま', icon: 'jewelbox', test: (it) => has(it, 'royal') },
+      { id: 'plush', name: 'ぬいぐるみ', icon: 'teddy', test: (it) => has(it, 'plush', 'doll') },
+      { id: 'outside', name: 'おそと', icon: 'bugnet', test: (it) => has(it, 'explore', 'garden', 'plant', 'water', 'fishing', 'wind', 'beach', 'picnic', 'sand', 'nature', 'insect', 'net', 'search', 'star', 'rain', 'light') },
+      { id: 'home', name: 'おうち', icon: 'cushion', test: (it) => has(it, 'furniture', 'seat', 'dish', 'cook', 'clean', 'sleep', 'bath', 'hair', 'pillow', 'cover', 'cloth', 'clock', 'letter', 'phone', 'shade', 'container', 'shopping', 'bag', 'photo', 'school', 'money', 'read') },
+      { id: 'toy', name: 'おもちゃ', icon: 'blocks', test: () => true },
+    ],
+    rides: [
+      { id: 'sky', name: 'おそら', icon: 'airplane', test: (it) => has(it, 'fly') },
+      { id: 'water', name: 'みず', icon: 'boat', test: (it) => has(it, 'water', 'boat', 'pool', 'float') },
+      { id: 'animal', name: 'どうぶつ', icon: 'unicorn', test: (it) => has(it, 'animal', 'horse') },
+      { id: 'play', name: 'あそびば', icon: 'slide', test: (it) => has(it, 'playground', 'tent', 'snow', 'skate', 'bounce') },
+      { id: 'car', name: 'くるま・でんしゃ', icon: 'bus', test: () => true },
+    ],
+    dress: [
+      { id: 'hat', name: 'ぼうし', icon: 'crown', test: (it) => it.wear && it.wear[0] === 'hat' },
+      { id: 'body', name: 'ふく', icon: 'dress', test: (it) => it.wear && it.wear[0] === 'body' },
+      { id: 'back', name: 'せなか', icon: 'wings', test: (it) => it.wear && it.wear[0] === 'back' },
+      { id: 'face', name: 'めがね・おめん', icon: 'sunglasses', test: () => true },
+    ],
+    magic: [
+      { id: 'surprise', name: 'びっくり', icon: 'gacha', test: (it) => has(it, 'surprise', 'treasure', 'egg') },
+      { id: 'music', name: 'がっき・おと', icon: 'guitar', test: (it) => has(it, 'music', 'instrument', 'sound', 'i4music') },
+      { id: 'spell', name: 'まほう', icon: 'starwand', test: (it) => has(it, 'witch', 'wand', 'magic') },
+      { id: 'wonder', name: 'ふしぎ', icon: 'star', test: () => true },
+    ],
+  };
+  // ひょうじする じゅんばん（おすすめ が さいしょ）
+  const SUB_ORDER = { food: ['meal', 'sweet', 'fruit', 'drink'], tools: ['toy', 'plush', 'home', 'outside', 'medical', 'royal'], rides: ['car', 'sky', 'water', 'animal', 'play'], dress: ['hat', 'body', 'back', 'face'], magic: ['music', 'spell', 'wonder', 'surprise'] };
+  game.subOf = (id) => { const it = PT.ITEMS[id]; const g = it && SUBS[it.cat]; return g ? (g.find((s) => s.test(it)) || g[g.length - 1]).id : null; };
+  game.sub = {};
+  const favsFor = (tab, all) => { const st = game.stage; return [...new Set((st.favs || []).concat(st.tools || [], st.rides || [], PT.ROYAL_FAVS || []))].filter((id) => PT.ITEMS[id] && all.includes(id)); };
+  game.itemsFor = (tab, sub) => {
     if (tab === 'friends') return PT.CHAR_IDS.slice();
     const all = Object.values(PT.ITEMS).filter((i) => i.cat === tab && unlocked(i.id)).map((i) => i.id);
-    // そのステージに あう物を まえに、ほかの物も ぜんぶ つかえる
-    const fav = (st.favs || []).concat(st.tools || [], st.rides || [], PT.ROYAL_FAVS || []).filter((id) => PT.ITEMS[id] && all.includes(id));
-    return [...new Set(fav.concat(all))];
+    if (sub === undefined) sub = game.sub[tab] || 'fav';
+    const fav = favsFor(tab, all);
+    if (sub === 'fav') return fav.length ? fav : all;
+    if (!sub) return [...new Set(fav.concat(all))];
+    // そのステージに あう物を まえに
+    return [...new Set(fav.concat(all))].filter((id) => game.subOf(id) === sub);
   };
   function buildTabs() {
     const t = $('#tabs'); t.innerHTML = '';
@@ -143,6 +187,25 @@
       b.appendChild(cloneCv(PT.iconCache.any(tb.icon, 52)));
       b.appendChild(document.createTextNode(tb.name));
       b.addEventListener('click', () => { A.sfx('tap'); game.tab = tb.id; buildTabs(); buildItems(); });
+      t.appendChild(b);
+    });
+    buildSubs();
+  }
+  function buildSubs() {
+    const t = $('#subtabs'); t.innerHTML = '';
+    const g = SUBS[game.tab];
+    t.classList.toggle('empty', !g);
+    if (!g) return;
+    const cur = game.sub[game.tab] || 'fav';
+    const list = [{ id: 'fav', name: 'おすすめ', icon: 'star' }].concat(SUB_ORDER[game.tab].map((id) => g.find((s) => s.id === id)));
+    list.forEach((s) => {
+      const n = s.id === 'fav' ? 1 : game.itemsFor(game.tab, s.id).length;
+      if (!n) return;
+      const b = document.createElement('button');
+      b.className = 'subtab' + (cur === s.id ? ' on' : '');
+      if (PT.ITEMS[s.icon]) b.appendChild(cloneCv(PT.iconCache.any(s.icon, 40)));
+      b.appendChild(document.createTextNode(s.name));
+      b.addEventListener('click', () => { A.sfx('tap'); game.sub[game.tab] = s.id; buildSubs(); buildItems(); });
       t.appendChild(b);
     });
   }
@@ -540,7 +603,7 @@
     W.fixes().forEach((f) => { f.glow = fx.includes(f.type); });
     if (hintIds.length) {
       const tab = PT.CHARS[hintIds[0]] ? 'friends' : PT.ITEMS[hintIds[0]].cat;
-      if (['food', 'tools', 'rides', 'dress', 'magic', 'friends'].includes(tab)) { game.tab = tab; buildTabs(); }
+      if (['food', 'tools', 'rides', 'dress', 'magic', 'friends'].includes(tab)) { game.tab = tab; if (tab !== 'friends' && !game.itemsFor(tab).includes(hintIds[0])) game.sub[tab] = game.subOf(hintIds[0]); buildTabs(); }
       buildItems();
       const el = $(`.item[data-id="${hintIds[0]}"]`); if (el) el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
     }
