@@ -278,6 +278,12 @@
     { name: 'ほしぞらの よる', colors: ['navy', 'blue'], types: ['starry', 'starskirt', 'starpins', 'moonrod', 'crystalwand', 'glass'] },
     { name: 'おはなの ようせい', colors: ['mint'], types: ['fairy', 'flowers', 'flowerwand', 'sandal'] },
     { name: 'キラキラ アイドル', colors: [], types: ['idol', 'idoltop', 'mic', 'starpins', 'ribbonband', 'heartclips'] },
+    { name: 'ロイヤル ぶとうかい', colors: ['gold'], types: ['ballgown', 'royalcape', 'royaltop', 'ballskirt', 'grandtiara', 'crown', 'scepter', 'jewelneck', 'jewelheels', 'fan'] },
+    { name: 'にんぎょひめ', colors: ['mint', 'blue'], types: ['mermaid', 'pearls', 'glass', 'crystalwand'] },
+    { name: 'ゆきの じょおう', colors: ['white', 'blue'], types: ['snowqueen', 'snowcrown', 'crystalwand', 'glass', 'tulle'] },
+    { name: 'ばらの おひめさま', colors: ['red'], types: ['rosegown', 'rosecrown', 'bouquet', 'jewel'] },
+    { name: 'はなよめさん', colors: ['white'], types: ['wedding', 'veil', 'bouquet', 'pearls', 'tulle'] },
+    { name: 'にじいろ ドリーム', colors: [], types: ['rainbow', 'aurora', 'butterfly', 'fairy', 'starwand', 'ribbonwand'] },
   ];
   const matchTheme = (T, it) => it && (T.colors.includes(it.color) || T.types.includes(it.type));
   const LIPS = ['#FF5A8A', '#FF8FB0', '#E0466E', '#C77AE0', '#FF9A6A'];

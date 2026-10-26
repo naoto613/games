@@ -105,7 +105,7 @@
   const faceSVG = (opt) => svg('108 40 184 184', KP.drawChar({ ...opt, outfit: { hair: opt.outfit && opt.outfit.hair } }));
   const bunnySVG = (expr) => svg('0 -30 200 250', KP.drawBunny(expr));
   function itemSVG(it) {
-    return svg(KP.PART_VIEW[it.slot], KP.drawPart(it.slot, it.type, it.color));
+    return svg((KP.PART_VIEW_TYPE || {})[it.type] || KP.PART_VIEW[it.slot], KP.drawPart(it.slot, it.type, it.color));
   }
   function furnSVG(fid, color, pad = 14) {
     const F = KP.FURN[fid];
