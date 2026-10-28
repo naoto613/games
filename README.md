@@ -2,6 +2,7 @@
 
 ブラウザで遊べるゲームを GitHub Pages で公開するリポジトリです。
 
+- 灯庭のともり: https://naoto613.github.io/games/tomori-garden/
 - 一覧ページ: https://naoto613.github.io/games/
 - きらめきプリンセスルーム: https://naoto613.github.io/games/kirameki-princess/
 - まぎれこみエイリアン: https://naoto613.github.io/games/magire-alien/
@@ -113,3 +114,7 @@
 ## GitHub Pages の設定
 
 リポジトリの **Settings → Pages** で、Source を「Deploy from a branch」、Branch を `main` / `/ (root)` にしてください（初回のみ）。
+
+## 灯庭のともり
+
+`tomori-garden/index.html`：オリジナルの庭づくり・探索・交流ゲーム。48×48の庭で採集、クラフト、家具配置、6種類の精霊との交流、5つの手わざ、区画開放、灯樹の共同修繕まで遊べます。PC・タッチ対応。外部素材・通信・ビルド不要。詳細は [ゲームREADME](tomori-garden/README.md)。
