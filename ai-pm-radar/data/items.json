@@ -1,5 +1,44 @@
 [
   {
+    "id": "725ac5e07913b328d24b9f73",
+    "title": "PdMとPdEは、顧客に価値が届くまでどう関わるか",
+    "url": "https://zenn.dev/dress_code/articles/17bb9e563f82ed",
+    "sourceId": "zenn-pdm",
+    "sourceType": "zenn",
+    "publishedAt": "2026-11-05T00:00:07+00:00",
+    "lang": "ja",
+    "tab": "ja",
+    "discoveredAt": "2026-11-05T01:25:29+00:00",
+    "description": "",
+    "author": "かわうそ",
+    "tags": [
+      "PdM"
+    ],
+    "learningTypes": [],
+    "tagsEstimated": true,
+    "thumbnailUrl": null,
+    "likes": 7
+  },
+  {
+    "id": "c1993aeea1c5b21edef348b8",
+    "title": "業務ごとにデータ構造が変わるプラットフォームで、AIエージェントにテーブル設計を任せる",
+    "url": "https://tech.layerx.co.jp/entry/agent-table-design",
+    "sourceId": "layerx-engineering-blog",
+    "sourceType": "blog",
+    "publishedAt": "2026-11-04T08:03:44+00:00",
+    "lang": "ja",
+    "tab": "layerx",
+    "discoveredAt": "2026-11-05T01:25:29+00:00",
+    "description": "はじめに こんにちは。LayerXのAi Workforce事業部でソフトウェアエンジニアをしているsunaです。 私たちが開発しているAi Workforceというプロダクトでは、エンタープライズ向けのAIエージェントを提供しています。請求書の処理、契約書の確認、案件の管理といった業務を担うエージェントを、FDE（Forward Deployed Engineer）が伴走する形で作り上げて動かします。特定の業種や業務に限定せず、経理・法務・営業など、部門を横断してさまざまな業務に対応する柔軟なプラットフォームです。 エージェントは処理の過程で、書類から抜き出した値や取引先の情報といったデータ…",
+    "author": "suna_tech",
+    "tags": [
+      "AI活用"
+    ],
+    "learningTypes": [],
+    "tagsEstimated": true,
+    "thumbnailUrl": "https://cdn.image.st-hatena.com/image/scale/394a0e6a8a211896c8bf7d21ffa264b261eb819a/backend=imagemagick;version=1;width=1300/https%3A%2F%2Fcdn-ak.f.st-hatena.com%2Fimages%2Ffotolife%2Fs%2Fsuna_tech%2F20261104%2F20261104092240.png"
+  },
+  {
     "id": "59f8a5024e026b04ebc76d29",
     "title": "What AI Changes - All Things Product Podcast with Teresa Torres & Petra Wille",
     "url": "https://www.producttalk.org/what-ai-changes-all-things-product-podcast-with-teresa-torres-petra-wille",
@@ -63,6 +102,29 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://substack-post-media.s3.amazonaws.com/public/images/3cbd4d61-dbc1-4931-afa0-8a8cb35543cb_1456x1048.png"
+  },
+  {
+    "id": "3193fb3c95419c6db8323bbd",
+    "title": "新人チーフが『エンジニアのための自己管理入門』を読んで思ったこと - SmartHR Tech Blog",
+    "url": "https://tech.smarthr.jp/entry/2026/11/02/144409",
+    "sourceId": "hatena-em",
+    "sourceType": "bookmark",
+    "publishedAt": "2026-11-02T14:54:51+00:00",
+    "lang": "ja",
+    "tab": "ja",
+    "discoveredAt": "2026-11-05T01:25:29+00:00",
+    "description": "こんにちは、SmartHRの技術基盤部でチーフ（SmartHRにおけるEM：エンジニアリングマネージャー職）を務める @udzura です。私のチームでは、SmartHR基本機能に共通するコンポーネントの修正・改善を担当しています。 最近、小田中育生さんの『エンジニアのための自己管理入門 堅牢でスケーラブルな働き方を構築する技術...",
+    "author": null,
+    "tags": [
+      "EM"
+    ],
+    "learningTypes": [
+      "実践事例",
+      "考え方・フレームワーク"
+    ],
+    "tagsEstimated": true,
+    "thumbnailUrl": null,
+    "bookmarks": 3
   },
   {
     "id": "c4cd7eed2a813f19cddb7bc4",
@@ -143,7 +205,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "likes": 38
+    "likes": 42
   },
   {
     "id": "96a14e7efab676d8fcccbb75",
@@ -204,7 +266,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 3
+    "bookmarks": 4
   },
   {
     "id": "65bf7f4a7a387b55d0bfd209",
@@ -322,7 +384,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "likes": 51
+    "likes": 54
   },
   {
     "id": "584594248487e31988562816",
@@ -388,7 +450,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 304
+    "bookmarks": 305
   },
   {
     "id": "e92f16fe3e5ebeebae6c0635",
@@ -5983,7 +6045,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "likes": 12
+    "likes": 13
   },
   {
     "id": "a42a485989659a465827bf5e",
@@ -6501,45 +6563,5 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://files.speakerdeck.com/presentations/1bcf9b1d42e84449a7c370269b8db635/preview_slide_0.jpg?37389945"
-  },
-  {
-    "id": "fe8bc7f5b04a43adefe90fd6",
-    "title": "n=1の経験が紡ぐエンジニアリングマネジメントの可能性",
-    "url": "https://www.youtube.com/watch?v=6gy5oZBZMAo",
-    "sourceId": "yt-emconf",
-    "sourceType": "youtube",
-    "publishedAt": "2025-11-04T01:13:06+00:00",
-    "lang": "ja",
-    "tab": "ja",
-    "discoveredAt": "2026-11-04T01:12:43+00:00",
-    "description": "",
-    "author": null,
-    "tags": [
-      "EM"
-    ],
-    "learningTypes": [],
-    "tagsEstimated": true,
-    "thumbnailUrl": "https://i.ytimg.com/vi/6gy5oZBZMAo/hqdefault.jpg"
-  },
-  {
-    "id": "b0503c8dea9f771d2097c6b6",
-    "title": "エンジニアリングマネージャーのロードマップ - エンジニアリングマネジメントの4次元と生成AI時代の戦い方",
-    "url": "https://www.youtube.com/watch?v=5xGFzoy_IXI",
-    "sourceId": "yt-emconf",
-    "sourceType": "youtube",
-    "publishedAt": "2025-11-04T01:13:06+00:00",
-    "lang": "ja",
-    "tab": "ja",
-    "discoveredAt": "2026-11-04T01:12:43+00:00",
-    "description": "",
-    "author": null,
-    "tags": [
-      "AI活用",
-      "PdM",
-      "EM"
-    ],
-    "learningTypes": [],
-    "tagsEstimated": true,
-    "thumbnailUrl": "https://i.ytimg.com/vi/5xGFzoy_IXI/hqdefault.jpg"
   }
 ]
