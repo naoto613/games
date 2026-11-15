@@ -2,6 +2,8 @@
 
 ブラウザで遊べるゲームを GitHub Pages で公開するリポジトリです。
 
+- ぴょんたの にじいろ たからさがし: https://naoto613.github.io/games/nijiiro-treasure/ （5歳向け。絵のヒントで3つのかぎを集める宝探し。森・浜辺・空の3つの島、全9種の宝物ずかん、音声案内と自動ヒント、途中再開。ビルド不要。詳しくは [遊び方・実装](nijiiro-treasure/README.md)）
+
 - 灯庭のともり: https://naoto613.github.io/games/tomori-garden/
 - 一覧ページ: https://naoto613.github.io/games/
 - きらめきプリンセスルーム: https://naoto613.github.io/games/kirameki-princess/
