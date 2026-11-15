@@ -2,7 +2,7 @@
 
 ブラウザで遊べるゲームを GitHub Pages で公開するリポジトリです。
 
-- ぴょんたの にじいろ たからさがし: https://naoto613.github.io/games/nijiiro-treasure/ （5歳向け。絵のヒントで3つのかぎを集める宝探し。森・浜辺・空の3つの島、全9種の宝物ずかん、音声案内と自動ヒント、途中再開。ビルド不要。詳しくは [遊び方・実装](nijiiro-treasure/README.md)）
+- ぴょんたの にじいろ たからさがし: https://naoto613.github.io/games/nijiiro-treasure/ （5歳向けの探索アドベンチャー。3島・9エリアで落とし物を探し、道具を使い、橋を修理。森の音あそび・浜辺の魚つり・空の風車を解き、地図の目印から宝を掘り出す。全9種の宝物と15匹の隠れたちょうちょ、段階ヒント、島ごとの途中再開、旧版の宝物引き継ぎ。ビルド不要。詳しくは [遊び方・実装](nijiiro-treasure/README.md)）
 
 - 灯庭のともり: https://naoto613.github.io/games/tomori-garden/
 - 一覧ページ: https://naoto613.github.io/games/

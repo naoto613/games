@@ -4,12 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#fffaf0">
-  <meta name="description" content="ぴょんたと3つの島で宝探し。絵のヒントでかぎを集める、5歳からのタップで遊べるゲーム。">
+  <meta name="description" content="ぴょんたと9つのエリアを冒険。道具を使い、橋を直し、森の音・魚つり・風車のしかけを解いて、地図に隠された宝を掘り出そう。">
   <title>ぴょんたの にじいろ たからさがし</title>
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./style.css">
-  <script src="./art.js" defer></script>
-  <script src="./game.js" defer></script>
+  <link rel="stylesheet" href="./style.css?v=2">
+  <link rel="stylesheet" href="./adventure.css?v=2">
+  <script src="./art.js?v=2" defer></script>
+  <script src="./world.js?v=2" defer></script>
+  <script src="./game.js?v=2" defer></script>
 </head>
 <body>
   <div class="app">
@@ -23,30 +25,31 @@
 
     <main id="home">
       <section class="welcome">
-        <div class="welcome-copy"><p class="eyebrow">ちいさな ぼうけんへ、しゅっぱつ！</p><h1><small>ぴょんたの</small>にじいろ<br><em>たからさがし</em></h1><p class="intro">えの ヒントで、かぎを みつけよう。<br>たからばこに なにが はいっているかな？</p></div>
+        <div class="welcome-copy"><p class="eyebrow">みつけて、つかって、なぞを とこう。</p><h1><small>ぴょんたの</small>にじいろ<br><em>たからさがし</em></h1><p class="intro">こわれた はしの むこうには、なにが ある？<br>ちずを あつめて、ひみつの たからを ほりだそう。</p><span class="edition">どうぐと しかけの だいぼうけん</span></div>
         <div class="welcome-art" id="welcomeArt" aria-hidden="true"></div>
       </section>
       <section class="destinations" aria-labelledby="mapTitle">
         <div class="section-heading"><h2 id="mapTitle">どこへ いこう？</h2><span>すきな しまを タッチ！</span></div>
         <div id="islands" class="islands"></div>
       </section>
-      <div class="howto"><span><i data-art="clue"></i>えを みる</span><b>···</b><span><i data-art="key"></i>かぎを 3つ</span><b>···</b><span><i data-art="chest"></i>たからばこ！</span></div>
+      <div class="howto"><span><i data-art="compass"></i>たんけん</span><b>···</b><span><i data-art="shovel"></i>どうぐと なぞ</span><b>···</b><span><i data-art="chest"></i>ほりだそう！</span></div>
       <p class="home-note">ゆっくりで だいじょうぶ。なんどでも あそべるよ。</p>
     </main>
 
     <main id="play" hidden>
-      <div class="play-heading"><button id="mapButton" class="soft-button">← しまの ちず</button><h1 id="islandTitle"></h1><span id="islandStep">かぎを さがそう</span></div>
-      <div class="adventure">
-        <section id="scene" class="scene" aria-label="たからさがしの ばしょ"><div id="scenery" aria-hidden="true"></div><div class="scene-badge" id="sceneBadge"></div><div id="spots"></div><button id="chestButton" class="chest-button" hidden><span data-art="chest"></span><b>あける！</b></button><div id="sparkles" aria-hidden="true"></div></section>
-        <aside class="guide">
-          <div class="guide-top"><span class="guide-rabbit" data-art="rabbit"></span><div><span class="eyebrow">ぴょんたの ヒント</span><h2 id="guideTitle">ここを さがしてね</h2></div></div>
-          <div id="clue" class="clue"></div>
-          <p id="message" class="message" role="status" aria-live="polite"></p>
-          <div class="key-tray"><span>みつけた かぎ</span><div id="keys"></div></div>
-          <div class="guide-actions"><button id="hintButton" class="soft-button hint-button">✦ ヒント</button><button id="listenButton" class="soft-button" aria-label="ヒントを きく">♪ きく</button></div>
-        </aside>
+      <div class="play-heading"><button id="mapButton" class="soft-button">← しまを えらぶ</button><h1 id="islandTitle"></h1><span id="islandStep"></span></div>
+      <div id="areaNav" class="area-nav" aria-label="たんけんする ばしょ"></div>
+      <section id="scene" class="scene world-scene" aria-label="たからさがしの ばしょ" tabindex="0">
+        <div id="scenery" aria-hidden="true"></div><div id="decorations" aria-hidden="true"></div>
+        <div class="scene-badge" id="sceneBadge"></div><span id="secretCount" class="secret-count"></span>
+        <div id="spots"></div><div id="player" class="player" aria-hidden="true"><span data-art="rabbit"></span><i>ぴょんた</i></div>
+        <div id="sparkles" aria-hidden="true"></div><div id="discovery" class="discovery" role="status" hidden></div>
+      </section>
+      <div class="adventure-dock">
+        <div class="mission"><span class="mission-avatar" data-art="rabbit"></span><div><h2 id="guideTitle">ぼうけんの はじまり</h2><p id="message" role="status" aria-live="polite"></p></div><button id="listenButton" class="soft-button" aria-label="あんないを きく">♪</button></div>
+        <div class="equipment-row"><div class="inventory-wrap"><span class="dock-label">もちもの · えらんで つかおう</span><div id="inventory" class="inventory"></div></div><div class="map-wrap"><span class="dock-label">たからの ちず</span><button id="journalButton" class="map-pieces" aria-label="たからの ちずを ひらく"></button></div><button id="hintButton" class="soft-button hint-button">✦ ヒント</button></div>
       </div>
-      <p class="play-note">きになる ところを タッチしてね。</p>
+      <p class="play-note">いきたい ところを タッチ。どうぐは もちものから えらんでね。</p>
     </main>
     <footer>ぴょんたと いっしょに、わくわくを みつけよう。</footer>
     <p id="storageNotice" class="storage-notice" hidden>この ブラウザでは ほぞん できないけれど、このまま あそべるよ。</p>
@@ -54,6 +57,8 @@
 
   <dialog id="rewardDialog" class="reward-dialog" aria-labelledby="rewardTitle"><div class="reward-content"><span class="eyebrow">たからばこが あいたよ！</span><div id="rewardArt" class="reward-art"></div><h2 id="rewardTitle"></h2><p id="rewardText"></p><div id="rewardStars" class="reward-stars" aria-hidden="true">✦ ✧ ✦</div><button id="rewardNext" class="primary-button">つぎの しまへ →</button><button id="rewardHome" class="text-button">しまの ちずへ</button></div></dialog>
   <dialog id="albumDialog" class="album-dialog" aria-labelledby="albumTitle"><div class="album-header"><div><p class="eyebrow">ぼうけんの おもいで</p><h2 id="albumTitle">たからもの ずかん</h2></div><button id="albumClose" class="soft-button" aria-label="ずかんを とじる">× とじる</button></div><p id="albumMessage"></p><div id="albumGrid" class="album-grid"></div></dialog>
+  <dialog id="puzzleDialog" class="puzzle-dialog" aria-labelledby="puzzleTitle"><div class="puzzle-header"><div><span id="puzzleKicker" class="eyebrow">ぼうけんの しかけ</span><h2 id="puzzleTitle"></h2></div><button id="puzzleClose" class="soft-button">× もどる</button></div><p id="puzzleIntro" class="puzzle-intro"></p><div id="puzzleBody"></div><p id="puzzleStatus" class="puzzle-status" role="status" aria-live="polite"></p><div id="puzzleActions" class="puzzle-actions"></div></dialog>
+  <dialog id="journalDialog" class="journal-dialog" aria-labelledby="journalTitle"><div class="puzzle-header"><h2 id="journalTitle">たからの ちず</h2><button id="journalClose" class="soft-button">× とじる</button></div><div id="journalMap"></div><div id="journalTasks"></div></dialog>
   <noscript>このゲームを あそぶには、ブラウザの JavaScript を オンにしてください。</noscript>
 </body>
 </html>
