@@ -1,5 +1,24 @@
 [
   {
+    "id": "fe498940cbf53e383809b748",
+    "title": "内製 Coding Agent \"haro\" と社内 GPU で、探索的テスト AI Agent をぶん回している",
+    "url": "https://tech.layerx.co.jp/entry/haro-et-agent",
+    "sourceId": "layerx-engineering-blog",
+    "sourceType": "blog",
+    "publishedAt": "2026-11-15T23:50:00+00:00",
+    "lang": "ja",
+    "tab": "layerx",
+    "discoveredAt": "2026-11-16T00:55:50+00:00",
+    "description": "探索的テストを、社内の Background Coding Agent「haro」と、社内 GPU で動かしている Qwen3.8-27B にまかせています。今回はその仕組みと、約 10 時間で 47 本のシナリオを回して分かったこと、そして「全部 Claude で回したらいくらかかるのか」をお話しします。",
+    "author": "abctail30",
+    "tags": [
+      "AI活用"
+    ],
+    "learningTypes": [],
+    "tagsEstimated": true,
+    "thumbnailUrl": "https://cdn.image.st-hatena.com/image/scale/f9db2c952b7b26fad0d0025454e63274638eca25/backend=imagemagick;version=1;width=1300/https%3A%2F%2Fcdn-ak.f.st-hatena.com%2Fimages%2Ffotolife%2Fa%2Fabctail30%2F20261114%2F20261114012414.png"
+  },
+  {
     "id": "823401951f087b484d492550",
     "title": "AIチームを率いるとは、どういうこと？ with プログラマー・起業家 amachang Part1 | The Update",
     "url": "https://theupdate.coffee/episodes/0J7UP7922ZXV6NBTt7w9Jl",
@@ -19,7 +38,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 130
+    "bookmarks": 148
   },
   {
     "id": "fb2122696696a8503f780efd",
@@ -39,7 +58,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 3
+    "bookmarks": 4
   },
   {
     "id": "70eabb9e874de6654c12d183",
@@ -59,7 +78,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 13
+    "bookmarks": 15
   },
   {
     "id": "cdd326901c52d1161b5d7c2c",
@@ -100,7 +119,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 33
+    "bookmarks": 34
   },
   {
     "id": "826a8bb791e4a2d3869af5c9",
@@ -158,7 +177,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 91
+    "bookmarks": 93
   },
   {
     "id": "6130b9bcccafd5e9d26f417f",
@@ -258,7 +277,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 143
+    "bookmarks": 145
   },
   {
     "id": "21c8b8b5457a827145e3216a",
@@ -280,7 +299,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 76
+    "bookmarks": 77
   },
   {
     "id": "70cc481c4f6d4b0a65ef70b8",
@@ -405,7 +424,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 144
+    "bookmarks": 148
   },
   {
     "id": "10e39190facf0740fee7db37",
@@ -447,7 +466,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "likes": 12
+    "likes": 13
   },
   {
     "id": "e9a2f37b500a09d8206e1f94",
@@ -490,7 +509,7 @@
     "tagsEstimated": true,
     "thumbnailUrl": null,
     "bookmarks": 5,
-    "likes": 42
+    "likes": 44
   },
   {
     "id": "5331848cc0b699e7d813bf1b",
@@ -781,7 +800,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 11
+    "bookmarks": 12
   },
   {
     "id": "c1993aeea1c5b21edef348b8",
@@ -7223,6 +7242,46 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://files.speakerdeck.com/presentations/51c52f50dbf648e580c7dea04ee28a7f/preview_slide_0.jpg?41013186"
+  },
+  {
+    "id": "fe8bc7f5b04a43adefe90fd6",
+    "title": "n=1の経験が紡ぐエンジニアリングマネジメントの可能性",
+    "url": "https://www.youtube.com/watch?v=6gy5oZBZMAo",
+    "sourceId": "yt-emconf",
+    "sourceType": "youtube",
+    "publishedAt": "2025-11-16T00:56:04+00:00",
+    "lang": "ja",
+    "tab": "ja",
+    "discoveredAt": "2026-11-16T00:55:50+00:00",
+    "description": "",
+    "author": null,
+    "tags": [
+      "EM"
+    ],
+    "learningTypes": [],
+    "tagsEstimated": true,
+    "thumbnailUrl": "https://i.ytimg.com/vi/6gy5oZBZMAo/hqdefault.jpg"
+  },
+  {
+    "id": "b0503c8dea9f771d2097c6b6",
+    "title": "エンジニアリングマネージャーのロードマップ - エンジニアリングマネジメントの4次元と生成AI時代の戦い方",
+    "url": "https://www.youtube.com/watch?v=5xGFzoy_IXI",
+    "sourceId": "yt-emconf",
+    "sourceType": "youtube",
+    "publishedAt": "2025-11-16T00:56:04+00:00",
+    "lang": "ja",
+    "tab": "ja",
+    "discoveredAt": "2026-11-16T00:55:50+00:00",
+    "description": "",
+    "author": null,
+    "tags": [
+      "AI活用",
+      "PdM",
+      "EM"
+    ],
+    "learningTypes": [],
+    "tagsEstimated": true,
+    "thumbnailUrl": "https://i.ytimg.com/vi/5xGFzoy_IXI/hqdefault.jpg"
   },
   {
     "id": "0a33e693b8bf129406884df5",
