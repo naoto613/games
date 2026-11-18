@@ -1,5 +1,61 @@
 [
   {
+    "id": "198e4021fb0be27edc0faf3f",
+    "title": "Snowflake Parquet Direct の仕様をドキュメントと実測から理解する",
+    "url": "https://tech.layerx.co.jp/entry/snowflake-parquet-direct",
+    "sourceId": "layerx-engineering-blog",
+    "sourceType": "blog",
+    "publishedAt": "2026-11-18T02:20:02+00:00",
+    "lang": "ja",
+    "tab": "layerx",
+    "discoveredAt": "2026-11-18T02:49:59+00:00",
+    "description": "こんにちは。コーポレートエンジニアリング室 データグループの@civitaspoです。そろそろクリスマスに向けて、子どもたちにAmbientな要件ヒアリングが求められる時期になってきましたね。今年は「サンタへの手紙」という確定仕様書を、問題なく手に入れられるといいのですが... はじめに Snowflake の Parquet Direct 機能が Public Preview で発表されましたね！僕としては待望していた機能だったので、Xで興奮のつぶやきを発してしまったくらいです。 これで過去の資産も大きなコストかけずにSnowflakeから参照できるようになる！ADD_FILES_COPYだ…",
+    "author": "civitaspo",
+    "tags": [],
+    "learningTypes": [],
+    "tagsEstimated": true,
+    "thumbnailUrl": "https://cdn.image.st-hatena.com/image/scale/a1ea9dfda561f22107c417ac72530c5ed9a7ace8/backend=imagemagick;version=1;width=1300/https%3A%2F%2Fcdn-ak.f.st-hatena.com%2Fimages%2Ffotolife%2Fc%2Fcivitaspo%2F20261118%2F20261118010228.png"
+  },
+  {
+    "id": "653d6b19c34a672aa745f6f9",
+    "title": "エンジニアと PM、二足のわらじで学ぶ——フェアリーデバイセズ入社 3 か月の振り返り",
+    "url": "https://zenn.dev/fairydevices/articles/f9514de2378f86",
+    "sourceId": "zenn-pdm",
+    "sourceType": "zenn",
+    "publishedAt": "2026-11-17T08:00:05+00:00",
+    "lang": "ja",
+    "tab": "ja",
+    "discoveredAt": "2026-11-18T02:49:59+00:00",
+    "description": "",
+    "author": "yhamano",
+    "tags": [
+      "PdM"
+    ],
+    "learningTypes": [],
+    "tagsEstimated": true,
+    "thumbnailUrl": null,
+    "likes": 8
+  },
+  {
+    "id": "3e4cdff6e846af6b27cf7d86",
+    "title": "内製 Background Agent “haro”に アラート対応を任せたら 回すたびに賢くなっていった",
+    "url": "https://tech.layerx.co.jp/entry/haro-alert-loop",
+    "sourceId": "layerx-engineering-blog",
+    "sourceType": "blog",
+    "publishedAt": "2026-11-17T03:56:50+00:00",
+    "lang": "ja",
+    "tab": "layerx",
+    "discoveredAt": "2026-11-18T02:49:59+00:00",
+    "description": "LayerXに新卒入社したエンジニアが社内の Background Coding Agent「haro」を用いてアラート対応を行った話",
+    "author": "kazu004",
+    "tags": [
+      "AI活用"
+    ],
+    "learningTypes": [],
+    "tagsEstimated": true,
+    "thumbnailUrl": "https://cdn.image.st-hatena.com/image/scale/2d02856adaee2a8d737186f95e74e18da46a2ac4/backend=imagemagick;version=1;width=1300/https%3A%2F%2Fcdn-ak.f.st-hatena.com%2Fimages%2Ffotolife%2Fk%2Fkazu004%2F20261116%2F20261116235253.png"
+  },
+  {
     "id": "d40c62387782e527c0702e80",
     "title": "How an Experienced Architect Works and Uses AI",
     "url": "https://newsletter.eng-leadership.com/p/how-an-experienced-architect-works",
@@ -62,7 +118,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i1.ytimg.com/vi/LHPeLLjDHIQ/hqdefault.jpg",
-    "views": 2743
+    "views": 4454
   },
   {
     "id": "7ff7e722ee8d869313c9ea62",
@@ -84,7 +140,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/N25YtRKHf_A/hqdefault.jpg",
-    "views": 89
+    "views": 101
   },
   {
     "id": "7b156983757088ce739d178e",
@@ -105,7 +161,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 462
+    "bookmarks": 466
   },
   {
     "id": "fe498940cbf53e383809b748",
@@ -147,7 +203,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i4.ytimg.com/vi/WY0cdD4gNoQ/hqdefault.jpg",
-    "views": 25709
+    "views": 33285
   },
   {
     "id": "4ee3349adcbe5089be1d80d2",
@@ -169,7 +225,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/BFI2iykN0Yc/hqdefault.jpg",
-    "views": 5475
+    "views": 6379
   },
   {
     "id": "823401951f087b484d492550",
@@ -191,7 +247,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 152
+    "bookmarks": 153
   },
   {
     "id": "fb2122696696a8503f780efd",
@@ -231,7 +287,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 15
+    "bookmarks": 16
   },
   {
     "id": "cdd326901c52d1161b5d7c2c",
@@ -295,7 +351,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i2.ytimg.com/vi/9iRM_Uu8Ir4/hqdefault.jpg",
-    "views": 7050
+    "views": 7337
   },
   {
     "id": "cdbbe1c185b53117107c3079",
@@ -356,7 +412,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/nw5w4AnPBzg/hqdefault.jpg",
-    "views": 214
+    "views": 223
   },
   {
     "id": "6130b9bcccafd5e9d26f417f",
@@ -436,7 +492,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i1.ytimg.com/vi/XVGqcrmj-q0/hqdefault.jpg",
-    "views": 409
+    "views": 415
   },
   {
     "id": "1861a933cb70cdcb24c87721",
@@ -456,7 +512,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 147
+    "bookmarks": 149
   },
   {
     "id": "21c8b8b5457a827145e3216a",
@@ -500,7 +556,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i1.ytimg.com/vi/LDcRdpVvmgQ/hqdefault.jpg",
-    "views": 4964
+    "views": 5251
   },
   {
     "id": "c82fa432effadc049b9eb66f",
@@ -603,7 +659,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 149
+    "bookmarks": 148
   },
   {
     "id": "10e39190facf0740fee7db37",
@@ -754,7 +810,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i2.ytimg.com/vi/qGf2Yvan4Wg/hqdefault.jpg",
-    "views": 69053
+    "views": 71527
   },
   {
     "id": "dba404c16171e66e794628ff",
@@ -814,7 +870,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/z4Phtix6t5I/hqdefault.jpg",
-    "views": 264
+    "views": 265
   },
   {
     "id": "616b4ca6ce66cc7a11ec3fcd",
@@ -1040,7 +1096,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/Z5Ad9HtuY2A/hqdefault.jpg",
-    "views": 2940
+    "views": 2947
   },
   {
     "id": "59f8a5024e026b04ebc76d29",
@@ -1312,7 +1368,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/bDB_ji_Gb0c/hqdefault.jpg",
-    "views": 4479
+    "views": 4512
   },
   {
     "id": "7788b12763a8e01bca917b9f",
@@ -1372,7 +1428,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i2.ytimg.com/vi/ucVpG3ekHOw/hqdefault.jpg",
-    "views": 3173
+    "views": 3177
   },
   {
     "id": "42b8265f7df2911c55f925aa",
@@ -1436,7 +1492,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i2.ytimg.com/vi/19qrLchbQEc/hqdefault.jpg",
-    "views": 78606
+    "views": 79146
   },
   {
     "id": "0bd07a84a632f92611c90399",
@@ -1478,7 +1534,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i2.ytimg.com/vi/AXWebWeraOQ/hqdefault.jpg",
-    "views": 3299
+    "views": 3301
   },
   {
     "id": "87c1bd98861da7113744364b",
@@ -1498,7 +1554,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i2.ytimg.com/vi/q4Qeo0X0urY/hqdefault.jpg",
-    "views": 3705
+    "views": 3707
   },
   {
     "id": "fdd46acee25d4ea8501a232e",
@@ -1518,7 +1574,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i1.ytimg.com/vi/LGhKfCTdEPA/hqdefault.jpg",
-    "views": 5009
+    "views": 5010
   },
   {
     "id": "a52f4fa21f396a027305460c",
@@ -1561,7 +1617,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i2.ytimg.com/vi/mEz1wqKQwcE/hqdefault.jpg",
-    "views": 3993
+    "views": 4008
   },
   {
     "id": "d1650ab87357953965466aba",
@@ -1581,7 +1637,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i4.ytimg.com/vi/GeaYmiyDc90/hqdefault.jpg",
-    "views": 2814
+    "views": 2816
   },
   {
     "id": "6be1261c8e39b1da7bf7004f",
@@ -1665,7 +1721,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i2.ytimg.com/vi/1B-2mXpwxPY/hqdefault.jpg",
-    "views": 2031
+    "views": 2042
   },
   {
     "id": "9dc0a1b98ecff4b09e480c2e",
@@ -1746,7 +1802,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i1.ytimg.com/vi/Prl858_AovM/hqdefault.jpg",
-    "views": 251708
+    "views": 251988
   },
   {
     "id": "d846c5b63b0189a5e5c1b97a",
@@ -2069,7 +2125,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/6K4rA-bSrUA/hqdefault.jpg",
-    "views": 7429
+    "views": 7447
   },
   {
     "id": "b5b571569bbc20b3a81a820f",
@@ -2481,7 +2537,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i1.ytimg.com/vi/LCmqZTXOQso/hqdefault.jpg",
-    "views": 9547
+    "views": 9559
   },
   {
     "id": "8ebc95a5205546db3091b186",
@@ -7220,27 +7276,6 @@
     "likes": 4
   },
   {
-    "id": "96f0dd81fcc7de819dd26cee",
-    "title": "AIに仕事を奪われて、それでも残るもの — 嗅覚とチューニング",
-    "url": "https://zenn.dev/tokium_dev/articles/9e4a7c2b8f5d31",
-    "sourceId": "zenn-pdm",
-    "sourceType": "zenn",
-    "publishedAt": "2026-05-20T23:52:52+00:00",
-    "lang": "ja",
-    "tab": "ja",
-    "discoveredAt": "2026-10-24T06:15:11+00:00",
-    "description": "",
-    "author": "Takuto1023",
-    "tags": [
-      "AI活用",
-      "PdM"
-    ],
-    "learningTypes": [],
-    "tagsEstimated": true,
-    "thumbnailUrl": null,
-    "likes": 4
-  },
-  {
     "id": "49cdd27fd8dbbd0b77056106",
     "title": "冒険する組織のつくりかた by 安斎 勇樹",
     "url": "https://www.youtube.com/watch?v=64vD8W5mwwI",
@@ -7258,7 +7293,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/64vD8W5mwwI/hqdefault.jpg",
-    "views": 3388
+    "views": 3393
   },
   {
     "id": "5536684d1446d930455e3ed4",
