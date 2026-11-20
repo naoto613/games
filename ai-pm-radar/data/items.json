@@ -1,7 +1,45 @@
 [
   {
+    "id": "1aeb3ae618ada6ac277cc2f9",
+    "title": "内製 Background Agent \"haro\" を \"haro\" の中で開発しターミナルを捨てる",
+    "url": "https://tech.layerx.co.jp/entry/haro-in-haro",
+    "sourceId": "layerx-engineering-blog",
+    "sourceType": "blog",
+    "publishedAt": "2026-11-20T00:00:00+00:00",
+    "lang": "ja",
+    "tab": "layerx",
+    "discoveredAt": "2026-11-20T02:13:48+00:00",
+    "description": "LayerX では haro という Background Coding Agent を内製しています。僕はこの haro の開発に関わっていて、「haro 自身の開発を haro の中でできるようにする」ことに取り組んできました。チームではこれを haro in haro と呼んでいます。 最初に試した構成は捨てることになり、今は vCluster と Envoy と Telepresence を組み合わせた構成に落ち着いています。そこに至るまでの流れをお話しします。 haro とは haro は LayerX のバクラク事業部で内製している Background Coding Agent …",
+    "author": "sivchari",
+    "tags": [
+      "AI活用"
+    ],
+    "learningTypes": [],
+    "tagsEstimated": true,
+    "thumbnailUrl": "https://cdn.image.st-hatena.com/image/scale/6ef804555206d855f2c86aae32d2abe270349e97/backend=imagemagick;version=1;width=1300/https%3A%2F%2Fcdn-ak.f.st-hatena.com%2Fimages%2Ffotolife%2Fs%2Fsivchari%2F20261119%2F20261119164059.png"
+  },
+  {
+    "id": "02bdeafb00dafeb7181b8636",
+    "title": "PR が1年で5倍になった monorepo で、フロントエンドの基盤をつくる — バクラク Frontend Enabling を募集しています",
+    "url": "https://tech.layerx.co.jp/entry/bakuraku-monorepo-and-frontend-enabling",
+    "sourceId": "layerx-engineering-blog",
+    "sourceType": "blog",
+    "publishedAt": "2026-11-19T04:29:27+00:00",
+    "lang": "ja",
+    "tab": "layerx",
+    "discoveredAt": "2026-11-20T02:13:48+00:00",
+    "description": "はじめに バクラク事業部のエンジニアの ypresto です。 今日はバクラクで募集している Frontend Enabling というポジションについて紹介させてください！ バクラクでは原則としてJavaScriptとGoのソースコードをmonorepoで管理しています。JavaScript のパッケージも今120を超えています！ リポジトリ全体でマージされた PR は、1年前の月 1000 件弱から、今は月 5000 件を超えました。 マージされたPR数 monorepoのパッケージ数 そのような中で、巨大なmonorepoの信頼性を担保しスケールを可能にするべく、 Frontend En…",
+    "author": "yuya_presto",
+    "tags": [],
+    "learningTypes": [
+      "考え方・フレームワーク"
+    ],
+    "tagsEstimated": true,
+    "thumbnailUrl": "https://cdn.image.st-hatena.com/image/scale/9a96ff545f515dfa71df6b07f27eb606d2cf502c/backend=imagemagick;version=1;width=1300/https%3A%2F%2Fcdn-ak.f.st-hatena.com%2Fimages%2Ffotolife%2Fy%2Fyuya_presto%2F20261119%2F20261119070850.png"
+  },
+  {
     "id": "f8e666cf1eb8372847a046ec",
-    "title": "従来のコンサルとDeployment Strategistは何が違う？NRI・PwC出身のDSメンバーが採用面談でよく聞かれる質問に回答／デプロイメントストラテジスト／LayerX／コンサル転職",
+    "title": "従来のコンサルとデプロイメントストラテジストの違いとは？ NRI・PwC出身のDSメンバーが転職者の疑問に回答／FDE／AI／AIエージェント／LayerX／コンサル転職",
     "url": "https://www.youtube.com/watch?v=N-Xy9D9pB3c",
     "sourceId": "layerx-youtube",
     "sourceType": "youtube",
@@ -11,14 +49,16 @@
     "discoveredAt": "2026-11-19T02:29:02+00:00",
     "description": "【参加無料】Deployment Strategist（DS）が登壇する12月15日 (火)19:30～開催します！AI活用にとどまらず、AIネイティブに働くDSの仕事とは？ Ai Workforceのデモもご紹介します。 日時：2026年12月15日 (火曜日)⋅19:30～21:00 申込フォーム： https://docs.google.com/forms/d/e/1FAIpQLSe5epLjEG-NF44IGxuFPKzBjnqlgzSKFko18TX-S-MgCGojeg/viewform ▼出演者とのカジュアル面談はこちらから 畑島崇宏（th_sat） https://jobs.layerx.co.jp/opendoor/86f52206faa84b2184b47028e54eace9/?utm_source=youtube&utm_medium=recruiting_yout",
     "author": "LayerX 公式",
-    "tags": [],
+    "tags": [
+      "AI活用"
+    ],
     "learningTypes": [
       "実践事例",
       "トレンド・調査"
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/N-Xy9D9pB3c/hqdefault.jpg",
-    "views": 10
+    "views": 2577
   },
   {
     "id": "1fb213aeb79ce6c833f953ca",
@@ -40,7 +80,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/6ZtSLtqdBlQ/hqdefault.jpg",
-    "views": 1794
+    "views": 3536
   },
   {
     "id": "ec680f0cd74cd47643ac8b8a",
@@ -218,7 +258,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i1.ytimg.com/vi/LHPeLLjDHIQ/hqdefault.jpg",
-    "views": 5676
+    "views": 6350
   },
   {
     "id": "7ff7e722ee8d869313c9ea62",
@@ -240,7 +280,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/N25YtRKHf_A/hqdefault.jpg",
-    "views": 106
+    "views": 114
   },
   {
     "id": "7b156983757088ce739d178e",
@@ -261,7 +301,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 467
+    "bookmarks": 465
   },
   {
     "id": "fe498940cbf53e383809b748",
@@ -303,7 +343,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i4.ytimg.com/vi/WY0cdD4gNoQ/hqdefault.jpg",
-    "views": 39128
+    "views": 44395
   },
   {
     "id": "4ee3349adcbe5089be1d80d2",
@@ -325,7 +365,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/BFI2iykN0Yc/hqdefault.jpg",
-    "views": 7206
+    "views": 8306
   },
   {
     "id": "823401951f087b484d492550",
@@ -451,7 +491,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i2.ytimg.com/vi/9iRM_Uu8Ir4/hqdefault.jpg",
-    "views": 7572
+    "views": 7704
   },
   {
     "id": "cdbbe1c185b53117107c3079",
@@ -512,7 +552,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/nw5w4AnPBzg/hqdefault.jpg",
-    "views": 225
+    "views": 229
   },
   {
     "id": "6130b9bcccafd5e9d26f417f",
@@ -592,7 +632,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i1.ytimg.com/vi/XVGqcrmj-q0/hqdefault.jpg",
-    "views": 422
+    "views": 428
   },
   {
     "id": "1861a933cb70cdcb24c87721",
@@ -656,7 +696,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i1.ytimg.com/vi/LDcRdpVvmgQ/hqdefault.jpg",
-    "views": 5381
+    "views": 5490
   },
   {
     "id": "c82fa432effadc049b9eb66f",
@@ -779,7 +819,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "likes": 8
+    "likes": 9
   },
   {
     "id": "b9ce5f4e42f32ea0c863f08b",
@@ -910,7 +950,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i2.ytimg.com/vi/qGf2Yvan4Wg/hqdefault.jpg",
-    "views": 73579
+    "views": 75744
   },
   {
     "id": "dba404c16171e66e794628ff",
@@ -970,7 +1010,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/z4Phtix6t5I/hqdefault.jpg",
-    "views": 266
+    "views": 268
   },
   {
     "id": "616b4ca6ce66cc7a11ec3fcd",
@@ -1074,7 +1114,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/Fs_waE3JO7g/hqdefault.jpg",
-    "views": 1247
+    "views": 1249
   },
   {
     "id": "2cab8b2924ed0692ace7e69a",
@@ -1196,7 +1236,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/Z5Ad9HtuY2A/hqdefault.jpg",
-    "views": 2951
+    "views": 2957
   },
   {
     "id": "59f8a5024e026b04ebc76d29",
@@ -1468,7 +1508,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/bDB_ji_Gb0c/hqdefault.jpg",
-    "views": 4526
+    "views": 4550
   },
   {
     "id": "7788b12763a8e01bca917b9f",
@@ -1528,7 +1568,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i2.ytimg.com/vi/ucVpG3ekHOw/hqdefault.jpg",
-    "views": 3183
+    "views": 3184
   },
   {
     "id": "42b8265f7df2911c55f925aa",
@@ -1592,7 +1632,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i2.ytimg.com/vi/19qrLchbQEc/hqdefault.jpg",
-    "views": 79617
+    "views": 80000
   },
   {
     "id": "0bd07a84a632f92611c90399",
@@ -1634,7 +1674,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i2.ytimg.com/vi/AXWebWeraOQ/hqdefault.jpg",
-    "views": 3304
+    "views": 3303
   },
   {
     "id": "87c1bd98861da7113744364b",
@@ -1654,7 +1694,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i2.ytimg.com/vi/q4Qeo0X0urY/hqdefault.jpg",
-    "views": 3708
+    "views": 3709
   },
   {
     "id": "fdd46acee25d4ea8501a232e",
@@ -1674,7 +1714,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i1.ytimg.com/vi/LGhKfCTdEPA/hqdefault.jpg",
-    "views": 5014
+    "views": 5019
   },
   {
     "id": "a52f4fa21f396a027305460c",
@@ -1717,7 +1757,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i2.ytimg.com/vi/mEz1wqKQwcE/hqdefault.jpg",
-    "views": 4029
+    "views": 4055
   },
   {
     "id": "d1650ab87357953965466aba",
@@ -1737,7 +1777,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i4.ytimg.com/vi/GeaYmiyDc90/hqdefault.jpg",
-    "views": 2821
+    "views": 2822
   },
   {
     "id": "6be1261c8e39b1da7bf7004f",
@@ -1821,7 +1861,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i2.ytimg.com/vi/1B-2mXpwxPY/hqdefault.jpg",
-    "views": 2059
+    "views": 2082
   },
   {
     "id": "9dc0a1b98ecff4b09e480c2e",
@@ -1980,7 +2020,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "bookmarks": 163
+    "bookmarks": 165
   },
   {
     "id": "3596d3549a39d8dbafbdaf06",
@@ -2225,7 +2265,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/6K4rA-bSrUA/hqdefault.jpg",
-    "views": 7461
+    "views": 7472
   },
   {
     "id": "b5b571569bbc20b3a81a820f",
@@ -2637,7 +2677,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i1.ytimg.com/vi/LCmqZTXOQso/hqdefault.jpg",
-    "views": 9569
+    "views": 9581
   },
   {
     "id": "8ebc95a5205546db3091b186",
@@ -2720,7 +2760,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/jMmXayNhO7Q/hqdefault.jpg",
-    "views": 2425
+    "views": 2427
   },
   {
     "id": "360a608b29a134dcd6e407fc",
@@ -3048,7 +3088,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "likes": 4
+    "likes": 6
   },
   {
     "id": "88b828c402d5339aba2c4ddc",
@@ -4273,7 +4313,7 @@
     ],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "likes": 2
+    "likes": 3
   },
   {
     "id": "3b0bd2f6922418edcb579e63",
@@ -6508,7 +6548,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": null,
-    "likes": 335
+    "likes": 336
   },
   {
     "id": "0860078a9d8103be79760300",
@@ -7332,27 +7372,6 @@
     "likes": 5
   },
   {
-    "id": "ca2e6ce9bc675df9f251ca84",
-    "title": "AIが速く走るほど、舵取りの1度が遠くへずれる",
-    "url": "https://zenn.dev/tokium_dev/articles/ai-speed-needs-direction",
-    "sourceId": "zenn-pdm",
-    "sourceType": "zenn",
-    "publishedAt": "2026-05-22T03:26:34+00:00",
-    "lang": "ja",
-    "tab": "ja",
-    "discoveredAt": "2026-10-24T06:15:11+00:00",
-    "description": "",
-    "author": "まっさん | TOKIUM",
-    "tags": [
-      "AI活用",
-      "PdM"
-    ],
-    "learningTypes": [],
-    "tagsEstimated": true,
-    "thumbnailUrl": null,
-    "likes": 10
-  },
-  {
     "id": "49cdd27fd8dbbd0b77056106",
     "title": "冒険する組織のつくりかた by 安斎 勇樹",
     "url": "https://www.youtube.com/watch?v=64vD8W5mwwI",
@@ -7370,7 +7389,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i3.ytimg.com/vi/64vD8W5mwwI/hqdefault.jpg",
-    "views": 3395
+    "views": 3407
   },
   {
     "id": "5536684d1446d930455e3ed4",
@@ -7391,7 +7410,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i1.ytimg.com/vi/dgVrvWVmusk/hqdefault.jpg",
-    "views": 889
+    "views": 894
   },
   {
     "id": "359d61587ce09cc7e0fe19ca",
@@ -7431,7 +7450,7 @@
     "learningTypes": [],
     "tagsEstimated": true,
     "thumbnailUrl": "https://i4.ytimg.com/vi/78Nch4qD-Q0/hqdefault.jpg",
-    "views": 769
+    "views": 770
   },
   {
     "id": "7b73a91721685e5431f5d13c",
