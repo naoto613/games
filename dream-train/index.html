@@ -1,23 +1,37 @@
-<!doctype html><html lang="ja"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f8f3e8">
-<title>ふーちゃんの にじいろまち大冒険</title><meta name="description" content="ひとつの町で、きせかえ・診療・写真の連鎖・工作・かくれんぼ・スキャン・宝探しがつながる冒険。持ち物と町の変化を共有して、お祭りの光を取り戻そう。">
-<link rel="icon" href="./icon.svg"><link rel="stylesheet" href="./town.css?v=2">
-<script src="../nijiiro-treasure/art.js?v=2" defer></script><script src="../kirameki-princess/js/art-char.js" defer></script><script src="../kirameki-princess/js/art-world.js" defer></script><script src="./story.js?v=2" defer></script><script src="./town-art.js?v=2" defer></script><script src="./town.js?v=2" defer></script><script src="./activities.js?v=2" defer></script>
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#262744">
+<title>モコの ひみつアトリエ</title><meta name="description" content="さわって、つくって、大発見！写真から雨が降り、お世話が工作につながる。モコと3つの世界を遊び、自分だけの空飛ぶアトリエを育てよう。">
+<link rel="icon" href="./icon.svg"><link rel="stylesheet" href="./lab.css?v=3">
+<script src="./lab-core.js?v=3" defer></script><script src="./lab-art.js?v=3" defer></script><script src="./lab-ui.js?v=3" defer></script>
 </head><body>
-<div id="app">
-<header class="topbar"><button id="homeButton" class="logo-button"><span data-art="rainbow"></span><span>ふーちゃんの<br><b>にじいろまち大冒険</b></span></button><div class="header-tools"><button id="journalButton" class="paper-button"><span data-art="book"></span>てちょう</button><button id="soundButton" class="paper-button" aria-label="こえを つける" aria-pressed="false">♪</button></div></header>
-<main id="adventure" hidden>
- <section class="story-strip"><span id="chapterBadge">おまつりの ひかりを さがそう</span><div id="lights" aria-label="あつめた ひかり"></div><button id="hintButton" class="small-button">？ ヒント</button></section>
- <div id="viewport" class="viewport" tabindex="0" aria-label="にじいろまち。じめんを タッチで あるく。ドラッグで みわたす。"><div id="world" class="world"><div id="ground"></div><div id="scenery"></div><div id="objects"></div><div id="player" class="player" aria-hidden="true"></div><div id="placedDecorations"></div><div id="worldFx"></div></div><div class="location-badge" id="locationBadge">にじいろの まち</div><div class="view-tools"><button id="followButton" aria-label="ふーちゃんの ところへ">◎</button><button id="zoomButton" aria-label="ちずを ひろく みる">−</button></div><div id="toast" class="toast" role="status" hidden></div></div>
- <div class="companion"><span data-art="rabbit"></span><div><h1 id="goalTitle"></h1><p id="message" role="status" aria-live="polite"></p></div><button id="listenButton" class="small-button" aria-label="あんないを きく">♪</button></div>
- <div class="backpack"><div class="bag-label">もちもの<span>つかう どうぐを えらんでね</span></div><div id="inventory" class="inventory"></div><button id="decorateButton" class="paper-button" hidden>✦ まちを かざる</button></div>
- <p class="play-note">じめんを タッチで あるく · ドラッグで みわたす · きになる ものを しらべる</p>
-</main>
-<section id="titleScreen" class="title-screen"><div id="titleArt" class="title-art" aria-hidden="true"></div><div class="title-copy"><p class="eyebrow">ひとつの まちに、たくさんの わくわく。</p><h1><small>ふーちゃんの</small>にじいろまち<br><em>大冒険</em></h1><p>おまつりの ひかりが、なくなっちゃった！<br>きがえて、てつだって、ひみつを みつけて。<br>きみの はっけんで、まちが かわりはじめる。</p><button id="startButton" class="primary-button">まちへ でかけよう →</button><span id="resumeNote" class="resume-note"></span><button id="aboutButton" class="text-button">おとなの かたへ</button></div></section>
-<footer><a href="../">ゲームいちらん</a><span>ぴょんたと いっしょに、おまつりを とりもどそう。</span></footer>
+<div class="sky-stars" aria-hidden="true"></div>
+<section id="intro" class="intro"><div class="intro-art" aria-hidden="true"></div><div class="intro-shade"></div><header class="intro-brand"><span data-art="star"></span>モコの ひみつアトリエ</header><div class="intro-copy"><p class="intro-tag">きみの「やってみたい」が、まほうになる。</p><h1>さわって、<br>つくって、<br><em>大発見！</em></h1><p>しゃしんから、あめが ふる？<br>きみの ひらめきで、せかいが かわる。<br>モコと ひみつの アトリエを そだてよう。</p><button id="startButton" class="start-button"><span data-art="hand"></span><b>モコに あいにいく</b><i>↗</i></button><span id="resumeText" class="resume-text"></span></div><div class="intro-bottom"><span>おせわも、はっけんも、つくるのも。ぜんぶ、きみしだい。</span><button id="introParent" class="quiet">おとなの かたへ</button></div></section>
+<div id="game" class="game" hidden>
+ <header class="game-header"><button id="homeButton" class="brand" aria-label="アトリエへ かえる"><span data-art="moco"></span><span>モコの<b>ひみつアトリエ</b></span></button><div class="header-actions"><button id="starButton" class="star-count" aria-label="あつめた ひらめき"><span data-art="star"></span><b id="starCount">0</b><small>/ 27</small></button><button id="bookButton" class="icon-button" aria-label="はっけんずかん"><span data-art="book"></span><small id="bookCount">0 / 36</small></button><button id="soundButton" class="round-button" aria-label="こえと おとを つける" aria-pressed="false">♪</button><button id="parentButton" class="round-button parent-button" aria-label="おとなの せってい">⚙</button></div></header>
+ <main>
+  <div class="mission"><div class="mission-label"><span id="goalArt"></span><div><small id="chapterName">きみの ひみつきち</small><h1 id="goalText">モコを なでて おこそう</h1></div></div><button id="hintButton" class="hint-button" aria-label="つぎの あそびを みる">？</button></div>
+  <section id="stage" class="stage" aria-label="モコの おもちゃの せかい" tabindex="0">
+   <div id="scenery" class="scenery" aria-hidden="true"></div><div class="stage-mist" aria-hidden="true"></div>
+   <div class="world-sign"><span id="worldName">ひみつアトリエ</span><small id="roundName"></small></div><div id="projectMarks" class="project-marks"></div>
+   <div id="decorations" class="decorations" aria-label="きみの かざり"></div><div id="toys" class="toys"></div>
+   <button id="moco" class="moco" aria-label="モコを なでる、ひっぱる"><span id="mocoArt"></span><i id="mocoMood">Z z z</i></button>
+   <div id="revealLayer" class="reveal-layer" aria-hidden="true"></div><div id="lens" class="lens" hidden aria-hidden="true"></div>
+   <div id="playLayer" class="play-layer"></div><div id="effects" class="effects" aria-hidden="true"></div>
+   <div id="reward" class="reward" role="status" hidden></div>
+   <button id="remixButton" class="remix-button" hidden><span>↻</span>あたらしい ふしぎ</button><button id="nextWorldButton" class="next-world" hidden></button>
+   <div id="speech" class="speech" role="status" aria-live="polite"><span id="speechArt"></span><p id="speechText">モコを なでてみよう。</p><button id="listenButton" aria-label="こえで きく">♪</button></div>
+   <div id="flash" class="camera-flash" hidden></div>
+  </section>
+  <div id="secondary" class="secondary" aria-label="どうぐの くみあわせ"></div>
+  <div class="toolbelt"><div class="toolbelt-label"><small>やってみよう</small><b>どうぐ</b></div><div id="tools" class="tools"></div><button id="photoPocket" class="photo-pocket" hidden aria-label="とった しゃしんを もつ"></button></div>
+  <nav id="worldNav" class="world-nav" aria-label="モコと でかける ばしょ"></nav>
+ </main>
+ <footer class="game-footer"><span id="footerHint">どうぐを えらんで、きになる ものに タッチ。</span><button id="albumButton" class="quiet">しゃしんの おもいで ↗</button></footer>
 </div>
-<dialog id="activity" aria-labelledby="activityTitle"><div class="activity-heading"><div><p id="activityPlace" class="eyebrow"></p><h2 id="activityTitle"></h2></div><button id="closeActivity" class="small-button">× まちへ</button></div><p id="activityIntro" class="activity-intro"></p><div id="activityBody"></div><p id="activityStatus" class="activity-status" role="status" aria-live="polite"></p><div id="activityActions" class="activity-actions"></div></dialog>
-<dialog id="journal" aria-labelledby="journalTitle"><div class="activity-heading"><div><p class="eyebrow">みんなの おはなしが、つながっていく。</p><h2 id="journalTitle">ぼうけんの てちょう</h2></div><button id="closeJournal" class="small-button">× とじる</button></div><div id="journalMap"></div><div id="journalTasks"></div><p class="journal-note">どこから てつだっても だいじょうぶ。もらった ものは、ほかの ばしょで つかえるよ。</p></dialog>
-<dialog id="about"><div class="activity-heading"><h2>おとなの かたへ</h2><button id="closeAbout" class="small-button">× とじる</button></div><p>13作品に登場する遊びが、ひとつの町の冒険としてつながります。お手伝いでもらった道具を別の場所で使い、お祭りの光を集めます。</p><p>診療で得たスキャナーで町の変装を見破る、工作で架けた橋で森を探索するなど、遊びの結果が別の遊びで使える仕組みです。元作品の全ステージや全機能の移植ではありません。</p><p>進行はこの冒険専用に自動保存します。旧列車版や元の各ゲームの記録は消しません。声は右上の音符で切り替えられます。</p><button id="restartButton" class="text-button">この ぼうけんを はじめから</button><div id="restartConfirm" hidden><p>この冒険の記録を消します。元のゲームの記録は残ります。</p><button id="confirmRestart" class="paper-button">はじめから あそぶ</button></div></dialog>
-<p id="saveNotice" class="save-notice" hidden role="status">この ブラウザでは ほぞんできないけれど、このまま あそべるよ。</p>
-<noscript>JavaScriptをオンにして遊んでください。</noscript></body></html>
+<dialog id="book" aria-labelledby="bookTitle"><div class="sheet-heading"><div><p>みつけるたび、せかいが ひろがる。</p><h2 id="bookTitle">はっけんずかん</h2></div><button data-close="book" class="close-button" aria-label="ずかんを とじる">×</button></div><div id="bookTabs" class="book-tabs"></div><div id="bookGrid" class="book-grid"></div><p id="bookHint" class="sheet-hint" role="status">？を タッチすると ヒントが みえるよ。</p></dialog>
+<dialog id="closet" aria-labelledby="closetTitle"><div class="sheet-heading"><div><p>ぼうけんの じゅんび。</p><h2 id="closetTitle">モコの おきがえ</h2></div><button data-close="closet" class="close-button" aria-label="おきがえを とじる">×</button></div><div id="closetPreview" class="closet-preview"></div><div id="closetChoices"></div><button id="dressDone" class="soft-button">この すがたで でかける ✦</button></dialog>
+<dialog id="album" aria-labelledby="albumTitle"><div class="sheet-heading"><div><p>きみが みつけた、きょうの いちまい。</p><h2 id="albumTitle">しゃしんの おもいで</h2></div><button data-close="album" class="close-button" aria-label="おもいでを とじる">×</button></div><div id="albumGrid" class="album-grid"></div><p class="sheet-hint">さいきんの 12まいを おぼえているよ。しゃしんは ダウンロードできるよ。</p></dialog>
+<dialog id="parent" aria-labelledby="parentTitle"><div class="sheet-heading"><h2 id="parentTitle">おとなの かたへ</h2><button data-close="parent" class="close-button" aria-label="せっていを とじる">×</button></div><p>道具を同じ舞台の物に直接使って、お世話・写真の連鎖・工作・観察・隠密・謎解き・魔法を楽しむ冒険です。3つの世界で得た部品が、自分のアトリエを育てます。</p><p>各世界には3種類の「あたらしい ふしぎ」があり、探す相手、クイズ、音の順番、工作の形や向き、暗号が変わります。36の発見と27のひらめき、自分の飾りつけや写真を楽しめます。時間切れやゲームオーバーはありません。</p><p>このゲーム専用に自動保存します。前のゲームの記録は残します。音声は任意です。キーボードでも道具・物・選択肢を操作できます。隠密の移動は矢印キーにも対応します。</p><div class="parent-actions"><button id="openCloset" class="soft-button">モコの おきがえ</button><button id="resetButton" class="quiet">この冒険を最初から</button></div><div id="resetConfirm" hidden><p>この冒険の記録だけを消します。元のゲームの記録は残ります。</p><button id="confirmReset" class="soft-button">記録を消して始める</button><button id="cancelReset" class="quiet">やめる</button></div><a class="quiet" href="../">ゲーム一覧</a></dialog>
+<div id="dragGhost" class="drag-ghost" hidden aria-hidden="true"></div><p id="saveNotice" class="save-notice" hidden role="status">ほぞんが つかえないけれど、このまま あそべるよ。</p><noscript>JavaScriptをオンにして遊んでください。</noscript>
+</body></html>
