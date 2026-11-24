@@ -87,5 +87,35 @@ CHAPTERS.push(
       ['moya','うん！ きょうは みんなで おまつりだモヤ！'],
       ['fu','ほしぞら れっしゃの じけん、 かいけつ！',{emo:'happy',fx:'sparkle'}],
     ]},
+  ]},
+  {part:3,title:'まちを てらす ほしの パレード',icon:'firework',bg:'railway',steps:[
+    {t:'talk',bg:'railway',bgm:'night',cast:['fu','rk','moya','conductor'],set:{moya:'kind'},lines:[
+      ['conductor','そらの えきが ひかったホー！ つぎは まちに あかりを はこんで、 よぞらの パレードだホー！',{emo:'happy'}],
+      ['moya','みずうみの むこうに、 パレードの あかりが みっつ あるモヤ。'],
+      ['fu','はしだと すぐ つくけど、 ほしを ひろうには みずうみを まわって いこう！'],
+    ]},
+    {t:'rail',label:'ほしの みずうみ',done:'みずうみを まわって、 ほしを ぜんぶ ひろえたよ！',board:{
+      id:'lake',cols:5,rows:5,
+      route:[[0,2],[1,2],[1,3],[1,4],[2,4],[3,4],[3,3],[3,2],[4,2]],
+      turns:[0,1,0,3,1,2,1,0,0],stars:[3,4,6],
+      extra:[[1,1,true,1],[2,1,false,0],[3,1,true,2],[0,1,true,1],[4,3,true,3]],
+    }},
+    {t:'talk',bg:'railway',bgm:'night',cast:['fu','rk','moya','kohoshi'],set:{moya:'kind'},lines:[
+      ['kohoshi','まちの みんなが、 れっしゃを まってる ピヨ！',{emo:'happy'}],
+      ['rk','あっちにも こっちにも、 ほしが ひとつずつ！'],
+      ['fu','せんろを つないで、 よっつの ほしを ぜんぶ はこぼう！'],
+    ]},
+    {t:'rail',label:'まちを めぐる せんろ',done:'とうちゃく！ よっつの あかりが まちを てらしたよ！',board:{
+      id:'parade',cols:5,rows:5,
+      route:[[0,3],[1,3],[1,2],[0,2],[0,1],[1,1],[1,0],[2,0],[3,0],[3,1],[2,1],[2,2],[3,2],[3,3],[3,4],[4,4]],
+      turns:[0,1,0,3,0,2,3,1,0,2,1,0,2,1,3,0],stars:[3,6,10,14],
+      extra:[[2,3,false,0],[4,2,true,2],[4,3,false,1],[4,0,true,1]],
+    }},
+    {t:'talk',bg:'railway',bgm:'night',cast:['fu','rk','moya','kohoshi'],set:{moya:'kind'},lines:[
+      ['narr','ポッポー！ ほしを のせた れっしゃが、 まちじゅうを てらした。',{fx:'confetti'}],
+      ['moya','みんなの えがおも、 ほしみたいに キラキラだモヤ！'],
+      ['kohoshi','ふーちゃん、 いっしょに ほしを はこんで くれて ありがとう ピヨ！',{emo:'happy'}],
+      ['fu','せんろで まちが つながったね。 ほしの パレード、 だいせいこう！',{emo:'happy',fx:'sparkle'}],
+    ]},
   ]}
 );

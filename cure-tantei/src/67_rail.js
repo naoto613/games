@@ -166,6 +166,9 @@ STEP.rail={
     drawBG(c,'railway');
     const [sx,sy]=this.position(board.from),[gx,gy]=this.position(board.to);
     txt(c,this.d.label,200,169,21,'#fff1da');
+    c.fillStyle='#231e45';
+    rr(c,sx-40,188,80,22,11);c.fill();
+    rr(c,gx-23,188,46,22,11);c.fill();
     txt(c,'しゅっぱつ',sx,199,13,'#ffe4aa');
     txt(c,'えき',gx,199,13,'#ffe4aa');
     c.fillStyle='#151832';rr(c,19,211,362,326,20);c.fill();

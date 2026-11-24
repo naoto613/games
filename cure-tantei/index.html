@@ -1693,6 +1693,9 @@ STEP.rail={
     drawBG(c,'railway');
     const [sx,sy]=this.position(board.from),[gx,gy]=this.position(board.to);
     txt(c,this.d.label,200,169,21,'#fff1da');
+    c.fillStyle='#231e45';
+    rr(c,sx-40,188,80,22,11);c.fill();
+    rr(c,gx-23,188,46,22,11);c.fill();
     txt(c,'しゅっぱつ',sx,199,13,'#ffe4aa');
     txt(c,'えき',gx,199,13,'#ffe4aa');
     c.fillStyle='#151832';rr(c,19,211,362,326,20);c.fill();
@@ -2535,6 +2538,36 @@ CHAPTERS.push(
       ['moya','うん！ きょうは みんなで おまつりだモヤ！'],
       ['fu','ほしぞら れっしゃの じけん、 かいけつ！',{emo:'happy',fx:'sparkle'}],
     ]},
+  ]},
+  {part:3,title:'まちを てらす ほしの パレード',icon:'firework',bg:'railway',steps:[
+    {t:'talk',bg:'railway',bgm:'night',cast:['fu','rk','moya','conductor'],set:{moya:'kind'},lines:[
+      ['conductor','そらの えきが ひかったホー！ つぎは まちに あかりを はこんで、 よぞらの パレードだホー！',{emo:'happy'}],
+      ['moya','みずうみの むこうに、 パレードの あかりが みっつ あるモヤ。'],
+      ['fu','はしだと すぐ つくけど、 ほしを ひろうには みずうみを まわって いこう！'],
+    ]},
+    {t:'rail',label:'ほしの みずうみ',done:'みずうみを まわって、 ほしを ぜんぶ ひろえたよ！',board:{
+      id:'lake',cols:5,rows:5,
+      route:[[0,2],[1,2],[1,3],[1,4],[2,4],[3,4],[3,3],[3,2],[4,2]],
+      turns:[0,1,0,3,1,2,1,0,0],stars:[3,4,6],
+      extra:[[1,1,true,1],[2,1,false,0],[3,1,true,2],[0,1,true,1],[4,3,true,3]],
+    }},
+    {t:'talk',bg:'railway',bgm:'night',cast:['fu','rk','moya','kohoshi'],set:{moya:'kind'},lines:[
+      ['kohoshi','まちの みんなが、 れっしゃを まってる ピヨ！',{emo:'happy'}],
+      ['rk','あっちにも こっちにも、 ほしが ひとつずつ！'],
+      ['fu','せんろを つないで、 よっつの ほしを ぜんぶ はこぼう！'],
+    ]},
+    {t:'rail',label:'まちを めぐる せんろ',done:'とうちゃく！ よっつの あかりが まちを てらしたよ！',board:{
+      id:'parade',cols:5,rows:5,
+      route:[[0,3],[1,3],[1,2],[0,2],[0,1],[1,1],[1,0],[2,0],[3,0],[3,1],[2,1],[2,2],[3,2],[3,3],[3,4],[4,4]],
+      turns:[0,1,0,3,0,2,3,1,0,2,1,0,2,1,3,0],stars:[3,6,10,14],
+      extra:[[2,3,false,0],[4,2,true,2],[4,3,false,1],[4,0,true,1]],
+    }},
+    {t:'talk',bg:'railway',bgm:'night',cast:['fu','rk','moya','kohoshi'],set:{moya:'kind'},lines:[
+      ['narr','ポッポー！ ほしを のせた れっしゃが、 まちじゅうを てらした。',{fx:'confetti'}],
+      ['moya','みんなの えがおも、 ほしみたいに キラキラだモヤ！'],
+      ['kohoshi','ふーちゃん、 いっしょに ほしを はこんで くれて ありがとう ピヨ！',{emo:'happy'}],
+      ['fu','せんろで まちが つながったね。 ほしの パレード、 だいせいこう！',{emo:'happy',fx:'sparkle'}],
+    ]},
   ]}
 );
 // ================= scenes: title / office / files / notebook / practice / clear =================
@@ -2545,8 +2578,15 @@ const PART_THEMES=[
   {title:'ほしぞら れっしゃ',color:'#9469b5',paper:'#fff0de',edge:'#c68bb5'},
 ];
 const RAIL_FIRST=CHAPTERS.findIndex(ch=>ch.part===3);
+const PART_UNLOCK_AT=[0,CHAPTERS.findIndex(ch=>ch.part===2),RAIL_FIRST];
+const RAIL_STAGE_COUNT=CHAPTERS.slice(RAIL_FIRST).flatMap(ch=>ch.steps).filter(step=>step.t==='rail').length;
+function partIsOpen(part){return SAVE.cleared>=PART_UNLOCK_AT[part-1];}
+function lockedPartHint(part){return `だい${part-1}ぶを ぜんぶ かいけつすると ひらくよ`;}
 function chapterIsClear(i){return i>=RAIL_FIRST?i-RAIL_FIRST<SAVE.railCleared:i<SAVE.cleared;}
-function chapterIsOpen(i){return i>=RAIL_FIRST?i-RAIL_FIRST<=SAVE.railCleared:i<=SAVE.cleared;}
+function chapterIsOpen(i){
+  const part=chapterPart(i);
+  return partIsOpen(part)&&(part===3?i-RAIL_FIRST<=SAVE.railCleared:i<=SAVE.cleared);
+}
 function chapterCheckpoint(i){
   const cp=SAVE[checkpointKey(i)];
   return cp?.ci===i&&Number.isInteger(cp.i)&&cp.i>0?cp:null;
@@ -2562,14 +2602,19 @@ SCN.title={
     drawGlow(c,'#fff',200,450,180,.6);drawFutan(c,150,540,{s:3.2,cure:1,pose:'win',item:'wand'});drawRicky(c,270,480,{s:2.6,cure:1,happy:1});
     drawIcon(c,'gem:#ff7ab8',60,330,1);drawIcon(c,'gem:#5ac8ff',345,350,.9);drawIcon(c,'lens',330,560,1.4);drawIcon(c,'steth',70,560,1.2);
     drawBtn(c,200,589,244,56,'はじめる！','#ff5fa2',{size:25});
-    drawBtn(c,200,653,244,49,'だい3ぶへ','#8665bb',{icon:'star',size:20});
+    const railOpen=partIsOpen(3);
+    drawBtn(c,200,653,244,49,railOpen?'だい3ぶへ':'だい2ぶ クリアで だい3ぶへ',railOpen?'#8665bb':'#8b7b9e',{icon:railOpen?'star':'lock',size:railOpen?20:15});
     txt(c,hasTTS?'5さい〜 ／ こえと おとが でるよ':'この ブラウザでは こえが でません',200,700,12,'#76506e');},
   hit(x,y){return inR(x,y,200,589,248,58)?'office':inR(x,y,200,653,248,50)?'rail':null;},
   down(x,y){this.pressed=this.hit(x,y);},
   up(x,y){
     const target=this.pressed;this.pressed=null;
     if(!target||this.hit(x,y)!==target)return;
-    if(target==='rail'){sfx('pop');openFiles(3);return;}
+    if(target==='rail'){
+      if(partIsOpen(3)){sfx('pop');openFiles(3);}
+      else{sfx('no');say(lockedPartHint(3),'rk');}
+      return;
+    }
     sfx('henshin');say('キュアたんてい ふーちゃん！ はじまるよ！','fu');go(SCN.office);
   },
 };
@@ -2581,7 +2626,7 @@ SCN.office={
   draw(c){drawBG(c,'office');c.fillStyle='rgba(255,255,255,.9)';rr(c,70,20,260,46,23);c.fill();c.strokeStyle='#c8905a';c.lineWidth=3;c.stroke();txt(c,'たんてい じむしょ',200,44,22,'#a0643a','center',900);
     for(let i=0;i<RAIL_FIRST;i++){const row=i>=8?1:0,x=200+((i%8)-3.5)*38,y=84+row*30;if(chapterIsClear(i))drawIcon(c,rewardIcon(i),x,y,.55);else{c.fillStyle='rgba(120,80,40,.25)';circ(c,x,y,10);}}
     for(let i=RAIL_FIRST;i<CHAPTERS.length;i++){
-      const x=200+(i-RAIL_FIRST-1)*33;
+      const x=200+(i-(RAIL_FIRST+CHAPTERS.length-1)/2)*33;
       if(chapterIsClear(i))drawIcon(c,rewardIcon(i),x,147,.55);else{c.fillStyle='#ae88b0';starP(c,x,147,9,3.5);c.fill();}
     }
     OFFICE_BTNS.forEach(([k,l,col,ic],i)=>drawBtn(c,200,245+i*88,300,70,l,col,{icon:ic,pulse:k==='files'&&!chapterIsClear(CHAPTERS.length-1),size:24}));
@@ -2593,20 +2638,21 @@ SCN.office={
 };
 SCN.files={
   enter(){
-    this.part=this.requested||(SAVE.cleared>=RAIL_FIRST?3:SAVE.cleared>=8?2:1);
+    this.part=this.requested&&partIsOpen(this.requested)?this.requested:partIsOpen(3)?3:partIsOpen(2)?2:1;
     this.requested=null;
+    this.lockedPart=null;
     bgm(this.part===3?'night':'office');
     say('どの じけんを しらべる？','fu');
   },
   list(){return CHAPTERS.map((_,i)=>i).filter(i=>chapterPart(i)===this.part);},
-  cardY(k){return this.part===3?238+k*127:181+k*63;},
+  cardY(k){return this.part===3?210+k*103:181+k*63;},
   draw(c){
     const theme=PART_THEMES[this.part-1],isRail=this.part===3;
     drawBG(c,isRail?'railway':'office');
     if(!isRail)fillAll(c,'rgba(63,36,56,.39)');
     backBtn(c);otext(c,'じけん ファイル',200,40,26,'#fff',theme.color,'center',FONT);
     PART_THEMES.forEach(({color},i)=>{
-      const x=76+i*124,on=this.part===i+1,locked=i===1&&SAVE.cleared<8;
+      const x=76+i*124,on=this.part===i+1,locked=!partIsOpen(i+1);
       c.fillStyle=on?color:'#fff9f5';rr(c,x-58,72,116,44,14);c.fill();
       txt(c,`だい${i+1}ぶ`,x-(locked?7:0),94,18,on?'#fff':locked?'#796c7a':color);
       if(locked)drawIcon(c,'lock',x+38,94,.43);
@@ -2614,10 +2660,10 @@ SCN.files={
     txt(c,theme.title,200,139,19,'#fff');
     if(isRail){
       c.strokeStyle='#b992c2';c.lineWidth=3;c.setLineDash([3,8]);c.beginPath();
-      c.moveTo(64,218);c.lineTo(64,575);c.stroke();c.setLineDash([]);
+      c.moveTo(64,this.cardY(0));c.lineTo(64,575);c.stroke();c.setLineDash([]);
       drawRailEngine(c,64,575,1);
       txt(c,`ほしぞらの きっぷ  ${SAVE.railCleared} / ${CHAPTERS.length-RAIL_FIRST}`,200,622,18,'#ffe0a8');
-      txt(c,'せんろを まわして、ほしを はこぼう',200,654,16,'#fff2e0');
+      txt(c,`せんろ パズル ${RAIL_STAGE_COUNT}めん`,200,654,16,'#fff2e0');
     }
     this.list().forEach((i,k)=>{
       const ch=CHAPTERS[i],y=this.cardY(k),open=chapterIsOpen(i),done=chapterIsClear(i),cp=chapterCheckpoint(i);
@@ -2650,14 +2696,16 @@ SCN.files={
       }
       c.restore();
     });
-    if(this.part===2&&SAVE.cleared>=8)txt(c,'てがかり ノートで すいりしよう',200,681,16,'#fff');
+    if(this.lockedPart)txt(c,lockedPartHint(this.lockedPart),200,681,16,'#fff');
+    else if(this.part===2)txt(c,'てがかり ノートで すいりしよう',200,681,16,'#fff');
   },
   down(x,y){
     if(inC(x,y,36,34,30)){sfx('tap');go(SCN.office);return;}
     const tab=PART_THEMES.findIndex((_,i)=>inR(x,y,76+i*124,94,116,44));
     if(tab!==-1){
-      if(tab===1&&SAVE.cleared<8){sfx('no');say('だい1ぶを ぜんぶ かいけつすると ひらくよ','rk');return;}
-      this.part=tab+1;bgm(tab===2?'night':'office');sfx('tap');return;
+      const part=tab+1;
+      if(!partIsOpen(part)){this.lockedPart=part;sfx('no');say(lockedPartHint(part),'rk');return;}
+      this.part=part;this.lockedPart=null;bgm(part===3?'night':'office');sfx('tap');return;
     }
     const isRail=this.part===3;
     const i=this.list().find((_,k)=>inR(x,y,isRail?221:200,this.cardY(k),isRail?318:360,isRail?88:56));
@@ -2667,10 +2715,11 @@ SCN.files={
   },
 };
 function rewardIcon(i){
-  if(i>=RAIL_FIRST)return ['star','moon','smilestar'][i-RAIL_FIRST];
+  if(i>=RAIL_FIRST)return CHAPTERS[i].icon;
   return i>=8?'smilestar':'gem:'+GEM_COLS[i];
 }
 function startChapter(i){
+  if(!CHAPTERS[i]||!chapterIsOpen(i))return;
   const {steps}=CHAPTERS[i],cp=chapterCheckpoint(i);
   let start=cp?.i||0;
   if(cp&&cp.v!==2&&chapterPart(i)===2){
@@ -2711,7 +2760,7 @@ SCN.clear={
     const prizes=CHAPTERS.map((_,j)=>j).filter(j=>chapterPart(j)===part);
     prizes.forEach((j,n)=>{
       const a=-Math.PI/2+n/prizes.length*TAU;
-      const x=isRail?80+n*120:200+Math.cos(a)*104;
+      const x=isRail?200+(n-(prizes.length-1)/2)*92:200+Math.cos(a)*104;
       const y=isRail?330:373+Math.sin(a)*104;
       if(isRail){
         c.fillStyle=chapterIsClear(j)?'#fce3b7':'#55446e';
@@ -2737,7 +2786,11 @@ SCN.clear={
   down(x,y){
     if(this.t<1.8)return;
     if(inR(x,y,200,590,260,53)){sfx('pop');openFiles(chapterPart(this.ci));}
-    else if(this.ci<CHAPTERS.length-1&&inR(x,y,200,659,260,55)){sfx('pop');startChapter(this.ci+1);}
+    else if(this.ci<CHAPTERS.length-1&&inR(x,y,200,659,260,55)){
+      sfx('pop');
+      if(this.ci===RAIL_FIRST-1)openFiles(3);
+      else startChapter(this.ci+1);
+    }
   },
 };
 SCN.book={
