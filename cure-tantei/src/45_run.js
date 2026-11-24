@@ -33,7 +33,16 @@ function drawCast(c,id,x,y,o={}){const t=T+(o.seed||0);
   else{const n=NPC[id];if(n&&n.kind==='ghost')drawGhost(c,x,y,.95,t,{kind:1,nocrown:1,bow:n.bow,talk:o.talk});else if(n)drawAnimal(c,n.kind,x,y,1.15,{t,talk:o.talk,acc:n.acc,happy:o.emo==='happy',sad:o.emo==='sad',sick:o.emo==='sick',sleep:o.emo==='sleep'});}}
 const RUN={steps:[],i:0,onEnd:null,ci:-1,flags:{},mode:'story',doc:false,cure:false};
 function runSteps(steps,onEnd,opt={}){RUN.steps=steps;RUN.i=opt.start||0;RUN.onEnd=onEnd;RUN.ci=opt.ci??-1;RUN.flags=Object.assign({},opt.flags||{});RUN.mode=opt.mode||'story';startStep();}
-function startStep(){const d=RUN.steps[RUN.i];if(RUN.ci>=0&&d.t!=='battle'){SAVE.cp={ci:RUN.ci,i:RUN.i,flags:RUN.flags};save();}go(mkStep(d));}
+function chapterPart(i){return CHAPTERS[i].part||1;}
+function checkpointKey(i){return chapterPart(i)===3?'railCp':'cp';}
+function startStep(){
+  const d=RUN.steps[RUN.i];
+  if(RUN.ci>=0&&d.t!=='battle'){
+    SAVE[checkpointKey(RUN.ci)]={v:2,ci:RUN.ci,i:RUN.i,flags:RUN.flags};
+    save();
+  }
+  go(mkStep(d));
+}
 function stepDone(){RUN.i++;if(RUN.i>=RUN.steps.length){RUN.onEnd&&RUN.onEnd();return;}startStep();}
 const STEP={};
 function mkStep(d){const s=Object.create(STEP[d.t]);s.d=d;s.isStep=true;s.fin=null;return s;}

@@ -13,7 +13,7 @@ const FONT='"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Yu Gothic",sans-ser
 function hash(x,y){let h=(x*374761393+y*668265263)|0;h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296;}
 
 // ---------- save ----------
-const SAVE={cleared:0,words:[],cp:null,mute:false,stars:{},doc:0,wins:0};
+const SAVE={cleared:0,railCleared:0,words:[],cp:null,railCp:null,mute:false,stars:{},doc:0,wins:0};
 try{Object.assign(SAVE,JSON.parse(localStorage.getItem('cureTantei')||'{}'));}catch(e){}SAVE.mute=false;
 function save(){try{localStorage.setItem('cureTantei',JSON.stringify(SAVE));}catch(e){}}
 function learn(k){if(k&&!SAVE.words.includes(k)){SAVE.words.push(k);save();}}

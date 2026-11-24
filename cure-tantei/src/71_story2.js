@@ -26,6 +26,9 @@ CHAPTERS.push(
     tools:{thermo:36.6,steth:'fast',light:'ok',xray:'ok',lens:'ok'},need:['steth','thermo'],
     diag:{ans:'dizzy',wrong:['tooth','thorn'],ok:'のりものに のりすぎて、めが まわっちゃったんだね'},
     treat:[{t:'sleep'},{t:'med',col:'orange'}],end:'もう グルグル しない！ ありがとう、せんせい！'},
+  {t:'evidence',bg:'fair',q:'ふうせんの ありかを おしえて くれるのは どれ？',witness:'ゆうえんちで ひろったもの',
+    choices:[['fog','はいいろの もやもや'],['ticket','おちてた チケット',true],['balloon','われた ふうせん']],
+    hint:'のりものの なまえが かいて ありそう。',answer:'チケットに「かんらんしゃ」って かいてある！'},
   {t:'talk',bg:'fair',cast:['fu','rk','hiyoko'],lines:[
     ['hiyoko','はいいろの おばけが 「もっと のるモヤ〜」って、カップを まわしつづけたの！',{emo:'sad'}],
     ['fu','おばけ…？ チケットに 「かんらんしゃ」って かいてある！',{emo:'think'}],
@@ -71,6 +74,9 @@ CHAPTERS.push(
     tools:{thermo:36.5,steth:'normal',light:'ok',xray:'ok',lens:'thorn'},need:['lens'],
     diag:{ans:'thorn',wrong:['cold','tooth'],ok:'とげが ささってたんだね。 ぬいてあげよう！'},
     treat:[{t:'thorn',n:3}],end:'いたくなくなったクマ！ ありがとう、せんせい！'},
+  {t:'evidence',bg:'forest',q:'ホタルを すいこんだのは どれ？',witness:'くまさん「かさみたいな かたちだったよ」',
+    choices:[['fog','つめたい もやもや'],['acorn','かじった どんぐり'],['mushroom','はいいろの きのこ',true]],
+    hint:'くまさんは、かさみたいな かたちを みたって。',answer:'はいいろの きのこだ！ くまさんに くわしく きこう。'},
   {t:'talk',bg:'forest',cast:['fu','rk','kuma'],lines:[
     ['kuma','そういえば、はいいろの きのこが ホタルを すいこんでたクマ！'],
     ['rk','ホタルを ひかりの みちで よびもどそう！']]},
@@ -112,6 +118,9 @@ CHAPTERS.push(
     ['rk','ゆきに カードが うもれてる！']]},
   {t:'memory',bg:'snow',pairs:['snowflake','snowman','mitten','fish','star','moon'],ins:'ゆきの なかの カードを めくって、おなじ えを 2まい そろえよう！',done:'ぜんぶ そろった！ カードの うらに ちずが かいてある！'},
   {t:'search',bg:'snow',clues:[['fog','つめたい もやもや'],['mitten','かたほうの てぶくろ'],['crown','ちいさな おうかん']]},
+  {t:'evidence',bg:'snow',q:'おうさまが ここに きた しるしは どれ？',witness:'ゆきに おちていたもの',
+    choices:[['mitten','かたほうの てぶくろ'],['crown','ちいさな おうかん',true],['fog','つめたい もやもや']],
+    hint:'おうさまが あたまに のせるものだよ。',answer:'おうかんだ！ モヤモヤンが ちかくに いるかも。'},
   {t:'abc',bg:'snow',word:'SNOW',pic:'snowflake',say:'こおりの とびらの あいことば！ この じゅんばんで タッチ',done:'ゆき！ こおりの とびらが とけた！'},
   {t:'talk',bg:'snow',cast:['fu','rk','witch'],set:{witch:'kind'},lines:[
     ['moya','モヤ〜ン！ ゆきやまも ぼくの ものだモヤ！',{in:'moya',fx:'shake'}],
@@ -160,6 +169,9 @@ CHAPTERS.push(
     {q:'キャンディが 3こ と 2こ。 ぜんぶで いくつ？',top:{add:[3,2,'candy']},ans:'n:5',wrong:['n:4','n:6'],ok:'3 たす 2 は 5！',okEn:'five'},
     {q:'クッキーが 4こ と 3こ。 ぜんぶで いくつ？',top:{add:[4,3,'cookie']},ans:'n:7',wrong:['n:6','n:8'],ok:'4 たす 3 は 7！',okEn:'seven'},
     {q:'いちごが 5こ と 1こ。 ぜんぶで いくつ？',top:{add:[5,1,'strawberry']},ans:'n:6',wrong:['n:5','n:7'],ok:'5 たす 1 は 6！',okEn:'six'}]},
+  {t:'evidence',bg:'sweets',q:'はいいろの おばけが うさぎさんに わたしたのは？',witness:'うさぎさんの おはなし',
+    choices:[['candy','はいいろの あめ',true],['cookie','クッキー'],['strawberry','いちご']],
+    hint:'はが ズキズキ する まえに、なめていたもの。',answer:'はいいろの あめだ。おかしの くらも しらべよう！'},
   {t:'lock',bg:'sweets',hints:[['candy',3],['cookie',5],['donut',2]],box:'chest',ins:'おかしの くらの ばんごう！ えの かずを かぞえて あわせよう',done:'カチャッ！ おかしの くらが あいた！'},
   {t:'talk',bg:'sweets',cast:['fu','rk','witch'],set:{witch:'kind'},lines:[
     ['moya','モヤ〜ン… ぼくも パーティー… じゃなくて！ おかしは ぜんぶ はいいろで いいモヤ！',{in:'moya',fx:'shake'}],
@@ -192,6 +204,9 @@ CHAPTERS.push(
   {t:'quiz',bg:'library',rounds:[
     {q:'えほんに うつった かげ… これは だれ？',top:{icon:'ghost',sil:true,s:3.2},ans:'ghost',wrong:['a:cat','a:chick'],ok:'モヤモヤンの かげだ！',labels:{'ghost':'おばけ','a:cat':'ねこさん','a:chick':'ひよこちゃん'}}]},
   {t:'search',bg:'library',clues:[['fog','もやもや'],['letter','はいいろの てがみ'],['crown','おうかんの かけら']]},
+  {t:'evidence',bg:'library',q:'モヤモヤンの きもちが わかりそうな ものは？',witness:'としょかんで みつけたもの',
+    choices:[['letter','はいいろの てがみ',true],['key','おちていた かぎ'],['crown','おうかんの かけら']],
+    hint:'ひらくと、だれかが かいた ことばが あるよ。',answer:'てがみを ひらけば、きもちが わかるかも。'},
   {t:'talk',bg:'library',cast:['fu','rk','kuro'],set:{kuro:'happy'},lines:[
     ['fu','てがみに なにか かいてある… 「ぼくと あそんで」…',{show:'letter'}],
     ['rk','モヤモヤンの じ だ！'],
@@ -217,6 +232,9 @@ CHAPTERS.push(
     ['kitsune','もやもやで はなびが しめっちゃったの…',{emo:'sad'}],
     ['rk','やたいで てがかりを さがそう！']]},
   {t:'search',bg:'matsuri',clues:[['fog','しめった もやもや'],['lantern','きえた ちょうちん'],['candy','おちてた あめ']]},
+  {t:'evidence',bg:'matsuri',q:'なにが はなびを ぬらしちゃったのかな？',witness:'きつねさん「はなびが しめっちゃった」',
+    choices:[['lantern','きえた ちょうちん'],['fog','しめった もやもや',true],['candy','おちてた あめ']],
+    hint:'つめたくて、みずの つぶを ふくんで いるよ。',answer:'しめった もやもやだ！ どこから きたのかな？'},
   {t:'count',bg:'matsuri',icon:'lantern',n:9,ins:'ちょうちんが いくつ あるかな？ タッチして かぞえよう'},
   {t:'talk',bg:'matsuri',doc:true,cast:['fu','rk','lion'],lines:[
     ['lion','きんぎょすくいで ころんじゃったガオ…',{emo:'sick'}],
@@ -271,6 +289,9 @@ CHAPTERS.push(
     tools:{thermo:36.7,steth:'guru',light:'ok',xray:'key',lens:'ok'},need:['steth','xray'],
     diag:{ans:'swallow',wrong:['cold','scrape'],ok:'かぎを のみこんじゃったんだね！'},
     treat:[{t:'rub',area:'belly',item:'key'},{t:'med',col:'yellow'}],end:'すっきり！ その かぎ、やねうらの かぎ だよ！'},
+  {t:'evidence',bg:'haunted',q:'やねうらへ いくには、どうしたら いいかな？',witness:'ねずみくん「やねうらへ いけるよ」',
+    choices:[['letter','てがみを ひらく'],['key','かぎで ドアを あける',true],['pumpkin','ランタンを ともす']],
+    hint:'ねずみくんの おなかから でてきたものを つかおう。',answer:'かぎで ドアを あけよう。なかに たからばこが ある！'},
   {t:'lock',bg:'haunted',hints:[['pumpkin',2],['ghost',3],['star',7]],box:'chest',ins:'やねうらの たからばこ！ えの かずを かぞえて ばんごうを あわせよう',done:'パカッ！ なかには ふるい しゃしんが…'},
   {t:'talk',bg:'haunted',cast:['fu','rk','kuro','witch'],set:{kuro:'happy',witch:'kind'},lines:[
     ['narr','しゃしんには、おばけの みんなと わらう モヤモヤンが うつっていた。',{show:'heart'}],
@@ -307,6 +328,9 @@ CHAPTERS.push(
     diag:{ans:'powder',wrong:['tooth','dizzy'],ok:'もやもやの こなが はなに ついてたんだね'},
     treat:[{t:'rub',area:'face'},{t:'med',col:'pink'}],end:'すっきり メェ〜！ モヤモヤンの へやは この うえだよ'},
   {t:'memory',bg:'sky',pairs:['heart','star','balloon','ghost'],ins:'モヤモヤンの カードあそび！ おなじ えを 2まい そろえよう',done:'ぜんぶ そろった！ カードあそび、たのしいね！'},
+  {t:'evidence',bg:'sky',q:'モヤモヤンに あったら、なんて いおう？',witness:'しゃしんでは、みんなと わらっていたよ',
+    choices:[['lock','ひとりで かくれてて'],['crown','おうさまに してあげる'],['heart','いっしょに あそぼう',true]],
+    hint:'モヤモヤンは だれかと あそびたかったんだよね。',answer:'「いっしょに あそぼう」って つたえよう！'},
   {t:'abc',bg:'sky',word:'FRIEND',pic:'heart',say:'さいごの とびらの まほうの ことば！ この じゅんばんで タッチ',done:'ともだち！ とびらが ひらいた！'},
   {t:'talk',bg:'sky',cast:['fu','rk','kuro','witch'],set:{witch:'kind',kuro:'happy'},lines:[
     ['moya','ここまで きたモヤ…！？',{in:'moya',fx:'shake'}],
@@ -330,6 +354,7 @@ CHAPTERS.push(
     ['narr','ゆうえんちで、みんなの えがお パーティー！',{fx:'confetti'}],
     ['moya','ふうせん、みんなに かえすモヤ！ いっしょに かんらんしゃ のるモヤ！'],
     ['witch','ふふ、ひとりぼっちより、みんなと いっしょが いちばんね'],
+    ['moya','つぎは ほしぞら れっしゃに のって、ほしの おまつりへ いくモヤ！',{emo:'kind'}],
     ['fu','これからも まちの じけんは、キュアたんてい ふーちゃんに おまかせ！',{emo:'happy'}]]},
   {t:'credits',say:'キュアたんてい ふーちゃん だい2ぶ、おしまい！ あそんでくれて ありがとう！',end:'だい2ぶ おしまい',
     list:[['fu','ふーちゃん'],['rk','リッキー'],['moya','モヤモヤン'],['kuro','クロニャン'],['witch','ドロドロン'],['obake',''],['zouB',''],['kuma',''],['hiyoko',''],['pen',''],['usaQ',''],['fukuL',''],['kitsune',''],['lion',''],['nezumi',''],['hitsuji','']]},
